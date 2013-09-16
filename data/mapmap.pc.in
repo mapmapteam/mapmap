@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: mapmap
+Description: MapMap video mapping utilities
+Version: @PACKAGE_VERSION@
+Requires.private: gstreamer-1.0 gstreamer-plugins-base-1.0 clutter-gst-2.0
+Requires: clutter-1.0
+Libs: -L${libdir} -lmapmap
+Cflags: -I${includedir}/mapmap

@@ -1,0 +1,11 @@
+[Desktop Entry]
+_Name=MapMap
+_X-GNOME-FullName=MapMap Free Video Mapping Software
+_Comment=Project video on non-plane surfaces
+_Keywords=photo;video;webcam;
+Exec=mapmap
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=mapmap
+Categories=GNOME;AudioVideo;
