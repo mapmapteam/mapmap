@@ -17,6 +17,7 @@ libtool
 m4/
 po/Makefile
 po/Makefile.in
+prototypes/sdl/run
 src/config.h
 src/config.h.in
 src/mapmap
