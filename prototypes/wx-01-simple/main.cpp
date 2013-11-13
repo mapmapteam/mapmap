@@ -96,15 +96,17 @@ class wxGLCanvasSubClass: public wxGLCanvas
         float image_height;
         Quad src;
         Quad dst;
+
         void OnChar(wxKeyEvent & event);
         void OnMouseEvent(wxMouseEvent& event);
         void setup_texture();
 };
  
 BEGIN_EVENT_TABLE(wxGLCanvasSubClass, wxGLCanvas)
-    EVT_PAINT    (wxGLCanvasSubClass::Paintit)
-    EVT_CHAR     (wxGLCanvasSubClass::OnChar)
-    EVT_MOUSE_EVENTS(wxGLCanvasSubClass::OnMouseEvent)
+  EVT_PAINT    (wxGLCanvasSubClass::Paintit)
+  EVT_KEY_DOWN     (wxGLCanvasSubClass::OnChar)
+  EVT_MOUSE_EVENTS(wxGLCanvasSubClass::OnMouseEvent)
+//  EVT_ENTER_WINDOW(wxGLCanvasSubClass::OnMouseEnter)
 END_EVENT_TABLE()
  
 wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent)
@@ -150,6 +152,7 @@ void wxGLCanvasSubClass::OnChar(wxKeyEvent & event)
 void wxGLCanvasSubClass::OnMouseEvent(wxMouseEvent& event)
 {
     printf("x=%d y=%d LeftIsDown=%d\n", event.GetX(), event.GetY(), (int)event.LeftIsDown());
+    SetFocus();
 }
 
 void wxGLCanvasSubClass::setup_texture()
@@ -257,8 +260,9 @@ IMPLEMENT_APP(MyApp)
 bool MyApp::OnInit()
 {
     wxFrame *frame = new wxFrame((wxFrame *) NULL, -1,  wxT("Hello GL World"), wxPoint(50, 50), wxSize(640, 480));
-    new wxGLCanvasSubClass(frame);
+    MyGLCanvas = new wxGLCanvasSubClass(frame);
  
+//    frame->SetWindowStyle(wxWANTS_CHARS);
     frame->Show(TRUE);
     return TRUE;
 }
