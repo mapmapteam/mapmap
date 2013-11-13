@@ -222,7 +222,6 @@ void wxGLCanvasSubClass::Render()
     glEnable (GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glColor3f (1, 1, 1);
 
     glDisable (GL_LIGHTING);
     glEnable (GL_TEXTURE_2D);
@@ -269,6 +268,8 @@ void wxGLCanvasSubClass::Render()
       glVertex3f (dst.x4 / image_width, dst.y4 / image_height, 0);
     }
     glEnd ();
+
+    glDisable(GL_TEXTURE_2D);
 
     glColor4f (1, 1, 1, 1);
 
