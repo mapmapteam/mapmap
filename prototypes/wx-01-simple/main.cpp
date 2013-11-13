@@ -1,4 +1,6 @@
 // NOTE: To run, it is recommended not to be in Compiz or Beryl, they have shown some instability.
+// Needs:  libwxgtk2.8-dev libsoil-dev
+// g++ main.cpp -o run `wx-config --libs --cxxflags --gl-libs` -lSOIL
  
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
@@ -88,6 +90,7 @@ class wxGLCanvasSubClass: public wxGLCanvas
     public:
         wxGLCanvasSubClass(wxFrame* parent);
         void Paintit(wxPaintEvent& event);
+        void movePoint(int index, int x, int y);
     protected:
         DECLARE_EVENT_TABLE()
     private:
@@ -96,14 +99,12 @@ class wxGLCanvasSubClass: public wxGLCanvas
         float image_height;
         Quad src;
         Quad dst;
-        void OnChar(wxKeyEvent & event);
         void OnMouseEvent(wxMouseEvent& event);
         void setup_texture();
 };
  
 BEGIN_EVENT_TABLE(wxGLCanvasSubClass, wxGLCanvas)
     EVT_PAINT    (wxGLCanvasSubClass::Paintit)
-    EVT_CHAR     (wxGLCanvasSubClass::OnChar)
     EVT_MOUSE_EVENTS(wxGLCanvasSubClass::OnMouseEvent)
 END_EVENT_TABLE()
  
@@ -117,34 +118,6 @@ wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent)
 void wxGLCanvasSubClass::Paintit(wxPaintEvent& WXUNUSED(event))
 {
     Render();
-}
-
-void wxGLCanvasSubClass::OnChar(wxKeyEvent & event)
-{
-    static int current = 0;
-    printf("hello");
-    switch (event.GetKeyCode())
-    {
-        case WXK_TAB:
-          current = (current + 1) % 8;
-          printf ("Current = %d\n", current);
-          break;
-        case WXK_UP:
-          move_point (&src, &dst, current + 1, 0, 1);
-          break;
-        case WXK_DOWN:
-          move_point (&src, &dst, current + 1, 0, -1);
-          break;
-        case WXK_LEFT:
-          move_point (&src, &dst, current + 1, -1, 0);
-          break;
-        case WXK_RIGHT:
-          move_point (&src, &dst, current + 1, 1, 0);
-          break;
-        default:
-          printf ("Unhandled key");
-          break;
-    }
 }
 
 void wxGLCanvasSubClass::OnMouseEvent(wxMouseEvent& event)
@@ -245,19 +218,63 @@ void wxGLCanvasSubClass::Render()
     glFlush();
     SwapBuffers();
 }
+
+void wxGLCanvasSubClass::movePoint(int index, int x, int y)
+{
+    move_point (&src, &dst, index, x, y);
+}
  
 class MyApp: public wxApp
 {
-    virtual bool OnInit();
-    wxGLCanvas * MyGLCanvas;
+    private:
+        virtual bool OnInit();
+        wxGLCanvasSubClass * MyGLCanvas;
+        int FilterEvent(wxEvent& event);
 };
+
+int MyApp::FilterEvent(wxEvent& event)
+{
+    static int current = 0;
+    if ((event.GetEventType() == wxEVT_KEY_DOWN))
+    {
+        switch (((wxKeyEvent&)event).GetKeyCode())
+        {
+            case WXK_TAB:
+              current = (current + 1) % 8;
+              printf ("Current = %d\n", current);
+              return true;
+              break;
+            case WXK_UP:
+              MyGLCanvas->movePoint(current + 1, 0, 1);
+              return true;
+              break;
+            case WXK_DOWN:
+              MyGLCanvas->movePoint(current + 1, 0, -1);
+              return true;
+              break;
+            case WXK_LEFT:
+              MyGLCanvas->movePoint(current + 1, -1, 0);
+              return true;
+              break;
+            case WXK_RIGHT:
+              MyGLCanvas->movePoint(current + 1, 1, 0);
+              return true;
+              break;
+            default:
+              printf ("Unhandled key");
+              break;
+        }
+    }
+    return -1;
+}
  
 IMPLEMENT_APP(MyApp)
  
 bool MyApp::OnInit()
 {
     wxFrame *frame = new wxFrame((wxFrame *) NULL, -1,  wxT("Hello GL World"), wxPoint(50, 50), wxSize(640, 480));
-    new wxGLCanvasSubClass(frame);
+    //frame->SetWindowStyle(wxWANTS_CHARS);
+    MyGLCanvas = new wxGLCanvasSubClass(frame);
  
     frame->Show(TRUE);
     return TRUE;
