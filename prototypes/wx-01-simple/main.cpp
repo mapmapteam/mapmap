@@ -269,7 +269,33 @@ void wxGLCanvasSubClass::Render()
     }
     glEnd ();
 
+    glColor3f (1, 1, 1);
+
+    // Source quad.
+    glLineWidth(5);
+    glBegin (GL_LINE_STRIP);
+    {
+      glVertex3f(src.x1 / image_width, src.y1 / image_height, 0);
+      glVertex3f(src.x2 / image_width, src.y2 / image_height, 0);
+      glVertex3f(src.x3 / image_width, src.y3 / image_height, 0);
+      glVertex3f(src.x4 / image_width, src.y4 / image_height, 0);
+      glVertex3f(src.x1 / image_width, src.y1 / image_height, 0);
+    }
     glEnd ();
+
+    glColor3f (1, 0, 0);
+
+    // Destination quad.
+    glBegin (GL_LINE_STRIP);
+    {
+      glVertex3f(dst.x1 / image_width, dst.y1 / image_height, 0);
+      glVertex3f(dst.x2 / image_width, dst.y2 / image_height, 0);
+      glVertex3f(dst.x3 / image_width, dst.y3 / image_height, 0);
+      glVertex3f(dst.x4 / image_width, dst.y4 / image_height, 0);
+      glVertex3f(dst.x1 / image_width, dst.y1 / image_height, 0);
+    }
+    glEnd ();
+
     glDisable (GL_TEXTURE_2D);
     glPopMatrix ();
 
