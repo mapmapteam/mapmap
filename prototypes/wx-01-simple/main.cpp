@@ -147,6 +147,7 @@ void wxGLCanvasSubClass::OnChar(wxKeyEvent & event)
           printf ("Unhandled key");
           break;
     }
+    Render();
 }
 
 void wxGLCanvasSubClass::OnMouseEvent(wxMouseEvent& event)
@@ -192,7 +193,7 @@ void wxGLCanvasSubClass::Render()
     float ratio;
 
     SetCurrent();
-    wxPaintDC(this);
+    wxPaintDC dc(this);
 
     if (! texture_is_set)
     {
@@ -201,8 +202,8 @@ void wxGLCanvasSubClass::Render()
     }
     ratio = (float) GetSize().x / (float) GetSize().y;
 
-    glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, (GLint) GetSize().x, (GLint) GetSize().y);
 
     glMatrixMode (GL_PROJECTION);
@@ -215,29 +216,58 @@ void wxGLCanvasSubClass::Render()
     // Now, draw
     // DRAW THE TEXTURE
     glPushMatrix ();
-    glDisable (GL_LIGHTING);
+
+    // Enable blending mode (for alphas).
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glColor3f (1, 1, 1);
+
+    glDisable (GL_LIGHTING);
     glEnable (GL_TEXTURE_2D);
-    glBindTexture (GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+
+    // Draw source texture (not moving).
+    glColor4f (1, 1, 1, 0.5f);
     glBegin (GL_QUADS);
+    {
+      glTexCoord2f (0, 0);
+      glVertex3f (0, 0, 0);
 
-    glTexCoord2f (src.x1 / image_width, src.y1 / image_height);
-    glVertex3f (dst.x1 / image_width, dst.y1 / image_height, 0);
+      glTexCoord2f (1, 0);
+      glVertex3f (1, 0, 0);
 
-    glTexCoord2f (src.x2 / image_width, src.y2 / image_height);
-    glVertex3f (dst.x2 / image_width, dst.y2 / image_height, 0);
+      glTexCoord2f (1, 1);
+      glVertex3f (1, 1, 0);
 
-    glTexCoord2f (src.x3 / image_width, src.y3 / image_height);
-    glVertex3f (dst.x3 / image_width, dst.y3 / image_height, 0);
+      glTexCoord2f (0, 1);
+      glVertex3f (0, 1, 0);
+    }
+    glEnd ();
 
-    glTexCoord2f (src.x4 / image_width, src.y4 / image_height);
-    glVertex3f (dst.x4 / image_width, dst.y4 / image_height, 0);
+    // Project source texture and sent it to destination.
+    glColor4f (1, 1, 1, 1.0f);
+    glBegin (GL_QUADS);
+    {
+      glTexCoord2f (src.x1 / image_width, src.y1 / image_height);
+      glVertex3f (dst.x1 / image_width, dst.y1 / image_height, 0);
+
+      glTexCoord2f (src.x2 / image_width, src.y2 / image_height);
+      glVertex3f (dst.x2 / image_width, dst.y2 / image_height, 0);
+
+      glTexCoord2f (src.x3 / image_width, src.y3 / image_height);
+      glVertex3f (dst.x3 / image_width, dst.y3 / image_height, 0);
+
+      glTexCoord2f (src.x4 / image_width, src.y4 / image_height);
+      glVertex3f (dst.x4 / image_width, dst.y4 / image_height, 0);
+    }
+    glEnd ();
 
     glEnd ();
     glDisable (GL_TEXTURE_2D);
