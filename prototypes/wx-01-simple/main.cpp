@@ -174,17 +174,17 @@ void wxGLCanvasSubClass::setup_texture()
     src.y4 = 240;
 
     //destination
-    dst.x1 = 0;
-    dst.y1 = 0;
+    dst.x1 = -320;
+    dst.y1 = -240;
 
-    dst.x2 = 320;
-    dst.y2 = 0;
+    dst.x2 = 0;
+    dst.y2 = -240;
 
-    dst.x3 = 320;
-    dst.y3 = 240;
+    dst.x3 = 0;
+    dst.y3 = 0;
 
-    dst.x4 = 0;
-    dst.y4 = 400; // 240;
+    dst.x4 = -320;
+    dst.y4 = 0; // 240;
 }
  
 void wxGLCanvasSubClass::Render()
@@ -270,7 +270,7 @@ void wxGLCanvasSubClass::Render()
     }
     glEnd ();
 
-    glColor3f (1, 1, 1);
+    glColor4f (1, 1, 1, 1);
 
     // Source quad.
     glLineWidth(5);
@@ -284,7 +284,7 @@ void wxGLCanvasSubClass::Render()
     }
     glEnd ();
 
-    glColor3f (1, 0, 0);
+    glColor4f (1, 0, 0, 1);
 
     // Destination quad.
     glBegin (GL_LINE_STRIP);
