@@ -24,3 +24,5 @@ src/config.h.in
 src/mapmap
 src/stamp-h1
 prototypes/wx-01-simple/run
+Debug/
+Release/
