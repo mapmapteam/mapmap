@@ -99,6 +99,7 @@ class Manager
     void draw();
     void clear();
     void setStyle(Style style);
+    Style getStyle();
   private:
     std::vector<PolyLine> lines;
     unsigned int current;
@@ -108,6 +109,11 @@ class Manager
 void Manager::setStyle(Style style)
 {
   this->style = style;
+}
+
+Style Manager::getStyle()
+{
+  return style;
 }
 
 void Manager::addPoint(Point point)
@@ -207,11 +213,12 @@ class MyCanvas: public wxGLCanvas
     void Render();
   public:
     MyCanvas(wxFrame* parent);
-    void Paintit(wxPaintEvent& event);
+    void evt_paint_cb(wxPaintEvent& event);
   protected:
     DECLARE_EVENT_TABLE()
   private:
-    void OnMouseEvent (wxMouseEvent& event);
+    void evt_mouse_events_cb (wxMouseEvent& event);
+    void evt_key_down_cb (wxKeyEvent& event);
     void setup_polyline ();
     Manager manager;
     float mousex;
@@ -219,8 +226,9 @@ class MyCanvas: public wxGLCanvas
 };
  
 BEGIN_EVENT_TABLE(MyCanvas, wxGLCanvas)
-  EVT_PAINT  (MyCanvas::Paintit)
-  EVT_MOUSE_EVENTS(MyCanvas::OnMouseEvent)
+  EVT_PAINT  (MyCanvas::evt_paint_cb)
+  EVT_KEY_DOWN    (MyCanvas::evt_key_down_cb)
+  EVT_MOUSE_EVENTS(MyCanvas::evt_mouse_events_cb)
 END_EVENT_TABLE()
  
 MyCanvas::MyCanvas(wxFrame *parent)
@@ -230,12 +238,12 @@ MyCanvas::MyCanvas(wxFrame *parent)
   char* argv[1] = { wxString((wxTheApp->argv)[0]).char_str() };
 }
  
-void MyCanvas::Paintit(wxPaintEvent& WXUNUSED(event))
+void MyCanvas::evt_paint_cb(wxPaintEvent& WXUNUSED(event))
 {
   Render();
 }
 
-void MyCanvas::OnMouseEvent(wxMouseEvent& event)
+void MyCanvas::evt_mouse_events_cb(wxMouseEvent& event)
 {
   //printf("x=%d y=%d LeftIsDown=%d\n", event.GetX(), event.GetY(), (int) event.LeftIsDown());
   bool should_render = false;
@@ -267,17 +275,38 @@ void MyCanvas::OnMouseEvent(wxMouseEvent& event)
     manager.addPoint(point);
     should_render = true;
   }
-  if (event.Leaving())
-  {
-    manager.setStyle(POLYGON);
-    should_render = true;
-  }
-  else if (event.Entering())
-  {
-    manager.setStyle(LINES);
-    should_render = true;
-  }
+  // if (event.Leaving()) { }
+  // else if (event.Entering()) { }
 
+  if (should_render)
+    Render();
+  // To catch keyboard events
+  SetFocus();
+}
+
+void MyCanvas::evt_key_down_cb(wxKeyEvent & event)
+{
+  bool should_render = false;
+  switch (event.GetKeyCode())
+  {
+    case WXK_TAB:
+      if (manager.getStyle() == POLYGON)
+        manager.setStyle(LINES);
+      else
+        manager.setStyle(POLYGON);
+      should_render = true;
+      break;
+    case WXK_UP:
+      break;
+    case WXK_DOWN:
+      break;
+    case WXK_LEFT:
+      break;
+    case WXK_RIGHT:
+      break;
+    default:
+      break;
+  }
   if (should_render)
     Render();
 }
