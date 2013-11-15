@@ -122,6 +122,12 @@ void wxGLCanvasSubClass::OnMouseEvent(wxMouseEvent& event)
     lines[0].removeLastPoint();
     should_render = true;
   }
+  else
+  {
+    lines[0].removeLastPoint();
+    lines[0].addPoint(Point((float) event.GetX(), (float) event.GetY()));
+    should_render = true;
+  }
   if (should_render)
     Render();
 }
