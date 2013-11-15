@@ -97,17 +97,19 @@ void MapperGLCanvas::Render() {
 }
 
 void MapperGLCanvas::enterRender() {
-  float ratio = (float) GetSize().x / (float) GetSize().y;
 
-  glClearColor(0, 0, 0, 0);
-  glClear (GL_COLOR_BUFFER_BIT);
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glClear(GL_COLOR_BUFFER_BIT);
   glViewport(0, 0, (GLint) GetSize().x, (GLint) GetSize().y);
 
   glMatrixMode (GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+  glLoadIdentity ();
+  glOrtho (
+    0.0f, (float) GetSize().x, // left, right
+    (float) GetSize().y, 0.0f, // bottom, top
+    -1.0, 1.0f);
   glMatrixMode (GL_MODELVIEW);
+//  glLoadIdentity (); // FIXME? is this needed here?
 }
 
 void MapperGLCanvas::exitRender() {
