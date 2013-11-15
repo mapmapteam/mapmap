@@ -260,7 +260,6 @@ void MyCanvas::OnMouseEvent(wxMouseEvent& event)
   {
     manager.addPolyLine(point);
     should_render = true;
-    manager.setStyle(POLYGON);
   }
   else
   {
@@ -268,6 +267,17 @@ void MyCanvas::OnMouseEvent(wxMouseEvent& event)
     manager.addPoint(point);
     should_render = true;
   }
+  if (event.Leaving())
+  {
+    manager.setStyle(POLYGON);
+    should_render = true;
+  }
+  else if (event.Entering())
+  {
+    manager.setStyle(LINES);
+    should_render = true;
+  }
+
   if (should_render)
     Render();
 }
