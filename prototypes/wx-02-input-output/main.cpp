@@ -34,6 +34,7 @@ bool MyApp::OnInit()
   destinationCanvas = new DestinationGLCanvas(frame);
 
   topSizer->Add(sourceCanvas, 1, wxEXPAND);
+  topSizer->AddSpacer(10);
   topSizer->Add(destinationCanvas, 1, wxEXPAND);
 
 
