@@ -40,6 +40,7 @@ MapperGLCanvas::MapperGLCanvas(wxFrame *parent) :
 }
 
 void MapperGLCanvas::Paintit(wxPaintEvent& WXUNUSED(event)) {
+  GetParent()->Refresh();
   Render();
 }
 
