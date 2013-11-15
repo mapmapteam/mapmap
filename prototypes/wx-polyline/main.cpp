@@ -35,19 +35,31 @@ class PolyLine
   public:
     void addPoint(Point point);
     void removeLastPoint();
+    void clear();
     void draw();
+    unsigned int size();
   private:
     std::vector<Point> points;
 };
+
+unsigned int PolyLine::size()
+{
+  return points.size();
+}
 
 void PolyLine::addPoint(Point point)
 {
   points.push_back(point);
 }
+
 void PolyLine::removeLastPoint()
 {
   if (points.size() >= 1)
     points.erase(points.end());
+}
+void PolyLine::clear()
+{
+  points.clear();
 }
 
 void PolyLine::draw()
@@ -75,80 +87,138 @@ void PolyLine::draw()
   glPopMatrix ();
 }
 
-class wxGLCanvasSubClass: public wxGLCanvas
+class Manager
 {
-    void Render();
   public:
-    wxGLCanvasSubClass(wxFrame* parent);
-    void Paintit(wxPaintEvent& event);
-  protected:
-    DECLARE_EVENT_TABLE()
+    void addPoint(Point point);
+    void addPolyLine(Point point);
+    void removeLastPoint();
+    void draw();
+    void clear();
   private:
-    void OnMouseEvent (wxMouseEvent& event);
-    void setup_polyline ();
-    void drawAllLines ();
     std::vector<PolyLine> lines;
+    unsigned int current;
 };
- 
-BEGIN_EVENT_TABLE(wxGLCanvasSubClass, wxGLCanvas)
-  EVT_PAINT  (wxGLCanvasSubClass::Paintit)
-  EVT_MOUSE_EVENTS(wxGLCanvasSubClass::OnMouseEvent)
-END_EVENT_TABLE()
- 
-wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent)
-:wxGLCanvas(parent, wxID_ANY,  wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"))
+
+void Manager::addPoint(Point point)
 {
-  int argc = 1;
-  char* argv[1] = { wxString((wxTheApp->argv)[0]).char_str() };
-}
- 
-void wxGLCanvasSubClass::Paintit(wxPaintEvent& WXUNUSED(event))
-{
-  Render();
+  if (lines.size() == 0)
+  {
+    lines.push_back(PolyLine());
+    current = 0;
+  }
+  lines[current].addPoint(point);
 }
 
-void wxGLCanvasSubClass::OnMouseEvent(wxMouseEvent& event)
+void Manager::addPolyLine(Point point)
 {
-  //printf("x=%d y=%d LeftIsDown=%d\n", event.GetX(), event.GetY(), (int) event.LeftIsDown());
-  bool should_render = false;
-
-  if (event.LeftIsDown())
-  {
-    lines[0].addPoint(Point((float) event.GetX(), (float) event.GetY()));
-    should_render = true;
-  }
-  else if (event.RightIsDown())
-  {
-    lines[0].removeLastPoint();
-    should_render = true;
-  }
-  else
-  {
-    lines[0].removeLastPoint();
-    lines[0].addPoint(Point((float) event.GetX(), (float) event.GetY()));
-    should_render = true;
-  }
-  if (should_render)
-    Render();
+  lines.push_back(PolyLine());
+  current++;
+  lines[current].addPoint(point);
 }
 
-void wxGLCanvasSubClass::drawAllLines()
+void Manager::removeLastPoint()
+{
+  // TODO: return bool
+  if (lines.size() > 0)
+  {
+    if (lines[current].size() == 0)
+      if (current == 0)
+        lines.clear();
+      else
+      {
+        lines.erase(lines.end());
+        current--;
+      }
+    else
+      lines[current].removeLastPoint();
+  }
+}
+
+void Manager::draw()
 {
   std::vector<PolyLine>::iterator iter;
-
   for (iter = lines.begin(); iter != lines.end(); iter++)
   {
     (*iter).draw();
   }
 }
 
-void wxGLCanvasSubClass::setup_polyline()
+void Manager::clear()
 {
   lines.clear();
-  lines.push_back(PolyLine());
 }
 
-void wxGLCanvasSubClass::Render()
+class MyCanvas: public wxGLCanvas
+{
+    void Render();
+  public:
+    MyCanvas(wxFrame* parent);
+    void Paintit(wxPaintEvent& event);
+  protected:
+    DECLARE_EVENT_TABLE()
+  private:
+    void OnMouseEvent (wxMouseEvent& event);
+    void setup_polyline ();
+    Manager manager;
+};
+ 
+BEGIN_EVENT_TABLE(MyCanvas, wxGLCanvas)
+  EVT_PAINT  (MyCanvas::Paintit)
+  EVT_MOUSE_EVENTS(MyCanvas::OnMouseEvent)
+END_EVENT_TABLE()
+ 
+MyCanvas::MyCanvas(wxFrame *parent)
+:wxGLCanvas(parent, wxID_ANY,  wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"))
+{
+  int argc = 1;
+  char* argv[1] = { wxString((wxTheApp->argv)[0]).char_str() };
+}
+ 
+void MyCanvas::Paintit(wxPaintEvent& WXUNUSED(event))
+{
+  Render();
+}
+
+void MyCanvas::OnMouseEvent(wxMouseEvent& event)
+{
+  //printf("x=%d y=%d LeftIsDown=%d\n", event.GetX(), event.GetY(), (int) event.LeftIsDown());
+  bool should_render = false;
+  Point point = Point((float) event.GetX(), (float) event.GetY());
+
+  if (event.LeftIsDown())
+  {
+    manager.addPoint(point);
+    should_render = true;
+  }
+  else if (event.RightIsDown())
+  {
+    // FIXME
+    manager.removeLastPoint();
+    manager.removeLastPoint();
+    should_render = true;
+  }
+  else if (event.MiddleIsDown())
+  {
+    manager.addPolyLine(point);
+    should_render = true;
+  }
+  else
+  {
+    manager.removeLastPoint();
+    manager.addPoint(point);
+    should_render = true;
+  }
+  if (should_render)
+    Render();
+}
+
+void MyCanvas::setup_polyline()
+{
+  manager.clear();
+}
+
+void MyCanvas::Render()
 {
   static bool polyline_is_set = false;
 
@@ -172,11 +242,9 @@ void wxGLCanvasSubClass::Render()
     (float) GetSize().y, 0.0f, // bottom, top
     -1.0, 1.0f);
   glMatrixMode (GL_MODELVIEW);
+  glLoadIdentity (); // FIXME? is this needed here?
 
-  glLoadIdentity ();
-
-
-  drawAllLines();
+  manager.draw();
 
   glFlush();
   SwapBuffers();
@@ -186,16 +254,16 @@ class MyApp: public wxApp
 {
   private:
     virtual bool OnInit();
-    wxGLCanvasSubClass * MyGLCanvas;
+    MyCanvas * MyGLCanvas;
 };
  
 IMPLEMENT_APP(MyApp)
  
 bool MyApp::OnInit()
 {
-  wxFrame *frame = new wxFrame((wxFrame *) NULL, -1,  wxT("Hello GL World"), wxPoint(50, 50), wxSize(640, 480));
+  wxFrame *frame = new wxFrame((wxFrame *) NULL, -1,  wxT("LibreMapping - PolyLine Prototype"), wxPoint(50, 50), wxSize(640, 480));
   //frame->SetWindowStyle(wxWANTS_CHARS);
-  MyGLCanvas = new wxGLCanvasSubClass(frame);
+  MyGLCanvas = new MyCanvas(frame);
  
   frame->Show(TRUE);
   return TRUE;
