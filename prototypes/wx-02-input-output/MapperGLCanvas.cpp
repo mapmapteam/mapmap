@@ -53,10 +53,10 @@ void MapperGLCanvas::OnChar(wxKeyEvent & event) {
     current = (current + 1) % 4;
     break;
   case WXK_UP:
-    yMove = +1;
+    yMove = -1;
     break;
   case WXK_DOWN:
-    yMove = -1;
+    yMove = +1;
     break;
   case WXK_LEFT:
     xMove = -1;
