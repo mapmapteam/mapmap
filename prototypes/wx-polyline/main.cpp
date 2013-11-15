@@ -13,6 +13,11 @@
           //Not necessary, but if it was, it needs to be replaced by process.h AND io.h
 #endif
 
+/*
+ * Left: place point
+ * Right: remove previous point
+ * Middle: invisible line. (no line)
+ */
 class Point
 {
   public:
@@ -29,6 +34,7 @@ class PolyLine
 {
   public:
     void addPoint(Point point);
+    void removeLastPoint();
     void draw();
   private:
     std::vector<Point> points;
@@ -38,25 +44,34 @@ void PolyLine::addPoint(Point point)
 {
   points.push_back(point);
 }
+void PolyLine::removeLastPoint()
+{
+  if (points.size() >= 1)
+    points.erase(points.end());
+}
 
 void PolyLine::draw()
 {
   std::vector<Point>::const_iterator iter;
 
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+  glDisable (GL_TEXTURE_2D);
+  glEnable(GL_LINE_SMOOTH);
+  glLineWidth(3.0f);
+
   glPushMatrix ();
   glDisable (GL_LIGHTING);
-  glColor3f (1.0f, 0.8f, 0.2f);
+  glColor3f (0.2f, 1.0f, 0.2f);
 
   glBegin (GL_LINE_STRIP);
 
   for (iter = points.begin(); iter != points.end(); iter++)
   {
-    printf("glVertex3f %f %f %f", (*iter).x, (*iter).y, 0.0f);
     glVertex3f ((*iter).x, (*iter).y, 0.0f);
   }
 
   glEnd ();
-  glDisable (GL_TEXTURE_2D);
   glPopMatrix ();
 }
 
@@ -94,13 +109,21 @@ void wxGLCanvasSubClass::Paintit(wxPaintEvent& WXUNUSED(event))
 
 void wxGLCanvasSubClass::OnMouseEvent(wxMouseEvent& event)
 {
-  printf("x=%d y=%d LeftIsDown=%d\n", event.GetX(), event.GetY(), (int) event.LeftIsDown());
+  //printf("x=%d y=%d LeftIsDown=%d\n", event.GetX(), event.GetY(), (int) event.LeftIsDown());
+  bool should_render = false;
 
   if (event.LeftIsDown())
   {
     lines[0].addPoint(Point((float) event.GetX(), (float) event.GetY()));
-    Render();
+    should_render = true;
   }
+  else if (event.RightIsDown())
+  {
+    lines[0].removeLastPoint();
+    should_render = true;
+  }
+  if (should_render)
+    Render();
 }
 
 void wxGLCanvasSubClass::drawAllLines()
@@ -115,11 +138,8 @@ void wxGLCanvasSubClass::drawAllLines()
 
 void wxGLCanvasSubClass::setup_polyline()
 {
+  lines.clear();
   lines.push_back(PolyLine());
-  // lines[0].addPoint(Point(30.0f, 30.0f));
-  // lines[0].addPoint(Point(60.0f, 40.0f));
-  // lines[0].addPoint(Point(90.0f, 20.0f));
-  // lines[0].addPoint(Point(30.0f, 100.0f));
 }
 
 void wxGLCanvasSubClass::Render()
@@ -149,10 +169,6 @@ void wxGLCanvasSubClass::Render()
 
   glLoadIdentity ();
 
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_BLEND);
-  glEnable(GL_LINE_SMOOTH);
-  glLineWidth(2.0f);
 
   drawAllLines();
 
