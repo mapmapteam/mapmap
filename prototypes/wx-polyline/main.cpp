@@ -13,6 +13,12 @@
           //Not necessary, but if it was, it needs to be replaced by process.h AND io.h
 #endif
 
+typedef enum
+{
+  LINES = 0,
+  POLYGON = 1
+} Style;
+
 /*
  * Left: place point
  * Right: remove previous point
@@ -38,9 +44,16 @@ class PolyLine
     void clear();
     void draw();
     unsigned int size();
+    void setStyle(Style style);
   private:
     std::vector<Point> points;
+    Style style;
 };
+
+void PolyLine::setStyle(Style style)
+{
+  this->style = style;
+}
 
 unsigned int PolyLine::size()
 {
@@ -66,23 +79,13 @@ void PolyLine::draw()
 {
   std::vector<Point>::const_iterator iter;
 
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_BLEND);
-  glDisable (GL_TEXTURE_2D);
-  glEnable(GL_LINE_SMOOTH);
-  glLineWidth(3.0f);
-
   glPushMatrix ();
-  glDisable (GL_LIGHTING);
-  glColor3f (0.2f, 1.0f, 0.2f);
-
-  glBegin (GL_LINE_STRIP);
-
+  if (style == LINES)
+    glBegin (GL_LINE_STRIP);
+  else if (style == POLYGON)
+    glBegin (GL_POLYGON);
   for (iter = points.begin(); iter != points.end(); iter++)
-  {
     glVertex3f ((*iter).x, (*iter).y, 0.0f);
-  }
-
   glEnd ();
   glPopMatrix ();
 }
@@ -95,10 +98,17 @@ class Manager
     void removeLastPoint();
     void draw();
     void clear();
+    void setStyle(Style style);
   private:
     std::vector<PolyLine> lines;
     unsigned int current;
+    Style style;
 };
+
+void Manager::setStyle(Style style)
+{
+  this->style = style;
+}
 
 void Manager::addPoint(Point point)
 {
@@ -137,9 +147,18 @@ void Manager::removeLastPoint()
 
 void Manager::draw()
 {
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+  glDisable (GL_TEXTURE_2D);
+  glEnable(GL_LINE_SMOOTH);
+  glLineWidth(3.0f);
+  glDisable (GL_LIGHTING);
+  glColor3f (0.2f, 1.0f, 0.2f);
+
   std::vector<PolyLine>::iterator iter;
   for (iter = lines.begin(); iter != lines.end(); iter++)
   {
+    (*iter).setStyle(style);
     (*iter).draw();
   }
 }
@@ -147,6 +166,40 @@ void Manager::draw()
 void Manager::clear()
 {
   lines.clear();
+}
+
+void draw_marquee(float x, float y)
+{
+  const int length = 30;
+  const int distance = 10;
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+  glDisable (GL_TEXTURE_2D);
+  glEnable(GL_LINE_SMOOTH);
+  glLineWidth(3.0f);
+  glDisable (GL_LIGHTING);
+  glColor3f (1.0f, 0.0f, 0.0f);
+
+  glBegin(GL_LINES);
+  glVertex3f(x - (length + distance), y, 0.0f);
+  glVertex3f(x - distance, y, 0.0f);
+  glEnd();
+
+  glBegin(GL_LINES);
+  glVertex3f(x + (length + distance), y, 0.0f);
+  glVertex3f(x + distance, y, 0.0f);
+  glEnd();
+
+  glBegin(GL_LINES);
+  glVertex3f(x, y - (length + distance), 0.0f);
+  glVertex3f(x, y - distance, 0.0f);
+  glEnd();
+
+  glBegin(GL_LINES);
+  glVertex3f(x, y + (length + distance), 0.0f);
+  glVertex3f(x, y + distance, 0.0f);
+  glEnd();
 }
 
 class MyCanvas: public wxGLCanvas
@@ -161,6 +214,8 @@ class MyCanvas: public wxGLCanvas
     void OnMouseEvent (wxMouseEvent& event);
     void setup_polyline ();
     Manager manager;
+    float mousex;
+    float mousey;
 };
  
 BEGIN_EVENT_TABLE(MyCanvas, wxGLCanvas)
@@ -184,8 +239,11 @@ void MyCanvas::OnMouseEvent(wxMouseEvent& event)
 {
   //printf("x=%d y=%d LeftIsDown=%d\n", event.GetX(), event.GetY(), (int) event.LeftIsDown());
   bool should_render = false;
-  Point point = Point((float) event.GetX(), (float) event.GetY());
+  Point point = Point(mousex, mousey);
+  mousex = (float) event.GetX();
+  mousey = (float) event.GetY();
 
+  should_render = true;
   if (event.LeftIsDown())
   {
     manager.addPoint(point);
@@ -202,6 +260,7 @@ void MyCanvas::OnMouseEvent(wxMouseEvent& event)
   {
     manager.addPolyLine(point);
     should_render = true;
+    manager.setStyle(POLYGON);
   }
   else
   {
@@ -245,6 +304,7 @@ void MyCanvas::Render()
   glLoadIdentity (); // FIXME? is this needed here?
 
   manager.draw();
+  draw_marquee(mousex, mousey);
 
   glFlush();
   SwapBuffers();
