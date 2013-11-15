@@ -35,7 +35,11 @@ void DestinationGLCanvas::doRender() {
   wxASSERT(texture != NULL);
 
   if (texture->getTextureId() == 0)
+  {
     texture->loadTexture();
+    texture->setPosition( (GetClientSize().x - texture->getWidth()) / 2,
+                          (GetClientSize().y - texture->getHeight()) / 2 );
+  }
 
   // Now, draw
   // DRAW THE TEXTURE
@@ -55,8 +59,8 @@ void DestinationGLCanvas::doRender() {
   glBegin (GL_LINE_STRIP);
   {
     for (int i=0; i<5; i++) {
-      glVertex3f(quad.getVertex(i % 4).x / (GLfloat)texture->getWidth(),
-                 quad.getVertex(i % 4).y / (GLfloat)texture->getHeight(),
+      glVertex3f(quad.getVertex(i % 4).x,
+                 quad.getVertex(i % 4).y,
                  0);
     }
   }

@@ -22,13 +22,29 @@
 std::tr1::shared_ptr<Mapping> Common::currentMapping;
 std::tr1::shared_ptr<Mapper>  Common::currentMapper;
 
-void Common::initializeLibremapper() {
+void Common::initializeLibremapper(int frameWidth, int frameHeight) {
+  Image* img = new Image("example.png");
+
+  float centerX = frameWidth / 2;
+  float centerY = frameHeight / 2;
+  float textureHalfWidth  = img->getWidth()  / 2;
+  float textureHalfHeight = img->getHeight() / 2;
+//  printf("Common: %f %f %f %f\n", centerX, centerY, textureHalfWidth, textureHalfHeight);
+
   TextureMapping* tm = new TextureMapping(
-      new Image("example.png"),
-      new Quad(Point(0, 0),   Point(320, 0),
-               Point(320, 240), Point(0, 240)),
-      new Quad(Point(0, 0),   Point(320, 0),
-               Point(320, 240), Point(0, 240))
+      img,
+
+      // Destination.
+      new Quad(Point(centerX-textureHalfWidth, centerY-textureHalfHeight),
+               Point(centerX+textureHalfWidth, centerY-textureHalfHeight),
+               Point(centerX+textureHalfWidth, centerY+textureHalfHeight),
+               Point(centerX-textureHalfWidth, centerY+textureHalfHeight)),
+
+      // Input.
+      new Quad(Point(centerX-textureHalfWidth, centerY-textureHalfHeight),
+               Point(centerX+textureHalfWidth, centerY-textureHalfHeight),
+               Point(centerX+textureHalfWidth, centerY+textureHalfHeight),
+               Point(centerX-textureHalfWidth, centerY+textureHalfHeight))
             );
   Common::currentMapping.reset( tm );
   Common::currentMapper.reset( new QuadTextureMapper( tm ) );

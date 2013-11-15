@@ -157,10 +157,10 @@ public:
     {
       for (int i=0; i<4; i++)
       {
-        glTexCoord2f( inputQuad->getVertex(i).x / (GLfloat)texture->getWidth(),
-                      inputQuad->getVertex(i).y / (GLfloat)texture->getHeight() );
-        glVertex3f( quad->getVertex(i).x / (GLfloat)texture->getWidth(),
-                    quad->getVertex(i).y / (GLfloat)texture->getHeight(),
+        glTexCoord2f( ( inputQuad->getVertex(i).x - texture->getX() ) / (GLfloat) texture->getWidth(),
+                      ( inputQuad->getVertex(i).y - texture->getY() ) / (GLfloat) texture->getHeight());
+        glVertex3f( quad->getVertex(i).x,
+                    quad->getVertex(i).y,
                     0);
       }
     }

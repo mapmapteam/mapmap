@@ -38,6 +38,9 @@ class Texture : public Paint
 {
 protected:
   GLuint textureId;
+  int x;
+  int y;
+
   Texture(GLuint textureId_=0) : textureId(textureId_) {}
   virtual ~Texture() {}
 
@@ -46,6 +49,13 @@ public:
   virtual void loadTexture() = 0;
   virtual int getWidth() const = 0;
   virtual int getHeight() const = 0;
+
+  virtual void setPosition(int xPos, int yPos) {
+    x = xPos;
+    y = yPos;
+  }
+  virtual int getX() const { return x; }
+  virtual int getY() const { return y; }
 };
 
 class Image : public Texture
@@ -54,15 +64,19 @@ protected:
   std::string imagePath;
   int width;
   int height;
+  int x;
+  int y;
+  unsigned char* imageData;
 
 public:
-  Image(const std::string imagePath_) : Texture(), imagePath(imagePath_), width(-1), height(-1) {}
+  Image(const std::string imagePath_) : Texture(), imagePath(imagePath_), width(-1), height(-1), x(-1), y(-1) {
+    imageData = SOIL_load_image(imagePath.c_str(), &width, &height, 0, SOIL_LOAD_RGB );
+    wxASSERT(imageData);
+  }
   virtual ~Image() {}
 
   virtual void loadTexture() {
-    unsigned char * data = SOIL_load_image(imagePath.c_str(), &width, &height, 0, SOIL_LOAD_RGB );
-    wxASSERT(data);
-    textureId = SOIL_create_OGL_texture ( data, width, height, 3, textureId, 0);
+    textureId = SOIL_create_OGL_texture ( imageData, width, height, 3, textureId, 0);
     // TODO: free data?
   }
 
@@ -71,6 +85,8 @@ public:
 
   virtual int getWidth() const { return width; }
   virtual int getHeight() const { return height; }
+
+
 };
 
 #endif /* PAINT_H_ */

@@ -26,7 +26,6 @@ IMPLEMENT_APP(MyApp)
  
 bool MyApp::OnInit()
 {
-  Common::initializeLibremapper();
   wxFrame *frame = new wxFrame((wxFrame *) NULL, -1,  wxT("Libremapping"), wxPoint(50, 50), wxSize(640, 480));
 
   wxBoxSizer* topSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -37,10 +36,15 @@ bool MyApp::OnInit()
   topSizer->AddSpacer(10);
   topSizer->Add(destinationCanvas, 1, wxEXPAND);
 
-
 //    frame->SetWindowStyle(wxWANTS_CHARS);
   frame->SetSizer(topSizer);
+
+  // HACK: values 320x480 should be retrieved automatically
+  Common::initializeLibremapper(320,  480);
+
   frame->Show(TRUE);
+
+
 
   return TRUE;
 }

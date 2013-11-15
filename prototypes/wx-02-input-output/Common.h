@@ -32,7 +32,7 @@ public:
   static std::tr1::shared_ptr<Mapping> currentMapping;
   static std::tr1::shared_ptr<Mapper>  currentMapper;
 
-  static void initializeLibremapper();
+  static void initializeLibremapper(int frameWidth, int frameHeight);
 };
 
 #endif /* COMMON_H_ */

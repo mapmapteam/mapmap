@@ -34,9 +34,11 @@ void SourceGLCanvas::doRender() {
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   wxASSERT(texture != NULL);
 
-  if (texture->getTextureId() == 0)
+  if (texture->getTextureId() == 0) {
     texture->loadTexture();
-
+    texture->setPosition( (GetClientSize().x - texture->getWidth()) / 2,
+                          (GetClientSize().y - texture->getHeight()) / 2 );
+  }
   // Now, draw
   // DRAW THE TEXTURE
   glPushMatrix();
@@ -57,21 +59,28 @@ void SourceGLCanvas::doRender() {
   // TODO: Exact projection of texture
   // see http://stackoverflow.com/questions/15242507/perspective-correct-texturing-of-trapezoid-in-opengl-es-2-0
 
-  // Draw source texture (not moving).
+  // Draw source texture (not moving) in the center of the area.
+
+  float centerX = GetClientSize().x / 2;
+  float centerY = GetClientSize().y / 2;
+  float textureHalfWidth  = texture->getWidth()  / 2;
+  float textureHalfHeight = texture->getHeight() / 2;
+
+  //printf("SRC: %f %f %f %f\n", centerX, centerY, textureHalfWidth, textureHalfHeight);
   glColor4f (1, 1, 1, 1.0f);
   glBegin (GL_QUADS);
   {
     glTexCoord2f (0, 0);
-    glVertex3f (0, 0, 0);
+    glVertex3f (texture->getX(), texture->getY(), 0);
 
     glTexCoord2f (1, 0);
-    glVertex3f (1, 0, 0);
+    glVertex3f (texture->getX()+texture->getWidth(), texture->getY(), 0);
 
     glTexCoord2f (1, 1);
-    glVertex3f (1, 1, 0);
+    glVertex3f (texture->getX()+texture->getWidth(), texture->getY()+texture->getHeight(), 0);
 
     glTexCoord2f (0, 1);
-    glVertex3f (0, 1, 0);
+    glVertex3f (texture->getX(), texture->getY()+texture->getHeight(), 0);
   }
   glEnd ();
 
@@ -88,8 +97,8 @@ void SourceGLCanvas::doRender() {
   glBegin (GL_LINE_STRIP);
   {
     for (int i=0; i<5; i++) {
-      glVertex3f(quad.getVertex(i % 4).x / (GLfloat)texture->getWidth(),
-                 quad.getVertex(i % 4).y / (GLfloat)texture->getHeight(),
+      glVertex3f(quad.getVertex(i % 4).x,
+                 quad.getVertex(i % 4).y,
                  0);
     }
   }
