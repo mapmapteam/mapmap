@@ -75,6 +75,8 @@ void SourceGLCanvas::doRender() {
   }
   glEnd ();
 
+  glDisable(GL_TEXTURE_2D);
+
   // Draw the quad.
   Quad& quad = getQuad();
 
