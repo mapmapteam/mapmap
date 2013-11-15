@@ -43,6 +43,7 @@ protected:
 
 public:
   GLuint getTextureId() const { return textureId; }
+  virtual void loadTexture() = 0;
   virtual int getWidth() const = 0;
   virtual int getHeight() const = 0;
 };
@@ -58,11 +59,14 @@ public:
   Image(const std::string imagePath_) : Texture(), imagePath(imagePath_), width(-1), height(-1) {}
   virtual ~Image() {}
 
-  virtual void build() {
+  virtual void loadTexture() {
     unsigned char * data = SOIL_load_image(imagePath.c_str(), &width, &height, 0, SOIL_LOAD_RGB );
     wxASSERT(data);
     textureId = SOIL_create_OGL_texture ( data, width, height, 3, textureId, 0);
     // TODO: free data?
+  }
+
+  virtual void build() {
   }
 
   virtual int getWidth() const { return width; }

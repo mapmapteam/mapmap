@@ -43,6 +43,11 @@ public:
     : _paint(paint), _shape(shape)
   {}
 
+  virtual void build() {
+    _paint->build();
+    _shape->build();
+  }
+
 public:
   std::tr1::shared_ptr<Paint> getPaint() const { return _paint; }
   std::tr1::shared_ptr<Shape> getShape() const { return _shape; }
@@ -61,6 +66,10 @@ public:
       _inputShape(inputShape)
   {}
 
+  virtual void build() {
+    Mapping::build();
+    _inputShape->build();
+  }
 public:
   std::tr1::shared_ptr<Shape> getInputShape() const { return _inputShape; }
 };
@@ -132,6 +141,7 @@ public:
     std::tr1::shared_ptr<Quad> inputQuad = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
     wxASSERT(inputQuad != NULL);
 
+    printf("Texid: %d\n", texture->getTextureId());
     // Project source texture and sent it to destination.
 
     glEnable (GL_TEXTURE_2D);

@@ -34,6 +34,9 @@ void SourceGLCanvas::doRender() {
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   wxASSERT(texture != NULL);
 
+  if (texture->getTextureId() == 0)
+    texture->loadTexture();
+
   // Now, draw
   // DRAW THE TEXTURE
   glPushMatrix();
@@ -71,6 +74,8 @@ void SourceGLCanvas::doRender() {
     glVertex3f (0, 1, 0);
   }
   glEnd ();
+
+  glDisable(GL_TEXTURE_2D);
 
   // Draw the quad.
   Quad& quad = getQuad();

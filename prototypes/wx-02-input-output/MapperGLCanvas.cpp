@@ -40,6 +40,7 @@ MapperGLCanvas::MapperGLCanvas(wxFrame *parent) :
 }
 
 void MapperGLCanvas::Paintit(wxPaintEvent& WXUNUSED(event)) {
+  GetParent()->Refresh();
   Render();
 }
 
@@ -84,7 +85,10 @@ void MapperGLCanvas::OnMouseEvent(wxMouseEvent& event) {
 }
 
 void MapperGLCanvas::Render() {
-  SetCurrent();
+  if (!sharedContext) {
+    sharedContext = GetContext();
+  }
+  SetCurrent(*sharedContext);
   wxPaintDC dc(this);
 
   enterRender();

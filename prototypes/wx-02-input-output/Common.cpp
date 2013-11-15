@@ -26,9 +26,9 @@ void Common::initializeLibremapper() {
   TextureMapping* tm = new TextureMapping(
       new Image("example.png"),
       new Quad(Point(0, 0),   Point(320, 0),
-               Point(0, 240), Point(320, 240)),
-      new Quad(Point(-320, -240),   Point(-320, 0),
-               Point(0, -240), Point(0, 0))
+               Point(320, 240), Point(0, 240)),
+      new Quad(Point(0, 0),   Point(320, 0),
+               Point(320, 240), Point(0, 240))
             );
   Common::currentMapping.reset( tm );
   Common::currentMapper.reset( new QuadTextureMapper( tm ) );
