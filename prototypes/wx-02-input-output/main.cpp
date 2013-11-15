@@ -28,11 +28,19 @@ bool MyApp::OnInit()
 {
   Common::initializeLibremapper();
   wxFrame *frame = new wxFrame((wxFrame *) NULL, -1,  wxT("Libremapping"), wxPoint(50, 50), wxSize(640, 480));
+
+  wxBoxSizer* topSizer = new wxBoxSizer( wxHORIZONTAL );
   sourceCanvas = new SourceGLCanvas(frame);
-//  destinationCanvas = new DestinationGLCanvas(frame);
+  destinationCanvas = new DestinationGLCanvas(frame);
+
+  topSizer->Add(sourceCanvas, 1, wxEXPAND);
+  topSizer->Add(destinationCanvas, 1, wxEXPAND);
+
 
 //    frame->SetWindowStyle(wxWANTS_CHARS);
+  frame->SetSizer(topSizer);
   frame->Show(TRUE);
+
   return TRUE;
 }
 //

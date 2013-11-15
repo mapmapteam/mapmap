@@ -34,6 +34,9 @@ void DestinationGLCanvas::doRender() {
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   wxASSERT(texture != NULL);
 
+  if (texture->getTextureId() == 0)
+    texture->loadTexture();
+
   // Now, draw
   // DRAW THE TEXTURE
   glPushMatrix();

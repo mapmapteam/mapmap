@@ -38,6 +38,9 @@ public:
   Shape() {}
   Shape(std::vector<Point> vertices_) : vertices(vertices_) {}
   virtual ~Shape() {}
+
+  virtual void build() {}
+
   const Point& getVertex(int i) { return vertices[i]; }
   void setVertex(int i, Point v) { vertices[i] = v; }
   void setVertex(int i, double x, double y)
