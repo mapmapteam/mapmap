@@ -5,6 +5,10 @@
 .deps
 .libs
 .*.swp
+*.zip
+*.gz
+*.tar
+*.rar
 Makefile
 Makefile.in
 aclocal.m4
