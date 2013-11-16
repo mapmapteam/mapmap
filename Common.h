@@ -40,6 +40,8 @@ public:
   static void addImage(const std::string imagePath, int frameWidth, int frameHeight);
   static void initializeLibremapper(int frameWidth, int frameHeight);
   static void nextImage();
+
+  static int nImages() { return mappings.size(); }
 };
 
 #endif /* COMMON_H_ */
