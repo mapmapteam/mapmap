@@ -28,6 +28,7 @@ src/config.h.in
 src/mapmap
 src/stamp-h1
 prototypes/wx-01-simple/run
-prototypes/wx-polyline/run
+prototypes/wx-03-polyline/run
+prototypes/wx-04-gst/run
 Debug/
 Release/
