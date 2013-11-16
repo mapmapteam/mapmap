@@ -44,13 +44,19 @@ void MapperGLCanvas::Paintit(wxPaintEvent& WXUNUSED(event)) {
   Render();
 }
 
-void MapperGLCanvas::OnChar(wxKeyEvent & event) {
+void MapperGLCanvas::OnChar(wxKeyEvent & event)
+{
   static int current = 0;
   int xMove = 0;
   int yMove = 0;
-  switch (event.GetKeyCode()) {
+  int key = event.GetKeyCode();
+
+  switch (key) {
   case WXK_TAB:
-    current = (current + 1) % 4;
+    if (event.ShiftDown())
+      Common::nextImage();
+    else
+      current = (current + 1) % 4;
     break;
   case WXK_UP:
     yMove = -1;
