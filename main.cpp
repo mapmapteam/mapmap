@@ -30,6 +30,9 @@ int main(int argc, char *argv[])
   splitter.addWidget(&sourceCanvas);
   splitter.addWidget(&destinationCanvas);
 
+  sourceCanvas.setFocusPolicy(Qt::ClickFocus);
+  destinationCanvas.setFocusPolicy(Qt::ClickFocus);
+
   splitter.setWindowTitle(QObject::tr("Libremapping"));
   splitter.resize(640, 480);
   splitter.show();

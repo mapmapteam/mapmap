@@ -116,7 +116,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   p.y += yMove;
   quad.setVertex(current, p);
 
-  draw();
+  updateGL();
 }
 
 void MapperGLCanvas::paintEvent(QPaintEvent* event)
