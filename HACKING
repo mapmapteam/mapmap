@@ -1,0 +1,9 @@
+Coding style
+============
+
+* indent with 2 spaces
+* opening curly braces on a new line
+* function and method names camelCase, with lowercase first letter
+* class names CamelCase
+* private data members with an underscore as a prefix: _likeThis
+* file names all lowercase
