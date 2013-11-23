@@ -34,19 +34,28 @@ void DestinationGLCanvas::doRender() {
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   wxASSERT(texture != NULL);
 
-  if (texture->getTextureId() == 0)
+  for (int i=0; i<Common::nImages(); i++)
   {
-    texture->loadTexture();
-    texture->setPosition( (GetClientSize().x - texture->getWidth()) / 2,
-                          (GetClientSize().y - texture->getHeight()) / 2 );
+    std::tr1::shared_ptr<Texture> tex = std::tr1::static_pointer_cast<Texture>(Common::mappings[i]->getPaint());
+    wxASSERT(tex);
+
+    if (tex->getTextureId() == 0)
+    {
+      tex->loadTexture();
+      tex->setPosition( (GetClientSize().x - tex->getWidth()) / 2,
+                        (GetClientSize().y - tex->getHeight()) / 2 );
+    }
   }
 
   // Now, draw
   // DRAW THE TEXTURE
   glPushMatrix();
 
-  // Draw the mapping.
-  Common::currentMapper->draw();
+  for (int i=0; i<Common::nImages(); i++)
+  {
+    // Draw the mappings.
+    Common::mappers[i]->draw();
+  }
 
   // Draw the quad.
   Quad& quad = getQuad();

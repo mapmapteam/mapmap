@@ -1,5 +1,5 @@
 /*
- * Common.h
+ * MapperGLCanvas.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  *
@@ -18,21 +18,39 @@
  */
 
 
-#ifndef COMMON_H_
-#define COMMON_H_
+#ifndef MAPPERGLCANVAS_H_
+#define MAPPERGLCANVAS_H_
 
-#include <tr1/memory>
+#include <wx/wx.h>
+#include <wx/glcanvas.h>
 
-#include "Paint.h"
+#include "Common.h"
 #include "Shape.h"
-#include "Mapper.h"
 
-class Common {
+class MapperGLCanvas: public wxGLCanvas {
+private:
+  static wxGLContext* sharedContext;
+
 public:
-  static std::tr1::shared_ptr<Mapping> currentMapping;
-  static std::tr1::shared_ptr<Mapper>  currentMapper;
+  MapperGLCanvas(wxFrame* parent);
+  virtual ~MapperGLCanvas() {}
 
-  static void initializeLibremapper(int frameWidth, int frameHeight);
+  virtual void Paintit(wxPaintEvent& event);
+
+  virtual Quad& getQuad() = 0;
+
+protected:
+  DECLARE_EVENT_TABLE()
+
+  virtual void Render();
+  virtual void enterRender();
+  virtual void doRender() = 0;
+  virtual void exitRender();
+
+private:
+  virtual void OnChar(wxKeyEvent& event);
+  virtual void OnMouseEvent(wxMouseEvent& event);
+
 };
 
-#endif /* COMMON_H_ */
+#endif /* MAPPERGLCANVAS_H_ */

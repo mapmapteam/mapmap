@@ -29,10 +29,19 @@
 
 class Common {
 public:
+  static std::vector< std::tr1::shared_ptr<Mapping> > mappings;
+  static std::vector< std::tr1::shared_ptr<Mapper> > mappers;
   static std::tr1::shared_ptr<Mapping> currentMapping;
-  static std::tr1::shared_ptr<Mapper>  currentMapper;
+  static std::tr1::shared_ptr<Mapper> currentMapper;
 
+  static int currentSourceIdx;
+
+  static Quad* createQuadForTexture(Texture* texture, int frameWidth, int frameHeight);
+  static void addImage(const std::string imagePath, int frameWidth, int frameHeight);
   static void initializeLibremapper(int frameWidth, int frameHeight);
+  static void nextImage();
+
+  static int nImages() { return mappings.size(); }
 };
 
 #endif /* COMMON_H_ */
