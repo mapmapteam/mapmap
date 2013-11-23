@@ -19,59 +19,94 @@
 
 #include "MapperGLCanvas.h"
 
-wxGLContext* MapperGLCanvas::sharedContext = 0;
-
-BEGIN_EVENT_TABLE (MapperGLCanvas, wxGLCanvas)
-  EVT_PAINT       (MapperGLCanvas::Paintit)
-  EVT_KEY_DOWN    (MapperGLCanvas::OnChar)
-  EVT_MOUSE_EVENTS(MapperGLCanvas::OnMouseEvent)
-//  EVT_ENTER_WINDOW(MapperGLCanvas::OnMouseEnter)
-END_EVENT_TABLE()
-
-
-MapperGLCanvas::MapperGLCanvas(wxFrame *parent) :
-    wxGLCanvas(parent, sharedContext, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0,
-        wxT("GLCanvas")) {
-  if (!sharedContext) {
-    sharedContext = GetContext();
-  }
-  //  int argc = 1;
-  //  char* argv[1] = { wxString((wxTheApp ->argv)[0]).char_str() };
-}
-
-void MapperGLCanvas::Paintit(wxPaintEvent& WXUNUSED(event)) {
-  GetParent()->Refresh();
-  Render();
-}
-
-void MapperGLCanvas::OnChar(wxKeyEvent & event)
+MapperGLCanvas::MapperGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
+  : QGLWidget(parent, shareWidget)
 {
+}
+
+void MapperGLCanvas::initializeGL()
+{
+  qglClearColor(Qt::black);
+  glShadeModel(GL_FLAT);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+}
+
+void MapperGLCanvas::resizeGL(int width, int height)
+{
+  glViewport(0, 0, width, height);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glMatrixMode (GL_PROJECTION);
+  glLoadIdentity ();
+  glOrtho (
+    0.0f, (GLfloat) width, // left, right
+    (GLfloat) height, 0.0f, // bottom, top
+    -1.0, 1.0f);
+  glMatrixMode (GL_MODELVIEW);
+}
+
+void MapperGLCanvas::paintGL()
+{
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  draw();
+}
+
+//void MapperGLCanvas::OnMouseEvent(wxMouseEvent& event) {
+//  printf("x=%d y=%d LeftIsDown=%d\n", event.GetX(), event.GetY(),
+//      (int) event.LeftIsDown());
+//  SetFocus();
+//}
+
+void MapperGLCanvas::draw()
+{
+  enterDraw();
+  doDraw();
+  exitDraw();
+}
+
+void MapperGLCanvas::enterDraw() {
+
+//  glClearColor(0.0, 0.0, 0.0, 0.0);
+//  glClear(GL_COLOR_BUFFER_BIT);
+//  glViewport(0, 0, (GLint) GetSize().x, (GLint) GetSize().y);
+
+//  glMatrixMode (GL_PROJECTION);
+//  glLoadIdentity ();
+//  glOrtho (
+//    0.0f, (float) GetSize().x, // left, right
+//    (float) GetSize().y, 0.0f, // bottom, top
+//    -1.0, 1.0f);
+//  glMatrixMode (GL_MODELVIEW);
+
+////  glLoadIdentity (); // FIXME? is this needed here?
+}
+
+void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
+{
+  std::cout << "Key pressed" << std::endl;
   static int current = 0;
   int xMove = 0;
   int yMove = 0;
-  int key = event.GetKeyCode();
-
-  switch (key) {
-  case WXK_TAB:
-    if (event.ShiftDown())
-      Common::nextImage();
-    else
-      current = (current + 1) % 4;
+  switch (event->key()) {
+  case Qt::Key_Tab:
+    current = (current + 1) % 4;
     break;
-  case WXK_UP:
+  case Qt::Key_Up:
     yMove = -1;
     break;
-  case WXK_DOWN:
+  case Qt::Key_Down:
     yMove = +1;
     break;
-  case WXK_LEFT:
+  case Qt::Key_Left:
     xMove = -1;
     break;
-  case WXK_RIGHT:
+  case Qt::Key_Right:
     xMove = +1;
     break;
   default:
-    printf("Unhandled key");
+    std::cerr << "Unhandled key" << std::endl;
+    QWidget::keyPressEvent(event);
     break;
   }
 
@@ -81,46 +116,19 @@ void MapperGLCanvas::OnChar(wxKeyEvent & event)
   p.y += yMove;
   quad.setVertex(current, p);
 
-  Render();
+  draw();
 }
 
-void MapperGLCanvas::OnMouseEvent(wxMouseEvent& event) {
-  printf("x=%d y=%d LeftIsDown=%d\n", event.GetX(), event.GetY(),
-      (int) event.LeftIsDown());
-  SetFocus();
+void MapperGLCanvas::paintEvent(QPaintEvent* event)
+{
+  std::cout << "Paint event" << std::endl;
+  updateGL();
 }
 
-void MapperGLCanvas::Render() {
-  if (!sharedContext) {
-    sharedContext = GetContext();
-  }
-  SetCurrent(*sharedContext);
-  wxPaintDC dc(this);
-
-  enterRender();
-  doRender();
-  exitRender();
-}
-
-void MapperGLCanvas::enterRender() {
-
-  glClearColor(0.0, 0.0, 0.0, 0.0);
-  glClear(GL_COLOR_BUFFER_BIT);
-  glViewport(0, 0, (GLint) GetSize().x, (GLint) GetSize().y);
-
-  glMatrixMode (GL_PROJECTION);
-  glLoadIdentity ();
-  glOrtho (
-    0.0f, (float) GetSize().x, // left, right
-    (float) GetSize().y, 0.0f, // bottom, top
-    -1.0, 1.0f);
-  glMatrixMode (GL_MODELVIEW);
-//  glLoadIdentity (); // FIXME? is this needed here?
-}
-
-void MapperGLCanvas::exitRender() {
+void MapperGLCanvas::exitDraw()
+{
   glFlush();
-  SwapBuffers();
+  swapBuffers();
 }
 
 

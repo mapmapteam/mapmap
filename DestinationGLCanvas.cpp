@@ -19,31 +19,30 @@
 
 #include "DestinationGLCanvas.h"
 
-DestinationGLCanvas::DestinationGLCanvas(wxFrame *parent) :
-    MapperGLCanvas(parent) {
-//  int argc = 1;
-//  char* argv[1] = { wxString((wxTheApp ->argv)[0]).char_str() };
+DestinationGLCanvas::DestinationGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
+: MapperGLCanvas(parent, shareWidget)
+{
 }
 
-void DestinationGLCanvas::doRender() {
+void DestinationGLCanvas::doDraw() {
   // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
   // Il faut changer ca.
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-  wxASSERT(textureMapping != NULL);
+  Q_CHECK_PTR(textureMapping);
 
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-  wxASSERT(texture != NULL);
+  Q_CHECK_PTR(texture);
 
   for (int i=0; i<Common::nImages(); i++)
   {
     std::tr1::shared_ptr<Texture> tex = std::tr1::static_pointer_cast<Texture>(Common::mappings[i]->getPaint());
-    wxASSERT(tex);
+    Q_CHECK_PTR(tex);
 
     if (tex->getTextureId() == 0)
     {
       tex->loadTexture();
-      tex->setPosition( (GetClientSize().x - tex->getWidth()) / 2,
-                        (GetClientSize().y - tex->getHeight()) / 2 );
+      tex->setPosition( (width() - tex->getWidth()) / 2,
+                        (height() - tex->getHeight()) / 2 );
     }
   }
 

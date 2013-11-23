@@ -19,25 +19,24 @@
 
 #include "SourceGLCanvas.h"
 
-SourceGLCanvas::SourceGLCanvas(wxFrame *parent) :
-    MapperGLCanvas(parent) {
-//  int argc = 1;
-//  char* argv[1] = { wxString((wxTheApp ->argv)[0]).char_str() };
+SourceGLCanvas::SourceGLCanvas(QWidget* parent)
+  : MapperGLCanvas(parent)
+{
 }
 
-void SourceGLCanvas::doRender() {
+void SourceGLCanvas::doDraw() {
   // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
   // Il faut changer ca.
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-  wxASSERT(textureMapping != NULL);
+  Q_CHECK_PTR(textureMapping);
 
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-  wxASSERT(texture != NULL);
+  Q_CHECK_PTR(texture);
 
   if (texture->getTextureId() == 0) {
     texture->loadTexture();
-    texture->setPosition( (GetClientSize().x - texture->getWidth()) / 2,
-                          (GetClientSize().y - texture->getHeight()) / 2 );
+    texture->setPosition( (width() - texture->getWidth()) / 2,
+                          (height() - texture->getHeight()) / 2 );
   }
   // Now, draw
   // DRAW THE TEXTURE
@@ -61,10 +60,10 @@ void SourceGLCanvas::doRender() {
 
   // Draw source texture (not moving) in the center of the area.
 
-  float centerX = GetClientSize().x / 2;
-  float centerY = GetClientSize().y / 2;
-  float textureHalfWidth  = texture->getWidth()  / 2;
-  float textureHalfHeight = texture->getHeight() / 2;
+  float centerX = (float)width()  / 2.0f;
+  float centerY = (float)height() / 2.0f;
+  float textureHalfWidth  = (float)texture->getWidth()  / 2.0f;
+  float textureHalfHeight = (float)texture->getHeight() / 2.0f;
 
   //printf("SRC: %f %f %f %f\n", centerX, centerY, textureHalfWidth, textureHalfHeight);
   glColor4f (1, 1, 1, 1.0f);

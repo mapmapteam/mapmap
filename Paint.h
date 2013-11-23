@@ -21,7 +21,10 @@
 #ifndef PAINT_H_
 #define PAINT_H_
 
-#include <wx/wx.h>
+#include <QtGlobal>
+
+#include <string>
+
 #include <GL/gl.h>
 #include <SOIL/SOIL.h>
 
@@ -71,7 +74,7 @@ protected:
 public:
   Image(const std::string imagePath_) : Texture(), imagePath(imagePath_), width(-1), height(-1), x(-1), y(-1) {
     imageData = SOIL_load_image(imagePath.c_str(), &width, &height, 0, SOIL_LOAD_RGB );
-    wxASSERT(imageData);
+    Q_CHECK_PTR(imageData);
   }
   virtual ~Image() {}
 

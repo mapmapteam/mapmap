@@ -21,12 +21,13 @@
 #ifndef MAPPER_H_
 #define MAPPER_H_
 
+#include <QtGlobal>
+
 #include "Shape.h"
 #include "Paint.h"
 
 #include <tr1/memory>
 
-#include <wx/wx.h>
 #include <GL/gl.h>
 #include <SOIL/SOIL.h>
 #include <stdlib.h>
@@ -130,16 +131,16 @@ public:
 
   virtual void draw() {
     std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
-    wxASSERT(textureMapping != NULL);
+    Q_CHECK_PTR(textureMapping);
 
     std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-    wxASSERT(texture != NULL);
+    Q_CHECK_PTR(texture);
 
     std::tr1::shared_ptr<Quad> quad = std::tr1::static_pointer_cast<Quad>(textureMapping->getShape());
-    wxASSERT(quad != NULL);
+    Q_CHECK_PTR(quad);
 
     std::tr1::shared_ptr<Quad> inputQuad = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
-    wxASSERT(inputQuad != NULL);
+    Q_CHECK_PTR(inputQuad);
 
     printf("Texid: %d\n", texture->getTextureId());
     // Project source texture and sent it to destination.
