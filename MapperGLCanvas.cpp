@@ -40,7 +40,10 @@ MapperGLCanvas::MapperGLCanvas(wxFrame *parent) :
 }
 
 void MapperGLCanvas::Paintit(wxPaintEvent& WXUNUSED(event)) {
-  //GetParent()->Refresh();
+  
+	//GetParent()->Refresh();
+	//sleep(1);
+  
   Render();
 }
 
@@ -81,6 +84,7 @@ void MapperGLCanvas::OnChar(wxKeyEvent & event)
   p.y += yMove;
   quad.setVertex(current, p);
 
+	GetParent()->Refresh();
   Render();
 }
 
