@@ -27,18 +27,13 @@
 
 class SourceGLCanvas: public MapperGLCanvas
 {
+  Q_OBJECT
+
 public:
   SourceGLCanvas(QWidget* parent = 0);
+//  virtual ~SourceGLCanvas() {}
 
-  virtual Quad& getQuad() {
-    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-    Q_CHECK_PTR(textureMapping);
-
-    std::tr1::shared_ptr<Quad> inputQuad = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
-    Q_CHECK_PTR(inputQuad);
-
-    return (*inputQuad);
-  }
+  virtual Quad& getQuad();
 
 private:
   virtual void doDraw();

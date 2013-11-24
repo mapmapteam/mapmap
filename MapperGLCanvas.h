@@ -31,6 +31,8 @@
 
 class MapperGLCanvas: public QGLWidget
 {
+  Q_OBJECT
+
 public:
   MapperGLCanvas(QWidget* parent = 0, const QGLWidget * shareWidget = 0);
   virtual ~MapperGLCanvas() {}
@@ -38,18 +40,25 @@ public:
   virtual Quad& getQuad() = 0;
 
 protected:
-  virtual void initializeGL();
-  virtual void resizeGL(int width, int height);
-  virtual void paintGL();
+  void initializeGL();
+  void resizeGL(int width, int height);
+  void paintGL();
 
-  virtual void keyPressEvent(QKeyEvent* event);
-  virtual void paintEvent(QPaintEvent* event);
+  void keyPressEvent(QKeyEvent* event);
+  void paintEvent(QPaintEvent* event);
 
 private:
-  virtual void draw();
-  virtual void enterDraw();
+  void draw();
+  void enterDraw();
   virtual void doDraw() = 0;
-  virtual void exitDraw();
+  void exitDraw();
+
+signals:
+  void quadChanged();
+  void quadSwitched();
+
+public slots:
+  void updateCanvas();
 };
 
 #endif /* MAPPERGLCANVAS_H_ */

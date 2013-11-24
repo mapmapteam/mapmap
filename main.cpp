@@ -24,6 +24,12 @@ int main(int argc, char *argv[])
   SourceGLCanvas sourceCanvas;
   DestinationGLCanvas destinationCanvas(0, &sourceCanvas);
 
+  QObject::connect(&sourceCanvas, SIGNAL(quadChanged()),
+                   &destinationCanvas, SLOT(updateCanvas()));
+
+  QObject::connect(&destinationCanvas, SIGNAL(quadSwitched()),
+                   &sourceCanvas, SLOT(updateCanvas()));
+
   Common::initializeLibremapper(320, 480);
 
   QSplitter splitter(Qt::Horizontal);

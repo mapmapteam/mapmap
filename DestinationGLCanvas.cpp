@@ -24,6 +24,16 @@ DestinationGLCanvas::DestinationGLCanvas(QWidget* parent, const QGLWidget * shar
 {
 }
 
+Quad& DestinationGLCanvas::getQuad() {
+  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
+  Q_CHECK_PTR(textureMapping);
+
+  std::tr1::shared_ptr<Quad> quad = std::tr1::static_pointer_cast<Quad>(Common::currentMapping->getShape());
+  Q_CHECK_PTR(quad);
+
+  return (*quad);
+}
+
 void DestinationGLCanvas::doDraw() {
   // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
   // Il faut changer ca.

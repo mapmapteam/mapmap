@@ -108,7 +108,10 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   switch (event->key()) {
   case Qt::Key_Tab:
     if (event->modifiers() & Qt::ControlModifier)
+    {
       Common::nextImage();
+      emit quadSwitched();
+    }
     else
       current = (current + 1) % 4;
     break;
@@ -136,15 +139,15 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   p.y += yMove;
   quad.setVertex(current, p);
 
-  updateGL();
   update();
+
+  emit quadChanged();
 }
 
 void MapperGLCanvas::paintEvent(QPaintEvent* event)
 {
   std::cout << "Paint event" << std::endl;
   updateGL();
-  update();
 }
 
 void MapperGLCanvas::exitDraw()
@@ -153,4 +156,8 @@ void MapperGLCanvas::exitDraw()
   swapBuffers();
 }
 
-
+void MapperGLCanvas::updateCanvas()
+{
+  std::cout << "Update me!" << std::endl;
+  update();
+}

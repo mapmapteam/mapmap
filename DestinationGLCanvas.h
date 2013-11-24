@@ -26,20 +26,13 @@
 
 class DestinationGLCanvas: public MapperGLCanvas
 {
-//  Q_OBJECT
+  Q_OBJECT
 
 public:
   DestinationGLCanvas(QWidget* parent = 0, const QGLWidget * shareWidget = 0);
+//  virtual ~DestinationGLCanvas();
 
-  virtual Quad& getQuad() {
-    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-    Q_CHECK_PTR(textureMapping);
-
-    std::tr1::shared_ptr<Quad> quad = std::tr1::static_pointer_cast<Quad>(Common::currentMapping->getShape());
-    Q_CHECK_PTR(quad);
-
-    return (*quad);
-  }
+  virtual Quad& getQuad();
 
 private:
   virtual void doDraw();

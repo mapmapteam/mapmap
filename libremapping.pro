@@ -1,6 +1,7 @@
 CONFIG  += qt debug
 TEMPLATE = app
-SOURCES  = main.cpp Common.cpp MapperGLCanvas.cpp SourceGLCanvas.cpp DestinationGLCanvas.cpp
+HEADERS  = Common.h SourceGLCanvas.h DestinationGLCanvas.h MapperGLCanvas.h
+SOURCES  = main.cpp Common.cpp SourceGLCanvas.cpp DestinationGLCanvas.cpp MapperGLCanvas.cpp
 QT      += gui opengl
 LIBS    += -lSOIL -lglut
 
