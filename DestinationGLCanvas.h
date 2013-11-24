@@ -20,30 +20,22 @@
 #ifndef DESTINATIONGLCANVAS_H_
 #define DESTINATIONGLCANVAS_H_
 
-#include <wx/wx.h>
-#include <wx/glcanvas.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <SOIL/SOIL.h>
 
 #include "MapperGLCanvas.h"
 
-class DestinationGLCanvas: public MapperGLCanvas {
+class DestinationGLCanvas: public MapperGLCanvas
+{
+  Q_OBJECT
+
 public:
-  DestinationGLCanvas(wxFrame* parent);
+  DestinationGLCanvas(QWidget* parent = 0, const QGLWidget * shareWidget = 0);
+//  virtual ~DestinationGLCanvas();
 
-  virtual Quad& getQuad() {
-    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-    wxASSERT(textureMapping != NULL);
-
-    std::tr1::shared_ptr<Quad> quad = std::tr1::static_pointer_cast<Quad>(Common::currentMapping->getShape());
-    wxASSERT(quad != NULL);
-
-    return (*quad);
-  }
+  virtual Quad& getQuad();
 
 private:
-  virtual void doRender();
+  virtual void doDraw();
 };
 
 #endif /* DESTINATIONGLCANVAS_H_ */

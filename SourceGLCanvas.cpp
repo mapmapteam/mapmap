@@ -19,26 +19,37 @@
 
 #include "SourceGLCanvas.h"
 
-SourceGLCanvas::SourceGLCanvas(wxFrame *parent) :
-    MapperGLCanvas(parent) {
-//  int argc = 1;
-//  char* argv[1] = { wxString((wxTheApp ->argv)[0]).char_str() };
+SourceGLCanvas::SourceGLCanvas(QWidget* parent)
+  : MapperGLCanvas(parent)
+{
 }
 
-void SourceGLCanvas::doRender() {
+Quad& SourceGLCanvas::getQuad() {
+  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
+  Q_CHECK_PTR(textureMapping);
+
+  std::tr1::shared_ptr<Quad> inputQuad = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
+  Q_CHECK_PTR(inputQuad);
+
+  return (*inputQuad);
+}
+
+void SourceGLCanvas::doDraw() {
   // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
   // Il faut changer ca.
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-  wxASSERT(textureMapping != NULL);
+  Q_CHECK_PTR(textureMapping);
 
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-  wxASSERT(texture != NULL);
+  Q_CHECK_PTR(texture);
 
+  std::cout << width() << " " << height() << std::endl;
   if (texture->getTextureId() == 0) {
     texture->loadTexture();
-    texture->setPosition( (GetClientSize().x - texture->getWidth()) / 2,
-                          (GetClientSize().y - texture->getHeight()) / 2 );
+    texture->setPosition( (width() - texture->getWidth()) / 2,
+                          (height() - texture->getHeight()) / 2 );
   }
+
   // Now, draw
   // DRAW THE TEXTURE
   glPushMatrix();
@@ -51,6 +62,11 @@ void SourceGLCanvas::doRender() {
   glEnable (GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
 
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, texture->getBits());
+
+  std::cout << texture->getX() << "x" << texture->getY() << " : " << texture->getWidth() << "x" << texture->getHeight() << " " << texture->getTextureId() << std::endl;
+
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -61,10 +77,10 @@ void SourceGLCanvas::doRender() {
 
   // Draw source texture (not moving) in the center of the area.
 
-  float centerX = GetClientSize().x / 2;
-  float centerY = GetClientSize().y / 2;
-  float textureHalfWidth  = texture->getWidth()  / 2;
-  float textureHalfHeight = texture->getHeight() / 2;
+  float centerX = (float)width()  / 2.0f;
+  float centerY = (float)height() / 2.0f;
+  float textureHalfWidth  = (float)texture->getWidth()  / 2.0f;
+  float textureHalfHeight = (float)texture->getHeight() / 2.0f;
 
   //printf("SRC: %f %f %f %f\n", centerX, centerY, textureHalfWidth, textureHalfHeight);
   glColor4f (1, 1, 1, 1.0f);

@@ -1,63 +1,49 @@
 // NOTE: To run, it is recommended not to be in Compiz or Beryl, they have shown some instability.
- 
-#include <wx/wx.h>
+
+#include <QApplication>
+#include <QtGui>
+
 #include "Common.h"
 #include "DestinationGLCanvas.h"
 #include "SourceGLCanvas.h"
 
-#include <stdlib.h>
-#include <stdio.h>
- 
-#ifndef WIN32
-#include <unistd.h> // FIXME: ¿This work/necessary in Windows?
-                    //Not necessary, but if it was, it needs to be replaced by process.h AND io.h
-#endif
- 
-class MyApp: public wxApp
+#include <iostream>
+
+#include <QtGui>
+
+int main(int argc, char *argv[])
 {
-    virtual bool OnInit();
-    SourceGLCanvas * sourceCanvas;
-    DestinationGLCanvas * destinationCanvas;
-//public:
-//    int FilterEvent(wxEvent& event);
-};
- 
-IMPLEMENT_APP(MyApp)
- 
-bool MyApp::OnInit()
-{
-  wxFrame *frame = new wxFrame((wxFrame *) NULL, -1,  wxT("Libremapping"), wxPoint(50, 50), wxSize(640, 480));
+  QApplication app(argc, argv);
 
-  wxBoxSizer* topSizer = new wxBoxSizer( wxHORIZONTAL );
-  sourceCanvas = new SourceGLCanvas(frame);
-  destinationCanvas = new DestinationGLCanvas(frame);
+  if (!QGLFormat::hasOpenGL())
+  {
+    std::cerr << "This system has no OpenGL support" << std::endl;
+    return 1;
+  }
 
-  topSizer->Add(sourceCanvas, 1, wxEXPAND);
-  topSizer->AddSpacer(10);
-  topSizer->Add(destinationCanvas, 1, wxEXPAND);
+  SourceGLCanvas sourceCanvas;
+  DestinationGLCanvas destinationCanvas(0, &sourceCanvas);
 
-//    frame->SetWindowStyle(wxWANTS_CHARS);
-  frame->SetSizer(topSizer);
+  QObject::connect(&sourceCanvas, SIGNAL(quadChanged()),
+                   &destinationCanvas, SLOT(updateCanvas()));
 
-  // HACK: values 320x480 should be retrieved automatically
-  Common::initializeLibremapper(320,  480);
+  QObject::connect(&destinationCanvas, SIGNAL(quadSwitched()),
+                   &sourceCanvas, SLOT(updateCanvas()));
 
-  frame->Show(TRUE);
+  Common::initializeLibremapper(320, 480);
 
+  QSplitter splitter(Qt::Horizontal);
+  splitter.addWidget(&sourceCanvas);
+  splitter.addWidget(&destinationCanvas);
 
+  sourceCanvas.setFocusPolicy(Qt::ClickFocus);
+  destinationCanvas.setFocusPolicy(Qt::ClickFocus);
 
-  return TRUE;
+  splitter.setWindowTitle(QObject::tr("Libremapping"));
+  splitter.resize(650, 480);
+  splitter.show();
+
+  return app.exec();
 }
-//
-//int MyApp::FilterEvent(wxEvent& event) {
-//  printf("Event: %d %d\n", event.GetEventType(), wxEVT_KEY_DOWN);
-//
-//  if (event.GetEventType() == wxEVT_CHAR) {
-//    printf("Char: %d\n", ((wxKeyEvent&)event).GetKeyCode());
-//    return true;
-//  }
-//
-//  return -1;
-//}
-//
+
 

@@ -17,40 +17,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef MAPPERGLCANVAS_H_
 #define MAPPERGLCANVAS_H_
 
-#include <wx/wx.h>
-#include <wx/glcanvas.h>
+#include <QGLWidget>
+#include <QKeyEvent>
+#include <QPaintEvent>
+
+#include <iostream>
 
 #include "Common.h"
 #include "Shape.h"
 
-class MapperGLCanvas: public wxGLCanvas {
-private:
-  static wxGLContext* sharedContext;
+class MapperGLCanvas: public QGLWidget
+{
+  Q_OBJECT
 
 public:
-  MapperGLCanvas(wxFrame* parent);
+  MapperGLCanvas(QWidget* parent = 0, const QGLWidget * shareWidget = 0);
   virtual ~MapperGLCanvas() {}
-
-  virtual void Paintit(wxPaintEvent& event);
 
   virtual Quad& getQuad() = 0;
 
 protected:
-  DECLARE_EVENT_TABLE()
+  void initializeGL();
+  void resizeGL(int width, int height);
+  void paintGL();
 
-  virtual void Render();
-  virtual void enterRender();
-  virtual void doRender() = 0;
-  virtual void exitRender();
+  void keyPressEvent(QKeyEvent* event);
+  void paintEvent(QPaintEvent* event);
 
 private:
-  virtual void OnChar(wxKeyEvent& event);
-  virtual void OnMouseEvent(wxMouseEvent& event);
+  void draw();
+  void enterDraw();
+  virtual void doDraw() = 0;
+  void exitDraw();
 
+signals:
+  void quadChanged();
+  void quadSwitched();
+
+public slots:
+  void updateCanvas();
 };
 
 #endif /* MAPPERGLCANVAS_H_ */
