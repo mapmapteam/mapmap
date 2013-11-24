@@ -86,16 +86,16 @@ void SourceGLCanvas::doDraw() {
   glColor4f (1, 1, 1, 1.0f);
   glBegin (GL_QUADS);
   {
-    glTexCoord2f (0, 0);
+    Util::correctGlTexCoord(0, 0);
     glVertex3f (texture->getX(), texture->getY(), 0);
 
-    glTexCoord2f (1, 0);
+    Util::correctGlTexCoord(1, 0);
     glVertex3f (texture->getX()+texture->getWidth(), texture->getY(), 0);
 
-    glTexCoord2f (1, 1);
+    Util::correctGlTexCoord(1, 1);
     glVertex3f (texture->getX()+texture->getWidth(), texture->getY()+texture->getHeight(), 0);
 
-    glTexCoord2f (0, 1);
+    Util::correctGlTexCoord(0, 1);
     glVertex3f (texture->getX(), texture->getY()+texture->getHeight(), 0);
   }
   glEnd ();

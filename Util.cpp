@@ -1,5 +1,5 @@
 /*
- * SourceGLCanvas.h
+ * Util.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  *
@@ -17,29 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOURCEGLCANVAS_H_
-#define SOURCEGLCANVAS_H_
-
-#include <QGLWidget>
-
-#include "MapperGLCanvas.h"
-#include "DestinationGLCanvas.h"
-
 #include "Util.h"
 
-class SourceGLCanvas: public MapperGLCanvas
+void Util::correctGlTexCoord(GLfloat x, GLfloat y)
 {
-  Q_OBJECT
-
-public:
-  SourceGLCanvas(QWidget* parent = 0);
-//  virtual ~SourceGLCanvas() {}
-
-  virtual Quad& getQuad();
-
-private:
-  virtual void doDraw();
-};
-
-
-#endif /* DESTINATIONGLCANVAS_H_ */
+  glTexCoord2f (x, 1.0f - y);
+}

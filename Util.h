@@ -1,5 +1,5 @@
 /*
- * SourceGLCanvas.h
+ * Util.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  *
@@ -17,29 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOURCEGLCANVAS_H_
-#define SOURCEGLCANVAS_H_
+#ifndef UTIL_H_
+#define UTIL_H_
 
-#include <QGLWidget>
+#include <GL/gl.h>
 
-#include "MapperGLCanvas.h"
-#include "DestinationGLCanvas.h"
-
-#include "Util.h"
-
-class SourceGLCanvas: public MapperGLCanvas
-{
-  Q_OBJECT
-
+class Util {
 public:
-  SourceGLCanvas(QWidget* parent = 0);
-//  virtual ~SourceGLCanvas() {}
 
-  virtual Quad& getQuad();
-
-private:
-  virtual void doDraw();
+  static void correctGlTexCoord(GLfloat x, GLfloat y);
 };
 
-
-#endif /* DESTINATIONGLCANVAS_H_ */
+#endif /* UTIL_H_ */

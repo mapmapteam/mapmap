@@ -11,6 +11,9 @@
 
 #include <QtGui>
 
+#define DEFAULT_WIDTH  800
+#define DEFAULT_HEIGHT 600
+
 int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
@@ -30,8 +33,6 @@ int main(int argc, char *argv[])
   QObject::connect(&destinationCanvas, SIGNAL(quadSwitched()),
                    &sourceCanvas, SLOT(updateCanvas()));
 
-  Common::initializeLibremapper(320, 480);
-
   QSplitter splitter(Qt::Horizontal);
   splitter.addWidget(&sourceCanvas);
   splitter.addWidget(&destinationCanvas);
@@ -39,10 +40,12 @@ int main(int argc, char *argv[])
   sourceCanvas.setFocusPolicy(Qt::ClickFocus);
   destinationCanvas.setFocusPolicy(Qt::ClickFocus);
 
+
   splitter.setWindowTitle(QObject::tr("Libremapping"));
-  splitter.resize(650, 480);
+  splitter.resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
   splitter.show();
 
+  Common::initializeLibremapper(sourceCanvas.width(), sourceCanvas.height());
   return app.exec();
 }
 

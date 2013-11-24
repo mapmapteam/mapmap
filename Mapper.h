@@ -26,6 +26,8 @@
 #include "Shape.h"
 #include "Paint.h"
 
+#include "Util.h"
+
 #include <tr1/memory>
 
 #include <GL/gl.h>
@@ -129,49 +131,7 @@ public:
   QuadTextureMapper(TextureMapping* mapping) : Mapper(mapping) {}
   virtual ~QuadTextureMapper() {}
 
-  virtual void draw() {
-    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
-    Q_CHECK_PTR(textureMapping);
-
-    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-    Q_CHECK_PTR(texture);
-
-    std::tr1::shared_ptr<Quad> quad = std::tr1::static_pointer_cast<Quad>(textureMapping->getShape());
-    Q_CHECK_PTR(quad);
-
-    std::tr1::shared_ptr<Quad> inputQuad = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
-    Q_CHECK_PTR(inputQuad);
-
-    printf("Texid: %d\n", texture->getTextureId());
-    // Project source texture and sent it to destination.
-
-    glEnable (GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, texture->getBits());
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glColor4f(1, 1, 1, 1.0f);
-    glBegin(GL_QUADS);
-    {
-      for (int i=0; i<4; i++)
-      {
-        glTexCoord2f( ( inputQuad->getVertex(i).x - texture->getX() ) / (GLfloat) texture->getWidth(),
-                      ( inputQuad->getVertex(i).y - texture->getY() ) / (GLfloat) texture->getHeight());
-        glVertex3f( quad->getVertex(i).x,
-                    quad->getVertex(i).y,
-                    0);
-      }
-    }
-    glEnd();
-
-    glDisable(GL_TEXTURE_2D);
-  }
+  virtual void draw();
 };
 
 
