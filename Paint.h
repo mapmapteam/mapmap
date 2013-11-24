@@ -22,11 +22,11 @@
 #define PAINT_H_
 
 #include <QtGlobal>
+#include <QtOpenGL>
 
 #include <string>
 
 #include <GL/gl.h>
-#include <SOIL/SOIL.h>
 
 class Paint
 {
@@ -44,7 +44,7 @@ protected:
   int x;
   int y;
 
-  Texture(GLuint textureId_=0) : textureId(textureId_) {}
+  Texture(GLuint textureId_=0) : textureId(textureId_), x(-1), y(-1) {}
   virtual ~Texture() {}
 
 public:
@@ -52,6 +52,7 @@ public:
   virtual void loadTexture() = 0;
   virtual int getWidth() const = 0;
   virtual int getHeight() const = 0;
+  virtual const uchar* getBits() const = 0;
 
   virtual void setPosition(int xPos, int yPos) {
     x = xPos;
@@ -64,31 +65,31 @@ public:
 class Image : public Texture
 {
 protected:
-  std::string imagePath;
-  int width;
-  int height;
-  int x;
-  int y;
-  unsigned char* imageData;
+  QImage image;
 
 public:
-  Image(const std::string imagePath_) : Texture(), imagePath(imagePath_), width(-1), height(-1), x(-1), y(-1) {
-    imageData = SOIL_load_image(imagePath.c_str(), &width, &height, 0, SOIL_LOAD_RGB );
-    Q_CHECK_PTR(imageData);
+  Image(const std::string imagePath_) : Texture() {
+    image = QGLWidget::convertToGLFormat(QImage(imagePath_.c_str()));
   }
-  virtual ~Image() {}
+
+  virtual ~Image() {
+  }
 
   virtual void loadTexture() {
-    textureId = SOIL_create_OGL_texture ( imageData, width, height, 3, textureId, 0);
+    if (textureId == 0)
+    {
+      glGenTextures(1, &textureId);
+    }
+//    textureId = SOIL_create_OGL_texture ( imageData, width, height, 3, textureId, 0);
     // TODO: free data?
   }
 
   virtual void build() {
   }
 
-  virtual int getWidth() const { return width; }
-  virtual int getHeight() const { return height; }
-
+  virtual int getWidth() const { return image.width(); }
+  virtual int getHeight() const { return image.height(); }
+  virtual const uchar* getBits() const { return image.bits(); }
 
 };
 

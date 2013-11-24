@@ -38,12 +38,12 @@ public:
   virtual Quad& getQuad() = 0;
 
 protected:
-  void initializeGL();
-  void resizeGL(int width, int height);
-  void paintGL();
+  virtual void initializeGL();
+  virtual void resizeGL(int width, int height);
+  virtual void paintGL();
 
-  void keyPressEvent(QKeyEvent* event);
-  void paintEvent(QPaintEvent* event);
+  virtual void keyPressEvent(QKeyEvent* event);
+  virtual void paintEvent(QPaintEvent* event);
 
 private:
   virtual void draw();

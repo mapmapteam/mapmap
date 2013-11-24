@@ -33,11 +33,13 @@ void SourceGLCanvas::doDraw() {
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   Q_CHECK_PTR(texture);
 
+  std::cout << width() << " " << height() << std::endl;
   if (texture->getTextureId() == 0) {
     texture->loadTexture();
     texture->setPosition( (width() - texture->getWidth()) / 2,
                           (height() - texture->getHeight()) / 2 );
   }
+
   // Now, draw
   // DRAW THE TEXTURE
   glPushMatrix();
@@ -49,6 +51,11 @@ void SourceGLCanvas::doDraw() {
   glDisable (GL_LIGHTING);
   glEnable (GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, texture->getBits());
+
+  std::cout << texture->getX() << "x" << texture->getY() << " : " << texture->getWidth() << "x" << texture->getHeight() << " " << texture->getTextureId() << std::endl;
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

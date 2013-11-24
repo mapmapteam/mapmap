@@ -148,6 +148,9 @@ public:
     glEnable (GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
 
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, texture->getBits());
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

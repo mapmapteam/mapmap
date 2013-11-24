@@ -26,28 +26,32 @@ MapperGLCanvas::MapperGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
 
 void MapperGLCanvas::initializeGL()
 {
-  qglClearColor(Qt::black);
-  glShadeModel(GL_FLAT);
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_CULL_FACE);
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  //qglClearColor(Qt::black);
+  //glShadeModel(GL_FLAT);
+  //glEnable(GL_DEPTH_TEST);
+  //glEnable(GL_CULL_FACE);
 }
 
 void MapperGLCanvas::resizeGL(int width, int height)
 {
-  glViewport(0, 0, width, height);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glMatrixMode (GL_PROJECTION);
-  glLoadIdentity ();
-  glOrtho (
-    0.0f, (GLfloat) width, // left, right
-    (GLfloat) height, 0.0f, // bottom, top
-    -1.0, 1.0f);
-  glMatrixMode (GL_MODELVIEW);
+//  glClearColor(0.0, 0.0, 0.0, 0.0);
+//
+//  glViewport(0, 0, width, height);
+//  glMatrixMode(GL_PROJECTION);
+//  glLoadIdentity();
+//  glMatrixMode (GL_PROJECTION);
+//  glLoadIdentity ();
+//  glOrtho (
+//    0.0f, (GLfloat) width, // left, right
+//    (GLfloat) height, 0.0f, // bottom, top
+//    -1.0, 1.0f);
+//  glMatrixMode (GL_MODELVIEW);
 }
 
 void MapperGLCanvas::paintGL()
 {
+  glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   draw();
 }
@@ -66,6 +70,19 @@ void MapperGLCanvas::draw()
 }
 
 void MapperGLCanvas::enterDraw() {
+
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glClear(GL_COLOR_BUFFER_BIT);
+  glViewport(0, 0, width(), height());
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glMatrixMode (GL_PROJECTION);
+  glLoadIdentity ();
+  glOrtho (
+    0.0f, (GLfloat) width(), // left, right
+    (GLfloat) height(), 0.0f, // bottom, top
+    -1.0, 1.0f);
+  glMatrixMode (GL_MODELVIEW);
 
 //  glClearColor(0.0, 0.0, 0.0, 0.0);
 //  glClear(GL_COLOR_BUFFER_BIT);
@@ -90,7 +107,10 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   int yMove = 0;
   switch (event->key()) {
   case Qt::Key_Tab:
-    current = (current + 1) % 4;
+    if (event->modifiers() & Qt::ControlModifier)
+      Common::nextImage();
+    else
+      current = (current + 1) % 4;
     break;
   case Qt::Key_Up:
     yMove = -1;
@@ -117,12 +137,14 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   quad.setVertex(current, p);
 
   updateGL();
+  update();
 }
 
 void MapperGLCanvas::paintEvent(QPaintEvent* event)
 {
   std::cout << "Paint event" << std::endl;
   updateGL();
+  update();
 }
 
 void MapperGLCanvas::exitDraw()

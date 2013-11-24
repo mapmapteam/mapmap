@@ -22,14 +22,11 @@
 
 #include <QGLWidget>
 
-#include <SOIL/SOIL.h>
-
 #include "MapperGLCanvas.h"
+#include "DestinationGLCanvas.h"
 
 class SourceGLCanvas: public MapperGLCanvas
 {
-//  Q_OBJECT
-
 public:
   SourceGLCanvas(QWidget* parent = 0);
 
