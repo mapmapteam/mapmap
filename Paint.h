@@ -41,8 +41,8 @@ class Texture : public Paint
 {
 protected:
   GLuint textureId;
-  int x;
-  int y;
+  GLfloat x;
+  GLfloat y;
 
   Texture(GLuint textureId_=0) : textureId(textureId_), x(-1), y(-1) {}
   virtual ~Texture() {}
@@ -54,12 +54,12 @@ public:
   virtual int getHeight() const = 0;
   virtual const uchar* getBits() const = 0;
 
-  virtual void setPosition(int xPos, int yPos) {
+  virtual void setPosition(GLfloat xPos, GLfloat yPos) {
     x = xPos;
     y = yPos;
   }
-  virtual int getX() const { return x; }
-  virtual int getY() const { return y; }
+  virtual GLfloat getX() const { return x; }
+  virtual GLfloat getY() const { return y; }
 };
 
 class Image : public Texture

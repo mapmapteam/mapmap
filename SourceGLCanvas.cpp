@@ -46,8 +46,8 @@ void SourceGLCanvas::doDraw() {
   std::cout << width() << " " << height() << std::endl;
   if (texture->getTextureId() == 0) {
     texture->loadTexture();
-    texture->setPosition( (width() - texture->getWidth()) / 2,
-                          (height() - texture->getHeight()) / 2 );
+//    texture->setPosition( (width()  - texture->getWidth() ) / 2.0f,
+//                          (height() - texture->getHeight()) / 2.0f );
   }
 
   // Now, draw

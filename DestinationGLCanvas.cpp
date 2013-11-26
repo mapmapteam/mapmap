@@ -51,8 +51,8 @@ void DestinationGLCanvas::doDraw() {
     if (tex->getTextureId() == 0)
     {
       tex->loadTexture();
-      tex->setPosition( (width() - tex->getWidth()) / 2,
-                        (height() - tex->getHeight()) / 2 );
+//      tex->setPosition( (width() - tex->getWidth()) / 2,
+//                        (height() - tex->getHeight()) / 2 );
     }
   }
 

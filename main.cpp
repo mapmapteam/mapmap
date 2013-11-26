@@ -4,15 +4,9 @@
 #include <QtGui>
 
 #include "Common.h"
-#include "DestinationGLCanvas.h"
-#include "SourceGLCanvas.h"
+#include "MainWindow.h"
 
 #include <iostream>
-
-#include <QtGui>
-
-#define DEFAULT_WIDTH  800
-#define DEFAULT_HEIGHT 600
 
 int main(int argc, char *argv[])
 {
@@ -24,28 +18,9 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  SourceGLCanvas sourceCanvas;
-  DestinationGLCanvas destinationCanvas(0, &sourceCanvas);
+  MainWindow window;
+  window.show();
 
-  QObject::connect(&sourceCanvas, SIGNAL(quadChanged()),
-                   &destinationCanvas, SLOT(updateCanvas()));
-
-  QObject::connect(&destinationCanvas, SIGNAL(quadSwitched()),
-                   &sourceCanvas, SLOT(updateCanvas()));
-
-  QSplitter splitter(Qt::Horizontal);
-  splitter.addWidget(&sourceCanvas);
-  splitter.addWidget(&destinationCanvas);
-
-  sourceCanvas.setFocusPolicy(Qt::ClickFocus);
-  destinationCanvas.setFocusPolicy(Qt::ClickFocus);
-
-
-  splitter.setWindowTitle(QObject::tr("Libremapping"));
-  splitter.resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-  splitter.show();
-
-  Common::initializeLibremapper(sourceCanvas.width(), sourceCanvas.height());
   return app.exec();
 }
 

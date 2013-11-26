@@ -28,21 +28,30 @@ int Common::currentSourceIdx = 0;
 
 Quad* Common::createQuadForTexture(Texture* texture, int frameWidth, int frameHeight)
 {
-  float centerX = frameWidth / 2.0f;
-  float centerY = frameHeight / 2.0f;
-  float textureHalfWidth  = texture->getWidth()  / 2.0f;
-  float textureHalfHeight = texture->getHeight() / 2.0f;
-
   return new Quad(
-      Point(centerX-textureHalfWidth, centerY-textureHalfHeight),
-      Point(centerX+textureHalfWidth, centerY-textureHalfHeight),
-      Point(centerX+textureHalfWidth, centerY+textureHalfHeight),
-      Point(centerX-textureHalfWidth, centerY+textureHalfHeight));
+    Point(texture->getX(), texture->getY()),
+    Point(texture->getX() + texture->getWidth(), texture->getY()),
+    Point(texture->getX() + texture->getWidth(), texture->getY() + texture->getHeight()),
+    Point(texture->getX(), texture->getY() + texture->getHeight())
+  );
+//  float centerX = frameWidth / 2.0f;
+//  float centerY = frameHeight / 2.0f;
+//  float textureHalfWidth  = texture->getWidth()  / 2.0f;
+//  float textureHalfHeight = texture->getHeight() / 2.0f;
+//
+//  return new Quad(
+//      Point(centerX-textureHalfWidth, centerY-textureHalfHeight),
+//      Point(centerX+textureHalfWidth, centerY-textureHalfHeight),
+//      Point(centerX+textureHalfWidth, centerY+textureHalfHeight),
+//      Point(centerX-textureHalfWidth, centerY+textureHalfHeight));
 }
 
 void Common::addImage(const std::string imagePath, int frameWidth, int frameHeight)
 {
   Image* img  = new Image(imagePath);
+
+  img->setPosition( (frameWidth  - img->getWidth() ) / 2.0f,
+                    (frameHeight - img->getHeight()) / 2.0f );
 
   TextureMapping* tm = new TextureMapping(
       img,

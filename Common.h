@@ -27,6 +27,9 @@
 #include "Shape.h"
 #include "Mapper.h"
 
+#define DEFAULT_WIDTH  1600
+#define DEFAULT_HEIGHT 800
+
 class Common {
 public:
   static std::vector< std::tr1::shared_ptr<Mapping> > mappings;
