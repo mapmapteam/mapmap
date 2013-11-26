@@ -39,9 +39,15 @@ public:
 
   static int currentSourceIdx;
 
+  static int getCurrentSourceId() { return currentSourceIdx; }
+
   static Quad* createQuadForTexture(Texture* texture, int frameWidth, int frameHeight);
   static void addImage(const QString imagePath, int frameWidth, int frameHeight);
   static void initializeLibremapper(int frameWidth, int frameHeight);
+
+  static void switchImage(int imageId);
+
+  // deprecated
   static void nextImage();
 
   static int nImages() { return mappings.size(); }

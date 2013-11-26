@@ -39,6 +39,8 @@ public:
 
   virtual Quad& getQuad() = 0;
 
+  void switchImage(int imageId);
+
 protected:
   void initializeGL();
   void resizeGL(int width, int height);
@@ -46,6 +48,7 @@ protected:
 
   void keyPressEvent(QKeyEvent* event);
   void paintEvent(QPaintEvent* event);
+
 
 private:
   void draw();

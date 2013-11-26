@@ -21,15 +21,15 @@
 
 MainWindow::MainWindow()
 {
-  sourceList = new QListView;
+  sourceList = new QListWidget;
   sourceCanvas = new SourceGLCanvas;
   destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
 
-  QObject::connect(sourceCanvas, SIGNAL(quadChanged()),
-                   destinationCanvas, SLOT(updateCanvas()));
+  connect(sourceCanvas, SIGNAL(quadChanged()),
+          destinationCanvas, SLOT(updateCanvas()));
 
-  QObject::connect(destinationCanvas, SIGNAL(quadSwitched()),
-                   sourceCanvas, SLOT(updateCanvas()));
+  connect(destinationCanvas, SIGNAL(quadSwitched()),
+          sourceCanvas, SLOT(updateCanvas()));
 
   sourceCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
@@ -50,19 +50,47 @@ MainWindow::MainWindow()
 
   Common::initializeLibremapper(sourceCanvas->width(), sourceCanvas->height());
 
-  QStringListModel* sourcesModel = new QStringListModel;
   for (int i=0; i<Common::nImages(); i++)
   {
     std::tr1::shared_ptr<Image> img = std::tr1::static_pointer_cast<Image>(Common::mappings[i]->getPaint());
     Q_CHECK_PTR(img);
 
-    sourcesModel->insertRow(sourcesModel->rowCount(), sourcesModel->index(1));
-    sourcesModel->setData(sourcesModel->index(sourcesModel->rowCount()-1), img->getImagePath());
+    QListWidgetItem* item = new QListWidgetItem(img->getImagePath());
+    item->setData(Qt::UserRole, i);
+
+    sourceList->addItem(item);
   }
 
-  sourceList->setModel(sourcesModel);
+  connect(sourceList, SIGNAL(itemSelectionChanged()),
+          this,       SLOT(handleSourceItemSelectionChanged()));
+
+//  sourceList->setModel(sourcesModel);
+//
+//  connect(sourceList->selectionModel(),
+//          SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+//          this, SLOT(handleSourceSelectionChanged(QItemSelection)));
 }
 
 MainWindow::~MainWindow() {
 }
+
+void MainWindow::handleSourceItemSelectionChanged()
+{
+  std::cout << "selection changed" << std::endl;
+  QListWidgetItem* item = sourceList->currentItem();
+  int idx = item->data(Qt::UserRole).toInt();
+  std::cout << "idx=" << idx << std::endl;
+  sourceCanvas->switchImage(idx);
+  sourceCanvas->repaint();
+  destinationCanvas->repaint();
+}
+
+//void MainWindow::handleSourceSelectionChanged(const QItemSelection& selection)
+//{
+//  std::cout << "selection changed" << std::endl;
+//  QModelIndex& index = selection.indexes().first();
+//  int idx = index.row();
+//  std::cout << "idx=" << idx << std::endl;
+//  sourceCanvas->switchImage(idx);
+//}
 

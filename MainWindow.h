@@ -36,9 +36,13 @@ public:
   virtual ~MainWindow();
 
 private:
-  QListView* sourceList;
+  QListWidget* sourceList;
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
+
+private slots:
+  void handleSourceItemSelectionChanged();
+//  void handleSourceSelectionChanged(const QItemSelection& selection);
 };
 
 #endif /* MAIN_WINDOW_H_ */

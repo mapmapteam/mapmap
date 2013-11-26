@@ -73,6 +73,14 @@ void Common::initializeLibremapper(int frameWidth, int frameHeight)
   addImage("example.png", frameWidth, frameHeight);
   addImage("pnggrad8rgb.png", frameWidth, frameHeight);
 
+
+  currentMapping   = mappings[currentSourceIdx];
+  currentMapper    = mappers[currentSourceIdx];
+}
+
+void Common::switchImage(int imageId)
+{
+  currentSourceIdx = imageId;
   currentMapping   = mappings[currentSourceIdx];
   currentMapper    = mappers[currentSourceIdx];
 }
