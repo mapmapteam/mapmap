@@ -46,7 +46,7 @@ Quad* Common::createQuadForTexture(Texture* texture, int frameWidth, int frameHe
 //      Point(centerX-textureHalfWidth, centerY+textureHalfHeight));
 }
 
-void Common::addImage(const std::string imagePath, int frameWidth, int frameHeight)
+void Common::addImage(const QString imagePath, int frameWidth, int frameHeight)
 {
   Image* img  = new Image(imagePath);
 

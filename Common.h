@@ -40,7 +40,7 @@ public:
   static int currentSourceIdx;
 
   static Quad* createQuadForTexture(Texture* texture, int frameWidth, int frameHeight);
-  static void addImage(const std::string imagePath, int frameWidth, int frameHeight);
+  static void addImage(const QString imagePath, int frameWidth, int frameHeight);
   static void initializeLibremapper(int frameWidth, int frameHeight);
   static void nextImage();
 

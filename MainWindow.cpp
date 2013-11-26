@@ -41,19 +41,26 @@ MainWindow::MainWindow()
   canvasSplitter->addWidget(destinationCanvas);
   canvasSplitter->setMinimumWidth(DEFAULT_WIDTH * 2/3);
 
-  //canvasSplitter->resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-//  QSplitter* mainSplitter = canvasSplitter;
-
   mainSplitter->addWidget(sourceList);
   mainSplitter->addWidget(canvasSplitter);
 
   this->setWindowTitle(QObject::tr("Libremapping"));
   this->resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
   this->setCentralWidget(mainSplitter);
-//  mainSplitter->show();
 
-//  sourceList->setFixedWidth(100);
   Common::initializeLibremapper(sourceCanvas->width(), sourceCanvas->height());
+
+  QStringListModel* sourcesModel = new QStringListModel;
+  for (int i=0; i<Common::nImages(); i++)
+  {
+    std::tr1::shared_ptr<Image> img = std::tr1::static_pointer_cast<Image>(Common::mappings[i]->getPaint());
+    Q_CHECK_PTR(img);
+
+    sourcesModel->insertRow(sourcesModel->rowCount(), sourcesModel->index(1));
+    sourcesModel->setData(sourcesModel->index(sourcesModel->rowCount()-1), img->getImagePath());
+  }
+
+  sourceList->setModel(sourcesModel);
 }
 
 MainWindow::~MainWindow() {

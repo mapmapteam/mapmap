@@ -65,11 +65,12 @@ public:
 class Image : public Texture
 {
 protected:
+  QString imagePath;
   QImage image;
 
 public:
-  Image(const std::string imagePath_) : Texture() {
-    image = QGLWidget::convertToGLFormat(QImage(imagePath_.c_str()));
+  Image(const QString imagePath_) : Texture(), imagePath(imagePath_) {
+    image = QGLWidget::convertToGLFormat(QImage(imagePath));
   }
 
   virtual ~Image() {
@@ -83,6 +84,8 @@ public:
 //    textureId = SOIL_create_OGL_texture ( imageData, width, height, 3, textureId, 0);
     // TODO: free data?
   }
+
+  const QString getImagePath() const { return imagePath; }
 
   virtual void build() {
   }
