@@ -88,6 +88,7 @@ void SourceGLCanvas::doDraw()
 
   //printf("SRC: %f %f %f %f\n", centerX, centerY, textureHalfWidth, textureHalfHeight);
   glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
+  // FIXME: Does this draw the quad counterclockwise?
   glBegin (GL_QUADS);
   {
     Util::correctGlTexCoord(0, 0);
