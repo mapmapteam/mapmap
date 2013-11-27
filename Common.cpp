@@ -33,11 +33,12 @@ Quad* Common::createQuadForTexture(Texture* texture, int frameWidth, int frameHe
   float textureHalfWidth  = texture->getWidth()  / 2.0f;
   float textureHalfHeight = texture->getHeight() / 2.0f;
 
+  // XXX We should always draw OpenGL shapes counterclockwise
   return new Quad(
-      Point(centerX-textureHalfWidth, centerY-textureHalfHeight),
-      Point(centerX+textureHalfWidth, centerY-textureHalfHeight),
-      Point(centerX+textureHalfWidth, centerY+textureHalfHeight),
-      Point(centerX-textureHalfWidth, centerY+textureHalfHeight));
+    Point(centerX - textureHalfWidth, centerY - textureHalfHeight),
+    Point(centerX - textureHalfWidth, centerY + textureHalfHeight),
+    Point(centerX + textureHalfWidth, centerY + textureHalfHeight),
+    Point(centerX + textureHalfWidth, centerY - textureHalfHeight));
 }
 
 void Common::addImage(const std::string imagePath, int frameWidth, int frameHeight)
@@ -46,10 +47,8 @@ void Common::addImage(const std::string imagePath, int frameWidth, int frameHeig
 
   TextureMapping* tm = new TextureMapping(
       img,
-
       // Destination.
       createQuadForTexture(img, frameWidth, frameHeight),
-
       // Input.
       createQuadForTexture(img, frameWidth, frameHeight)
   );

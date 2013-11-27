@@ -33,7 +33,7 @@ void MapperGLCanvas::initializeGL()
   //glEnable(GL_CULL_FACE);
 }
 
-void MapperGLCanvas::resizeGL(int width, int height)
+void MapperGLCanvas::resizeGL(int /* width */, int /* height */)
 {
 //  glClearColor(0.0, 0.0, 0.0, 0.0);
 //
@@ -63,8 +63,8 @@ void MapperGLCanvas::draw()
   exitDraw();
 }
 
-void MapperGLCanvas::enterDraw() {
-
+void MapperGLCanvas::enterDraw()
+{
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT);
   glViewport(0, 0, width(), height());
@@ -138,7 +138,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   emit quadChanged();
 }
 
-void MapperGLCanvas::paintEvent(QPaintEvent* event)
+void MapperGLCanvas::paintEvent(QPaintEvent* /* event */)
 {
   std::cout << "Paint event" << std::endl;
   updateGL();

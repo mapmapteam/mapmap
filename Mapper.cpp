@@ -51,7 +51,7 @@ void QuadTextureMapper::draw()
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
   glBegin(GL_QUADS);
   {
-    for (int i=0; i<4; i++)
+    for (int i = 0; i < 4; i++)
     {
       Util::correctGlTexCoord(
         (inputQuad->getVertex(i).x - texture->getX()) / (GLfloat) texture->getWidth(),

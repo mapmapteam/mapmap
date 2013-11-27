@@ -1,15 +1,11 @@
 // NOTE: To run, it is recommended not to be in Compiz or Beryl, they have shown some instability.
 
+#include <iostream>
 #include <QApplication>
 #include <QtGui>
-
 #include "Common.h"
 #include "DestinationGLCanvas.h"
 #include "SourceGLCanvas.h"
-
-#include <iostream>
-
-#include <QtGui>
 
 #define DEFAULT_WIDTH  800
 #define DEFAULT_HEIGHT 600
@@ -40,8 +36,7 @@ int main(int argc, char *argv[])
   sourceCanvas.setFocusPolicy(Qt::ClickFocus);
   destinationCanvas.setFocusPolicy(Qt::ClickFocus);
 
-
-  splitter.setWindowTitle(QObject::tr("Libremapping"));
+  splitter.setWindowTitle(QObject::tr("LibreMapping"));
   splitter.resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
   splitter.show();
 
