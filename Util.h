@@ -22,6 +22,9 @@
 
 #include <GL/gl.h>
 
+/**
+ * @namespace Util Useful functions.
+ */
 namespace Util {
 
 void correctGlTexCoord(GLfloat x, GLfloat y);

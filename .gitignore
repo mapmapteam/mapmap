@@ -22,3 +22,4 @@ moc_MapperGLCanvas.cpp
 moc_SourceGLCanvas.cpp
 prototypes/gst/
 prototypes/wx-02-input-output/run
+html/

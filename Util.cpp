@@ -45,6 +45,9 @@ float map_float(float value, float istart, float istop, float ostart, float osto
     return std::max(std::min(ret, ostop), ostart);
 }
 
+/**
+ * See map_float
+ */
 int map_int(int value, int istart, int istop, int ostart, int ostop)
 {
     float ret = ostart + (ostop - ostart) * ((value - istart) / float(istop - istart));

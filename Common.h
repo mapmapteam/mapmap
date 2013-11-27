@@ -27,6 +27,9 @@
 #include "Shape.h"
 #include "Mapper.h"
 
+/**
+ * The main LibreMapping engine that deals with video mapping projects.
+ */
 class Common
 {
 public:

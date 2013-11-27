@@ -20,8 +20,6 @@
 #ifndef DESTINATIONGLCANVAS_H_
 #define DESTINATIONGLCANVAS_H_
 
-#include <SOIL/SOIL.h>
-
 #include "MapperGLCanvas.h"
 
 class DestinationGLCanvas: public MapperGLCanvas

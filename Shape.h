@@ -23,6 +23,9 @@
 #include <vector>
 #include <tr1/memory>
 
+/**
+ * Point (or vertex) on the 2-D canvas.
+ */
 struct Point
 {
   double x;
@@ -30,6 +33,9 @@ struct Point
   Point(double x_, double y_) : x(x_), y(y_) {}
 };
 
+/**
+ * Series of vertices. (points)
+ */
 class Shape
 {
 public:
@@ -58,6 +64,9 @@ public:
   }
 };
 
+/**
+ * Four-vertex shape.
+ */
 class Quad : public Shape
 {
 public:
