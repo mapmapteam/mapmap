@@ -27,12 +27,13 @@
 #include "Shape.h"
 #include "Mapper.h"
 
-class Common {
+class Common
+{
 public:
-  static std::vector< std::tr1::shared_ptr<Mapping> > mappings;
-  static std::vector< std::tr1::shared_ptr<Mapper> > mappers;
-  static std::tr1::shared_ptr<Mapping> currentMapping;
-  static std::tr1::shared_ptr<Mapper> currentMapper;
+  static std::vector<Mapping::ptr> mappings;
+  static std::vector<Mapper::ptr> mappers;
+  static Mapping::ptr currentMapping;
+  static Mapper::ptr currentMapper;
 
   static int currentSourceIdx;
 
@@ -41,7 +42,10 @@ public:
   static void initializeLibremapper(int frameWidth, int frameHeight);
   static void nextImage();
 
-  static int nImages() { return mappings.size(); }
+  static int nImages()
+  {
+    return mappings.size();
+  }
 };
 
 #endif /* COMMON_H_ */

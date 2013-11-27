@@ -21,6 +21,7 @@
 #define SHAPE_H_
 
 #include <vector>
+#include <tr1/memory>
 
 struct Point
 {
@@ -32,9 +33,12 @@ struct Point
 class Shape
 {
 public:
+  typedef std::tr1::shared_ptr<Shape> ptr;
   std::vector<Point> vertices;
   Shape() {}
-  Shape(std::vector<Point> vertices_) : vertices(vertices_) {}
+  Shape(std::vector<Point> vertices_) :
+    vertices(vertices_)
+  {}
   virtual ~Shape() {}
 
   virtual void build() {}

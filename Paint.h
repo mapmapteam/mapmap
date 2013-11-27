@@ -23,16 +23,16 @@
 
 #include <QtGlobal>
 #include <QtOpenGL>
-
 #include <string>
-
 #include <GL/gl.h>
+#include <tr1/memory>
 
 class Paint
 {
 protected:
   Paint() {}
 public:
+  typedef std::tr1::shared_ptr<Paint> ptr;
   virtual ~Paint() {}
   virtual void build() {}
 };

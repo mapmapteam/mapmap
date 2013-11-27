@@ -22,26 +22,23 @@
 #define MAPPER_H_
 
 #include <QtGlobal>
-
-#include "Shape.h"
-#include "Paint.h"
-
-#include "Util.h"
-
 #include <tr1/memory>
-
 #include <GL/gl.h>
 #include <SOIL/SOIL.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "Shape.h"
+#include "Paint.h"
+#include "Util.h"
 
 class Mapping
 {
 protected:
-  std::tr1::shared_ptr<Paint> _paint;
-  std::tr1::shared_ptr<Shape> _shape;
+  Paint::ptr _paint;
+  Shape::ptr _shape;
 
 public:
+  typedef std::tr1::shared_ptr<Mapping> ptr;
   Mapping(Paint* paint, Shape* shape)
     : _paint(paint), _shape(shape)
   {}
@@ -52,14 +49,14 @@ public:
   }
 
 public:
-  std::tr1::shared_ptr<Paint> getPaint() const { return _paint; }
-  std::tr1::shared_ptr<Shape> getShape() const { return _shape; }
+  Paint::ptr getPaint() const { return _paint; }
+  Shape::ptr getShape() const { return _shape; }
 };
 
 class TextureMapping : public Mapping
 {
 private:
-  std::tr1::shared_ptr<Shape> _inputShape;
+  Shape::ptr _inputShape;
 
 public:
   TextureMapping(Paint* paint,
@@ -74,17 +71,18 @@ public:
     _inputShape->build();
   }
 public:
-  std::tr1::shared_ptr<Shape> getInputShape() const { return _inputShape; }
+  Shape::ptr getInputShape() const { return _inputShape; }
 };
 
 class Mapper
 {
 protected:
-  std::tr1::shared_ptr<Mapping> _mapping;
+  Mapping::ptr _mapping;
   Mapper(Mapping* mapping) : _mapping(mapping) {}
   virtual ~Mapper() {}
 
 public:
+  typedef std::tr1::shared_ptr<Mapper> ptr;
   virtual void draw() = 0;
 };
 

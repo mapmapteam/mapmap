@@ -21,6 +21,7 @@
 
 void QuadTextureMapper::draw()
 {
+  // FIXME: use typedefs, member of the class for type names that are too long to type:
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
   Q_CHECK_PTR(textureMapping);
 
