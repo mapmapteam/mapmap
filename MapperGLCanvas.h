@@ -50,6 +50,9 @@ protected:
   void paintGL();
 
   void keyPressEvent(QKeyEvent* event);
+  void mousePressEvent(QMouseEvent* event);
+  void mouseMoveEvent(QMouseEvent* event);
+  void mouseReleaseEvent(QMouseEvent* event);
   void paintEvent(QPaintEvent* event);
 
 
@@ -58,6 +61,7 @@ private:
   void enterDraw();
   virtual void doDraw() = 0;
   void exitDraw();
+  bool _mousepressed;
 
 signals:
   void quadChanged();

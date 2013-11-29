@@ -20,7 +20,7 @@
 #include "MapperGLCanvas.h"
 
 MapperGLCanvas::MapperGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
-  : QGLWidget(parent, shareWidget)
+  : QGLWidget(parent, shareWidget), _mousepressed(false)
 {
 }
 
@@ -93,10 +93,56 @@ void MapperGLCanvas::enterDraw()
 ////  glLoadIdentity (); // FIXME? is this needed here?
 }
 
+void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
+{
+  int i, dist, maxdist, mindist;
+  int xmouse = event->x();
+  int ymouse = event->y();
+  maxdist = mindist = 50;
+  if (event->buttons() & Qt::LeftButton)
+  {    
+    // std::cout << "Left Mouse key pressed" << std::endl;
+    for (i = 0; i < 4; i++)
+    {
+      Quad& quad = getQuad();
+      Point p = quad.getVertex(i);
+      dist = abs(xmouse - p.x) + abs(ymouse - p.y); 
+      if (dist < maxdist && dist < mindist)
+      {
+        quad.setActiveVertex(i);
+        mindist = dist;
+      }
+    }
+    _mousepressed = true;
+  }
+}
+
+void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
+{
+  // std::cout << "Mouse Release event " << std::endl;
+  _mousepressed = false;
+}
+
+void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
+{
+
+  if (_mousepressed)
+  {
+    // std::cout << "Move event " << std::endl;
+    Quad& quad = getQuad();
+    Point p = quad.getVertex(quad.getActiveVertex());
+    p.x = event->x();
+    p.y = event->y();
+
+    quad.setVertex(quad.getActiveVertex(), p);
+    update();
+    emit quadChanged();
+  }
+}
+
 void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 {
   std::cout << "Key pressed" << std::endl;
-  static int current = 0;
   int xMove = 0;
   int yMove = 0;
   switch (event->key()) {
@@ -104,7 +150,10 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
     if (event->modifiers() & Qt::ControlModifier)
       switchImage( (Common::getCurrentSourceId() + 1) % Common::nImages());
     else
-      current = (current + 1) % 4;
+    {
+      Quad& quad = getQuad();
+      quad.setActiveVertex((quad.getActiveVertex() + 1) % 4);
+    }
     break;
   case Qt::Key_Up:
     yMove = -1;
@@ -125,10 +174,10 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   }
 
   Quad& quad = getQuad();
-  Point p = quad.getVertex(current);
+  Point p = quad.getVertex(quad.getActiveVertex());
   p.x += xMove;
   p.y += yMove;
-  quad.setVertex(current, p);
+  quad.setVertex(quad.getActiveVertex(), p);
 
   update();
 
