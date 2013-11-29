@@ -2,6 +2,7 @@
  * Paint.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,20 +24,32 @@
 
 #include <QtGlobal>
 #include <QtOpenGL>
-
 #include <string>
-
 #include <GL/gl.h>
+#include <tr1/memory>
 
+/**
+ * A Paint is a style that can be applied when drawing potentially any shape.
+ * 
+ * Defines the way to draw any shape.
+ * There must be a Mapper that implements this paint for every shape 
+ * so that this shape might be drawn with it.
+ */
 class Paint
 {
 protected:
   Paint() {}
 public:
+  typedef std::tr1::shared_ptr<Paint> ptr;
   virtual ~Paint() {}
   virtual void build() {}
 };
 
+/**
+ * Paint that uses an OpenGL texture to paint on potentially any Mapper.
+ * 
+ * This video texture is actually an OpenGL texture.
+ */
 class Texture : public Paint
 {
 protected:
@@ -62,6 +75,9 @@ public:
   virtual GLfloat getY() const { return y; }
 };
 
+/**
+ * Paint that is a Texture loaded from an image file.
+ */
 class Image : public Texture
 {
 protected:
@@ -81,7 +97,6 @@ public:
     {
       glGenTextures(1, &textureId);
     }
-//    textureId = SOIL_create_OGL_texture ( imageData, width, height, 3, textureId, 0);
     // TODO: free data?
   }
 
@@ -93,7 +108,6 @@ public:
   virtual int getWidth() const { return image.width(); }
   virtual int getHeight() const { return image.height(); }
   virtual const uchar* getBits() const { return image.bits(); }
-
 };
 
 #endif /* PAINT_H_ */

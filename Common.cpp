@@ -34,16 +34,6 @@ Quad* Common::createQuadForTexture(Texture* texture, int frameWidth, int frameHe
     Point(texture->getX() + texture->getWidth(), texture->getY() + texture->getHeight()),
     Point(texture->getX(), texture->getY() + texture->getHeight())
   );
-//  float centerX = frameWidth / 2.0f;
-//  float centerY = frameHeight / 2.0f;
-//  float textureHalfWidth  = texture->getWidth()  / 2.0f;
-//  float textureHalfHeight = texture->getHeight() / 2.0f;
-//
-//  return new Quad(
-//      Point(centerX-textureHalfWidth, centerY-textureHalfHeight),
-//      Point(centerX+textureHalfWidth, centerY-textureHalfHeight),
-//      Point(centerX+textureHalfWidth, centerY+textureHalfHeight),
-//      Point(centerX-textureHalfWidth, centerY+textureHalfHeight));
 }
 
 void Common::addImage(const QString imagePath, int frameWidth, int frameHeight)
@@ -55,10 +45,8 @@ void Common::addImage(const QString imagePath, int frameWidth, int frameHeight)
 
   TextureMapping* tm = new TextureMapping(
       img,
-
       // Destination.
       createQuadForTexture(img, frameWidth, frameHeight),
-
       // Input.
       createQuadForTexture(img, frameWidth, frameHeight)
   );

@@ -21,6 +21,7 @@
 
 void QuadTextureMapper::draw()
 {
+  // FIXME: use typedefs, member of the class for type names that are too long to type:
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
   Q_CHECK_PTR(textureMapping);
 
@@ -39,25 +40,27 @@ void QuadTextureMapper::draw()
   glEnable (GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, texture->getBits());
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+    texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
+    GL_UNSIGNED_BYTE, texture->getBits());
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  glColor4f(1, 1, 1, 1.0f);
+  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
   glBegin(GL_QUADS);
   {
-    for (int i=0; i<4; i++)
+    for (int i = 0; i < 4; i++)
     {
       Util::correctGlTexCoord(
-                    ( inputQuad->getVertex(i).x - texture->getX() ) / (GLfloat) texture->getWidth(),
-                    ( inputQuad->getVertex(i).y - texture->getY() ) / (GLfloat) texture->getHeight());
-      glVertex3f( quad->getVertex(i).x,
-                  quad->getVertex(i).y,
-                  0);
+        (inputQuad->getVertex(i).x - texture->getX()) / (GLfloat) texture->getWidth(),
+        (inputQuad->getVertex(i).y - texture->getY()) / (GLfloat) texture->getHeight());
+      glVertex2f(
+        quad->getVertex(i).x,
+        quad->getVertex(i).y
+        );
     }
   }
   glEnd();

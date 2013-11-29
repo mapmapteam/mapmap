@@ -29,6 +29,9 @@
 #include "Common.h"
 #include "Shape.h"
 
+/**
+ * Qt GUI widget that draws a mapper, which is a shape with some paint.
+ */
 class MapperGLCanvas: public QGLWidget
 {
   Q_OBJECT

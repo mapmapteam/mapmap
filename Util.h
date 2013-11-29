@@ -22,10 +22,15 @@
 
 #include <GL/gl.h>
 
-class Util {
-public:
+/**
+ * @namespace Util Useful functions.
+ */
+namespace Util {
 
-  static void correctGlTexCoord(GLfloat x, GLfloat y);
-};
+void correctGlTexCoord(GLfloat x, GLfloat y);
+float map_float(float value, float istart, float istop, float ostart, float ostop);
+int map_int(int value, int istart, int istop, int ostart, int ostop);
+
+} // end of namespace
 
 #endif /* UTIL_H_ */

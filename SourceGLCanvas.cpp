@@ -24,7 +24,8 @@ SourceGLCanvas::SourceGLCanvas(QWidget* parent)
 {
 }
 
-Quad& SourceGLCanvas::getQuad() {
+Quad& SourceGLCanvas::getQuad()
+{
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
   Q_CHECK_PTR(textureMapping);
 
@@ -34,7 +35,8 @@ Quad& SourceGLCanvas::getQuad() {
   return (*inputQuad);
 }
 
-void SourceGLCanvas::doDraw() {
+void SourceGLCanvas::doDraw()
+{
   // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
   // Il faut changer ca.
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
@@ -46,8 +48,6 @@ void SourceGLCanvas::doDraw() {
   std::cout << width() << " " << height() << std::endl;
   if (texture->getTextureId() == 0) {
     texture->loadTexture();
-//    texture->setPosition( (width()  - texture->getWidth() ) / 2.0f,
-//                          (height() - texture->getHeight()) / 2.0f );
   }
 
   // Now, draw
@@ -67,8 +67,8 @@ void SourceGLCanvas::doDraw() {
 
   std::cout << texture->getX() << "x" << texture->getY() << " : " << texture->getWidth() << "x" << texture->getHeight() << " " << texture->getTextureId() << std::endl;
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -77,13 +77,14 @@ void SourceGLCanvas::doDraw() {
 
   // Draw source texture (not moving) in the center of the area.
 
-  float centerX = (float)width()  / 2.0f;
-  float centerY = (float)height() / 2.0f;
-  float textureHalfWidth  = (float)texture->getWidth()  / 2.0f;
-  float textureHalfHeight = (float)texture->getHeight() / 2.0f;
+  // float centerX = (float) width()  / 2.0f;
+  // float centerY = (float) height() / 2.0f;
+  // float textureHalfWidth  = (float) texture->getWidth()  / 2.0f;
+  // float textureHalfHeight = (float) texture->getHeight() / 2.0f;
 
   //printf("SRC: %f %f %f %f\n", centerX, centerY, textureHalfWidth, textureHalfHeight);
-  glColor4f (1, 1, 1, 1.0f);
+  glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
+  // FIXME: Does this draw the quad counterclockwise?
   glBegin (GL_QUADS);
   {
     Util::correctGlTexCoord(0, 0);
@@ -93,10 +94,10 @@ void SourceGLCanvas::doDraw() {
     glVertex3f (texture->getX()+texture->getWidth(), texture->getY(), 0);
 
     Util::correctGlTexCoord(1, 1);
-    glVertex3f (texture->getX()+texture->getWidth(), texture->getY()+texture->getHeight(), 0);
+    glVertex3f (texture->getX()+texture->getWidth(), texture->getY() + texture->getHeight(), 0);
 
     Util::correctGlTexCoord(0, 1);
-    glVertex3f (texture->getX(), texture->getY()+texture->getHeight(), 0);
+    glVertex3f (texture->getX(), texture->getY() + texture->getHeight(), 0);
   }
   glEnd ();
 
@@ -105,17 +106,18 @@ void SourceGLCanvas::doDraw() {
   // Draw the quad.
   Quad& quad = getQuad();
 
-  glColor4f(1, 0, 0, 1);
+  glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 
-  // Source quad.
   // Source quad.
   glLineWidth(5);
   glBegin (GL_LINE_STRIP);
   {
-    for (int i=0; i<5; i++) {
-      glVertex3f(quad.getVertex(i % 4).x,
-                 quad.getVertex(i % 4).y,
-                 0);
+    for (int i = 0; i < 5; i++)
+    {
+      glVertex2f(
+        quad.getVertex(i % 4).x,
+        quad.getVertex(i % 4).y
+                 );
     }
   }
   glEnd ();

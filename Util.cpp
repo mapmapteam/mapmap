@@ -18,8 +18,43 @@
  */
 
 #include "Util.h"
+#include <algorithm>
 
-void Util::correctGlTexCoord(GLfloat x, GLfloat y)
+namespace Util {
+
+void correctGlTexCoord(GLfloat x, GLfloat y)
 {
   glTexCoord2f (x, 1.0f - y);
 }
+
+/**
+ * Convenience function to map a variable from one coordinate space
+ * to another.
+ * The result is clipped in the range [ostart, ostop]
+ * Make sure ostop is bigger than ostart.
+ *
+ * To map a MIDI control value into the [0,1] range:
+ * map(value, 0.0, 1.0, 0. 127.);
+ *
+ * Depends on: #include <algorithm>
+ */
+float map_float(float value, float istart, float istop, float ostart, float ostop)
+{
+    float ret = ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
+    // In Processing, they don't do the following: (clipping)
+    return std::max(std::min(ret, ostop), ostart);
+}
+
+/**
+ * See map_float
+ */
+int map_int(int value, int istart, int istop, int ostart, int ostop)
+{
+    float ret = ostart + (ostop - ostart) * ((value - istart) / float(istop - istart));
+    //g_print("%f = %d + (%d-%d) * ((%d-%d) / (%d-%d))", ret, ostart, ostop, ostart, value, istart, istop, istart);
+    // In Processing, they don't do the following: (clipping)
+    return std::max(std::min(int(ret), ostop), ostart);
+}
+
+} // end of namespace
+

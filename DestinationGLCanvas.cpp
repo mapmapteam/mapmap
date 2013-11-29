@@ -24,7 +24,8 @@ DestinationGLCanvas::DestinationGLCanvas(QWidget* parent, const QGLWidget * shar
 {
 }
 
-Quad& DestinationGLCanvas::getQuad() {
+Quad& DestinationGLCanvas::getQuad()
+{
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
   Q_CHECK_PTR(textureMapping);
 
@@ -34,7 +35,8 @@ Quad& DestinationGLCanvas::getQuad() {
   return (*quad);
 }
 
-void DestinationGLCanvas::doDraw() {
+void DestinationGLCanvas::doDraw()
+{
   // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
   // Il faut changer ca.
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
@@ -43,16 +45,16 @@ void DestinationGLCanvas::doDraw() {
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   Q_CHECK_PTR(texture);
 
-  for (int i=0; i<Common::nImages(); i++)
+  for (int i=0; i < Common::nImages(); i++)
   {
     std::tr1::shared_ptr<Texture> tex = std::tr1::static_pointer_cast<Texture>(Common::mappings[i]->getPaint());
     Q_CHECK_PTR(tex);
 
+    // FIXME: maybe the texture id is actually 0 and it's ok, no?
+    // we should use a boolean is_texture_loaded, or so
     if (tex->getTextureId() == 0)
     {
       tex->loadTexture();
-//      tex->setPosition( (width() - tex->getWidth()) / 2,
-//                        (height() - tex->getHeight()) / 2 );
     }
   }
 
@@ -60,7 +62,7 @@ void DestinationGLCanvas::doDraw() {
   // DRAW THE TEXTURE
   glPushMatrix();
 
-  for (int i=0; i<Common::nImages(); i++)
+  for (int i=0; i < Common::nImages(); i++)
   {
     // Draw the mappings.
     Common::mappers[i]->draw();
@@ -69,17 +71,18 @@ void DestinationGLCanvas::doDraw() {
   // Draw the quad.
   Quad& quad = getQuad();
 
-  glColor4f(1, 0, 0, 1);
+  glColor4f(1.0, 0.0, 0.0, 1.0);
 
   // Destination quad.
   // Source quad.
   glLineWidth(5);
   glBegin (GL_LINE_STRIP);
   {
-    for (int i=0; i<5; i++) {
-      glVertex3f(quad.getVertex(i % 4).x,
-                 quad.getVertex(i % 4).y,
-                 0);
+    for (int i=0; i<5; i++)
+    {
+      glVertex2f(
+        quad.getVertex(i % 4).x,
+        quad.getVertex(i % 4).y);
     }
   }
   glEnd ();

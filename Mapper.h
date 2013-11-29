@@ -2,6 +2,7 @@
  * Mapper.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,26 +23,29 @@
 #define MAPPER_H_
 
 #include <QtGlobal>
-
-#include "Shape.h"
-#include "Paint.h"
-
-#include "Util.h"
-
 #include <tr1/memory>
-
 #include <GL/gl.h>
-#include <SOIL/SOIL.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "Shape.h"
+#include "Paint.h"
+#include "Util.h"
 
+/**
+ * One object in the scene that is a shape with some paint on it.
+ * 
+ * A Mapping is an area of the rendering window that is drawn with
+ * either some texture, or any special effect that might animate a
+ * polygon or a line.
+ */
 class Mapping
 {
 protected:
-  std::tr1::shared_ptr<Paint> _paint;
-  std::tr1::shared_ptr<Shape> _shape;
+  Paint::ptr _paint;
+  Shape::ptr _shape;
 
 public:
+  typedef std::tr1::shared_ptr<Mapping> ptr;
   Mapping(Paint* paint, Shape* shape)
     : _paint(paint), _shape(shape)
   {}
@@ -52,14 +56,17 @@ public:
   }
 
 public:
-  std::tr1::shared_ptr<Paint> getPaint() const { return _paint; }
-  std::tr1::shared_ptr<Shape> getShape() const { return _shape; }
+  Paint::ptr getPaint() const { return _paint; }
+  Shape::ptr getShape() const { return _shape; }
 };
 
+/**
+ * Object whose paint is an image texture.
+ */
 class TextureMapping : public Mapping
 {
 private:
-  std::tr1::shared_ptr<Shape> _inputShape;
+  Shape::ptr _inputShape;
 
 public:
   TextureMapping(Paint* paint,
@@ -74,17 +81,28 @@ public:
     _inputShape->build();
   }
 public:
-  std::tr1::shared_ptr<Shape> getInputShape() const { return _inputShape; }
+  Shape::ptr getInputShape() const { return _inputShape; }
 };
 
+/**
+ * A way to draw on some kind of shape.
+ * 
+ * This is an abstract class for specific ways to draw
+ * a given paint of a shape.
+ * 
+ * Each shape x paint combination that is possible in 
+ * this software are implemented using a child of this
+ * class.
+ */
 class Mapper
 {
 protected:
-  std::tr1::shared_ptr<Mapping> _mapping;
+  Mapping::ptr _mapping;
   Mapper(Mapping* mapping) : _mapping(mapping) {}
   virtual ~Mapper() {}
 
 public:
+  typedef std::tr1::shared_ptr<Mapper> ptr;
   virtual void draw() = 0;
 };
 
@@ -125,6 +143,12 @@ public:
 //  }
 //};
 
+/**
+ * Draws a texture on a quad.
+ * 
+ * A Quad has four vertices.
+ * They are in counterclockwise order, just like for all shapes.
+ */
 class QuadTextureMapper : public Mapper
 {
 public:

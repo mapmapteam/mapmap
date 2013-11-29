@@ -17,13 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef SHAPE_H_
 #define SHAPE_H_
 
 #include <vector>
-#include <SOIL/SOIL.h>
+#include <tr1/memory>
 
+/**
+ * Point (or vertex) on the 2-D canvas.
+ */
 struct Point
 {
   double x;
@@ -31,18 +33,30 @@ struct Point
   Point(double x_, double y_) : x(x_), y(y_) {}
 };
 
+/**
+ * Series of vertices. (points)
+ */
 class Shape
 {
 public:
+  typedef std::tr1::shared_ptr<Shape> ptr;
   std::vector<Point> vertices;
   Shape() {}
-  Shape(std::vector<Point> vertices_) : vertices(vertices_) {}
+  Shape(std::vector<Point> vertices_) :
+    vertices(vertices_)
+  {}
   virtual ~Shape() {}
 
   virtual void build() {}
 
-  const Point& getVertex(int i) { return vertices[i]; }
-  void setVertex(int i, Point v) { vertices[i] = v; }
+  const Point& getVertex(int i)
+  {
+    return vertices[i];
+  }
+  void setVertex(int i, Point v)
+  {
+    vertices[i] = v;
+  }
   void setVertex(int i, double x, double y)
   {
     vertices[i].x = x;
@@ -50,11 +64,15 @@ public:
   }
 };
 
+/**
+ * Four-vertex shape.
+ */
 class Quad : public Shape
 {
 public:
   Quad() {}
-  Quad(Point p1, Point p2, Point p3, Point p4) {
+  Quad(Point p1, Point p2, Point p3, Point p4)
+  {
     vertices.push_back(p1);
     vertices.push_back(p2);
     vertices.push_back(p3);
