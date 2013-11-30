@@ -148,6 +148,7 @@ void MainWindow::createLayout()
 {
   sourceList = new QListWidget;
   sourceList->setSelectionMode(QAbstractItemView::SingleSelection);
+  sourceList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
   sourceCanvas = new SourceGLCanvas;
   destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
@@ -161,6 +162,9 @@ void MainWindow::createLayout()
   sourceCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
 
+  sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
   sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
@@ -169,10 +173,10 @@ void MainWindow::createLayout()
   canvasSplitter = new QSplitter(Qt::Horizontal);
   canvasSplitter->addWidget(sourceCanvas);
   canvasSplitter->addWidget(destinationCanvas);
-  canvasSplitter->setMinimumWidth(DEFAULT_WIDTH * 2 / 3);
 
   mainSplitter->addWidget(sourceList);
   mainSplitter->addWidget(canvasSplitter);
+  mainSplitter->setStretchFactor(1, 1); // Upon resizing window, give the extra stretch expansion to canvasSplitter.
 
   setWindowTitle(tr("Libremapping"));
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);

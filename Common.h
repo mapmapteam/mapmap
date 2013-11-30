@@ -27,8 +27,6 @@
 #include "Shape.h"
 #include "Mapper.h"
 
-#define DEFAULT_WIDTH  1600
-#define DEFAULT_HEIGHT 800
 #define LIBREMAPPING_VERSION "0.1"
 
 /**
