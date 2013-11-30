@@ -360,6 +360,8 @@ void MainWindow::readSettings()
   QSettings settings("OIF", "Libremapping");
 
   restoreGeometry(settings.value("geometry").toByteArray());
+  mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
+  canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
 }
 
 void MainWindow::writeSettings()
@@ -367,6 +369,8 @@ void MainWindow::writeSettings()
   QSettings settings("OIF", "Libremapping");
 
   settings.setValue("geometry", saveGeometry());
+  settings.setValue("mainSplitter", mainSplitter->saveState());
+  settings.setValue("canvasSplitter", canvasSplitter->saveState());
 }
 
 bool MainWindow::okToContinue()
