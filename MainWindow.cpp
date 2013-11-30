@@ -110,6 +110,17 @@ bool MainWindow::saveAs()
   return saveFile(fileName);
 }
 
+void MainWindow::import()
+{
+  if (okToContinue())
+  {
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Import resource"), ".");
+    if (!fileName.isEmpty())
+      importFile(fileName);
+  }
+}
+
 void MainWindow::about()
 {
   QMessageBox::about(this, tr("About Libremapping"),
@@ -136,6 +147,8 @@ void MainWindow::windowModified()
 void MainWindow::createLayout()
 {
   sourceList = new QListWidget;
+  sourceList->setSelectionMode(QAbstractItemView::SingleSelection);
+
   sourceCanvas = new SourceGLCanvas;
   destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
 
@@ -162,19 +175,19 @@ void MainWindow::createLayout()
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
   setCentralWidget(mainSplitter);
 
-  Common::initializeLibremapper(sourceCanvas->width(), sourceCanvas->height());
-
-  for (int i = 0; i < Common::nImages(); i++)
-  {
-    std::tr1::shared_ptr<Image> img = std::tr1::static_pointer_cast<Image>(
-        Common::mappings[i]->getPaint());
-    Q_CHECK_PTR(img);
-
-    QListWidgetItem* item = new QListWidgetItem(img->getImagePath());
-    item->setData(Qt::UserRole, i);
-
-    sourceList->addItem(item);
-  }
+//  Common::initializeLibremapper(sourceCanvas->width(), sourceCanvas->height());
+//
+//  for (int i = 0; i < Common::nImages(); i++)
+//  {
+//    std::tr1::shared_ptr<Image> img = std::tr1::static_pointer_cast<Image>(
+//        Common::mappings[i]->getPaint());
+//    Q_CHECK_PTR(img);
+//
+//    QListWidgetItem* item = new QListWidgetItem(strippedName(img->getImagePath()));
+//    item->setData(Qt::UserRole, i);
+//
+//    sourceList->addItem(item);
+//  }
 
   connect(sourceList, SIGNAL(itemSelectionChanged()), this,
       SLOT(handleSourceItemSelectionChanged()));
@@ -210,6 +223,12 @@ void MainWindow::createActions()
   saveAsAction->setIcon(QIcon(":/images/document-save-as-2.png"));
   saveAsAction->setStatusTip(tr("Save the mapping under a new name"));
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
+
+  importAction = new QAction(tr("&Import media source..."), this);
+  importAction->setIcon(QIcon(":/images/document-import-2.png"));
+  importAction->setShortcut(QKeySequence::Open);
+  importAction->setStatusTip(tr("Import a media source file"));
+  connect(importAction, SIGNAL(triggered()), this, SLOT(import()));
 
   exitAction = new QAction(tr("E&xit"), this);
   exitAction->setShortcut(tr("Ctrl+Q"));
@@ -249,6 +268,7 @@ void MainWindow::createMenus()
   fileMenu = menuBar()->addMenu(tr("&File"));
   fileMenu->addAction(newAction);
   fileMenu->addAction(openAction);
+  fileMenu->addAction(importAction);
   fileMenu->addAction(saveAction);
   fileMenu->addAction(saveAsAction);
   separatorAction = fileMenu->addSeparator();
@@ -295,6 +315,7 @@ void MainWindow::createContextMenu()
 void MainWindow::createToolBars()
 {
   fileToolBar = addToolBar(tr("&File"));
+  fileToolBar->addAction(importAction);
   fileToolBar->addAction(newAction);
   fileToolBar->addAction(openAction);
   fileToolBar->addAction(saveAction);
@@ -401,6 +422,33 @@ void MainWindow::setCurrentFile(const QString &fileName)
   }
 
   setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("Spreadsheet")));
+}
+
+bool MainWindow::importFile(const QString &fileName)
+{
+  QFile file(fileName);
+  if (!file.open(QIODevice::ReadOnly)) {
+      QMessageBox::warning(this, tr("Spreadsheet"),
+                           tr("Cannot read file %1:\n%2.")
+                           .arg(file.fileName())
+                           .arg(file.errorString()));
+      return false;
+  }
+
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  Common::addImage(fileName, sourceCanvas->width(), sourceCanvas->height());
+
+  QListWidgetItem* item = new QListWidgetItem(strippedName(fileName));
+  item->setData(Qt::UserRole, Common::nImages()-1);
+  sourceList->addItem(item);
+  sourceList->setCurrentItem(item);
+
+//  update();
+
+  QApplication::restoreOverrideCursor();
+
+  statusBar()->showMessage(tr("File imported"), 2000);
+  return true;
 }
 
 void MainWindow::clearWindow()

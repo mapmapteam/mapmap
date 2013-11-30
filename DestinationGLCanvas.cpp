@@ -37,6 +37,10 @@ Quad& DestinationGLCanvas::getQuad()
 
 void DestinationGLCanvas::doDraw()
 {
+  // No sources = nothing to do.
+  if (Common::nImages() == 0)
+    return;
+
   // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
   // Il faut changer ca.
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);

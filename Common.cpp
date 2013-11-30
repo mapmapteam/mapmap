@@ -54,16 +54,15 @@ void Common::addImage(const QString imagePath, int frameWidth, int frameHeight)
   // Add to data structures.
   mappings.push_back( std::tr1::shared_ptr<Mapping>(tm) );
   mappers.push_back( std::tr1::shared_ptr<Mapper>(new QuadTextureMapper( tm )) );
+
+  currentMapping   = mappings[currentSourceIdx];
+  currentMapper    = mappers[currentSourceIdx];
 }
 
 void Common::initializeLibremapper(int frameWidth, int frameHeight)
 {
   addImage("example.png", frameWidth, frameHeight);
   addImage("pnggrad8rgb.png", frameWidth, frameHeight);
-
-
-  currentMapping   = mappings[currentSourceIdx];
-  currentMapper    = mappers[currentSourceIdx];
 }
 
 void Common::switchImage(int imageId)

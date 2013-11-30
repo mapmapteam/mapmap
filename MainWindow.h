@@ -44,6 +44,7 @@ private slots:
   void open();
   bool save();
   bool saveAs();
+  void import();
   void about();
   void updateStatusBar();
   void handleSourceItemSelectionChanged();
@@ -64,6 +65,7 @@ private:
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
+  bool importFile(const QString &fileName);
   void clearWindow();
   QString strippedName(const QString &fullFileName);
 
@@ -83,6 +85,7 @@ private:
 //  QToolBar *editToolBar;
   QAction *newAction;
   QAction *openAction;
+  QAction *importAction;
   QAction *saveAction;
   QAction *saveAsAction;
   QAction *exitAction;
