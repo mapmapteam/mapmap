@@ -27,22 +27,77 @@
 #include "DestinationGLCanvas.h"
 #include "SourceGLCanvas.h"
 
-class MainWindow : public QMainWindow
+class MainWindow: public QMainWindow
 {
-  Q_OBJECT
+Q_OBJECT
 
 public:
   MainWindow();
-  virtual ~MainWindow();
+
+protected:
+  // Events.
+  void closeEvent(QCloseEvent *event);
+
+private slots:
+  // Slots.
+  void newFile();
+  void open();
+  bool save();
+  bool saveAs();
+  void about();
+  void updateStatusBar();
+  void handleSourceItemSelectionChanged();
+
+  void windowModified();
 
 private:
+  // Methods.
+  void createLayout();
+  void createActions();
+  void createMenus();
+  void createContextMenu();
+  void createToolBars();
+  void createStatusBar();
+  void readSettings();
+  void writeSettings();
+  bool okToContinue();
+  bool loadFile(const QString &fileName);
+  bool saveFile(const QString &fileName);
+  void setCurrentFile(const QString &fileName);
+  void clearWindow();
+  QString strippedName(const QString &fullFileName);
+
+  // Variables.
+  QString curFile;
+
+  // GUI elements.
+  QAction *separatorAction;
+
+  QMenu *fileMenu;
+//  QMenu *editMenu;
+//  QMenu *selectSubMenu;
+//  QMenu *toolsMenu;
+//  QMenu *optionsMenu;
+  QMenu *helpMenu;
+  QToolBar *fileToolBar;
+//  QToolBar *editToolBar;
+  QAction *newAction;
+  QAction *openAction;
+  QAction *saveAction;
+  QAction *saveAsAction;
+  QAction *exitAction;
+//  QAction *cutAction;
+//  QAction *copyAction;
+//  QAction *pasteAction;
+//  QAction *deleteAction;
+  QAction *aboutAction;
+
   QListWidget* sourceList;
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
 
-private slots:
-  void handleSourceItemSelectionChanged();
-//  void handleSourceSelectionChanged(const QItemSelection& selection);
+  QSplitter* mainSplitter;
+  QSplitter* canvasSplitter;
 };
 
 #endif /* MAIN_WINDOW_H_ */

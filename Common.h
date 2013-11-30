@@ -29,6 +29,7 @@
 
 #define DEFAULT_WIDTH  1600
 #define DEFAULT_HEIGHT 800
+#define LIBREMAPPING_VERSION "0.1"
 
 /**
  * The main LibreMapping engine that deals with video mapping projects.

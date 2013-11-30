@@ -4,6 +4,7 @@ HEADERS  = MainWindow.h Common.h Util.h SourceGLCanvas.h DestinationGLCanvas.h M
 SOURCES  = main.cpp MainWindow.cpp Common.cpp Util.cpp Mapper.cpp SourceGLCanvas.cpp DestinationGLCanvas.cpp MapperGLCanvas.cpp 
 QT      += gui opengl
 LIBS    += -lglut -lGLU
+RESOURCES = libremapping.qrc
 
 docs.depends = $(HEADERS) $(SOURCES)
 docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
