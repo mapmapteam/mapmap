@@ -161,6 +161,9 @@ void MainWindow::createLayout()
   sourceCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
 
+  sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
+  destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
+
   mainSplitter = new QSplitter(Qt::Horizontal);
 
   canvasSplitter = new QSplitter(Qt::Horizontal);

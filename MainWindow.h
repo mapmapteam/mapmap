@@ -104,6 +104,8 @@ private:
 
 public:
   static const int SOURCE_LIST_ITEM_HEIGHT = 40;
+  static const int CANVAS_MINIMUM_WIDTH  = 320;
+  static const int CANVAS_MINIMUM_HEIGHT = 240;
 };
 
 #endif /* MAIN_WINDOW_H_ */
