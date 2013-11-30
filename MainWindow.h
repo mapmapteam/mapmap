@@ -101,6 +101,9 @@ private:
 
   QSplitter* mainSplitter;
   QSplitter* canvasSplitter;
+
+public:
+  static const int SOURCE_LIST_ITEM_HEIGHT = 40;
 };
 
 #endif /* MAIN_WINDOW_H_ */

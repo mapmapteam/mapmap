@@ -440,6 +440,8 @@ bool MainWindow::importFile(const QString &fileName)
 
   QListWidgetItem* item = new QListWidgetItem(strippedName(fileName));
   item->setData(Qt::UserRole, Common::nImages()-1);
+  item->setIcon(QIcon(fileName));
+  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SOURCE_LIST_ITEM_HEIGHT));
   sourceList->addItem(item);
   sourceList->setCurrentItem(item);
 
