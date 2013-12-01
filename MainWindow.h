@@ -59,6 +59,7 @@ private slots:
   void handleSourceItemSelectionChanged();
   void handleShapeItemSelectionChanged();
   void addQuad();
+  void addTriangle();
 
   void windowModified();
 
@@ -77,6 +78,7 @@ private:
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
   bool importFile(const QString &fileName);
+  void addMappingItem(int mappingId);
   void clearWindow();
   QString strippedName(const QString &fullFileName);
 
@@ -107,6 +109,7 @@ private:
   QAction *aboutAction;
 
   QAction *addQuadAction;
+  QAction *addTriangleAction;
 
   QListWidget* sourceList;
   QListWidget* shapeList;

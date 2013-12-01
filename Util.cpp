@@ -66,5 +66,14 @@ Quad* createQuadForTexture(Texture* texture, int frameWidth, int frameHeight)
   );
 }
 
+Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight)
+{
+  return new Triangle(
+    Point(texture->getX(), texture->getY()),
+    Point(texture->getX() + texture->getWidth(), texture->getY()),
+    Point(texture->getX() + texture->getWidth() / 2, texture->getY() + texture->getHeight())
+  );
+}
+
 } // end of namespace
 

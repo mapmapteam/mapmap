@@ -19,7 +19,7 @@
 
 #include "Mapper.h"
 
-void QuadTextureMapper::draw()
+void TextureMapper::draw()
 {
   // FIXME: use typedefs, member of the class for type names that are too long to type:
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
@@ -28,11 +28,14 @@ void QuadTextureMapper::draw()
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   Q_CHECK_PTR(texture);
 
-  std::tr1::shared_ptr<Quad> quad = std::tr1::static_pointer_cast<Quad>(textureMapping->getShape());
-  Q_CHECK_PTR(quad);
+  std::tr1::shared_ptr<Shape> outputShape = std::tr1::static_pointer_cast<Quad>(textureMapping->getShape());
+  Q_CHECK_PTR(outputShape);
 
-  std::tr1::shared_ptr<Quad> inputQuad = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
-  Q_CHECK_PTR(inputQuad);
+  std::tr1::shared_ptr<Quad> inputShape = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
+  Q_CHECK_PTR(inputShape);
+
+  // Only works for similar shapes.
+  Q_ASSERT( outputShape->nVertices() == outputShape->nVertices());
 
   printf("Texid: %d\n", texture->getTextureId());
   // Project source texture and sent it to destination.
@@ -50,16 +53,23 @@ void QuadTextureMapper::draw()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-  glBegin(GL_QUADS);
+  if (inputShape->nVertices() == 4)
+    glBegin(GL_QUADS);
+  else if (inputShape->nVertices() == 3)
+    glBegin(GL_TRIANGLES);
+  else
+    // TODO: untested
+    glBegin(GL_POLYGON);
+
   {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < inputShape->nVertices(); i++)
     {
       Util::correctGlTexCoord(
-        (inputQuad->getVertex(i).x - texture->getX()) / (GLfloat) texture->getWidth(),
-        (inputQuad->getVertex(i).y - texture->getY()) / (GLfloat) texture->getHeight());
+        (inputShape->getVertex(i).x - texture->getX()) / (GLfloat) texture->getWidth(),
+        (inputShape->getVertex(i).y - texture->getY()) / (GLfloat) texture->getHeight());
       glVertex2f(
-        quad->getVertex(i).x,
-        quad->getVertex(i).y
+        outputShape->getVertex(i).x,
+        outputShape->getVertex(i).y
         );
     }
   }

@@ -96,16 +96,13 @@ public:
 //};
 
 /**
- * Draws a texture on a quad.
- * 
- * A Quad has four vertices.
- * They are in counterclockwise order, just like for all shapes.
+ * Draws a texture.
  */
-class QuadTextureMapper : public Mapper
+class TextureMapper : public Mapper
 {
 public:
-  QuadTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping) : Mapper(mapping) {}
-  virtual ~QuadTextureMapper() {}
+  TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping) : Mapper(mapping) {}
+  virtual ~TextureMapper() {}
 
   virtual void draw();
 };

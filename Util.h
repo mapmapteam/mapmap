@@ -36,6 +36,7 @@ int map_int(int value, int istart, int istop, int ostart, int ostop);
 
 
 Quad* createQuadForTexture(Texture* texture, int frameWidth, int frameHeight);
+Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight);
 
 } // end of namespace
 

@@ -64,13 +64,7 @@ void MainWindow::handleSourceItemSelectionChanged()
   std::map<int, Mapping::ptr> mappings = getMappingManager().getPaintMappings(idx);
   for (std::map<int, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
-    // Add image to sourceList widget.
-    QListWidgetItem* item = new QListWidgetItem("Quad");
-    item->setData(Qt::UserRole, it->first); // TODO: could possibly be replaced by a Paint pointer
-    item->setIcon(QIcon(":/images/draw-rectangle-2.png"));
-    item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
-    shapeList->addItem(item);
-    shapeList->setCurrentItem(item);
+    addMappingItem(it->first);
   }
 
   // Update canvases.
@@ -172,8 +166,6 @@ void MainWindow::import()
 
 void MainWindow::addQuad()
 {
-  qDebug() << "add quad" << endl;
-
   // Create default quad.
 
   // Retrieve current paint (as texture).
@@ -189,15 +181,29 @@ void MainWindow::addQuad()
 
   // Create texture mapping.
   int mappingId = mappingManager->addMapping(Mapping::ptr(new TextureMapping(paint.get(), outputQuad, inputQuad)));
-  qDebug() << "Added texture mapping at id " << mappingId << endl;
 
-  // Add image to sourceList widget.
-  QListWidgetItem* item = new QListWidgetItem("Quad");
-  item->setData(Qt::UserRole, mappingId); // TODO: could possibly be replaced by a Paint pointer
-  item->setIcon(QIcon(":/images/draw-rectangle-2.png"));
-  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
-  shapeList->addItem(item);
-  shapeList->setCurrentItem(item);
+  addMappingItem(mappingId);
+}
+
+void MainWindow::addTriangle()
+{
+  // Create default quad.
+
+  // Retrieve current paint (as texture).
+  Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(getCurrentPaintId());
+  Q_CHECK_PTR(paint);
+
+  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
+  Q_CHECK_PTR(texture);
+
+  // Create input and output quads.
+  Triangle* outputTriangle = Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height());
+  Triangle* inputTriangle = Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height());
+
+  // Create texture mapping.
+  int mappingId = mappingManager->addMapping(Mapping::ptr(new TextureMapping(paint.get(), inputTriangle, outputTriangle)));
+
+  addMappingItem(mappingId);
 }
 
 void MainWindow::about()
@@ -362,6 +368,11 @@ void MainWindow::createActions()
   addQuadAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
   addQuadAction->setStatusTip(tr("Add quad"));
   connect(addQuadAction, SIGNAL(triggered()), this, SLOT(addQuad()));
+
+  addTriangleAction = new QAction(tr("&Add triangle"), this);
+  addTriangleAction->setIcon(QIcon(":/images/draw-triangle.png"));
+  addTriangleAction->setStatusTip(tr("Add triangle"));
+  connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
 }
 
 void MainWindow::createMenus()
@@ -422,6 +433,7 @@ void MainWindow::createToolBars()
   fileToolBar->addAction(saveAction);
   fileToolBar->addSeparator();
   fileToolBar->addAction(addQuadAction);
+  fileToolBar->addAction(addTriangleAction);
 
 //  editToolBar = addToolBar(tr("&Edit"));
 //  editToolBar->addAction(cutAction);
@@ -457,6 +469,7 @@ void MainWindow::readSettings()
 
   restoreGeometry(settings.value("geometry").toByteArray());
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
+  sourceSplitter->restoreState(settings.value("sourceSplitter").toByteArray());
   canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
 }
 
@@ -466,6 +479,7 @@ void MainWindow::writeSettings()
 
   settings.setValue("geometry", saveGeometry());
   settings.setValue("mainSplitter", mainSplitter->saveState());
+  settings.setValue("sourceSplitter", sourceSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
 }
 
@@ -561,6 +575,40 @@ bool MainWindow::importFile(const QString &fileName)
 
   statusBar()->showMessage(tr("File imported"), 2000);
   return true;
+}
+
+void MainWindow::addMappingItem(int mappingId)
+{
+  Mapping::ptr mapping = mappingManager->getMapping(mappingId);
+  Q_CHECK_PTR(mapping);
+
+  QString label;
+  QIcon icon;
+
+  // Triangle
+  if (mapping->getShape()->nVertices() == 3)
+  {
+    label = QString("Triangle %1").arg(mappingId);
+    icon = QIcon(":/images/draw-triangle.png");
+  }
+  else if (mapping->getShape()->nVertices() == 4)
+  {
+    label = QString("Quad %1").arg(mappingId);
+    icon = QIcon(":/images/draw-rectangle-2.png");
+  }
+  else
+  {
+    label = QString("Polygon %1").arg(mappingId);
+    icon = QIcon(":/images/draw-polygon-2.png");
+  }
+
+  // Add image to sourceList widget.
+  QListWidgetItem* item = new QListWidgetItem(label);
+  item->setData(Qt::UserRole, mappingId); // TODO: could possibly be replaced by a Paint pointer
+  item->setIcon(icon);
+  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
+  shapeList->addItem(item);
+  shapeList->setCurrentItem(item);
 }
 
 void MainWindow::clearWindow()

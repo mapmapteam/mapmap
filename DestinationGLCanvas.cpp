@@ -76,7 +76,7 @@ void DestinationGLCanvas::doDraw()
       texture->loadTexture();
 
     // Draw the mappings.
-    QuadTextureMapper mapper(textureMapping);
+    TextureMapper mapper(textureMapping);
     mapper.draw();
   }
 

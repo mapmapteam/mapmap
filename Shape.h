@@ -87,4 +87,20 @@ public:
   virtual ~Quad() {}
 };
 
+/**
+ * Triangle shape.
+ */
+class Triangle : public Shape
+{
+public:
+  Triangle() {}
+  Triangle(Point p1, Point p2, Point p3)
+  {
+    vertices.push_back(p1);
+    vertices.push_back(p2);
+    vertices.push_back(p3);
+  }
+  virtual ~Triangle() {}
+};
+
 #endif /* SHAPE_H_ */
