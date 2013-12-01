@@ -56,10 +56,11 @@ void MainWindow::handleSourceItemSelectionChanged()
   int idx = item->data(Qt::UserRole).toInt();
   std::cout << "idx=" << idx << std::endl;
   setCurrentPaint(idx);
-  sourceCanvas->updateCanvas();
+  sourceCanvas->update();
+  destinationCanvas->update();
   //sourceCanvas->switchImage(idx);
   //sourceCanvas->repaint();
-  destinationCanvas->repaint();
+  //destinationCanvas->repaint();
 }
 
 //void MainWindow::handleSourceSelectionChanged(const QItemSelection& selection)
@@ -140,6 +141,30 @@ void MainWindow::import()
 void MainWindow::addQuad()
 {
   qDebug() << "add quad" << endl;
+
+  // Create default quad.
+
+  // Retrieve current paint (as texture).
+  Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(getCurrentPaintId());
+  Q_CHECK_PTR(paint);
+
+  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
+  Q_CHECK_PTR(texture);
+
+  // Create input and output quads.
+  Quad* outputQuad = Util::createQuadForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height());
+  Quad*  inputQuad = Util::createQuadForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height());
+
+  // Create texture mapping.
+  int mappingId = mappingManager->addMapping(Mapping::ptr(new TextureMapping(paint.get(), outputQuad, inputQuad)));
+
+  // Add image to sourceList widget.
+  QListWidgetItem* item = new QListWidgetItem("Quad");
+  item->setData(Qt::UserRole, mappingId); // TODO: could possibly be replaced by a Paint pointer
+  item->setIcon(QIcon(":/images/draw-rectangle-2.png"));
+  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
+  shapeList->addItem(item);
+  shapeList->setCurrentItem(item);
 }
 
 void MainWindow::about()

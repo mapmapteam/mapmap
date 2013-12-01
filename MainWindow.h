@@ -137,6 +137,7 @@ public:
   static const int DEFAULT_WIDTH = 1600;
   static const int DEFAULT_HEIGHT = 800;
   static const int SOURCE_LIST_ITEM_HEIGHT = 40;
+  static const int SHAPE_LIST_ITEM_HEIGHT = 40;
   static const int CANVAS_MINIMUM_WIDTH  = 320;
   static const int CANVAS_MINIMUM_HEIGHT = 240;
 };

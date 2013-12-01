@@ -56,5 +56,15 @@ int map_int(int value, int istart, int istop, int ostart, int ostop)
     return std::max(std::min(int(ret), ostop), ostart);
 }
 
+Quad* createQuadForTexture(Texture* texture, int frameWidth, int frameHeight)
+{
+  return new Quad(
+    Point(texture->getX(), texture->getY()),
+    Point(texture->getX() + texture->getWidth(), texture->getY()),
+    Point(texture->getX() + texture->getWidth(), texture->getY() + texture->getHeight()),
+    Point(texture->getX(), texture->getY() + texture->getHeight())
+  );
+}
+
 } // end of namespace
 
