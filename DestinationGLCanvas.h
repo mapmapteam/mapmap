@@ -21,6 +21,9 @@
 #define DESTINATIONGLCANVAS_H_
 
 #include "MapperGLCanvas.h"
+#include "MappingManager.h"
+
+#include "Mapper.h"
 
 class DestinationGLCanvas: public MapperGLCanvas
 {
@@ -30,7 +33,7 @@ public:
   DestinationGLCanvas(QWidget* parent = 0, const QGLWidget * shareWidget = 0);
 //  virtual ~DestinationGLCanvas();
 
-  virtual Quad& getQuad();
+//  virtual Quad& getQuad();
 
 private:
   virtual void doDraw();

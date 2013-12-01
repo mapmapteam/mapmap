@@ -26,8 +26,10 @@
 
 #include <iostream>
 
-#include "Common.h"
+//#include "Common.h"
 #include "Shape.h"
+
+//#include "MainWindow.h"
 
 /**
  * Qt GUI widget that draws a mapper, which is a shape with some paint.
@@ -37,12 +39,12 @@ class MapperGLCanvas: public QGLWidget
   Q_OBJECT
 
 public:
-  MapperGLCanvas(QWidget* parent = 0, const QGLWidget * shareWidget = 0);
+  MapperGLCanvas(QWidget* parent = 0, const QGLWidget* shareWidget = 0);
   virtual ~MapperGLCanvas() {}
 
-  virtual Quad& getQuad() = 0;
-
   void switchImage(int imageId);
+//  QSize sizeHint() const;
+//  QSize minimumSizeHint() const;
 
 protected:
   void initializeGL();
@@ -55,7 +57,6 @@ protected:
   void mouseReleaseEvent(QMouseEvent* event);
   void paintEvent(QPaintEvent* event);
 
-
 private:
   void draw();
   void enterDraw();
@@ -65,7 +66,7 @@ private:
 
 signals:
   void quadChanged();
-  void quadSwitched();
+  void imageChanged();
 
 public slots:
   void updateCanvas();

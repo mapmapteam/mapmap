@@ -18,78 +18,79 @@
  */
 
 #include "DestinationGLCanvas.h"
+#include "MainWindow.h"
 
 DestinationGLCanvas::DestinationGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
 : MapperGLCanvas(parent, shareWidget)
 {
 }
 
-Quad& DestinationGLCanvas::getQuad()
-{
-  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-  Q_CHECK_PTR(textureMapping);
-
-  std::tr1::shared_ptr<Quad> quad = std::tr1::static_pointer_cast<Quad>(Common::currentMapping->getShape());
-  Q_CHECK_PTR(quad);
-
-  return (*quad);
-}
+//Quad& DestinationGLCanvas::getQuad()
+//{
+//  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
+//  Q_CHECK_PTR(textureMapping);
+//
+//  std::tr1::shared_ptr<Quad> quad = std::tr1::static_pointer_cast<Quad>(Common::currentMapping->getShape());
+//  Q_CHECK_PTR(quad);
+//
+//  return (*quad);
+//}
 
 void DestinationGLCanvas::doDraw()
 {
-  // No sources = nothing to do.
-  if (Common::nImages() == 0)
-    return;
+//  // No sources = nothing to do.
+//  if (Common::nImages() == 0)
+//    return;
+//
+//  // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
+//  // Il faut changer ca.
+//  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
+//  Q_CHECK_PTR(textureMapping);
+//
+//  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+//  Q_CHECK_PTR(texture);
+//
+//  for (int i=0; i < Common::nImages(); i++)
+//  {
+//    std::tr1::shared_ptr<Texture> tex = std::tr1::static_pointer_cast<Texture>(Common::mappings[i]->getPaint());
+//    Q_CHECK_PTR(tex);
+//
+//    // FIXME: maybe the texture id is actually 0 and it's ok, no?
+//    // we should use a boolean is_texture_loaded, or so
+//    if (tex->getTextureId() == 0)
+//    {
+//      tex->loadTexture();
+//    }
+//  }
 
-  // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
-  // Il faut changer ca.
-  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-  Q_CHECK_PTR(textureMapping);
-
-  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-  Q_CHECK_PTR(texture);
-
-  for (int i=0; i < Common::nImages(); i++)
-  {
-    std::tr1::shared_ptr<Texture> tex = std::tr1::static_pointer_cast<Texture>(Common::mappings[i]->getPaint());
-    Q_CHECK_PTR(tex);
-
-    // FIXME: maybe the texture id is actually 0 and it's ok, no?
-    // we should use a boolean is_texture_loaded, or so
-    if (tex->getTextureId() == 0)
-    {
-      tex->loadTexture();
-    }
-  }
-
-  // Now, draw
-  // DRAW THE TEXTURE
   glPushMatrix();
 
-  for (int i=0; i < Common::nImages(); i++)
+  MappingManager& mappingManager = MainWindow::getInstance().getMappingManager();
+  for (int i=0; i<mappingManager.nMappings(); i++)
   {
     // Draw the mappings.
-    Common::mappers[i]->draw();
+    QuadTextureMapper mapper((TextureMapping*)mappingManager.getMapping(i).get());
+    mapper.draw();
   }
-
-  // Draw the quad.
-  Quad& quad = getQuad();
-
-  glColor4f(1.0, 0.0, 0.0, 1.0);
-
-  // Destination quad.
-  // Source quad.
-  glLineWidth(5);
-  glBegin (GL_LINE_STRIP);
-  {
-    for (int i=0; i<5; i++)
-    {
-      glVertex2f(
-        quad.getVertex(i % 4).x,
-        quad.getVertex(i % 4).y);
-    }
-  }
-  glEnd ();
+//
+//  // Draw the quad.
+//  Quad& quad = getQuad();
+//
+//  glColor4f(1.0, 0.0, 0.0, 1.0);
+//
+//  // Destination quad.
+//  // Source quad.
+//  glLineWidth(5);
+//  glBegin (GL_LINE_STRIP);
+//  {
+//    for (int i=0; i<5; i++)
+//    {
+//      glVertex2f(
+//        quad.getVertex(i % 4).x,
+//        quad.getVertex(i % 4).y);
+//    }
+//  }
+//  glEnd ();
 
   glPopMatrix();
 }

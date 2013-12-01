@@ -23,66 +23,18 @@
 #define MAPPER_H_
 
 #include <QtGlobal>
+
 #include <tr1/memory>
 #include <GL/gl.h>
+
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "Shape.h"
 #include "Paint.h"
+#include "Mapping.h"
+
 #include "Util.h"
-
-/**
- * One object in the scene that is a shape with some paint on it.
- * 
- * A Mapping is an area of the rendering window that is drawn with
- * either some texture, or any special effect that might animate a
- * polygon or a line.
- */
-class Mapping
-{
-protected:
-  Paint::ptr _paint;
-  Shape::ptr _shape;
-
-public:
-  typedef std::tr1::shared_ptr<Mapping> ptr;
-  Mapping(Paint* paint, Shape* shape)
-    : _paint(paint), _shape(shape)
-  {}
-
-  virtual void build() {
-    _paint->build();
-    _shape->build();
-  }
-
-public:
-  Paint::ptr getPaint() const { return _paint; }
-  Shape::ptr getShape() const { return _shape; }
-};
-
-/**
- * Object whose paint is an image texture.
- */
-class TextureMapping : public Mapping
-{
-private:
-  Shape::ptr _inputShape;
-
-public:
-  TextureMapping(Paint* paint,
-                 Shape* shape,
-                 Shape* inputShape)
-    : Mapping(paint, shape),
-      _inputShape(inputShape)
-  {}
-
-  virtual void build() {
-    Mapping::build();
-    _inputShape->build();
-  }
-public:
-  Shape::ptr getInputShape() const { return _inputShape; }
-};
 
 /**
  * A way to draw on some kind of shape.

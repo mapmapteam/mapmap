@@ -19,6 +19,8 @@
 
 #include "MapperGLCanvas.h"
 
+#include "MainWindow.h"
+
 MapperGLCanvas::MapperGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
   : QGLWidget(parent, shareWidget), _mousepressed(false)
 {
@@ -95,26 +97,26 @@ void MapperGLCanvas::enterDraw()
 
 void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
 {
-  int i, dist, maxdist, mindist;
-  int xmouse = event->x();
-  int ymouse = event->y();
-  maxdist = mindist = 50;
-  if (event->buttons() & Qt::LeftButton)
-  {    
-    // std::cout << "Left Mouse key pressed" << std::endl;
-    for (i = 0; i < 4; i++)
-    {
-      Quad& quad = getQuad();
-      Point p = quad.getVertex(i);
-      dist = abs(xmouse - p.x) + abs(ymouse - p.y); 
-      if (dist < maxdist && dist < mindist)
-      {
-        quad.setActiveVertex(i);
-        mindist = dist;
-      }
-    }
-    _mousepressed = true;
-  }
+//  int i, dist, maxdist, mindist;
+//  int xmouse = event->x();
+//  int ymouse = event->y();
+//  maxdist = mindist = 50;
+//  if (event->buttons() & Qt::LeftButton)
+//  {
+//    // std::cout << "Left Mouse key pressed" << std::endl;
+//    for (i = 0; i < 4; i++)
+//    {
+//      Quad& quad = getQuad();
+//      Point p = quad.getVertex(i);
+//      dist = abs(xmouse - p.x) + abs(ymouse - p.y);
+//      if (dist < maxdist && dist < mindist)
+//      {
+//        quad.setActiveVertex(i);
+//        mindist = dist;
+//      }
+//    }
+//    _mousepressed = true;
+//  }
 }
 
 void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
@@ -125,63 +127,63 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
 
 void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 {
-
-  if (_mousepressed)
-  {
-    // std::cout << "Move event " << std::endl;
-    Quad& quad = getQuad();
-    Point p = quad.getVertex(quad.getActiveVertex());
-    p.x = event->x();
-    p.y = event->y();
-
-    quad.setVertex(quad.getActiveVertex(), p);
-    update();
-    emit quadChanged();
-  }
+//
+//  if (_mousepressed)
+//  {
+//    // std::cout << "Move event " << std::endl;
+//    Quad& quad = getQuad();
+//    Point p = quad.getVertex(quad.getActiveVertex());
+//    p.x = event->x();
+//    p.y = event->y();
+//
+//    quad.setVertex(quad.getActiveVertex(), p);
+//    update();
+//    emit quadChanged();
+//  }
 }
 
 void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 {
-  std::cout << "Key pressed" << std::endl;
-  int xMove = 0;
-  int yMove = 0;
-  switch (event->key()) {
-  case Qt::Key_Tab:
-    if (event->modifiers() & Qt::ControlModifier)
-      switchImage( (Common::getCurrentSourceId() + 1) % Common::nImages());
-    else
-    {
-      Quad& quad = getQuad();
-      quad.setActiveVertex((quad.getActiveVertex() + 1) % 4);
-    }
-    break;
-  case Qt::Key_Up:
-    yMove = -1;
-    break;
-  case Qt::Key_Down:
-    yMove = +1;
-    break;
-  case Qt::Key_Left:
-    xMove = -1;
-    break;
-  case Qt::Key_Right:
-    xMove = +1;
-    break;
-  default:
-    std::cerr << "Unhandled key" << std::endl;
-    QWidget::keyPressEvent(event);
-    break;
-  }
-
-  Quad& quad = getQuad();
-  Point p = quad.getVertex(quad.getActiveVertex());
-  p.x += xMove;
-  p.y += yMove;
-  quad.setVertex(quad.getActiveVertex(), p);
-
-  update();
-
-  emit quadChanged();
+//  std::cout << "Key pressed" << std::endl;
+//  int xMove = 0;
+//  int yMove = 0;
+//  switch (event->key()) {
+//  case Qt::Key_Tab:
+//    if (event->modifiers() & Qt::ControlModifier)
+//      switchImage( (Common::getCurrentSourceId() + 1) % Common::nImages());
+//    else
+//    {
+//      Quad& quad = getQuad();
+//      quad.setActiveVertex((quad.getActiveVertex() + 1) % 4);
+//    }
+//    break;
+//  case Qt::Key_Up:
+//    yMove = -1;
+//    break;
+//  case Qt::Key_Down:
+//    yMove = +1;
+//    break;
+//  case Qt::Key_Left:
+//    xMove = -1;
+//    break;
+//  case Qt::Key_Right:
+//    xMove = +1;
+//    break;
+//  default:
+//    std::cerr << "Unhandled key" << std::endl;
+//    QWidget::keyPressEvent(event);
+//    break;
+//  }
+//
+//  Quad& quad = getQuad();
+//  Point p = quad.getVertex(quad.getActiveVertex());
+//  p.x += xMove;
+//  p.y += yMove;
+//  quad.setVertex(quad.getActiveVertex(), p);
+//
+//  update();
+//
+//  emit quadChanged();
 }
 
 void MapperGLCanvas::paintEvent(QPaintEvent* /* event */)
@@ -192,9 +194,19 @@ void MapperGLCanvas::paintEvent(QPaintEvent* /* event */)
 
 void MapperGLCanvas::switchImage(int imageId)
 {
-  Common::switchImage(imageId);
-  emit quadSwitched();
+  MainWindow::getInstance().setPaint(imageId);
+  emit imageChanged();
 }
+
+//QSize MapperGLCanvas::sizeHint() const
+//{
+//  return QSize( 640, 480 );
+//}
+//
+//QSize MapperGLCanvas::minimumSizeHint() const
+//{
+//  return QSize( 320, 240 );
+//}
 
 void MapperGLCanvas::exitDraw()
 {

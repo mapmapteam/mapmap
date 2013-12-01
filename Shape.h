@@ -51,6 +51,8 @@ public:
 
   virtual void build() {}
 
+  int nVertices() const { return vertices.size(); }
+
   const Point& getVertex(int i)
   {
     return vertices[i];

@@ -22,17 +22,25 @@
 
 #include <QtGui>
 
-#include "Common.h"
-
-#include "DestinationGLCanvas.h"
 #include "SourceGLCanvas.h"
+#include "DestinationGLCanvas.h"
+
+#include "MappingManager.h"
+
+#define LIBREMAPPING_VERSION "0.1"
 
 class MainWindow: public QMainWindow
 {
 Q_OBJECT
 
 public:
+  ~MainWindow();
+  static MainWindow& getInstance();
+
+private:
   MainWindow();
+  MainWindow(MainWindow const&);
+  void operator=(MainWindow const&);
 
 protected:
   // Events.
@@ -47,7 +55,9 @@ private slots:
   void import();
   void about();
   void updateStatusBar();
+
   void handleSourceItemSelectionChanged();
+  void addQuad();
 
   void windowModified();
 
@@ -95,14 +105,35 @@ private:
 //  QAction *deleteAction;
   QAction *aboutAction;
 
+  QAction *addQuadAction;
+
   QListWidget* sourceList;
+  QListWidget* shapeList;
+
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
 
   QSplitter* mainSplitter;
+  QSplitter* sourceSplitter;
   QSplitter* canvasSplitter;
 
+private:
+  // Model.
+  MappingManager* mappingManager;
+
+  // View.
+  int currentPaintId;
+
 public:
+  MappingManager& getMappingManager() { return *mappingManager; }
+  int getCurrentPaintId() const { return currentPaintId; }
+  void setPaint(int id)
+  {
+    currentPaintId = id;
+  }
+
+public:
+  // Constants.
   static const int DEFAULT_WIDTH = 1600;
   static const int DEFAULT_HEIGHT = 800;
   static const int SOURCE_LIST_ITEM_HEIGHT = 40;

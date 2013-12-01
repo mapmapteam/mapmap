@@ -21,6 +21,9 @@
 
 MainWindow::MainWindow()
 {
+  mappingManager = new MappingManager;
+  currentPaintId = -1;
+
   createLayout();
 
   createActions();
@@ -33,6 +36,17 @@ MainWindow::MainWindow()
 
   //setWindowIcon(QIcon(":/images/icon.png"));
   setCurrentFile("");
+}
+
+MainWindow& MainWindow::getInstance()
+{
+  static MainWindow instance;
+  return instance;
+}
+
+MainWindow::~MainWindow()
+{
+  delete mappingManager;
 }
 
 void MainWindow::handleSourceItemSelectionChanged()
@@ -121,6 +135,11 @@ void MainWindow::import()
   }
 }
 
+void MainWindow::addQuad()
+{
+  qDebug() << "add quad" << endl;
+}
+
 void MainWindow::about()
 {
   QMessageBox::about(this, tr("About Libremapping"),
@@ -150,14 +169,18 @@ void MainWindow::createLayout()
   sourceList->setSelectionMode(QAbstractItemView::SingleSelection);
   sourceList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
+  shapeList = new QListWidget;
+  shapeList->setSelectionMode(QAbstractItemView::SingleSelection);
+  shapeList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+
   sourceCanvas = new SourceGLCanvas;
   destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
 
-  connect(sourceCanvas, SIGNAL(quadChanged()), destinationCanvas,
-      SLOT(updateCanvas()));
+  connect(sourceCanvas,      SIGNAL(quadChanged()),
+          destinationCanvas, SLOT(updateCanvas()));
 
-  connect(destinationCanvas, SIGNAL(quadSwitched()), sourceCanvas,
-      SLOT(updateCanvas()));
+  connect(destinationCanvas, SIGNAL(imageChanged()),
+          sourceCanvas,      SLOT(updateCanvas()));
 
   sourceCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
@@ -174,7 +197,11 @@ void MainWindow::createLayout()
   canvasSplitter->addWidget(sourceCanvas);
   canvasSplitter->addWidget(destinationCanvas);
 
-  mainSplitter->addWidget(sourceList);
+  sourceSplitter = new QSplitter(Qt::Vertical);
+  sourceSplitter->addWidget(sourceList);
+  sourceSplitter->addWidget(shapeList);
+
+  mainSplitter->addWidget(sourceSplitter);
   mainSplitter->addWidget(canvasSplitter);
   mainSplitter->setStretchFactor(1, 1); // Upon resizing window, give the extra stretch expansion to canvasSplitter.
 
@@ -268,6 +295,11 @@ void MainWindow::createActions()
   aboutAction = new QAction(tr("&About"), this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
+
+  addQuadAction = new QAction(tr("&Add quad"), this);
+  addQuadAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
+  addQuadAction->setStatusTip(tr("Add quad"));
+  connect(addQuadAction, SIGNAL(triggered()), this, SLOT(addQuad()));
 }
 
 void MainWindow::createMenus()
@@ -326,6 +358,8 @@ void MainWindow::createToolBars()
   fileToolBar->addAction(newAction);
   fileToolBar->addAction(openAction);
   fileToolBar->addAction(saveAction);
+  fileToolBar->addSeparator();
+  fileToolBar->addAction(addQuadAction);
 
 //  editToolBar = addToolBar(tr("&Edit"));
 //  editToolBar->addAction(cutAction);
@@ -447,10 +481,13 @@ bool MainWindow::importFile(const QString &fileName)
   }
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  Common::addImage(fileName, sourceCanvas->width(), sourceCanvas->height());
 
+  // Add image to model.
+  int imageId = mappingManager->addImage(fileName, sourceCanvas->width(), sourceCanvas->height());
+
+  // Add image to sourceList widget.
   QListWidgetItem* item = new QListWidgetItem(strippedName(fileName));
-  item->setData(Qt::UserRole, Common::nImages()-1);
+  item->setData(Qt::UserRole, imageId); // TODO: could possibly be replaced by a Paint pointer
   item->setIcon(QIcon(fileName));
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SOURCE_LIST_ITEM_HEIGHT));
   sourceList->addItem(item);

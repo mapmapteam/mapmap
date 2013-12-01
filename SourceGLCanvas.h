@@ -35,7 +35,7 @@ public:
   SourceGLCanvas(QWidget* parent = 0);
 //  virtual ~SourceGLCanvas() {}
 
-  virtual Quad& getQuad();
+//  virtual Quad& getQuad();
 
 private:
   virtual void doDraw();

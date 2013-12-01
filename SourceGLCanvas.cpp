@@ -19,43 +19,44 @@
 
 #include "SourceGLCanvas.h"
 
+#include "MainWindow.h"
+
+
 SourceGLCanvas::SourceGLCanvas(QWidget* parent)
   : MapperGLCanvas(parent)
 {
 }
 
-Quad& SourceGLCanvas::getQuad()
-{
-  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-  Q_CHECK_PTR(textureMapping);
-
-  std::tr1::shared_ptr<Quad> inputQuad = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
-  Q_CHECK_PTR(inputQuad);
-
-  return (*inputQuad);
-}
+//Quad& SourceGLCanvas::getQuad()
+//{
+//  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
+//  Q_CHECK_PTR(textureMapping);
+//
+//  std::tr1::shared_ptr<Quad> inputQuad = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
+//  Q_CHECK_PTR(inputQuad);
+//
+//  return (*inputQuad);
+//}
 
 void SourceGLCanvas::doDraw()
 {
-  // No sources = nothing to do.
-  if (Common::nImages() == 0)
+  int paintId = MainWindow::getInstance().getCurrentPaintId();
+
+  if (paintId < 0)
     return;
 
-  // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
-  // Il faut changer ca.
-  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-  Q_CHECK_PTR(textureMapping);
-
-  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+  // Retrieve paint (as texture) and draw it.
+  Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(paintId);
+  Q_CHECK_PTR(paint);
+  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
   Q_CHECK_PTR(texture);
 
-  std::cout << width() << " " << height() << std::endl;
+  // Load texture if needed.
   if (texture->getTextureId() == 0) {
     texture->loadTexture();
   }
 
-  // Now, draw
-  // DRAW THE TEXTURE
+  // Draw the texture.
   glPushMatrix();
 
   // Enable blending mode (for alphas).
@@ -86,7 +87,7 @@ void SourceGLCanvas::doDraw()
   // float textureHalfWidth  = (float) texture->getWidth()  / 2.0f;
   // float textureHalfHeight = (float) texture->getHeight() / 2.0f;
 
-  //printf("SRC: %f %f %f %f\n", centerX, centerY, textureHalfWidth, textureHalfHeight);
+
   glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
   // FIXME: Does this draw the quad counterclockwise?
   glBegin (GL_QUADS);
@@ -107,24 +108,35 @@ void SourceGLCanvas::doDraw()
 
   glDisable(GL_TEXTURE_2D);
 
-  // Draw the quad.
-  Quad& quad = getQuad();
+  // Retrieve all mappings associated to paint.
+  std::vector<Mapping::ptr> mappings = MainWindow::getInstance().getMappingManager().getPaintMappings(paintId);
 
-  glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-
-  // Source quad.
-  glLineWidth(5);
-  glBegin (GL_LINE_STRIP);
+  for (std::vector<Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
-    for (int i = 0; i < 5; i++)
+    // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
+    // Il faut changer ca.
+    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(*it);
+    Q_CHECK_PTR(textureMapping);
+
+    std::tr1::shared_ptr<Shape> inputShape = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
+    Q_CHECK_PTR(inputShape);
+
+    glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+
+    // Source shape.
+    glLineWidth(5);
+    glBegin (GL_LINE_STRIP);
     {
-      glVertex2f(
-        quad.getVertex(i % 4).x,
-        quad.getVertex(i % 4).y
-                 );
+      for (int i = 0; i < inputShape->nVertices()+1; i++)
+      {
+        glVertex2f(
+          inputShape->getVertex(i % inputShape->nVertices()).x,
+          inputShape->getVertex(i % inputShape->nVertices()).y
+                   );
+      }
     }
+    glEnd ();
   }
-  glEnd ();
 
   glPopMatrix();
 }
