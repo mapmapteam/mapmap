@@ -60,6 +60,7 @@ void MainWindow::handleSourceItemSelectionChanged()
 
   // Reconstruct shape item list.
   shapeList->clear();
+  setCurrentMapping(-1); // de-select current mapping to avoid being stuck with the last selection
   // Retrieve all mappings associated to paint.
   std::map<int, Mapping::ptr> mappings = getMappingManager().getPaintMappings(idx);
   for (std::map<int, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
