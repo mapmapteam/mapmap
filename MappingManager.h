@@ -39,8 +39,8 @@ private:
 
 public:
   /// Returns the list of mappings associated with given paint.
-  std::vector<Mapping::ptr> getPaintMappings(const Paint::ptr paint) const;
-  std::vector<Mapping::ptr> getPaintMappings(int id) const;
+  std::map<int, Mapping::ptr> getPaintMappings(const Paint::ptr paint) const;
+  std::map<int, Mapping::ptr> getPaintMappings(int id) const;
 
   int addPaint(Paint::ptr paint);
 //  bool removePaint(Paint::ptr paint);

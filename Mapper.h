@@ -50,7 +50,7 @@ class Mapper
 {
 protected:
   Mapping::ptr _mapping;
-  Mapper(Mapping* mapping) : _mapping(mapping) {}
+  Mapper(Mapping::ptr mapping) : _mapping(mapping) {}
   virtual ~Mapper() {}
 
 public:
@@ -104,7 +104,7 @@ public:
 class QuadTextureMapper : public Mapper
 {
 public:
-  QuadTextureMapper(TextureMapping* mapping) : Mapper(mapping) {}
+  QuadTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping) : Mapper(mapping) {}
   virtual ~QuadTextureMapper() {}
 
   virtual void draw();

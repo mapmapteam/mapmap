@@ -23,6 +23,7 @@ MainWindow::MainWindow()
 {
   mappingManager = new MappingManager;
   currentPaintId = -1;
+  currentMappingId = -1;
 
   createLayout();
 
@@ -56,6 +57,37 @@ void MainWindow::handleSourceItemSelectionChanged()
   int idx = item->data(Qt::UserRole).toInt();
   std::cout << "idx=" << idx << std::endl;
   setCurrentPaint(idx);
+
+  // Reconstruct shape item list.
+  shapeList->clear();
+  // Retrieve all mappings associated to paint.
+  std::map<int, Mapping::ptr> mappings = getMappingManager().getPaintMappings(idx);
+  for (std::map<int, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
+  {
+    // Add image to sourceList widget.
+    QListWidgetItem* item = new QListWidgetItem("Quad");
+    item->setData(Qt::UserRole, it->first); // TODO: could possibly be replaced by a Paint pointer
+    item->setIcon(QIcon(":/images/draw-rectangle-2.png"));
+    item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
+    shapeList->addItem(item);
+    shapeList->setCurrentItem(item);
+  }
+
+  // Update canvases.
+  sourceCanvas->update();
+  destinationCanvas->update();
+  //sourceCanvas->switchImage(idx);
+  //sourceCanvas->repaint();
+  //destinationCanvas->repaint();
+}
+
+void MainWindow::handleShapeItemSelectionChanged()
+{
+  std::cout << "shape selection changed" << std::endl;
+  QListWidgetItem* item = shapeList->currentItem();
+  int idx = item->data(Qt::UserRole).toInt();
+  std::cout << "idx=" << idx << std::endl;
+  setCurrentMapping(idx);
   sourceCanvas->update();
   destinationCanvas->update();
   //sourceCanvas->switchImage(idx);
@@ -157,6 +189,7 @@ void MainWindow::addQuad()
 
   // Create texture mapping.
   int mappingId = mappingManager->addMapping(Mapping::ptr(new TextureMapping(paint.get(), outputQuad, inputQuad)));
+  qDebug() << "Added texture mapping at id " << mappingId << endl;
 
   // Add image to sourceList widget.
   QListWidgetItem* item = new QListWidgetItem("Quad");
@@ -250,9 +283,11 @@ void MainWindow::createLayout()
 //    sourceList->addItem(item);
 //  }
 
-  connect(sourceList, SIGNAL(itemSelectionChanged()), this,
-      SLOT(handleSourceItemSelectionChanged()));
+  connect(sourceList, SIGNAL(itemSelectionChanged()),
+          this, SLOT(handleSourceItemSelectionChanged()));
 
+  connect(shapeList, SIGNAL(itemSelectionChanged()),
+          this, SLOT(handleShapeItemSelectionChanged()));
 //  sourceList->setModel(sourcesModel);
 //
 //  connect(sourceList->selectionModel(),

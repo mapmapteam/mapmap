@@ -33,6 +33,8 @@ public:
   DestinationGLCanvas(QWidget* parent = 0, const QGLWidget * shareWidget = 0);
 //  virtual ~DestinationGLCanvas();
 
+  virtual Shape* getCurrentShape();
+
 //  virtual Quad& getQuad();
 
 private:

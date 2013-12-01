@@ -57,6 +57,7 @@ private slots:
   void updateStatusBar();
 
   void handleSourceItemSelectionChanged();
+  void handleShapeItemSelectionChanged();
   void addQuad();
 
   void windowModified();
@@ -123,13 +124,19 @@ private:
 
   // View.
   int currentPaintId;
+  int currentMappingId;
 
 public:
   MappingManager& getMappingManager() { return *mappingManager; }
   int getCurrentPaintId() const { return currentPaintId; }
+  int getCurrentMappingId() const { return currentMappingId; }
   void setCurrentPaint(int id)
   {
     currentPaintId = id;
+  }
+  void setCurrentMapping(int id)
+  {
+    currentMappingId = id;
   }
 
 public:

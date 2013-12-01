@@ -97,26 +97,28 @@ void MapperGLCanvas::enterDraw()
 
 void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
 {
-//  int i, dist, maxdist, mindist;
-//  int xmouse = event->x();
-//  int ymouse = event->y();
-//  maxdist = mindist = 50;
-//  if (event->buttons() & Qt::LeftButton)
-//  {
-//    // std::cout << "Left Mouse key pressed" << std::endl;
-//    for (i = 0; i < 4; i++)
-//    {
-//      Quad& quad = getQuad();
-//      Point p = quad.getVertex(i);
-//      dist = abs(xmouse - p.x) + abs(ymouse - p.y);
-//      if (dist < maxdist && dist < mindist)
-//      {
-//        quad.setActiveVertex(i);
-//        mindist = dist;
-//      }
-//    }
-//    _mousepressed = true;
-//  }
+  int i, dist, maxdist, mindist;
+  int xmouse = event->x();
+  int ymouse = event->y();
+  maxdist = mindist = 50;
+  if (event->buttons() & Qt::LeftButton)
+  {
+    Shape* shape = getCurrentShape();
+    if (shape)
+    {
+      for (i = 0; i < shape->nVertices(); i++)
+      {
+        Point p = shape->getVertex(i);
+        dist = abs(xmouse - p.x) + abs(ymouse - p.y);
+        if (dist < maxdist && dist < mindist)
+        {
+          shape->setActiveVertex(i);
+          mindist = dist;
+        }
+      }
+      _mousepressed = true;
+    }
+  }
 }
 
 void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
@@ -127,19 +129,22 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
 
 void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 {
-//
-//  if (_mousepressed)
-//  {
-//    // std::cout << "Move event " << std::endl;
-//    Quad& quad = getQuad();
-//    Point p = quad.getVertex(quad.getActiveVertex());
-//    p.x = event->x();
-//    p.y = event->y();
-//
-//    quad.setVertex(quad.getActiveVertex(), p);
-//    update();
-//    emit quadChanged();
-//  }
+
+  if (_mousepressed)
+  {
+    // std::cout << "Move event " << std::endl;
+    Shape* shape = getCurrentShape();
+    if (shape)
+    {
+      Point p = shape->getVertex(shape->getActiveVertex());
+      p.x = event->x();
+      p.y = event->y();
+
+      shape->setVertex(shape->getActiveVertex(), p);
+      update();
+      emit quadChanged();
+    }
+  }
 }
 
 void MapperGLCanvas::keyPressEvent(QKeyEvent* event)

@@ -42,6 +42,8 @@ public:
   MapperGLCanvas(QWidget* parent = 0, const QGLWidget* shareWidget = 0);
   virtual ~MapperGLCanvas() {}
 
+  virtual Shape* getCurrentShape() = 0;
+
   void switchImage(int imageId);
 //  QSize sizeHint() const;
 //  QSize minimumSizeHint() const;

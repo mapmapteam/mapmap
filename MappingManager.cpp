@@ -25,18 +25,18 @@ MappingManager::MappingManager()
 
 }
 
-std::vector<Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr paint) const
+std::map<int, Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr paint) const
 {
-  std::vector<Mapping::ptr> paintMappings;
-  for (std::vector<Mapping::ptr>::const_iterator it = mappings.begin(); it != mappings.end(); ++it)
+  std::map<int, Mapping::ptr> paintMappings;
+  for (int i=0; i<mappings.size(); i++)
   {
-    if ((*it)->getPaint() == paint)
-      paintMappings.push_back(*it);
+    if (mappings[i]->getPaint() == paint)
+      paintMappings[i] = mappings[i];
   }
   return paintMappings;
 }
 
-std::vector<Mapping::ptr> MappingManager::getPaintMappings(int i) const
+std::map<int, Mapping::ptr> MappingManager::getPaintMappings(int i) const
 {
   return getPaintMappings( paints[i] );
 }

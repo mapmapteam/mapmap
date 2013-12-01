@@ -25,16 +25,14 @@ DestinationGLCanvas::DestinationGLCanvas(QWidget* parent, const QGLWidget * shar
 {
 }
 
-//Quad& DestinationGLCanvas::getQuad()
-//{
-//  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-//  Q_CHECK_PTR(textureMapping);
-//
-//  std::tr1::shared_ptr<Quad> quad = std::tr1::static_pointer_cast<Quad>(Common::currentMapping->getShape());
-//  Q_CHECK_PTR(quad);
-//
-//  return (*quad);
-//}
+Shape* DestinationGLCanvas::getCurrentShape()
+{
+  int mappingId = MainWindow::getInstance().getCurrentMappingId();
+  if (mappingId >= 0)
+    return MainWindow::getInstance().getMappingManager().getMapping(mappingId)->getShape().get();
+  else
+    return NULL;
+}
 
 void DestinationGLCanvas::doDraw()
 {
@@ -68,29 +66,44 @@ void DestinationGLCanvas::doDraw()
   MappingManager& mappingManager = MainWindow::getInstance().getMappingManager();
   for (int i=0; i<mappingManager.nMappings(); i++)
   {
+    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mappingManager.getMapping(i));
+    Q_CHECK_PTR(textureMapping);
+
+    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+    Q_CHECK_PTR(texture);
+
+    if (texture->getTextureId() == 0)
+      texture->loadTexture();
+
     // Draw the mappings.
-    QuadTextureMapper mapper((TextureMapping*)mappingManager.getMapping(i).get());
+    QuadTextureMapper mapper(textureMapping);
     mapper.draw();
   }
-//
-//  // Draw the quad.
-//  Quad& quad = getQuad();
-//
-//  glColor4f(1.0, 0.0, 0.0, 1.0);
-//
-//  // Destination quad.
-//  // Source quad.
-//  glLineWidth(5);
-//  glBegin (GL_LINE_STRIP);
-//  {
-//    for (int i=0; i<5; i++)
-//    {
-//      glVertex2f(
-//        quad.getVertex(i % 4).x,
-//        quad.getVertex(i % 4).y);
-//    }
-//  }
-//  glEnd ();
+
+  // Draw the shape.
+  if (MainWindow::getInstance().getCurrentMappingId() < 0)
+    return;
+
+  Shape* shape = getCurrentShape();
+  if (shape)
+  {
+    glColor4f(0.0f, 0.0f, 0.7f, 1.0f);
+
+    // Destination quad.
+    // Source quad.
+    glLineWidth(5);
+    glBegin (GL_LINE_STRIP);
+    {
+      for (int i = 0; i < shape->nVertices()+1; i++)
+      {
+        glVertex2f(
+            shape->getVertex(i % shape->nVertices()).x,
+            shape->getVertex(i % shape->nVertices()).y
+                   );
+      }
+    }
+    glEnd ();
+  }
 
   glPopMatrix();
 }

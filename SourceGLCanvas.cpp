@@ -27,6 +27,21 @@ SourceGLCanvas::SourceGLCanvas(QWidget* parent)
 {
 }
 
+Shape* SourceGLCanvas::getCurrentShape()
+{
+  int mappingId = MainWindow::getInstance().getCurrentMappingId();
+  if (mappingId >= 0)
+  {
+    Mapping::ptr mapping = MainWindow::getInstance().getMappingManager().getMapping(mappingId);
+    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+    Q_CHECK_PTR(textureMapping);
+
+    return textureMapping->getInputShape().get();
+  }
+  else
+    return NULL;
+}
+
 //Quad& SourceGLCanvas::getQuad()
 //{
 //  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
@@ -109,19 +124,22 @@ void SourceGLCanvas::doDraw()
   glDisable(GL_TEXTURE_2D);
 
   // Retrieve all mappings associated to paint.
-  std::vector<Mapping::ptr> mappings = MainWindow::getInstance().getMappingManager().getPaintMappings(paintId);
+  std::map<int, Mapping::ptr> mappings = MainWindow::getInstance().getMappingManager().getPaintMappings(paintId);
 
-  for (std::vector<Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
+  for (std::map<int, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
     // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
     // Il faut changer ca.
-    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(*it);
+    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(it->second);
     Q_CHECK_PTR(textureMapping);
 
     std::tr1::shared_ptr<Shape> inputShape = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
     Q_CHECK_PTR(inputShape);
 
-    glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+    if (it->first == MainWindow::getInstance().getCurrentMappingId())
+      glColor4f(0.0f, 0.0f, 0.7f, 1.0f);
+    else
+      glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 
     // Source shape.
     glLineWidth(5);
