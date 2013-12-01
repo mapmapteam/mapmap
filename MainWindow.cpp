@@ -176,11 +176,11 @@ void MainWindow::addQuad()
   Q_CHECK_PTR(texture);
 
   // Create input and output quads.
-  Quad* outputQuad = Util::createQuadForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height());
-  Quad*  inputQuad = Util::createQuadForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height());
+  Shape::ptr outputQuad = Shape::ptr(Util::createQuadForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+  Shape::ptr  inputQuad = Shape::ptr(Util::createQuadForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
 
   // Create texture mapping.
-  int mappingId = mappingManager->addMapping(Mapping::ptr(new TextureMapping(paint.get(), outputQuad, inputQuad)));
+  int mappingId = mappingManager->addMapping(Mapping::ptr(new TextureMapping(paint, outputQuad, inputQuad)));
 
   addMappingItem(mappingId);
 }
@@ -197,11 +197,11 @@ void MainWindow::addTriangle()
   Q_CHECK_PTR(texture);
 
   // Create input and output quads.
-  Triangle* outputTriangle = Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height());
-  Triangle* inputTriangle = Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height());
+  Shape::ptr outputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+  Shape::ptr inputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
 
   // Create texture mapping.
-  int mappingId = mappingManager->addMapping(Mapping::ptr(new TextureMapping(paint.get(), inputTriangle, outputTriangle)));
+  int mappingId = mappingManager->addMapping(Mapping::ptr(new TextureMapping(paint, inputTriangle, outputTriangle)));
 
   addMappingItem(mappingId);
 }

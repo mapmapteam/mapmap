@@ -42,7 +42,7 @@ protected:
 
 public:
   typedef std::tr1::shared_ptr<Mapping> ptr;
-  Mapping(Paint* paint, Shape* shape)
+  Mapping(Paint::ptr paint, Shape::ptr shape)
     : _paint(paint), _shape(shape)
   {}
   virtual ~Mapping() {}
@@ -67,9 +67,9 @@ private:
   Shape::ptr _inputShape;
 
 public:
-  TextureMapping(Paint* paint,
-                 Shape* shape,
-                 Shape* inputShape)
+  TextureMapping(Paint::ptr paint,
+                 Shape::ptr shape,
+                 Shape::ptr inputShape)
     : Mapping(paint, shape),
       _inputShape(inputShape)
   {}
