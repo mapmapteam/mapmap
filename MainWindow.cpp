@@ -55,8 +55,10 @@ void MainWindow::handleSourceItemSelectionChanged()
   QListWidgetItem* item = sourceList->currentItem();
   int idx = item->data(Qt::UserRole).toInt();
   std::cout << "idx=" << idx << std::endl;
-  sourceCanvas->switchImage(idx);
-  sourceCanvas->repaint();
+  setCurrentPaint(idx);
+  sourceCanvas->updateCanvas();
+  //sourceCanvas->switchImage(idx);
+  //sourceCanvas->repaint();
   destinationCanvas->repaint();
 }
 
@@ -179,8 +181,8 @@ void MainWindow::createLayout()
   connect(sourceCanvas,      SIGNAL(quadChanged()),
           destinationCanvas, SLOT(updateCanvas()));
 
-  connect(destinationCanvas, SIGNAL(imageChanged()),
-          sourceCanvas,      SLOT(updateCanvas()));
+//  connect(destinationCanvas, SIGNAL(imageChanged()),
+//          sourceCanvas,      SLOT(updateCanvas()));
 
   sourceCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);

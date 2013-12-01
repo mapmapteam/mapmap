@@ -192,11 +192,11 @@ void MapperGLCanvas::paintEvent(QPaintEvent* /* event */)
   updateGL();
 }
 
-void MapperGLCanvas::switchImage(int imageId)
-{
-  MainWindow::getInstance().setPaint(imageId);
-  emit imageChanged();
-}
+//void MapperGLCanvas::switchImage(int imageId)
+//{
+//  MainWindow::getInstance().setCurrentPaint(imageId);
+//  emit imageChanged();
+//}
 
 //QSize MapperGLCanvas::sizeHint() const
 //{

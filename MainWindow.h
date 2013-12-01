@@ -127,7 +127,7 @@ private:
 public:
   MappingManager& getMappingManager() { return *mappingManager; }
   int getCurrentPaintId() const { return currentPaintId; }
-  void setPaint(int id)
+  void setCurrentPaint(int id)
   {
     currentPaintId = id;
   }
