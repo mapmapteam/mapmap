@@ -22,7 +22,7 @@
 #include "MainWindow.h"
 
 MapperGLCanvas::MapperGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
-  : QGLWidget(parent, shareWidget), _mousepressed(false)
+  : QGLWidget(parent, shareWidget), _mousepressed(false), _active_vertex(0)
 {
 }
 
@@ -112,7 +112,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
         dist = abs(xmouse - p.x) + abs(ymouse - p.y);
         if (dist < maxdist && dist < mindist)
         {
-          shape->setActiveVertex(i);
+          _active_vertex = i;
           mindist = dist;
         }
       }
@@ -136,11 +136,11 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
     Shape* shape = getCurrentShape();
     if (shape)
     {
-      Point p = shape->getVertex(shape->getActiveVertex());
+      Point p = shape->getVertex(_active_vertex);
       p.x = event->x();
       p.y = event->y();
 
-      shape->setVertex(shape->getActiveVertex(), p);
+      shape->setVertex(_active_vertex, p);
       update();
       emit quadChanged();
     }
@@ -159,7 +159,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 //    else
 //    {
 //      Quad& quad = getQuad();
-//      quad.setActiveVertex((quad.getActiveVertex() + 1) % 4);
+//      _active_vertex = (_active_vertex + 1 ) % 4;
 //    }
 //    break;
 //  case Qt::Key_Up:
@@ -181,10 +181,10 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 //  }
 //
 //  Quad& quad = getQuad();
-//  Point p = quad.getVertex(quad.getActiveVertex());
+//  Point p = quad.getVertex(_active_vertex);
 //  p.x += xMove;
 //  p.y += yMove;
-//  quad.setVertex(quad.getActiveVertex(), p);
+//  quad.setVertex(_active_vertex, p);
 //
 //  update();
 //
