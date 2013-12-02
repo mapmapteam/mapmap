@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <tr1/memory>
+#include <iostream>
 
 /**
  * Point (or vertex) on the 2-D canvas.
@@ -68,6 +69,57 @@ public:
   }
   void setActiveVertex(int x) {active_vertex = x;}
   int getActiveVertex() {return active_vertex;}
+  /** Return true if Shape includes point (x,y), false otherwise
+   *  Algorithm should work for all polygons, including non-convex
+   *  Found at http://www.cs.tufts.edu/comp/163/notes05/point_inclusion_handout.pdf
+   */
+  bool includesPoint(int x, int y)
+  {
+    Point *prev = NULL, *cur;
+    int left = 0, right = 0, maxy, miny;
+    for (std::vector<Point>::iterator it = vertices.begin() ; it !=
+            vertices.end(); it++)
+    {
+      if (!prev) {
+          prev = &vertices.back();
+      }
+      cur = &(*it);
+      miny = std::min(cur->y, prev->y);
+      maxy = std::max(cur->y, prev->y);
+
+      if (y > miny && y < maxy) {
+        if (prev->x == cur->x) 
+        {
+          if (x < cur->x)
+            right++;
+          else left++;
+        }
+        else
+        {
+          double slope = (cur->y - prev->y) / (cur->x - prev->x);
+          double offset = cur->y - slope * cur->x;
+          int xintersect = int((y - offset ) / slope);
+          if (x < xintersect)
+            right++;
+          else left++;
+        }
+      }
+      prev = &(*it);
+    }
+    if (right % 2 && left % 2)
+        return true;
+    return false;
+  }
+  /* Translate all vertices of shape by the vector (x,y) */
+  void translate(int x, int y)
+  {
+    for (std::vector<Point>::iterator it = vertices.begin() ; it !=
+            vertices.end(); ++it) 
+    {
+      it->x += x;
+      it->y += y;
+    }
+  }  
 };
 
 /**

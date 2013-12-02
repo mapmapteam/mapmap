@@ -65,6 +65,8 @@ private:
   virtual void doDraw() = 0;
   void exitDraw();
   bool _mousepressed;
+  bool _shapegrabbed;
+  bool _shapefirstgrab;
 
 signals:
   void quadChanged();

@@ -119,12 +119,22 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
       _mousepressed = true;
     }
   }
+  if (event->buttons() & Qt::RightButton)
+  {
+    Shape* shape = getCurrentShape();
+    if (shape->includesPoint(xmouse, ymouse))
+    {
+      _shapegrabbed = true;
+      _shapefirstgrab = true;
+    }
+  }
 }
 
 void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
 {
   // std::cout << "Mouse Release event " << std::endl;
   _mousepressed = false;
+  _shapegrabbed = false;
 }
 
 void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
@@ -144,6 +154,26 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       update();
       emit quadChanged();
     }
+  }
+  else if (_shapegrabbed)
+  {
+    // std::cout << "Move event " << std::endl;
+    Shape* shape = getCurrentShape();
+    static Point p(0,0);
+    if (shape)
+    {
+      if (_shapefirstgrab == false)
+      {    
+        shape->translate(event->x() - p.x, event->y() - p.y);  
+        update();
+        emit quadChanged();
+      }  
+      else
+        _shapefirstgrab = false;
+    }
+    p.x = event->x();
+    p.y = event->y();
+
   }
 }
 
