@@ -65,6 +65,7 @@ private:
   virtual void doDraw() = 0;
   void exitDraw();
   bool _mousepressed;
+  int _active_vertex;
 
 signals:
   void quadChanged();

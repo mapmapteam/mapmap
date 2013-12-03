@@ -41,11 +41,9 @@ class Shape
 public:
   typedef std::tr1::shared_ptr<Shape> ptr;
   std::vector<Point> vertices;
-  int active_vertex;
   Shape() {}
   Shape(std::vector<Point> vertices_) :
-    vertices(vertices_),
-    active_vertex(0)
+    vertices(vertices_)
   {}
   virtual ~Shape() {}
 
@@ -66,8 +64,6 @@ public:
     vertices[i].x = x;
     vertices[i].y = y;
   }
-  void setActiveVertex(int x) {active_vertex = x;}
-  int getActiveVertex() {return active_vertex;}
 };
 
 /**
