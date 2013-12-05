@@ -66,6 +66,8 @@ private:
   void exitDraw();
   bool _mousepressed;
   int _active_vertex;
+  bool _shapegrabbed;
+  bool _shapefirstgrab;
 
 signals:
   void quadChanged();
