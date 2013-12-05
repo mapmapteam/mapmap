@@ -66,6 +66,7 @@ public:
   uint addLayer(Mapping::ptr mapping);
   Layer::ptr getLayer(int i) { return layerVector[i]; }
   Layer::ptr getLayerById(uint id) { return layerMap[id]; }
+  void reorderLayers(std::vector<uint> layerIds);
 
   std::vector<Layer::ptr> getVisibleLayers() const;
 };

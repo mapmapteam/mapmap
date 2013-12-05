@@ -105,6 +105,17 @@ std::vector<Layer::ptr> MappingManager::getVisibleLayers() const
   return visible;
 }
 
+void MappingManager::reorderLayers(std::vector<uint> layerIds)
+{
+  Q_ASSERT( layerIds.size() == layerVector.size() );
+  // TODO: do a better check than this...
+  layerVector.clear();
+  for (std::vector<uint>::iterator it = layerIds.begin(); it != layerIds.end(); ++it)
+  {
+    Q_ASSERT( layerMap.find(*it) != layerMap.end() );
+    layerVector.push_back( layerMap[*it] );
+  }
+}
 
 //bool MappingManager::removeMapping(Mapping::ptr mapping)
 //{

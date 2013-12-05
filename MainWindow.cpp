@@ -94,6 +94,22 @@ void MainWindow::handleLayerItemChanged(QListWidgetItem* item)
   destinationCanvas->update();
 }
 
+void MainWindow::handleLayerIndexesMoved()
+{
+  qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1Moved!!!" << endl;
+  std::vector<uint> newOrder;
+  for (int row=layerList->count()-1; row>=0; row--)
+  {
+    uint layerId = layerList->item(row)->data(Qt::UserRole).toUInt();
+    newOrder.push_back(layerId);
+  }
+
+  mappingManager->reorderLayers(newOrder);
+
+  sourceCanvas->update();
+  destinationCanvas->update();
+}
+
 //void MainWindow::handleSourceSelectionChanged(const QItemSelection& selection)
 //{
 //  std::cout << "selection changed" << std::endl;
@@ -245,6 +261,10 @@ void MainWindow::createLayout()
   layerList = new QListWidget;
   layerList->setSelectionMode(QAbstractItemView::SingleSelection);
   layerList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+  //layerList->setDragDropMode(QAbstractItemView::DragDrop);
+  layerList->setDefaultDropAction(Qt::MoveAction);
+  layerList->setDragDropMode(QAbstractItemView::InternalMove);
+
 
   sourceCanvas = new SourceGLCanvas;
   destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
@@ -304,7 +324,12 @@ void MainWindow::createLayout()
 
   connect(layerList, SIGNAL(itemChanged(QListWidgetItem*)),
           this, SLOT(handleLayerItemChanged(QListWidgetItem*)));
-//  sourceList->setModel(sourcesModel);
+
+  connect(layerList->model(), SIGNAL(layoutChanged()),
+          this, SLOT(handleLayerIndexesMoved()));
+
+
+  //  sourceList->setModel(sourcesModel);
 //
 //  connect(sourceList->selectionModel(),
 //          SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
@@ -622,7 +647,7 @@ void MainWindow::addLayerItem(uint layerId)
   item->setData(Qt::UserRole, layerId); // TODO: could possibly be replaced by a Paint pointer
   item->setIcon(icon);
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
-  layerList->addItem(item);
+  layerList->insertItem(0, item);
   layerList->setCurrentItem(item);
 }
 
