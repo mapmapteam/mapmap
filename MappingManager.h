@@ -34,25 +34,29 @@ public:
 
 private:
   // Model.
-  std::vector<Paint::ptr> paints;
-  std::vector<Mapping::ptr> mappings;
+  std::vector<Paint::ptr> paintVector;
+  std::map<uint, Paint::ptr> paintMap;
+  std::vector<Mapping::ptr> mappingVector;
+  std::map<uint, Mapping::ptr> mappingMap;
 
 public:
   /// Returns the list of mappings associated with given paint.
-  std::map<int, Mapping::ptr> getPaintMappings(const Paint::ptr paint) const;
-  std::map<int, Mapping::ptr> getPaintMappings(int id) const;
+  std::map<uint, Mapping::ptr> getPaintMappings(const Paint::ptr paint) const;
+  std::map<uint, Mapping::ptr> getPaintMappingsById(uint paintId) const;
 
-  int addPaint(Paint::ptr paint);
+  uint addPaint(Paint::ptr paint);
 //  bool removePaint(Paint::ptr paint);
-  int nPaints() const { return paints.size(); }
-  Paint::ptr getPaint(int i) { return paints[i]; }
+  int nPaints() const { return paintVector.size(); }
+  Paint::ptr getPaint(int i) { return paintVector[i]; }
+  Paint::ptr getPaintById(uint id) { return paintMap[id]; }
 
-  int addImage(const QString imagePath, int frameWidth, int frameHeight);
+  uint addImage(const QString imagePath, int frameWidth, int frameHeight);
 
-  int addMapping(Mapping::ptr mapping);
+  uint addMapping(Mapping::ptr mapping);
 //  bool removeMapping(Mapping::ptr mapping);
-  int nMappings() const { return mappings.size(); }
-  Mapping::ptr getMapping(int i) { return mappings[i]; }
+  int nMappings() const { return mappingVector.size(); }
+  Mapping::ptr getMapping(int i) { return mappingVector[i]; }
+  Mapping::ptr getMappingById(uint id) { return mappingMap[id]; }
 };
 
 #endif /* MAPPINGMANAGER_H_ */

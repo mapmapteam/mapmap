@@ -30,6 +30,7 @@ SourceGLCanvas::SourceGLCanvas(QWidget* parent)
 Shape* SourceGLCanvas::getCurrentShape()
 {
   int mappingId = MainWindow::getInstance().getCurrentMappingId();
+  qDebug() << "mapping id: " << mappingId << endl;
   if (mappingId >= 0)
   {
     Mapping::ptr mapping = MainWindow::getInstance().getMappingManager().getMapping(mappingId);
@@ -55,13 +56,13 @@ Shape* SourceGLCanvas::getCurrentShape()
 
 void SourceGLCanvas::doDraw()
 {
-  int paintId = MainWindow::getInstance().getCurrentPaintId();
-
-  if (paintId < 0)
+  if (!MainWindow::getInstance().hasCurrentPaint())
     return;
 
+  uint paintId = MainWindow::getInstance().getCurrentPaintId();
+
   // Retrieve paint (as texture) and draw it.
-  Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(paintId);
+  Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaintById(paintId);
   Q_CHECK_PTR(paint);
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
   Q_CHECK_PTR(texture);
@@ -124,9 +125,9 @@ void SourceGLCanvas::doDraw()
   glDisable(GL_TEXTURE_2D);
 
   // Retrieve all mappings associated to paint.
-  std::map<int, Mapping::ptr> mappings = MainWindow::getInstance().getMappingManager().getPaintMappings(paintId);
+  std::map<uint, Mapping::ptr> mappings = MainWindow::getInstance().getMappingManager().getPaintMappingsById(paintId);
 
-  for (std::map<int, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
+  for (std::map<uint, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
     // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
     // Il faut changer ca.

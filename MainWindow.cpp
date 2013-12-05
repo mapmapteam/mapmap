@@ -22,8 +22,10 @@
 MainWindow::MainWindow()
 {
   mappingManager = new MappingManager;
-  currentPaintId = -1;
-  currentMappingId = -1;
+  currentPaintId = 0;
+  currentMappingId = 0;
+  _hasCurrentPaint = false;
+  _hasCurrentMapping = false;
 
   createLayout();
 
@@ -54,16 +56,16 @@ void MainWindow::handleSourceItemSelectionChanged()
 {
   std::cout << "selection changed" << std::endl;
   QListWidgetItem* item = sourceList->currentItem();
-  int idx = item->data(Qt::UserRole).toInt();
+  uint idx = item->data(Qt::UserRole).toUInt();
   std::cout << "idx=" << idx << std::endl;
   setCurrentPaint(idx);
 
   // Reconstruct shape item list.
   shapeList->clear();
-  setCurrentMapping(-1); // de-select current mapping to avoid being stuck with the last selection
+  removeCurrentMapping(); // de-select current mapping to avoid being stuck with the last selection
   // Retrieve all mappings associated to paint.
-  std::map<int, Mapping::ptr> mappings = getMappingManager().getPaintMappings(idx);
-  for (std::map<int, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
+  std::map<uint, Mapping::ptr> mappings = getMappingManager().getPaintMappingsById(idx);
+  for (std::map<uint, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
     addMappingItem(it->first);
   }
@@ -80,7 +82,7 @@ void MainWindow::handleShapeItemSelectionChanged()
 {
   std::cout << "shape selection changed" << std::endl;
   QListWidgetItem* item = shapeList->currentItem();
-  int idx = item->data(Qt::UserRole).toInt();
+  uint idx = item->data(Qt::UserRole).toUInt();
   std::cout << "idx=" << idx << std::endl;
   setCurrentMapping(idx);
   sourceCanvas->update();
@@ -181,7 +183,7 @@ void MainWindow::addQuad()
   Shape::ptr  inputQuad = Shape::ptr(Util::createQuadForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
 
   // Create texture mapping.
-  int mappingId = mappingManager->addMapping(Mapping::ptr(new TextureMapping(paint, outputQuad, inputQuad)));
+  uint mappingId = mappingManager->addMapping(Mapping::ptr(new TextureMapping(paint, outputQuad, inputQuad)));
 
   addMappingItem(mappingId);
 }
@@ -560,7 +562,7 @@ bool MainWindow::importFile(const QString &fileName)
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   // Add image to model.
-  int imageId = mappingManager->addImage(fileName, sourceCanvas->width(), sourceCanvas->height());
+  uint imageId = mappingManager->addImage(fileName, sourceCanvas->width(), sourceCanvas->height());
 
   // Add image to sourceList widget.
   QListWidgetItem* item = new QListWidgetItem(strippedName(fileName));
@@ -578,9 +580,9 @@ bool MainWindow::importFile(const QString &fileName)
   return true;
 }
 
-void MainWindow::addMappingItem(int mappingId)
+void MainWindow::addMappingItem(uint mappingId)
 {
-  Mapping::ptr mapping = mappingManager->getMapping(mappingId);
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
   Q_CHECK_PTR(mapping);
 
   QString label;

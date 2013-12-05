@@ -81,7 +81,7 @@ void DestinationGLCanvas::doDraw()
   }
 
   // Draw the shape.
-  if (MainWindow::getInstance().getCurrentMappingId() < 0)
+  if (!MainWindow::getInstance().hasCurrentMapping())
     return;
 
   Shape* shape = getCurrentShape();

@@ -78,7 +78,7 @@ private:
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
   bool importFile(const QString &fileName);
-  void addMappingItem(int mappingId);
+  void addMappingItem(uint mappingId);
   void clearWindow();
   QString strippedName(const QString &fullFileName);
 
@@ -126,20 +126,32 @@ private:
   MappingManager* mappingManager;
 
   // View.
-  int currentPaintId;
-  int currentMappingId;
+  uint currentPaintId;
+  uint currentMappingId;
+  bool _hasCurrentMapping;
+  bool _hasCurrentPaint;
 
 public:
   MappingManager& getMappingManager() { return *mappingManager; }
-  int getCurrentPaintId() const { return currentPaintId; }
-  int getCurrentMappingId() const { return currentMappingId; }
-  void setCurrentPaint(int id)
+  uint getCurrentPaintId() const { return currentPaintId; }
+  uint getCurrentMappingId() const { return currentMappingId; }
+  bool hasCurrentPaint() const { return _hasCurrentPaint; }
+  bool hasCurrentMapping() const { return _hasCurrentMapping; }
+  void setCurrentPaint(int uid)
   {
-    currentPaintId = id;
+    currentPaintId = uid;
+    _hasCurrentPaint = true;
   }
-  void setCurrentMapping(int id)
+  void setCurrentMapping(int uid)
   {
-    currentMappingId = id;
+    currentMappingId = uid;
+    _hasCurrentMapping = true;
+  }
+  void removeCurrentPaint() {
+    _hasCurrentPaint = false;
+  }
+  void removeCurrentMapping() {
+    _hasCurrentMapping = false;
   }
 
 public:
