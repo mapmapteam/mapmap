@@ -57,7 +57,8 @@ private slots:
   void updateStatusBar();
 
   void handleSourceItemSelectionChanged();
-  void handleShapeItemSelectionChanged();
+  void handleLayerItemSelectionChanged();
+  void handleLayerItemChanged(QListWidgetItem* item);
   void addQuad();
   void addTriangle();
 
@@ -78,7 +79,7 @@ private:
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
   bool importFile(const QString &fileName);
-  void addMappingItem(uint mappingId);
+  void addLayerItem(uint layerId);
   void clearWindow();
   QString strippedName(const QString &fullFileName);
 
@@ -112,7 +113,7 @@ private:
   QAction *addTriangleAction;
 
   QListWidget* sourceList;
-  QListWidget* shapeList;
+  QListWidget* layerList;
 
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;

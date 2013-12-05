@@ -79,9 +79,32 @@ uint MappingManager::addLayer(Mapping::ptr mapping)
   addMapping(mapping);
   Layer::ptr layer(new Layer);
   layer->setMapping(mapping);
-  layers.push_back(layer);
+  layerVector.push_back(layer);
+  layerMap[layer->getId()] = layer;
   return layer->getId();
 }
+
+std::vector<Layer::ptr> MappingManager::getVisibleLayers() const
+{
+  std::vector<Layer::ptr> visible;
+  bool hasSolo = false;
+  for (std::vector<Layer::ptr>::const_iterator it = layerVector.begin(); it != layerVector.end(); ++it)
+  {
+    if ((*it)->isSolo())
+    {
+      hasSolo = true;
+      break;
+    }
+  }
+  for (std::vector<Layer::ptr>::const_iterator it = layerVector.begin(); it != layerVector.end(); ++it)
+  {
+    // Solo has priority over invisible (mute)
+    if ( (hasSolo && (*it)->isSolo()) || (!hasSolo && (*it)->isVisible()) )
+      visible.push_back(*it);
+  }
+  return visible;
+}
+
 
 //bool MappingManager::removeMapping(Mapping::ptr mapping)
 //{

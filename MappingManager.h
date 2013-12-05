@@ -40,7 +40,8 @@ private:
   std::vector<Mapping::ptr> mappingVector;
   std::map<uint, Mapping::ptr> mappingMap;
 
-  std::vector<Layer::ptr> layers;
+  std::vector<Layer::ptr> layerVector;
+  std::map<uint, Layer::ptr> layerMap;
 
 public:
   /// Returns the list of mappings associated with given paint.
@@ -61,9 +62,12 @@ public:
   Mapping::ptr getMapping(int i) { return mappingVector[i]; }
   Mapping::ptr getMappingById(uint id) { return mappingMap[id]; }
 
-  int nLayers() const { return layers.size(); }
+  int nLayers() const { return layerVector.size(); }
   uint addLayer(Mapping::ptr mapping);
-  Layer::ptr getLayer(int i) { return layers[i]; }
+  Layer::ptr getLayer(int i) { return layerVector[i]; }
+  Layer::ptr getLayerById(uint id) { return layerMap[id]; }
+
+  std::vector<Layer::ptr> getVisibleLayers() const;
 };
 
 #endif /* MAPPINGMANAGER_H_ */
