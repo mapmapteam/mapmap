@@ -22,6 +22,7 @@
 
 #include "Paint.h"
 #include "Mapping.h"
+#include "Layer.h"
 
 /**
  * This is a container class for all the paints and mappings. It is on the model
@@ -38,6 +39,8 @@ private:
   std::map<uint, Paint::ptr> paintMap;
   std::vector<Mapping::ptr> mappingVector;
   std::map<uint, Mapping::ptr> mappingMap;
+
+  std::vector<Layer::ptr> layers;
 
 public:
   /// Returns the list of mappings associated with given paint.
@@ -57,6 +60,10 @@ public:
   int nMappings() const { return mappingVector.size(); }
   Mapping::ptr getMapping(int i) { return mappingVector[i]; }
   Mapping::ptr getMappingById(uint id) { return mappingMap[id]; }
+
+  int nLayers() const { return layers.size(); }
+  uint addLayer(Mapping::ptr mapping);
+  Layer::ptr getLayer(int i) { return layers[i]; }
 };
 
 #endif /* MAPPINGMANAGER_H_ */

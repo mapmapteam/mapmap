@@ -74,6 +74,15 @@ uint MappingManager::addMapping(Mapping::ptr mapping)
   return mapping->getId();
 }
 
+uint MappingManager::addLayer(Mapping::ptr mapping)
+{
+  addMapping(mapping);
+  Layer::ptr layer(new Layer);
+  layer->setMapping(mapping);
+  layers.push_back(layer);
+  return layer->getId();
+}
+
 //bool MappingManager::removeMapping(Mapping::ptr mapping)
 //{
 //}
