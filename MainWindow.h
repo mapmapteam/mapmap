@@ -118,7 +118,7 @@ private:
   DestinationGLCanvas* destinationCanvas;
 
   QSplitter* mainSplitter;
-  QSplitter* sourceSplitter;
+  QSplitter* resourceSplitter;
   QSplitter* canvasSplitter;
 
 private:

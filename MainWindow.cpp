@@ -258,18 +258,18 @@ void MainWindow::createLayout()
   sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  mainSplitter = new QSplitter(Qt::Horizontal);
+  mainSplitter = new QSplitter(Qt::Vertical);
+
+  resourceSplitter = new QSplitter(Qt::Horizontal);
+  resourceSplitter->addWidget(sourceList);
+  resourceSplitter->addWidget(shapeList);
 
   canvasSplitter = new QSplitter(Qt::Horizontal);
   canvasSplitter->addWidget(sourceCanvas);
   canvasSplitter->addWidget(destinationCanvas);
 
-  sourceSplitter = new QSplitter(Qt::Vertical);
-  sourceSplitter->addWidget(sourceList);
-  sourceSplitter->addWidget(shapeList);
-
-  mainSplitter->addWidget(sourceSplitter);
   mainSplitter->addWidget(canvasSplitter);
+  mainSplitter->addWidget(resourceSplitter);
   mainSplitter->setStretchFactor(1, 1); // Upon resizing window, give the extra stretch expansion to canvasSplitter.
 
   setWindowTitle(tr("Libremapping"));
@@ -469,9 +469,9 @@ void MainWindow::readSettings()
   QSettings settings("OIF", "Libremapping");
 
   restoreGeometry(settings.value("geometry").toByteArray());
-  mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
-  sourceSplitter->restoreState(settings.value("sourceSplitter").toByteArray());
-  canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
+//  mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
+//  sourceSplitter->restoreState(settings.value("sourceSplitter").toByteArray());
+//  canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
 }
 
 void MainWindow::writeSettings()
@@ -480,7 +480,7 @@ void MainWindow::writeSettings()
 
   settings.setValue("geometry", saveGeometry());
   settings.setValue("mainSplitter", mainSplitter->saveState());
-  settings.setValue("sourceSplitter", sourceSplitter->saveState());
+  settings.setValue("sourceSplitter", resourceSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
 }
 
