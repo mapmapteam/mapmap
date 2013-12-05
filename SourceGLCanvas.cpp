@@ -27,9 +27,8 @@ SourceGLCanvas::SourceGLCanvas(QWidget* parent)
 {
 }
 
-Shape* SourceGLCanvas::getCurrentShape()
+Shape* SourceGLCanvas::getShapeFromMappingId(int mappingId)
 {
-  int mappingId = MainWindow::getInstance().getCurrentMappingId();
   if (mappingId >= 0)
   {
     Mapping::ptr mapping = MainWindow::getInstance().getMappingManager().getMapping(mappingId);
@@ -41,6 +40,8 @@ Shape* SourceGLCanvas::getCurrentShape()
   else
     return NULL;
 }
+
+
 
 //Quad& SourceGLCanvas::getQuad()
 //{

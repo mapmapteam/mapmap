@@ -64,6 +64,11 @@ public:
     vertices[i].x = x;
     vertices[i].y = y;
   }
+
+  int nVertices()
+  {
+    return vertices.size();
+  }
 };
 
 /**

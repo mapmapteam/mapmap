@@ -23,11 +23,11 @@
 DestinationGLCanvas::DestinationGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
 : MapperGLCanvas(parent, shareWidget)
 {
+  ;
 }
 
-Shape* DestinationGLCanvas::getCurrentShape()
+Shape* DestinationGLCanvas::getShapeFromMappingId(int mappingId)
 {
-  int mappingId = MainWindow::getInstance().getCurrentMappingId();
   if (mappingId >= 0)
     return MainWindow::getInstance().getMappingManager().getMapping(mappingId)->getShape().get();
   else
