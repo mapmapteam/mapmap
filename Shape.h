@@ -117,6 +117,11 @@ public:
       it->y += y;
     }
   }  
+
+  int nVertices()
+  {
+    return vertices.size();
+  }
 };
 
 /**
