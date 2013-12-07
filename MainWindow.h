@@ -34,13 +34,10 @@ class MainWindow: public QMainWindow
 Q_OBJECT
 
 public:
+  MainWindow();
   ~MainWindow();
   static MainWindow& getInstance();
-
-private:
-  MainWindow();
-  MainWindow(MainWindow const&);
-  void operator=(MainWindow const&);
+  static void setInstance(MainWindow* inst);
 
 protected:
   // Events.
@@ -132,6 +129,8 @@ private:
   uint currentMappingId;
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
+
+  static MainWindow* instance;
 
 public:
   MappingManager& getMappingManager() { return *mappingManager; }

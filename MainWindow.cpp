@@ -21,6 +21,9 @@
 
 MainWindow::MainWindow()
 {
+  if (!instance)
+    setInstance(this);
+
   mappingManager = new MappingManager;
   currentPaintId = 0;
   currentMappingId = 0;
@@ -43,8 +46,14 @@ MainWindow::MainWindow()
 
 MainWindow& MainWindow::getInstance()
 {
-  static MainWindow instance;
-  return instance;
+  Q_ASSERT(instance);
+
+  return *instance;
+}
+
+void MainWindow::setInstance(MainWindow* inst)
+{
+  instance = inst;
 }
 
 MainWindow::~MainWindow()
@@ -660,3 +669,5 @@ QString MainWindow::strippedName(const QString &fullFileName)
 {
   return QFileInfo(fullFileName).fileName();
 }
+
+MainWindow* MainWindow::instance = 0;
