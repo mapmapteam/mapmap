@@ -25,7 +25,13 @@
 #include <QtGlobal>
 #include <QtOpenGL>
 #include <string>
+
+#if __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
+
 #include <tr1/memory>
 
 /**
