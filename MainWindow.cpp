@@ -265,11 +265,11 @@ void MainWindow::createLayout()
 {
   sourceList = new QListWidget;
   sourceList->setSelectionMode(QAbstractItemView::SingleSelection);
-  sourceList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+  sourceList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
   layerList = new QListWidget;
   layerList->setSelectionMode(QAbstractItemView::SingleSelection);
-  layerList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+  layerList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   //layerList->setDragDropMode(QAbstractItemView::DragDrop);
   layerList->setDefaultDropAction(Qt::MoveAction);
   layerList->setDragDropMode(QAbstractItemView::InternalMove);
@@ -305,7 +305,16 @@ void MainWindow::createLayout()
 
   mainSplitter->addWidget(canvasSplitter);
   mainSplitter->addWidget(resourceSplitter);
-  mainSplitter->setStretchFactor(1, 1); // Upon resizing window, give the extra stretch expansion to canvasSplitter.
+
+  // Initialize size to 2:1 proportions.
+  QSize sz = mainSplitter->size();
+  QList<int> sizes;
+  sizes.append(sz.height() * 2 / 3);
+  sizes.append(sz.height() - sizes.at(0));
+  mainSplitter->setSizes(sizes);
+
+  // Upon resizing window, give some extra stretch expansion to canvasSplitter.
+  //mainSplitter->setStretchFactor(0, 1);
 
   setWindowTitle(tr("Libremapping"));
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
