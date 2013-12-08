@@ -22,7 +22,7 @@
 TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   : Mapper(mapping)
 {
-  _propertyBrowser = new QtGroupBoxPropertyBrowser;
+  _propertyBrowser = new QtTreePropertyBrowser;
   _variantManager = new QtVariantPropertyManager;
   _variantFactory = new QtVariantEditorFactory;
 

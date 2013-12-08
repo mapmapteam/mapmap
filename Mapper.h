@@ -44,6 +44,7 @@
 #include "qtpropertymanager.h"
 #include "qtvariantproperty.h"
 #include "qttreepropertybrowser.h"
+#include "qtbuttonpropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 
 /**
