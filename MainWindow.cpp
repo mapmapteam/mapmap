@@ -263,6 +263,7 @@ void MainWindow::createLayout()
   sourceList = new QListWidget;
   sourceList->setSelectionMode(QAbstractItemView::SingleSelection);
   sourceList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+  sourceList->setMinimumWidth(SOURCE_LIST_MINIMUM_WIDTH);
 
   layerList = new QListWidget;
   layerList->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -270,9 +271,11 @@ void MainWindow::createLayout()
   //layerList->setDragDropMode(QAbstractItemView::DragDrop);
   layerList->setDefaultDropAction(Qt::MoveAction);
   layerList->setDragDropMode(QAbstractItemView::InternalMove);
+  layerList->setMinimumWidth(LAYER_LIST_MINIMUM_WIDTH);
 
   propertyPanel = new QStackedWidget;
   propertyPanel->setDisabled(true);
+  propertyPanel->setMinimumWidth(PROPERTY_PANEL_MINIMUM_WIDTH);
 
   sourceCanvas = new SourceGLCanvas;
   destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
