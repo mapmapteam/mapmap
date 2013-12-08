@@ -120,6 +120,9 @@ private:
   QSplitter* resourceSplitter;
   QSplitter* canvasSplitter;
 
+  // Maps from Mapping id to corresponding mapper.
+  std::map<uint, Mapper::ptr> mappers;
+
 private:
   // Model.
   MappingManager* mappingManager;
