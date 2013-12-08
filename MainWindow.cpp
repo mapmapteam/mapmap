@@ -208,9 +208,9 @@ void MainWindow::addQuad()
 
   // Create texture mapping.
   Mapping::ptr mapping(new TextureMapping(paint, outputQuad, inputQuad));
-  mappingManager->addLayer(mapping);
+  uint layerId = mappingManager->addLayer(mapping);
 
-  addLayerItem(mapping->getId());
+  addLayerItem(layerId);
 }
 
 void MainWindow::addTriangle()
@@ -230,9 +230,9 @@ void MainWindow::addTriangle()
 
   // Create texture mapping.
   Mapping::ptr mapping(new TextureMapping(paint, inputTriangle, outputTriangle));
-  mappingManager->addLayer(mapping);
+  uint layerId = mappingManager->addLayer(mapping);
 
-  addLayerItem(mapping->getId());
+  addLayerItem(layerId);
 }
 
 void MainWindow::about()
