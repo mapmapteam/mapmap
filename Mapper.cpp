@@ -19,6 +19,89 @@
 
 #include "Mapper.h"
 
+TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
+  : Mapper(mapping)
+{
+  _propertyBrowser = new QtGroupBoxPropertyBrowser;
+  _variantManager = new QtVariantPropertyManager;
+  _variantFactory = new QtVariantEditorFactory;
+
+  _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
+
+  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+  Q_CHECK_PTR(textureMapping);
+
+  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+  Q_CHECK_PTR(texture);
+
+  QtProperty *topItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
+                                                     QObject::tr("Texture mapping"));
+  // Input shape
+  QtProperty *inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
+                                                       QObject::tr("Input shape"));
+  topItem->addSubProperty(inputItem);
+
+  Shape::ptr inputShape = textureMapping->getInputShape();
+  for (int i=0; i<inputShape->nVertices(); i++)
+  {
+    // Add point.
+    QtVariantProperty* pointItem = _variantManager->addProperty(QVariant::PointF,
+                                                                QString("Point %1").arg(i));
+
+    inputItem->addSubProperty(pointItem);
+    _propertyToVertex[pointItem] = std::make_pair(inputShape.get(), i);
+  }
+
+  connect(_variantManager, SIGNAL(valueChanged(QtProperty*, const QVariant&)),
+          this,            SLOT(setValue(QtProperty*, const QVariant&)));
+
+  _propertyBrowser->addProperty(topItem);
+
+  qDebug() << "Creating mapper" << endl;
+}
+
+void TextureMapper::setValue(QtProperty* property, const QVariant& value)
+{
+  std::map<QtProperty*, std::pair<Shape*, int> >::iterator it = _propertyToVertex.find(property);
+  if (it != _propertyToVertex.end())
+  {
+    QPointF p = value.toPointF();
+    it->second.first->setVertex(it->second.second, Point(p.x(), p.y()));
+    qDebug() << "Changing vertex: " << it->second.second << " to " << p.x() << "," << p.y() << endl;
+  }
+
+  emit valueChanged();
+//  qDebug() << "Property changed to " << property->propertyName() << " " << value.toPointF().x() << ", " << value.toPointF().y() << endl;
+}
+
+void TextureMapper::updateShape(Shape* shape)
+{
+  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
+  Q_CHECK_PTR(textureMapping);
+
+  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+  Q_CHECK_PTR(texture);
+
+  Shape::ptr inputShape = textureMapping->getInputShape();
+  if (shape == inputShape.get())
+  {
+    QtProperty* topItem   = _propertyBrowser->properties().first();
+    QtProperty* inputItem = topItem->subProperties()[0];
+    QList<QtProperty*> pointItems = inputItem->subProperties();
+    for (int i=0; i<inputShape->nVertices(); i++)
+    {
+      QtVariantProperty* pointItem = (QtVariantProperty*)pointItems[i];
+      Point p = inputShape->getVertex(i);
+      pointItem->setValue(QPointF(p.x, p.y));
+    }
+  }
+}
+
+QWidget* TextureMapper::getPropertiesEditor()
+{
+  return _propertyBrowser;
+}
+
 void TextureMapper::draw()
 {
   // FIXME: use typedefs, member of the class for type names that are too long to type:

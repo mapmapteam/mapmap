@@ -271,6 +271,8 @@ void MainWindow::createLayout()
   layerList->setDefaultDropAction(Qt::MoveAction);
   layerList->setDragDropMode(QAbstractItemView::InternalMove);
 
+  propertyPanel = new QStackedWidget;
+  propertyPanel->setDisabled(true);
 
   sourceCanvas = new SourceGLCanvas;
   destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
@@ -295,6 +297,7 @@ void MainWindow::createLayout()
   resourceSplitter = new QSplitter(Qt::Horizontal);
   resourceSplitter->addWidget(sourceList);
   resourceSplitter->addWidget(layerList);
+  resourceSplitter->addWidget(propertyPanel);
 
   canvasSplitter = new QSplitter(Qt::Horizontal);
   canvasSplitter->addWidget(sourceCanvas);
@@ -664,6 +667,21 @@ void MainWindow::addLayerItem(uint layerId)
 
   mappers[mappingId] = mapper;
   QWidget* mapperEditor = mapper->getPropertiesEditor();
+  propertyPanel->addWidget(mapperEditor);
+  propertyPanel->setCurrentWidget(mapperEditor);
+  propertyPanel->setEnabled(true);
+
+  // When mapper value is changed, update canvases.
+  connect(mapper.get(), SIGNAL(valueChanged()),
+          this,         SLOT(updateAll()));
+
+  connect(sourceCanvas, SIGNAL(shapeChanged(Shape*)),
+          mapper.get(), SLOT(updateShape(Shape*)));
+
+  connect(destinationCanvas, SIGNAL(shapeChanged(Shape*)),
+          mapper.get(), SLOT(updateShape(Shape*)));
+
+    // Add item to layerList widget.
   QListWidgetItem* item = new QListWidgetItem(label);
   item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
   item->setCheckState(Qt::Checked);

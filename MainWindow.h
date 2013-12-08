@@ -27,6 +27,11 @@
 
 #include "MappingManager.h"
 
+#include "qtpropertymanager.h"
+#include "qtvariantproperty.h"
+#include "qttreepropertybrowser.h"
+#include "qtgroupboxpropertybrowser.h"
+
 #define LIBREMAPPING_VERSION "0.1"
 
 class MainWindow: public QMainWindow
@@ -112,6 +117,7 @@ private:
 
   QListWidget* sourceList;
   QListWidget* layerList;
+  QStackedWidget* propertyPanel;
 
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
@@ -150,6 +156,8 @@ public:
   void setCurrentMapping(int uid)
   {
     currentMappingId = uid;
+    if (uid != -1)
+      propertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
     _hasCurrentMapping = true;
   }
   void removeCurrentPaint() {
