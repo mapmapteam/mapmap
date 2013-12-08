@@ -71,8 +71,7 @@ void MainWindow::handleSourceItemSelectionChanged()
   removeCurrentMapping();
 
   // Update canvases.
-  sourceCanvas->update();
-  destinationCanvas->update();
+  updateAll();
   //sourceCanvas->switchImage(idx);
   //sourceCanvas->repaint();
   //destinationCanvas->repaint();
@@ -83,12 +82,12 @@ void MainWindow::handleLayerItemSelectionChanged()
   std::cout << "shape selection changed" << std::endl;
   QListWidgetItem* item = layerList->currentItem();
   uint idx = item->data(Qt::UserRole).toUInt();
-  std::cout << "idx=" << idx << std::endl;
+
   Mapping::ptr mapping = mappingManager->getLayerById(idx)->getMapping();
   setCurrentPaint(mapping->getPaint()->getId());
   setCurrentMapping(mapping->getId());
-  sourceCanvas->update();
-  destinationCanvas->update();
+
+  updateAll();
   //sourceCanvas->switchImage(idx);
   //sourceCanvas->repaint();
   //destinationCanvas->repaint();
@@ -99,8 +98,7 @@ void MainWindow::handleLayerItemChanged(QListWidgetItem* item)
   uint layerId = item->data(Qt::UserRole).toUInt();
   Layer::ptr layer = mappingManager->getLayerById(layerId);
   layer->setVisible(item->checkState() == Qt::Checked);
-  sourceCanvas->update();
-  destinationCanvas->update();
+  updateAll();
 }
 
 void MainWindow::handleLayerIndexesMoved()
@@ -115,8 +113,7 @@ void MainWindow::handleLayerIndexesMoved()
 
   mappingManager->reorderLayers(newOrder);
 
-  sourceCanvas->update();
-  destinationCanvas->update();
+  updateAll();
 }
 
 //void MainWindow::handleSourceSelectionChanged(const QItemSelection& selection)
@@ -680,6 +677,12 @@ void MainWindow::addLayerItem(uint layerId)
 void MainWindow::clearWindow()
 {
   // TODO: implement clearWindow()
+}
+
+void MainWindow::updateAll()
+{
+  sourceCanvas->update();
+  destinationCanvas->update();
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)
