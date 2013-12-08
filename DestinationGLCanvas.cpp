@@ -79,8 +79,7 @@ void DestinationGLCanvas::doDraw()
       texture->loadTexture();
 
     // Draw the mappings.
-    TextureMapper mapper(textureMapping);
-    mapper.draw();
+    MainWindow::getInstance().getMapperByMappingId(mapping->getId())->draw();
   }
 
   // Draw the shape.

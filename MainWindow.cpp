@@ -658,7 +658,15 @@ void MainWindow::addLayerItem(uint layerId)
     icon = QIcon(":/images/draw-polygon-2.png");
   }
 
-  // Add image to sourceList widget.
+  // Add mapper.
+  // XXX hardcoded for textures
+  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+  Q_CHECK_PTR(textureMapping);
+
+  Mapper::ptr mapper( new TextureMapper(textureMapping) );
+
+  mappers[mappingId] = mapper;
+  QWidget* mapperEditor = mapper->getPropertiesEditor();
   QListWidgetItem* item = new QListWidgetItem(label);
   item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
   item->setCheckState(Qt::Checked);

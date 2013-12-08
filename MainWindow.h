@@ -134,6 +134,7 @@ private:
 
 public:
   MappingManager& getMappingManager() { return *mappingManager; }
+  Mapper::ptr getMapperByMappingId(uint id) { return mappers[id]; }
   uint getCurrentPaintId() const { return currentPaintId; }
   uint getCurrentMappingId() const { return currentMappingId; }
   bool hasCurrentPaint() const { return _hasCurrentPaint; }
