@@ -72,7 +72,7 @@ private:
   bool _shapefirstgrab;
 
 signals:
-  void quadChanged();
+  void shapeChanged(Shape*);
   void imageChanged();
 
 public slots:

@@ -275,7 +275,7 @@ void MainWindow::createLayout()
   sourceCanvas = new SourceGLCanvas;
   destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
 
-  connect(sourceCanvas,      SIGNAL(quadChanged()),
+  connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
           destinationCanvas, SLOT(updateCanvas()));
 
 //  connect(destinationCanvas, SIGNAL(imageChanged()),

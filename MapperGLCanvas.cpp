@@ -159,7 +159,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       shape->setVertex(_active_vertex, p);
 
       update();
-      emit quadChanged();
+      emit shapeChanged(getCurrentShape());
     }
   }
   else if (_shapegrabbed)
@@ -173,7 +173,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       {    
         shape->translate(event->x() - p.x, event->y() - p.y);  
         update();
-        emit quadChanged();
+        emit shapeChanged(getCurrentShape());
       }  
       else
         _shapefirstgrab = false;
