@@ -48,6 +48,9 @@ TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
     QtVariantProperty* pointItem = _variantManager->addProperty(QVariant::PointF,
                                                                 QString("Point %1").arg(i));
 
+    Point p = inputShape->getVertex(i);
+    pointItem->setValue(QPointF(p.x, p.y));
+
     inputItem->addSubProperty(pointItem);
     _propertyToVertex[pointItem] = std::make_pair(inputShape.get(), i);
   }
