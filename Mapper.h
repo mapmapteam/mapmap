@@ -71,6 +71,12 @@ public:
 
   virtual QWidget* getPropertiesEditor() = 0;
   virtual void draw() = 0;
+
+public slots:
+  virtual void updateShape(Shape* shape)
+  {
+    Q_UNUSED(shape);
+  }
 };
 
 //class ShapeDrawer
@@ -136,8 +142,14 @@ private:
   QtAbstractPropertyBrowser* _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
+  QtProperty* _topItem;
+  QtProperty* _inputItem;
+  QtProperty* _outputItem;
 
   std::map<QtProperty*, std::pair<Shape*, int> > _propertyToVertex;
+
+  void _buildShapeProperty(QtProperty* shapeItem, Shape* shape);
+  void _updateShapeProperty(QtProperty* shapeItem, Shape* shape);
 };
 
 

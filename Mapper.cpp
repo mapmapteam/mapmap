@@ -34,31 +34,28 @@ TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   Q_CHECK_PTR(texture);
 
-  QtProperty *topItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
-                                                     QObject::tr("Texture mapping"));
-  // Input shape
-  QtProperty *inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
-                                                       QObject::tr("Input shape"));
-  topItem->addSubProperty(inputItem);
+  _topItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
+                                          QObject::tr("Texture mapping"));
 
-  Shape::ptr inputShape = textureMapping->getInputShape();
-  for (int i=0; i<inputShape->nVertices(); i++)
-  {
-    // Add point.
-    QtVariantProperty* pointItem = _variantManager->addProperty(QVariant::PointF,
-                                                                QString("Point %1").arg(i));
+  // Input shape.
+  _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
+                                            QObject::tr("Input shape"));
 
-    Point p = inputShape->getVertex(i);
-    pointItem->setValue(QPointF(p.x, p.y));
+  _buildShapeProperty(_inputItem, textureMapping->getInputShape().get());
+  _topItem->addSubProperty(_inputItem);
 
-    inputItem->addSubProperty(pointItem);
-    _propertyToVertex[pointItem] = std::make_pair(inputShape.get(), i);
-  }
+  // Output shape.
+  // Input shape.
+  _outputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
+                                             QObject::tr("Output shape"));
+
+  _buildShapeProperty(_outputItem, textureMapping->getShape().get());
+  _topItem->addSubProperty(_outputItem);
 
   connect(_variantManager, SIGNAL(valueChanged(QtProperty*, const QVariant&)),
           this,            SLOT(setValue(QtProperty*, const QVariant&)));
 
-  _propertyBrowser->addProperty(topItem);
+  _propertyBrowser->addProperty(_topItem);
 
   qDebug() << "Creating mapper" << endl;
 }
@@ -85,19 +82,17 @@ void TextureMapper::updateShape(Shape* shape)
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   Q_CHECK_PTR(texture);
 
-  Shape::ptr inputShape = textureMapping->getInputShape();
-  if (shape == inputShape.get())
+  Shape* inputShape  = textureMapping->getInputShape().get();
+  Shape* outputShape = textureMapping->getShape().get();
+  if (shape == inputShape)
   {
-    QtProperty* topItem   = _propertyBrowser->properties().first();
-    QtProperty* inputItem = topItem->subProperties()[0];
-    QList<QtProperty*> pointItems = inputItem->subProperties();
-    for (int i=0; i<inputShape->nVertices(); i++)
-    {
-      QtVariantProperty* pointItem = (QtVariantProperty*)pointItems[i];
-      Point p = inputShape->getVertex(i);
-      pointItem->setValue(QPointF(p.x, p.y));
-    }
+    _updateShapeProperty(_inputItem, inputShape);
   }
+  else if (shape == outputShape)
+  {
+    _updateShapeProperty(_outputItem, outputShape);
+  }
+
 }
 
 QWidget* TextureMapper::getPropertiesEditor()
@@ -163,3 +158,31 @@ void TextureMapper::draw()
 
   glDisable(GL_TEXTURE_2D);
 }
+void TextureMapper::_buildShapeProperty(QtProperty* shapeItem, Shape* shape)
+{
+  for (int i=0; i<shape->nVertices(); i++)
+  {
+    // Add point.
+    QtVariantProperty* pointItem = _variantManager->addProperty(QVariant::PointF,
+                                                                QObject::tr("Point %1").arg(i));
+
+    Point p = shape->getVertex(i);
+    pointItem->setValue(QPointF(p.x, p.y));
+
+    shapeItem->addSubProperty(pointItem);
+    _propertyToVertex[pointItem] = std::make_pair(shape, i);
+  }
+
+}
+
+void TextureMapper::_updateShapeProperty(QtProperty* shapeItem, Shape* shape)
+{
+  QList<QtProperty*> pointItems = shapeItem->subProperties();
+  for (int i=0; i<shape->nVertices(); i++)
+  {
+    QtVariantProperty* pointItem = (QtVariantProperty*)pointItems[i];
+    Point p = shape->getVertex(i);
+    pointItem->setValue(QPointF(p.x, p.y));
+  }
+}
+
