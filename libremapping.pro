@@ -6,6 +6,8 @@ QT      += gui opengl
 LIBS    += -lglut -lGLU
 RESOURCES = libremapping.qrc
 
+include(qtpropertybrowser/src/qtpropertybrowser.pri)
+
 docs.depends = $(HEADERS) $(SOURCES)
 docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
 QMAKE_EXTRA_TARGETS += docs
