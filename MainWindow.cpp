@@ -209,12 +209,29 @@ void MainWindow::addTriangle()
 
 void MainWindow::about()
 {
-  QMessageBox::about(this, tr("About Libremapping"),
-      tr("<h2>Libremapping "
+  QMessageBox::about(this, tr("About LibreMapping"),
+      tr("<h2>LibreMapping "
           LIBREMAPPING_VERSION
           "</h2>"
-          "<p>Copyright &copy; 2013 Office International de la Francophonie"
-          "<p>Libremapping is a free software for video mapping."));
+          "<p>Copyright &copy; 2013 Organisation internationale de la Francophonie"
+
+          "<p>Copyright &copy; 2013 Sofian Audry"
+          "<p>Copyright &copy; 2013 Alexandre Quessy"
+          "<p>Copyright &copy; 2013 Vasilis Liaskovitis"
+          "<p>Copyright &copy; 2013 Sylvain Cormier"
+          "<p>Libremapping is a free software for video mapping. "
+          "<p>Projection mapping, also known as video mapping and spatial augmented reality, "
+          "is a projection technology used to turn objects, often irregularly shaped, into "
+          "a display surface for video projection. These objects may be complex industrial "
+          "landscapes, such as buildings. By using specialized software, a two or three "
+          "dimensional object is spatially mapped on the virtual program which mimics the "
+          "real environment it is to be projected on. The software can interact with a "
+          "projector to fit any desired image onto the surface of that object. This "
+          "technique is used by artists and advertisers alike who can add extra dimensions, "
+          "optical illusions, and notions of movement onto previously static objects. The "
+          "video is commonly combined with, or triggered by, audio to create an "
+          "audio-visual narrative."
+          ));
 }
 
 void MainWindow::updateStatusBar()
@@ -543,14 +560,14 @@ void MainWindow::setCurrentFile(const QString &fileName)
     shownName = strippedName(curFile);
   }
 
-  setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("Spreadsheet")));
+  setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("LibreMapping Project")));
 }
 
 bool MainWindow::importFile(const QString &fileName)
 {
   QFile file(fileName);
   if (!file.open(QIODevice::ReadOnly)) {
-      QMessageBox::warning(this, tr("Spreadsheet"),
+      QMessageBox::warning(this, tr("LibreMapping Project"),
                            tr("Cannot read file %1:\n%2.")
                            .arg(file.fileName())
                            .arg(file.errorString()));
