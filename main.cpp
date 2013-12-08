@@ -17,8 +17,10 @@ int main(int argc, char *argv[])
     std::cerr << "This system has no OpenGL support" << std::endl;
     return 1;
   }
+  MainWindow win;
+  MainWindow::setInstance(&win);
 
-  MainWindow::getInstance().show();
+  win.show();
 
   return app.exec();
 }
