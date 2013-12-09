@@ -20,6 +20,7 @@
 
 #include "MainWindow.h"
 #include "ProjectWriter.h"
+#include "ProjectReader.h"
 
 MainWindow::MainWindow()
 {
@@ -348,12 +349,12 @@ void MainWindow::createActions()
 
   importAction = new QAction(tr("&Import media source..."), this);
   importAction->setIcon(QIcon(":/images/document-import-2.png"));
-  importAction->setShortcut(QKeySequence::Open);
+  importAction->setShortcut(QKeySequence::Italic); // ctrl-I
   importAction->setStatusTip(tr("Import a media source file"));
   connect(importAction, SIGNAL(triggered()), this, SLOT(import()));
 
   exitAction = new QAction(tr("E&xit"), this);
-  exitAction->setShortcut(tr("Ctrl+Q"));
+  exitAction->setShortcut(QKeySequence::Quit);
   exitAction->setStatusTip(tr("Exit the application"));
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
@@ -525,15 +526,31 @@ bool MainWindow::okToContinue()
 
 bool MainWindow::loadFile(const QString &fileName)
 {
-  // TODO: Try to read file.
-//  if (!spreadsheet->readFile(fileName))
-//  {
-//    statusBar()->showMessage(tr("Loading canceled"), 2000);
-//    return false;
-//  }
+  QFile file(fileName);
 
-  setCurrentFile(fileName);
-  statusBar()->showMessage(tr("File loaded"), 2000);
+  if (! file.open(QFile::ReadOnly | QFile::Text))
+  {
+    QMessageBox::warning(this, tr("Error reading mapping project file"),
+      tr("Cannot read file %1:\n%2.")
+      .arg(fileName)
+      .arg(file.errorString()));
+      return false;
+  }
+
+  mappingManager->clearProject(); // FIXME: clearProject is not implemented!
+  ProjectReader reader(mappingManager);
+  if (! reader.readFile(&file))
+  {
+    QMessageBox::warning(this, tr("Error reading mapping project file"),
+      tr("Parse error in file %1:\n\n%2")
+      .arg(fileName)
+      .arg(reader.errorString()));
+  }
+  else
+  {
+    statusBar()->showMessage(tr("File loaded"), 2000);
+    setCurrentFile(fileName);
+  }
   return true;
 }
 

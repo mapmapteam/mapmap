@@ -1,5 +1,5 @@
 /*
- * ProjectWriter.h
+ * MainWindow.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -18,21 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
 #include "MappingManager.h"
 #include "Mapping.h"
 #include "Paint.h"
 
-class ProjectWriter
+class ProjectReader
 {
-  public:
-    ProjectWriter (MappingManager *manager);
-    bool writeFile (QIODevice *device);
+public:
+    ProjectReader (MappingManager *manager);
+    bool readFile (QIODevice *device);
+    QString errorString() const;
 
-  private:
-    void writeItem (Paint *item);
-    void writeItem (Mapping *item);
-    void writeShapeVertices (Shape *shape);
-    QXmlStreamWriter _xml;
+private:
+    void readProject();
+    void readPaint(); //Paint *item);
+    void readMapping(); //Mapping *item);
+
+    QXmlStreamReader _xml;
     MappingManager *_manager;
 };

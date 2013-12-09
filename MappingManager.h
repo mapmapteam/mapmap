@@ -56,6 +56,7 @@ public:
 //  bool removeMapping(Mapping::ptr mapping);
   int nMappings() const { return mappings.size(); }
   Mapping::ptr getMapping(int i) { return mappings[i]; }
+  void clearProject();
 };
 
 #endif /* MAPPINGMANAGER_H_ */

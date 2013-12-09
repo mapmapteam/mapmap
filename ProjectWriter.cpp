@@ -1,5 +1,5 @@
 /*
- * MainWindow.cpp
+ * ProjecWriter.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net

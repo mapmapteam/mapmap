@@ -1,7 +1,7 @@
 CONFIG  += qt debug
 TEMPLATE = app
-HEADERS  = MainWindow.h Util.h MapperGLCanvas.h SourceGLCanvas.h DestinationGLCanvas.h Mapper.h Mapping.h Shape.h Paint.h MappingManager.h ProjectWriter.h NameAllocator.h
-SOURCES  = main.cpp MainWindow.cpp Util.cpp Mapper.cpp MapperGLCanvas.cpp SourceGLCanvas.cpp DestinationGLCanvas.cpp MappingManager.cpp ProjectWriter.cpp NameAllocator.cpp
+HEADERS  = MainWindow.h Util.h MapperGLCanvas.h SourceGLCanvas.h DestinationGLCanvas.h Mapper.h Mapping.h Shape.h Paint.h MappingManager.h ProjectWriter.h NameAllocator.h ProjectReader.h
+SOURCES  = main.cpp MainWindow.cpp Util.cpp Mapper.cpp MapperGLCanvas.cpp SourceGLCanvas.cpp DestinationGLCanvas.cpp MappingManager.cpp ProjectWriter.cpp NameAllocator.cpp ProjectReader.cpp
 QT      += gui opengl xml
 RESOURCES = libremapping.qrc
 

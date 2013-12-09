@@ -19,6 +19,7 @@
  */
 
 #include "MappingManager.h"
+#include <iostream>
 
 MappingManager::MappingManager()
 {
@@ -78,3 +79,9 @@ int MappingManager::addMapping(Mapping::ptr mapping)
 //bool MappingManager::removeMapping(Mapping::ptr mapping)
 //{
 //}
+
+void MappingManager::clearProject()
+{
+  std::cout << "TODO: implement MappingManager::clearProject() !!!" << std::endl;
+  // We also need to update the GUI accordingly!
+}
