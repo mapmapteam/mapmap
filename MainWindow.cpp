@@ -2,6 +2,7 @@
  * MainWindow.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +19,7 @@
  */
 
 #include "MainWindow.h"
+#include "ProjectWriter.h"
 
 MainWindow::MainWindow()
 {
@@ -146,8 +148,8 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
-  QString fileName = QFileDialog::getSaveFileName(this, tr("Save mapping"),
-      ".", tr("Libremapping files (*.lmp)"));
+  QString fileName = QFileDialog::getSaveFileName(this, tr("Save mapping project"),
+      ".", tr("LibreMapping files (*.lmp)"));
   if (fileName.isEmpty())
     return false;
 
@@ -537,16 +539,25 @@ bool MainWindow::loadFile(const QString &fileName)
 
 bool MainWindow::saveFile(const QString &fileName)
 {
-  // TODO: Try to write file.
-//  if (!spreadsheet->writeFile(fileName))
-//  {
-//    statusBar()->showMessage(tr("Saving canceled"), 2000);
-//    return false;
-//  }
+  QFile file(fileName);
+  if (! file.open(QFile::WriteOnly | QFile::Text))
+  {
+    QMessageBox::warning(this, tr("Error saving mapping project"),
+      tr("Cannot write file %1:\n%2.")
+        .arg(fileName)
+        .arg(file.errorString()));
+    return false;
+  }
 
-  setCurrentFile(fileName);
-  statusBar()->showMessage(tr("File saved"), 2000);
-  return true;
+  ProjectWriter writer(mappingManager);
+  if (writer.writeFile(&file))
+  {
+    setCurrentFile(fileName);
+    statusBar()->showMessage(tr("File saved"), 2000);
+    return true;
+  }
+  else
+    return false;
 }
 
 void MainWindow::setCurrentFile(const QString &fileName)

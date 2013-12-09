@@ -28,6 +28,7 @@
  */
 struct Point
 {
+public:
   double x;
   double y;
   Point(double x_, double y_) : x(x_), y(y_) {}
@@ -64,6 +65,7 @@ public:
     vertices[i].x = x;
     vertices[i].y = y;
   }
+  virtual const char * getShapeType() = 0;
 };
 
 /**
@@ -81,6 +83,8 @@ public:
     vertices.push_back(p4);
   }
   virtual ~Quad() {}
+
+  virtual const char * getShapeType() { return "quad"; }
 };
 
 /**
@@ -97,6 +101,7 @@ public:
     vertices.push_back(p3);
   }
   virtual ~Triangle() {}
+  virtual const char * getShapeType() { return "triangle"; }
 };
 
 #endif /* SHAPE_H_ */
