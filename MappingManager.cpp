@@ -29,7 +29,7 @@ MappingManager::MappingManager()
 std::map<int, Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr paint) const
 {
   std::map<int, Mapping::ptr> paintMappings;
-  for (int i=0; i<mappings.size(); i++)
+  for (unsigned int i = 0; i < mappings.size(); i++)
   {
     if (mappings[i]->getPaint() == paint)
       paintMappings[i] = mappings[i];
@@ -39,18 +39,19 @@ std::map<int, Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr pa
 
 std::map<int, Mapping::ptr> MappingManager::getPaintMappings(int i) const
 {
-  return getPaintMappings( paints[i] );
+  return getPaintMappings(paints[i]);
 }
 
 int MappingManager::addPaint(Paint::ptr paint)
 {
   paints.push_back(paint);
-  return paints.size()-1;
+  return paints.size() - 1;
 }
 
 int MappingManager::addImage(const QString imagePath, int frameWidth, int frameHeight)
 {
-  Image* img  = new Image(imagePath);
+  std::string name = _nameAllocator.allocateName("image_");
+  Image* img  = new Image(name.c_str(), imagePath);
 
   img->setPosition( (frameWidth  - img->getWidth() ) / 2.0f,
                     (frameHeight - img->getHeight()) / 2.0f );

@@ -48,7 +48,7 @@ bool ProjectWriter::writeFile(QIODevice *device)
 void ProjectWriter::writeItem(Paint *item)
 {
   _xml.writeStartElement("paint");
-  _xml.writeAttribute("id", "FIXME");
+  _xml.writeAttribute("name", item->getName());
   _xml.writeAttribute("type", "image");
 
   // FIXME: check paint type before casting to Image
@@ -71,16 +71,8 @@ void ProjectWriter::writeItem(Paint *item)
   //_xml.writeEmptyElement("hello");
 }
 
-void ProjectWriter::writeItem(Mapping *item)
+void ProjectWriter::writeShapeVertices(Shape *shape)
 {
-  _xml.writeStartElement("mapping");
-  _xml.writeAttribute("id", "FIXME");
-  // TODO: item->getPaint()->getId();
-  _xml.writeAttribute("paint_id", "FIXME");
-
-  Shape *shape = item->getShape().get();
-  _xml.writeStartElement("shape");
-  _xml.writeAttribute("type", shape->getShapeType());
   for (int i = 0; i < shape->nVertices(); i++)
   {
     const Point & point = shape->getVertex(i);
@@ -97,7 +89,27 @@ void ProjectWriter::writeItem(Mapping *item)
     }
     _xml.writeEndElement(); // vertex
   }
+}
+
+void ProjectWriter::writeItem(Mapping *item)
+{
+  _xml.writeStartElement("mapping");
+  _xml.writeAttribute("paint_id", item->getPaint()->getName());
+
+  Shape *shape = item->getShape().get();
+  _xml.writeStartElement("destination");
+  _xml.writeAttribute("shape", shape->getShapeType());
+  writeShapeVertices(shape);
   _xml.writeEndElement(); // shape
+
+  // FIXME: check mapping type before casting to TextureMapping
+  TextureMapping *tex = (TextureMapping *) item;
+  shape = tex->getInputShape().get();
+  _xml.writeStartElement("source");
+  _xml.writeAttribute("shape", shape->getShapeType());
+  writeShapeVertices(shape);
+  _xml.writeEndElement(); // shape
+
   _xml.writeEndElement(); // mapping
 }
 

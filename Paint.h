@@ -44,11 +44,15 @@
 class Paint
 {
 protected:
-  Paint() {}
+  Paint(const char * name) : _name(name) {}
 public:
   typedef std::tr1::shared_ptr<Paint> ptr;
   virtual ~Paint() {}
   virtual void build() {}
+  void setName(const char *name) { _name = name; }
+  const char *getName() const { return _name.c_str(); }
+private:
+  std::string _name;
 };
 
 /**
@@ -63,7 +67,10 @@ protected:
   GLfloat x;
   GLfloat y;
 
-  Texture(GLuint textureId_=0) : textureId(textureId_), x(-1), y(-1) {}
+  Texture(const char * name, GLuint textureId_=0) :
+    Paint(name),
+    textureId(textureId_), x(-1), y(-1)
+  {}
   virtual ~Texture() {}
 
 public:
@@ -91,14 +98,22 @@ protected:
   QImage image;
 
 public:
-  Image(const QString imagePath_) : Texture(), imagePath(imagePath_) {
+  Image(const char * name, const QString imagePath_) :
+    Texture(name),
+    imagePath(imagePath_)
+  {
     image = QGLWidget::convertToGLFormat(QImage(imagePath));
   }
 
-  virtual ~Image() {
+  // TODO:
+  // void setImagePath(const char *uri);
+
+  virtual ~Image()
+  {
   }
 
-  virtual void loadTexture() {
+  virtual void loadTexture()
+  {
     if (textureId == 0)
     {
       glGenTextures(1, &textureId);

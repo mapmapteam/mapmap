@@ -2,6 +2,7 @@
  * MappingManager.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +23,7 @@
 
 #include "Paint.h"
 #include "Mapping.h"
+#include "NameAllocator.h"
 
 /**
  * This is a container class for all the paints and mappings. It is on the model
@@ -36,6 +38,7 @@ private:
   // Model.
   std::vector<Paint::ptr> paints;
   std::vector<Mapping::ptr> mappings;
+  NameAllocator _nameAllocator;
 
 public:
   /// Returns the list of mappings associated with given paint.

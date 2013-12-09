@@ -1,5 +1,5 @@
 /*
- * MainWindow.cpp
+ * NameAllocator.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -18,21 +18,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QXmlStreamWriter>
-#include "MappingManager.h"
-#include "Mapping.h"
-#include "Paint.h"
+/**
+ * The NameAllocator class.
+ */
 
-class ProjectWriter
+#ifndef __NAME_ALLOCATOR_H__
+#define __NAME_ALLOCATOR_H__
+
+#include <string>
+#include <vector>
+
+/**
+ * Allocates names for instances by appending an incremental number to a given string.
+ * Manages a pool of unique names.
+ */
+class NameAllocator 
 {
-  public:
-    ProjectWriter (MappingManager *manager);
-    bool writeFile (QIODevice *device);
-
-  private:
-    void writeItem (Paint *item);
-    void writeItem (Mapping *item);
-    void writeShapeVertices (Shape *shape);
-    QXmlStreamWriter _xml;
-    MappingManager *_manager;
+    public:
+        std::string allocateName(const char *prefix);
+        bool freeName(const char *name);
+        bool hasName(const char *name);
+        std::vector<std::string> listNames() const;
+    private:
+        std::vector<std::string> names_;
 };
+
+#endif // ifndef
+
