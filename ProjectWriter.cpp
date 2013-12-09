@@ -35,12 +35,17 @@ bool ProjectWriter::writeFile(QIODevice *device)
   _xml.writeStartElement("project");
   _xml.writeAttribute("version", "1.0");
 
+  _xml.writeStartElement("paints");
   for (int i = 0; i < _manager->nPaints(); i++)
     writeItem(_manager->getPaint(i).get());
+  _xml.writeEndElement();
 
+  _xml.writeStartElement("mappings");
   for (int i = 0; i < _manager->nMappings(); i++)
     writeItem(_manager->getMapping(i).get());
+  _xml.writeEndElement();
 
+  _xml.writeEndElement();
   _xml.writeEndDocument();
   return true;
 }
