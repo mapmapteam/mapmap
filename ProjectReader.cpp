@@ -53,19 +53,42 @@ void ProjectReader::readProject()
   // FIXME: avoid asserts
   Q_ASSERT(_xml.isStartElement() && _xml.name() == "project");
 
-  while (_xml.readNextStartElement() && ! _xml.atEnd())
+  while(! _xml.atEnd() && ! _xml.hasError())
   {
-    if (_xml.name() == "paint")
-      readPaint(); //NULL);
-    if (_xml.name() == "mapping")
-      readMapping(); // NULL);
-    else
+    /* Read next element.*/
+    QXmlStreamReader::TokenType token = _xml.readNext();
+    /* If token is just StartDocument, we'll go to next.*/
+    if (token == QXmlStreamReader::StartDocument)
     {
-      std::cout << "skip element " << _xml.name().string() << std::endl;
-      _xml.skipCurrentElement();
+      continue;
     }
-  }
+    /* If token is StartElement, we'll see if we can read it.*/
+    else if (token == QXmlStreamReader::StartElement)
+    {
+      if (_xml.name() == "paints")
+        continue;
+      else if (_xml.name() == "paint")
+      {
+        std::cout << " * paint" << std::endl;
+        readPaint();
+      }
+      else if (_xml.name() == "mappings")
+        continue;
+      else if (_xml.name() == "mapping")
+      {
+        std::cout << " * mapping " << std::endl;
+        readMapping(); // NULL);
+      }
+      else
+      {
+        std::cout << " * skip element " << _xml.name().string() << std::endl;
+        //_xml.skipCurrentElement();
+      }
+    }
+  } // while
+  _xml.clear();
 }
+
 
 void ProjectReader::readMapping()
 {
@@ -77,7 +100,7 @@ void ProjectReader::readMapping()
   if (attributes.hasAttribute("", "paint_id"))
     paintIdAttrValue = attributes.value("", "paint_id").string();
 
-  std::cout << "Found mapping " << "with paint ID " << paintIdAttrValue << std::endl;
+  std::cout << "   * <mapping> " << "with paint ID " << paintIdAttrValue << std::endl;
 
   //QString title = _xml.readElementText();
   //item->setText(0, title);
@@ -96,5 +119,43 @@ void ProjectReader::readPaint()
   if (attributes.hasAttribute("", "type"))
     typeAttrValue = attributes.value("", "type").string();
 
-  std::cout << "Found " << typeAttrValue << " paint " << paintIdAttrValue << std::endl;
+  std::cout << "Found " << typeAttrValue->toStdString() <<
+    " paint " << paintIdAttrValue->toStdString() << std::endl;
+
+  /* Next element... */
+  _xml.readNext();
+  // /*
+  //  * We're going to loop over the things because the order might change.
+  //  * We'll continue the loop until we hit an EndElement named person.
+  //  */
+  while(! (_xml.tokenType() == QXmlStreamReader::EndElement &&
+    _xml.name() == "paint"))
+  {
+    if (_xml.tokenType() == QXmlStreamReader::StartElement)
+    {
+      if (_xml.name() == "uri")
+      {
+        /* ...go to the next. */
+        _xml.readNext();
+        /*
+         * This elements needs to contain Characters so we know it's
+         * actually data, if it's not we'll leave.
+         */
+        if(_xml.tokenType() != QXmlStreamReader::Characters)
+        {
+          // pass
+        }
+        std::cout << "uri " << _xml.text().toString().toStdString() << std::endl;
+      }
+      else if (_xml.name() == "width")
+      {
+        // pass
+      }
+      else if (_xml.name() == "height")
+      {
+        // pass
+      }
+    }
+    _xml.readNext();
+  }
 }
