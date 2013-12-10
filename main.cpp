@@ -10,6 +10,7 @@
 
 int main(int argc, char *argv[])
 {
+  // TODO: avoid segfaults when OSC port is busy
   QApplication app(argc, argv);
 
   if (!QGLFormat::hasOpenGL())

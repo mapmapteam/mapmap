@@ -1,0 +1,6 @@
+LibreMapping known bugs
+=======================
+
+
+* segfaults if OSC receiving port is busy
+

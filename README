@@ -19,7 +19,7 @@ Build
 -----
 Dependencies: 
 
- * libwxgtk2.8-dev
+ * Qt
  * qt4-default
  * qt4-qmake
 

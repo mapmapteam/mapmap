@@ -2,6 +2,7 @@
  * MainWindow.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +22,13 @@
 #define MAIN_WINDOW_H_
 
 #include <QtGui>
-
+#include <QTimer>
+#include <QVariant>
 #include "SourceGLCanvas.h"
+#ifdef HAVE_OSC
+#include "OscInterface.h"
+#endif
 #include "DestinationGLCanvas.h"
-
 #include "MappingManager.h"
 
 #define LIBREMAPPING_VERSION "0.1"
@@ -36,6 +40,7 @@ Q_OBJECT
 public:
   ~MainWindow();
   static MainWindow& getInstance();
+  void applyOscCommand(QVariantList & command);
 
 private:
   MainWindow();
@@ -52,6 +57,9 @@ private slots:
   void open();
   bool save();
   bool saveAs();
+  /**
+   * Action that will call importMediaFile.
+   */
   void import();
   void about();
   void updateStatusBar();
@@ -62,6 +70,7 @@ private slots:
   void addTriangle();
 
   void windowModified();
+  void pollOscInterface();
 
 private:
   // Methods.
@@ -73,11 +82,12 @@ private:
   void createStatusBar();
   void readSettings();
   void writeSettings();
+  void startOscReceiver();
   bool okToContinue();
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
-  bool importFile(const QString &fileName);
+  bool importMediaFile(const QString &fileName);
   void addMappingItem(int mappingId);
   void clearWindow();
   QString strippedName(const QString &fullFileName);
@@ -120,6 +130,12 @@ private:
   QSplitter* mainSplitter;
   QSplitter* sourceSplitter;
   QSplitter* canvasSplitter;
+
+#ifdef HAVE_OSC
+  OscInterface::ptr osc_interface;
+#endif
+  int config_osc_receive_port;
+  QTimer *osc_timer;
 
 private:
   // Model.

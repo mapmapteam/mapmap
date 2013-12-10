@@ -94,13 +94,13 @@ void ProjectReader::readMapping()
 {
   // FIXME: we assume an Image mapping 
   Q_ASSERT(_xml.isStartElement() && _xml.name() == "mapping");
-  const QString *paintIdAttrValue;
+  const QString *paint_id_attr;
   QXmlStreamAttributes attributes = _xml.attributes();
 
   if (attributes.hasAttribute("", "paint_id"))
-    paintIdAttrValue = attributes.value("", "paint_id").string();
+    paint_id_attr = attributes.value("", "paint_id").string();
 
-  std::cout << "   * <mapping> " << "with paint ID " << paintIdAttrValue << std::endl;
+  std::cout << "   * <mapping> " << "with paint ID " << paint_id_attr << std::endl;
 
   //QString title = _xml.readElementText();
   //item->setText(0, title);
@@ -110,17 +110,18 @@ void ProjectReader::readPaint()
 {
   // FIXME: we assume an Image mapping 
   Q_ASSERT(_xml.isStartElement() && _xml.name() == "paint");
-  const QString *paintIdAttrValue;
+  const QString *paint_id_attr;
+  const QString *uri_attr;
   const QString *typeAttrValue;
   QXmlStreamAttributes attributes = _xml.attributes();
 
   if (attributes.hasAttribute("", "name"))
-    paintIdAttrValue = attributes.value("", "name").string();
+    paint_id_attr = attributes.value("", "name").string();
   if (attributes.hasAttribute("", "type"))
     typeAttrValue = attributes.value("", "type").string();
 
   std::cout << "Found " << typeAttrValue->toStdString() <<
-    " paint " << paintIdAttrValue->toStdString() << std::endl;
+    " paint " << paint_id_attr->toStdString() << std::endl;
 
   /* Next element... */
   _xml.readNext();
@@ -145,7 +146,8 @@ void ProjectReader::readPaint()
         {
           // pass
         }
-        std::cout << "uri " << _xml.text().toString().toStdString() << std::endl;
+        //uri_attr = _xml.text().toString();
+        //std::cout << "uri " << uri_attr.toStdString() << std::endl;
       }
       else if (_xml.name() == "width")
       {

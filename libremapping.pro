@@ -15,3 +15,13 @@ macx:QMAKE_CXXFLAGS += -D__MACOSX_CORE__
 
 # not mac
 !macx:LIBS    += -lglut -lGLU
+
+# detect osc
+# unix {
+system(pkg-config --exists liblo) {
+  CONFIG += link_pkgconfig
+  PKGCONFIG += liblo
+  DEFINES += HAVE_OSC
+  SOURCES += OscInterface.cpp OscReceiver.cpp
+  HEADERS += OscInterface.h OscReceiver.h concurrentqueue.h
+}

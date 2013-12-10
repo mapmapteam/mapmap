@@ -37,6 +37,7 @@ MainWindow::MainWindow()
   createStatusBar();
 
   readSettings();
+  startOscReceiver();
 
   //setWindowIcon(QIcon(":/images/icon.png"));
   setCurrentFile("");
@@ -164,7 +165,7 @@ void MainWindow::import()
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Import resource"), ".");
     if (!fileName.isEmpty())
-      importFile(fileName);
+      importMediaFile(fileName);
   }
 }
 
@@ -448,6 +449,7 @@ void MainWindow::createContextMenu()
 void MainWindow::createToolBars()
 {
   fileToolBar = addToolBar(tr("&File"));
+  fileToolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
   fileToolBar->addAction(importAction);
   fileToolBar->addAction(newAction);
   fileToolBar->addAction(openAction);
@@ -492,6 +494,7 @@ void MainWindow::readSettings()
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
   sourceSplitter->restoreState(settings.value("sourceSplitter").toByteArray());
   canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
+  config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 }
 
 void MainWindow::writeSettings()
@@ -502,6 +505,7 @@ void MainWindow::writeSettings()
   settings.setValue("mainSplitter", mainSplitter->saveState());
   settings.setValue("sourceSplitter", sourceSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
+  settings.setValue("osc_receive_port", config_osc_receive_port);
 }
 
 bool MainWindow::okToContinue()
@@ -591,7 +595,12 @@ void MainWindow::setCurrentFile(const QString &fileName)
   setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("LibreMapping Project")));
 }
 
-bool MainWindow::importFile(const QString &fileName)
+// TODO
+// bool MainWindow::updateMediaFile(const QString &source_name, const QString &fileName)
+// {
+// }
+
+bool MainWindow::importMediaFile(const QString &fileName)
 {
   QFile file(fileName);
   if (!file.open(QIODevice::ReadOnly)) {
@@ -666,3 +675,82 @@ QString MainWindow::strippedName(const QString &fullFileName)
 {
   return QFileInfo(fullFileName).fileName();
 }
+
+void MainWindow::startOscReceiver()
+{
+#ifdef HAVE_OSC
+  int port = config_osc_receive_port;
+  std::ostringstream os;
+  os << port;
+  osc_interface.reset(new OscInterface(this, os.str()));
+  if (port != 0)
+  {
+    osc_interface->start();
+  }
+  osc_timer = new QTimer(this); // FIXME: memleak?
+  connect(osc_timer, SIGNAL(timeout()), this, SLOT(pollOscInterface()));
+  osc_timer->start();
+#endif
+}
+
+void MainWindow::pollOscInterface()
+{
+#ifdef HAVE_OSC
+  osc_interface->consume_commands();
+#endif
+}
+
+void MainWindow::applyOscCommand(QVariantList & command)
+{
+  bool VERBOSE = true;
+  if (VERBOSE)
+  {
+    std::cout << "Receive OSC: ";
+    for (int i = 0; i < command.size(); ++i)
+    {
+      if (command.at(i).type()  == QVariant::Int)
+      {
+        std::cout << command.at(i).toInt() << " ";
+      }
+      else if (command.at(i).type()  == QVariant::Double)
+      {
+        std::cout << command.at(i).toDouble() << " ";
+      }
+      else if (command.at(i).type()  == QVariant::String)
+      {
+        std::cout << command.at(i).toString().toStdString() << " ";
+      }
+      else
+      {
+        std::cout << "??? ";
+      }
+    }
+    std::cout << std::endl;
+    std::cout.flush();
+  }
+
+  if (command.size() < 2)
+      return;
+  if (command.at(0).type() != QVariant::String)
+      return;
+  if (command.at(1).type() != QVariant::String)
+      return;
+  std::string path = command.at(0).toString().toStdString();
+  std::string typetags = command.at(1).toString().toStdString();
+
+  // Handle all OSC messages here
+  if (path == "/image/uri" && typetags == "s")
+  {
+      std::string image_uri = command.at(2).toString().toStdString();
+      std::cout << "TODO load /image/uri " << image_uri << std::endl;
+  }
+  else if (path == "/add/quad")
+      addQuad();
+  else if (path == "/add/triangle")
+      addTriangle();
+  else if (path == "/project/save")
+      save();
+  else if (path == "/project/open")
+      open();
+}
+
