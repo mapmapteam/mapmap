@@ -147,11 +147,12 @@ private:
   QtProperty* _inputItem;
   QtProperty* _outputItem;
 
+  QtVariantProperty* _meshItem;
+
   std::map<QtProperty*, std::pair<Shape*, int> > _propertyToVertex;
 
   void _buildShapeProperty(QtProperty* shapeItem, Shape* shape);
   void _updateShapeProperty(QtProperty* shapeItem, Shape* shape);
 };
-
 
 #endif /* MAPPER_H_ */

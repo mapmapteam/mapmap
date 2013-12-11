@@ -37,6 +37,16 @@ TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   _topItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
                                           QObject::tr("Texture mapping"));
 
+  if (std::tr1::dynamic_pointer_cast<Mesh>(textureMapping->getShape()))
+  {
+    Mesh* mesh = (Mesh*)textureMapping->getShape().get();
+    _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
+    _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
+    _topItem->addSubProperty(_meshItem);
+  }
+  else
+    _meshItem = 0;
+
   // Input shape.
   _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
                                             QObject::tr("Input shape"));
@@ -68,6 +78,17 @@ void TextureMapper::setValue(QtProperty* property, const QVariant& value)
     QPointF p = value.toPointF();
     it->second.first->setVertex(it->second.second, Point(p.x(), p.y()));
     qDebug() << "Changing vertex: " << it->second.second << " to " << p.x() << "," << p.y() << endl;
+  }
+  else if (property == _meshItem)
+  {
+    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
+    Q_CHECK_PTR(textureMapping);
+
+    Mesh* outputMesh = static_cast<Mesh*>(textureMapping->getShape().get());
+    Mesh* inputMesh = static_cast<Mesh*>(textureMapping->getInputShape().get());
+    QSize size = (static_cast<QtVariantProperty*>(property))->value().toSize();
+    outputMesh->resize(size.width(), size.height());
+    inputMesh->resize(size.width(), size.height());
   }
 
   emit valueChanged();
@@ -211,9 +232,13 @@ void TextureMapper::_updateShapeProperty(QtProperty* shapeItem, Shape* shape)
   QList<QtProperty*> pointItems = shapeItem->subProperties();
   for (int i=0; i<shape->nVertices(); i++)
   {
-    QtVariantProperty* pointItem = (QtVariantProperty*)pointItems[i];
-    Point p = shape->getVertex(i);
-    pointItem->setValue(QPointF(p.x, p.y));
+    // XXX mesh control points are not added to properties
+    if (dynamic_cast<Mesh>(shape) == 0 && i < pointItems.size())
+    {
+      QtVariantProperty* pointItem = (QtVariantProperty*)pointItems[i];
+      Point p = shape->getVertex(i);
+      pointItem->setValue(QPointF(p.x, p.y));
+    }
   }
 }
 

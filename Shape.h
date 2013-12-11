@@ -116,6 +116,7 @@ public:
         return true;
     return false;
   }
+
   /* Translate all vertices of shape by the vector (x,y) */
   void translate(int x, int y)
   {
@@ -317,6 +318,15 @@ public:
 
     // Increment number of columns.
     _nRows++;
+  }
+
+  void resize(int nColumns_, int nRows_)
+  {
+    Q_ASSERT(nColumns_ >= nColumns() && nRows_ >= nRows());
+    while (nColumns_ != nColumns())
+      addColumn();
+    while (nRows_ != nRows())
+      addRow();
   }
 
 //  void removeColumn(int columnId)
