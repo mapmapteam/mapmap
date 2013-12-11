@@ -56,7 +56,7 @@ int map_int(int value, int istart, int istop, int ostart, int ostop)
     return std::max(std::min(int(ret), ostop), ostart);
 }
 
-Mesh* createQuadForTexture(Texture* texture, int frameWidth, int frameHeight)
+Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight)
 {
   return new Mesh(
     Point(texture->getX(), texture->getY()),

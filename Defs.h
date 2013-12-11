@@ -1,5 +1,5 @@
 /*
- * Util.h
+ * Defs.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  *
@@ -17,31 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UTIL_H_
-#define UTIL_H_
+#ifndef DEFS_H_
+#define DEFS_H_
 
-#if __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
+#define DEFAULT_WINDOW_WIDTH  640
+#define DEFAULT_WINDOW_HEIGHT 480
+
 #endif
 
-#include "Shape.h"
-#include "Paint.h"
 
-/**
- * @namespace Util Useful functions.
- */
-namespace Util {
-
-void correctGlTexCoord(GLfloat x, GLfloat y);
-float map_float(float value, float istart, float istop, float ostart, float ostop);
-int map_int(int value, int istart, int istop, int ostart, int ostop);
-
-
-Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight);
-Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight);
-
-} // end of namespace
-
-#endif /* UTIL_H_ */

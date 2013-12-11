@@ -191,7 +191,7 @@ void MainWindow::import()
   }
 }
 
-void MainWindow::addQuad()
+void MainWindow::addMesh()
 {
   // Create default quad.
 
@@ -203,8 +203,9 @@ void MainWindow::addQuad()
   Q_CHECK_PTR(texture);
 
   // Create input and output quads.
-  Shape::ptr outputQuad = Shape::ptr(Util::createQuadForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-  Shape::ptr  inputQuad = Shape::ptr(Util::createQuadForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+  qDebug() << "adding mesh" << endl;
+  Shape::ptr outputQuad = Shape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+  Shape::ptr  inputQuad = Shape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
 
   // Create texture mapping.
   Mapping::ptr mapping(new TextureMapping(paint, outputQuad, inputQuad));
@@ -423,7 +424,7 @@ void MainWindow::createActions()
   addQuadAction = new QAction(tr("&Add quad"), this);
   addQuadAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
   addQuadAction->setStatusTip(tr("Add quad"));
-  connect(addQuadAction, SIGNAL(triggered()), this, SLOT(addQuad()));
+  connect(addQuadAction, SIGNAL(triggered()), this, SLOT(addMesh()));
 
   addTriangleAction = new QAction(tr("&Add triangle"), this);
   addTriangleAction->setIcon(QIcon(":/images/draw-triangle.png"));

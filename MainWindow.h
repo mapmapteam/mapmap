@@ -62,7 +62,7 @@ private slots:
   void handleLayerItemSelectionChanged();
   void handleLayerItemChanged(QListWidgetItem* item);
   void handleLayerIndexesMoved();
-  void addQuad();
+  void addMesh();
   void addTriangle();
 
   void windowModified();
