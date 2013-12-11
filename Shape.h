@@ -20,7 +20,11 @@
 #ifndef SHAPE_H_
 #define SHAPE_H_
 
+#include <QtGlobal>
+#include <QPointF>
 #include <vector>
+#include <map>
+
 #include <tr1/memory>
 #include <iostream>
 
@@ -32,6 +36,12 @@ struct Point
   double x;
   double y;
   Point(double x_, double y_) : x(x_), y(y_) {}
+  Point(const QPointF& p) : x(p.x()), y(p.y()) {}
+
+  QPointF toQPointF() const
+  {
+    return QPointF(x, y);
+  }
 };
 
 /**
@@ -41,7 +51,6 @@ class Shape
 {
 public:
   typedef std::tr1::shared_ptr<Shape> ptr;
-  std::vector<Point> vertices;
   Shape() {}
   Shape(std::vector<Point> vertices_) :
     vertices(vertices_)
@@ -52,7 +61,7 @@ public:
 
   int nVertices() const { return vertices.size(); }
 
-  const Point& getVertex(int i)
+  Point getVertex(int i) const
   {
     return vertices[i];
   }
@@ -122,6 +131,9 @@ public:
   {
     return vertices.size();
   }
+
+protected:
+  std::vector<Point> vertices;
 };
 
 /**
@@ -156,5 +168,224 @@ public:
   }
   virtual ~Triangle() {}
 };
+
+class Mesh : public Quad {
+public:
+  Mesh() : _nColumns(0), _nRows(0) {
+    init(1, 1);
+  }
+  Mesh(Point p1, Point p2, Point p3, Point p4, int nColumns=2, int nRows=2)
+    : Quad(p1, p2, p3, p4), _nColumns(0), _nRows(0)
+  {
+    Q_ASSERT(nColumns >= 2 && nRows >= 2);
+    init(nColumns, nRows);
+  }
+  virtual ~Mesh() {}
+
+  void resizeVertices2d(std::vector< std::vector<int> >& vertices2d, int nColumns, int nRows)
+  {
+    vertices2d.resize(nColumns);
+    for (int i=0; i<nColumns; i++)
+      vertices2d[i].resize(nRows);
+  }
+
+  void init(int nColumns, int nRows)
+  {
+    // Create vertices correspondence of bouding quad.
+    resizeVertices2d(_vertices2d, 2, 2);
+    _vertices2d[0][0] = 0;
+    _vertices2d[1][0] = 1;
+    _vertices2d[1][1] = 2;
+    _vertices2d[0][1] = 3;
+
+    // Init number of columns and rows.
+    _nColumns = _nRows = 2;
+
+    // Add extra columns and rows.
+    for (int i=0; i<nColumns-2; i++)
+      addColumn();
+    for (int i=0; i<nRows-2; i++)
+      addRow();
+  }
+
+  /**
+   * This is what _vertices2d looks like.
+   *
+   * 0----4----6----1
+   * |    |    |    |
+   * 8----9---10---11
+   * |    |    |    |
+   * 3----5----7----2
+   */
+  // vertices 0..3 = 4 corners
+  //
+  void addColumn()
+  {
+    // Create new vertices 2d (temporary).
+    std::vector< std::vector<int> > newVertices2d;
+    resizeVertices2d(newVertices2d, nColumns()+1, nRows());
+
+    // Left displacement of points already there.
+    float leftMoveProp = 1.0f/(nColumns()-1) - 1.0f/nColumns();
+
+    // Add a point at each row.
+    int k = nVertices();
+    for (int y=0; y<nRows(); y++)
+    {
+      // Get left and right vertices.
+      QPointF left  = getVertex( _vertices2d[0]           [y] ).toQPointF();
+      QPointF right = getVertex( _vertices2d[nColumns()-1][y] ).toQPointF();
+      QPointF diff = right - left;
+
+      // First pass: move middle points.
+      for (int x=1; x<nColumns()-1; x++)
+      {
+        QPointF p = getVertex( _vertices2d[x][y] ).toQPointF();
+        p -= diff * x * leftMoveProp;
+        setVertex( _vertices2d[x][y], p );
+      }
+
+      // Create and add new point.
+      QPointF newPoint = right - diff * 1.0f/nColumns();
+      vertices.push_back(newPoint);
+
+      // Assign new vertices 2d.
+      for (int x=0; x<nColumns()-1; x++)
+        newVertices2d[x][y] = _vertices2d[x][y];
+
+      // The new point.
+      newVertices2d[nColumns()-1][y] = k;
+
+      // The rightmost point.
+      newVertices2d[nColumns()][y]   = _vertices2d[nColumns()-1][y];
+
+      k++;
+    }
+
+    // Copy new mapping.
+    _vertices2d = newVertices2d;
+
+    // Increment number of columns.
+    _nColumns++;
+  }
+
+  void addRow()
+  {
+    // Create new vertices 2d (temporary).
+    std::vector< std::vector<int> > newVertices2d;
+    resizeVertices2d(newVertices2d, nColumns(), nRows()+1);
+
+    // Top displacement of points already there.
+    float topMoveProp = 1.0f/(nRows()-1) - 1.0f/nRows();
+
+    // Add a point at each row.
+    int k = nVertices();
+    for (int x=0; x<nColumns(); x++)
+    {
+      // Get left and right vertices.
+      QPointF top    = getVertex( _vertices2d[x][0] ).toQPointF();
+      QPointF bottom = getVertex( _vertices2d[x][nRows()-1] ).toQPointF();
+      QPointF diff = bottom - top;
+
+      // First pass: move middle points.
+      for (int y=1; y<nRows()-1; y++)
+      {
+        QPointF p = getVertex( _vertices2d[x][y] ).toQPointF();
+        p -= diff * y * topMoveProp;
+        setVertex( _vertices2d[x][y], p );
+      }
+
+      // Create and add new point.
+      QPointF newPoint = bottom - diff * 1.0f/nRows();
+      vertices.push_back(newPoint);
+
+      // Assign new vertices 2d.
+      for (int y=0; y<nRows()-1; y++)
+        newVertices2d[x][y] = _vertices2d[x][y];
+
+      // The new point.
+      newVertices2d[x][nRows()-1] = k;
+
+      // The rightmost point.
+      newVertices2d[x][nRows()]   = _vertices2d[x][nRows()-1];
+
+      k++;
+    }
+
+    // Copy new mapping.
+    _vertices2d = newVertices2d;
+
+    // Increment number of columns.
+    _nRows++;
+  }
+
+//  void removeColumn(int columnId)
+//  {
+//    Q_ASSERT(columnId >= 1 && columnId < nColumns());
+//
+//    std::vector< std::vector<int> > newVertices2d;
+//    resizeVertices2d(newVertices2d, nHorizontalVertices()-1, nVerticalVertices());
+//    for (int y=0; y<nVerticalVertices(); y++)
+//    {
+//
+//    }
+//
+//  }
+  std::vector<Quad> getQuads() const
+  {
+    std::vector<Quad> quads;
+    for (int i=0; i<nHorizontalQuads(); i++)
+    {
+      for (int j=0; j<nVerticalQuads(); j++)
+      {
+        Quad quad(
+            vertices[ _vertices2d[i]  [j]  ],
+            vertices[ _vertices2d[i+1][j]   ],
+            vertices[ _vertices2d[i+1][j+1] ],
+            vertices[ _vertices2d[i]  [j+1] ]
+            );
+        quads.push_back(quad);
+      }
+    }
+
+    return quads;
+  }
+
+  std::vector< std::vector<Quad> > getQuads2d() const
+  {
+    std::vector< std::vector<Quad> > quads2d;
+    for (int i=0; i<nHorizontalQuads(); i++)
+    {
+      std::vector<Quad> column;
+      for (int j=0; j<nVerticalQuads(); j++)
+      {
+        Quad quad(
+            vertices[ _vertices2d[i]  [j]  ],
+            vertices[ _vertices2d[i+1][j]   ],
+            vertices[ _vertices2d[i+1][j+1] ],
+            vertices[ _vertices2d[i]  [j+1] ]
+            );
+        column.push_back(quad);
+      }
+      quads2d.push_back(column);
+    }
+    return quads2d;
+  }
+
+  int nColumns() const { return _nColumns; }
+  int nRows() const  { return _nRows; }
+
+  int nHorizontalQuads() const { return _nColumns-1; }
+  int nVerticalQuads() const { return _nRows-1; }
+
+protected:
+  int _nColumns;
+  int _nRows;
+  // _vertices[i][j] contains vertex id of vertex at position (i,j) where i = 0..nColumns and j = 0..nRows
+  std::vector< std::vector<int> > _vertices2d;
+  // Maps a vertex id to the pair of vertex ids it "splits".
+  std::map<int, std::pair<int, int> > _splitVertices;
+};
+
 
 #endif /* SHAPE_H_ */

@@ -134,30 +134,61 @@ void TextureMapper::draw()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-  if (inputShape->nVertices() == 4)
-    glBegin(GL_QUADS);
-  else if (inputShape->nVertices() == 3)
-    glBegin(GL_TRIANGLES);
-  else
-    // TODO: untested
-    glBegin(GL_POLYGON);
-
+  if (std::tr1::dynamic_pointer_cast<Mesh>(outputShape))
   {
-    for (int i = 0; i < inputShape->nVertices(); i++)
+    std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
+    std::tr1::shared_ptr<Mesh> inputMesh  = std::tr1::static_pointer_cast<Mesh>(inputShape);
+    std::vector<std::vector<Quad> > outputQuads = outputMesh->getQuads2d();
+    std::vector<std::vector<Quad> > inputQuads  = inputMesh->getQuads2d();
+    for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
     {
-      Util::correctGlTexCoord(
-        (inputShape->getVertex(i).x - texture->getX()) / (GLfloat) texture->getWidth(),
-        (inputShape->getVertex(i).y - texture->getY()) / (GLfloat) texture->getHeight());
-      glVertex2f(
-        outputShape->getVertex(i).x,
-        outputShape->getVertex(i).y
-        );
+      for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
+      {
+        Quad& outputQuad = outputQuads[x][y];
+        Quad& inputQuad  = inputQuads[x][y];
+        glBegin(GL_QUADS);
+        for (int i = 0; i < 4; i++)
+        {
+          Util::correctGlTexCoord(
+            (inputQuad.getVertex(i).x - texture->getX()) / (GLfloat) texture->getWidth(),
+            (inputQuad.getVertex(i).y - texture->getY()) / (GLfloat) texture->getHeight());
+          glVertex2f(
+            outputQuad.getVertex(i).x,
+            outputQuad.getVertex(i).y
+            );
+        }
+        glEnd();
+      }
     }
+
   }
-  glEnd();
+  else
+  {
+    if (std::tr1::dynamic_pointer_cast<Quad>(outputShape))
+      glBegin(GL_QUADS);
+    else if (std::tr1::dynamic_pointer_cast<Triangle>(outputShape))
+      glBegin(GL_TRIANGLES);
+    else
+      // TODO: untested
+      glBegin(GL_POLYGON);
+    {
+      for (int i = 0; i < inputShape->nVertices(); i++)
+      {
+        Util::correctGlTexCoord(
+          (inputShape->getVertex(i).x - texture->getX()) / (GLfloat) texture->getWidth(),
+          (inputShape->getVertex(i).y - texture->getY()) / (GLfloat) texture->getHeight());
+        glVertex2f(
+          outputShape->getVertex(i).x,
+          outputShape->getVertex(i).y
+          );
+      }
+    }
+    glEnd();
+  }
 
   glDisable(GL_TEXTURE_2D);
 }
+
 void TextureMapper::_buildShapeProperty(QtProperty* shapeItem, Shape* shape)
 {
   for (int i=0; i<shape->nVertices(); i++)

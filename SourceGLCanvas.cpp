@@ -142,19 +142,44 @@ void SourceGLCanvas::doDraw()
     else
       glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 
-    // Source shape.
-    glLineWidth(5);
-    glBegin (GL_LINE_STRIP);
+    Shape* shape = inputShape.get();
+    if (dynamic_cast<Mesh*>(shape))
     {
-      for (int i = 0; i < inputShape->nVertices()+1; i++)
+      Mesh* mesh = (Mesh*)shape;
+
+      std::vector<Quad> quads = mesh->getQuads();
+      for (std::vector<Quad>::const_iterator it = quads.begin(); it != quads.end(); ++it)
       {
-        glVertex2f(
-          inputShape->getVertex(i % inputShape->nVertices()).x,
-          inputShape->getVertex(i % inputShape->nVertices()).y
-                   );
+        glLineWidth(1);
+        glBegin (GL_LINE_STRIP);
+        for (int i = 0; i < it->nVertices()+1; i++)
+        {
+          glVertex2f(
+              it->getVertex(i % it->nVertices()).x,
+              it->getVertex(i % it->nVertices()).y
+                     );
+        }
+        glEnd ();
       }
+
     }
-    glEnd ();
+    else
+    {
+      // Destination quad.
+      // Source quad.
+      glLineWidth(5);
+      glBegin (GL_LINE_STRIP);
+      {
+        for (int i = 0; i < shape->nVertices()+1; i++)
+        {
+          glVertex2f(
+              shape->getVertex(i % shape->nVertices()).x,
+              shape->getVertex(i % shape->nVertices()).y
+                     );
+        }
+      }
+      glEnd ();
+    }
   }
 
   glPopMatrix();
