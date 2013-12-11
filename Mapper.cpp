@@ -109,10 +109,10 @@ void TextureMapper::draw()
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   Q_CHECK_PTR(texture);
 
-  std::tr1::shared_ptr<Shape> outputShape = std::tr1::static_pointer_cast<Quad>(textureMapping->getShape());
+  std::tr1::shared_ptr<Shape> outputShape = std::tr1::static_pointer_cast<Shape>(textureMapping->getShape());
   Q_CHECK_PTR(outputShape);
 
-  std::tr1::shared_ptr<Quad> inputShape = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
+  std::tr1::shared_ptr<Shape> inputShape = std::tr1::static_pointer_cast<Shape>(textureMapping->getInputShape());
   Q_CHECK_PTR(inputShape);
 
   // Only works for similar shapes.
