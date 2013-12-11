@@ -217,8 +217,6 @@ void MainWindow::about()
       tr("<h2>LibreMapping "
           LIBREMAPPING_VERSION
           "</h2>"
-          "<p>Copyright &copy; 2013 Organisation internationale de la Francophonie"
-
           "<p>Copyright &copy; 2013 Sofian Audry"
           "<p>Copyright &copy; 2013 Alexandre Quessy"
           "<p>Copyright &copy; 2013 Vasilis Liaskovitis"
