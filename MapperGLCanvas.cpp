@@ -22,7 +22,7 @@
 #include "MainWindow.h"
 
 MapperGLCanvas::MapperGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
-  : QGLWidget(parent, shareWidget), _mousepressed(false), _active_vertex(0)
+  : QGLWidget(parent, shareWidget), _mousepressed(false), _active_vertex(NO_VERTEX)
 {
 }
 
@@ -149,7 +149,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
   {
     // std::cout << "Move event " << std::endl;
     Shape* shape = getCurrentShape();
-    if (shape)
+    if (shape && _active_vertex != NO_VERTEX)
     {
       Point p = shape->getVertex(_active_vertex);
       p.x = event->x();
@@ -286,4 +286,12 @@ void MapperGLCanvas::glueVertex(Shape *orig, Point *p)
       }
     }
   }  
+}
+
+void MapperGLCanvas::deselectAll()
+{
+  _active_vertex = NO_VERTEX;
+  _shapegrabbed = false;
+  _shapefirstgrab = false;
+  _mousepressed = false;
 }

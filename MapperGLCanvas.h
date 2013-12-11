@@ -77,6 +77,10 @@ signals:
 
 public slots:
   void updateCanvas();
+  void deselectAll();
+
+public:
+  static const int NO_VERTEX = -1;
 };
 
 #endif /* MAPPERGLCANVAS_H_ */
