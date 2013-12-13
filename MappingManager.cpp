@@ -25,29 +25,30 @@ MappingManager::MappingManager()
 
 }
 
-std::map<int, Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr paint) const
+std::map<uint, Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr paint) const
 {
-  std::map<int, Mapping::ptr> paintMappings;
-  for (int i=0; i<mappings.size(); i++)
+  std::map<uint, Mapping::ptr> paintMappings;
+  for (std::vector<Mapping::ptr>::const_iterator it = mappingVector.begin(); it != mappingVector.end(); ++it)
   {
-    if (mappings[i]->getPaint() == paint)
-      paintMappings[i] = mappings[i];
+    if ((*it)->getPaint() == paint)
+      paintMappings[(*it)->getId()] = *it;
   }
   return paintMappings;
 }
 
-std::map<int, Mapping::ptr> MappingManager::getPaintMappings(int i) const
+std::map<uint, Mapping::ptr> MappingManager::getPaintMappingsById(uint paintId) const
 {
-  return getPaintMappings( paints[i] );
+  return getPaintMappings( paintMap.at(paintId) );
 }
 
-int MappingManager::addPaint(Paint::ptr paint)
+uint MappingManager::addPaint(Paint::ptr paint)
 {
-  paints.push_back(paint);
-  return paints.size()-1;
+  paintVector.push_back(paint);
+  paintMap[paint->getId()] = paint;
+  return paint->getId();
 }
 
-int MappingManager::addImage(const QString imagePath, int frameWidth, int frameHeight)
+uint MappingManager::addImage(const QString imagePath, int frameWidth, int frameHeight)
 {
   Image* img  = new Image(imagePath);
 
@@ -62,15 +63,58 @@ int MappingManager::addImage(const QString imagePath, int frameWidth, int frameH
 //
 //}
 
-int MappingManager::addMapping(Mapping::ptr mapping)
+uint MappingManager::addMapping(Mapping::ptr mapping)
 {
-  if (std::find(paints.begin(), paints.end(), mapping->getPaint()) != paints.end())
+  // Make sure the paint to which this mapping refers to exists in the manager.
+  Q_ASSERT (std::find(paintVector.begin(), paintVector.end(), mapping->getPaint()) != paintVector.end());
+
+  mappingVector.push_back(mapping);
+  mappingMap[mapping->getId()] = mapping;
+
+  return mapping->getId();
+}
+
+uint MappingManager::addLayer(Mapping::ptr mapping)
+{
+  addMapping(mapping);
+  Layer::ptr layer(new Layer);
+  layer->setMapping(mapping);
+  layerVector.push_back(layer);
+  layerMap[layer->getId()] = layer;
+  return layer->getId();
+}
+
+std::vector<Layer::ptr> MappingManager::getVisibleLayers() const
+{
+  std::vector<Layer::ptr> visible;
+  bool hasSolo = false;
+  for (std::vector<Layer::ptr>::const_iterator it = layerVector.begin(); it != layerVector.end(); ++it)
   {
-    mappings.push_back(mapping);
-    return mappings.size()-1;
+    if ((*it)->isSolo())
+    {
+      hasSolo = true;
+      break;
+    }
   }
-  else
-    return (-1);
+  for (std::vector<Layer::ptr>::const_iterator it = layerVector.begin(); it != layerVector.end(); ++it)
+  {
+    // Solo has priority over invisible (mute)
+    if ( (hasSolo && (*it)->isSolo()) || (!hasSolo && (*it)->isVisible()) )
+      visible.push_back(*it);
+  }
+  return visible;
+}
+
+void MappingManager::reorderLayers(std::vector<uint> layerIds)
+{
+  Q_ASSERT( layerIds.size() == layerVector.size() );
+  // TODO: do a better check than this...
+  layerVector.clear();
+  for (std::vector<uint>::iterator it = layerIds.begin(); it != layerIds.end(); ++it)
+  {
+    Q_ASSERT( layerMap.find(*it) != layerMap.end() );
+    layerVector.push_back( layerMap[*it] );
+  }
 }
 
 //bool MappingManager::removeMapping(Mapping::ptr mapping)

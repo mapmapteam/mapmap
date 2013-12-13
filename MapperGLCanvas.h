@@ -42,11 +42,13 @@ public:
   MapperGLCanvas(QWidget* parent = 0, const QGLWidget* shareWidget = 0);
   virtual ~MapperGLCanvas() {}
 
-  virtual Shape* getCurrentShape() = 0;
+  virtual Shape* getShapeFromMappingId(int mappingId) = 0;
 
   void switchImage(int imageId);
 //  QSize sizeHint() const;
 //  QSize minimumSizeHint() const;
+  Shape* getCurrentShape();
+  void glueVertex(Shape *, Point *);
 
 protected:
   void initializeGL();
@@ -70,11 +72,15 @@ private:
   bool _shapefirstgrab;
 
 signals:
-  void quadChanged();
+  void shapeChanged(Shape*);
   void imageChanged();
 
 public slots:
   void updateCanvas();
+  void deselectAll();
+
+public:
+  static const int NO_VERTEX = -1;
 };
 
 #endif /* MAPPERGLCANVAS_H_ */

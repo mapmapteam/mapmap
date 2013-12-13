@@ -39,12 +39,17 @@ class Mapping
 protected:
   Paint::ptr _paint;
   Shape::ptr _shape;
+private:
+  uint       _id;
 
 public:
   typedef std::tr1::shared_ptr<Mapping> ptr;
   Mapping(Paint::ptr paint, Shape::ptr shape)
     : _paint(paint), _shape(shape)
-  {}
+  {
+    static uint id = 0;
+    _id = id++;
+  }
   virtual ~Mapping() {}
 
   virtual void build() {
@@ -55,6 +60,8 @@ public:
 public:
   Paint::ptr getPaint() const { return _paint; }
   Shape::ptr getShape() const { return _shape; }
+  uint getId() const { return _id; }
+
 };
 
 /**

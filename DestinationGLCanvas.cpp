@@ -23,11 +23,11 @@
 DestinationGLCanvas::DestinationGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
 : MapperGLCanvas(parent, shareWidget)
 {
+  ;
 }
 
-Shape* DestinationGLCanvas::getCurrentShape()
+Shape* DestinationGLCanvas::getShapeFromMappingId(int mappingId)
 {
-  int mappingId = MainWindow::getInstance().getCurrentMappingId();
   if (mappingId >= 0)
     return MainWindow::getInstance().getMappingManager().getMapping(mappingId)->getShape().get();
   else
@@ -64,9 +64,12 @@ void DestinationGLCanvas::doDraw()
   glPushMatrix();
 
   MappingManager& mappingManager = MainWindow::getInstance().getMappingManager();
-  for (int i=0; i<mappingManager.nMappings(); i++)
+  std::vector<Layer::ptr> layers = mappingManager.getVisibleLayers();
+  for (std::vector<Layer::ptr>::const_iterator it = layers.begin(); it != layers.end(); ++it)
   {
-    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mappingManager.getMapping(i));
+    Mapping::ptr mapping = (*it)->getMapping();
+
+    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);
 
     std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
@@ -76,12 +79,11 @@ void DestinationGLCanvas::doDraw()
       texture->loadTexture();
 
     // Draw the mappings.
-    TextureMapper mapper(textureMapping);
-    mapper.draw();
+    MainWindow::getInstance().getMapperByMappingId(mapping->getId())->draw();
   }
 
   // Draw the shape.
-  if (MainWindow::getInstance().getCurrentMappingId() < 0)
+  if (!MainWindow::getInstance().hasCurrentMapping())
     return;
 
   Shape* shape = getCurrentShape();
@@ -89,20 +91,43 @@ void DestinationGLCanvas::doDraw()
   {
     glColor4f(0.0f, 0.0f, 0.7f, 1.0f);
 
-    // Destination quad.
-    // Source quad.
-    glLineWidth(5);
-    glBegin (GL_LINE_STRIP);
+    if (dynamic_cast<Mesh*>(shape))
     {
-      for (int i = 0; i < shape->nVertices()+1; i++)
+      Mesh* mesh = (Mesh*)shape;
+
+      std::vector<Quad> quads = mesh->getQuads();
+      for (std::vector<Quad>::const_iterator it = quads.begin(); it != quads.end(); ++it)
       {
-        glVertex2f(
-            shape->getVertex(i % shape->nVertices()).x,
-            shape->getVertex(i % shape->nVertices()).y
-                   );
+        glLineWidth(1);
+        glBegin (GL_LINE_STRIP);
+        for (int i = 0; i < it->nVertices()+1; i++)
+        {
+          glVertex2f(
+              it->getVertex(i % it->nVertices()).x,
+              it->getVertex(i % it->nVertices()).y
+                     );
+        }
+        glEnd ();
       }
+
     }
-    glEnd ();
+    else
+    {
+      // Destination quad.
+      // Source quad.
+      glLineWidth(5);
+      glBegin (GL_LINE_STRIP);
+      {
+        for (int i = 0; i < shape->nVertices()+1; i++)
+        {
+          glVertex2f(
+              shape->getVertex(i % shape->nVertices()).x,
+              shape->getVertex(i % shape->nVertices()).y
+                     );
+        }
+      }
+      glEnd ();
+    }
   }
 
   glPopMatrix();

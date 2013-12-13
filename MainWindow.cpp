@@ -21,9 +21,14 @@
 
 MainWindow::MainWindow()
 {
+  if (!instance)
+    setInstance(this);
+
   mappingManager = new MappingManager;
-  currentPaintId = -1;
-  currentMappingId = -1;
+  currentPaintId = 0;
+  currentMappingId = 0;
+  _hasCurrentPaint = false;
+  _hasCurrentMapping = false;
 
   createLayout();
 
@@ -41,8 +46,14 @@ MainWindow::MainWindow()
 
 MainWindow& MainWindow::getInstance()
 {
-  static MainWindow instance;
-  return instance;
+  Q_ASSERT(instance);
+
+  return *instance;
+}
+
+void MainWindow::setInstance(MainWindow* inst)
+{
+  instance = inst;
 }
 
 MainWindow::~MainWindow()
@@ -54,40 +65,55 @@ void MainWindow::handleSourceItemSelectionChanged()
 {
   std::cout << "selection changed" << std::endl;
   QListWidgetItem* item = sourceList->currentItem();
-  int idx = item->data(Qt::UserRole).toInt();
+  uint idx = item->data(Qt::UserRole).toUInt();
   std::cout << "idx=" << idx << std::endl;
   setCurrentPaint(idx);
-
-  // Reconstruct shape item list.
-  shapeList->clear();
-  setCurrentMapping(-1); // de-select current mapping to avoid being stuck with the last selection
-  // Retrieve all mappings associated to paint.
-  std::map<int, Mapping::ptr> mappings = getMappingManager().getPaintMappings(idx);
-  for (std::map<int, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
-  {
-    addMappingItem(it->first);
-  }
+  removeCurrentMapping();
 
   // Update canvases.
-  sourceCanvas->update();
-  destinationCanvas->update();
+  updateAll();
   //sourceCanvas->switchImage(idx);
   //sourceCanvas->repaint();
   //destinationCanvas->repaint();
 }
 
-void MainWindow::handleShapeItemSelectionChanged()
+void MainWindow::handleLayerItemSelectionChanged()
 {
   std::cout << "shape selection changed" << std::endl;
-  QListWidgetItem* item = shapeList->currentItem();
-  int idx = item->data(Qt::UserRole).toInt();
-  std::cout << "idx=" << idx << std::endl;
-  setCurrentMapping(idx);
-  sourceCanvas->update();
-  destinationCanvas->update();
+  QListWidgetItem* item = layerList->currentItem();
+  uint idx = item->data(Qt::UserRole).toUInt();
+
+  Mapping::ptr mapping = mappingManager->getLayerById(idx)->getMapping();
+  setCurrentPaint(mapping->getPaint()->getId());
+  setCurrentMapping(mapping->getId());
+
+  updateAll();
   //sourceCanvas->switchImage(idx);
   //sourceCanvas->repaint();
   //destinationCanvas->repaint();
+}
+
+void MainWindow::handleLayerItemChanged(QListWidgetItem* item)
+{
+  uint layerId = item->data(Qt::UserRole).toUInt();
+  Layer::ptr layer = mappingManager->getLayerById(layerId);
+  layer->setVisible(item->checkState() == Qt::Checked);
+  updateAll();
+}
+
+void MainWindow::handleLayerIndexesMoved()
+{
+  qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1Moved!!!" << endl;
+  std::vector<uint> newOrder;
+  for (int row=layerList->count()-1; row>=0; row--)
+  {
+    uint layerId = layerList->item(row)->data(Qt::UserRole).toUInt();
+    newOrder.push_back(layerId);
+  }
+
+  mappingManager->reorderLayers(newOrder);
+
+  updateAll();
 }
 
 //void MainWindow::handleSourceSelectionChanged(const QItemSelection& selection)
@@ -165,7 +191,7 @@ void MainWindow::import()
   }
 }
 
-void MainWindow::addQuad()
+void MainWindow::addMesh()
 {
   // Create default quad.
 
@@ -177,13 +203,15 @@ void MainWindow::addQuad()
   Q_CHECK_PTR(texture);
 
   // Create input and output quads.
-  Shape::ptr outputQuad = Shape::ptr(Util::createQuadForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-  Shape::ptr  inputQuad = Shape::ptr(Util::createQuadForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+  qDebug() << "adding mesh" << endl;
+  Shape::ptr outputQuad = Shape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+  Shape::ptr  inputQuad = Shape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
 
   // Create texture mapping.
-  int mappingId = mappingManager->addMapping(Mapping::ptr(new TextureMapping(paint, outputQuad, inputQuad)));
+  Mapping::ptr mapping(new TextureMapping(paint, outputQuad, inputQuad));
+  uint layerId = mappingManager->addLayer(mapping);
 
-  addMappingItem(mappingId);
+  addLayerItem(layerId);
 }
 
 void MainWindow::addTriangle()
@@ -202,9 +230,10 @@ void MainWindow::addTriangle()
   Shape::ptr inputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
 
   // Create texture mapping.
-  int mappingId = mappingManager->addMapping(Mapping::ptr(new TextureMapping(paint, inputTriangle, outputTriangle)));
+  Mapping::ptr mapping(new TextureMapping(paint, inputTriangle, outputTriangle));
+  uint layerId = mappingManager->addLayer(mapping);
 
-  addMappingItem(mappingId);
+  addLayerItem(layerId);
 }
 
 void MainWindow::about()
@@ -251,16 +280,25 @@ void MainWindow::createLayout()
 {
   sourceList = new QListWidget;
   sourceList->setSelectionMode(QAbstractItemView::SingleSelection);
-  sourceList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+  sourceList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+  sourceList->setMinimumWidth(SOURCE_LIST_MINIMUM_WIDTH);
 
-  shapeList = new QListWidget;
-  shapeList->setSelectionMode(QAbstractItemView::SingleSelection);
-  shapeList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+  layerList = new QListWidget;
+  layerList->setSelectionMode(QAbstractItemView::SingleSelection);
+  layerList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+  //layerList->setDragDropMode(QAbstractItemView::DragDrop);
+  layerList->setDefaultDropAction(Qt::MoveAction);
+  layerList->setDragDropMode(QAbstractItemView::InternalMove);
+  layerList->setMinimumWidth(LAYER_LIST_MINIMUM_WIDTH);
+
+  propertyPanel = new QStackedWidget;
+  propertyPanel->setDisabled(true);
+  propertyPanel->setMinimumWidth(PROPERTY_PANEL_MINIMUM_WIDTH);
 
   sourceCanvas = new SourceGLCanvas;
   destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
 
-  connect(sourceCanvas,      SIGNAL(quadChanged()),
+  connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
           destinationCanvas, SLOT(updateCanvas()));
 
 //  connect(destinationCanvas, SIGNAL(imageChanged()),
@@ -275,19 +313,29 @@ void MainWindow::createLayout()
   sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  mainSplitter = new QSplitter(Qt::Horizontal);
+  mainSplitter = new QSplitter(Qt::Vertical);
+
+  resourceSplitter = new QSplitter(Qt::Horizontal);
+  resourceSplitter->addWidget(sourceList);
+  resourceSplitter->addWidget(layerList);
+  resourceSplitter->addWidget(propertyPanel);
 
   canvasSplitter = new QSplitter(Qt::Horizontal);
   canvasSplitter->addWidget(sourceCanvas);
   canvasSplitter->addWidget(destinationCanvas);
 
-  sourceSplitter = new QSplitter(Qt::Vertical);
-  sourceSplitter->addWidget(sourceList);
-  sourceSplitter->addWidget(shapeList);
-
-  mainSplitter->addWidget(sourceSplitter);
   mainSplitter->addWidget(canvasSplitter);
-  mainSplitter->setStretchFactor(1, 1); // Upon resizing window, give the extra stretch expansion to canvasSplitter.
+  mainSplitter->addWidget(resourceSplitter);
+
+  // Initialize size to 2:1 proportions.
+  QSize sz = mainSplitter->size();
+  QList<int> sizes;
+  sizes.append(sz.height() * 2 / 3);
+  sizes.append(sz.height() - sizes.at(0));
+  mainSplitter->setSizes(sizes);
+
+  // Upon resizing window, give some extra stretch expansion to canvasSplitter.
+  //mainSplitter->setStretchFactor(0, 1);
 
   setWindowTitle(tr("Libremapping"));
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -310,9 +358,17 @@ void MainWindow::createLayout()
   connect(sourceList, SIGNAL(itemSelectionChanged()),
           this, SLOT(handleSourceItemSelectionChanged()));
 
-  connect(shapeList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handleShapeItemSelectionChanged()));
-//  sourceList->setModel(sourcesModel);
+  connect(layerList, SIGNAL(itemSelectionChanged()),
+          this, SLOT(handleLayerItemSelectionChanged()));
+
+  connect(layerList, SIGNAL(itemChanged(QListWidgetItem*)),
+          this, SLOT(handleLayerItemChanged(QListWidgetItem*)));
+
+  connect(layerList->model(), SIGNAL(layoutChanged()),
+          this, SLOT(handleLayerIndexesMoved()));
+
+
+  //  sourceList->setModel(sourcesModel);
 //
 //  connect(sourceList->selectionModel(),
 //          SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
@@ -385,7 +441,7 @@ void MainWindow::createActions()
   addQuadAction = new QAction(tr("&Add quad"), this);
   addQuadAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
   addQuadAction->setStatusTip(tr("Add quad"));
-  connect(addQuadAction, SIGNAL(triggered()), this, SLOT(addQuad()));
+  connect(addQuadAction, SIGNAL(triggered()), this, SLOT(addMesh()));
 
   addTriangleAction = new QAction(tr("&Add triangle"), this);
   addTriangleAction->setIcon(QIcon(":/images/draw-triangle.png"));
@@ -487,7 +543,7 @@ void MainWindow::readSettings()
 
   restoreGeometry(settings.value("geometry").toByteArray());
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
-  sourceSplitter->restoreState(settings.value("sourceSplitter").toByteArray());
+  resourceSplitter->restoreState(settings.value("resourceSplitter").toByteArray());
   canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
 }
 
@@ -497,7 +553,7 @@ void MainWindow::writeSettings()
 
   settings.setValue("geometry", saveGeometry());
   settings.setValue("mainSplitter", mainSplitter->saveState());
-  settings.setValue("sourceSplitter", sourceSplitter->saveState());
+  settings.setValue("resourceSplitter", resourceSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
 }
 
@@ -577,7 +633,7 @@ bool MainWindow::importFile(const QString &fileName)
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   // Add image to model.
-  int imageId = mappingManager->addImage(fileName, sourceCanvas->width(), sourceCanvas->height());
+  uint imageId = mappingManager->addImage(fileName, sourceCanvas->width(), sourceCanvas->height());
 
   // Add image to sourceList widget.
   QListWidgetItem* item = new QListWidgetItem(strippedName(fileName));
@@ -595,10 +651,13 @@ bool MainWindow::importFile(const QString &fileName)
   return true;
 }
 
-void MainWindow::addMappingItem(int mappingId)
+void MainWindow::addLayerItem(uint layerId)
 {
-  Mapping::ptr mapping = mappingManager->getMapping(mappingId);
-  Q_CHECK_PTR(mapping);
+  Layer::ptr layer = mappingManager->getLayerById(layerId);
+  Q_CHECK_PTR(layer);
+
+  Mapping::ptr mapping = layer->getMapping();
+  uint mappingId = mapping->getId();
 
   QString label;
   QIcon icon;
@@ -620,13 +679,38 @@ void MainWindow::addMappingItem(int mappingId)
     icon = QIcon(":/images/draw-polygon-2.png");
   }
 
-  // Add image to sourceList widget.
+  // Add mapper.
+  // XXX hardcoded for textures
+  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+  Q_CHECK_PTR(textureMapping);
+
+  Mapper::ptr mapper( new TextureMapper(textureMapping) );
+
+  mappers[mappingId] = mapper;
+  QWidget* mapperEditor = mapper->getPropertiesEditor();
+  propertyPanel->addWidget(mapperEditor);
+  propertyPanel->setCurrentWidget(mapperEditor);
+  propertyPanel->setEnabled(true);
+
+  // When mapper value is changed, update canvases.
+  connect(mapper.get(), SIGNAL(valueChanged()),
+          this,         SLOT(updateAll()));
+
+  connect(sourceCanvas, SIGNAL(shapeChanged(Shape*)),
+          mapper.get(), SLOT(updateShape(Shape*)));
+
+  connect(destinationCanvas, SIGNAL(shapeChanged(Shape*)),
+          mapper.get(), SLOT(updateShape(Shape*)));
+
+    // Add item to layerList widget.
   QListWidgetItem* item = new QListWidgetItem(label);
-  item->setData(Qt::UserRole, mappingId); // TODO: could possibly be replaced by a Paint pointer
+  item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+  item->setCheckState(Qt::Checked);
+  item->setData(Qt::UserRole, layerId); // TODO: could possibly be replaced by a Paint pointer
   item->setIcon(icon);
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
-  shapeList->addItem(item);
-  shapeList->setCurrentItem(item);
+  layerList->insertItem(0, item);
+  layerList->setCurrentItem(item);
 }
 
 void MainWindow::clearWindow()
@@ -634,7 +718,15 @@ void MainWindow::clearWindow()
   // TODO: implement clearWindow()
 }
 
+void MainWindow::updateAll()
+{
+  sourceCanvas->update();
+  destinationCanvas->update();
+}
+
 QString MainWindow::strippedName(const QString &fullFileName)
 {
   return QFileInfo(fullFileName).fileName();
 }
+
+MainWindow* MainWindow::instance = 0;

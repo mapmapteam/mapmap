@@ -41,6 +41,12 @@
 
 #include "Util.h"
 
+#include "qtpropertymanager.h"
+#include "qtvariantproperty.h"
+#include "qttreepropertybrowser.h"
+#include "qtbuttonpropertybrowser.h"
+#include "qtgroupboxpropertybrowser.h"
+
 /**
  * A way to draw on some kind of shape.
  * 
@@ -51,16 +57,27 @@
  * this software are implemented using a child of this
  * class.
  */
-class Mapper
+class Mapper : public QObject
 {
+  Q_OBJECT
+
 protected:
   Mapping::ptr _mapping;
-  Mapper(Mapping::ptr mapping) : _mapping(mapping) {}
-  virtual ~Mapper() {}
 
 public:
   typedef std::tr1::shared_ptr<Mapper> ptr;
+
+  Mapper(Mapping::ptr mapping) : _mapping(mapping) {}
+  virtual ~Mapper() {}
+
+  virtual QWidget* getPropertiesEditor() = 0;
   virtual void draw() = 0;
+
+public slots:
+  virtual void updateShape(Shape* shape)
+  {
+    Q_UNUSED(shape);
+  }
 };
 
 //class ShapeDrawer
@@ -105,12 +122,37 @@ public:
  */
 class TextureMapper : public Mapper
 {
+  Q_OBJECT
+
 public:
-  TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping) : Mapper(mapping) {}
+  TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
   virtual ~TextureMapper() {}
 
-  virtual void draw();
-};
+  virtual QWidget* getPropertiesEditor();
 
+  virtual void draw();
+
+signals:
+  void valueChanged();
+
+public slots:
+  void setValue(QtProperty* property, const QVariant& value);
+  void updateShape(Shape* shape);
+
+private:
+  QtAbstractPropertyBrowser* _propertyBrowser;
+  QtVariantEditorFactory* _variantFactory;
+  QtVariantPropertyManager* _variantManager;
+  QtProperty* _topItem;
+  QtProperty* _inputItem;
+  QtProperty* _outputItem;
+
+  QtVariantProperty* _meshItem;
+
+  std::map<QtProperty*, std::pair<Shape*, int> > _propertyToVertex;
+
+  void _buildShapeProperty(QtProperty* shapeItem, Shape* shape);
+  void _updateShapeProperty(QtProperty* shapeItem, Shape* shape);
+};
 
 #endif /* MAPPER_H_ */

@@ -43,12 +43,19 @@
  */
 class Paint
 {
+private:
+  uint _id;
 protected:
-  Paint() {}
+  Paint()
+  {
+    static uint id = 0;
+    _id = id++;
+  }
 public:
   typedef std::tr1::shared_ptr<Paint> ptr;
   virtual ~Paint() {}
   virtual void build() {}
+  uint getId() const { return _id; }
 };
 
 /**

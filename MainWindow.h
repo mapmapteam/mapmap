@@ -27,6 +27,11 @@
 
 #include "MappingManager.h"
 
+#include "qtpropertymanager.h"
+#include "qtvariantproperty.h"
+#include "qttreepropertybrowser.h"
+#include "qtgroupboxpropertybrowser.h"
+
 #define LIBREMAPPING_VERSION "0.1"
 
 class MainWindow: public QMainWindow
@@ -34,13 +39,10 @@ class MainWindow: public QMainWindow
 Q_OBJECT
 
 public:
+  MainWindow();
   ~MainWindow();
   static MainWindow& getInstance();
-
-private:
-  MainWindow();
-  MainWindow(MainWindow const&);
-  void operator=(MainWindow const&);
+  static void setInstance(MainWindow* inst);
 
 protected:
   // Events.
@@ -57,8 +59,10 @@ private slots:
   void updateStatusBar();
 
   void handleSourceItemSelectionChanged();
-  void handleShapeItemSelectionChanged();
-  void addQuad();
+  void handleLayerItemSelectionChanged();
+  void handleLayerItemChanged(QListWidgetItem* item);
+  void handleLayerIndexesMoved();
+  void addMesh();
   void addTriangle();
 
   void windowModified();
@@ -78,7 +82,7 @@ private:
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
   bool importFile(const QString &fileName);
-  void addMappingItem(int mappingId);
+  void addLayerItem(uint layerId);
   void clearWindow();
   QString strippedName(const QString &fullFileName);
 
@@ -112,35 +116,60 @@ private:
   QAction *addTriangleAction;
 
   QListWidget* sourceList;
-  QListWidget* shapeList;
+  QListWidget* layerList;
+  QStackedWidget* propertyPanel;
 
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
 
   QSplitter* mainSplitter;
-  QSplitter* sourceSplitter;
+  QSplitter* resourceSplitter;
   QSplitter* canvasSplitter;
+
+  // Maps from Mapping id to corresponding mapper.
+  std::map<uint, Mapper::ptr> mappers;
 
 private:
   // Model.
   MappingManager* mappingManager;
 
   // View.
-  int currentPaintId;
-  int currentMappingId;
+  uint currentPaintId;
+  uint currentMappingId;
+  bool _hasCurrentMapping;
+  bool _hasCurrentPaint;
+
+  static MainWindow* instance;
 
 public:
   MappingManager& getMappingManager() { return *mappingManager; }
-  int getCurrentPaintId() const { return currentPaintId; }
-  int getCurrentMappingId() const { return currentMappingId; }
-  void setCurrentPaint(int id)
+  Mapper::ptr getMapperByMappingId(uint id) { return mappers[id]; }
+  uint getCurrentPaintId() const { return currentPaintId; }
+  uint getCurrentMappingId() const { return currentMappingId; }
+  bool hasCurrentPaint() const { return _hasCurrentPaint; }
+  bool hasCurrentMapping() const { return _hasCurrentMapping; }
+  void setCurrentPaint(int uid)
   {
-    currentPaintId = id;
+    currentPaintId = uid;
+    _hasCurrentPaint = true;
   }
-  void setCurrentMapping(int id)
+  void setCurrentMapping(int uid)
   {
-    currentMappingId = id;
+    currentMappingId = uid;
+    if (uid != -1)
+      propertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
+    _hasCurrentMapping = true;
   }
+  void removeCurrentPaint() {
+    _hasCurrentPaint = false;
+  }
+  void removeCurrentMapping() {
+    _hasCurrentMapping = false;
+  }
+
+public slots:
+  void updateAll();
+
 
 public:
   // Constants.
@@ -148,8 +177,11 @@ public:
   static const int DEFAULT_HEIGHT = 800;
   static const int SOURCE_LIST_ITEM_HEIGHT = 40;
   static const int SHAPE_LIST_ITEM_HEIGHT = 40;
-  static const int CANVAS_MINIMUM_WIDTH  = 320;
-  static const int CANVAS_MINIMUM_HEIGHT = 240;
+  static const int SOURCE_LIST_MINIMUM_WIDTH = 100;
+  static const int LAYER_LIST_MINIMUM_WIDTH  = 300;
+  static const int PROPERTY_PANEL_MINIMUM_WIDTH  = 400;
+  static const int CANVAS_MINIMUM_WIDTH  = 480;
+  static const int CANVAS_MINIMUM_HEIGHT = 270;
 };
 
 #endif /* MAIN_WINDOW_H_ */

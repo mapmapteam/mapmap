@@ -22,7 +22,7 @@
 #include "MainWindow.h"
 
 MapperGLCanvas::MapperGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
-  : QGLWidget(parent, shareWidget), _mousepressed(false), _active_vertex(0)
+  : QGLWidget(parent, shareWidget), _mousepressed(false), _active_vertex(NO_VERTEX)
 {
 }
 
@@ -95,6 +95,11 @@ void MapperGLCanvas::enterDraw()
 ////  glLoadIdentity (); // FIXME? is this needed here?
 }
 
+Shape* MapperGLCanvas::getCurrentShape()
+{
+  return getShapeFromMappingId(MainWindow::getInstance().getCurrentMappingId());
+}
+
 void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
 {
   int i, dist, maxdist, mindist;
@@ -144,15 +149,17 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
   {
     // std::cout << "Move event " << std::endl;
     Shape* shape = getCurrentShape();
-    if (shape)
+    if (shape && _active_vertex != NO_VERTEX)
     {
       Point p = shape->getVertex(_active_vertex);
       p.x = event->x();
       p.y = event->y();
 
+      glueVertex(shape, &p);
       shape->setVertex(_active_vertex, p);
+
       update();
-      emit quadChanged();
+      emit shapeChanged(getCurrentShape());
     }
   }
   else if (_shapegrabbed)
@@ -166,7 +173,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       {    
         shape->translate(event->x() - p.x, event->y() - p.y);  
         update();
-        emit quadChanged();
+        emit shapeChanged(getCurrentShape());
       }  
       else
         _shapefirstgrab = false;
@@ -253,4 +260,38 @@ void MapperGLCanvas::updateCanvas()
 {
   std::cout << "Update me!" << std::endl;
   update();
+}
+
+/* Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
+ * close enough. The distance per coordinate is currently set in dist_stick
+ * variable. Perhaps the sticky-sensitivity should be configurable through GUI */
+void MapperGLCanvas::glueVertex(Shape *orig, Point *p)
+{
+  MappingManager m = MainWindow::getInstance().getMappingManager();
+  int dist_stick = 10; /*this parameter may*/
+  for (int mappingId = 0; mappingId < m.nMappings(); mappingId++)
+  {
+    Shape *shape = getShapeFromMappingId(mappingId);
+    if (shape != orig)
+    {
+      for (int vertex = 0; vertex < shape->nVertices(); vertex++)
+      {
+        Point v = shape->getVertex(vertex);
+        if ((abs(v.x - p->x) < dist_stick) &&
+            (abs(v.y - p->y) < dist_stick))
+        {
+          p->x = v.x;
+          p->y = v.y;
+        }
+      }
+    }
+  }  
+}
+
+void MapperGLCanvas::deselectAll()
+{
+  _active_vertex = NO_VERTEX;
+  _shapegrabbed = false;
+  _shapefirstgrab = false;
+  _mousepressed = false;
 }

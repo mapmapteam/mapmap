@@ -20,7 +20,11 @@
 #ifndef SHAPE_H_
 #define SHAPE_H_
 
+#include <QtGlobal>
+#include <QPointF>
 #include <vector>
+#include <map>
+
 #include <tr1/memory>
 #include <iostream>
 
@@ -32,6 +36,12 @@ struct Point
   double x;
   double y;
   Point(double x_, double y_) : x(x_), y(y_) {}
+  Point(const QPointF& p) : x(p.x()), y(p.y()) {}
+
+  QPointF toQPointF() const
+  {
+    return QPointF(x, y);
+  }
 };
 
 /**
@@ -41,7 +51,6 @@ class Shape
 {
 public:
   typedef std::tr1::shared_ptr<Shape> ptr;
-  std::vector<Point> vertices;
   Shape() {}
   Shape(std::vector<Point> vertices_) :
     vertices(vertices_)
@@ -52,14 +61,16 @@ public:
 
   int nVertices() const { return vertices.size(); }
 
-  const Point& getVertex(int i)
+  Point getVertex(int i) const
   {
     return vertices[i];
   }
+
   void setVertex(int i, Point v)
   {
     vertices[i] = v;
   }
+
   void setVertex(int i, double x, double y)
   {
     vertices[i].x = x;
@@ -70,53 +81,18 @@ public:
    *  Algorithm should work for all polygons, including non-convex
    *  Found at http://www.cs.tufts.edu/comp/163/notes05/point_inclusion_handout.pdf
    */
-  bool includesPoint(int x, int y)
-  {
-    Point *prev = NULL, *cur;
-    int left = 0, right = 0, maxy, miny;
-    for (std::vector<Point>::iterator it = vertices.begin() ; it !=
-            vertices.end(); it++)
-    {
-      if (!prev) {
-          prev = &vertices.back();
-      }
-      cur = &(*it);
-      miny = std::min(cur->y, prev->y);
-      maxy = std::max(cur->y, prev->y);
+  bool includesPoint(int x, int y);
 
-      if (y > miny && y < maxy) {
-        if (prev->x == cur->x) 
-        {
-          if (x < cur->x)
-            right++;
-          else left++;
-        }
-        else
-        {
-          double slope = (cur->y - prev->y) / (cur->x - prev->x);
-          double offset = cur->y - slope * cur->x;
-          int xintersect = int((y - offset ) / slope);
-          if (x < xintersect)
-            right++;
-          else left++;
-        }
-      }
-      prev = &(*it);
-    }
-    if (right % 2 && left % 2)
-        return true;
-    return false;
-  }
   /* Translate all vertices of shape by the vector (x,y) */
-  void translate(int x, int y)
+  void translate(int x, int y);
+
+  int nVertices()
   {
-    for (std::vector<Point>::iterator it = vertices.begin() ; it !=
-            vertices.end(); ++it) 
-    {
-      it->x += x;
-      it->y += y;
-    }
-  }  
+    return vertices.size();
+  }
+
+protected:
+  std::vector<Point> vertices;
 };
 
 /**
@@ -151,5 +127,54 @@ public:
   }
   virtual ~Triangle() {}
 };
+
+class Mesh : public Quad {
+public:
+  Mesh() : _nColumns(0), _nRows(0) {
+    init(1, 1);
+  }
+  Mesh(Point p1, Point p2, Point p3, Point p4, int nColumns=2, int nRows=2);
+  virtual ~Mesh() {}
+
+  void resizeVertices2d(std::vector< std::vector<int> >& vertices2d, int nColumns, int nRows);
+
+  void init(int nColumns, int nRows);
+
+  /**
+   * This is what _vertices2d looks like.
+   *
+   * 0----4----6----1
+   * |    |    |    |
+   * 8----9---10---11
+   * |    |    |    |
+   * 3----5----7----2
+   */
+  // vertices 0..3 = 4 corners
+  //
+  void addColumn();
+  void addRow();
+
+  void resize(int nColumns_, int nRows_);
+
+//  void removeColumn(int columnId);
+
+  std::vector<Quad> getQuads() const;
+  std::vector< std::vector<Quad> > getQuads2d() const;
+
+  int nColumns() const { return _nColumns; }
+  int nRows() const  { return _nRows; }
+
+  int nHorizontalQuads() const { return _nColumns-1; }
+  int nVerticalQuads() const { return _nRows-1; }
+
+protected:
+  int _nColumns;
+  int _nRows;
+  // _vertices[i][j] contains vertex id of vertex at position (i,j) where i = 0..nColumns and j = 0..nRows
+  std::vector< std::vector<int> > _vertices2d;
+  // Maps a vertex id to the pair of vertex ids it "splits".
+  std::map<int, std::pair<int, int> > _splitVertices;
+};
+
 
 #endif /* SHAPE_H_ */
