@@ -233,7 +233,7 @@ void TextureMapper::_updateShapeProperty(QtProperty* shapeItem, Shape* shape)
   for (int i=0; i<shape->nVertices(); i++)
   {
     // XXX mesh control points are not added to properties
-    if (dynamic_cast<Mesh>(shape) == 0 && i < pointItems.size())
+    if (dynamic_cast<Mesh*>(shape) == 0 && i < pointItems.size())
     {
       QtVariantProperty* pointItem = (QtVariantProperty*)pointItems[i];
       Point p = shape->getVertex(i);
