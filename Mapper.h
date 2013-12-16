@@ -80,43 +80,6 @@ public slots:
   }
 };
 
-//class ShapeDrawer
-//{
-//protected:
-//  std:tr1::shared_ptr<Shape> _shape;
-//
-//public:
-//  ShapeDrawer(const std:tr1::shared_ptr<Shape>& shape) : _shape(shape) {}
-//  virtual ~ShapeDrawer() {}
-//
-//  virtual void draw() = 0;
-//};
-//
-//class QuadDrawer
-//{
-//public:
-//  QuadDrawer(const std:tr1::shared_ptr<Quad>& quad) : ShapeDrawer(quad) {}
-//
-//  virtual void draw() {
-//    std::tr1::shared_ptr<Quad> quad = std::tr1::static_pointer_cast<Quad>(_shape);
-//    wxASSERT(quad != NULL);
-//
-//    glColor4f (1, 1, 1, 1);
-//
-//    // Source quad.
-//    glLineWidth(5);
-//    glBegin (GL_LINE_STRIP);
-//    {
-//      for (int i=0; i<5; i++) {
-//        glVertex3f(quad->getVertex(i % 4).x / (GLfloat)texture->getWidth(),
-//                   quad->getVertex(i % 4).y / (GLfloat)texture->getHeight(),
-//                   0);
-//      }
-//    }
-//    glEnd ();
-//  }
-//};
-
 /**
  * Draws a texture.
  */
@@ -136,10 +99,13 @@ signals:
   void valueChanged();
 
 public slots:
-  void setValue(QtProperty* property, const QVariant& value);
-  void updateShape(Shape* shape);
+  virtual void setValue(QtProperty* property, const QVariant& value);
+  virtual void updateShape(Shape* shape);
 
-private:
+protected:
+  virtual void _doDraw() = 0;
+
+protected:
   QtAbstractPropertyBrowser* _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
@@ -151,8 +117,45 @@ private:
 
   std::map<QtProperty*, std::pair<Shape*, int> > _propertyToVertex;
 
-  void _buildShapeProperty(QtProperty* shapeItem, Shape* shape);
-  void _updateShapeProperty(QtProperty* shapeItem, Shape* shape);
+  // FIXME: use typedefs, member of the class for type names that are too long to type:
+  std::tr1::shared_ptr<TextureMapping> textureMapping;
+  std::tr1::shared_ptr<Texture> texture;
+  std::tr1::shared_ptr<Shape> outputShape;
+  std::tr1::shared_ptr<Shape> inputShape;
+
+  virtual void _buildShapeProperty(QtProperty* shapeItem, Shape* shape);
+  virtual void _updateShapeProperty(QtProperty* shapeItem, Shape* shape);
+};
+
+class TriangleTextureMapper : public TextureMapper
+{
+  Q_OBJECT
+
+public:
+  TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  virtual ~TriangleTextureMapper() {}
+
+protected:
+  virtual void _doDraw();
+};
+
+
+class MeshTextureMapper : public TextureMapper
+{
+  Q_OBJECT
+
+public:
+  MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  virtual ~MeshTextureMapper() {}
+
+public slots:
+  virtual void setValue(QtProperty* property, const QVariant& value);
+
+protected:
+  virtual void _doDraw();
+
+private:
+  QtVariantProperty* _meshItem;
 };
 
 #endif /* MAPPER_H_ */

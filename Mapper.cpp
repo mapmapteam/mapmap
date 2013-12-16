@@ -22,30 +22,29 @@
 TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   : Mapper(mapping)
 {
+  // Assign members pointers.
+  textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
+  Q_CHECK_PTR(textureMapping);
+
+  texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+  Q_CHECK_PTR(texture);
+
+  outputShape = std::tr1::static_pointer_cast<Shape>(textureMapping->getShape());
+  Q_CHECK_PTR(outputShape);
+
+  inputShape = std::tr1::static_pointer_cast<Shape>(textureMapping->getInputShape());
+  Q_CHECK_PTR(inputShape);
+
+  // Create editor.
   _propertyBrowser = new QtTreePropertyBrowser;
   _variantManager = new QtVariantPropertyManager;
   _variantFactory = new QtVariantEditorFactory;
 
-  _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
-
-  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
-  Q_CHECK_PTR(textureMapping);
-
-  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-  Q_CHECK_PTR(texture);
-
   _topItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
                                           QObject::tr("Texture mapping"));
 
-  if (std::tr1::dynamic_pointer_cast<Mesh>(textureMapping->getShape()))
-  {
-    Mesh* mesh = (Mesh*)textureMapping->getShape().get();
-    _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
-    _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
-    _topItem->addSubProperty(_meshItem);
-  }
-  else
-    _meshItem = 0;
+  _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
+
 
   // Input shape.
   _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
@@ -76,23 +75,14 @@ void TextureMapper::setValue(QtProperty* property, const QVariant& value)
   if (it != _propertyToVertex.end())
   {
     QPointF p = value.toPointF();
-    it->second.first->setVertex(it->second.second, Point(p.x(), p.y()));
-    //qDebug() << "Changing vertex: " << it->second.second << " to " << p.x() << "," << p.y() << endl;
+    Shape* shape = it->second.first;
+    int    v     = it->second.second;
+    if (shape->getVertex(v).toQPointF() != p)
+    {
+      shape->setVertex(v, Point(p));
+      emit valueChanged();
+    }
   }
-  else if (property == _meshItem)
-  {
-    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
-    Q_CHECK_PTR(textureMapping);
-
-    Mesh* outputMesh = static_cast<Mesh*>(textureMapping->getShape().get());
-    Mesh* inputMesh = static_cast<Mesh*>(textureMapping->getInputShape().get());
-    QSize size = (static_cast<QtVariantProperty*>(property))->value().toSize();
-    outputMesh->resize(size.width(), size.height());
-    inputMesh->resize(size.width(), size.height());
-  }
-
-  emit valueChanged();
-//  qDebug() << "Property changed to " << property->propertyName() << " " << value.toPointF().x() << ", " << value.toPointF().y() << endl;
 }
 
 void TextureMapper::updateShape(Shape* shape)
@@ -123,19 +113,6 @@ QWidget* TextureMapper::getPropertiesEditor()
 
 void TextureMapper::draw()
 {
-  // FIXME: use typedefs, member of the class for type names that are too long to type:
-  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
-  Q_CHECK_PTR(textureMapping);
-
-  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-  Q_CHECK_PTR(texture);
-
-  std::tr1::shared_ptr<Shape> outputShape = std::tr1::static_pointer_cast<Shape>(textureMapping->getShape());
-  Q_CHECK_PTR(outputShape);
-
-  std::tr1::shared_ptr<Shape> inputShape = std::tr1::static_pointer_cast<Shape>(textureMapping->getInputShape());
-  Q_CHECK_PTR(inputShape);
-
   // Only works for similar shapes.
   Q_ASSERT( outputShape->nVertices() == outputShape->nVertices());
 
@@ -154,57 +131,9 @@ void TextureMapper::draw()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-  if (std::tr1::dynamic_pointer_cast<Mesh>(outputShape))
-  {
-    std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
-    std::tr1::shared_ptr<Mesh> inputMesh  = std::tr1::static_pointer_cast<Mesh>(inputShape);
-    std::vector<std::vector<Quad> > outputQuads = outputMesh->getQuads2d();
-    std::vector<std::vector<Quad> > inputQuads  = inputMesh->getQuads2d();
-    for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
-    {
-      for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
-      {
-        Quad& outputQuad = outputQuads[x][y];
-        Quad& inputQuad  = inputQuads[x][y];
-        glBegin(GL_QUADS);
-        for (int i = 0; i < 4; i++)
-        {
-          Util::correctGlTexCoord(
-            (inputQuad.getVertex(i).x - texture->getX()) / (GLfloat) texture->getWidth(),
-            (inputQuad.getVertex(i).y - texture->getY()) / (GLfloat) texture->getHeight());
-          glVertex2f(
-            outputQuad.getVertex(i).x,
-            outputQuad.getVertex(i).y
-            );
-        }
-        glEnd();
-      }
-    }
 
-  }
-  else
-  {
-    if (std::tr1::dynamic_pointer_cast<Quad>(outputShape))
-      glBegin(GL_QUADS);
-    else if (std::tr1::dynamic_pointer_cast<Triangle>(outputShape))
-      glBegin(GL_TRIANGLES);
-    else
-      // TODO: untested
-      glBegin(GL_POLYGON);
-    {
-      for (int i = 0; i < inputShape->nVertices(); i++)
-      {
-        Util::correctGlTexCoord(
-          (inputShape->getVertex(i).x - texture->getX()) / (GLfloat) texture->getWidth(),
-          (inputShape->getVertex(i).y - texture->getY()) / (GLfloat) texture->getHeight());
-        glVertex2f(
-          outputShape->getVertex(i).x,
-          outputShape->getVertex(i).y
-          );
-      }
-    }
-    glEnd();
-  }
+  // Perform the actual mapping (done by subclasses).
+  _doDraw();
 
   glDisable(GL_TEXTURE_2D);
 }
@@ -232,7 +161,7 @@ void TextureMapper::_updateShapeProperty(QtProperty* shapeItem, Shape* shape)
   for (int i=0; i<shape->nVertices(); i++)
   {
     // XXX mesh control points are not added to properties
-    if (dynamic_cast<Mesh*>(shape) == 0 && i < pointItems.size())
+    if (i < pointItems.size())
     {
       QtVariantProperty* pointItem = (QtVariantProperty*)pointItems[i];
       Point p = shape->getVertex(i);
@@ -241,3 +170,87 @@ void TextureMapper::_updateShapeProperty(QtProperty* shapeItem, Shape* shape)
   }
 }
 
+TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
+  : TextureMapper(mapping)
+{
+}
+
+void TriangleTextureMapper::_doDraw()
+{
+  glBegin(GL_TRIANGLES);
+  {
+    for (int i = 0; i < inputShape->nVertices(); i++)
+    {
+      Util::correctGlTexCoord(
+        (inputShape->getVertex(i).x - texture->getX()) / (GLfloat) texture->getWidth(),
+        (inputShape->getVertex(i).y - texture->getY()) / (GLfloat) texture->getHeight());
+      glVertex2f(
+        outputShape->getVertex(i).x,
+        outputShape->getVertex(i).y
+        );
+    }
+  }
+  glEnd();
+
+}
+
+MeshTextureMapper::MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
+  : TextureMapper(mapping)
+{
+  // Add mesh sub property.
+  Mesh* mesh = (Mesh*)textureMapping->getShape().get();
+  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
+  _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
+  _topItem->insertSubProperty(_meshItem, 0); // insert at the beginning
+}
+
+void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
+{
+  if (property == _meshItem)
+  {
+    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
+    Q_CHECK_PTR(textureMapping);
+
+    Mesh* outputMesh = static_cast<Mesh*>(textureMapping->getShape().get());
+    Mesh* inputMesh = static_cast<Mesh*>(textureMapping->getInputShape().get());
+    QSize size = (static_cast<QtVariantProperty*>(property))->value().toSize();
+    if (outputMesh->nColumns() != size.width() || outputMesh->nRows() != size.height() ||
+        inputMesh->nColumns() != size.width() || inputMesh->nRows() != size.height())
+    {
+      outputMesh->resize(size.width(), size.height());
+      inputMesh->resize(size.width(), size.height());
+
+      emit valueChanged();
+    }
+  }
+  else
+    TextureMapper::setValue(property, value);
+}
+
+void MeshTextureMapper::_doDraw()
+{
+  std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
+  std::tr1::shared_ptr<Mesh> inputMesh  = std::tr1::static_pointer_cast<Mesh>(inputShape);
+  std::vector<std::vector<Quad> > outputQuads = outputMesh->getQuads2d();
+  std::vector<std::vector<Quad> > inputQuads  = inputMesh->getQuads2d();
+  for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
+  {
+    for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
+    {
+      Quad& outputQuad = outputQuads[x][y];
+      Quad& inputQuad  = inputQuads[x][y];
+      glBegin(GL_QUADS);
+      for (int i = 0; i < 4; i++)
+      {
+        Util::correctGlTexCoord(
+          (inputQuad.getVertex(i).x - texture->getX()) / (GLfloat) texture->getWidth(),
+          (inputQuad.getVertex(i).y - texture->getY()) / (GLfloat) texture->getHeight());
+        glVertex2f(
+          outputQuad.getVertex(i).x,
+          outputQuad.getVertex(i).y
+          );
+      }
+      glEnd();
+    }
+  }
+}

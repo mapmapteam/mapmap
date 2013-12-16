@@ -662,16 +662,28 @@ void MainWindow::addLayerItem(uint layerId)
   QString label;
   QIcon icon;
 
+  // Add mapper.
+  // XXX hardcoded for textures
+  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+  Q_CHECK_PTR(textureMapping);
+
+  Mapper::ptr mapper;
+
+  // XXX Branching on nVertices() is crap
+
   // Triangle
   if (mapping->getShape()->nVertices() == 3)
   {
     label = QString("Triangle %1").arg(mappingId);
     icon = QIcon(":/images/draw-triangle.png");
+    mapper = Mapper::ptr(new TriangleTextureMapper(textureMapping));
   }
+  // Mesh
   else if (mapping->getShape()->nVertices() == 4)
   {
     label = QString("Quad %1").arg(mappingId);
     icon = QIcon(":/images/draw-rectangle-2.png");
+    mapper = Mapper::ptr(new MeshTextureMapper(textureMapping));
   }
   else
   {
@@ -679,13 +691,7 @@ void MainWindow::addLayerItem(uint layerId)
     icon = QIcon(":/images/draw-polygon-2.png");
   }
 
-  // Add mapper.
-  // XXX hardcoded for textures
-  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
-  Q_CHECK_PTR(textureMapping);
-
-  Mapper::ptr mapper( new TextureMapper(textureMapping) );
-
+  // Add to list of mappers.
   mappers[mappingId] = mapper;
   QWidget* mapperEditor = mapper->getPropertiesEditor();
   propertyPanel->addWidget(mapperEditor);
