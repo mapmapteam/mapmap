@@ -82,52 +82,11 @@ void DestinationGLCanvas::doDraw()
     MainWindow::getInstance().getMapperByMappingId(mapping->getId())->draw();
   }
 
-  // Draw the shape.
-  if (!MainWindow::getInstance().hasCurrentMapping())
-    return;
-
-  Shape* shape = getCurrentShape();
-  if (shape)
+  // Draw the controls of current mapping.
+  if (MainWindow::getInstance().hasCurrentMapping() &&
+      getCurrentShape() != NULL)
   {
-    glColor4f(0.0f, 0.0f, 0.7f, 1.0f);
-
-    if (dynamic_cast<Mesh*>(shape))
-    {
-      Mesh* mesh = (Mesh*)shape;
-
-      std::vector<Quad> quads = mesh->getQuads();
-      for (std::vector<Quad>::const_iterator it = quads.begin(); it != quads.end(); ++it)
-      {
-        glLineWidth(1);
-        glBegin (GL_LINE_STRIP);
-        for (int i = 0; i < it->nVertices()+1; i++)
-        {
-          glVertex2f(
-              it->getVertex(i % it->nVertices()).x,
-              it->getVertex(i % it->nVertices()).y
-                     );
-        }
-        glEnd ();
-      }
-
-    }
-    else
-    {
-      // Destination quad.
-      // Source quad.
-      glLineWidth(5);
-      glBegin (GL_LINE_STRIP);
-      {
-        for (int i = 0; i < shape->nVertices()+1; i++)
-        {
-          glVertex2f(
-              shape->getVertex(i % shape->nVertices()).x,
-              shape->getVertex(i % shape->nVertices()).y
-                     );
-        }
-      }
-      glEnd ();
-    }
+    MainWindow::getInstance().getMapperByMappingId(MainWindow::getInstance().getCurrentMappingId())->drawControls();
   }
 
   glPopMatrix();

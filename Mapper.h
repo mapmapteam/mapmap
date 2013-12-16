@@ -72,6 +72,7 @@ public:
 
   virtual QWidget* getPropertiesEditor() = 0;
   virtual void draw() = 0;
+  virtual void drawControls() = 0;
 
 public slots:
   virtual void updateShape(Shape* shape)
@@ -94,6 +95,12 @@ public:
   virtual QWidget* getPropertiesEditor();
 
   virtual void draw();
+  virtual void drawInput();
+
+  virtual void drawControls();
+  virtual void drawInputControls();
+
+  static void drawShapeContour(const Shape& shape, int lineWidth, const QColor& color);
 
 signals:
   void valueChanged();
@@ -147,6 +154,9 @@ class MeshTextureMapper : public TextureMapper
 public:
   MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
   virtual ~MeshTextureMapper() {}
+
+  virtual void drawControls();
+  virtual void drawInputControls();
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);

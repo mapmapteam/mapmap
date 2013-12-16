@@ -138,6 +138,40 @@ void TextureMapper::draw()
   glDisable(GL_TEXTURE_2D);
 }
 
+void TextureMapper::drawInput()
+{
+
+}
+
+void TextureMapper::drawControls()
+{
+  drawShapeContour(*outputShape, 3, QColor(0, 0, 255));
+}
+
+void TextureMapper::drawInputControls()
+{
+  drawShapeContour(*inputShape, 3, QColor(0, 0, 255));
+}
+
+void TextureMapper::drawShapeContour(const Shape& shape, int lineWidth, const QColor& color)
+{
+  QColor rgbColor = color.toRgb();
+
+  glColor4f(rgbColor.redF(), rgbColor.greenF(), rgbColor.blueF(), 1.0f);
+
+  glLineWidth(lineWidth);
+  glBegin (GL_LINE_STRIP);
+  for (int i = 0; i < shape.nVertices()+1; i++)
+  {
+    glVertex2f(
+        shape.getVertex(i % shape.nVertices()).x,
+        shape.getVertex(i % shape.nVertices()).y
+    );
+  }
+  glEnd();
+}
+
+
 void TextureMapper::_buildShapeProperty(QtProperty* shapeItem, Shape* shape)
 {
   for (int i=0; i<shape->nVertices(); i++)
@@ -191,7 +225,6 @@ void TriangleTextureMapper::_doDraw()
     }
   }
   glEnd();
-
 }
 
 MeshTextureMapper::MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
@@ -225,6 +258,26 @@ void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
   }
   else
     TextureMapper::setValue(property, value);
+}
+
+void MeshTextureMapper::drawControls()
+{
+  std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
+  std::vector<Quad> outputQuads = outputMesh->getQuads();
+  for (std::vector<Quad>::const_iterator it = outputQuads.begin(); it != outputQuads.end(); ++it)
+  {
+    drawShapeContour(*it, 1, QColor(0, 0, 255));
+  }
+}
+
+void MeshTextureMapper::drawInputControls()
+{
+  std::tr1::shared_ptr<Mesh> inputMesh = std::tr1::static_pointer_cast<Mesh>(inputShape);
+  std::vector<Quad> inputQuads = inputMesh->getQuads();
+  for (std::vector<Quad>::const_iterator it = inputQuads.begin(); it != inputQuads.end(); ++it)
+  {
+    drawShapeContour(*it, 1, QColor(0, 0, 255));
+  }
 }
 
 void MeshTextureMapper::_doDraw()

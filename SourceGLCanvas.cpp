@@ -137,49 +137,16 @@ void SourceGLCanvas::doDraw()
     std::tr1::shared_ptr<Shape> inputShape = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
     Q_CHECK_PTR(inputShape);
 
-    if (it->first == MainWindow::getInstance().getCurrentMappingId())
-      glColor4f(0.0f, 0.0f, 0.7f, 1.0f);
-    else
-      glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+   if (it->first == MainWindow::getInstance().getCurrentMappingId())
+   {
+     Mapper::ptr mapper = MainWindow::getInstance().getMapperByMappingId(it->first);
+     Q_CHECK_PTR(mapper);
 
-    Shape* shape = inputShape.get();
-    if (dynamic_cast<Mesh*>(shape))
-    {
-      Mesh* mesh = (Mesh*)shape;
+     std::tr1::shared_ptr<TextureMapper> textureMapper = std::tr1::static_pointer_cast<TextureMapper>(mapper);
+     Q_CHECK_PTR(textureMapper);
 
-      std::vector<Quad> quads = mesh->getQuads();
-      for (std::vector<Quad>::const_iterator it = quads.begin(); it != quads.end(); ++it)
-      {
-        glLineWidth(1);
-        glBegin (GL_LINE_STRIP);
-        for (int i = 0; i < it->nVertices()+1; i++)
-        {
-          glVertex2f(
-              it->getVertex(i % it->nVertices()).x,
-              it->getVertex(i % it->nVertices()).y
-                     );
-        }
-        glEnd ();
-      }
-
-    }
-    else
-    {
-      // Destination quad.
-      // Source quad.
-      glLineWidth(5);
-      glBegin (GL_LINE_STRIP);
-      {
-        for (int i = 0; i < shape->nVertices()+1; i++)
-        {
-          glVertex2f(
-              shape->getVertex(i % shape->nVertices()).x,
-              shape->getVertex(i % shape->nVertices()).y
-                     );
-        }
-      }
-      glEnd ();
-    }
+     textureMapper->drawInputControls();
+   }
   }
 
   glPopMatrix();
