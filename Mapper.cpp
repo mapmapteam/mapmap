@@ -77,7 +77,7 @@ void TextureMapper::setValue(QtProperty* property, const QVariant& value)
   {
     QPointF p = value.toPointF();
     it->second.first->setVertex(it->second.second, Point(p.x(), p.y()));
-    qDebug() << "Changing vertex: " << it->second.second << " to " << p.x() << "," << p.y() << endl;
+    //qDebug() << "Changing vertex: " << it->second.second << " to " << p.x() << "," << p.y() << endl;
   }
   else if (property == _meshItem)
   {
@@ -139,7 +139,6 @@ void TextureMapper::draw()
   // Only works for similar shapes.
   Q_ASSERT( outputShape->nVertices() == outputShape->nVertices());
 
-  printf("Texid: %d\n", texture->getTextureId());
   // Project source texture and sent it to destination.
 
   glEnable (GL_TEXTURE_2D);

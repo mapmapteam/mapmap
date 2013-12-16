@@ -86,7 +86,7 @@ void SourceGLCanvas::doDraw()
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
                GL_UNSIGNED_BYTE, texture->getBits());
 
-  std::cout << texture->getX() << "x" << texture->getY() << " : " << texture->getWidth() << "x" << texture->getHeight() << " " << texture->getTextureId() << std::endl;
+  //std::cout << texture->getX() << "x" << texture->getY() << " : " << texture->getWidth() << "x" << texture->getHeight() << " " << texture->getTextureId() << std::endl;
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);

@@ -230,7 +230,6 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 
 void MapperGLCanvas::paintEvent(QPaintEvent* /* event */)
 {
-  std::cout << "Paint event" << std::endl;
   updateGL();
 }
 
@@ -258,7 +257,6 @@ void MapperGLCanvas::exitDraw()
 
 void MapperGLCanvas::updateCanvas()
 {
-  std::cout << "Update me!" << std::endl;
   update();
 }
 
