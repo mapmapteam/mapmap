@@ -80,16 +80,16 @@ void ProjectWriter::writeShapeVertices(Shape *shape)
 {
   for (int i = 0; i < shape->nVertices(); i++)
   {
-    const Point & point = shape->getVertex(i);
+    Point *point = shape->getVertex(i);
     _xml.writeStartElement("vertex");
     {
       std::ostringstream os;
-      os << point.x;
+      os << point->x();
       _xml.writeAttribute("x", os.str().c_str());
     }
     {
       std::ostringstream os;
-      os << point.y;
+      os << point->y();
       _xml.writeAttribute("y", os.str().c_str());
     }
     _xml.writeEndElement(); // vertex

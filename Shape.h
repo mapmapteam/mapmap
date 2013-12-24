@@ -22,18 +22,43 @@
 
 #include <vector>
 #include <tr1/memory>
-
+#include <QObject>
+#include <QString>
+#include <QPointF>
+#include <QMetaType>
+#include <iostream>
 /**
  * Point (or vertex) on the 2-D canvas.
  */
-struct Point
-{
-public:
-  double x;
-  double y;
-  Point(double x_, double y_) : x(x_), y(y_) {}
-};
 
+
+Q_DECLARE_METATYPE (qreal)
+
+class Point: public QObject, public QPointF
+{
+  Q_OBJECT
+public:
+  Q_PROPERTY(qreal x READ x WRITE setX NOTIFY xChanged)
+  Q_PROPERTY(qreal y READ y WRITE setY NOTIFY yChanged)
+  Q_INVOKABLE Point(qreal x, qreal y): QPointF(x,y) {}
+  Q_INVOKABLE Point(): QPointF(0,0) {}
+signals:
+  void xChanged();
+  void yChanged();
+
+public slots:
+  void setX(qreal x)
+  {
+    QPointF::setX(x);
+    emit xChanged();
+  }
+  void setY(qreal y)
+  {
+    QPointF::setY(y);
+    emit yChanged();
+  }
+
+};
 /**
  * Series of vertices. (points)
  */
@@ -41,9 +66,9 @@ class Shape
 {
 public:
   typedef std::tr1::shared_ptr<Shape> ptr;
-  std::vector<Point> vertices;
+  std::vector<Point*> vertices;
   Shape() {}
-  Shape(std::vector<Point> vertices_) :
+  Shape(std::vector<Point*> vertices_) :
     vertices(vertices_)
   {}
   virtual ~Shape() {}
@@ -52,18 +77,18 @@ public:
 
   int nVertices() const { return vertices.size(); }
 
-  const Point& getVertex(int i)
+  Point* getVertex(int i)
   {
     return vertices[i];
   }
-  void setVertex(int i, Point v)
+  void setVertex(int i, Point *v)
   {
     vertices[i] = v;
   }
   void setVertex(int i, double x, double y)
   {
-    vertices[i].x = x;
-    vertices[i].y = y;
+    vertices[i]->setX(x);
+    vertices[i]->setY(y);
   }
   virtual const char * getShapeType() = 0;
 };
@@ -75,7 +100,7 @@ class Quad : public Shape
 {
 public:
   Quad() {}
-  Quad(Point p1, Point p2, Point p3, Point p4)
+  Quad(Point *p1, Point *p2, Point *p3, Point *p4)
   {
     vertices.push_back(p1);
     vertices.push_back(p2);
@@ -94,7 +119,7 @@ class Triangle : public Shape
 {
 public:
   Triangle() {}
-  Triangle(Point p1, Point p2, Point p3)
+  Triangle(Point *p1, Point *p2, Point *p3)
   {
     vertices.push_back(p1);
     vertices.push_back(p2);

@@ -66,11 +66,11 @@ void TextureMapper::draw()
     for (int i = 0; i < inputShape->nVertices(); i++)
     {
       Util::correctGlTexCoord(
-        (inputShape->getVertex(i).x - texture->getX()) / (GLfloat) texture->getWidth(),
-        (inputShape->getVertex(i).y - texture->getY()) / (GLfloat) texture->getHeight());
+        (inputShape->getVertex(i)->x() - texture->getX()) / (GLfloat) texture->getWidth(),
+        (inputShape->getVertex(i)->y() - texture->getY()) / (GLfloat) texture->getHeight());
       glVertex2f(
-        outputShape->getVertex(i).x,
-        outputShape->getVertex(i).y
+        outputShape->getVertex(i)->x(),
+        outputShape->getVertex(i)->y()
         );
     }
   }

@@ -98,8 +98,8 @@ void DestinationGLCanvas::doDraw()
       for (int i = 0; i < shape->nVertices()+1; i++)
       {
         glVertex2f(
-            shape->getVertex(i % shape->nVertices()).x,
-            shape->getVertex(i % shape->nVertices()).y
+            GLfloat(shape->getVertex(i % shape->nVertices())->x()),
+            GLfloat(shape->getVertex(i % shape->nVertices())->y())
                    );
       }
     }

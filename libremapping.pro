@@ -14,7 +14,7 @@ macx:LIBS += -framework OpenGL -framework GLUT
 macx:QMAKE_CXXFLAGS += -D__MACOSX_CORE__
 
 # not mac
-!macx:LIBS    += -lglut -lGLU
+!macx:LIBS    += -lglut -lGLU -lboost_system
 
 # detect osc
 # unix {

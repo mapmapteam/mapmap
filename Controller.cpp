@@ -35,6 +35,7 @@ bool Controller::createObject(const char* objType, const char* objName)
   if (meta)
   {  
     _mControllerObjects[objName] = meta->newInstance();
+    //std::cout << "object creation " << objName << " succeeded\n";
     return true;
   }
   //std::cout << "object creation " << objName << " failed\n";
@@ -49,6 +50,7 @@ bool Controller::setObjectProperty(const char* objName, const char* propName,
   {
     if (obj->setProperty(propName, value))
     {
+      //std::cout << "setproperty succeeded " << propName << "\n";
       return true;
     }
     else
@@ -119,5 +121,6 @@ Controller::Controller(MainWindow *owner)
    * FIXME, we can provide a method for other classes to register types of their
    * properties instead of doing it in the controller constructor */
   qRegisterMetaType<int>("int");
-  qRegisterMetaType<double>("double");
+  qRegisterMetaType<qreal>("qreal");
+  registerObjType<Point>("Point");
 }

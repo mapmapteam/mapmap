@@ -60,19 +60,19 @@ int map_int(int value, int istart, int istop, int ostart, int ostop)
 Quad* createQuadForTexture(Texture* texture, int frameWidth, int frameHeight)
 {
   return new Quad(
-    Point(texture->getX(), texture->getY()),
-    Point(texture->getX() + texture->getWidth(), texture->getY()),
-    Point(texture->getX() + texture->getWidth(), texture->getY() + texture->getHeight()),
-    Point(texture->getX(), texture->getY() + texture->getHeight())
+    new Point(qreal(texture->getX()), qreal(texture->getY())),
+    new Point(qreal(texture->getX() + texture->getWidth()), qreal(texture->getY())),
+    new Point(qreal(texture->getX() + texture->getWidth()), qreal(texture->getY() + texture->getHeight())),
+    new Point(qreal(texture->getX()), qreal(texture->getY() + texture->getHeight()))
   );
 }
 
 Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight)
 {
   return new Triangle(
-    Point(texture->getX(), texture->getY()),
-    Point(texture->getX() + texture->getWidth(), texture->getY()),
-    Point(texture->getX() + texture->getWidth() / 2, texture->getY() + texture->getHeight())
+    new Point(qreal(texture->getX()), qreal(texture->getY())),
+    new Point(qreal(texture->getX() + texture->getWidth()), qreal(texture->getY())),
+    new Point(qreal(texture->getX() + texture->getWidth() / 2), qreal(texture->getY() + texture->getHeight()))
   );
 }
 

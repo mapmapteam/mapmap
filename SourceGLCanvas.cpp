@@ -149,8 +149,8 @@ void SourceGLCanvas::doDraw()
       for (int i = 0; i < inputShape->nVertices()+1; i++)
       {
         glVertex2f(
-          inputShape->getVertex(i % inputShape->nVertices()).x,
-          inputShape->getVertex(i % inputShape->nVertices()).y
+          GLfloat(inputShape->getVertex(i % inputShape->nVertices())->x()),
+          GLfloat(inputShape->getVertex(i % inputShape->nVertices())->y())
                    );
       }
     }

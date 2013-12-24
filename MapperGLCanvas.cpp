@@ -109,8 +109,8 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     {
       for (i = 0; i < shape->nVertices(); i++)
       {
-        Point p = shape->getVertex(i);
-        dist = abs(xmouse - p.x) + abs(ymouse - p.y);
+        Point *p = shape->getVertex(i);
+        dist = abs(xmouse - p->x()) + abs(ymouse - p->y());
         if (dist < maxdist && dist < mindist)
         {
           _active_vertex = i;
@@ -137,9 +137,9 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
     Shape* shape = getCurrentShape();
     if (shape)
     {
-      Point p = shape->getVertex(_active_vertex);
-      p.x = event->x();
-      p.y = event->y();
+      Point *p = shape->getVertex(_active_vertex);
+      p->setX(event->x());
+      p->setY(event->y());
 
       shape->setVertex(_active_vertex, p);
       update();
@@ -182,9 +182,9 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 //  }
 //
 //  Quad& quad = getQuad();
-//  Point p = quad.getVertex(_active_vertex);
-//  p.x += xMove;
-//  p.y += yMove;
+//  Point *p = quad.getVertex(_active_vertex);
+//  p->x += xMove;
+//  p->y += yMove;
 //  quad.setVertex(_active_vertex, p);
 //
 //  update();
