@@ -39,3 +39,9 @@ Contributors
 * Maxime Damecourt
 * Christian Ambaud
 
+To edit translations
+--------------------
+Do this::
+  
+  linguist libremapping_fr.ts
+
