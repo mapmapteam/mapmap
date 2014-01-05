@@ -1,7 +1,36 @@
 CONFIG  += qt debug
 TEMPLATE = app
-HEADERS  = MainWindow.h Util.h MapperGLCanvas.h SourceGLCanvas.h DestinationGLCanvas.h Mapper.h Mapping.h Shape.h Paint.h MappingManager.h ProjectWriter.h NameAllocator.h ProjectReader.h
-SOURCES  = main.cpp MainWindow.cpp Util.cpp Mapper.cpp MapperGLCanvas.cpp SourceGLCanvas.cpp DestinationGLCanvas.cpp MappingManager.cpp ProjectWriter.cpp NameAllocator.cpp ProjectReader.cpp Controller.cpp
+HEADERS  = \
+    DestinationGLCanvas.h \
+    Facade.h \
+    MainWindow.h \
+    Mapper.h \
+    MapperGLCanvas.h \
+    Mapping.h \
+    MappingManager.h \
+    NameAllocator.h \
+    Paint.h \
+    ProjectReader.h \
+    ProjectWriter.h \
+    Shape.h \
+    SourceGLCanvas.h \
+    Util.h
+
+SOURCES  = \
+    Controller.cpp \
+    DestinationGLCanvas.cpp \
+    Facade.cpp \
+    MainWindow.cpp \
+    Mapper.cpp \
+    MapperGLCanvas.cpp \
+    MappingManager.cpp \
+    NameAllocator.cpp \
+    ProjectReader.cpp \
+    ProjectWriter.cpp \
+    SourceGLCanvas.cpp \
+    Util.cpp \
+    main.cpp
+
 QT      += gui opengl xml
 RESOURCES = libremapping.qrc
 
@@ -22,6 +51,11 @@ system(pkg-config --exists liblo) {
   CONFIG += link_pkgconfig
   PKGCONFIG += liblo
   DEFINES += HAVE_OSC
-  SOURCES += OscInterface.cpp OscReceiver.cpp
-  HEADERS += OscInterface.h OscReceiver.h concurrentqueue.h
+  SOURCES += \
+    OscInterface.cpp \
+    OscReceiver.cpp
+  HEADERS += \
+    OscInterface.h \
+    OscReceiver.h \
+    concurrentqueue.h
 }
