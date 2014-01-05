@@ -19,6 +19,7 @@
  */
 
 #include "MappingManager.h"
+#include "MainWindow.h"
 
 /**
  * Facade to control the application.
@@ -26,7 +27,7 @@
 class Facade
 {
     public:
-        Facade(MappingManager *manager);
+        Facade(MappingManager *manager, MainWindow *window);
         /**
          * Clears all mappings and paints.
          */
@@ -68,5 +69,6 @@ class Facade
         // bool getPaint(const char *paint_id, Paint &paint);
     private:
         MappingManager *_manager;
+        MainWindow *_window;
 };
 

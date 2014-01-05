@@ -20,8 +20,9 @@
 
 #include "Facade.h"
 
-Facade::Facade(MappingManager *manager) :
-    _manager(manager)
+Facade::Facade(MappingManager *manager, MainWindow *window) :
+    _manager(manager),
+    _window(window)
 {
 }
 

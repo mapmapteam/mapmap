@@ -33,6 +33,9 @@
 
 #define LIBREMAPPING_VERSION "0.1"
 
+// Forward declaration:
+class Facade;
+
 class MainWindow: public QMainWindow
 {
 Q_OBJECT
@@ -140,6 +143,7 @@ private:
 private:
   // Model.
   MappingManager* mappingManager;
+  Facade* _facade;
 
   // View.
   int currentPaintId;

@@ -21,10 +21,13 @@
 #include "MainWindow.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
+#include "Facade.h"
 
 MainWindow::MainWindow()
 {
   mappingManager = new MappingManager;
+  _facade = new Facade(mappingManager, this);
+
   currentPaintId = -1;
   currentMappingId = -1;
 
@@ -52,6 +55,7 @@ MainWindow& MainWindow::getInstance()
 MainWindow::~MainWindow()
 {
   delete mappingManager;
+  delete _facade;
 }
 
 void MainWindow::handleSourceItemSelectionChanged()
