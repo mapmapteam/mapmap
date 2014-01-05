@@ -28,9 +28,8 @@ SourceGLCanvas::SourceGLCanvas(QWidget* parent)
 {
 }
 
-Shape* SourceGLCanvas::getCurrentShape()
+Shape* SourceGLCanvas::getShapeFromMappingId(int mappingId)
 {
-  int mappingId = MainWindow::getInstance().getCurrentMappingId();
   if (mappingId >= 0)
   {
     Mapping::ptr mapping = MainWindow::getInstance().getMappingManager().getMapping(mappingId);
@@ -56,13 +55,13 @@ Shape* SourceGLCanvas::getCurrentShape()
 
 void SourceGLCanvas::doDraw()
 {
-  int paintId = MainWindow::getInstance().getCurrentPaintId();
-
-  if (paintId < 0)
+  if (!MainWindow::getInstance().hasCurrentPaint())
     return;
 
+  uint paintId = MainWindow::getInstance().getCurrentPaintId();
+
   // Retrieve paint (as texture) and draw it.
-  Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(paintId);
+  Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaintById(paintId);
   Q_CHECK_PTR(paint);
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
   Q_CHECK_PTR(texture);
@@ -86,7 +85,7 @@ void SourceGLCanvas::doDraw()
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
                GL_UNSIGNED_BYTE, texture->getBits());
 
-  std::cout << texture->getX() << "x" << texture->getY() << " : " << texture->getWidth() << "x" << texture->getHeight() << " " << texture->getTextureId() << std::endl;
+  //std::cout << texture->getX() << "x" << texture->getY() << " : " << texture->getWidth() << "x" << texture->getHeight() << " " << texture->getTextureId() << std::endl;
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -125,9 +124,9 @@ void SourceGLCanvas::doDraw()
   glDisable(GL_TEXTURE_2D);
 
   // Retrieve all mappings associated to paint.
-  std::map<int, Mapping::ptr> mappings = MainWindow::getInstance().getMappingManager().getPaintMappings(paintId);
+  std::map<uint, Mapping::ptr> mappings = MainWindow::getInstance().getMappingManager().getPaintMappingsById(paintId);
 
-  for (std::map<int, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
+  for (std::map<uint, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
     // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
     // Il faut changer ca.
@@ -137,24 +136,16 @@ void SourceGLCanvas::doDraw()
     std::tr1::shared_ptr<Shape> inputShape = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
     Q_CHECK_PTR(inputShape);
 
-    if (it->first == MainWindow::getInstance().getCurrentMappingId())
-      glColor4f(0.0f, 0.0f, 0.7f, 1.0f);
-    else
-      glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+   if (it->first == MainWindow::getInstance().getCurrentMappingId())
+   {
+     Mapper::ptr mapper = MainWindow::getInstance().getMapperByMappingId(it->first);
+     Q_CHECK_PTR(mapper);
 
-    // Source shape.
-    glLineWidth(5);
-    glBegin (GL_LINE_STRIP);
-    {
-      for (int i = 0; i < inputShape->nVertices()+1; i++)
-      {
-        glVertex2f(
-          GLfloat(inputShape->getVertex(i % inputShape->nVertices())->x()),
-          GLfloat(inputShape->getVertex(i % inputShape->nVertices())->y())
-                   );
-      }
-    }
-    glEnd ();
+     std::tr1::shared_ptr<TextureMapper> textureMapper = std::tr1::static_pointer_cast<TextureMapper>(mapper);
+     Q_CHECK_PTR(textureMapper);
+
+     textureMapper->drawInputControls();
+   }
   }
 
   glPopMatrix();

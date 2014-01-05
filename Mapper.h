@@ -41,6 +41,12 @@
 
 #include "Util.h"
 
+#include "qtpropertymanager.h"
+#include "qtvariantproperty.h"
+#include "qttreepropertybrowser.h"
+#include "qtbuttonpropertybrowser.h"
+#include "qtgroupboxpropertybrowser.h"
+
 /**
  * A way to draw on some kind of shape.
  * 
@@ -51,66 +57,115 @@
  * this software are implemented using a child of this
  * class.
  */
-class Mapper
+class Mapper : public QObject
 {
+  Q_OBJECT
+
 protected:
   Mapping::ptr _mapping;
-  Mapper(Mapping::ptr mapping) : _mapping(mapping) {}
-  virtual ~Mapper() {}
 
 public:
   typedef std::tr1::shared_ptr<Mapper> ptr;
-  virtual void draw() = 0;
-};
 
-//class ShapeDrawer
-//{
-//protected:
-//  std:tr1::shared_ptr<Shape> _shape;
-//
-//public:
-//  ShapeDrawer(const std:tr1::shared_ptr<Shape>& shape) : _shape(shape) {}
-//  virtual ~ShapeDrawer() {}
-//
-//  virtual void draw() = 0;
-//};
-//
-//class QuadDrawer
-//{
-//public:
-//  QuadDrawer(const std:tr1::shared_ptr<Quad>& quad) : ShapeDrawer(quad) {}
-//
-//  virtual void draw() {
-//    std::tr1::shared_ptr<Quad> quad = std::tr1::static_pointer_cast<Quad>(_shape);
-//    wxASSERT(quad != NULL);
-//
-//    glColor4f (1, 1, 1, 1);
-//
-//    // Source quad.
-//    glLineWidth(5);
-//    glBegin (GL_LINE_STRIP);
-//    {
-//      for (int i=0; i<5; i++) {
-//        glVertex3f(quad->getVertex(i % 4)->x / (GLfloat)texture->getWidth(),
-//                   quad->getVertex(i % 4)->y / (GLfloat)texture->getHeight(),
-//                   0);
-//      }
-//    }
-//    glEnd ();
-//  }
-//};
+  Mapper(Mapping::ptr mapping) : _mapping(mapping) {}
+  virtual ~Mapper() {}
+
+  virtual QWidget* getPropertiesEditor() = 0;
+  virtual void draw() = 0;
+  virtual void drawControls() = 0;
+
+public slots:
+  virtual void updateShape(Shape* shape)
+  {
+    Q_UNUSED(shape);
+  }
+};
 
 /**
  * Draws a texture.
  */
 class TextureMapper : public Mapper
 {
+  Q_OBJECT
+
 public:
-  TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping) : Mapper(mapping) {}
+  TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
   virtual ~TextureMapper() {}
 
+  virtual QWidget* getPropertiesEditor();
+
   virtual void draw();
+  virtual void drawInput();
+
+  virtual void drawControls();
+  virtual void drawInputControls();
+
+  static void drawShapeContour(const Shape& shape, int lineWidth, const QColor& color);
+
+signals:
+  void valueChanged();
+
+public slots:
+  virtual void setValue(QtProperty* property, const QVariant& value);
+  virtual void updateShape(Shape* shape);
+
+protected:
+  virtual void _doDraw() = 0;
+
+protected:
+  QtAbstractPropertyBrowser* _propertyBrowser;
+  QtVariantEditorFactory* _variantFactory;
+  QtVariantPropertyManager* _variantManager;
+  QtProperty* _topItem;
+  QtProperty* _inputItem;
+  QtProperty* _outputItem;
+
+  QtVariantProperty* _meshItem;
+
+  std::map<QtProperty*, std::pair<Shape*, int> > _propertyToVertex;
+
+  // FIXME: use typedefs, member of the class for type names that are too long to type:
+  std::tr1::shared_ptr<TextureMapping> textureMapping;
+  std::tr1::shared_ptr<Texture> texture;
+  std::tr1::shared_ptr<Shape> outputShape;
+  std::tr1::shared_ptr<Shape> inputShape;
+
+  virtual void _buildShapeProperty(QtProperty* shapeItem, Shape* shape);
+  virtual void _updateShapeProperty(QtProperty* shapeItem, Shape* shape);
 };
 
+class TriangleTextureMapper : public TextureMapper
+{
+  Q_OBJECT
+
+public:
+  TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  virtual ~TriangleTextureMapper() {}
+
+protected:
+  virtual void _doDraw();
+};
+
+
+class MeshTextureMapper : public TextureMapper
+{
+  Q_OBJECT
+
+public:
+  MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  virtual ~MeshTextureMapper() {}
+
+  virtual void drawControls();
+  virtual void drawInputControls();
+
+public slots:
+  virtual void setValue(QtProperty* property, const QVariant& value);
+
+protected:
+  virtual void _doDraw();
+
+private:
+  QtVariantProperty* _meshItem;
+};
 
 #endif /* MAPPER_H_ */
