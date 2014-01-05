@@ -219,8 +219,6 @@ void MainWindow::about()
           "</h2>"
           "<p>Copyright &copy; 2013 Sofian Audry"
           "<p>Copyright &copy; 2013 Alexandre Quessy"
-          "<p>Copyright &copy; 2013 Vasilis Liaskovitis"
-          "<p>Copyright &copy; 2013 Sylvain Cormier"
           "<p>Libremapping is a free software for video mapping. "
           "<p>Projection mapping, also known as video mapping and spatial augmented reality, "
           "is a projection technology used to turn objects, often irregularly shaped, into "

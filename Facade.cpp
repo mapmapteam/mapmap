@@ -1,5 +1,5 @@
 /*
- * Common.cpp
+ * Facade.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -47,3 +47,4 @@ bool Facade::createTriangleTextureMapping(const char *mapping_id, const char *pa
     const QList<QPointF> &src, const QList<QPointF> &dst)
 {
 }
+
