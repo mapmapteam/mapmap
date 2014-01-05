@@ -1,5 +1,5 @@
 /*
- * Common.cpp
+ * Facade.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -19,6 +19,7 @@
  */
 
 #include "MappingManager.h"
+#include "MainWindow.h"
 
 /**
  * Facade to control the application.
@@ -26,7 +27,7 @@
 class Facade
 {
     public:
-        Facade(MappingManager *manager);
+        Facade(MappingManager *manager, MainWindow *window);
         /**
          * Clears all mappings and paints.
          */
@@ -50,11 +51,24 @@ class Facade
          */
         bool createTriangleTextureMapping(const char *mapping_id, const char *paint_id,
             const QList<QPointF> &src, const QList<QPointF> &dst);
+        /**
+         * Quits the application.
+         */
+        // bool quit();
 
         // TODO:
         // bool loadProject(const char *project_file);
         // bool saveProject(const char *project_file);
-        // bool quit();
+        // bool deleteMapping(const char *mapping_id);
+        // bool deletePaint(const char *paint_id);
+        // bool listMappings(QList<QString> &result) const;
+        // bool listPaints(QList<QString> &result) const;
+        // bool setMappingPoints(const char *mapping_id,
+        //    const QList<QPointF> &src, const QList<QPointF> &dst);
+        // bool getMapping(const char *mapping_id, Mapping &mapping);
+        // bool getPaint(const char *paint_id, Paint &paint);
     private:
         MappingManager *_manager;
+        MainWindow *_window;
 };
+

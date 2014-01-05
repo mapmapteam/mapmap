@@ -39,6 +39,9 @@
 
 #define LIBREMAPPING_VERSION "0.1"
 
+// Forward declaration:
+class Facade;
+
 class MainWindow: public QMainWindow
 {
 Q_OBJECT
@@ -134,12 +137,19 @@ private:
   QSplitter* resourceSplitter;
   QSplitter* canvasSplitter;
 
+#ifdef HAVE_OSC
+  OscInterface::ptr osc_interface;
+#endif
+  int config_osc_receive_port;
+  QTimer *osc_timer;
+
   // Maps from Mapping id to corresponding mapper.
   std::map<uint, Mapper::ptr> mappers;
 
 private:
   // Model.
   MappingManager* mappingManager;
+  Facade* _facade;
 
   // View.
   uint currentPaintId;

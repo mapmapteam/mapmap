@@ -21,15 +21,16 @@
 #include "MainWindow.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
+#include "Facade.h"
+#include <sstream>
 
 MainWindow* MainWindow::instance = 0;
 
 MainWindow::MainWindow()
 {
-  if (!instance)
-    setInstance(this);
-
   mappingManager = new MappingManager;
+  _facade = new Facade(mappingManager, this);
+
   currentPaintId = 0;
   currentMappingId = 0;
   _hasCurrentPaint = false;
@@ -65,6 +66,7 @@ void MainWindow::setInstance(MainWindow* inst)
 MainWindow::~MainWindow()
 {
   delete mappingManager;
+  delete _facade;
 }
 
 void MainWindow::handleSourceItemSelectionChanged()
@@ -199,6 +201,8 @@ void MainWindow::import()
 
 void MainWindow::addMesh()
 {
+  // FIXME: crashes if there is no current paint id. (if no paint exists)
+
   // Create default quad.
 
   // Retrieve current paint (as texture).
@@ -222,6 +226,8 @@ void MainWindow::addMesh()
 
 void MainWindow::addTriangle()
 {
+  // FIXME: crashes if there is no current paint id. (if no paint exists)
+
   // Create default quad.
 
   // Retrieve current paint (as texture).
@@ -505,6 +511,7 @@ void MainWindow::createContextMenu()
 void MainWindow::createToolBars()
 {
   fileToolBar = addToolBar(tr("&File"));
+  fileToolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
   fileToolBar->addAction(importAction);
   fileToolBar->addAction(newAction);
   fileToolBar->addAction(openAction);
@@ -549,6 +556,7 @@ void MainWindow::readSettings()
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
   resourceSplitter->restoreState(settings.value("resourceSplitter").toByteArray());
   canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
+  config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 }
 
 void MainWindow::writeSettings()
@@ -559,6 +567,7 @@ void MainWindow::writeSettings()
   settings.setValue("mainSplitter", mainSplitter->saveState());
   settings.setValue("resourceSplitter", resourceSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
+  settings.setValue("osc_receive_port", config_osc_receive_port);
 }
 
 bool MainWindow::okToContinue()
@@ -583,30 +592,55 @@ bool MainWindow::okToContinue()
 
 bool MainWindow::loadFile(const QString &fileName)
 {
-  // TODO: Try to read file.
-//  if (!spreadsheet->readFile(fileName))
-//  {
-//    statusBar()->showMessage(tr("Loading canceled"), 2000);
-//    return false;
-//  }
+  QFile file(fileName);
 
-  setCurrentFile(fileName);
-  statusBar()->showMessage(tr("File loaded"), 2000);
+  if (! file.open(QFile::ReadOnly | QFile::Text))
+  {
+    QMessageBox::warning(this, tr("Error reading mapping project file"),
+      tr("Cannot read file %1:\n%2.")
+      .arg(fileName)
+      .arg(file.errorString()));
+      return false;
+  }
+
+  mappingManager->clearProject(); // FIXME: clearProject is not implemented!
+  ProjectReader reader(mappingManager);
+  if (! reader.readFile(&file))
+  {
+    QMessageBox::warning(this, tr("Error reading mapping project file"),
+      tr("Parse error in file %1:\n\n%2")
+      .arg(fileName)
+      .arg(reader.errorString()));
+  }
+  else
+  {
+    statusBar()->showMessage(tr("File loaded"), 2000);
+    setCurrentFile(fileName);
+  }
   return true;
 }
 
 bool MainWindow::saveFile(const QString &fileName)
 {
-  // TODO: Try to write file.
-//  if (!spreadsheet->writeFile(fileName))
-//  {
-//    statusBar()->showMessage(tr("Saving canceled"), 2000);
-//    return false;
-//  }
+  QFile file(fileName);
+  if (! file.open(QFile::WriteOnly | QFile::Text))
+  {
+    QMessageBox::warning(this, tr("Error saving mapping project"),
+      tr("Cannot write file %1:\n%2.")
+        .arg(fileName)
+        .arg(file.errorString()));
+    return false;
+  }
 
-  setCurrentFile(fileName);
-  statusBar()->showMessage(tr("File saved"), 2000);
-  return true;
+  ProjectWriter writer(mappingManager);
+  if (writer.writeFile(&file))
+  {
+    setCurrentFile(fileName);
+    statusBar()->showMessage(tr("File saved"), 2000);
+    return true;
+  }
+  else
+    return false;
 }
 
 void MainWindow::setCurrentFile(const QString &fileName)
@@ -622,6 +656,11 @@ void MainWindow::setCurrentFile(const QString &fileName)
 
   setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("LibreMapping Project")));
 }
+
+// TODO
+// bool MainWindow::updateMediaFile(const QString &source_name, const QString &fileName)
+// {
+// }
 
 bool MainWindow::importMediaFile(const QString &fileName)
 {
@@ -766,27 +805,26 @@ void MainWindow::pollOscInterface()
 void MainWindow::applyOscCommand(QVariantList & command)
 {
   bool VERBOSE = true;
-
   if (VERBOSE)
   {
-    std::cout << "MainWindow::applyOscCommand: Receive OSC: ";
+    std::cout << "Receive OSC: ";
     for (int i = 0; i < command.size(); ++i)
     {
-      if (command.at(i).type() == QVariant::Int)
+      if (command.at(i).type()  == QVariant::Int)
       {
         std::cout << command.at(i).toInt() << " ";
       }
-      else if (command.at(i).type() == QVariant::Double)
+      else if (command.at(i).type()  == QVariant::Double)
       {
         std::cout << command.at(i).toDouble() << " ";
       }
-      else if (command.at(i).type() == QVariant::String)
+      else if (command.at(i).type()  == QVariant::String)
       {
         std::cout << command.at(i).toString().toStdString() << " ";
       }
       else
       {
-        std::cout << "(?) ";
+        std::cout << "??? ";
       }
     }
     std::cout << std::endl;
@@ -817,3 +855,4 @@ void MainWindow::applyOscCommand(QVariantList & command)
   else if (path == "/project/open")
       open();
 }
+

@@ -31,10 +31,10 @@
 #include <QPointF>
 #include <QMetaType>
 #include <iostream>
-
 /**
  * Point (or vertex) on the 2-D canvas.
  */
+
 
 Q_DECLARE_METATYPE (qreal)
 
@@ -70,7 +70,6 @@ public slots:
   }
 
 };
-
 /**
  * Series of vertices. (points)
  */
@@ -78,6 +77,7 @@ class Shape
 {
 public:
   typedef std::tr1::shared_ptr<Shape> ptr;
+
   Shape() {}
   Shape(std::vector<Point*> vertices_) :
     vertices(vertices_)

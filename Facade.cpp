@@ -1,5 +1,5 @@
 /*
- * Common.cpp
+ * Facade.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -19,14 +19,17 @@
  */
 
 #include "Facade.h"
+#include <iostream>
 
-Facade::Facade(MappingManager *manager) :
-    _manager(manager)
+Facade::Facade(MappingManager *manager, MainWindow *window) :
+    _manager(manager),
+    _window(window)
 {
 }
 
 bool Facade::clearProject()
 {
+    std::cout << "TODO: Facade::clearProject" << std::endl;
 }
 
 bool Facade::createImagePaint(const char *paint_id, const char *uri)
@@ -47,3 +50,4 @@ bool Facade::createTriangleTextureMapping(const char *mapping_id, const char *pa
     const QList<QPointF> &src, const QList<QPointF> &dst)
 {
 }
+
