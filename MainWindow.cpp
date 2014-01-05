@@ -709,9 +709,10 @@ void MainWindow::pollOscInterface()
 void MainWindow::applyOscCommand(QVariantList & command)
 {
   bool VERBOSE = true;
+
   if (VERBOSE)
   {
-    std::cout << "Receive OSC: ";
+    std::cout << "MainWindow::applyOscCommand: Receive OSC: ";
     for (int i = 0; i < command.size(); ++i)
     {
       if (command.at(i).type()  == QVariant::Int)
@@ -728,7 +729,7 @@ void MainWindow::applyOscCommand(QVariantList & command)
       }
       else
       {
-        std::cout << "??? ";
+        std::cout << "(?) ";
       }
     }
     std::cout << std::endl;

@@ -29,38 +29,37 @@
 #define _CONCURRENT_QUEUE_H_
 
 #include <queue>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/condition.hpp>
+#include <QMutex>
+#include <QWaitCondition>
 
 template<typename Data>
 class ConcurrentQueue
 {
     private:
         std::queue<Data> queue_;
-        mutable boost::mutex mutex_;
-        boost::condition_variable condition_;
+        QMutex mutex_;
+        QWaitCondition condition_;
     public:
         ConcurrentQueue() : queue_(), mutex_(), condition_()
     {}
 
         void push(Data const& data)
         {
-            boost::mutex::scoped_lock lock(mutex_);
+            QMutexLocker locker(&mutex_);
             queue_.push(data);
-            lock.unlock();
-            condition_.notify_one();
+            condition_.wakeOne();
         }
 
         bool empty() const
         {
-            boost::mutex::scoped_lock lock(mutex_);
+            QMutexLocker locker(&mutex_);
             return queue_.empty();
         }
 
         bool try_pop(Data& popped_value)
         {
-            boost::mutex::scoped_lock lock(mutex_);
-            if(queue_.empty())
+            QMutexLocker locker(&mutex_);
+            if (queue_.empty())
             {
                 return false;
             }
@@ -72,10 +71,10 @@ class ConcurrentQueue
 
         void wait_and_pop(Data& popped_value)
         {
-            boost::mutex::scoped_lock lock(mutex_);
-            while(queue_.empty())
+            QMutexLocker locker(&mutex_);
+            while (queue_.empty())
             {
-                condition_.wait(lock);
+                condition_.wait(&mutex_);
             }
 
             popped_value = queue_.front();

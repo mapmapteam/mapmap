@@ -35,7 +35,7 @@ OscInterface::OscInterface(
     receiving_enabled_ = true;
     if (receiving_enabled_)
     {
-        std::cout << "Listening osc_udp://localhost:" << listen_port << std::endl;
+        std::cout << "Listening osc.udp://localhost:" << listen_port << std::endl;
         // receiver_.addHandler("/ping", "", ping_cb, this);
         // receiver_.addHandler("/pong", "", pong_cb, this);
         // receiver_.addHandler("/image/path", "s", image_path_cb, this);
@@ -170,7 +170,7 @@ int OscInterface::genericHandler(const char *path,
       default:
         break;
     }
-    context->push_command(message);
   } 
+  context->push_command(message);
   return 0; // handled
 }
