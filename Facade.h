@@ -55,6 +55,13 @@ class Facade
         // bool loadProject(const char *project_file);
         // bool saveProject(const char *project_file);
         // bool quit();
+        // bool deleteMapping(const char *mapping_id);
+        // bool deletePaint(const char *paint_id);
+        // bool listMappings(QList<QString> &result) const;
+        // bool listPaints(QList<QString> &result) const;
+        // bool setMappingPoints(const char *mapping_id,
+        //    const QList<QPointF> &src, const QList<QPointF> &dst);
     private:
         MappingManager *_manager;
 };
+
