@@ -22,6 +22,7 @@
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
 #include "Facade.h"
+#include <sstream>
 
 MainWindow::MainWindow()
 {
