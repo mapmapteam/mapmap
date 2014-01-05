@@ -91,8 +91,8 @@ public:
 //    glBegin (GL_LINE_STRIP);
 //    {
 //      for (int i=0; i<5; i++) {
-//        glVertex3f(quad->getVertex(i % 4).x / (GLfloat)texture->getWidth(),
-//                   quad->getVertex(i % 4).y / (GLfloat)texture->getHeight(),
+//        glVertex3f(quad->getVertex(i % 4)->x / (GLfloat)texture->getWidth(),
+//                   quad->getVertex(i % 4)->y / (GLfloat)texture->getHeight(),
 //                   0);
 //      }
 //    }
