@@ -550,7 +550,7 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
-  QSettings settings("OIF", "Libremapping");
+  QSettings settings("LibreMapping", "LibreMapping");
 
   restoreGeometry(settings.value("geometry").toByteArray());
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
@@ -561,7 +561,7 @@ void MainWindow::readSettings()
 
 void MainWindow::writeSettings()
 {
-  QSettings settings("OIF", "Libremapping");
+  QSettings settings("LibreMapping", "LibreMapping");
 
   settings.setValue("geometry", saveGeometry());
   settings.setValue("mainSplitter", mainSplitter->saveState());
