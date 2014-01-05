@@ -27,11 +27,10 @@
 #include <QPointF>
 #include <QMetaType>
 #include <iostream>
+
 /**
  * Point (or vertex) on the 2-D canvas.
  */
-
-
 Q_DECLARE_METATYPE (qreal)
 
 class Point: public QObject, public QPointF
@@ -57,7 +56,6 @@ public slots:
     QPointF::setY(y);
     emit yChanged();
   }
-
 };
 /**
  * Series of vertices. (points)

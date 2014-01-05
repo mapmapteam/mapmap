@@ -19,6 +19,7 @@
  */
 
 #include "Facade.h"
+#include <iostream>
 
 Facade::Facade(MappingManager *manager, MainWindow *window) :
     _manager(manager),
@@ -28,6 +29,7 @@ Facade::Facade(MappingManager *manager, MainWindow *window) :
 
 bool Facade::clearProject()
 {
+    std::cout << "TODO: Facade::clearProject" << std::endl;
 }
 
 bool Facade::createImagePaint(const char *paint_id, const char *uri)

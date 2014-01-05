@@ -175,6 +175,8 @@ void MainWindow::import()
 
 void MainWindow::addQuad()
 {
+  // FIXME: crashes if there is no current paint id. (if no paint exists)
+
   // Create default quad.
 
   // Retrieve current paint (as texture).
@@ -196,6 +198,8 @@ void MainWindow::addQuad()
 
 void MainWindow::addTriangle()
 {
+  // FIXME: crashes if there is no current paint id. (if no paint exists)
+
   // Create default quad.
 
   // Retrieve current paint (as texture).
@@ -668,7 +672,8 @@ void MainWindow::addMappingItem(int mappingId)
 
 void MainWindow::clearWindow()
 {
-  // TODO: implement clearWindow()
+  // TODO: implement Facade::clearProject()
+  this->_facade->clearProject();
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)
