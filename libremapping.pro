@@ -34,6 +34,8 @@ SOURCES  = \
 QT      += gui opengl xml
 RESOURCES = libremapping.qrc
 
+include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
+
 docs.depends = $(HEADERS) $(SOURCES)
 docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
 QMAKE_EXTRA_TARGETS += docs
@@ -43,19 +45,4 @@ macx:LIBS += -framework OpenGL -framework GLUT
 macx:QMAKE_CXXFLAGS += -D__MACOSX_CORE__
 
 # not mac
-!macx:LIBS    += -lglut -lGLU -lboost_system
-
-# detect osc
-# unix {
-system(pkg-config --exists liblo) {
-  CONFIG += link_pkgconfig
-  PKGCONFIG += liblo
-  DEFINES += HAVE_OSC
-  SOURCES += \
-    OscInterface.cpp \
-    OscReceiver.cpp
-  HEADERS += \
-    OscInterface.h \
-    OscReceiver.h \
-    concurrentqueue.h
-}
+!macx:LIBS    += -lglut -lGLU

@@ -43,14 +43,22 @@
  */
 class Paint
 {
+private:
+  uint _id;
 protected:
-  Paint(const char * name) : _name(name) {}
+  Paint(const char * name) : _name(name) 
+  {
+    static uint id = 0;
+    _id = id++;
+  }
+
 public:
   typedef std::tr1::shared_ptr<Paint> ptr;
   virtual ~Paint() {}
   virtual void build() {}
   void setName(const char *name) { _name = name; }
   const char *getName() const { return _name.c_str(); }
+  uint getId() const { return _id; }
 private:
   std::string _name;
 };

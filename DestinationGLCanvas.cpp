@@ -26,9 +26,8 @@ DestinationGLCanvas::DestinationGLCanvas(QWidget* parent, const QGLWidget * shar
 {
 }
 
-Shape* DestinationGLCanvas::getCurrentShape()
+Shape* DestinationGLCanvas::getShapeFromMappingId(int mappingId)
 {
-  int mappingId = MainWindow::getInstance().getCurrentMappingId();
   if (mappingId >= 0)
     return MainWindow::getInstance().getMappingManager().getMapping(mappingId)->getShape().get();
   else
@@ -65,9 +64,12 @@ void DestinationGLCanvas::doDraw()
   glPushMatrix();
 
   MappingManager& mappingManager = MainWindow::getInstance().getMappingManager();
-  for (int i=0; i<mappingManager.nMappings(); i++)
+  std::vector<Layer::ptr> layers = mappingManager.getVisibleLayers();
+  for (std::vector<Layer::ptr>::const_iterator it = layers.begin(); it != layers.end(); ++it)
   {
-    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mappingManager.getMapping(i));
+    Mapping::ptr mapping = (*it)->getMapping();
+
+    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);
 
     std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
@@ -77,33 +79,14 @@ void DestinationGLCanvas::doDraw()
       texture->loadTexture();
 
     // Draw the mappings.
-    TextureMapper mapper(textureMapping);
-    mapper.draw();
+    MainWindow::getInstance().getMapperByMappingId(mapping->getId())->draw();
   }
 
-  // Draw the shape.
-  if (MainWindow::getInstance().getCurrentMappingId() < 0)
-    return;
-
-  Shape* shape = getCurrentShape();
-  if (shape)
+  // Draw the controls of current mapping.
+  if (MainWindow::getInstance().hasCurrentMapping() &&
+      getCurrentShape() != NULL)
   {
-    glColor4f(0.0f, 0.0f, 0.7f, 1.0f);
-
-    // Destination quad.
-    // Source quad.
-    glLineWidth(5);
-    glBegin (GL_LINE_STRIP);
-    {
-      for (int i = 0; i < shape->nVertices()+1; i++)
-      {
-        glVertex2f(
-            GLfloat(shape->getVertex(i % shape->nVertices())->x()),
-            GLfloat(shape->getVertex(i % shape->nVertices())->y())
-                   );
-      }
-    }
-    glEnd ();
+    MainWindow::getInstance().getMapperByMappingId(MainWindow::getInstance().getCurrentMappingId())->drawControls();
   }
 
   glPopMatrix();

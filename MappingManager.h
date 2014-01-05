@@ -23,6 +23,7 @@
 
 #include "Paint.h"
 #include "Mapping.h"
+#include "Layer.h"
 #include "NameAllocator.h"
 
 /**
@@ -36,26 +37,41 @@ public:
 
 private:
   // Model.
-  std::vector<Paint::ptr> paints;
-  std::vector<Mapping::ptr> mappings;
-  NameAllocator _nameAllocator;
+  std::vector<Paint::ptr> paintVector;
+  std::map<uint, Paint::ptr> paintMap;
+  std::vector<Mapping::ptr> mappingVector;
+  std::map<uint, Mapping::ptr> mappingMap;
+
+  std::vector<Layer::ptr> layerVector;
+  std::map<uint, Layer::ptr> layerMap;
 
 public:
   /// Returns the list of mappings associated with given paint.
-  std::map<int, Mapping::ptr> getPaintMappings(const Paint::ptr paint) const;
-  std::map<int, Mapping::ptr> getPaintMappings(int id) const;
+  std::map<uint, Mapping::ptr> getPaintMappings(const Paint::ptr paint) const;
+  std::map<uint, Mapping::ptr> getPaintMappingsById(uint paintId) const;
 
-  int addPaint(Paint::ptr paint);
+  uint addPaint(Paint::ptr paint);
 //  bool removePaint(Paint::ptr paint);
-  int nPaints() const { return paints.size(); }
-  Paint::ptr getPaint(int i) { return paints[i]; }
+  int nPaints() const { return paintVector.size(); }
+  Paint::ptr getPaint(int i) { return paintVector[i]; }
+  Paint::ptr getPaintById(uint id) { return paintMap[id]; }
 
-  int addImage(const QString imagePath, int frameWidth, int frameHeight);
+  uint addImage(const QString imagePath, int frameWidth, int frameHeight);
 
-  int addMapping(Mapping::ptr mapping);
+  uint addMapping(Mapping::ptr mapping);
 //  bool removeMapping(Mapping::ptr mapping);
-  int nMappings() const { return mappings.size(); }
-  Mapping::ptr getMapping(int i) { return mappings[i]; }
+  int nMappings() const { return mappingVector.size(); }
+  Mapping::ptr getMapping(int i) { return mappingVector[i]; }
+  Mapping::ptr getMappingById(uint id) { return mappingMap[id]; }
+
+  int nLayers() const { return layerVector.size(); }
+  uint addLayer(Mapping::ptr mapping);
+  Layer::ptr getLayer(int i) { return layerVector[i]; }
+  Layer::ptr getLayerById(uint id) { return layerMap[id]; }
+  void reorderLayers(std::vector<uint> layerIds);
+
+  std::vector<Layer::ptr> getVisibleLayers() const;
+
   void clearProject();
 };
 

@@ -39,7 +39,7 @@ float map_float(float value, float istart, float istop, float ostart, float osto
 int map_int(int value, int istart, int istop, int ostart, int ostop);
 
 
-Quad* createQuadForTexture(Texture* texture, int frameWidth, int frameHeight);
+Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight);
 Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight);
 
 } // end of namespace
