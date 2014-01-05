@@ -37,6 +37,8 @@ SOURCES  = \
 QT      += gui opengl xml
 RESOURCES = libremapping.qrc
 
+TRANSLATIONS = libremapping_fr.ts
+
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
 
 docs.depends = $(HEADERS) $(SOURCES)
