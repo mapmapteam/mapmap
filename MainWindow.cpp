@@ -688,7 +688,7 @@ void MainWindow::startOscReceiver()
   int port = config_osc_receive_port;
   std::ostringstream os;
   os << port;
-  osc_interface.reset(new OscInterface(this, os.str()));
+  osc_interface.reset(new OscInterface(os.str()));
   if (port != 0)
   {
     osc_interface->start();
@@ -702,62 +702,8 @@ void MainWindow::startOscReceiver()
 void MainWindow::pollOscInterface()
 {
 #ifdef HAVE_OSC
-  osc_interface->consume_commands();
+  osc_interface->consume_commands(*_facade);
 #endif
 }
 
-void MainWindow::applyOscCommand(QVariantList & command)
-{
-  bool VERBOSE = true;
-
-  if (VERBOSE)
-  {
-    std::cout << "MainWindow::applyOscCommand: Receive OSC: ";
-    for (int i = 0; i < command.size(); ++i)
-    {
-      if (command.at(i).type()  == QVariant::Int)
-      {
-        std::cout << command.at(i).toInt() << " ";
-      }
-      else if (command.at(i).type()  == QVariant::Double)
-      {
-        std::cout << command.at(i).toDouble() << " ";
-      }
-      else if (command.at(i).type()  == QVariant::String)
-      {
-        std::cout << command.at(i).toString().toStdString() << " ";
-      }
-      else
-      {
-        std::cout << "(?) ";
-      }
-    }
-    std::cout << std::endl;
-    std::cout.flush();
-  }
-
-  if (command.size() < 2)
-      return;
-  if (command.at(0).type() != QVariant::String)
-      return;
-  if (command.at(1).type() != QVariant::String)
-      return;
-  std::string path = command.at(0).toString().toStdString();
-  std::string typetags = command.at(1).toString().toStdString();
-
-  // Handle all OSC messages here
-  if (path == "/image/uri" && typetags == "s")
-  {
-      std::string image_uri = command.at(2).toString().toStdString();
-      std::cout << "TODO load /image/uri " << image_uri << std::endl;
-  }
-  else if (path == "/add/quad")
-      addQuad();
-  else if (path == "/add/triangle")
-      addTriangle();
-  else if (path == "/project/save")
-      save();
-  else if (path == "/project/open")
-      open();
-}
 

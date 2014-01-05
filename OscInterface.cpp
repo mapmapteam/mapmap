@@ -21,14 +21,14 @@
  */
 
 #include "OscInterface.h"
-#include "MainWindow.h"
+#include "Facade.h"
 #include <QVariant>
 
 OscInterface::OscInterface(
-        MainWindow* owner,
+//        MainWindow* owner,
         const std::string &listen_port) :
     receiver_(listen_port),
-    owner_(owner),
+//    owner_(owner),
     messaging_queue_()
 {
     //if (listen_port != OSC_PORT_NONE)
@@ -38,7 +38,7 @@ OscInterface::OscInterface(
         std::cout << "Listening osc.udp://localhost:" << listen_port << std::endl;
         // receiver_.addHandler("/ping", "", ping_cb, this);
         // receiver_.addHandler("/pong", "", pong_cb, this);
-        // receiver_.addHandler("/image/path", "s", image_path_cb, this);
+        //receiver_.addHandler("/image/path", "ss", image_path_cb, this);
         receiver_.addHandler(NULL, NULL, genericHandler, this);
     }
 }
@@ -77,35 +77,17 @@ int OscInterface::ping_cb(
     return 0;
 }
 
-int OscInterface::image_path_cb(
-        const char *path,
-        const char * /*types*/, 
-        lo_arg **argv,
-        int /*argc*/, 
-        void * /*data*/, 
-        void *user_data)
-{
-    OscInterface* context = static_cast<OscInterface*>(user_data);
-    std::string file_name(static_cast<const char*>(&argv[0]->s));
-    //if (context->is_verbose())
-        std::cout << "Got " << path << " " << file_name << std::endl;
-    QVariantList message;
-    message.append(QVariant(QString("image/path")));
-    message.append(QVariant(QString(file_name.c_str())));
-    context->push_command(message);
-    return 0;
-}
-
 void OscInterface::push_command(QVariantList command)
 {
     messaging_queue_.push(command);
 }
+
 /**
  * Takes action!
  *
  * Should be called when it's time to take action, before rendering a frame, for example.
  */
-void OscInterface::consume_commands()
+void OscInterface::consume_commands(Facade &facade)
 {
     bool success = true;
     while (success)
@@ -117,12 +99,13 @@ void OscInterface::consume_commands()
             //if (is_verbose())
             // std::cout << __FUNCTION__ << ": apply " <<
             //     command.first().toString().toStdString() << std::endl;
-            owner_->applyOscCommand(command);
+            this->applyOscCommand(facade, command);
         }
     }
 }
 
-/** Starts listening if enabled
+/**
+ * Starts listening if enabled
  */
 void OscInterface::start()
 {
@@ -173,4 +156,68 @@ int OscInterface::genericHandler(const char *path,
   } 
   context->push_command(message);
   return 0; // handled
+}
+
+static void printCommand(QVariantList &command)
+{
+    for (int i = 0; i < command.size(); ++i)
+    {
+      if (command.at(i).type()  == QVariant::Int)
+      {
+        std::cout << command.at(i).toInt() << " ";
+      }
+      else if (command.at(i).type()  == QVariant::Double)
+      {
+        std::cout << command.at(i).toDouble() << " ";
+      }
+      else if (command.at(i).type()  == QVariant::String)
+      {
+        std::cout << command.at(i).toString().toStdString() << " ";
+      }
+      else
+      {
+        std::cout << "(?) ";
+      }
+    }
+    std::cout << std::endl;
+    std::cout.flush();
+}
+
+void OscInterface::applyOscCommand(Facade &facade, QVariantList & command)
+{
+  bool VERBOSE = true;
+
+  if (VERBOSE)
+  {
+    std::cout << "OscInterface::applyOscCommand: Receive OSC: " << std::endl;
+    printCommand(command);
+  }
+
+  // The two first QVariant objects are: path, typeTags
+  if (command.size() < 2)
+      return;
+  if (command.at(0).type() != QVariant::String)
+      return;
+  if (command.at(1).type() != QVariant::String)
+      return;
+  std::string path = command.at(0).toString().toStdString();
+  std::string typetags = command.at(1).toString().toStdString();
+
+  // Handle all OSC messages here
+  if (path == "/image/uri" && typetags == "ss")
+  {
+      std::string paint_id = command.at(2).toString().toStdString();
+      std::string image_uri = command.at(3).toString().toStdString();
+      //std::cout << "TODO load /image/uri " << image_id << " " << image_uri << std::endl;
+      facade.updateImagePaintUri(paint_id.c_str(), image_uri.c_str());
+  }
+
+  //else if (path == "/add/quad")
+  //    addQuad();
+  //else if (path == "/add/triangle")
+  //    addTriangle();
+  //else if (path == "/project/save")
+  //    save();
+  //else if (path == "/project/open")
+  //    open();
 }

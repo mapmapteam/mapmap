@@ -34,20 +34,23 @@ bool Facade::clearProject()
 
 bool Facade::createImagePaint(const char *paint_id, const char *uri)
 {
+    std::cout << "TODO: Facade::createImagePaint" << std::endl;
 }
 
 bool Facade::updateImagePaintUri(const char *paint_id, const char *uri)
 {
+    std::cout << "TODO: Facade::updateImagePaintUri" << std::endl;
 }
 
 bool Facade::createMeshTextureMapping(const char *mapping_id, const char *paint_id,
     int n_rows, int n_cols,
     const QList<QPointF> &src, const QList<QPointF> &dst)
 {
+    std::cout << "TODO: Facade::createMeshTextureMapping" << std::endl;
 }
 
 bool Facade::createTriangleTextureMapping(const char *mapping_id, const char *paint_id,
     const QList<QPointF> &src, const QList<QPointF> &dst)
 {
+    std::cout << "TODO: Facade::createTriangleTextureMapping" << std::endl;
 }
-
