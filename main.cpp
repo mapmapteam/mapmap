@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
   // TODO: avoid segfaults when OSC port is busy
   QApplication app(argc, argv);
 
-  if (!QGLFormat::hasOpenGL())
+  if (! QGLFormat::hasOpenGL())
   {
     std::cerr << "This system has no OpenGL support" << std::endl;
     return 1;

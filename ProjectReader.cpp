@@ -160,4 +160,7 @@ void ProjectReader::readPaint()
     }
     _xml.readNext();
   }
+
+  // TODO: call this->_manager->getController->createPaint(...)
 }
+
