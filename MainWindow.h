@@ -48,6 +48,7 @@ public:
   ~MainWindow();
   static MainWindow& getInstance();
   static void setInstance(MainWindow* inst);
+  void applyOscCommand(QVariantList & command);
 
 protected:
   // Events.
@@ -88,7 +89,7 @@ private:
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
-  bool importFile(const QString &fileName);
+  bool importMediaFile(const QString &fileName);
   void addLayerItem(uint layerId);
   void clearWindow();
   QString strippedName(const QString &fullFileName);

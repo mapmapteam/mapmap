@@ -45,6 +45,8 @@ private:
   std::vector<Layer::ptr> layerVector;
   std::map<uint, Layer::ptr> layerMap;
 
+  NameAllocator _nameAllocator;
+
 public:
   /// Returns the list of mappings associated with given paint.
   std::map<uint, Mapping::ptr> getPaintMappings(const Paint::ptr paint) const;

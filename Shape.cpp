@@ -23,34 +23,34 @@ bool Shape::includesPoint(int x, int y)
 {
   Point *prev = NULL, *cur;
   int left = 0, right = 0, maxy, miny;
-  for (std::vector<Point>::iterator it = vertices.begin() ; it !=
-      vertices.end(); it++)
+  for (std::vector<Point*>::iterator it = vertices.begin() ;
+      it != vertices.end(); it++)
   {
     if (!prev) {
-      prev = &vertices.back();
+      prev = vertices.back();
     }
-    cur = &(*it);
-    miny = std::min(cur->y, prev->y);
-    maxy = std::max(cur->y, prev->y);
+    cur = *it;
+    miny = std::min(cur->y(), prev->y());
+    maxy = std::max(cur->y(), prev->y());
 
     if (y > miny && y < maxy) {
-      if (prev->x == cur->x)
+      if (prev->x() == cur->x())
       {
-        if (x < cur->x)
+        if (x < cur->x())
           right++;
         else left++;
       }
       else
       {
-        double slope = (cur->y - prev->y) / (cur->x - prev->x);
-        double offset = cur->y - slope * cur->x;
+        double slope = (cur->y() - prev->y()) / (cur->x() - prev->x());
+        double offset = cur->y() - slope * cur->x();
         int xintersect = int((y - offset ) / slope);
         if (x < xintersect)
           right++;
         else left++;
       }
     }
-    prev = &(*it);
+    prev = *it;
   }
   if (right % 2 && left % 2)
     return true;
@@ -60,18 +60,18 @@ bool Shape::includesPoint(int x, int y)
 
 void Shape::translate(int x, int y)
 {
-  for (std::vector<Point>::iterator it = vertices.begin() ; it !=
-      vertices.end(); ++it)
+  for (std::vector<Point*>::iterator it = vertices.begin() ;
+      it != vertices.end(); ++it)
   {
-    it->x += x;
-    it->y += y;
+    (*it)->setX((*it)->x() + x);
+    (*it)->setY((*it)->y() + y);
   }
 }
 
 
 
 
-Mesh::Mesh(Point p1, Point p2, Point p3, Point p4, int nColumns, int nRows)
+Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4, int nColumns, int nRows)
 : Quad(p1, p2, p3, p4), _nColumns(0), _nRows(0)
 {
   Q_ASSERT(nColumns >= 2 && nRows >= 2);
@@ -129,21 +129,21 @@ void Mesh::addColumn()
   for (int y=0; y<nRows(); y++)
   {
     // Get left and right vertices.
-    QPointF left  = getVertex( _vertices2d[0]           [y] ).toQPointF();
-    QPointF right = getVertex( _vertices2d[nColumns()-1][y] ).toQPointF();
+    QPointF left  = *getVertex( _vertices2d[0]           [y] );
+    QPointF right = *getVertex( _vertices2d[nColumns()-1][y] );
     QPointF diff = right - left;
 
     // First pass: move middle points.
     for (int x=1; x<nColumns()-1; x++)
     {
-      QPointF p = getVertex( _vertices2d[x][y] ).toQPointF();
+      QPointF p = *getVertex( _vertices2d[x][y] );
       p -= diff * x * leftMoveProp;
       setVertex( _vertices2d[x][y], p );
     }
 
     // Create and add new point.
     QPointF newPoint = right - diff * 1.0f/nColumns();
-    vertices.push_back(newPoint);
+    _addVertex(newPoint);
 
     // Assign new vertices 2d.
     for (int x=0; x<nColumns()-1; x++)
@@ -179,21 +179,21 @@ void Mesh::addRow()
   for (int x=0; x<nColumns(); x++)
   {
     // Get left and right vertices.
-    QPointF top    = getVertex( _vertices2d[x][0] ).toQPointF();
-    QPointF bottom = getVertex( _vertices2d[x][nRows()-1] ).toQPointF();
+    QPointF top    = *getVertex( _vertices2d[x][0] );
+    QPointF bottom = *getVertex( _vertices2d[x][nRows()-1] );
     QPointF diff = bottom - top;
 
     // First pass: move middle points.
     for (int y=1; y<nRows()-1; y++)
     {
-      QPointF p = getVertex( _vertices2d[x][y] ).toQPointF();
+      QPointF p = *getVertex( _vertices2d[x][y] );
       p -= diff * y * topMoveProp;
       setVertex( _vertices2d[x][y], p );
     }
 
     // Create and add new point.
     QPointF newPoint = bottom - diff * 1.0f/nRows();
-    vertices.push_back(newPoint);
+    _addVertex(newPoint);
 
     // Assign new vertices 2d.
     for (int y=0; y<nRows()-1; y++)
@@ -285,10 +285,10 @@ std::vector<Quad> Mesh::getQuads() const
     for (int j=0; j<nVerticalQuads(); j++)
     {
       Quad quad(
-          vertices[ _vertices2d[i]  [j]  ],
-          vertices[ _vertices2d[i+1][j]   ],
-          vertices[ _vertices2d[i+1][j+1] ],
-          vertices[ _vertices2d[i]  [j+1] ]
+          *vertices[ _vertices2d[i]  [j]  ],
+          *vertices[ _vertices2d[i+1][j]   ],
+          *vertices[ _vertices2d[i+1][j+1] ],
+          *vertices[ _vertices2d[i]  [j+1] ]
       );
       quads.push_back(quad);
     }
@@ -306,10 +306,10 @@ std::vector< std::vector<Quad> > Mesh::getQuads2d() const
     for (int j=0; j<nVerticalQuads(); j++)
     {
       Quad quad(
-          vertices[ _vertices2d[i]  [j]  ],
-          vertices[ _vertices2d[i+1][j]   ],
-          vertices[ _vertices2d[i+1][j+1] ],
-          vertices[ _vertices2d[i]  [j+1] ]
+          *vertices[ _vertices2d[i]  [j]  ],
+          *vertices[ _vertices2d[i+1][j]   ],
+          *vertices[ _vertices2d[i+1][j+1] ],
+          *vertices[ _vertices2d[i]  [j+1] ]
       );
       column.push_back(quad);
     }

@@ -156,8 +156,8 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       p->setX(event->x());
       p->setY(event->y());
 
-      glueVertex(shape, &p);
-      shape->setVertex(_active_vertex, p);
+      glueVertex(shape, p);
+      shape->setVertex(_active_vertex, *p);
 
       update();
       emit shapeChanged(getCurrentShape());
@@ -172,15 +172,15 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
     {
       if (_shapefirstgrab == false)
       {    
-        shape->translate(event->x() - p.x, event->y() - p.y);  
+        shape->translate(event->x() - p.x(), event->y() - p.y());
         update();
         emit shapeChanged(getCurrentShape());
       }  
       else
         _shapefirstgrab = false;
     }
-    p.x = event->x();
-    p.y = event->y();
+    p.setX( event->x() );
+    p.setY( event->y() );
 
   }
 }
@@ -275,12 +275,12 @@ void MapperGLCanvas::glueVertex(Shape *orig, Point *p)
     {
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)
       {
-        Point v = shape->getVertex(vertex);
-        if ((abs(v.x - p->x) < dist_stick) &&
-            (abs(v.y - p->y) < dist_stick))
+        Point *v = shape->getVertex(vertex);
+        if ((abs(v->x() - p->x()) < dist_stick) &&
+            (abs(v->y() - p->y()) < dist_stick))
         {
-          p->x = v.x;
-          p->y = v.y;
+          p->setX(v->x());
+          p->setY(v->y());
         }
       }
     }

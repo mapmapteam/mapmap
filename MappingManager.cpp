@@ -52,7 +52,8 @@ uint MappingManager::addPaint(Paint::ptr paint)
 
 uint MappingManager::addImage(const QString imagePath, int frameWidth, int frameHeight)
 {
-  Image* img  = new Image(imagePath);
+  std::string name = _nameAllocator.allocateName("image_");
+  Image* img = new Image(name.c_str(), imagePath);
 
   img->setPosition( (frameWidth  - img->getWidth() ) / 2.0f,
                     (frameHeight - img->getHeight()) / 2.0f );

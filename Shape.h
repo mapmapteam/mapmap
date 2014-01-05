@@ -31,21 +31,23 @@
 #include <QPointF>
 #include <QMetaType>
 #include <iostream>
+
 /**
  * Point (or vertex) on the 2-D canvas.
  */
-
 
 Q_DECLARE_METATYPE (qreal)
 
 class Point: public QObject, public QPointF
 {
   Q_OBJECT
+
 public:
   Q_PROPERTY(qreal x READ x WRITE setX NOTIFY xChanged)
   Q_PROPERTY(qreal y READ y WRITE setY NOTIFY yChanged)
   Q_INVOKABLE Point(qreal x, qreal y): QPointF(x,y) {}
   Q_INVOKABLE Point(): QPointF(0,0) {}
+
 signals:
   void xChanged();
   void yChanged();
@@ -61,6 +63,11 @@ public slots:
     QPointF::setY(y);
     emit yChanged();
   }
+  void setValue(const QPointF& p)
+  {
+    setX(p.x());
+    setY(p.y());
+  }
 
 };
 
@@ -72,7 +79,7 @@ class Shape
 public:
   typedef std::tr1::shared_ptr<Shape> ptr;
   Shape() {}
-  Shape(std::vector<Point> vertices_) :
+  Shape(std::vector<Point*> vertices_) :
     vertices(vertices_)
   {}
   virtual ~Shape() {}
@@ -81,20 +88,20 @@ public:
 
   int nVertices() const { return vertices.size(); }
 
-  Point getVertex(int i) const
+  Point* getVertex(int i) const
   {
     return vertices[i];
   }
 
-  void setVertex(int i, Point v)
+  void setVertex(int i, QPointF v)
   {
-    vertices[i] = v;
+    vertices[i]->setValue(v);
   }
 
   void setVertex(int i, double x, double y)
   {
-    vertices[i].setX(x);
-    vertices[i].setY(y);
+    vertices[i]->setX(x);
+    vertices[i]->setY(y);
   }
 
   virtual const char * getShapeType() = 0;
@@ -114,7 +121,15 @@ public:
   }
 
 protected:
-  std::vector<Point> vertices;
+  std::vector<Point*> vertices;
+
+  void _addVertex(const QPointF& vertex)
+  {
+    Point* v = new Point();
+    v->setValue(vertex);
+
+    vertices.push_back(v);
+  }
 };
 
 /**
@@ -124,12 +139,12 @@ class Quad : public Shape
 {
 public:
   Quad() {}
-  Quad(Point p1, Point p2, Point p3, Point p4)
+  Quad(QPointF p1, QPointF p2, QPointF p3, QPointF p4)
   {
-    vertices.push_back(p1);
-    vertices.push_back(p2);
-    vertices.push_back(p3);
-    vertices.push_back(p4);
+    _addVertex(p1);
+    _addVertex(p2);
+    _addVertex(p3);
+    _addVertex(p4);
   }
   virtual ~Quad() {}
 
@@ -143,11 +158,11 @@ class Triangle : public Shape
 {
 public:
   Triangle() {}
-  Triangle(Point p1, Point p2, Point p3)
+  Triangle(QPointF p1, QPointF p2, QPointF p3)
   {
-    vertices.push_back(p1);
-    vertices.push_back(p2);
-    vertices.push_back(p3);
+    _addVertex(p1);
+    _addVertex(p2);
+    _addVertex(p3);
   }
   virtual ~Triangle() {}
   virtual const char * getShapeType() { return "triangle"; }
@@ -158,7 +173,7 @@ public:
   Mesh() : _nColumns(0), _nRows(0) {
     init(1, 1);
   }
-  Mesh(Point p1, Point p2, Point p3, Point p4, int nColumns=2, int nRows=2);
+  Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4, int nColumns=2, int nRows=2);
   virtual ~Mesh() {}
 
   void resizeVertices2d(std::vector< std::vector<int> >& vertices2d, int nColumns, int nRows);
