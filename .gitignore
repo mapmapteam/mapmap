@@ -17,11 +17,11 @@ prototypes/wx-04-gst/run
 Debug/
 Release/
 libremapping
-moc_DestinationGLCanvas.cpp
-moc_MapperGLCanvas.cpp
-moc_MainWindow.cpp
-moc_SourceGLCanvas.cpp
+moc_*.cpp
 prototypes/gst/
 prototypes/wx-02-input-output/run
-qrc_libremapping.cpp
+qrc_*.cpp
+qteditorfactory.moc
+qtpropertymanager.moc
+qttreepropertybrowser.moc
 html/
