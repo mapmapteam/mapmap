@@ -28,7 +28,7 @@
 #include "OscReceiver.h"
 #include <QVariant>
 
-class MainWindow; // forward decl
+class Facade; // forward decl
 
 /**
  * Open Sound Control sending and receiving for LibreMapping.
@@ -38,20 +38,23 @@ class OscInterface
   public:
     typedef std::tr1::shared_ptr<OscInterface> ptr;
     OscInterface(
-      MainWindow* owner, 
+      //MainWindow* owner, 
       const std::string &listen_port);
     ~OscInterface() {}
     void start();
-    void consume_commands();
-    bool is_verbose() { return false; }
+    /**
+     * Call this method from the main thread.
+     * 
+     * Each message is stored as a QVariantList.
+     * <path> <typeTags> [args]
+     */
+    void consume_commands(Facade &facade);
   private:
+    bool is_verbose() { return false; }
     void push_command(QVariantList command);
     /**
      * OSC callback
      */
-    static int image_path_cb(const char *path, 
-      const char *types, lo_arg **argv, 
-      int argc, void *data, void *user_data);
     static int ping_cb(const char *path, 
             const char *types, lo_arg **argv, 
             int argc, void *data, void *user_data);
@@ -64,8 +67,13 @@ class OscInterface
 
     bool receiving_enabled_;
     OscReceiver receiver_;
-    MainWindow* owner_;
+    //MainWindow* owner_;
     ConcurrentQueue<QVariantList> messaging_queue_;
+    /*
+     * In the main thread, handles the messages.
+     */
+    void applyOscCommand(Facade &facade, QVariantList & command);
 };
+
 
 #endif /* include guard */

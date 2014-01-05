@@ -550,7 +550,7 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
-  QSettings settings("OIF", "Libremapping");
+  QSettings settings("LibreMapping", "LibreMapping");
 
   restoreGeometry(settings.value("geometry").toByteArray());
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
@@ -561,7 +561,7 @@ void MainWindow::readSettings()
 
 void MainWindow::writeSettings()
 {
-  QSettings settings("OIF", "Libremapping");
+  QSettings settings("LibreMapping", "LibreMapping");
 
   settings.setValue("geometry", saveGeometry());
   settings.setValue("mainSplitter", mainSplitter->saveState());
@@ -784,7 +784,7 @@ void MainWindow::startOscReceiver()
   int port = config_osc_receive_port;
   std::ostringstream os;
   os << port;
-  osc_interface.reset(new OscInterface(this, os.str()));
+  osc_interface.reset(new OscInterface(os.str()));
   if (port != 0)
   {
     osc_interface->start();
@@ -798,7 +798,7 @@ void MainWindow::startOscReceiver()
 void MainWindow::pollOscInterface()
 {
 #ifdef HAVE_OSC
-  osc_interface->consume_commands();
+  osc_interface->consume_commands(*_facade);
 #endif
 }
 
