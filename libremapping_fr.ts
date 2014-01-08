@@ -4,76 +4,64 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <source>Open mapping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Libremapping files (*.lmp)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Save mapping project</source>
-        <translation type="unfinished">Sauvegarder le projet</translation>
+        <translation type="obsolete">Sauvegarder le projet</translation>
     </message>
     <message>
         <source>LibreMapping files (*.lmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichiers LibreMapping (*.lmp)</translation>
     </message>
     <message>
         <source>Import resource</source>
-        <translation type="unfinished">Importer une ressource</translation>
+        <translation type="obsolete">Importer une ressource</translation>
     </message>
     <message>
         <source>About LibreMapping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Libremapping</source>
-        <translation type="unfinished"></translation>
+        <translation>À propos de LibreMapping</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nouveau</translation>
     </message>
     <message>
         <source>Create a new mapping file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Créer un nouveau projet</translation>
     </message>
     <message>
         <source>&amp;Open...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Ouvrir</translation>
     </message>
     <message>
         <source>Open an existing mapping file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir un projet existant</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Sauvegarder</translation>
     </message>
     <message>
         <source>Save the mapping to disk</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sauvegarder le projet</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">S&amp;auvegarder sous...</translation>
     </message>
     <message>
         <source>Save the mapping under a new name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sauvegarder sous un nouveau nom</translation>
     </message>
     <message>
         <source>&amp;Import media source...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importer un média</translation>
     </message>
     <message>
         <source>Import a media source file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importer un fichier média</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Quitter</translation>
     </message>
     <message>
         <source>Ctrl+Q</source>
@@ -81,80 +69,80 @@
     </message>
     <message>
         <source>Exit the application</source>
-        <translation type="unfinished"></translation>
+        <translation>Quitter l&apos;application</translation>
     </message>
     <message>
         <source>&amp;About</source>
-        <translation type="unfinished">&amp;A propos</translation>
+        <translation>&amp;À propos</translation>
     </message>
     <message>
         <source>Show the application&apos;s About box</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher le dialogue À propos de l&apos;application</translation>
     </message>
     <message>
         <source>&amp;Add quad</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ajouter un mesh</translation>
     </message>
     <message>
         <source>Add quad</source>
-        <translation type="unfinished">Ajouter un mesh</translation>
+        <translation>Ajouter un mesh</translation>
     </message>
     <message>
         <source>&amp;Add triangle</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter un triangle</translation>
     </message>
     <message>
         <source>Add triangle</source>
-        <translation type="unfinished">Ajouter un triangle</translation>
+        <translation>Ajouter un triangle</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Fichier</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Aide</translation>
     </message>
     <message>
         <source>The document has been modified.
 Do you want to save your changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ce document a été modifié. Voulez-vous sauvegarder vos changements?</translation>
     </message>
     <message>
         <source>Error reading mapping project file</source>
-        <translation type="unfinished"></translation>
+        <translation>Erreur de lecture de projet</translation>
     </message>
     <message>
         <source>Cannot read file %1:
 %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible de lire le fichier %1: %2</translation>
     </message>
     <message>
         <source>Parse error in file %1:
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Erreur de syntaxe dans le fichier %1: %2</translation>
     </message>
     <message>
         <source>File loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier chargé</translation>
     </message>
     <message>
         <source>Error saving mapping project</source>
-        <translation type="unfinished"></translation>
+        <translation>Erreur en sauvegardant le fichier de projet</translation>
     </message>
     <message>
         <source>Cannot write file %1:
 %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible d&apos;écrire le fichier %1: %2</translation>
     </message>
     <message>
         <source>File saved</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier sauvegardé</translation>
     </message>
     <message>
         <source>Untitled</source>
-        <translation type="unfinished"></translation>
+        <translation>Sans titre</translation>
     </message>
     <message>
         <source>%1[*] - %2</source>
@@ -162,26 +150,46 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>LibreMapping Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projet LibreMapping</translation>
     </message>
     <message>
         <source>File imported</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier importé</translation>
+    </message>
+    <message>
+        <source>Open project</source>
+        <translation>Ouvrir un projet</translation>
+    </message>
+    <message>
+        <source>Save project</source>
+        <translation>Sauvegarder le projet</translation>
+    </message>
+    <message>
+        <source>Import media resource</source>
+        <translation>Importer une source média</translation>
+    </message>
+    <message>
+        <source>&lt;h2&gt;LibreMapping </source>
+        <translation>&lt;h2&gt;LibreMapping</translation>
+    </message>
+    <message>
+        <source>LibreMapping</source>
+        <translation>LibreMapping</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>Texture mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapping texturé</translation>
     </message>
     <message>
         <source>Input shape</source>
-        <translation type="unfinished"></translation>
+        <translation>Forme en entrée</translation>
     </message>
     <message>
         <source>Output shape</source>
-        <translation type="unfinished"></translation>
+        <translation>Forme en sortie</translation>
     </message>
     <message>
         <source>Point %1</source>
@@ -193,7 +201,7 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>The file is not a libremapping version 1.0 file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ce fichier n&apos;est pas un projet LibreMapping version 1.0</translation>
     </message>
     <message>
         <source>%1
@@ -205,11 +213,11 @@ Line %2, column %3</source>
     <name>QtBoolEdit</name>
     <message>
         <source>True</source>
-        <translation type="unfinished"></translation>
+        <translation>vrai</translation>
     </message>
     <message>
         <source>False</source>
-        <translation type="unfinished"></translation>
+        <translation>faux</translation>
     </message>
 </context>
 <context>
@@ -227,7 +235,7 @@ Line %2, column %3</source>
     <name>QtCharEdit</name>
     <message>
         <source>Clear Char</source>
-        <translation type="unfinished"></translation>
+        <translation>Effacer le charactère</translation>
     </message>
 </context>
 <context>
@@ -241,19 +249,19 @@ Line %2, column %3</source>
     <name>QtColorPropertyManager</name>
     <message>
         <source>Red</source>
-        <translation type="unfinished"></translation>
+        <translation>Rouge</translation>
     </message>
     <message>
         <source>Green</source>
-        <translation type="unfinished"></translation>
+        <translation>Vert</translation>
     </message>
     <message>
         <source>Blue</source>
-        <translation type="unfinished"></translation>
+        <translation>Bleu</translation>
     </message>
     <message>
         <source>Alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Transparence</translation>
     </message>
 </context>
 <context>
