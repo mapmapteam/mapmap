@@ -61,11 +61,6 @@ uint MappingManager::addImage(const QString imagePath, int frameWidth, int frame
   return addPaint(Paint::ptr(img));
 }
 
-//bool MappingManager::removePaint(Paint::ptr paint)
-//{
-//
-//}
-
 uint MappingManager::addMapping(Mapping::ptr mapping)
 {
   // Make sure the paint to which this mapping refers to exists in the manager.
@@ -77,21 +72,13 @@ uint MappingManager::addMapping(Mapping::ptr mapping)
   return mapping->getId();
 }
 
-uint MappingManager::addLayer(Mapping::ptr mapping)
+std::vector<Mapping::ptr> MappingManager::getVisibleMappings() const
 {
-  addMapping(mapping);
-  Layer::ptr layer(new Layer);
-  layer->setMapping(mapping);
-  layerVector.push_back(layer);
-  layerMap[layer->getId()] = layer;
-  return layer->getId();
-}
+  std::vector<Mapping::ptr> visible;
 
-std::vector<Layer::ptr> MappingManager::getVisibleLayers() const
-{
-  std::vector<Layer::ptr> visible;
+  // First pass: check if one of the mappings is in solo mode.
   bool hasSolo = false;
-  for (std::vector<Layer::ptr>::const_iterator it = layerVector.begin(); it != layerVector.end(); ++it)
+  for (std::vector<Mapping::ptr>::const_iterator it = mappingVector.begin(); it != mappingVector.end(); ++it)
   {
     if ((*it)->isSolo())
     {
@@ -99,24 +86,26 @@ std::vector<Layer::ptr> MappingManager::getVisibleLayers() const
       break;
     }
   }
-  for (std::vector<Layer::ptr>::const_iterator it = layerVector.begin(); it != layerVector.end(); ++it)
+
+  // Second pass: fill the visible vector.
+  for (std::vector<Mapping::ptr>::const_iterator it = mappingVector.begin(); it != mappingVector.end(); ++it)
   {
     // Solo has priority over invisible (mute)
     if ( (hasSolo && (*it)->isSolo()) || (!hasSolo && (*it)->isVisible()) )
       visible.push_back(*it);
   }
+
   return visible;
 }
 
-void MappingManager::reorderLayers(std::vector<uint> layerIds)
+void MappingManager::reorderMappings(std::vector<uint> mappingIds)
 {
-  Q_ASSERT( layerIds.size() == layerVector.size() );
-  // TODO: do a better check than this...
-  layerVector.clear();
-  for (std::vector<uint>::iterator it = layerIds.begin(); it != layerIds.end(); ++it)
+  Q_ASSERT( mappingIds.size() == mappingVector.size() );
+  mappingVector.clear();
+  for (std::vector<uint>::iterator it = mappingIds.begin(); it != mappingIds.end(); ++it)
   {
-    Q_ASSERT( layerMap.find(*it) != layerMap.end() );
-    layerVector.push_back( layerMap[*it] );
+    Q_ASSERT( mappingMap.find(*it) != mappingMap.end() );
+    mappingVector.push_back( mappingMap[*it] );
   }
 }
 

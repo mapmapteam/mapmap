@@ -23,7 +23,6 @@
 
 #include "Paint.h"
 #include "Mapping.h"
-#include "Layer.h"
 #include "NameAllocator.h"
 
 /**
@@ -41,9 +40,6 @@ private:
   std::map<uint, Paint::ptr> paintMap;
   std::vector<Mapping::ptr> mappingVector;
   std::map<uint, Mapping::ptr> mappingMap;
-
-  std::vector<Layer::ptr> layerVector;
-  std::map<uint, Layer::ptr> layerMap;
 
   NameAllocator _nameAllocator;
 
@@ -66,13 +62,9 @@ public:
   Mapping::ptr getMapping(int i) { return mappingVector[i]; }
   Mapping::ptr getMappingById(uint id) { return mappingMap[id]; }
 
-  int nLayers() const { return layerVector.size(); }
-  uint addLayer(Mapping::ptr mapping);
-  Layer::ptr getLayer(int i) { return layerVector[i]; }
-  Layer::ptr getLayerById(uint id) { return layerMap[id]; }
-  void reorderLayers(std::vector<uint> layerIds);
+  void reorderMappings(std::vector<uint> mappingIds);
 
-  std::vector<Layer::ptr> getVisibleLayers() const;
+  std::vector<Mapping::ptr> getVisibleMappings() const;
 
   void clearProject();
 };

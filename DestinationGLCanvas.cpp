@@ -64,10 +64,10 @@ void DestinationGLCanvas::doDraw()
   glPushMatrix();
 
   MappingManager& mappingManager = MainWindow::getInstance().getMappingManager();
-  std::vector<Layer::ptr> layers = mappingManager.getVisibleLayers();
-  for (std::vector<Layer::ptr>::const_iterator it = layers.begin(); it != layers.end(); ++it)
+  std::vector<Mapping::ptr> mappings = mappingManager.getVisibleMappings();
+  for (std::vector<Mapping::ptr>::const_iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
-    Mapping::ptr mapping = (*it)->getMapping();
+    Mapping::ptr mapping = (*it);
 
     std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);

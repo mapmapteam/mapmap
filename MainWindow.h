@@ -67,10 +67,10 @@ private slots:
   void about();
   void updateStatusBar();
 
-  void handleSourceItemSelectionChanged();
-  void handleLayerItemSelectionChanged();
-  void handleLayerItemChanged(QListWidgetItem* item);
-  void handleLayerIndexesMoved();
+  void handlePaintItemSelectionChanged();
+  void handleMappingItemSelectionChanged();
+  void handleMappingItemChanged(QListWidgetItem* item);
+  void handleMappingIndexesMoved();
   void addMesh();
   void addTriangle();
 
@@ -93,7 +93,7 @@ private:
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
   bool importMediaFile(const QString &fileName);
-  void addLayerItem(uint layerId);
+  void addMappingItem(uint mappingId);
   void clearWindow();
   QString strippedName(const QString &fullFileName);
 
@@ -127,7 +127,7 @@ private:
   QAction *addTriangleAction;
 
   QListWidget* sourceList;
-  QListWidget* layerList;
+  QListWidget* mappingList;
   QStackedWidget* propertyPanel;
 
   SourceGLCanvas* sourceCanvas;
@@ -196,7 +196,7 @@ public:
   static const int SOURCE_LIST_ITEM_HEIGHT = 40;
   static const int SHAPE_LIST_ITEM_HEIGHT = 40;
   static const int SOURCE_LIST_MINIMUM_WIDTH = 100;
-  static const int LAYER_LIST_MINIMUM_WIDTH  = 300;
+  static const int MAPPING_LIST_MINIMUM_WIDTH  = 300;
   static const int PROPERTY_PANEL_MINIMUM_WIDTH  = 400;
   static const int CANVAS_MINIMUM_WIDTH  = 480;
   static const int CANVAS_MINIMUM_HEIGHT = 270;

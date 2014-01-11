@@ -85,13 +85,13 @@ void MainWindow::handleSourceItemSelectionChanged()
   //destinationCanvas->repaint();
 }
 
-void MainWindow::handleLayerItemSelectionChanged()
+void MainWindow::handleMappingItemSelectionChanged()
 {
   std::cout << "shape selection changed" << std::endl;
-  QListWidgetItem* item = layerList->currentItem();
+  QListWidgetItem* item = mappingList->currentItem();
   uint idx = item->data(Qt::UserRole).toUInt();
 
-  Mapping::ptr mapping = mappingManager->getLayerById(idx)->getMapping();
+  Mapping::ptr mapping = mappingManager->getMappingById(idx);
   setCurrentPaint(mapping->getPaint()->getId());
   setCurrentMapping(mapping->getId());
 
@@ -101,25 +101,25 @@ void MainWindow::handleLayerItemSelectionChanged()
   //destinationCanvas->repaint();
 }
 
-void MainWindow::handleLayerItemChanged(QListWidgetItem* item)
+void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
 {
-  uint layerId = item->data(Qt::UserRole).toUInt();
-  Layer::ptr layer = mappingManager->getLayerById(layerId);
-  layer->setVisible(item->checkState() == Qt::Checked);
+  uint mappingId = item->data(Qt::UserRole).toUInt();
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+  mapping->setVisible(item->checkState() == Qt::Checked);
   updateAll();
 }
 
-void MainWindow::handleLayerIndexesMoved()
+void MainWindow::handleMappingIndexesMoved()
 {
   qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1Moved!!!" << endl;
   std::vector<uint> newOrder;
-  for (int row=layerList->count()-1; row>=0; row--)
+  for (int row=mappingList->count()-1; row>=0; row--)
   {
-    uint layerId = layerList->item(row)->data(Qt::UserRole).toUInt();
+    uint layerId = mappingList->item(row)->data(Qt::UserRole).toUInt();
     newOrder.push_back(layerId);
   }
 
-  mappingManager->reorderLayers(newOrder);
+  mappingManager->reorderMappings(newOrder);
 
   updateAll();
 }
@@ -219,9 +219,8 @@ void MainWindow::addMesh()
 
   // Create texture mapping.
   Mapping::ptr mapping(new TextureMapping(paint, outputQuad, inputQuad));
-  uint layerId = mappingManager->addLayer(mapping);
-
-  addLayerItem(layerId);
+  uint mappingId = mappingManager->addMapping(mapping);
+  addMappingItem(mappingId);
 }
 
 void MainWindow::addTriangle()
@@ -243,9 +242,8 @@ void MainWindow::addTriangle()
 
   // Create texture mapping.
   Mapping::ptr mapping(new TextureMapping(paint, inputTriangle, outputTriangle));
-  uint layerId = mappingManager->addLayer(mapping);
-
-  addLayerItem(layerId);
+  uint mappingId = mappingManager->addMapping(mapping);
+  addMappingItem(mappingId);
 }
 
 void MainWindow::about()
@@ -293,13 +291,13 @@ void MainWindow::createLayout()
   sourceList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   sourceList->setMinimumWidth(SOURCE_LIST_MINIMUM_WIDTH);
 
-  layerList = new QListWidget;
-  layerList->setSelectionMode(QAbstractItemView::SingleSelection);
-  layerList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+  mappingList = new QListWidget;
+  mappingList->setSelectionMode(QAbstractItemView::SingleSelection);
+  mappingList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   //layerList->setDragDropMode(QAbstractItemView::DragDrop);
-  layerList->setDefaultDropAction(Qt::MoveAction);
-  layerList->setDragDropMode(QAbstractItemView::InternalMove);
-  layerList->setMinimumWidth(LAYER_LIST_MINIMUM_WIDTH);
+  mappingList->setDefaultDropAction(Qt::MoveAction);
+  mappingList->setDragDropMode(QAbstractItemView::InternalMove);
+  mappingList->setMinimumWidth(MAPPING_LIST_MINIMUM_WIDTH);
 
   propertyPanel = new QStackedWidget;
   propertyPanel->setDisabled(true);
@@ -327,7 +325,7 @@ void MainWindow::createLayout()
 
   resourceSplitter = new QSplitter(Qt::Horizontal);
   resourceSplitter->addWidget(sourceList);
-  resourceSplitter->addWidget(layerList);
+  resourceSplitter->addWidget(mappingList);
   resourceSplitter->addWidget(propertyPanel);
 
   canvasSplitter = new QSplitter(Qt::Horizontal);
@@ -368,14 +366,14 @@ void MainWindow::createLayout()
   connect(sourceList, SIGNAL(itemSelectionChanged()),
           this, SLOT(handleSourceItemSelectionChanged()));
 
-  connect(layerList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handleLayerItemSelectionChanged()));
+  connect(mappingList, SIGNAL(itemSelectionChanged()),
+          this, SLOT(handleMappingItemSelectionChanged()));
 
-  connect(layerList, SIGNAL(itemChanged(QListWidgetItem*)),
-          this, SLOT(handleLayerItemChanged(QListWidgetItem*)));
+  connect(mappingList, SIGNAL(itemChanged(QListWidgetItem*)),
+          this, SLOT(handleMappingItemChanged(QListWidgetItem*)));
 
-  connect(layerList->model(), SIGNAL(layoutChanged()),
-          this, SLOT(handleLayerIndexesMoved()));
+  connect(mappingList->model(), SIGNAL(layoutChanged()),
+          this, SLOT(handleMappingIndexesMoved()));
 
 
   //  sourceList->setModel(sourcesModel);
@@ -694,13 +692,10 @@ bool MainWindow::importMediaFile(const QString &fileName)
   return true;
 }
 
-void MainWindow::addLayerItem(uint layerId)
+void MainWindow::addMappingItem(uint mappingId)
 {
-  Layer::ptr layer = mappingManager->getLayerById(layerId);
-  Q_CHECK_PTR(layer);
-
-  Mapping::ptr mapping = layer->getMapping();
-  uint mappingId = mapping->getId();
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+  Q_CHECK_PTR(mapping);
 
   QString label;
   QIcon icon;
@@ -755,11 +750,11 @@ void MainWindow::addLayerItem(uint layerId)
   QListWidgetItem* item = new QListWidgetItem(label);
   item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
   item->setCheckState(Qt::Checked);
-  item->setData(Qt::UserRole, layerId); // TODO: could possibly be replaced by a Paint pointer
+  item->setData(Qt::UserRole, mappingId); // TODO: could possibly be replaced by a Paint pointer
   item->setIcon(icon);
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
-  layerList->insertItem(0, item);
-  layerList->setCurrentItem(item);
+  mappingList->insertItem(0, item);
+  mappingList->setCurrentItem(item);
 }
 
 void MainWindow::clearWindow()
