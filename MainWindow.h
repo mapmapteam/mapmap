@@ -40,7 +40,7 @@
 #define LIBREMAPPING_VERSION "0.1"
 
 // Forward declaration:
-class Facade;
+//class Facade;
 
 class MainWindow: public QMainWindow
 {
@@ -58,7 +58,8 @@ protected:
   void closeEvent(QCloseEvent *event);
 
 private slots:
-  // Slots.
+
+  // Menu.
   void newFile();
   void open();
   bool save();
@@ -67,6 +68,14 @@ private slots:
   void about();
   void updateStatusBar();
 
+  // CRUD.
+
+  /**
+   * Create an image paint.
+   */
+  uid createImagePaint(uid paintId, QString uri, float x, float y);
+
+  // Widget callbacks.
   void handlePaintItemSelectionChanged();
   void handleMappingItemSelectionChanged();
   void handleMappingItemChanged(QListWidgetItem* item);
@@ -149,7 +158,7 @@ private:
 private:
   // Model.
   MappingManager* mappingManager;
-  Facade* _facade;
+  //Facade* _facade;
 
   // View.
   uint currentPaintId;

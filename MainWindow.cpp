@@ -29,7 +29,7 @@ MainWindow* MainWindow::instance = 0;
 MainWindow::MainWindow()
 {
   mappingManager = new MappingManager;
-  _facade = new Facade(mappingManager, this);
+ // _facade = new Facade(mappingManager, this);
 
   currentPaintId = 0;
   currentMappingId = 0;
@@ -66,14 +66,14 @@ void MainWindow::setInstance(MainWindow* inst)
 MainWindow::~MainWindow()
 {
   delete mappingManager;
-  delete _facade;
+//  delete _facade;
 }
 
 void MainWindow::handlePaintItemSelectionChanged()
 {
   std::cout << "selection changed" << std::endl;
   QListWidgetItem* item = paintList->currentItem();
-  uint idx = item->data(Qt::UserRole).toUInt();
+  uid idx = item->data(Qt::UserRole).toInt();
   std::cout << "idx=" << idx << std::endl;
   setCurrentPaint(idx);
   removeCurrentMapping();
@@ -89,7 +89,7 @@ void MainWindow::handleMappingItemSelectionChanged()
 {
   std::cout << "shape selection changed" << std::endl;
   QListWidgetItem* item = mappingList->currentItem();
-  uint idx = item->data(Qt::UserRole).toUInt();
+  uid idx = item->data(Qt::UserRole).toInt();
 
   Mapping::ptr mapping = mappingManager->getMappingById(idx);
   setCurrentPaint(mapping->getPaint()->getId());
@@ -103,7 +103,7 @@ void MainWindow::handleMappingItemSelectionChanged()
 
 void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
 {
-  uint mappingId = item->data(Qt::UserRole).toUInt();
+  uid mappingId = item->data(Qt::UserRole).toInt();
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
   mapping->setVisible(item->checkState() == Qt::Checked);
   updateAll();
@@ -112,10 +112,10 @@ void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
 void MainWindow::handleMappingIndexesMoved()
 {
   qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1Moved!!!" << endl;
-  std::vector<uint> newOrder;
+  std::vector<uid> newOrder;
   for (int row=mappingList->count()-1; row>=0; row--)
   {
-    uint layerId = mappingList->item(row)->data(Qt::UserRole).toUInt();
+    uid layerId = mappingList->item(row)->data(Qt::UserRole).toInt();
     newOrder.push_back(layerId);
   }
 
@@ -275,6 +275,28 @@ void MainWindow::updateStatusBar()
   // TODO
 //  locationLabel->setText(spreadsheet->currentLocation());
 //  formulaLabel->setText(spreadsheet->currentFormula());
+}
+
+/**
+ * Create an image paint.
+ */
+uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
+{
+  // Cannot create image with already existing id.
+  if (Paint::getUidAllocator().exists(paintId))
+    return NULL_UID;
+
+  else
+  {
+    Image* img = new Image(uri, paintId);
+
+    // Create new image with corresponding ID.
+    img->setPosition(x, y);
+
+    // Add it to the manager.
+    Paint::ptr paint(img);
+    return mappingManager->addPaint(paint);
+  }
 }
 
 void MainWindow::windowModified()
@@ -673,7 +695,14 @@ bool MainWindow::importMediaFile(const QString &fileName)
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   // Add image to model.
-  uint imageId = mappingManager->addImage(fileName, sourceCanvas->width(), sourceCanvas->height());
+  uint imageId = createImagePaint(NULL_UID, fileName, 0, 0);
+
+  // Initialize position (center).
+  std::tr1::shared_ptr<Image> image = std::tr1::static_pointer_cast<Image>(mappingManager->getPaintById(imageId));
+  Q_CHECK_PTR(image);
+
+  image->setPosition((sourceCanvas->width()  - image->getWidth() ) / 2.0f,
+                     (sourceCanvas->height() - image->getHeight()) / 2.0f );
 
   // Add image to paintList widget.
   QListWidgetItem* item = new QListWidgetItem(strippedName(fileName));
