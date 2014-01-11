@@ -126,7 +126,7 @@ private:
   QAction *addQuadAction;
   QAction *addTriangleAction;
 
-  QListWidget* sourceList;
+  QListWidget* paintList;
   QListWidget* mappingList;
   QStackedWidget* propertyPanel;
 
@@ -193,9 +193,9 @@ public:
   // Constants.
   static const int DEFAULT_WIDTH = 1600;
   static const int DEFAULT_HEIGHT = 800;
-  static const int SOURCE_LIST_ITEM_HEIGHT = 40;
+  static const int PAINT_LIST_ITEM_HEIGHT = 40;
   static const int SHAPE_LIST_ITEM_HEIGHT = 40;
-  static const int SOURCE_LIST_MINIMUM_WIDTH = 100;
+  static const int PAINT_LIST_MINIMUM_WIDTH = 100;
   static const int MAPPING_LIST_MINIMUM_WIDTH  = 300;
   static const int PROPERTY_PANEL_MINIMUM_WIDTH  = 400;
   static const int CANVAS_MINIMUM_WIDTH  = 480;

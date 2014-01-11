@@ -69,10 +69,10 @@ MainWindow::~MainWindow()
   delete _facade;
 }
 
-void MainWindow::handleSourceItemSelectionChanged()
+void MainWindow::handlePaintItemSelectionChanged()
 {
   std::cout << "selection changed" << std::endl;
-  QListWidgetItem* item = sourceList->currentItem();
+  QListWidgetItem* item = paintList->currentItem();
   uint idx = item->data(Qt::UserRole).toUInt();
   std::cout << "idx=" << idx << std::endl;
   setCurrentPaint(idx);
@@ -286,10 +286,10 @@ void MainWindow::windowModified()
 
 void MainWindow::createLayout()
 {
-  sourceList = new QListWidget;
-  sourceList->setSelectionMode(QAbstractItemView::SingleSelection);
-  sourceList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-  sourceList->setMinimumWidth(SOURCE_LIST_MINIMUM_WIDTH);
+  paintList = new QListWidget;
+  paintList->setSelectionMode(QAbstractItemView::SingleSelection);
+  paintList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+  paintList->setMinimumWidth(PAINT_LIST_MINIMUM_WIDTH);
 
   mappingList = new QListWidget;
   mappingList->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -324,7 +324,7 @@ void MainWindow::createLayout()
   mainSplitter = new QSplitter(Qt::Vertical);
 
   resourceSplitter = new QSplitter(Qt::Horizontal);
-  resourceSplitter->addWidget(sourceList);
+  resourceSplitter->addWidget(paintList);
   resourceSplitter->addWidget(mappingList);
   resourceSplitter->addWidget(propertyPanel);
 
@@ -363,8 +363,8 @@ void MainWindow::createLayout()
 //    sourceList->addItem(item);
 //  }
 
-  connect(sourceList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handleSourceItemSelectionChanged()));
+  connect(paintList, SIGNAL(itemSelectionChanged()),
+          this, SLOT(handlePaintItemSelectionChanged()));
 
   connect(mappingList, SIGNAL(itemSelectionChanged()),
           this, SLOT(handleMappingItemSelectionChanged()));
@@ -676,13 +676,13 @@ bool MainWindow::importMediaFile(const QString &fileName)
   // Add image to model.
   uint imageId = mappingManager->addImage(fileName, sourceCanvas->width(), sourceCanvas->height());
 
-  // Add image to sourceList widget.
+  // Add image to paintList widget.
   QListWidgetItem* item = new QListWidgetItem(strippedName(fileName));
   item->setData(Qt::UserRole, imageId); // TODO: could possibly be replaced by a Paint pointer
   item->setIcon(QIcon(fileName));
-  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SOURCE_LIST_ITEM_HEIGHT));
-  sourceList->addItem(item);
-  sourceList->setCurrentItem(item);
+  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
+  paintList->addItem(item);
+  paintList->setCurrentItem(item);
 
 //  update();
 
