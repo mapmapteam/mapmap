@@ -28,11 +28,16 @@
 #include "Paint.h"
 
 /**
- * One object in the scene that is a shape with some paint on it.
+ * Mapping is the central concept of Libremapping.
  *
- * A Mapping is an area of the rendering window that is drawn with
- * either some texture, or any special effect that might animate a
- * polygon or a line.
+ * A Mapping represents a relationship between an input Paint and
+ * and output Shape where the paint (possibly modified by some other
+ * attributes or an input Shape in the case of TextureMapping) is
+ * projected on the output shape.
+ *
+ * Mapping instances are stacked as layers by the MappingManager. One
+ * can thus change their opacity level, toggle their visibility, set
+ * them in "solo" mode and lock them.
  */
 class Mapping
 {
