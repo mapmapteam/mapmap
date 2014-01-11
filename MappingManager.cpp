@@ -27,9 +27,9 @@ MappingManager::MappingManager()
 
 }
 
-std::map<uint, Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr paint) const
+std::map<uid, Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr paint) const
 {
-  std::map<uint, Mapping::ptr> paintMappings;
+  std::map<uid, Mapping::ptr> paintMappings;
   for (std::vector<Mapping::ptr>::const_iterator it = mappingVector.begin(); it != mappingVector.end(); ++it)
   {
     if ((*it)->getPaint() == paint)
@@ -38,30 +38,19 @@ std::map<uint, Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr p
   return paintMappings;
 }
 
-std::map<uint, Mapping::ptr> MappingManager::getPaintMappingsById(uint paintId) const
+std::map<uid, Mapping::ptr> MappingManager::getPaintMappingsById(uid paintId) const
 {
   return getPaintMappings( paintMap.at(paintId) );
 }
 
-uint MappingManager::addPaint(Paint::ptr paint)
+uid MappingManager::addPaint(Paint::ptr paint )
 {
   paintVector.push_back(paint);
   paintMap[paint->getId()] = paint;
   return paint->getId();
 }
 
-uint MappingManager::addImage(const QString imagePath, int frameWidth, int frameHeight)
-{
-  std::string name = _nameAllocator.allocateName("image_");
-  Image* img = new Image(name.c_str(), imagePath);
-
-  img->setPosition( (frameWidth  - img->getWidth() ) / 2.0f,
-                    (frameHeight - img->getHeight()) / 2.0f );
-
-  return addPaint(Paint::ptr(img));
-}
-
-uint MappingManager::addMapping(Mapping::ptr mapping)
+uid MappingManager::addMapping(Mapping::ptr mapping)
 {
   // Make sure the paint to which this mapping refers to exists in the manager.
   Q_ASSERT (std::find(paintVector.begin(), paintVector.end(), mapping->getPaint()) != paintVector.end());
@@ -98,11 +87,11 @@ std::vector<Mapping::ptr> MappingManager::getVisibleMappings() const
   return visible;
 }
 
-void MappingManager::reorderMappings(std::vector<uint> mappingIds)
+void MappingManager::reorderMappings(std::vector<uid> mappingIds)
 {
   Q_ASSERT( mappingIds.size() == mappingVector.size() );
   mappingVector.clear();
-  for (std::vector<uint>::iterator it = mappingIds.begin(); it != mappingIds.end(); ++it)
+  for (std::vector<uid>::iterator it = mappingIds.begin(); it != mappingIds.end(); ++it)
   {
     Q_ASSERT( mappingMap.find(*it) != mappingMap.end() );
     mappingVector.push_back( mappingMap[*it] );

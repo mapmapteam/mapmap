@@ -1,7 +1,8 @@
 /*
- * SourceGLCanvas.h
+ * Mapping.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,30 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOURCEGLCANVAS_H_
-#define SOURCEGLCANVAS_H_
+#include "Mapping.h"
 
-#include <QGLWidget>
+UidAllocator Mapping::allocator;
 
-#include "MapperGLCanvas.h"
-#include "DestinationGLCanvas.h"
-
-#include "Util.h"
-
-class SourceGLCanvas: public MapperGLCanvas
+Mapping::Mapping(Paint::ptr paint, Shape::ptr shape, uid id)
+  : _paint(paint), _shape(shape),
+    _isLocked(false), _isSolo(false), _isVisible(true), _opacity(1.0f)
 {
-  Q_OBJECT
+  if (id == NULL_UID)
+    id = allocator.allocate();
+  else
+  {
+    Q_ASSERT(!allocator.exists(id));
+    allocator.reserve(id);
+  }
 
-public:
-  SourceGLCanvas(QWidget* parent = 0);
-//  virtual ~SourceGLCanvas() {}
+  // Assign id.
+  _id = id;
+}
 
-  virtual Shape* getShapeFromMappingId(uid mappingId);
-//  virtual Quad& getQuad();
+Mapping::~Mapping() {
+  allocator.free(_id);
+}
 
-private:
-  virtual void doDraw();
-};
-
-
-#endif /* DESTINATIONGLCANVAS_H_ */

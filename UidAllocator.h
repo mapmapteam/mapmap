@@ -1,7 +1,8 @@
 /*
- * SourceGLCanvas.h
+ * UidAllocator.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,30 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOURCEGLCANVAS_H_
-#define SOURCEGLCANVAS_H_
+/**
+ * The UidAllocator class.
+ */
 
-#include <QGLWidget>
+#ifndef __UID_ALLOCATOR_H__
+#define __UID_ALLOCATOR_H__
 
-#include "MapperGLCanvas.h"
-#include "DestinationGLCanvas.h"
+#include <string>
+#include <vector>
 
-#include "Util.h"
+/// A UID in Libremapping is represented as a integer.
+typedef int uid;
 
-class SourceGLCanvas: public MapperGLCanvas
+/// Represents a UID that does not refer to any entity.
+#define NULL_UID (-1)
+
+/**
+ * Allocates uids for instances by appending an incremental number to a given string.
+ * Manages a pool of unique names.
+ */
+class UidAllocator
 {
-  Q_OBJECT
-
 public:
-  SourceGLCanvas(QWidget* parent = 0);
-//  virtual ~SourceGLCanvas() {}
-
-  virtual Shape* getShapeFromMappingId(uid mappingId);
-//  virtual Quad& getQuad();
+  uid allocate();
+  bool free(uid id);
+  bool reserve(uid id);
+  bool exists(uid id) const;
+  std::vector<uid> list() const { return _ids; }
 
 private:
-  virtual void doDraw();
+  std::vector<uid> _ids;
 };
 
-
-#endif /* DESTINATIONGLCANVAS_H_ */
+#endif // ifndef

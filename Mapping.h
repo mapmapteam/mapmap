@@ -2,6 +2,7 @@
  * Mapping.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +28,8 @@
 #include "Shape.h"
 #include "Paint.h"
 
+#include "UidAllocator.h"
+
 /**
  * Mapping is the central concept of Libremapping.
  *
@@ -49,21 +52,24 @@ protected:
   Shape::ptr _shape;
 
 private:
-  uint       _id;
+  static UidAllocator allocator;
+
+  uid _id;
+
   bool _isLocked;
   bool _isSolo;
   bool _isVisible;
   float _opacity;
 
+protected:
+  Mapping(Paint::ptr paint, Shape::ptr shape, uid id=NULL_UID);
+
 public:
   typedef std::tr1::shared_ptr<Mapping> ptr;
-  Mapping(Paint::ptr paint, Shape::ptr shape)
-    : _paint(paint), _shape(shape), _isLocked(false), _isSolo(false), _isVisible(true), _opacity(1.0f)
-  {
-    static uint id = 0;
-    _id = id++;
-  }
-  virtual ~Mapping() {}
+
+  virtual ~Mapping();
+
+  static const UidAllocator& getUidAllocator() { return allocator; }
 
   virtual void build() {
     _paint->build();
@@ -73,7 +79,7 @@ public:
   Paint::ptr getPaint() const { return _paint; }
   Shape::ptr getShape() const { return _shape; }
 
-  uint getId() const { return _id; }
+  uid getId() const { return _id; }
 
   void setLocked(bool locked)    { _isLocked = locked; }
   void setSolo(bool solo)        { _isSolo = solo; }
@@ -114,6 +120,7 @@ public:
     Mapping::build();
     _inputShape->build();
   }
+
 public:
   Shape::ptr getInputShape() const { return _inputShape; }
 };

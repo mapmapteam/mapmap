@@ -28,7 +28,7 @@ SourceGLCanvas::SourceGLCanvas(QWidget* parent)
 {
 }
 
-Shape* SourceGLCanvas::getShapeFromMappingId(int mappingId)
+Shape* SourceGLCanvas::getShapeFromMappingId(uid mappingId)
 {
   if (mappingId >= 0)
   {
@@ -124,9 +124,9 @@ void SourceGLCanvas::doDraw()
   glDisable(GL_TEXTURE_2D);
 
   // Retrieve all mappings associated to paint.
-  std::map<uint, Mapping::ptr> mappings = MainWindow::getInstance().getMappingManager().getPaintMappingsById(paintId);
+  std::map<uid, Mapping::ptr> mappings = MainWindow::getInstance().getMappingManager().getPaintMappingsById(paintId);
 
-  for (std::map<uint, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
+  for (std::map<uid, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
     // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
     // Il faut changer ca.

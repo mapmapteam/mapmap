@@ -23,7 +23,6 @@
 
 #include "Paint.h"
 #include "Mapping.h"
-#include "NameAllocator.h"
 
 /**
  * This is a container class for all the paints and mappings. It is on the model
@@ -37,32 +36,30 @@ public:
 private:
   // Model.
   std::vector<Paint::ptr> paintVector;
-  std::map<uint, Paint::ptr> paintMap;
+  std::map<uid, Paint::ptr> paintMap;
   std::vector<Mapping::ptr> mappingVector;
-  std::map<uint, Mapping::ptr> mappingMap;
-
-  NameAllocator _nameAllocator;
+  std::map<uid, Mapping::ptr> mappingMap;
 
 public:
   /// Returns the list of mappings associated with given paint.
-  std::map<uint, Mapping::ptr> getPaintMappings(const Paint::ptr paint) const;
-  std::map<uint, Mapping::ptr> getPaintMappingsById(uint paintId) const;
+  std::map<uid, Mapping::ptr> getPaintMappings(const Paint::ptr paint) const;
+  std::map<uid, Mapping::ptr> getPaintMappingsById(uid paintId) const;
 
-  uint addPaint(Paint::ptr paint);
+  uid addPaint(Paint::ptr paint);
 //  bool removePaint(Paint::ptr paint);
   int nPaints() const { return paintVector.size(); }
   Paint::ptr getPaint(int i) { return paintVector[i]; }
-  Paint::ptr getPaintById(uint id) { return paintMap[id]; }
+  Paint::ptr getPaintById(uid id) { return paintMap[id]; }
 
-  uint addImage(const QString imagePath, int frameWidth, int frameHeight);
+  uid addImage(const QString imagePath, int frameWidth, int frameHeight);
 
-  uint addMapping(Mapping::ptr mapping);
+  uid addMapping(Mapping::ptr mapping);
 //  bool removeMapping(Mapping::ptr mapping);
   int nMappings() const { return mappingVector.size(); }
   Mapping::ptr getMapping(int i) { return mappingVector[i]; }
-  Mapping::ptr getMappingById(uint id) { return mappingMap[id]; }
+  Mapping::ptr getMappingById(uid id) { return mappingMap[id]; }
 
-  void reorderMappings(std::vector<uint> mappingIds);
+  void reorderMappings(std::vector<uid> mappingIds);
 
   std::vector<Mapping::ptr> getVisibleMappings() const;
 

@@ -1,5 +1,5 @@
 /*
- * NameAllocator.cpp
+ * Paint.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -18,30 +18,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * The NameAllocator class.
- */
+#include "Paint.h"
 
-#ifndef __NAME_ALLOCATOR_H__
-#define __NAME_ALLOCATOR_H__
+UidAllocator Paint::allocator;
 
-#include <string>
-#include <vector>
-
-/**
- * Allocates names for instances by appending an incremental number to a given string.
- * Manages a pool of unique names.
- */
-class NameAllocator 
+Paint::Paint(uid id)
 {
-    public:
-        std::string allocateName(const char *prefix);
-        bool freeName(const char *name);
-        bool hasName(const char *name);
-        std::vector<std::string> listNames() const;
-    private:
-        std::vector<std::string> names_;
-};
+  if (id == NULL_UID)
+    id = allocator.allocate();
+  else
+  {
+    Q_ASSERT(!allocator.exists(id));
+    allocator.reserve(id);
+  }
+  // Assign id.
+  _id = id;
+}
 
-#endif // ifndef
+Paint::~Paint()
+{
+  allocator.free(_id);
+}
 

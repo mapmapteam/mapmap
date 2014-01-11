@@ -2,33 +2,37 @@ CONFIG  += qt debug
 TEMPLATE = app
 HEADERS  = \
     DestinationGLCanvas.h \
-    Facade.h \
+#    Facade.h \
     MainWindow.h \
     Mapper.h \
     MapperGLCanvas.h \
     Mapping.h \
     MappingManager.h \
-    NameAllocator.h \
+#    NameAllocator.h \
     Paint.h \
     ProjectReader.h \
     ProjectWriter.h \
     Shape.h \
     SourceGLCanvas.h \
+    UidAllocator.h \
     Util.h
 
 SOURCES  = \
-    Controller.cpp \
+#    Controller.cpp \
     DestinationGLCanvas.cpp \
-    Facade.cpp \
+#    Facade.cpp \
     MainWindow.cpp \
     Mapper.cpp \
     MapperGLCanvas.cpp \
+    Mapping.cpp \
     MappingManager.cpp \
-    NameAllocator.cpp \
+#    NameAllocator.cpp \
+    Paint.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
     Shape.cpp \
     SourceGLCanvas.cpp \
+    UidAllocator.cpp \
     Util.cpp \
     main.cpp
 

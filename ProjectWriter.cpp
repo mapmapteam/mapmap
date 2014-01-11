@@ -59,7 +59,7 @@ void ProjectWriter::writeItem(Paint *item)
   // FIXME: check paint type before casting to Image
   Image *image = (Image *) item;
 
-  _xml.writeTextElement("uri", image->getImagePath());
+  _xml.writeTextElement("uri", image->getUri());
   {
     std::ostringstream os;
     os << image->getWidth();

@@ -34,6 +34,8 @@
 
 #include <tr1/memory>
 
+#include "UidAllocator.h"
+
 /**
  * A Paint is a style that can be applied when drawing potentially any shape.
  * 
@@ -44,23 +46,28 @@
 class Paint
 {
 private:
-  uint _id;
+  static UidAllocator allocator;
+
+  uid _id;
+
 protected:
-  Paint(const char * name) : _name(name) 
-  {
-    static uint id = 0;
-    _id = id++;
-  }
+  Paint(uid id=NULL_UID);
 
 public:
   typedef std::tr1::shared_ptr<Paint> ptr;
-  virtual ~Paint() {}
+
+  virtual ~Paint();
+
+  static const UidAllocator& getUidAllocator() { return allocator; }
+
   virtual void build() {}
-  void setName(const char *name) { _name = name; }
-  const char *getName() const { return _name.c_str(); }
-  uint getId() const { return _id; }
+
+  void setName(const QString& name) { _name = name; }
+  QString getName() const { return _name; }
+  uid getId() const { return _id; }
+
 private:
-  std::string _name;
+  QString _name;
 };
 
 /**
@@ -75,15 +82,23 @@ protected:
   GLfloat x;
   GLfloat y;
 
-  Texture(const char * name, GLuint textureId_=0) :
-    Paint(name),
-    textureId(textureId_), x(-1), y(-1)
+  Texture(uid id=NULL_UID) :
+    Paint(id),
+    textureId(0),
+    x(0),
+    y(0)
   {}
-  virtual ~Texture() {}
+  virtual ~Texture() {
+    if (textureId != 0)
+      glDeleteTextures(1, &textureId);
+  }
 
 public:
   GLuint getTextureId() const { return textureId; }
-  virtual void loadTexture() = 0;
+  virtual void loadTexture() {
+    if (textureId == 0)
+      glGenTextures(1, &textureId);
+  }
   virtual int getWidth() const = 0;
   virtual int getHeight() const = 0;
   virtual const uchar* getBits() const = 0;
@@ -102,34 +117,20 @@ public:
 class Image : public Texture
 {
 protected:
-  QString imagePath;
+  QString uri;
   QImage image;
 
 public:
-  Image(const char * name, const QString imagePath_) :
-    Texture(name),
-    imagePath(imagePath_)
+  Image(const QString uri_, uid id=NULL_UID) :
+    Texture(id),
+    uri(uri_)
   {
-    image = QGLWidget::convertToGLFormat(QImage(imagePath));
+    image = QGLWidget::convertToGLFormat(QImage(uri));
   }
 
-  // TODO:
-  // void setImagePath(const char *uri);
+  virtual ~Image() {}
 
-  virtual ~Image()
-  {
-  }
-
-  virtual void loadTexture()
-  {
-    if (textureId == 0)
-    {
-      glGenTextures(1, &textureId);
-    }
-    // TODO: free data?
-  }
-
-  const QString getImagePath() const { return imagePath; }
+  const QString getUri() const { return uri; }
 
   virtual void build() {
   }
