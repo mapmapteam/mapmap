@@ -160,7 +160,7 @@ void MainWindow::open()
   if (okToContinue())
   {
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Open mapping"), ".", tr("Libremapping files (*.lmp)"));
+        tr("Open project"), ".", tr("LibreMapping files (*.lmp)"));
     if (!fileName.isEmpty())
       loadFile(fileName);
   }
@@ -180,7 +180,7 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
-  QString fileName = QFileDialog::getSaveFileName(this, tr("Save mapping project"),
+  QString fileName = QFileDialog::getSaveFileName(this, tr("Save project"),
       ".", tr("LibreMapping files (*.lmp)"));
   if (fileName.isEmpty())
     return false;
@@ -193,7 +193,7 @@ void MainWindow::import()
   if (okToContinue())
   {
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Import resource"), ".");
+        tr("Import media source file"), ".");
     if (!fileName.isEmpty())
       importMediaFile(fileName);
   }
@@ -255,8 +255,7 @@ void MainWindow::about()
           "<p>Copyright &copy; 2013 Sofian Audry"
           "<p>Copyright &copy; 2013 Alexandre Quessy"
           "<p>Copyright &copy; 2013 Vasilis Liaskovitis"
-          "<p>Copyright &copy; 2013 Sylvain Cormier"
-          "<p>Libremapping is a free software for video mapping. "
+          "<p>LibreMapping is a free software for video mapping. "
           "<p>Projection mapping, also known as video mapping and spatial augmented reality, "
           "is a projection technology used to turn objects, often irregularly shaped, into "
           "a display surface for video projection. These objects may be complex industrial "
@@ -345,7 +344,7 @@ void MainWindow::createLayout()
   // Upon resizing window, give some extra stretch expansion to canvasSplitter.
   //mainSplitter->setStretchFactor(0, 1);
 
-  setWindowTitle(tr("Libremapping"));
+  setWindowTitle(tr("LibreMapping"));
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
   setCentralWidget(mainSplitter);
 
@@ -388,30 +387,30 @@ void MainWindow::createActions()
   newAction = new QAction(tr("&New"), this);
   newAction->setIcon(QIcon(":/images/document-new-4.png"));
   newAction->setShortcut(QKeySequence::New);
-  newAction->setStatusTip(tr("Create a new mapping file"));
+  newAction->setStatusTip(tr("Create a new project"));
   connect(newAction, SIGNAL(triggered()), this, SLOT(newFile()));
 
   openAction = new QAction(tr("&Open..."), this);
   openAction->setIcon(QIcon(":/images/document-open-3.png"));
   openAction->setShortcut(QKeySequence::Open);
-  openAction->setStatusTip(tr("Open an existing mapping file"));
+  openAction->setStatusTip(tr("Open an existing project"));
   connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
   saveAction = new QAction(tr("&Save"), this);
   saveAction->setIcon(QIcon(":/images/document-save-2.png"));
   saveAction->setShortcut(QKeySequence::Save);
-  saveAction->setStatusTip(tr("Save the mapping to disk"));
+  saveAction->setStatusTip(tr("Save the project"));
   connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
 
   saveAsAction = new QAction(tr("Save &As..."), this);
   saveAsAction->setIcon(QIcon(":/images/document-save-as-2.png"));
-  saveAsAction->setStatusTip(tr("Save the mapping under a new name"));
+  saveAsAction->setStatusTip(tr("Save the project as..."));
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-  importAction = new QAction(tr("&Import media source..."), this);
+  importAction = new QAction(tr("&Import media source file..."), this);
   importAction->setIcon(QIcon(":/images/document-import-2.png"));
   importAction->setShortcut(QKeySequence::Open);
-  importAction->setStatusTip(tr("Import a media source file"));
+  importAction->setStatusTip(tr("Import a media source file..."));
   connect(importAction, SIGNAL(triggered()), this, SLOT(import()));
 
   exitAction = new QAction(tr("E&xit"), this);
@@ -572,7 +571,7 @@ bool MainWindow::okToContinue()
 {
   if (isWindowModified())
   {
-    int r = QMessageBox::warning(this, tr("Libremapping"),
+    int r = QMessageBox::warning(this, tr("LibreMapping"),
         tr("The document has been modified.\n"
             "Do you want to save your changes?"),
         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);

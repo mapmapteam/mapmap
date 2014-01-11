@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <QApplication>
+#include <QTranslator>
 #include <QtGui>
 #include "Common.h"
 #include "MainWindow.h"
@@ -18,8 +19,15 @@ int main(int argc, char *argv[])
     std::cerr << "This system has no OpenGL support" << std::endl;
     return 1;
   }
+
+  QTranslator translator;
+  translator.load("libremapping_fr");
+  app.installTranslator(&translator);
+
   MainWindow win;
   MainWindow::setInstance(&win);
+
+  //win.setLocale(QLocale("fr"));
 
   win.show();
 

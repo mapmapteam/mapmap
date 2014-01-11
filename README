@@ -38,4 +38,15 @@ Contributors
 * Mike Latona
 * Maxime Damecourt
 * Christian Ambaud
+* Sylvain Cormier
+
+To edit translations
+--------------------
+You might need to update the files::
+  
+  lupdate libremapping.pro 
+
+Then, do this::
+  
+  linguist libremapping_fr.ts
 
