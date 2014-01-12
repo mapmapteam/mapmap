@@ -66,6 +66,8 @@ public:
   QString getName() const { return _name; }
   uid getId() const { return _id; }
 
+  virtual QString getType() const = 0;
+
 private:
   QString _name;
 };
@@ -134,6 +136,8 @@ public:
 
   virtual void build() {
   }
+
+  virtual QString getType() const { return "image"; }
 
   virtual int getWidth() const { return image.width(); }
   virtual int getHeight() const { return image.height(); }

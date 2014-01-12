@@ -53,27 +53,33 @@ bool ProjectWriter::writeFile(QIODevice *device)
 void ProjectWriter::writeItem(Paint *item)
 {
   _xml.writeStartElement("paint");
+  _xml.writeAttribute("id", QString::number(item->getId()));
   _xml.writeAttribute("name", item->getName());
-  _xml.writeAttribute("type", "image");
+  _xml.writeAttribute("type", item->getType());
 
-  // FIXME: check paint type before casting to Image
-  Image *image = (Image *) item;
-
-  _xml.writeTextElement("uri", image->getUri());
+  if (item->getType() == "image")
   {
-    std::ostringstream os;
-    os << image->getWidth();
-    _xml.writeTextElement("width", os.str().c_str());
-  }
+    // FIXME: check paint type before casting to Image
+    Image *image = (Image *) item;
 
-  {
-    std::ostringstream os;
-    os << image->getHeight();
-    _xml.writeTextElement("height", os.str().c_str());
-  }
+    _xml.writeTextElement("uri", image->getUri());
+    {
+      std::ostringstream os;
+      os << image->getX();
+      _xml.writeTextElement("x", os.str().c_str());
+    }
 
-  _xml.writeEndElement();
-  //_xml.writeEmptyElement("hello");
+    {
+      std::ostringstream os;
+      os << image->getY();
+      _xml.writeTextElement("y", os.str().c_str());
+    }
+
+    _xml.writeEndElement();
+    //_xml.writeEmptyElement("hello");
+  }
+  else
+    qDebug() << "Unknown type, cannot save: " << item->getType() << endl;
 }
 
 void ProjectWriter::writeShapeVertices(Shape *shape)
@@ -82,16 +88,8 @@ void ProjectWriter::writeShapeVertices(Shape *shape)
   {
     Point *point = shape->getVertex(i);
     _xml.writeStartElement("vertex");
-    {
-      std::ostringstream os;
-      os << point->x();
-      _xml.writeAttribute("x", os.str().c_str());
-    }
-    {
-      std::ostringstream os;
-      os << point->y();
-      _xml.writeAttribute("y", os.str().c_str());
-    }
+    _xml.writeAttribute("x", QString::number(point->x()));
+    _xml.writeAttribute("y", QString::number(point->y()));
     _xml.writeEndElement(); // vertex
   }
 }
@@ -99,11 +97,14 @@ void ProjectWriter::writeShapeVertices(Shape *shape)
 void ProjectWriter::writeItem(Mapping *item)
 {
   _xml.writeStartElement("mapping");
-  _xml.writeAttribute("paint_id", item->getPaint()->getName());
+  qDebug() << "ID: " << item->getId() << endl;
+  _xml.writeAttribute("id", QString::number(item->getId()));
+  _xml.writeAttribute("paint_id", QString::number(item->getPaint()->getId()));
+  _xml.writeAttribute("type", item->getType());
 
   Shape *shape = item->getShape().get();
   _xml.writeStartElement("destination");
-  _xml.writeAttribute("shape", shape->getShapeType());
+  _xml.writeAttribute("shape", shape->getType());
   writeShapeVertices(shape);
   _xml.writeEndElement(); // shape
 
@@ -111,7 +112,7 @@ void ProjectWriter::writeItem(Mapping *item)
   TextureMapping *tex = (TextureMapping *) item;
   shape = tex->getInputShape().get();
   _xml.writeStartElement("source");
-  _xml.writeAttribute("shape", shape->getShapeType());
+  _xml.writeAttribute("shape", shape->getType());
   writeShapeVertices(shape);
   _xml.writeEndElement(); // shape
 

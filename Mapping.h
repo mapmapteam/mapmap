@@ -76,6 +76,8 @@ public:
     _shape->build();
   }
 
+  virtual QString getType() const = 0;
+
   Paint::ptr getPaint() const { return _paint; }
   Shape::ptr getShape() const { return _shape; }
 
@@ -111,14 +113,21 @@ private:
 public:
   TextureMapping(Paint::ptr paint,
                  Shape::ptr shape,
-                 Shape::ptr inputShape)
-    : Mapping(paint, shape),
+                 Shape::ptr inputShape, uid id=NULL_UID)
+    : Mapping(paint, shape, id),
       _inputShape(inputShape)
-  {}
+  {
+    // Only supports shape of the same type (for now).
+    Q_ASSERT(shape->getType() == inputShape->getType());
+  }
 
   virtual void build() {
     Mapping::build();
     _inputShape->build();
+  }
+
+  virtual QString getType() const {
+    return getShape()->getType() + "_texture";
   }
 
 public:

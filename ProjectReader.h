@@ -19,22 +19,30 @@
  */
 
 #include <QXmlStreamReader>
-#include "MappingManager.h"
+#include <QDomDocument>
+#include "MainWindow.h"
 #include "Mapping.h"
 #include "Paint.h"
 
 class ProjectReader
 {
 public:
-    ProjectReader (MappingManager *manager);
+    ProjectReader (MainWindow* window);
     bool readFile (QIODevice *device);
     QString errorString() const;
 
 private:
     void readProject();
-    void readPaint(); //Paint *item);
-    void readMapping(); //Mapping *item);
+    void parseProject(const QDomElement& project);
+    void parsePaint(const QDomElement& paint);
+    void parseMapping(const QDomElement& mapping);
+
+    void _parseTriangle(const QDomElement& triangle, QList<QPointF>& points);
+    QPointF _parseVertex(const QDomElement& vertex);
+
+//    void readPaint(); //Paint *item);
+//    void readMapping(); //Mapping *item);
 
     QXmlStreamReader _xml;
-    MappingManager *_manager;
+    MainWindow *_window;
 };

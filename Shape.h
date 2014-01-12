@@ -104,7 +104,7 @@ public:
     vertices[i]->setY(y);
   }
 
-  virtual const char * getShapeType() = 0;
+  virtual QString getType() const = 0;
 
   /** Return true if Shape includes point (x,y), false otherwise
    *  Algorithm should work for all polygons, including non-convex
@@ -148,7 +148,7 @@ public:
   }
   virtual ~Quad() {}
 
-  virtual const char * getShapeType() { return "quad"; }
+  virtual QString getType() const { return "quad"; }
 };
 
 /**
@@ -165,7 +165,7 @@ public:
     _addVertex(p3);
   }
   virtual ~Triangle() {}
-  virtual const char * getShapeType() { return "triangle"; }
+  virtual QString getType() const { return "triangle"; }
 };
 
 class Mesh : public Quad {
@@ -175,6 +175,8 @@ public:
   }
   Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4, int nColumns=2, int nRows=2);
   virtual ~Mesh() {}
+
+  virtual QString getType() const { return "mesh"; }
 
   void resizeVertices2d(std::vector< std::vector<int> >& vertices2d, int nColumns, int nRows);
 

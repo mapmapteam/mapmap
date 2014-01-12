@@ -73,7 +73,6 @@ private slots:
   /**
    * Create an image paint.
    */
-  uid createImagePaint(uid paintId, QString uri, float x, float y);
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
@@ -85,6 +84,19 @@ private slots:
 
   void windowModified();
   void pollOscInterface();
+
+public slots:
+  /**
+   * Create an image paint.
+   */
+  uid createImagePaint(uid paintId, QString uri, float x, float y);
+  /**
+   * Creates a textured triangle.
+   */
+  uid createTriangleTextureMapping(uid mappingId,
+                                   uid paintId,
+                                   const QList<QPointF> &src, const QList<QPointF> &dst);
+
 
 private:
   // Methods.
@@ -161,8 +173,8 @@ private:
   //Facade* _facade;
 
   // View.
-  uint currentPaintId;
-  uint currentMappingId;
+  uid currentPaintId;
+  uid currentMappingId;
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
 
@@ -171,8 +183,8 @@ private:
 public:
   MappingManager& getMappingManager() { return *mappingManager; }
   Mapper::ptr getMapperByMappingId(uint id) { return mappers[id]; }
-  uint getCurrentPaintId() const { return currentPaintId; }
-  uint getCurrentMappingId() const { return currentMappingId; }
+  uid getCurrentPaintId() const { return currentPaintId; }
+  uid getCurrentMappingId() const { return currentMappingId; }
   bool hasCurrentPaint() const { return _hasCurrentPaint; }
   bool hasCurrentMapping() const { return _hasCurrentMapping; }
   void setCurrentPaint(int uid)
@@ -183,7 +195,7 @@ public:
   void setCurrentMapping(int uid)
   {
     currentMappingId = uid;
-    if (uid != -1)
+    if (uid != NULL_UID)
       propertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
     _hasCurrentMapping = true;
   }
