@@ -315,6 +315,36 @@ uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
   }
 }
 
+
+uid MainWindow::createTriangleTextureMapping(uid mappingId,
+                                             uid paintId,
+                                             const QList<QPointF> &src, const QList<QPointF> &dst)
+{
+  // Cannot create element with already existing id or element for which no paint exists.
+  if (Mapping::getUidAllocator().exists(mappingId) ||
+      !Paint::getUidAllocator().exists(paintId) ||
+      paintId == NULL_UID)
+    return NULL_UID;
+
+  else
+  {
+    Paint::ptr paint = mappingManager->getPaintById(paintId);
+    Q_ASSERT(src.size() == 3 && dst.size() == 3);
+
+    Shape::ptr inputTriangle( new Triangle(src[0], src[1], src[2]));
+    Shape::ptr outputTriangle(new Triangle(dst[0], dst[1], dst[2]));
+
+    // Add it to the manager.
+    Mapping::ptr mapping(new TextureMapping(paint, outputTriangle, inputTriangle, mappingId));
+    uid id = mappingManager->addMapping(mapping);
+
+    // Add it to the GUI.
+    addMappingItem(mappingId);
+
+    // Return the id.
+    return id;
+  }
+
 }
 void MainWindow::windowModified()
 {
@@ -642,7 +672,7 @@ bool MainWindow::loadFile(const QString &fileName)
   }
 
   mappingManager->clearProject(); // FIXME: clearProject is not implemented!
-  ProjectReader reader(mappingManager);
+  ProjectReader reader(this);
   if (! reader.readFile(&file))
   {
     QMessageBox::warning(this, tr("Error reading mapping project file"),
@@ -723,13 +753,6 @@ bool MainWindow::importMediaFile(const QString &fileName)
   image->setPosition((sourceCanvas->width()  - image->getWidth() ) / 2.0f,
                      (sourceCanvas->height() - image->getHeight()) / 2.0f );
 
-  // Add image to paintList widget.
-  QListWidgetItem* item = new QListWidgetItem(strippedName(fileName));
-  item->setData(Qt::UserRole, imageId); // TODO: could possibly be replaced by a Paint pointer
-  item->setIcon(QIcon(fileName));
-  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
-  paintList->addItem(item);
-  paintList->setCurrentItem(item);
 
 //  update();
 
