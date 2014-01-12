@@ -68,12 +68,6 @@ private slots:
   void about();
   void updateStatusBar();
 
-  // CRUD.
-
-  /**
-   * Create an image paint.
-   */
-
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
   void handleMappingItemSelectionChanged();
@@ -88,6 +82,11 @@ private slots:
 public slots:
 
   // CRUD.
+  /**
+   * Clears all mappings and paints.
+   */
+  bool clearProject();
+
   /**
    * Create an image paint.
    */

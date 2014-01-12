@@ -284,9 +284,12 @@ void MainWindow::updateStatusBar()
 //  formulaLabel->setText(spreadsheet->currentFormula());
 }
 
-/**
- * Create an image paint.
- */
+bool MainWindow::clearProject()
+{
+  // TODO: implement (possibly preferably iteratively calling remove() methods on paints and mappings
+  // once they will be made available).
+}
+
 uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
 {
   // Cannot create image with already existing id.
@@ -376,8 +379,8 @@ uid MainWindow::createTriangleTextureMapping(uid mappingId,
     // Return the id.
     return id;
   }
-
 }
+
 void MainWindow::windowModified()
 {
   setWindowModified(true);
@@ -703,7 +706,9 @@ bool MainWindow::loadFile(const QString &fileName)
       return false;
   }
 
-  mappingManager->clearProject(); // FIXME: clearProject is not implemented!
+  // Clear current project.
+  clearProject();
+
   ProjectReader reader(this);
   if (! reader.readFile(&file))
   {
