@@ -286,8 +286,20 @@ void MainWindow::updateStatusBar()
 
 bool MainWindow::clearProject()
 {
-  // TODO: implement (possibly preferably iteratively calling remove() methods on paints and mappings
-  // once they will be made available).
+  // Close property panel.
+  propertyPanel->close();
+
+  // Empty list widgets.
+  mappingList->clear();
+  paintList->clear();
+
+  // Clear list of mappers.
+  mappers.clear();
+
+  // Clear model.
+  mappingManager->clearAll();
+
+  return true;
 }
 
 uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
@@ -709,6 +721,7 @@ bool MainWindow::loadFile(const QString &fileName)
   // Clear current project.
   clearProject();
 
+  // Read new project
   ProjectReader reader(this);
   if (! reader.readFile(&file))
   {
@@ -722,6 +735,7 @@ bool MainWindow::loadFile(const QString &fileName)
     statusBar()->showMessage(tr("File loaded"), 2000);
     setCurrentFile(fileName);
   }
+
   return true;
 }
 
@@ -866,7 +880,7 @@ void MainWindow::addMappingItem(uint mappingId)
 
 void MainWindow::clearWindow()
 {
-  // TODO: implement clearWindow()
+  clearProject();
 }
 
 void MainWindow::updateAll()

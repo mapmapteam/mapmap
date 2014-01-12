@@ -63,7 +63,7 @@ public:
 
   std::vector<Mapping::ptr> getVisibleMappings() const;
 
-  void clearProject();
+  void clearAll();
 };
 
 #endif /* MAPPINGMANAGER_H_ */

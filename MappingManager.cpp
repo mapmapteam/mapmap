@@ -102,8 +102,10 @@ void MappingManager::reorderMappings(std::vector<uid> mappingIds)
 //{
 //}
 
-void MappingManager::clearProject()
+void MappingManager::clearAll()
 {
-  std::cout << "TODO: implement MappingManager::clearProject() !!!" << std::endl;
-  // We also need to update the GUI accordingly!
+  paintVector.clear();
+  mappingVector.clear();
+  paintMap.clear();
+  mappingMap.clear();
 }
