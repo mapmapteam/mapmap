@@ -27,6 +27,7 @@
 #include <iostream>
 
 //#include "Common.h"
+#include "UidAllocator.h"
 #include "Shape.h"
 
 //#include "MainWindow.h"
@@ -42,7 +43,7 @@ public:
   MapperGLCanvas(QWidget* parent = 0, const QGLWidget* shareWidget = 0);
   virtual ~MapperGLCanvas() {}
 
-  virtual Shape* getShapeFromMappingId(int mappingId) = 0;
+  virtual Shape* getShapeFromMappingId(uid mappingId) = 0;
 
   void switchImage(int imageId);
 //  QSize sizeHint() const;

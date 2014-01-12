@@ -30,16 +30,17 @@ SourceGLCanvas::SourceGLCanvas(QWidget* parent)
 
 Shape* SourceGLCanvas::getShapeFromMappingId(uid mappingId)
 {
-  if (mappingId >= 0)
+  if (mappingId == NULL_UID)
+    return NULL;
+
+  else
   {
-    Mapping::ptr mapping = MainWindow::getInstance().getMappingManager().getMapping(mappingId);
+    Mapping::ptr mapping = MainWindow::getInstance().getMappingManager().getMappingById(mappingId);
     std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);
 
     return textureMapping->getInputShape().get();
   }
-  else
-    return NULL;
 }
 
 //Quad& SourceGLCanvas::getQuad()

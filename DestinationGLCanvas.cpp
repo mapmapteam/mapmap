@@ -26,12 +26,12 @@ DestinationGLCanvas::DestinationGLCanvas(QWidget* parent, const QGLWidget * shar
 {
 }
 
-Shape* DestinationGLCanvas::getShapeFromMappingId(int mappingId)
+Shape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
 {
-  if (mappingId >= 0)
-    return MainWindow::getInstance().getMappingManager().getMapping(mappingId)->getShape().get();
-  else
+  if (mappingId == NULL_UID)
     return NULL;
+  else
+    return MainWindow::getInstance().getMappingManager().getMappingById(mappingId)->getShape().get();
 }
 
 void DestinationGLCanvas::doDraw()

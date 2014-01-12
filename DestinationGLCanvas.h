@@ -34,7 +34,7 @@ public:
   DestinationGLCanvas(QWidget* parent = 0, const QGLWidget * shareWidget = 0);
 //  virtual ~DestinationGLCanvas();
 
-  virtual Shape* getShapeFromMappingId(int mappingId);
+  virtual Shape* getShapeFromMappingId(uid mappingId);
 
 //  virtual Quad& getQuad();
 
