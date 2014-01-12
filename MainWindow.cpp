@@ -757,14 +757,14 @@ void MainWindow::addMappingItem(uint mappingId)
   // XXX Branching on nVertices() is crap
 
   // Triangle
-  if (mapping->getShape()->nVertices() == 3)
+  if (mapping->getShape()->getType() == "triangle")
   {
     label = QString("Triangle %1").arg(mappingId);
     icon = QIcon(":/images/draw-triangle.png");
     mapper = Mapper::ptr(new TriangleTextureMapper(textureMapping));
   }
   // Mesh
-  else if (mapping->getShape()->nVertices() == 4)
+  else if (mapping->getShape()->getType() == "mesh")
   {
     label = QString("Quad %1").arg(mappingId);
     icon = QIcon(":/images/draw-rectangle-2.png");
