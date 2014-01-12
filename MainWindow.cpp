@@ -31,8 +31,9 @@ MainWindow::MainWindow()
   mappingManager = new MappingManager;
  // _facade = new Facade(mappingManager, this);
 
-  currentPaintId = 0;
-  currentMappingId = 0;
+  currentPaintId = NULL_UID;
+  currentMappingId = NULL_UID;
+  // TODO: not sure we need this anymore since we have NULL_UID
   _hasCurrentPaint = false;
   _hasCurrentMapping = false;
 
@@ -77,6 +78,10 @@ void MainWindow::handlePaintItemSelectionChanged()
   std::cout << "idx=" << idx << std::endl;
   setCurrentPaint(idx);
   removeCurrentMapping();
+
+  // Enable creation of mappings when a paint is selected.
+  addQuadAction->setEnabled(true);
+  addTriangleAction->setEnabled(true);
 
   // Update canvases.
   updateAll();
@@ -225,7 +230,9 @@ void MainWindow::addMesh()
 
 void MainWindow::addTriangle()
 {
-  // FIXME: crashes if there is no current paint id. (if no paint exists)
+  // A paint must be selected to add a mapping.
+  if (getCurrentPaintId() == NULL_UID)
+    return;
 
   // Create default quad.
 
@@ -295,10 +302,20 @@ uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
 
     // Add it to the manager.
     Paint::ptr paint(img);
+
+    // Add image to paintList widget.
+    QListWidgetItem* item = new QListWidgetItem(strippedName(uri));
+    item->setData(Qt::UserRole, paint->getId()); // TODO: could possibly be replaced by a Paint pointer
+    item->setIcon(QIcon(uri));
+    item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
+    paintList->addItem(item);
+    paintList->setCurrentItem(item);
+
     return mappingManager->addPaint(paint);
   }
 }
 
+}
 void MainWindow::windowModified()
 {
   setWindowModified(true);
@@ -471,11 +488,13 @@ void MainWindow::createActions()
   addQuadAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
   addQuadAction->setStatusTip(tr("Add quad"));
   connect(addQuadAction, SIGNAL(triggered()), this, SLOT(addMesh()));
+  addQuadAction->setEnabled(false);
 
   addTriangleAction = new QAction(tr("&Add triangle"), this);
   addTriangleAction->setIcon(QIcon(":/images/draw-triangle.png"));
   addTriangleAction->setStatusTip(tr("Add triangle"));
   connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
+  addTriangleAction->setEnabled(false);
 }
 
 void MainWindow::createMenus()
