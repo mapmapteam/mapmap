@@ -130,6 +130,20 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
   }
   else if (mappingAttrType == "mesh_texture")
   {
+    // Parse destination mesh.
+    int nColumns;
+    int nRows;
+    _parseMesh(dst, dstPoints, nColumns, nRows);
+
+    // Get / parse source shape.
+    QDomElement src = mapping.firstChildElement("source");
+    QList<QPointF> srcPoints;
+    _parseMesh(src, srcPoints, nColumns, nRows);
+
+    uid id = _window->createMeshTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), nColumns, nRows, srcPoints, dstPoints);
+
+    if (id == NULL_UID)
+      _xml.raiseError(QObject::tr("Cannot create mesh texture mapping"));
 
   }
   else
@@ -147,13 +161,43 @@ void ProjectReader::_parseTriangle(const QDomElement& triangle, QList<QPointF>& 
   points.clear();
 
   // Add vertices.
-  QDomNodeList vertices = triangle.childNodes();
-  if (vertices.size() != 3)
-    _xml.raiseError(QObject::tr("Shape has wrong number of vertices."));
+  QDomElement vertex = triangle.firstChildElement("vertex");
+  while (!vertex.isNull())
+  {
+    points.push_back(_parseVertex(vertex));
+    vertex = vertex.nextSiblingElement("vertex");
+  }
 
-  for (int i=0; i<3; i++)
-    points.push_back(_parseVertex(vertices.at(i).toElement()));
+  if (points.size() != 3)
+    _xml.raiseError(QObject::tr("Shape has wrong number of vertices."));
 }
+
+void ProjectReader::_parseMesh(const QDomElement& mesh, QList<QPointF>& points, int& nColumns, int& nRows)
+{
+  // Check that the element is really a mash.
+  QString type = mesh.attribute("shape", "");
+  if (type != "mesh")
+    _xml.raiseError(QObject::tr("Wrong shape type for destination: %1.").arg(type));
+
+  // Reset list of points.
+  points.clear();
+
+  // Check columns and rows.
+  nColumns = mesh.firstChildElement("dimensions").attribute("columns").toInt();
+  nRows    = mesh.firstChildElement("dimensions").attribute("rows").toInt();
+
+  // Add vertices.
+  QDomElement vertex = mesh.firstChildElement("vertex");
+  while (!vertex.isNull())
+  {
+    points.push_back(_parseVertex(vertex));
+    vertex = vertex.nextSiblingElement("vertex");
+  }
+
+  if (points.size() != nColumns*nRows)
+    _xml.raiseError(QObject::tr("Shape has wrong number of vertices."));
+}
+
 
 QPointF ProjectReader::_parseVertex(const QDomElement& vertex)
 {

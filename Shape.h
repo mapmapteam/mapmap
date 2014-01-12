@@ -174,6 +174,7 @@ public:
     init(1, 1);
   }
   Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4, int nColumns=2, int nRows=2);
+  Mesh(const QList<QPointF>& points, int nColumns, int nRows);
   virtual ~Mesh() {}
 
   virtual QString getType() const { return "mesh"; }
@@ -216,6 +217,17 @@ protected:
   std::vector< std::vector<int> > _vertices2d;
   // Maps a vertex id to the pair of vertex ids it "splits".
   std::map<int, std::pair<int, int> > _splitVertices;
+
+  /**
+   * Reorder vertices in a standard order:
+   *
+   * 0----1----2----3
+   * |    |    |    |
+   * 4----5----6----7
+   * |    |    |    |
+   * 8----9---10----11
+   */
+  void _reorderVertices();
 };
 
 

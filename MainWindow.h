@@ -86,10 +86,21 @@ private slots:
   void pollOscInterface();
 
 public slots:
+
+  // CRUD.
   /**
    * Create an image paint.
    */
   uid createImagePaint(uid paintId, QString uri, float x, float y);
+
+  /**
+   * Creates a textured mesh.
+   */
+  uid createMeshTextureMapping(uid mappingId,
+                               uid paintId,
+                               int nColumns, int nRows,
+                               const QList<QPointF> &src, const QList<QPointF> &dst);
+
   /**
    * Creates a textured triangle.
    */

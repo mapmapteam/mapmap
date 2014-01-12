@@ -38,6 +38,7 @@ private:
     void parseMapping(const QDomElement& mapping);
 
     void _parseTriangle(const QDomElement& triangle, QList<QPointF>& points);
+    void _parseMesh(const QDomElement& mesh, QList<QPointF>& points, int& nColumns, int& nRows);
     QPointF _parseVertex(const QDomElement& vertex);
 
 //    void readPaint(); //Paint *item);

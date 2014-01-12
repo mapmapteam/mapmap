@@ -84,6 +84,14 @@ void ProjectWriter::writeItem(Paint *item)
 
 void ProjectWriter::writeShapeVertices(Shape *shape)
 {
+  if (shape->getType() == "mesh") {
+    Mesh* mesh = (Mesh*) shape;
+    _xml.writeStartElement("dimensions");
+    _xml.writeAttribute("columns", QString::number(mesh->nColumns()));
+    _xml.writeAttribute("rows", QString::number(mesh->nRows()));
+    _xml.writeEndElement(); // vertex
+  }
+
   for (int i = 0; i < shape->nVertices(); i++)
   {
     Point *point = shape->getVertex(i);
@@ -108,14 +116,19 @@ void ProjectWriter::writeItem(Mapping *item)
   writeShapeVertices(shape);
   _xml.writeEndElement(); // shape
 
-  // FIXME: check mapping type before casting to TextureMapping
-  TextureMapping *tex = (TextureMapping *) item;
-  shape = tex->getInputShape().get();
-  _xml.writeStartElement("source");
-  _xml.writeAttribute("shape", shape->getType());
-  writeShapeVertices(shape);
-  _xml.writeEndElement(); // shape
+  if (item->getType().endsWith("_texture"))
+  {
+    TextureMapping *tex = (TextureMapping *) item;
+    shape = tex->getInputShape().get();
 
-  _xml.writeEndElement(); // mapping
+    _xml.writeStartElement("source");
+    _xml.writeAttribute("shape", shape->getType());
+    writeShapeVertices(shape);
+    _xml.writeEndElement(); // shape
+
+    _xml.writeEndElement(); // mapping
+  }
+  else
+    qDebug() << "Unknown type, cannot save: " << item->getType() << endl;
 }
 

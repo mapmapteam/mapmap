@@ -78,6 +78,26 @@ Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4, int nColumns, int nRo
   init(nColumns, nRows);
 }
 
+Mesh::Mesh(const QList<QPointF>& points, int nColumns, int nRows)
+: Quad(), _nColumns(nColumns), _nRows(nRows)
+{
+  Q_ASSERT(nColumns >= 2 && nRows >= 2);
+  Q_ASSERT(points.size() == nColumns * nRows);
+
+  // Resize the vertices2d vector to appropriate dimensions.
+  resizeVertices2d(_vertices2d, _nColumns, _nRows);
+
+  // Just build vertices2d in the standard order.
+  int k = 0;
+  for (int x=0; x<_nColumns; x++)
+    for (int y=0; y<_nRows; y++)
+    {
+      vertices.push_back( new Point(points[k].x(), points[k].y()) );
+      _vertices2d[x][y] = k;
+      k++;
+    }
+}
+
 void Mesh::resizeVertices2d(std::vector< std::vector<int> >& vertices2d, int nColumns, int nRows)
 {
   vertices2d.resize(nColumns);
@@ -163,6 +183,9 @@ void Mesh::addColumn()
 
   // Increment number of columns.
   _nColumns++;
+
+  // Reorder.
+  _reorderVertices();
 }
 
 void Mesh::addRow()
@@ -213,6 +236,9 @@ void Mesh::addRow()
 
   // Increment number of columns.
   _nRows++;
+
+  // Reorder.
+  _reorderVertices();
 }
 
 void Mesh::resize(int nColumns_, int nRows_)
@@ -318,4 +344,21 @@ std::vector< std::vector<Quad> > Mesh::getQuads2d() const
   return quads2d;
 }
 
+void Mesh::_reorderVertices()
+{
+  // Populate new vertices vector.
+  std::vector<Point*> newVertices(vertices.size());
+  int k = 0;
+  for (int x=0; x<nColumns(); x++)
+    for (int y=0; y<nRows(); y++)
+      newVertices[k++] = getVertex( _vertices2d[x][y] );
 
+  // Populate _vertices2d.
+  k = 0;
+  for (int x=0; x<nColumns(); x++)
+    for (int y=0; y<nRows(); y++)
+      _vertices2d[x][y] = k++;
+
+  // Copy.
+  vertices = newVertices;
+}

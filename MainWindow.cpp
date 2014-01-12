@@ -315,6 +315,38 @@ uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
   }
 }
 
+uid MainWindow::createMeshTextureMapping(uid mappingId,
+                                         uid paintId,
+                                         int nColumns, int nRows,
+                                         const QList<QPointF> &src, const QList<QPointF> &dst)
+{
+  // Cannot create element with already existing id or element for which no paint exists.
+  if (Mapping::getUidAllocator().exists(mappingId) ||
+      !Paint::getUidAllocator().exists(paintId) ||
+      paintId == NULL_UID)
+    return NULL_UID;
+
+  else
+  {
+    Paint::ptr paint = mappingManager->getPaintById(paintId);
+    int nVertices = nColumns * nRows;
+    qDebug() << nVertices << " vs " << nColumns << "x" << nRows << " vs " << src.size() << " " << dst.size() << endl;
+    Q_ASSERT(src.size() == nVertices && dst.size() == nVertices);
+
+    Shape::ptr inputMesh( new Mesh(src, nColumns, nRows));
+    Shape::ptr outputMesh(new Mesh(dst, nColumns, nRows));
+
+    // Add it to the manager.
+    Mapping::ptr mapping(new TextureMapping(paint, outputMesh, inputMesh, mappingId));
+    uid id = mappingManager->addMapping(mapping);
+
+    // Add it to the GUI.
+    addMappingItem(mappingId);
+
+    // Return the id.
+    return id;
+  }
+}
 
 uid MainWindow::createTriangleTextureMapping(uid mappingId,
                                              uid paintId,
