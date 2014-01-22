@@ -68,7 +68,16 @@ void Shape::translate(int x, int y)
   }
 }
 
-
+QPolygonF Shape::toPolygon() const
+{
+  QPolygonF polygon;
+  for (std::vector<Point*>::const_iterator it = vertices.begin() ;
+      it != vertices.end(); ++it)
+  {
+    polygon.append((*it)->toPoint());
+  }
+  return polygon;
+}
 
 
 Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4, int nColumns, int nRows)

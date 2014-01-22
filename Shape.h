@@ -22,6 +22,7 @@
 
 #include <QtGlobal>
 #include <QPointF>
+#include <QPolygonF>
 #include <vector>
 #include <map>
 
@@ -119,6 +120,8 @@ public:
   {
     return vertices.size();
   }
+
+  QPolygonF toPolygon() const;
 
 protected:
   std::vector<Point*> vertices;
