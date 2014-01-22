@@ -42,6 +42,9 @@ int map_int(int value, int istart, int istop, int ostart, int ostop);
 Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight);
 Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight);
 
+Quad* createQuadForColor(int frameWidth, int frameHeight);
+Triangle* createTriangleForColor(int frameWidth, int frameHeight);
+
 } // end of namespace
 
 #endif /* UTIL_H_ */

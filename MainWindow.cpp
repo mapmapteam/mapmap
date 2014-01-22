@@ -204,6 +204,17 @@ void MainWindow::import()
   }
 }
 
+void MainWindow::addColor()
+{
+  if (okToContinue())
+  {
+    QColor initialColor;
+    QColor color = QColorDialog::getColor(initialColor, this);
+    if (color.isValid())
+      addColorPaint(color);
+  }
+}
+
 void MainWindow::addMesh()
 {
   // FIXME: crashes if there is no current paint id. (if no paint exists)
@@ -214,16 +225,27 @@ void MainWindow::addMesh()
   Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(getCurrentPaintId());
   Q_CHECK_PTR(paint);
 
-  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
-  Q_CHECK_PTR(texture);
-
   // Create input and output quads.
+  Mapping* mappingPtr;
+  if (paint->getType() == "color")
+  {
+    Shape::ptr outputQuad = Shape::ptr(Util::createQuadForColor(sourceCanvas->width(), sourceCanvas->height()));
+    mappingPtr = new ColorMapping(paint, outputQuad);
+  }
+  else
+  {
+    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
+    Q_CHECK_PTR(texture);
+
+    Shape::ptr outputQuad = Shape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    Shape::ptr  inputQuad = Shape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    mappingPtr = new TextureMapping(paint, outputQuad, inputQuad);
+  }
+
   qDebug() << "adding mesh" << endl;
-  Shape::ptr outputQuad = Shape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-  Shape::ptr  inputQuad = Shape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
 
   // Create texture mapping.
-  Mapping::ptr mapping(new TextureMapping(paint, outputQuad, inputQuad));
+  Mapping::ptr mapping(mappingPtr);
   uint mappingId = mappingManager->addMapping(mapping);
   addMappingItem(mappingId);
 }
@@ -240,15 +262,25 @@ void MainWindow::addTriangle()
   Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(getCurrentPaintId());
   Q_CHECK_PTR(paint);
 
-  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
-  Q_CHECK_PTR(texture);
-
   // Create input and output quads.
-  Shape::ptr outputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-  Shape::ptr inputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+  Mapping* mappingPtr;
+  if (paint->getType() == "color")
+  {
+    Shape::ptr outputTriangle = Shape::ptr(Util::createTriangleForColor(sourceCanvas->width(), sourceCanvas->height()));
+    mappingPtr = new ColorMapping(paint, outputTriangle);
+  }
+  else
+  {
+    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
+    Q_CHECK_PTR(texture);
 
-  // Create texture mapping.
-  Mapping::ptr mapping(new TextureMapping(paint, inputTriangle, outputTriangle));
+    Shape::ptr outputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    Shape::ptr inputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    mappingPtr = new TextureMapping(paint, inputTriangle, outputTriangle);
+  }
+
+  // Create mapping.
+  Mapping::ptr mapping(mappingPtr);
   uint mappingId = mappingManager->addMapping(mapping);
   addMappingItem(mappingId);
 }
@@ -322,6 +354,36 @@ uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
     QListWidgetItem* item = new QListWidgetItem(strippedName(uri));
     item->setData(Qt::UserRole, paint->getId()); // TODO: could possibly be replaced by a Paint pointer
     item->setIcon(QIcon(uri));
+    item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
+    paintList->addItem(item);
+    paintList->setCurrentItem(item);
+
+    return mappingManager->addPaint(paint);
+  }
+}
+
+uid MainWindow::createColorPaint(uid paintId, QColor color)
+{
+  // Cannot create image with already existing id.
+  if (Paint::getUidAllocator().exists(paintId))
+    return NULL_UID;
+
+  else
+  {
+    Color* img = new Color(color, paintId);
+
+    // Add it to the manager.
+    Paint::ptr paint(img);
+
+    // Add image to paintList widget.
+    QListWidgetItem* item = new QListWidgetItem(strippedName(color.name()));
+    item->setData(Qt::UserRole, paint->getId()); // TODO: could possibly be replaced by a Paint pointer
+
+    // Create a small icon with the color.
+    QPixmap pixmap(100,100);
+    pixmap.fill(color);
+    item->setIcon(QIcon(pixmap));
+
     item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
     paintList->addItem(item);
     paintList->setCurrentItem(item);
@@ -525,9 +587,13 @@ void MainWindow::createActions()
 
   importAction = new QAction(tr("&Import media source file..."), this);
   importAction->setIcon(QIcon(":/images/document-import-2.png"));
-  importAction->setShortcut(QKeySequence::Open);
   importAction->setStatusTip(tr("Import a media source file..."));
   connect(importAction, SIGNAL(triggered()), this, SLOT(import()));
+
+  addColorAction = new QAction(tr("Add &Color paint..."), this);
+  addColorAction->setIcon(QIcon(":/images/colorize.png"));
+  addColorAction->setStatusTip(tr("Add a color paint..."));
+  connect(addColorAction, SIGNAL(triggered()), this, SLOT(addColor()));
 
   exitAction = new QAction(tr("E&xit"), this);
   exitAction->setShortcut(tr("Ctrl+Q"));
@@ -561,7 +627,7 @@ void MainWindow::createActions()
   aboutAction->setStatusTip(tr("Show the application's About box"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
-  addQuadAction = new QAction(tr("&Add quad"), this);
+  addQuadAction = new QAction(tr("&Add quad/mesh"), this);
   addQuadAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
   addQuadAction->setStatusTip(tr("Add quad"));
   connect(addQuadAction, SIGNAL(triggered()), this, SLOT(addMesh()));
@@ -579,10 +645,12 @@ void MainWindow::createMenus()
   fileMenu = menuBar()->addMenu(tr("&File"));
   fileMenu->addAction(newAction);
   fileMenu->addAction(openAction);
-  fileMenu->addAction(importAction);
   fileMenu->addAction(saveAction);
   fileMenu->addAction(saveAsAction);
-  separatorAction = fileMenu->addSeparator();
+  fileMenu->addSeparator();
+  fileMenu->addAction(importAction);
+  fileMenu->addAction(addColorAction);
+  fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
 
 //  editMenu = menuBar()->addMenu(tr("&Edit"));
@@ -628,6 +696,7 @@ void MainWindow::createToolBars()
   fileToolBar = addToolBar(tr("&File"));
   fileToolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
   fileToolBar->addAction(importAction);
+  fileToolBar->addAction(addColorAction);
   fileToolBar->addAction(newAction);
   fileToolBar->addAction(openAction);
   fileToolBar->addAction(saveAction);
@@ -813,6 +882,25 @@ bool MainWindow::importMediaFile(const QString &fileName)
   return true;
 }
 
+bool MainWindow::addColorPaint(const QColor& color)
+{
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+
+  // Add image to model.
+  uint colorId = createColorPaint(NULL_UID, color);
+
+  // Initialize position (center).
+  std::tr1::shared_ptr<Color> colorPaint = std::tr1::static_pointer_cast<Color>(mappingManager->getPaintById(colorId));
+  Q_CHECK_PTR(colorPaint);
+
+  QApplication::restoreOverrideCursor();
+
+  statusBar()->showMessage(tr("Color paint added"), 2000);
+
+  return true;
+}
+
+
 void MainWindow::addMappingItem(uint mappingId)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
@@ -821,28 +909,43 @@ void MainWindow::addMappingItem(uint mappingId)
   QString label;
   QIcon icon;
 
+  QString shapeType = mapping->getShape()->getType();
+  QString paintType = mapping->getPaint()->getType();
+
   // Add mapper.
   // XXX hardcoded for textures
-  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
-  Q_CHECK_PTR(textureMapping);
+  std::tr1::shared_ptr<TextureMapping> textureMapping;
+  if (paintType == "image")
+  {
+    textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+    Q_CHECK_PTR(textureMapping);
+  }
 
   Mapper::ptr mapper;
 
   // XXX Branching on nVertices() is crap
 
+
   // Triangle
-  if (mapping->getShape()->getType() == "triangle")
+  if (shapeType == "triangle")
   {
     label = QString("Triangle %1").arg(mappingId);
     icon = QIcon(":/images/draw-triangle.png");
-    mapper = Mapper::ptr(new TriangleTextureMapper(textureMapping));
+
+    if (paintType == "color")
+      mapper = Mapper::ptr(new ColorMapper(mapping));
+    else
+      mapper = Mapper::ptr(new TriangleTextureMapper(textureMapping));
   }
   // Mesh
-  else if (mapping->getShape()->getType() == "mesh")
+  else if (shapeType == "mesh" || shapeType == "quad")
   {
     label = QString("Quad %1").arg(mappingId);
     icon = QIcon(":/images/draw-rectangle-2.png");
-    mapper = Mapper::ptr(new MeshTextureMapper(textureMapping));
+    if (paintType == "color")
+      mapper = Mapper::ptr(new ColorMapper(mapping));
+    else
+      mapper = Mapper::ptr(new MeshTextureMapper(textureMapping));
   }
   else
   {

@@ -65,6 +65,7 @@ private slots:
   bool save();
   bool saveAs();
   void import();
+  void addColor();
   void about();
   void updateStatusBar();
 
@@ -93,6 +94,11 @@ public slots:
   uid createImagePaint(uid paintId, QString uri, float x, float y);
 
   /**
+   * Create a color paint.
+   */
+  uid createColorPaint(uid paintId, QColor color);
+
+  /**
    * Creates a textured mesh.
    */
   uid createMeshTextureMapping(uid mappingId,
@@ -116,14 +122,18 @@ private:
   void createContextMenu();
   void createToolBars();
   void createStatusBar();
+
   void readSettings();
   void writeSettings();
+
   void startOscReceiver();
+
   bool okToContinue();
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
   bool importMediaFile(const QString &fileName);
+  bool addColorPaint(const QColor& color);
   void addMappingItem(uint mappingId);
   void clearWindow();
   QString strippedName(const QString &fullFileName);
@@ -145,6 +155,7 @@ private:
   QAction *newAction;
   QAction *openAction;
   QAction *importAction;
+  QAction *addColorAction;
   QAction *saveAction;
   QAction *saveAsAction;
   QAction *exitAction;
@@ -161,9 +172,11 @@ private:
   QListWidget* mappingList;
   QStackedWidget* propertyPanel;
 
+public:
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
 
+private:
   QSplitter* mainSplitter;
   QSplitter* resourceSplitter;
   QSplitter* canvasSplitter;

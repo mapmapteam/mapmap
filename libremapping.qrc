@@ -8,6 +8,7 @@
     <file>images/draw-rectangle-2.png</file>
     <file>images/draw-triangle.png</file>
     <file>images/draw-ellipse-2.png</file>
+    <file>images/colorize.png</file>
 </qresource>
 </RCC>
 
