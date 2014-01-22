@@ -168,8 +168,8 @@ void Mesh::addColumn()
   for (int y=0; y<nRows(); y++)
   {
     // Get left and right vertices.
-    QPointF left  = *getVertex( _vertices2d[0]           [y] );
-    QPointF right = *getVertex( _vertices2d[nColumns()-1][y] );
+    QPointF left  = *getVertex2d( 0,            y );
+    QPointF right = *getVertex2d( nColumns()-1, y );
     QPointF diff = right - left;
 
     // First pass: move middle points.
@@ -370,7 +370,7 @@ void Mesh::_reorderVertices()
   int k = 0;
   for (int x=0; x<nColumns(); x++)
     for (int y=0; y<nRows(); y++)
-      newVertices[k++] = getVertex( _vertices2d[x][y] );
+      newVertices[k++] = getVertex2d( x, y );
 
   // Populate _vertices2d.
   k = 0;

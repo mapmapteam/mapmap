@@ -188,6 +188,19 @@ public:
   {
     return vertices[_vertices2d[i][j]];
   }
+
+  void setVertex2d(int i, int j, QPointF v)
+  {
+    vertices[_vertices2d[i][j]]->setValue(v);
+  }
+
+  void setVertex2d(int i, int j, double x, double y)
+  {
+    Point* p = vertices[_vertices2d[i][j]];
+    p->setX(x);
+    p->setY(y);
+  }
+
   void resizeVertices2d(std::vector< std::vector<int> >& vertices2d, int nColumns, int nRows);
 
   void init(int nColumns, int nRows);
