@@ -107,6 +107,16 @@ Mesh::Mesh(const QList<QPointF>& points, int nColumns, int nRows)
     }
 }
 
+QPolygonF Mesh::toPolygon() const
+{
+  QPolygonF polygon;
+  polygon.append(getVertex2d(0,            0)->toPoint());
+  polygon.append(getVertex2d(nColumns()-1, 0)->toPoint());
+  polygon.append(getVertex2d(nColumns()-1, nRows()-1)->toPoint());
+  polygon.append(getVertex2d(0,            nRows()-1)->toPoint());
+  return polygon;
+}
+
 void Mesh::resizeVertices2d(std::vector< std::vector<int> >& vertices2d, int nColumns, int nRows)
 {
   vertices2d.resize(nColumns);

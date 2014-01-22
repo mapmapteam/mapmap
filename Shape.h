@@ -121,7 +121,7 @@ public:
     return vertices.size();
   }
 
-  QPolygonF toPolygon() const;
+  virtual QPolygonF toPolygon() const;
 
 protected:
   std::vector<Point*> vertices;
@@ -182,6 +182,12 @@ public:
 
   virtual QString getType() const { return "mesh"; }
 
+  virtual QPolygonF toPolygon() const;
+
+  Point* getVertex2d(int i, int j) const
+  {
+    return vertices[_vertices2d[i][j]];
+  }
   void resizeVertices2d(std::vector< std::vector<int> >& vertices2d, int nColumns, int nRows);
 
   void init(int nColumns, int nRows);
