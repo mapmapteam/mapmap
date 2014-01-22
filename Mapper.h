@@ -67,18 +67,77 @@ protected:
 public:
   typedef std::tr1::shared_ptr<Mapper> ptr;
 
-  Mapper(Mapping::ptr mapping) : _mapping(mapping) {}
+  Mapper(Mapping::ptr mapping);
   virtual ~Mapper() {}
 
-  virtual QWidget* getPropertiesEditor() = 0;
-  virtual void draw() = 0;
-  virtual void drawControls() = 0;
+  virtual QWidget* getPropertiesEditor();
+  virtual void draw(QPainter* painter) = 0;
+  virtual void drawControls(QPainter* painter) = 0;
+
+  static void drawShapeContour(QPainter* painter, const Shape& shape, int lineWidth, const QColor& color);
 
 public slots:
+  virtual void setValue(QtProperty* property, const QVariant& value);
   virtual void updateShape(Shape* shape)
   {
     Q_UNUSED(shape);
   }
+
+signals:
+  void valueChanged();
+
+protected:
+  QtAbstractPropertyBrowser* _propertyBrowser;
+  QtVariantEditorFactory* _variantFactory;
+  QtVariantPropertyManager* _variantManager;
+  QtProperty* _topItem;
+  QtProperty* _outputItem;
+
+  std::map<QtProperty*, std::pair<Shape*, int> > _propertyToVertex;
+
+  // FIXME: use typedefs, member of the class for type names that are too long to type:
+  std::tr1::shared_ptr<Shape> outputShape;
+
+  virtual void _buildShapeProperty(QtProperty* shapeItem, Shape* shape);
+  virtual void _updateShapeProperty(QtProperty* shapeItem, Shape* shape);
+
+};
+
+/**
+ * Draws a color.
+ */
+class ColorMapper : public Mapper
+{
+  Q_OBJECT
+
+public:
+  ColorMapper(Mapping::ptr mapping);
+  virtual ~ColorMapper() {}
+
+  virtual void draw(QPainter* painter);
+  virtual void drawControls(QPainter* painter);
+
+protected:
+  std::tr1::shared_ptr<Color> color;
+
+};
+
+class MeshColorMapper : public ColorMapper
+{
+  Q_OBJECT
+
+public:
+  MeshColorMapper(Mapping::ptr mapping);
+  virtual ~MeshColorMapper() {}
+
+  virtual void draw(QPainter* painter);
+  virtual void drawControls(QPainter* painter);
+
+public slots:
+  virtual void setValue(QtProperty* property, const QVariant& value);
+
+private:
+  QtVariantProperty* _meshItem;
 };
 
 /**
@@ -92,46 +151,26 @@ public:
   TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
   virtual ~TextureMapper() {}
 
-  virtual QWidget* getPropertiesEditor();
+  virtual void draw(QPainter* painter);
+  virtual void drawInput(QPainter* painter);
 
-  virtual void draw();
-  virtual void drawInput();
-
-  virtual void drawControls();
-  virtual void drawInputControls();
-
-  static void drawShapeContour(const Shape& shape, int lineWidth, const QColor& color);
-
-signals:
-  void valueChanged();
+  virtual void drawControls(QPainter* painter);
+  virtual void drawInputControls(QPainter* painter);
 
 public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value);
   virtual void updateShape(Shape* shape);
 
 protected:
-  virtual void _doDraw() = 0;
+  virtual void _doDraw(QPainter* painter) = 0;
 
 protected:
-  QtAbstractPropertyBrowser* _propertyBrowser;
-  QtVariantEditorFactory* _variantFactory;
-  QtVariantPropertyManager* _variantManager;
-  QtProperty* _topItem;
   QtProperty* _inputItem;
-  QtProperty* _outputItem;
-
   QtVariantProperty* _meshItem;
-
-  std::map<QtProperty*, std::pair<Shape*, int> > _propertyToVertex;
 
   // FIXME: use typedefs, member of the class for type names that are too long to type:
   std::tr1::shared_ptr<TextureMapping> textureMapping;
   std::tr1::shared_ptr<Texture> texture;
-  std::tr1::shared_ptr<Shape> outputShape;
   std::tr1::shared_ptr<Shape> inputShape;
-
-  virtual void _buildShapeProperty(QtProperty* shapeItem, Shape* shape);
-  virtual void _updateShapeProperty(QtProperty* shapeItem, Shape* shape);
 };
 
 class TriangleTextureMapper : public TextureMapper
@@ -143,9 +182,8 @@ public:
   virtual ~TriangleTextureMapper() {}
 
 protected:
-  virtual void _doDraw();
+  virtual void _doDraw(QPainter* painter);
 };
-
 
 class MeshTextureMapper : public TextureMapper
 {
@@ -155,14 +193,14 @@ public:
   MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
   virtual ~MeshTextureMapper() {}
 
-  virtual void drawControls();
-  virtual void drawInputControls();
+  virtual void drawControls(QPainter* painter);
+  virtual void drawInputControls(QPainter* painter);
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
 
 protected:
-  virtual void _doDraw();
+  virtual void _doDraw(QPainter* painter);
 
 private:
   QtVariantProperty* _meshItem;

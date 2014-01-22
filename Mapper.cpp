@@ -20,21 +20,11 @@
 
 #include "Mapper.h"
 
-TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
-  : Mapper(mapping)
+Mapper::Mapper(Mapping::ptr mapping)
+  : _mapping(mapping)
 {
-  // Assign members pointers.
-  textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
-  Q_CHECK_PTR(textureMapping);
-
-  texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-  Q_CHECK_PTR(texture);
-
-  outputShape = std::tr1::static_pointer_cast<Shape>(textureMapping->getShape());
+  outputShape = mapping->getShape();
   Q_CHECK_PTR(outputShape);
-
-  inputShape = std::tr1::static_pointer_cast<Shape>(textureMapping->getInputShape());
-  Q_CHECK_PTR(inputShape);
 
   // Create editor.
   _propertyBrowser = new QtTreePropertyBrowser;
@@ -47,19 +37,11 @@ TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
 
 
-  // Input shape.
-  _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
-                                            QObject::tr("Input shape"));
-
-  _buildShapeProperty(_inputItem, textureMapping->getInputShape().get());
-  _topItem->addSubProperty(_inputItem);
-
   // Output shape.
-  // Input shape.
   _outputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
                                              QObject::tr("Output shape"));
 
-  _buildShapeProperty(_outputItem, textureMapping->getShape().get());
+  _buildShapeProperty(_outputItem, mapping->getShape().get());
   _topItem->addSubProperty(_outputItem);
 
   connect(_variantManager, SIGNAL(valueChanged(QtProperty*, const QVariant&)),
@@ -70,7 +52,51 @@ TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   qDebug() << "Creating mapper" << endl;
 }
 
-void TextureMapper::setValue(QtProperty* property, const QVariant& value)
+QWidget* Mapper::getPropertiesEditor()
+{
+  return _propertyBrowser;
+}
+
+void Mapper::drawShapeContour(QPainter* painter, const Shape& shape, int lineWidth, const QColor& color)
+{
+  QColor rgbColor = color.toRgb();
+
+  glColor4f(rgbColor.redF(), rgbColor.greenF(), rgbColor.blueF(), 1.0f);
+
+  glLineWidth(lineWidth);
+  glBegin (GL_LINE_STRIP);
+  for (int i = 0; i < shape.nVertices()+1; i++)
+  {
+    glVertex2f(
+        shape.getVertex(i % shape.nVertices())->x(),
+        shape.getVertex(i % shape.nVertices())->y()
+    );
+  }
+  glEnd();
+}
+
+TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
+  : Mapper(mapping)
+{
+  // Assign members pointers.
+  textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
+  Q_CHECK_PTR(textureMapping);
+
+  texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+  Q_CHECK_PTR(texture);
+
+  inputShape = std::tr1::static_pointer_cast<Shape>(textureMapping->getInputShape());
+  Q_CHECK_PTR(inputShape);
+
+  // Input shape.
+  _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
+                                            QObject::tr("Input shape"));
+
+  _buildShapeProperty(_inputItem, textureMapping->getInputShape().get());
+  _topItem->insertSubProperty(_inputItem, 0); // insert before output item
+}
+
+void Mapper::setValue(QtProperty* property, const QVariant& value)
 {
   std::map<QtProperty*, std::pair<Shape*, int> >::iterator it = _propertyToVertex.find(property);
   if (it != _propertyToVertex.end())
@@ -85,6 +111,116 @@ void TextureMapper::setValue(QtProperty* property, const QVariant& value)
     }
   }
 }
+
+void Mapper::_buildShapeProperty(QtProperty* shapeItem, Shape* shape)
+{
+  for (int i=0; i<shape->nVertices(); i++)
+  {
+    // Add point.
+    QtVariantProperty* pointItem = _variantManager->addProperty(QVariant::PointF,
+                                                                QObject::tr("Point %1").arg(i));
+
+    Point *p = shape->getVertex(i);
+    pointItem->setValue(*p);
+
+    shapeItem->addSubProperty(pointItem);
+    _propertyToVertex[pointItem] = std::make_pair(shape, i);
+  }
+
+}
+
+void Mapper::_updateShapeProperty(QtProperty* shapeItem, Shape* shape)
+{
+  QList<QtProperty*> pointItems = shapeItem->subProperties();
+  for (int i=0; i<shape->nVertices(); i++)
+  {
+    // XXX mesh control points are not added to properties
+    if (i < pointItems.size())
+    {
+      QtVariantProperty* pointItem = (QtVariantProperty*)pointItems[i];
+      Point *p = shape->getVertex(i);
+      pointItem->setValue(*p);
+    }
+  }
+}
+
+
+ColorMapper::ColorMapper(Mapping::ptr mapping)
+  : Mapper(mapping)
+{
+  color = std::tr1::static_pointer_cast<Color>(_mapping->getPaint());
+  Q_CHECK_PTR(color);
+}
+
+#include "MainWindow.h"
+void ColorMapper::draw(QPainter* painter)
+{
+  painter->setRenderHint(QPainter::Antialiasing);
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(color->getColor());
+
+  // Draw shape as polygon.
+  painter->drawPolygon(_mapping->getShape()->toPolygon());
+}
+
+void ColorMapper::drawControls(QPainter* painter)
+{
+}
+
+MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)
+  : ColorMapper(mapping) {
+  // Add mesh sub property.
+  Mesh* mesh = (Mesh*)mapping->getShape().get();
+  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
+  _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
+  _topItem->insertSubProperty(_meshItem, 0); // insert at the beginning
+}
+
+void MeshColorMapper::draw(QPainter* painter)
+{
+  painter->setRenderHint(QPainter::Antialiasing);
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(color->getColor());
+
+  std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
+  std::vector<std::vector<Quad> > outputQuads = outputMesh->getQuads2d();
+  for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
+  {
+    for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
+    {
+      Quad& outputQuad = outputQuads[x][y];
+      painter->drawPolygon(outputQuad.toPolygon());
+    }
+  }
+}
+
+void MeshColorMapper::drawControls(QPainter* painter)
+{
+  std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
+  std::vector<Quad> outputQuads = outputMesh->getQuads();
+  for (std::vector<Quad>::const_iterator it = outputQuads.begin(); it != outputQuads.end(); ++it)
+  {
+    drawShapeContour(painter, *it, 1, QColor(0, 0, 255));
+  }
+}
+
+void MeshColorMapper::setValue(QtProperty* property, const QVariant& value)
+{
+  if (property == _meshItem)
+  {
+    Mesh* outputMesh = static_cast<Mesh*>(_mapping->getShape().get());
+    QSize size = (static_cast<QtVariantProperty*>(property))->value().toSize();
+    if (outputMesh->nColumns() != size.width() || outputMesh->nRows() != size.height())
+    {
+      outputMesh->resize(size.width(), size.height());
+
+      emit valueChanged();
+    }
+  }
+  else
+    ColorMapper::setValue(property, value);
+}
+
 
 void TextureMapper::updateShape(Shape* shape)
 {
@@ -107,13 +243,11 @@ void TextureMapper::updateShape(Shape* shape)
 
 }
 
-QWidget* TextureMapper::getPropertiesEditor()
-{
-  return _propertyBrowser;
-}
 
-void TextureMapper::draw()
+void TextureMapper::draw(QPainter* painter)
 {
+  painter->beginNativePainting();
+
   // Only works for similar shapes.
   Q_ASSERT( outputShape->nVertices() == outputShape->nVertices());
 
@@ -134,75 +268,26 @@ void TextureMapper::draw()
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
   // Perform the actual mapping (done by subclasses).
-  _doDraw();
+  _doDraw(painter);
 
   glDisable(GL_TEXTURE_2D);
+
+  painter->endNativePainting();
 }
 
-void TextureMapper::drawInput()
+void TextureMapper::drawInput(QPainter* painter)
 {
 
 }
 
-void TextureMapper::drawControls()
+void TextureMapper::drawControls(QPainter* painter)
 {
-  drawShapeContour(*outputShape, 3, QColor(0, 0, 255));
+  drawShapeContour(painter, *outputShape, 3, QColor(0, 0, 255));
 }
 
-void TextureMapper::drawInputControls()
+void TextureMapper::drawInputControls(QPainter* painter)
 {
-  drawShapeContour(*inputShape, 3, QColor(0, 0, 255));
-}
-
-void TextureMapper::drawShapeContour(const Shape& shape, int lineWidth, const QColor& color)
-{
-  QColor rgbColor = color.toRgb();
-
-  glColor4f(rgbColor.redF(), rgbColor.greenF(), rgbColor.blueF(), 1.0f);
-
-  glLineWidth(lineWidth);
-  glBegin (GL_LINE_STRIP);
-  for (int i = 0; i < shape.nVertices()+1; i++)
-  {
-    glVertex2f(
-        shape.getVertex(i % shape.nVertices())->x(),
-        shape.getVertex(i % shape.nVertices())->y()
-    );
-  }
-  glEnd();
-}
-
-
-void TextureMapper::_buildShapeProperty(QtProperty* shapeItem, Shape* shape)
-{
-  for (int i=0; i<shape->nVertices(); i++)
-  {
-    // Add point.
-    QtVariantProperty* pointItem = _variantManager->addProperty(QVariant::PointF,
-                                                                QObject::tr("Point %1").arg(i));
-
-    Point *p = shape->getVertex(i);
-    pointItem->setValue(*p);
-
-    shapeItem->addSubProperty(pointItem);
-    _propertyToVertex[pointItem] = std::make_pair(shape, i);
-  }
-
-}
-
-void TextureMapper::_updateShapeProperty(QtProperty* shapeItem, Shape* shape)
-{
-  QList<QtProperty*> pointItems = shapeItem->subProperties();
-  for (int i=0; i<shape->nVertices(); i++)
-  {
-    // XXX mesh control points are not added to properties
-    if (i < pointItems.size())
-    {
-      QtVariantProperty* pointItem = (QtVariantProperty*)pointItems[i];
-      Point *p = shape->getVertex(i);
-      pointItem->setValue(*p);
-    }
-  }
+  drawShapeContour(painter, *inputShape, 3, QColor(0, 0, 255));
 }
 
 TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
@@ -210,7 +295,7 @@ TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping
 {
 }
 
-void TriangleTextureMapper::_doDraw()
+void TriangleTextureMapper::_doDraw(QPainter* painter)
 {
   glBegin(GL_TRIANGLES);
   {
@@ -261,27 +346,27 @@ void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
     TextureMapper::setValue(property, value);
 }
 
-void MeshTextureMapper::drawControls()
+void MeshTextureMapper::drawControls(QPainter* painter)
 {
   std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
   std::vector<Quad> outputQuads = outputMesh->getQuads();
   for (std::vector<Quad>::const_iterator it = outputQuads.begin(); it != outputQuads.end(); ++it)
   {
-    drawShapeContour(*it, 1, QColor(0, 0, 255));
+    drawShapeContour(painter, *it, 1, QColor(0, 0, 255));
   }
 }
 
-void MeshTextureMapper::drawInputControls()
+void MeshTextureMapper::drawInputControls(QPainter* painter)
 {
   std::tr1::shared_ptr<Mesh> inputMesh = std::tr1::static_pointer_cast<Mesh>(inputShape);
   std::vector<Quad> inputQuads = inputMesh->getQuads();
   for (std::vector<Quad>::const_iterator it = inputQuads.begin(); it != inputQuads.end(); ++it)
   {
-    drawShapeContour(*it, 1, QColor(0, 0, 255));
+    drawShapeContour(painter, *it, 1, QColor(0, 0, 255));
   }
 }
 
-void MeshTextureMapper::_doDraw()
+void MeshTextureMapper::_doDraw(QPainter* painter)
 {
   std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
   std::tr1::shared_ptr<Mesh> inputMesh  = std::tr1::static_pointer_cast<Mesh>(inputShape);
@@ -308,3 +393,4 @@ void MeshTextureMapper::_doDraw()
     }
   }
 }
+

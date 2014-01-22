@@ -39,7 +39,7 @@ public:
 //  virtual Quad& getQuad();
 
 private:
-  virtual void doDraw();
+  virtual void doDraw(QPainter* painter);
 };
 
 #endif /* DESTINATIONGLCANVAS_H_ */

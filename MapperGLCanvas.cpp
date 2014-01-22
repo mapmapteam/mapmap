@@ -38,6 +38,17 @@ void MapperGLCanvas::initializeGL()
 
 void MapperGLCanvas::resizeGL(int /* width */, int /* height */)
 {
+  glViewport(0, 0, width(), height());
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glMatrixMode (GL_PROJECTION);
+  glLoadIdentity ();
+  glOrtho (
+    0.0f, (GLfloat) width(), // left, right
+    (GLfloat) height(), 0.0f, // bottom, top
+    -1.0, 1.0f);
+  glMatrixMode (GL_MODELVIEW);
+
 //  glClearColor(0.0, 0.0, 0.0, 0.0);
 //
 //  glViewport(0, 0, width, height);
@@ -54,32 +65,20 @@ void MapperGLCanvas::resizeGL(int /* width */, int /* height */)
 
 void MapperGLCanvas::paintGL()
 {
-  glClearColor(0.0, 0.0, 0.0, 0.0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  draw();
 }
 
-void MapperGLCanvas::draw()
+void MapperGLCanvas::draw(QPainter* painter)
 {
-  enterDraw();
-  doDraw();
-  exitDraw();
+  enterDraw(painter);
+  doDraw(painter);
+  exitDraw(painter);
 }
 
-void MapperGLCanvas::enterDraw()
+void MapperGLCanvas::enterDraw(QPainter* painter)
 {
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT);
-  glViewport(0, 0, width(), height());
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glMatrixMode (GL_PROJECTION);
-  glLoadIdentity ();
-  glOrtho (
-    0.0f, (GLfloat) width(), // left, right
-    (GLfloat) height(), 0.0f, // bottom, top
-    -1.0, 1.0f);
-  glMatrixMode (GL_MODELVIEW);
+  Q_UNUSED(painter);
 
 //  glClearColor(0.0, 0.0, 0.0, 0.0);
 //  glClear(GL_COLOR_BUFFER_BIT);
@@ -233,7 +232,18 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 
 void MapperGLCanvas::paintEvent(QPaintEvent* /* event */)
 {
-  updateGL();
+  makeCurrent();
+
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  QPainter painter(this);
+  painter.setRenderHint(QPainter::Antialiasing);
+
+  draw(&painter);
+
+  painter.end();
+//  updateGL();
 }
 
 //void MapperGLCanvas::switchImage(int imageId)
@@ -252,10 +262,11 @@ void MapperGLCanvas::paintEvent(QPaintEvent* /* event */)
 //  return QSize( 320, 240 );
 //}
 
-void MapperGLCanvas::exitDraw()
+void MapperGLCanvas::exitDraw(QPainter* painter)
 {
-  glFlush();
-  swapBuffers();
+  Q_UNUSED(painter);
+//  glFlush();
+//  swapBuffers();
 }
 
 void MapperGLCanvas::updateCanvas()

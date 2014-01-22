@@ -63,10 +63,10 @@ protected:
   void paintEvent(QPaintEvent* event);
 
 private:
-  void draw();
-  void enterDraw();
-  virtual void doDraw() = 0;
-  void exitDraw();
+  void draw(QPainter* painter);
+  void enterDraw(QPainter* painter);
+  virtual void doDraw(QPainter* painter) = 0;
+  void exitDraw(QPainter* painter);
   bool _mousepressed;
   int _active_vertex;
   bool _shapegrabbed;

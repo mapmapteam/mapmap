@@ -36,10 +36,17 @@ Shape* SourceGLCanvas::getShapeFromMappingId(uid mappingId)
   else
   {
     Mapping::ptr mapping = MainWindow::getInstance().getMappingManager().getMappingById(mappingId);
-    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
-    Q_CHECK_PTR(textureMapping);
+    // TODO: this is real shit... : we should at the very least use some dynamic casting or (better) implement a correct
+    // class architecture to suit our needs
+    if (mapping->getType().endsWith("_texture"))
+    {
+      std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+      Q_CHECK_PTR(textureMapping);
 
-    return textureMapping->getInputShape().get();
+      return textureMapping->getInputShape().get();
+    }
+    else
+      return NULL;
   }
 }
 
@@ -54,7 +61,7 @@ Shape* SourceGLCanvas::getShapeFromMappingId(uid mappingId)
 //  return (*inputQuad);
 //}
 
-void SourceGLCanvas::doDraw()
+void SourceGLCanvas::doDraw(QPainter* painter)
 {
   if (!MainWindow::getInstance().hasCurrentPaint())
     return;
@@ -64,6 +71,28 @@ void SourceGLCanvas::doDraw()
   // Retrieve paint (as texture) and draw it.
   Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaintById(paintId);
   Q_CHECK_PTR(paint);
+
+  // Retrieve all mappings associated to paint.
+  std::map<uid, Mapping::ptr> mappings = MainWindow::getInstance().getMappingManager().getPaintMappingsById(paintId);
+
+  if (paint->getType() == "color")
+    _drawColor(painter, paint, mappings);
+  else
+    _drawTexture(painter, paint, mappings);
+}
+
+void SourceGLCanvas::_drawColor(QPainter* painter, Paint::ptr paint, std::map<uid, Mapping::ptr> mappings)
+{
+  // Not doing anything for now.
+  Q_UNUSED(painter);
+  Q_UNUSED(paint);
+  Q_UNUSED(mappings);
+}
+
+void SourceGLCanvas::_drawTexture(QPainter* painter, Paint::ptr paint, std::map<uid, Mapping::ptr> mappings)
+{
+  Q_UNUSED(painter);
+
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
   Q_CHECK_PTR(texture);
 
@@ -124,9 +153,6 @@ void SourceGLCanvas::doDraw()
 
   glDisable(GL_TEXTURE_2D);
 
-  // Retrieve all mappings associated to paint.
-  std::map<uid, Mapping::ptr> mappings = MainWindow::getInstance().getMappingManager().getPaintMappingsById(paintId);
-
   for (std::map<uid, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
     // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
@@ -145,7 +171,7 @@ void SourceGLCanvas::doDraw()
      std::tr1::shared_ptr<TextureMapper> textureMapper = std::tr1::static_pointer_cast<TextureMapper>(mapper);
      Q_CHECK_PTR(textureMapper);
 
-     textureMapper->drawInputControls();
+     textureMapper->drawInputControls(painter);
    }
   }
 

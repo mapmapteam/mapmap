@@ -34,7 +34,7 @@ Shape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
     return MainWindow::getInstance().getMappingManager().getMappingById(mappingId)->getShape().get();
 }
 
-void DestinationGLCanvas::doDraw()
+void DestinationGLCanvas::doDraw(QPainter* painter)
 {
 //  // No sources = nothing to do.
 //  if (Common::nImages() == 0)
@@ -79,14 +79,14 @@ void DestinationGLCanvas::doDraw()
       texture->loadTexture();
 
     // Draw the mappings.
-    MainWindow::getInstance().getMapperByMappingId(mapping->getId())->draw();
+    MainWindow::getInstance().getMapperByMappingId(mapping->getId())->draw(painter);
   }
 
   // Draw the controls of current mapping.
   if (MainWindow::getInstance().hasCurrentMapping() &&
       getCurrentShape() != NULL)
   {
-    MainWindow::getInstance().getMapperByMappingId(MainWindow::getInstance().getCurrentMappingId())->drawControls();
+    MainWindow::getInstance().getMapperByMappingId(MainWindow::getInstance().getCurrentMappingId())->drawControls(painter);
   }
 
   glPopMatrix();

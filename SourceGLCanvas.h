@@ -39,7 +39,10 @@ public:
 //  virtual Quad& getQuad();
 
 private:
-  virtual void doDraw();
+  virtual void doDraw(QPainter* painter);
+
+  void _drawColor(QPainter* painter, Paint::ptr paint, std::map<uid, Mapping::ptr> mappings);
+  void _drawTexture(QPainter* painter, Paint::ptr paint, std::map<uid, Mapping::ptr> mappings);
 };
 
 
