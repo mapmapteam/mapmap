@@ -101,6 +101,19 @@ public:
   float getOpacity() const { return _opacity; }
 };
 
+class ColorMapping : public Mapping
+{
+public:
+  ColorMapping(Paint::ptr paint, Shape::ptr shape,
+               uid id=NULL_UID)
+    : Mapping(paint, shape, id) {}
+
+  virtual QString getType() const {
+    return getShape()->getType() + "_color";
+  }
+
+};
+
 /**
  * Object whose paint is an image texture. In the case of a texture mapping we require
  * an additional input shape to specify the area on the image where we pick the pixels.
