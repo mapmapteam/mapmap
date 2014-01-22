@@ -26,6 +26,8 @@
 #include <QtOpenGL>
 #include <string>
 
+#include <QColor>
+
 #if __APPLE__
 #include <OpenGL/gl.h>
 #else
@@ -70,6 +72,21 @@ public:
 
 private:
   QString _name;
+};
+
+class Color : public Paint
+{
+protected:
+  QColor color;
+
+public:
+  Color(uid id=NULL_UID) : Paint(id) {}
+  Color(const QColor& color_, uid id=NULL_UID) : Paint(id), color(color_) {}
+
+  QColor getColor() const { return color; }
+  virtual void setColor(const QColor& color_) { color = color_; }
+
+  virtual QString getType() const { return "color"; }
 };
 
 /**
