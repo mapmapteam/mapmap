@@ -205,16 +205,6 @@ public:
 
   void init(int nColumns, int nRows);
 
-  /**
-   * This is what _vertices2d looks like.
-   *
-   * 0----4----6----1
-   * |    |    |    |
-   * 8----9---10---11
-   * |    |    |    |
-   * 3----5----7----2
-   */
-  // vertices 0..3 = 4 corners
   //
   void addColumn();
   void addRow();

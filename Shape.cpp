@@ -143,15 +143,6 @@ void Mesh::init(int nColumns, int nRows)
     addRow();
 }
 
-/**
- * This is what _vertices2d looks like.
- *
- * 0----4----6----1
- * |    |    |    |
- * 8----9---10---11
- * |    |    |    |
- * 3----5----7----2
- */
 // vertices 0..3 = 4 corners
 //
 void Mesh::addColumn()
