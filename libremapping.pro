@@ -3,6 +3,7 @@ TEMPLATE = app
 HEADERS  = \
     DestinationGLCanvas.h \
 #    Facade.h \
+    MainApplication.h \
     MainWindow.h \
     Mapper.h \
     MapperGLCanvas.h \
@@ -22,6 +23,7 @@ SOURCES  = \
     DestinationGLCanvas.cpp \
 #    Facade.cpp \
     MainWindow.cpp \
+    MainApplication.cpp \
     Mapper.cpp \
     MapperGLCanvas.cpp \
     Mapping.cpp \
