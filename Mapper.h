@@ -68,7 +68,7 @@ public:
   typedef std::tr1::shared_ptr<Mapper> ptr;
 
   Mapper(Mapping::ptr mapping);
-  virtual ~Mapper() {}
+  virtual ~Mapper();
 
   virtual QWidget* getPropertiesEditor();
   virtual void draw(QPainter* painter) = 0;

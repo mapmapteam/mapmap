@@ -52,6 +52,11 @@ Mapper::Mapper(Mapping::ptr mapping)
   qDebug() << "Creating mapper" << endl;
 }
 
+Mapper::~Mapper()
+{
+  delete _propertyBrowser;
+}
+
 QWidget* Mapper::getPropertiesEditor()
 {
   return _propertyBrowser;
