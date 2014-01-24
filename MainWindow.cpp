@@ -72,10 +72,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::handlePaintItemSelectionChanged()
 {
-  std::cout << "selection changed" << std::endl;
   QListWidgetItem* item = paintList->currentItem();
   uid idx = item->data(Qt::UserRole).toInt();
-  std::cout << "idx=" << idx << std::endl;
   setCurrentPaint(idx);
   removeCurrentMapping();
 
@@ -92,7 +90,6 @@ void MainWindow::handlePaintItemSelectionChanged()
 
 void MainWindow::handleMappingItemSelectionChanged()
 {
-  std::cout << "shape selection changed" << std::endl;
   QListWidgetItem* item = mappingList->currentItem();
   uid idx = item->data(Qt::UserRole).toInt();
 
@@ -116,7 +113,6 @@ void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
 
 void MainWindow::handleMappingIndexesMoved()
 {
-  qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1Moved!!!" << endl;
   std::vector<uid> newOrder;
   for (int row=mappingList->count()-1; row>=0; row--)
   {
@@ -318,18 +314,36 @@ void MainWindow::updateStatusBar()
 
 bool MainWindow::clearProject()
 {
-  // Close property panel.
-  propertyPanel->close();
+  // Disconnect signals to avoid problems when clearning mappingList and paintList.
+  disconnectAll();
+
+  // Clear current paint / mapping.
+  removeCurrentPaint();
+  removeCurrentMapping();
 
   // Empty list widgets.
   mappingList->clear();
   paintList->clear();
+
+  // Clear property panel.
+  for (int i=propertyPanel->count()-1; i>=0; i--)
+    propertyPanel->removeWidget(propertyPanel->widget(i));
+
+  // Disable property panel.
+  propertyPanel->setDisabled(true);
 
   // Clear list of mappers.
   mappers.clear();
 
   // Clear model.
   mappingManager->clearAll();
+
+  // Refresh GL canvases to clear them out.
+  sourceCanvas->repaint();
+  destinationCanvas->repaint();
+
+  // Reconnect everything.
+  connectAll();
 
   return true;
 }
@@ -585,6 +599,8 @@ void MainWindow::createLayout()
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
   setCentralWidget(mainSplitter);
 
+  connectAll();
+
 //  Common::initializeLibremapper(sourceCanvas->width(), sourceCanvas->height());
 //
 //  for (int i = 0; i < Common::nImages(); i++)
@@ -598,19 +614,6 @@ void MainWindow::createLayout()
 //
 //    sourceList->addItem(item);
 //  }
-
-  connect(paintList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handlePaintItemSelectionChanged()));
-
-  connect(mappingList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handleMappingItemSelectionChanged()));
-
-  connect(mappingList, SIGNAL(itemChanged(QListWidgetItem*)),
-          this, SLOT(handleMappingItemChanged(QListWidgetItem*)));
-
-  connect(mappingList->model(), SIGNAL(layoutChanged()),
-          this, SLOT(handleMappingIndexesMoved()));
-
 
   //  sourceList->setModel(sourcesModel);
 //
@@ -1054,6 +1057,36 @@ void MainWindow::updateAll()
 QString MainWindow::strippedName(const QString &fullFileName)
 {
   return QFileInfo(fullFileName).fileName();
+}
+
+void MainWindow::connectAll()
+{
+  connect(paintList, SIGNAL(itemSelectionChanged()),
+          this, SLOT(handlePaintItemSelectionChanged()));
+
+  connect(mappingList, SIGNAL(itemSelectionChanged()),
+          this, SLOT(handleMappingItemSelectionChanged()));
+
+  connect(mappingList, SIGNAL(itemChanged(QListWidgetItem*)),
+          this, SLOT(handleMappingItemChanged(QListWidgetItem*)));
+
+  connect(mappingList->model(), SIGNAL(layoutChanged()),
+          this, SLOT(handleMappingIndexesMoved()));
+}
+
+void MainWindow::disconnectAll()
+{
+  disconnect(paintList, SIGNAL(itemSelectionChanged()),
+          this, SLOT(handlePaintItemSelectionChanged()));
+
+  disconnect(mappingList, SIGNAL(itemSelectionChanged()),
+          this, SLOT(handleMappingItemSelectionChanged()));
+
+  disconnect(mappingList, SIGNAL(itemChanged(QListWidgetItem*)),
+          this, SLOT(handleMappingItemChanged(QListWidgetItem*)));
+
+  disconnect(mappingList->model(), SIGNAL(layoutChanged()),
+          this, SLOT(handleMappingIndexesMoved()));
 }
 
 void MainWindow::startOscReceiver()

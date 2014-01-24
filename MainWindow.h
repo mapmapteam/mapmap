@@ -152,6 +152,9 @@ private:
   void clearWindow();
   QString strippedName(const QString &fullFileName);
 
+  void connectAll();
+  void disconnectAll();
+
   // Variables.
   QString curFile;
 
