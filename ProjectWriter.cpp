@@ -78,6 +78,14 @@ void ProjectWriter::writeItem(Paint *item)
     _xml.writeEndElement();
     //_xml.writeEmptyElement("hello");
   }
+  else if (item->getType() == "color")
+  {
+    // FIXME: check paint type before casting to Image
+    Color *color = (Color *) item;
+
+    _xml.writeTextElement("rgb", color->getColor().name());
+    _xml.writeEndElement();
+  }
   else
     qDebug() << "Unknown type, cannot save: " << item->getType() << endl;
 }
@@ -126,6 +134,10 @@ void ProjectWriter::writeItem(Mapping *item)
     writeShapeVertices(shape);
     _xml.writeEndElement(); // shape
 
+    _xml.writeEndElement(); // mapping
+  }
+  else if (item->getType().endsWith("_color"))
+  {
     _xml.writeEndElement(); // mapping
   }
   else

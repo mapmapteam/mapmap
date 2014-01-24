@@ -114,6 +114,20 @@ public slots:
                                    const QList<QPointF> &src, const QList<QPointF> &dst);
 
 
+  /**
+   * Creates a color quad.
+   */
+  uid createQuadColorMapping(uid mappingId,
+                             uid paintId,
+                             const QList<QPointF> &dst);
+
+  /**
+   * Creates a color triangle.
+   */
+  uid createTriangleColorMapping(uid mappingId,
+                                 uid paintId,
+                                 const QList<QPointF> &dst);
+
 private:
   // Methods.
   void createLayout();

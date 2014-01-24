@@ -98,6 +98,16 @@ void ProjectReader::parsePaint(const QDomElement& paint)
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create image with uri %1.").arg(uri));
   }
+  else if (paintAttrType == "color")
+  {
+    QString rgb = paint.firstChildElement("rgb").text();
+    QColor color(rgb);
+
+    uid id = _window->createColorPaint(paintAttrId.toInt(), color);
+    if (id == NULL_UID)
+      _xml.raiseError(QObject::tr("Cannot create color with RGB hex code %1.").arg(rgb));
+
+  }
   else
     _xml.raiseError(QObject::tr("Unsupported paint type: %1.").arg(paintAttrType));
 
@@ -146,30 +156,61 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
       _xml.raiseError(QObject::tr("Cannot create mesh texture mapping"));
 
   }
+  else if (mappingAttrType == "triangle_color")
+  {
+    // Parse destination triangle.
+    _parseTriangle(dst, dstPoints);
+
+    uid id = _window->createTriangleColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
+
+    if (id == NULL_UID)
+      _xml.raiseError(QObject::tr("Cannot create triangle color mapping"));
+  }
+  else if (mappingAttrType == "quad_color")
+  {
+    // Parse destination triangle.
+    _parseQuad(dst, dstPoints);
+
+    uid id = _window->createQuadColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
+
+    if (id == NULL_UID)
+      _xml.raiseError(QObject::tr("Cannot create quad color mapping"));
+  }
   else
     _xml.raiseError(QObject::tr("Unsupported mapping type: %1.").arg(mappingAttrType));
 }
 
-void ProjectReader::_parseTriangle(const QDomElement& triangle, QList<QPointF>& points)
+void ProjectReader::_parseStandardShape(const QString& type, int nVertices, const QDomElement& shape, QList<QPointF>& points)
 {
   // Check that the element is really a triangle.
-  QString type = triangle.attribute("shape", "");
-  if (type != "triangle")
-    _xml.raiseError(QObject::tr("Wrong shape type for destination: %1.").arg(type));
+  QString typeAttr = shape.attribute("shape", "");
+  if (typeAttr != type)
+    _xml.raiseError(QObject::tr("Wrong shape type \"%1\" for destination: expected \"%2\".").arg(typeAttr).arg(type));
 
   // Reset list of points.
   points.clear();
 
   // Add vertices.
-  QDomElement vertex = triangle.firstChildElement("vertex");
+  QDomElement vertex = shape.firstChildElement("vertex");
   while (!vertex.isNull())
   {
     points.push_back(_parseVertex(vertex));
     vertex = vertex.nextSiblingElement("vertex");
   }
 
-  if (points.size() != 3)
-    _xml.raiseError(QObject::tr("Shape has wrong number of vertices."));
+  if (points.size() != nVertices)
+    _xml.raiseError(QObject::tr("Shape has %1 vertices: expected %2.").arg(points.size()).arg(nVertices));
+}
+
+void ProjectReader::_parseQuad(const QDomElement& quad, QList<QPointF>& points)
+{
+  _parseStandardShape("quad", 4, quad, points);
+}
+
+
+void ProjectReader::_parseTriangle(const QDomElement& triangle, QList<QPointF>& points)
+{
+  _parseStandardShape("triangle", 3, triangle, points);
 }
 
 void ProjectReader::_parseMesh(const QDomElement& mesh, QList<QPointF>& points, int& nColumns, int& nRows)

@@ -455,6 +455,65 @@ uid MainWindow::createTriangleTextureMapping(uid mappingId,
   }
 }
 
+uid MainWindow::createQuadColorMapping(uid mappingId,
+                                       uid paintId,
+                                       const QList<QPointF> &dst)
+{
+  // Cannot create element with already existing id or element for which no paint exists.
+  if (Mapping::getUidAllocator().exists(mappingId) ||
+      !Paint::getUidAllocator().exists(paintId) ||
+      paintId == NULL_UID)
+    return NULL_UID;
+
+  else
+  {
+    Paint::ptr paint = mappingManager->getPaintById(paintId);
+    Q_ASSERT(dst.size() == 4);
+
+    Shape::ptr outputQuad(new Quad(dst[0], dst[1], dst[2], dst[3]));
+
+    // Add it to the manager.
+    Mapping::ptr mapping(new ColorMapping(paint, outputQuad, mappingId));
+    uid id = mappingManager->addMapping(mapping);
+
+    // Add it to the GUI.
+    addMappingItem(mappingId);
+
+    // Return the id.
+    return id;
+  }
+}
+
+uid MainWindow::createTriangleColorMapping(uid mappingId,
+                                           uid paintId,
+                                           const QList<QPointF> &dst)
+{
+  // Cannot create element with already existing id or element for which no paint exists.
+  if (Mapping::getUidAllocator().exists(mappingId) ||
+      !Paint::getUidAllocator().exists(paintId) ||
+      paintId == NULL_UID)
+    return NULL_UID;
+
+  else
+  {
+    Paint::ptr paint = mappingManager->getPaintById(paintId);
+    Q_ASSERT(dst.size() == 3);
+
+    Shape::ptr outputQuad(new Triangle(dst[0], dst[1], dst[2]));
+
+    // Add it to the manager.
+    Mapping::ptr mapping(new ColorMapping(paint, outputQuad, mappingId));
+    uid id = mappingManager->addMapping(mapping);
+
+    // Add it to the GUI.
+    addMappingItem(mappingId);
+
+    // Return the id.
+    return id;
+  }
+}
+
+
 void MainWindow::windowModified()
 {
   setWindowModified(true);
