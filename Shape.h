@@ -20,57 +20,22 @@
 #ifndef SHAPE_H_
 #define SHAPE_H_
 
+#include <tr1/memory>
+#include <iostream>
+
 #include <QtGlobal>
+#include <QObject>
 #include <QPointF>
 #include <QPolygonF>
-#include <vector>
-#include <map>
-
-#include <tr1/memory>
-#include <QObject>
+#include <QVector>
+#include <QMap>
 #include <QString>
-#include <QPointF>
 #include <QMetaType>
-#include <iostream>
+
 /**
  * Point (or vertex) on the 2-D canvas.
  */
 
-
-Q_DECLARE_METATYPE (qreal)
-
-class Point: public QObject, public QPointF
-{
-  Q_OBJECT
-
-public:
-  Q_PROPERTY(qreal x READ x WRITE setX NOTIFY xChanged)
-  Q_PROPERTY(qreal y READ y WRITE setY NOTIFY yChanged)
-  Q_INVOKABLE Point(qreal x, qreal y): QPointF(x,y) {}
-  Q_INVOKABLE Point(): QPointF(0,0) {}
-
-signals:
-  void xChanged();
-  void yChanged();
-
-public slots:
-  void setX(qreal x)
-  {
-    QPointF::setX(x);
-    emit xChanged();
-  }
-  void setY(qreal y)
-  {
-    QPointF::setY(y);
-    emit yChanged();
-  }
-  void setValue(const QPointF& p)
-  {
-    setX(p.x());
-    setY(p.y());
-  }
-
-};
 /**
  * Series of vertices. (points)
  */
@@ -80,7 +45,7 @@ public:
   typedef std::tr1::shared_ptr<Shape> ptr;
 
   Shape() {}
-  Shape(std::vector<Point*> vertices_) :
+  Shape(QVector<QPointF> vertices_) :
     vertices(vertices_)
   {}
   virtual ~Shape() {}
@@ -164,12 +129,15 @@ public:
 };
 
 class Mesh : public Quad {
+
+  typedef QVector<QVector<int> > IndexVector2d;
+
 public:
   Mesh() : _nColumns(0), _nRows(0) {
     init(1, 1);
   }
   Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4, int nColumns=2, int nRows=2);
-  Mesh(const QList<QPointF>& points, int nColumns, int nRows);
+  Mesh(const QVector<QPointF>& points, int nColumns, int nRows);
   virtual ~Mesh() {}
 
   virtual QString getType() const { return "mesh"; }
@@ -191,7 +159,7 @@ public:
     vertices[_vertices2d[i][j]] = QPointF(x, y);
   }
 
-  void resizeVertices2d(std::vector< std::vector<int> >& vertices2d, int nColumns, int nRows);
+  void resizeVertices2d(IndexVector2d& vertices2d, int nColumns, int nRows);
 
   void init(int nColumns, int nRows);
 
@@ -203,8 +171,8 @@ public:
 
 //  void removeColumn(int columnId);
 
-  std::vector<Quad> getQuads() const;
-  std::vector< std::vector<Quad> > getQuads2d() const;
+  QVector<Quad> getQuads() const;
+  QVector<QVector<Quad> > getQuads2d() const;
 
   int nColumns() const { return _nColumns; }
   int nRows() const  { return _nRows; }
@@ -216,9 +184,7 @@ protected:
   int _nColumns;
   int _nRows;
   // _vertices[i][j] contains vertex id of vertex at position (i,j) where i = 0..nColumns and j = 0..nRows
-  std::vector< std::vector<int> > _vertices2d;
-  // Maps a vertex id to the pair of vertex ids it "splits".
-  std::map<int, std::pair<int, int> > _splitVertices;
+  IndexVector2d _vertices2d;
 
   /**
    * Reorder vertices in a standard order:

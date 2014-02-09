@@ -60,25 +60,24 @@ bool Shape::includesPoint(int x, int y)
 
 void Shape::translate(int x, int y)
 {
-  for (std::vector<Point*>::iterator it = vertices.begin() ;
+  for (QVector<QPointF>::iterator it = vertices.begin() ;
       it != vertices.end(); ++it)
   {
-    (*it)->setX((*it)->x() + x);
-    (*it)->setY((*it)->y() + y);
+    it->setX(it->x() + x);
+    it->setY(it->y() + y);
   }
 }
 
 QPolygonF Shape::toPolygon() const
 {
   QPolygonF polygon;
-  for (std::vector<Point*>::const_iterator it = vertices.begin() ;
+  for (QVector<QPointF>::const_iterator it = vertices.begin() ;
       it != vertices.end(); ++it)
   {
-    polygon.append((*it)->toPoint());
+    polygon.append(*it);
   }
   return polygon;
 }
-
 
 Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4, int nColumns, int nRows)
 : Quad(p1, p2, p3, p4), _nColumns(0), _nRows(0)
@@ -87,7 +86,7 @@ Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4, int nColumns, int nRo
   init(nColumns, nRows);
 }
 
-Mesh::Mesh(const QList<QPointF>& points, int nColumns, int nRows)
+Mesh::Mesh(const QVector<QPointF>& points, int nColumns, int nRows)
 : Quad(), _nColumns(nColumns), _nRows(nRows)
 {
   Q_ASSERT(nColumns >= 2 && nRows >= 2);
@@ -148,7 +147,7 @@ void Mesh::init(int nColumns, int nRows)
 void Mesh::addColumn()
 {
   // Create new vertices 2d (temporary).
-  std::vector< std::vector<int> > newVertices2d;
+  IndexVector2d newVertices2d;
   resizeVertices2d(newVertices2d, nColumns()+1, nRows());
 
   // Left displacement of points already there.
@@ -201,7 +200,7 @@ void Mesh::addColumn()
 void Mesh::addRow()
 {
   // Create new vertices 2d (temporary).
-  std::vector< std::vector<int> > newVertices2d;
+  IndexVector2d newVertices2d;
   resizeVertices2d(newVertices2d, nColumns(), nRows()+1);
 
   // Top displacement of points already there.
@@ -313,9 +312,9 @@ void Mesh::resize(int nColumns_, int nRows_)
 //
 //  }
 
-std::vector<Quad> Mesh::getQuads() const
+QVector<Quad> Mesh::getQuads() const
 {
-  std::vector<Quad> quads;
+  QVector<Quad> quads;
   for (int i=0; i<nHorizontalQuads(); i++)
   {
     for (int j=0; j<nVerticalQuads(); j++)
@@ -333,12 +332,12 @@ std::vector<Quad> Mesh::getQuads() const
   return quads;
 }
 
-std::vector< std::vector<Quad> > Mesh::getQuads2d() const
+QVector< QVector<Quad> > Mesh::getQuads2d() const
 {
-  std::vector< std::vector<Quad> > quads2d;
+  QVector< QVector<Quad> > quads2d;
   for (int i=0; i<nHorizontalQuads(); i++)
   {
-    std::vector<Quad> column;
+    QVector<Quad> column;
     for (int j=0; j<nVerticalQuads(); j++)
     {
       Quad quad(
@@ -357,7 +356,7 @@ std::vector< std::vector<Quad> > Mesh::getQuads2d() const
 void Mesh::_reorderVertices()
 {
   // Populate new vertices vector.
-  std::vector<Point*> newVertices(vertices.size());
+  QVector<QPointF> newVertices(vertices.size());
   int k = 0;
   for (int x=0; x<nColumns(); x++)
     for (int y=0; y<nRows(); y++)

@@ -187,7 +187,7 @@ void MeshColorMapper::draw(QPainter* painter)
   painter->setBrush(color->getColor());
 
   std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
-  std::vector<std::vector<Quad> > outputQuads = outputMesh->getQuads2d();
+  QVector<QVector<Quad> > outputQuads = outputMesh->getQuads2d();
   for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
   {
     for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
@@ -201,8 +201,8 @@ void MeshColorMapper::draw(QPainter* painter)
 void MeshColorMapper::drawControls(QPainter* painter)
 {
   std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
-  std::vector<Quad> outputQuads = outputMesh->getQuads();
-  for (std::vector<Quad>::const_iterator it = outputQuads.begin(); it != outputQuads.end(); ++it)
+  QVector<Quad> outputQuads = outputMesh->getQuads();
+  for (QVector<Quad>::const_iterator it = outputQuads.begin(); it != outputQuads.end(); ++it)
   {
     drawShapeContour(painter, *it, 1, QColor(0, 0, 255));
   }
@@ -356,8 +356,8 @@ void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
 void MeshTextureMapper::drawControls(QPainter* painter)
 {
   std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
-  std::vector<Quad> outputQuads = outputMesh->getQuads();
-  for (std::vector<Quad>::const_iterator it = outputQuads.begin(); it != outputQuads.end(); ++it)
+  QVector<Quad> outputQuads = outputMesh->getQuads();
+  for (QVector<Quad>::const_iterator it = outputQuads.begin(); it != outputQuads.end(); ++it)
   {
     drawShapeContour(painter, *it, 1, QColor(0, 0, 255));
   }
@@ -366,8 +366,8 @@ void MeshTextureMapper::drawControls(QPainter* painter)
 void MeshTextureMapper::drawInputControls(QPainter* painter)
 {
   std::tr1::shared_ptr<Mesh> inputMesh = std::tr1::static_pointer_cast<Mesh>(inputShape);
-  std::vector<Quad> inputQuads = inputMesh->getQuads();
-  for (std::vector<Quad>::const_iterator it = inputQuads.begin(); it != inputQuads.end(); ++it)
+  QVector<Quad> inputQuads = inputMesh->getQuads();
+  for (QVector<Quad>::const_iterator it = inputQuads.begin(); it != inputQuads.end(); ++it)
   {
     drawShapeContour(painter, *it, 1, QColor(0, 0, 255));
   }
