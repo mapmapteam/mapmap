@@ -27,7 +27,9 @@
 #include <QtGlobal>
 #include <QObject>
 #include <QPointF>
+#include <QVector2D>
 #include <QPolygonF>
+
 #include <QVector>
 #include <QMap>
 #include <QString>
@@ -62,13 +64,13 @@ public:
 
   virtual void setVertex(int i, const QPointF& v)
   {
-    vertices[i] = v;
+    vertices[i].setX(v.x());
+    vertices[i].setY(v.y());
   }
 
   virtual void setVertex(int i, double x, double y)
   {
-    vertices[i].setX(x);
-    vertices[i].setY(y);
+    setVertex(i, QPointF(x, y));
   }
 
   virtual QString getType() const = 0;
@@ -91,6 +93,7 @@ protected:
   {
     vertices.push_back(vertex);
   }
+
 };
 
 /**
@@ -224,18 +227,79 @@ public:
 //  }
 //
   QPointF getCenter() const {
-    return (QVector2D(getVertex(0)) + (getHorizontalAxis() / 2)).toPointF();
+    return (QVector2D(getVertex(0)) - (getHorizontalAxis() / 2)).toPointF();
   }
 
   QVector2D getHorizontalAxis() const {
-    return QVector2D(getVertex(2)) - QVector2D(getVertex(0));
+    return QVector2D(getVertex(0)) - QVector2D(getVertex(2));
   }
 
   QVector2D getVerticalAxis() const {
     return QVector2D(getVertex(1)) - QVector2D(getVertex(3));
   }
 
+  // Override the parent, checking to make sure the vertices are displaced correctly.
+  virtual void setVertex(int i, const QPointF& v)
+  {
+    // Save vertical axis vector.
+    const QVector2D& vAxis  = getVerticalAxis();
+
+    // If changed one of the two rotation-controlling points, adjust the other two points.
+    if (i == 0 || i == 2)
+    {
+      // Change the vertex.
+      Shape::setVertex(i, v);
+
+      // Retrieve the new horizontal axis vector and center.
+      const QVector2D& hAxis  = getHorizontalAxis();
+      const QVector2D center(getCenter());
+
+      // Ajust the two other points.
+
+      // Compute a vector that is the 90 degree rotation of the horizontal axis,
+      // with a magnitude equal to the vertical radius.
+      QVector2D vAxisVec(hAxis.y(), -hAxis.x()); // 90 deg CW rotation of horiz. axis
+      vAxisVec.normalize();
+      vAxisVec *= vAxis.length() / 2;
+
+      // Assign vertical control points.
+      QPointF v1 = (center + vAxisVec).toPointF();
+      QPointF v3 = (center - vAxisVec).toPointF();
+      Shape::setVertex(1, v1);
+      Shape::setVertex(3, v3);
+    }
+
+    // If changed one of the two other points, just change the vertical axis.
+    else
+    {
+      // Retrieve the new horizontal axis vector and center.
+      const QVector2D center(getCenter());
+
+      QVector2D vFromCenter = QVector2D(v) - center;
+
+      // Find projection of v onto vAxis / 2.
+      QVector2D vAxisNormalized = vAxis.normalized();
+      const QVector2D& projection = QVector2D::dotProduct( vFromCenter, vAxisNormalized ) * vAxisNormalized;
+
+      // Assign vertical control points.
+      QPointF v1;
+      QPointF v3;
+      if (i == 1)
+      {
+        v1 = (center + projection).toPointF();
+        v3 = (center - projection).toPointF();
+      }
+      else
+      {
+        v1 = (center - projection).toPointF();
+        v3 = (center + projection).toPointF();
+      }
+      Shape::setVertex(1, v1);
+      Shape::setVertex(3, v3);
+    }
+
   }
+
 
 //protected:
 //  virtual void _vertexChanged(int i, Point* p=NULL) {
