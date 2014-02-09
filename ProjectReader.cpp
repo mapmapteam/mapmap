@@ -121,7 +121,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
 
   // Get destination shape.
   QDomElement dst = mapping.firstChildElement("destination");
-  QList<QPointF> dstPoints;
+  QVector<QPointF> dstPoints;
 
   if (mappingAttrType == "triangle_texture")
   {
@@ -130,7 +130,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
 
     // Get / parse source shape.
     QDomElement src = mapping.firstChildElement("source");
-    QList<QPointF> srcPoints;
+    QVector<QPointF> srcPoints;
     _parseTriangle(src, srcPoints);
 
     uid id = _window->createTriangleTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), srcPoints, dstPoints);
@@ -147,7 +147,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
 
     // Get / parse source shape.
     QDomElement src = mapping.firstChildElement("source");
-    QList<QPointF> srcPoints;
+    QVector<QPointF> srcPoints;
     _parseMesh(src, srcPoints, nColumns, nRows);
 
     uid id = _window->createMeshTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), nColumns, nRows, srcPoints, dstPoints);
@@ -180,7 +180,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     _xml.raiseError(QObject::tr("Unsupported mapping type: %1.").arg(mappingAttrType));
 }
 
-void ProjectReader::_parseStandardShape(const QString& type, int nVertices, const QDomElement& shape, QList<QPointF>& points)
+void ProjectReader::_parseStandardShape(const QString& type, int nVertices, const QDomElement& shape, QVector<QPointF>& points)
 {
   // Check that the element is really a triangle.
   QString typeAttr = shape.attribute("shape", "");
@@ -202,18 +202,18 @@ void ProjectReader::_parseStandardShape(const QString& type, int nVertices, cons
     _xml.raiseError(QObject::tr("Shape has %1 vertices: expected %2.").arg(points.size()).arg(nVertices));
 }
 
-void ProjectReader::_parseQuad(const QDomElement& quad, QList<QPointF>& points)
+void ProjectReader::_parseQuad(const QDomElement& quad, QVector<QPointF>& points)
 {
   _parseStandardShape("quad", 4, quad, points);
 }
 
 
-void ProjectReader::_parseTriangle(const QDomElement& triangle, QList<QPointF>& points)
+void ProjectReader::_parseTriangle(const QDomElement& triangle, QVector<QPointF>& points)
 {
   _parseStandardShape("triangle", 3, triangle, points);
 }
 
-void ProjectReader::_parseMesh(const QDomElement& mesh, QList<QPointF>& points, int& nColumns, int& nRows)
+void ProjectReader::_parseMesh(const QDomElement& mesh, QVector<QPointF>& points, int& nColumns, int& nRows)
 {
   // Check that the element is really a mash.
   QString type = mesh.attribute("shape", "");

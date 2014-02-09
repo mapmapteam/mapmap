@@ -60,19 +60,19 @@ int map_int(int value, int istart, int istop, int ostart, int ostop)
 Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight)
 {
   return new Mesh(
-    Point(texture->getX(), texture->getY()),
-    Point(texture->getX() + texture->getWidth(), texture->getY()),
-    Point(texture->getX() + texture->getWidth(), texture->getY() + texture->getHeight()),
-    Point(texture->getX(), texture->getY() + texture->getHeight())
+    QPointF(texture->getX(), texture->getY()),
+    QPointF(texture->getX() + texture->getWidth(), texture->getY()),
+    QPointF(texture->getX() + texture->getWidth(), texture->getY() + texture->getHeight()),
+    QPointF(texture->getX(), texture->getY() + texture->getHeight())
   );
 }
 
 Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight)
 {
   return new Triangle(
-    Point(texture->getX(), texture->getY() + texture->getHeight()),
-    Point(texture->getX() + texture->getWidth(), texture->getY() + texture->getHeight()),
-    Point(texture->getX() + texture->getWidth() / 2, texture->getY())
+    QPointF(texture->getX(), texture->getY() + texture->getHeight()),
+    QPointF(texture->getX() + texture->getWidth(), texture->getY() + texture->getHeight()),
+    QPointF(texture->getX() + texture->getWidth() / 2, texture->getY())
   );
 }
 
@@ -95,19 +95,19 @@ Ellipse* createEllipseForTexture(Texture* texture, int frameWidth,
 Quad* createQuadForColor(int frameWidth, int frameHeight)
 {
   return new Quad(
-    Point(frameWidth / 4, frameHeight / 4),
-    Point(frameWidth * 3 / 4, frameHeight / 4),
-    Point(frameWidth * 3 / 4, frameHeight * 3/ 4),
-    Point(frameWidth / 4, frameHeight * 3 / 4)
+    QPointF(frameWidth / 4, frameHeight / 4),
+    QPointF(frameWidth * 3 / 4, frameHeight / 4),
+    QPointF(frameWidth * 3 / 4, frameHeight * 3/ 4),
+    QPointF(frameWidth / 4, frameHeight * 3 / 4)
   );
 }
 
 Triangle* createTriangleForColor(int frameWidth, int frameHeight)
 {
   return new Triangle(
-      Point(frameWidth / 4, frameHeight * 3 / 4),
-      Point(frameWidth * 3 / 4, frameHeight * 3 / 4),
-      Point(frameWidth / 2, frameHeight / 4)
+    QPointF(frameWidth / 4, frameHeight * 3 / 4),
+    QPointF(frameWidth * 3 / 4, frameHeight * 3 / 4),
+    QPointF(frameWidth / 2, frameHeight / 4)
   );
 }
 
