@@ -251,17 +251,9 @@ void EllipseColorMapper::draw(QPainter* painter)
 
   painter->resetTransform();
   for (int i=0; i<4; i++) {
-    if (i==0)
-      painter->setBrush(QColor("#333333"));
-    else if (i==1)
-      painter->setBrush(QColor("#777777"));
-    else if (i==2)
-      painter->setBrush(QColor("#aaaaaa"));
-    else
-      painter->setBrush(QColor("#ffffff"));
-
+    painter->setBrush(QColor(0, 0, 0));
+    painter->setPen(QPen(QBrush(QColor(0, 0, 255)), 2));
     painter->drawEllipse(outputEllipse->getVertex(i), 5, 5);
-    painter->drawStaticText(outputEllipse->getVertex(i), QString(i));
   }
 
   painter->restore(); // restore saved painter state
