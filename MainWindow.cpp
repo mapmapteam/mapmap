@@ -549,10 +549,10 @@ uid MainWindow::createTriangleColorMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(dst.size() == 3);
 
-    Shape::ptr outputQuad(new Triangle(dst[0], dst[1], dst[2]));
+    Shape::ptr outputTriangle(new Triangle(dst[0], dst[1], dst[2]));
 
     // Add it to the manager.
-    Mapping::ptr mapping(new ColorMapping(paint, outputQuad, mappingId));
+    Mapping::ptr mapping(new ColorMapping(paint, outputTriangle, mappingId));
     uid id = mappingManager->addMapping(mapping);
 
     // Add it to the GUI.
@@ -753,13 +753,13 @@ void MainWindow::createActions()
   aboutAction->setStatusTip(tr("Show the application's About box"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
-  addQuadAction = new QAction(tr("&Add quad/mesh"), this);
+  addQuadAction = new QAction(tr("Add Quad/&Mesh"), this);
   addQuadAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
-  addQuadAction->setStatusTip(tr("Add quad"));
+  addQuadAction->setStatusTip(tr("Add quad/mesh"));
   connect(addQuadAction, SIGNAL(triggered()), this, SLOT(addMesh()));
   addQuadAction->setEnabled(false);
 
-  addTriangleAction = new QAction(tr("&Add triangle"), this);
+  addTriangleAction = new QAction(tr("Add &Triangle"), this);
   addTriangleAction->setIcon(QIcon(":/images/draw-triangle.png"));
   addTriangleAction->setStatusTip(tr("Add triangle"));
   connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
@@ -1073,7 +1073,7 @@ void MainWindow::addMappingItem(uint mappingId)
   // Mesh
   else if (shapeType == "mesh" || shapeType == "quad")
   {
-    label = QString("Quad %1").arg(mappingId);
+    label = QString(shapeType == "mesh" ? "Mesh %1" : "Quad %1").arg(mappingId);
     icon = QIcon(":/images/draw-rectangle-2.png");
     if (paintType == "color")
       mapper = Mapper::ptr(new ColorMapper(mapping));
