@@ -140,6 +140,17 @@ private:
   QtVariantProperty* _meshItem;
 };
 
+class EllipseColorMapper : public ColorMapper {
+  Q_OBJECT
+
+public:
+  EllipseColorMapper(Mapping::ptr mapping);
+  virtual ~EllipseColorMapper() {}
+
+  virtual void draw(QPainter* painter);
+//  virtual void drawControls(QPainter* painter);
+};
+
 /**
  * Draws a texture.
  */

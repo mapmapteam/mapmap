@@ -226,6 +226,52 @@ void MeshColorMapper::setValue(QtProperty* property, const QVariant& value)
     ColorMapper::setValue(property, value);
 }
 
+EllipseColorMapper::EllipseColorMapper(Mapping::ptr mapping)
+  : ColorMapper(mapping) {
+}
+
+void EllipseColorMapper::draw(QPainter* painter)
+{
+  painter->setRenderHint(QPainter::Antialiasing);
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(color->getColor());
+
+  std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(outputShape);
+  qreal rotation = outputEllipse->getRotation();
+  qDebug() << "Rotation: " << rotation << endl;
+  QRect rect     = outputEllipse->getBoundingRect();
+  painter->save(); // save painter state
+  painter->resetTransform();
+  painter->setBrush(color->getColor());
+//  painter->translate()
+  //painter->translate(0, rect.height()/2);
+  QPointF p0 = outputEllipse->getVertex(0)->toPoint();
+  QPointF center = outputEllipse->getCenter();
+  float rx = rect.width() / 2;
+  float ry = rect.height() / 2;
+  painter->translate(center);
+  painter->rotate(rotation);
+  painter->drawEllipse(QPointF(0,0), rx, ry);
+//  painter->translate(p0.x() + rect.width()/2, p0.y() + rect.height() / 2);
+  //painter->drawEllipse(rect);
+
+  painter->resetTransform();
+  for (int i=0; i<4; i++) {
+    if (i==0)
+      painter->setBrush(QColor("#333333"));
+    else if (i==1)
+      painter->setBrush(QColor("#777777"));
+    else if (i==2)
+      painter->setBrush(QColor("#aaaaaa"));
+    else
+      painter->setBrush(QColor("#ffffff"));
+
+    painter->drawEllipse(outputEllipse->getVertex(i)->toPoint(), 5, 5);
+    painter->drawStaticText(outputEllipse->getVertex(i)->toPoint(), QString(i));
+  }
+
+  painter->restore(); // restore saved painter state
+}
 
 void TextureMapper::updateShape(Shape* shape)
 {

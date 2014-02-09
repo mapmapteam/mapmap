@@ -80,6 +80,7 @@ void MainWindow::handlePaintItemSelectionChanged()
   // Enable creation of mappings when a paint is selected.
   addQuadAction->setEnabled(true);
   addTriangleAction->setEnabled(true);
+  addEllipseAction->setEnabled(true);
 
   // Update canvases.
   updateAll();
@@ -273,6 +274,41 @@ void MainWindow::addTriangle()
     Shape::ptr outputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
     Shape::ptr inputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, inputTriangle, outputTriangle);
+  }
+
+  // Create mapping.
+  Mapping::ptr mapping(mappingPtr);
+  uint mappingId = mappingManager->addMapping(mapping);
+  addMappingItem(mappingId);
+}
+
+void MainWindow::addEllipse()
+{
+  // A paint must be selected to add a mapping.
+  if (getCurrentPaintId() == NULL_UID)
+    return;
+
+  // Create default quad.
+
+  // Retrieve current paint (as texture).
+  Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(getCurrentPaintId());
+  Q_CHECK_PTR(paint);
+
+  // Create input and output quads.
+  Mapping* mappingPtr;
+  if (paint->getType() == "color")
+  {
+    Shape::ptr outputEllipse = Shape::ptr(Util::createEllipseForColor(sourceCanvas->width(), sourceCanvas->height()));
+    mappingPtr = new ColorMapping(paint, outputEllipse);
+  }
+  else
+  {
+//    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
+//    Q_CHECK_PTR(texture);
+//
+//    Shape::ptr outputEllipse = Shape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+//    Shape::ptr inputEllipse = Shape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+//    mappingPtr = new TextureMapping(paint, inputEllipse, outputEllipse);
   }
 
   // Create mapping.
@@ -527,6 +563,34 @@ uid MainWindow::createTriangleColorMapping(uid mappingId,
   }
 }
 
+uid MainWindow::createEllipseColorMapping(uid mappingId,
+                                          uid paintId,
+                                          const QList<QPointF> &dst)
+{
+  // Cannot create element with already existing id or element for which no paint exists.
+  if (Mapping::getUidAllocator().exists(mappingId) ||
+      !Paint::getUidAllocator().exists(paintId) ||
+      paintId == NULL_UID)
+    return NULL_UID;
+
+  else
+  {
+    Paint::ptr paint = mappingManager->getPaintById(paintId);
+    Q_ASSERT(dst.size() == 4);
+
+    Shape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3]));
+
+    // Add it to the manager.
+    Mapping::ptr mapping(new ColorMapping(paint, outputEllipse, mappingId));
+    uid id = mappingManager->addMapping(mapping);
+
+    // Add it to the GUI.
+    addMappingItem(mappingId);
+
+    // Return the id.
+    return id;
+  }
+}
 
 void MainWindow::windowModified()
 {
@@ -700,6 +764,12 @@ void MainWindow::createActions()
   addTriangleAction->setStatusTip(tr("Add triangle"));
   connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
   addTriangleAction->setEnabled(false);
+
+  addEllipseAction = new QAction(tr("Add &Ellipse"), this);
+  addEllipseAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
+  addEllipseAction->setStatusTip(tr("Add ellipse"));
+  connect(addEllipseAction, SIGNAL(triggered()), this, SLOT(addEllipse()));
+  addEllipseAction->setEnabled(false);
 }
 
 void MainWindow::createMenus()
@@ -765,6 +835,7 @@ void MainWindow::createToolBars()
   fileToolBar->addSeparator();
   fileToolBar->addAction(addQuadAction);
   fileToolBar->addAction(addTriangleAction);
+  fileToolBar->addAction(addEllipseAction);
 
 //  editToolBar = addToolBar(tr("&Edit"));
 //  editToolBar->addAction(cutAction);
@@ -1009,6 +1080,15 @@ void MainWindow::addMappingItem(uint mappingId)
     else
       mapper = Mapper::ptr(new MeshTextureMapper(textureMapping));
   }
+  else if (shapeType == "ellipse")
+  {
+    label = QString("Ellipse %1").arg(mappingId);
+    icon = QIcon(":/images/draw-ellipse-2.png");
+    if (paintType == "color")
+      mapper = Mapper::ptr(new EllipseColorMapper(mapping));
+    else
+      mapper = Mapper::ptr(new MeshTextureMapper(textureMapping));
+  }
   else
   {
     label = QString("Polygon %1").arg(mappingId);
@@ -1161,6 +1241,8 @@ void MainWindow::applyOscCommand(QVariantList & command)
       addMesh();
   else if (path == "/add/triangle")
       addTriangle();
+  else if (path == "/add/ellipse")
+      addEllipse();
   else if (path == "/project/save")
       save();
   else if (path == "/project/open")

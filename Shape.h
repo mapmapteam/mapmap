@@ -26,6 +26,8 @@
 #include <vector>
 #include <map>
 
+#include <cmath>
+
 #include <tr1/memory>
 #include <QObject>
 #include <QString>
@@ -48,6 +50,10 @@ public:
   Q_PROPERTY(qreal y READ y WRITE setY NOTIFY yChanged)
   Q_INVOKABLE Point(qreal x, qreal y): QPointF(x,y) {}
   Q_INVOKABLE Point(): QPointF(0,0) {}
+
+  static qreal dist(const QPointF& p1, const QPointF& p2){
+      return pow(p2.x() - p1.x(),2) +  pow(p2.y() - p1.y(),2);
+  }
 
 signals:
   void xChanged();
@@ -242,5 +248,47 @@ protected:
   void _reorderVertices();
 };
 
+class Ellipse : public Shape {
+public:
+  Ellipse() {}
+  Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4)
+  {
+    _addVertex(p1);
+    _addVertex(p2);
+    _addVertex(p3);
+    _addVertex(p4);
+  }
+  virtual ~Ellipse() {}
+
+  virtual QString getType() const { return "ellipse"; }
+
+  qreal getRotation() const {
+    QPointF hAxis = getHorizontalAxis();
+    return atan2(hAxis.y(), hAxis.x()) * 180.0 / M_PI;
+  }
+
+  QRect getBoundingRect() const {
+    return QRect(0, getVerticalAxis().manhattanLength(), getHorizontalAxis().manhattanLength(), getVerticalAxis().manhattanLength());
+  }
+
+  QPointF getCenter() const {
+    return getVertex(0)->toPoint() + (getHorizontalAxis() / 2);
+  }
+
+  QPointF getHorizontalAxis() const {
+    return getVertex(2)->toPoint() - getVertex(0)->toPoint();
+  }
+
+  QPointF getVerticalAxis() const {
+    return getVertex(1)->toPoint() - getVertex(3)->toPoint();
+  }
+
+protected:
+  virtual void _vertexChanged(int i, Point* p=NULL) {
+    // Get horizontal and vertical axis length.
+    qreal hAxisLength = Point::dist(getVertex(0)->toPoint(), getVertex(2)->toPoint());
+    qreal vAxisLength = Point::dist(getVertex(1)->toPoint(), getVertex(3)->toPoint());
+  }
+};
 
 #endif /* SHAPE_H_ */

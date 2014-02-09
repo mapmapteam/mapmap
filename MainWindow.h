@@ -76,6 +76,7 @@ private slots:
   void handleMappingIndexesMoved();
   void addMesh();
   void addTriangle();
+  void addEllipse();
 
   void windowModified();
   void pollOscInterface();
@@ -127,6 +128,13 @@ public slots:
   uid createTriangleColorMapping(uid mappingId,
                                  uid paintId,
                                  const QList<QPointF> &dst);
+
+  /**
+   * Creates a color ellipse.
+   */
+  uid createEllipseColorMapping(uid mappingId,
+                                uid paintId,
+                                const QList<QPointF> &dst);
 
 private:
   // Methods.
@@ -184,6 +192,7 @@ private:
 
   QAction *addQuadAction;
   QAction *addTriangleAction;
+  QAction *addEllipseAction;
 
   QListWidget* paintList;
   QListWidget* mappingList;
