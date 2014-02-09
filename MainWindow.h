@@ -105,14 +105,14 @@ public slots:
   uid createMeshTextureMapping(uid mappingId,
                                uid paintId,
                                int nColumns, int nRows,
-                               const QList<QPointF> &src, const QList<QPointF> &dst);
+                               const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
   /**
    * Creates a textured triangle.
    */
   uid createTriangleTextureMapping(uid mappingId,
                                    uid paintId,
-                                   const QList<QPointF> &src, const QList<QPointF> &dst);
+                                   const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
 
   /**
@@ -120,14 +120,14 @@ public slots:
    */
   uid createQuadColorMapping(uid mappingId,
                              uid paintId,
-                             const QList<QPointF> &dst);
+                             const QVector<QPointF> &dst);
 
   /**
    * Creates a color triangle.
    */
   uid createTriangleColorMapping(uid mappingId,
                                  uid paintId,
-                                 const QList<QPointF> &dst);
+                                 const QVector<QPointF> &dst);
 
   /**
    * Creates a color ellipse.

@@ -113,8 +113,8 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     {
       for (i = 0; i < shape->nVertices(); i++)
       {
-        Point *p = shape->getVertex(i);
-        dist = abs(xmouse - p->x()) + abs(ymouse - p->y());
+        const QPointF& p = shape->getVertex(i);
+        dist = qAbs(xmouse - p.x()) + qAbs(ymouse - p.y());
         if (dist < maxdist && dist < mindist)
         {
           _active_vertex = i;
@@ -152,12 +152,14 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
     Shape* shape = getCurrentShape();
     if (shape && _active_vertex != NO_VERTEX)
     {
-      Point *p = shape->getVertex(_active_vertex);
-      p->setX(event->x());
-      p->setY(event->y());
+      QPointF p = shape->getVertex(_active_vertex);
+      // Set point to mouse coordinates.
+      p.setX(event->x());
+      p.setY(event->y());
 
-      glueVertex(shape, p);
-      shape->setVertex(_active_vertex, *p);
+      // Stick to vertices.
+      glueVertex(shape, &p);
+      shape->setVertex(_active_vertex, p);
 
       update();
       emit shapeChanged(getCurrentShape());
@@ -167,20 +169,22 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
   {
     // std::cout << "Move event " << std::endl;
     Shape* shape = getCurrentShape();
-    static Point p(0,0);
+    static QPointF prevMousePosition(0,0); // point that keeps track of last position of the mouse
     if (shape)
     {
       if (_shapefirstgrab == false)
       {    
-        shape->translate(event->x() - p.x(), event->y() - p.y());
+        shape->translate(event->x() - prevMousePosition.x(), event->y() - prevMousePosition.y());
         update();
         emit shapeChanged(getCurrentShape());
       }  
       else
         _shapefirstgrab = false;
     }
-    p.setX( event->x() );
-    p.setY( event->y() );
+
+    // Update previous mouse position.
+    prevMousePosition.setX( event->x() );
+    prevMousePosition.setY( event->y() );
 
   }
 }
@@ -277,7 +281,7 @@ void MapperGLCanvas::updateCanvas()
 /* Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
  * close enough. The distance per coordinate is currently set in dist_stick
  * variable. Perhaps the sticky-sensitivity should be configurable through GUI */
-void MapperGLCanvas::glueVertex(Shape *orig, Point *p)
+void MapperGLCanvas::glueVertex(Shape *orig, QPointF *p)
 {
   MappingManager m = MainWindow::getInstance().getMappingManager();
   int dist_stick = 10; /*this parameter may*/
@@ -288,12 +292,12 @@ void MapperGLCanvas::glueVertex(Shape *orig, Point *p)
     {
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)
       {
-        Point *v = shape->getVertex(vertex);
-        if ((abs(v->x() - p->x()) < dist_stick) &&
-            (abs(v->y() - p->y()) < dist_stick))
+        const QPointF& v = shape->getVertex(vertex);
+        if ((qAbs(v.x() - p->x()) < dist_stick) &&
+            (qAbs(v.y() - p->y()) < dist_stick))
         {
-          p->setX(v->x());
-          p->setY(v->y());
+          p->setX(v.x());
+          p->setY(v.y());
         }
       }
     }

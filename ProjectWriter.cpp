@@ -102,10 +102,10 @@ void ProjectWriter::writeShapeVertices(Shape *shape)
 
   for (int i = 0; i < shape->nVertices(); i++)
   {
-    Point *point = shape->getVertex(i);
+    const QPointF& point = shape->getVertex(i);
     _xml.writeStartElement("vertex");
-    _xml.writeAttribute("x", QString::number(point->x()));
-    _xml.writeAttribute("y", QString::number(point->y()));
+    _xml.writeAttribute("x", QString::number(point.x()));
+    _xml.writeAttribute("y", QString::number(point.y()));
     _xml.writeEndElement(); // vertex
   }
 }

@@ -49,7 +49,7 @@ public:
 //  QSize sizeHint() const;
 //  QSize minimumSizeHint() const;
   Shape* getCurrentShape();
-  void glueVertex(Shape *, Point *);
+  void glueVertex(Shape *, QPointF *);
 
 protected:
   void initializeGL();

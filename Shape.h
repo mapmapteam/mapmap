@@ -20,63 +20,21 @@
 #ifndef SHAPE_H_
 #define SHAPE_H_
 
+#include <tr1/memory>
+#include <iostream>
+
 #include <QtGlobal>
+#include <QObject>
 #include <QPointF>
 #include <QPolygonF>
-#include <vector>
-#include <map>
-
-#include <cmath>
-
-#include <tr1/memory>
-#include <QObject>
 #include <QString>
 #include <QPointF>
 #include <QMetaType>
-#include <iostream>
+
 /**
  * Point (or vertex) on the 2-D canvas.
  */
 
-
-Q_DECLARE_METATYPE (qreal)
-
-class Point: public QObject, public QPointF
-{
-  Q_OBJECT
-
-public:
-  Q_PROPERTY(qreal x READ x WRITE setX NOTIFY xChanged)
-  Q_PROPERTY(qreal y READ y WRITE setY NOTIFY yChanged)
-  Q_INVOKABLE Point(qreal x, qreal y): QPointF(x,y) {}
-  Q_INVOKABLE Point(): QPointF(0,0) {}
-
-  static qreal dist(const QPointF& p1, const QPointF& p2){
-      return pow(p2.x() - p1.x(),2) +  pow(p2.y() - p1.y(),2);
-  }
-
-signals:
-  void xChanged();
-  void yChanged();
-
-public slots:
-  void setX(qreal x)
-  {
-    QPointF::setX(x);
-    emit xChanged();
-  }
-  void setY(qreal y)
-  {
-    QPointF::setY(y);
-    emit yChanged();
-  }
-  void setValue(const QPointF& p)
-  {
-    setX(p.x());
-    setY(p.y());
-  }
-
-};
 /**
  * Series of vertices. (points)
  */
@@ -86,7 +44,7 @@ public:
   typedef std::tr1::shared_ptr<Shape> ptr;
 
   Shape() {}
-  Shape(std::vector<Point*> vertices_) :
+  Shape(QVector<QPointF> vertices_) :
     vertices(vertices_)
   {}
   virtual ~Shape() {}
@@ -95,20 +53,20 @@ public:
 
   int nVertices() const { return vertices.size(); }
 
-  Point* getVertex(int i) const
+  QPointF getVertex(int i) const
   {
     return vertices[i];
   }
 
-  void setVertex(int i, QPointF v)
+  virtual void setVertex(int i, const QPointF& v)
   {
-    vertices[i]->setValue(v);
+    vertices[i] = v;
   }
 
-  void setVertex(int i, double x, double y)
+  virtual void setVertex(int i, double x, double y)
   {
-    vertices[i]->setX(x);
-    vertices[i]->setY(y);
+    vertices[i].setX(x);
+    vertices[i].setY(y);
   }
 
   virtual QString getType() const = 0;
@@ -117,27 +75,19 @@ public:
    *  Algorithm should work for all polygons, including non-convex
    *  Found at http://www.cs.tufts.edu/comp/163/notes05/point_inclusion_handout.pdf
    */
-  bool includesPoint(int x, int y);
+  virtual bool includesPoint(int x, int y);
 
   /* Translate all vertices of shape by the vector (x,y) */
-  void translate(int x, int y);
-
-  int nVertices()
-  {
-    return vertices.size();
-  }
+  virtual void translate(int x, int y);
 
   virtual QPolygonF toPolygon() const;
 
 protected:
-  std::vector<Point*> vertices;
+  QVector<QPointF> vertices;
 
   void _addVertex(const QPointF& vertex)
   {
-    Point* v = new Point();
-    v->setValue(vertex);
-
-    vertices.push_back(v);
+    vertices.push_back(vertex);
   }
 };
 
@@ -178,36 +128,37 @@ public:
 };
 
 class Mesh : public Quad {
+
+  typedef QVector<QVector<int> > IndexVector2d;
+
 public:
   Mesh() : _nColumns(0), _nRows(0) {
     init(1, 1);
   }
   Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4, int nColumns=2, int nRows=2);
-  Mesh(const QList<QPointF>& points, int nColumns, int nRows);
+  Mesh(const QVector<QPointF>& points, int nColumns, int nRows);
   virtual ~Mesh() {}
 
   virtual QString getType() const { return "mesh"; }
 
   virtual QPolygonF toPolygon() const;
 
-  Point* getVertex2d(int i, int j) const
+  QPointF getVertex2d(int i, int j) const
   {
     return vertices[_vertices2d[i][j]];
   }
 
-  void setVertex2d(int i, int j, QPointF v)
+  void setVertex2d(int i, int j, const QPointF& v)
   {
-    vertices[_vertices2d[i][j]]->setValue(v);
+    vertices[_vertices2d[i][j]] = v; // copy
   }
 
   void setVertex2d(int i, int j, double x, double y)
   {
-    Point* p = vertices[_vertices2d[i][j]];
-    p->setX(x);
-    p->setY(y);
+    vertices[_vertices2d[i][j]] = QPointF(x, y);
   }
 
-  void resizeVertices2d(std::vector< std::vector<int> >& vertices2d, int nColumns, int nRows);
+  void resizeVertices2d(IndexVector2d& vertices2d, int nColumns, int nRows);
 
   void init(int nColumns, int nRows);
 
@@ -219,8 +170,8 @@ public:
 
 //  void removeColumn(int columnId);
 
-  std::vector<Quad> getQuads() const;
-  std::vector< std::vector<Quad> > getQuads2d() const;
+  QVector<Quad> getQuads() const;
+  QVector<QVector<Quad> > getQuads2d() const;
 
   int nColumns() const { return _nColumns; }
   int nRows() const  { return _nRows; }
@@ -232,9 +183,7 @@ protected:
   int _nColumns;
   int _nRows;
   // _vertices[i][j] contains vertex id of vertex at position (i,j) where i = 0..nColumns and j = 0..nRows
-  std::vector< std::vector<int> > _vertices2d;
-  // Maps a vertex id to the pair of vertex ids it "splits".
-  std::map<int, std::pair<int, int> > _splitVertices;
+  IndexVector2d _vertices2d;
 
   /**
    * Reorder vertices in a standard order:
@@ -248,47 +197,5 @@ protected:
   void _reorderVertices();
 };
 
-class Ellipse : public Shape {
-public:
-  Ellipse() {}
-  Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4)
-  {
-    _addVertex(p1);
-    _addVertex(p2);
-    _addVertex(p3);
-    _addVertex(p4);
-  }
-  virtual ~Ellipse() {}
-
-  virtual QString getType() const { return "ellipse"; }
-
-  qreal getRotation() const {
-    QPointF hAxis = getHorizontalAxis();
-    return atan2(hAxis.y(), hAxis.x()) * 180.0 / M_PI;
-  }
-
-  QRect getBoundingRect() const {
-    return QRect(0, getVerticalAxis().manhattanLength(), getHorizontalAxis().manhattanLength(), getVerticalAxis().manhattanLength());
-  }
-
-  QPointF getCenter() const {
-    return getVertex(0)->toPoint() + (getHorizontalAxis() / 2);
-  }
-
-  QPointF getHorizontalAxis() const {
-    return getVertex(2)->toPoint() - getVertex(0)->toPoint();
-  }
-
-  QPointF getVerticalAxis() const {
-    return getVertex(1)->toPoint() - getVertex(3)->toPoint();
-  }
-
-protected:
-  virtual void _vertexChanged(int i, Point* p=NULL) {
-    // Get horizontal and vertical axis length.
-    qreal hAxisLength = Point::dist(getVertex(0)->toPoint(), getVertex(2)->toPoint());
-    qreal vAxisLength = Point::dist(getVertex(1)->toPoint(), getVertex(3)->toPoint());
-  }
-};
 
 #endif /* SHAPE_H_ */

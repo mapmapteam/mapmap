@@ -445,7 +445,7 @@ uid MainWindow::createColorPaint(uid paintId, QColor color)
 uid MainWindow::createMeshTextureMapping(uid mappingId,
                                          uid paintId,
                                          int nColumns, int nRows,
-                                         const QList<QPointF> &src, const QList<QPointF> &dst)
+                                         const QVector<QPointF> &src, const QVector<QPointF> &dst)
 {
   // Cannot create element with already existing id or element for which no paint exists.
   if (Mapping::getUidAllocator().exists(mappingId) ||
@@ -477,7 +477,7 @@ uid MainWindow::createMeshTextureMapping(uid mappingId,
 
 uid MainWindow::createTriangleTextureMapping(uid mappingId,
                                              uid paintId,
-                                             const QList<QPointF> &src, const QList<QPointF> &dst)
+                                             const QVector<QPointF> &src, const QVector<QPointF> &dst)
 {
   // Cannot create element with already existing id or element for which no paint exists.
   if (Mapping::getUidAllocator().exists(mappingId) ||
@@ -507,7 +507,7 @@ uid MainWindow::createTriangleTextureMapping(uid mappingId,
 
 uid MainWindow::createQuadColorMapping(uid mappingId,
                                        uid paintId,
-                                       const QList<QPointF> &dst)
+                                       const QVector<QPointF> &dst)
 {
   // Cannot create element with already existing id or element for which no paint exists.
   if (Mapping::getUidAllocator().exists(mappingId) ||
@@ -536,7 +536,7 @@ uid MainWindow::createQuadColorMapping(uid mappingId,
 
 uid MainWindow::createTriangleColorMapping(uid mappingId,
                                            uid paintId,
-                                           const QList<QPointF> &dst)
+                                           const QVector<QPointF> &dst)
 {
   // Cannot create element with already existing id or element for which no paint exists.
   if (Mapping::getUidAllocator().exists(mappingId) ||
