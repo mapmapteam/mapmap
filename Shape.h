@@ -214,24 +214,27 @@ public:
   virtual QString getType() const { return "ellipse"; }
 
   qreal getRotation() const {
-    QPointF hAxis = getHorizontalAxis();
+    QVector2D hAxis = getHorizontalAxis();
     return atan2(hAxis.y(), hAxis.x()) * 180.0 / M_PI;
   }
 
-  QRect getBoundingRect() const {
-    return QRect(0, getVerticalAxis().manhattanLength(), getHorizontalAxis().manhattanLength(), getVerticalAxis().manhattanLength());
-  }
-
+//  QRect getBoundingRect() const {
+//    return QRect(0,                                     getVerticalAxis().manhattanLength(),
+//                 getHorizontalAxis().manhattanLength(), getVerticalAxis().manhattanLength());
+//  }
+//
   QPointF getCenter() const {
-    return getVertex(0) + (getHorizontalAxis() / 2);
+    return (QVector2D(getVertex(0)) + (getHorizontalAxis() / 2)).toPointF();
   }
 
-  QPointF getHorizontalAxis() const {
-    return getVertex(2) - getVertex(0);
+  QVector2D getHorizontalAxis() const {
+    return QVector2D(getVertex(2)) - QVector2D(getVertex(0));
   }
 
-  QPointF getVerticalAxis() const {
-    return getVertex(1) - getVertex(3);
+  QVector2D getVerticalAxis() const {
+    return QVector2D(getVertex(1)) - QVector2D(getVertex(3));
+  }
+
   }
 
 //protected:

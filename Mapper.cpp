@@ -238,21 +238,16 @@ void EllipseColorMapper::draw(QPainter* painter)
   std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(outputShape);
   qreal rotation = outputEllipse->getRotation();
   qDebug() << "Rotation: " << rotation << endl;
-  QRect rect     = outputEllipse->getBoundingRect();
+
   painter->save(); // save painter state
   painter->resetTransform();
   painter->setBrush(color->getColor());
-//  painter->translate()
-  //painter->translate(0, rect.height()/2);
-  const QPointF& p0     = outputEllipse->getVertex(0);
   const QPointF& center = outputEllipse->getCenter();
-  float rx = rect.width() / 2;
-  float ry = rect.height() / 2;
+  float rx = outputEllipse->getHorizontalAxis().length() / 2;
+  float ry = outputEllipse->getVerticalAxis().length()   / 2;
   painter->translate(center);
   painter->rotate(rotation);
   painter->drawEllipse(QPointF(0,0), rx, ry);
-//  painter->translate(p0.x() + rect.width()/2, p0.y() + rect.height() / 2);
-  //painter->drawEllipse(rect);
 
   painter->resetTransform();
   for (int i=0; i<4; i++) {
