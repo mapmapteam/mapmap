@@ -22,6 +22,7 @@
 
 #include <tr1/memory>
 #include <iostream>
+#include <cmath>
 
 #include <QtGlobal>
 #include <QObject>
@@ -222,23 +223,23 @@ public:
   }
 
   QPointF getCenter() const {
-    return getVertex(0)->toPoint() + (getHorizontalAxis() / 2);
+    return getVertex(0) + (getHorizontalAxis() / 2);
   }
 
   QPointF getHorizontalAxis() const {
-    return getVertex(2)->toPoint() - getVertex(0)->toPoint();
+    return getVertex(2) - getVertex(0);
   }
 
   QPointF getVerticalAxis() const {
-    return getVertex(1)->toPoint() - getVertex(3)->toPoint();
+    return getVertex(1) - getVertex(3);
   }
 
-protected:
-  virtual void _vertexChanged(int i, Point* p=NULL) {
-    // Get horizontal and vertical axis length.
-    qreal hAxisLength = Point::dist(getVertex(0)->toPoint(), getVertex(2)->toPoint());
-    qreal vAxisLength = Point::dist(getVertex(1)->toPoint(), getVertex(3)->toPoint());
-  }
+//protected:
+//  virtual void _vertexChanged(int i, Point* p=NULL) {
+//    // Get horizontal and vertical axis length.
+//    qreal hAxisLength = Point::dist(getVertex(0)->toPoint(), getVertex(2)->toPoint());
+//    qreal vAxisLength = Point::dist(getVertex(1)->toPoint(), getVertex(3)->toPoint());
+//  }
 };
 
 #endif /* SHAPE_H_ */

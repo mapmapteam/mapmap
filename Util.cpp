@@ -83,10 +83,10 @@ Ellipse* createEllipseForTexture(Texture* texture, int frameWidth,
   qreal halfHeight = texture->getHeight() / 2;
 
   return new Ellipse(
-    Point(texture->getX(), texture->getY() + halfHeight),
-    Point(texture->getX() + halfWidth, texture->getY()),
-    Point(texture->getX() + texture->getWidth(), texture->getY() + halfHeight),
-    Point(texture->getX() + halfWidth, texture->getY() + texture->getHeight())
+    QPointF(texture->getX(), texture->getY() + halfHeight),
+    QPointF(texture->getX() + halfWidth, texture->getY()),
+    QPointF(texture->getX() + texture->getWidth(), texture->getY() + halfHeight),
+    QPointF(texture->getX() + halfWidth, texture->getY() + texture->getHeight())
   );
 }
 
@@ -114,10 +114,10 @@ Triangle* createTriangleForColor(int frameWidth, int frameHeight)
 Ellipse* createEllipseForColor(int frameWidth, int frameHeight)
 {
   return new Ellipse(
-    Point(frameWidth / 4, frameHeight / 2),
-    Point(frameWidth / 2, frameHeight / 4),
-    Point(frameWidth * 3 / 4, frameHeight / 2),
-    Point(frameWidth / 2, frameHeight * 3 / 4)
+    QPointF(frameWidth / 4, frameHeight / 2),
+    QPointF(frameWidth / 2, frameHeight / 4),
+    QPointF(frameWidth * 3 / 4, frameHeight / 2),
+    QPointF(frameWidth / 2, frameHeight * 3 / 4)
   );
 }
 

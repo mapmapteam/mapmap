@@ -244,8 +244,8 @@ void EllipseColorMapper::draw(QPainter* painter)
   painter->setBrush(color->getColor());
 //  painter->translate()
   //painter->translate(0, rect.height()/2);
-  QPointF p0 = outputEllipse->getVertex(0)->toPoint();
-  QPointF center = outputEllipse->getCenter();
+  const QPointF& p0     = outputEllipse->getVertex(0);
+  const QPointF& center = outputEllipse->getCenter();
   float rx = rect.width() / 2;
   float ry = rect.height() / 2;
   painter->translate(center);
@@ -265,8 +265,8 @@ void EllipseColorMapper::draw(QPainter* painter)
     else
       painter->setBrush(QColor("#ffffff"));
 
-    painter->drawEllipse(outputEllipse->getVertex(i)->toPoint(), 5, 5);
-    painter->drawStaticText(outputEllipse->getVertex(i)->toPoint(), QString(i));
+    painter->drawEllipse(outputEllipse->getVertex(i), 5, 5);
+    painter->drawStaticText(outputEllipse->getVertex(i), QString(i));
   }
 
   painter->restore(); // restore saved painter state
