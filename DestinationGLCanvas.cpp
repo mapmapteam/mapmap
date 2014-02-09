@@ -69,14 +69,18 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
   {
     Mapping::ptr mapping = (*it);
 
-    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
-    Q_CHECK_PTR(textureMapping);
+    // XXX: change : UGLY!
+    if (mapping->getType().endsWith("_texture"))
+    {
+      std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+      Q_CHECK_PTR(textureMapping);
 
-    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-    Q_CHECK_PTR(texture);
+      std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+      Q_CHECK_PTR(texture);
 
-    if (texture->getTextureId() == 0)
-      texture->loadTexture();
+      if (texture->getTextureId() == 0)
+        texture->loadTexture();
+    }
 
     // Draw the mappings.
     MainWindow::getInstance().getMapperByMappingId(mapping->getId())->draw(painter);
