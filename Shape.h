@@ -89,20 +89,20 @@ public:
 
   int nVertices() const { return vertices.size(); }
 
-  Point* getVertex(int i) const
+  QPointF getVertex(int i) const
   {
     return vertices[i];
   }
 
-  void setVertex(int i, QPointF v)
+  virtual void setVertex(int i, const QPointF& v)
   {
-    vertices[i]->setValue(v);
+    vertices[i] = v;
   }
 
-  void setVertex(int i, double x, double y)
+  virtual void setVertex(int i, double x, double y)
   {
-    vertices[i]->setX(x);
-    vertices[i]->setY(y);
+    vertices[i].setX(x);
+    vertices[i].setY(y);
   }
 
   virtual QString getType() const = 0;
@@ -111,27 +111,19 @@ public:
    *  Algorithm should work for all polygons, including non-convex
    *  Found at http://www.cs.tufts.edu/comp/163/notes05/point_inclusion_handout.pdf
    */
-  bool includesPoint(int x, int y);
+  virtual bool includesPoint(int x, int y);
 
   /* Translate all vertices of shape by the vector (x,y) */
-  void translate(int x, int y);
-
-  int nVertices()
-  {
-    return vertices.size();
-  }
+  virtual void translate(int x, int y);
 
   virtual QPolygonF toPolygon() const;
 
 protected:
-  std::vector<Point*> vertices;
+  QVector<QPointF> vertices;
 
   void _addVertex(const QPointF& vertex)
   {
-    Point* v = new Point();
-    v->setValue(vertex);
-
-    vertices.push_back(v);
+    vertices.push_back(vertex);
   }
 };
 
@@ -184,21 +176,19 @@ public:
 
   virtual QPolygonF toPolygon() const;
 
-  Point* getVertex2d(int i, int j) const
+  QPointF getVertex2d(int i, int j) const
   {
     return vertices[_vertices2d[i][j]];
   }
 
-  void setVertex2d(int i, int j, QPointF v)
+  void setVertex2d(int i, int j, const QPointF& v)
   {
-    vertices[_vertices2d[i][j]]->setValue(v);
+    vertices[_vertices2d[i][j]] = v; // copy
   }
 
   void setVertex2d(int i, int j, double x, double y)
   {
-    Point* p = vertices[_vertices2d[i][j]];
-    p->setX(x);
-    p->setY(y);
+    vertices[_vertices2d[i][j]] = QPointF(x, y);
   }
 
   void resizeVertices2d(std::vector< std::vector<int> >& vertices2d, int nColumns, int nRows);

@@ -64,6 +64,7 @@ QWidget* Mapper::getPropertiesEditor()
 
 void Mapper::drawShapeContour(QPainter* painter, const Shape& shape, int lineWidth, const QColor& color)
 {
+  Q_UNUSED(painter);
   QColor rgbColor = color.toRgb();
 
   glColor4f(rgbColor.redF(), rgbColor.greenF(), rgbColor.blueF(), 1.0f);
@@ -72,10 +73,8 @@ void Mapper::drawShapeContour(QPainter* painter, const Shape& shape, int lineWid
   glBegin (GL_LINE_STRIP);
   for (int i = 0; i < shape.nVertices()+1; i++)
   {
-    glVertex2f(
-        shape.getVertex(i % shape.nVertices())->x(),
-        shape.getVertex(i % shape.nVertices())->y()
-    );
+    const QPointF& v = shape.getVertex(i % shape.nVertices());
+    glVertex2f( v.x(), v.y() );
   }
   glEnd();
 }
@@ -106,10 +105,10 @@ void Mapper::setValue(QtProperty* property, const QVariant& value)
   std::map<QtProperty*, std::pair<Shape*, int> >::iterator it = _propertyToVertex.find(property);
   if (it != _propertyToVertex.end())
   {
-    QPointF p = value.toPointF();
+    const QPointF& p = value.toPointF();
     Shape* shape = it->second.first;
     int    v     = it->second.second;
-    if (*shape->getVertex(v) != p)
+    if (shape->getVertex(v) != p)
     {
       shape->setVertex(v, p);
       emit valueChanged();
@@ -125,8 +124,8 @@ void Mapper::_buildShapeProperty(QtProperty* shapeItem, Shape* shape)
     QtVariantProperty* pointItem = _variantManager->addProperty(QVariant::PointF,
                                                                 QObject::tr("Point %1").arg(i));
 
-    Point *p = shape->getVertex(i);
-    pointItem->setValue(*p);
+    const QPointF& p = shape->getVertex(i);
+    pointItem->setValue(p);
 
     shapeItem->addSubProperty(pointItem);
     _propertyToVertex[pointItem] = std::make_pair(shape, i);
@@ -143,8 +142,8 @@ void Mapper::_updateShapeProperty(QtProperty* shapeItem, Shape* shape)
     if (i < pointItems.size())
     {
       QtVariantProperty* pointItem = (QtVariantProperty*)pointItems[i];
-      Point *p = shape->getVertex(i);
-      pointItem->setValue(*p);
+      const QPointF& p = shape->getVertex(i);
+      pointItem->setValue(p);
     }
   }
 }
@@ -306,13 +305,16 @@ void TriangleTextureMapper::_doDraw(QPainter* painter)
   {
     for (int i = 0; i < inputShape->nVertices(); i++)
     {
+      const QPointF& inputPoint  = inputShape->getVertex(i);
+      const QPointF& outputPoint = outputShape->getVertex(i);
+
       Util::correctGlTexCoord(
-        (inputShape->getVertex(i)->x() - texture->getX()) / (GLfloat) texture->getWidth(),
-        (inputShape->getVertex(i)->y() - texture->getY()) / (GLfloat) texture->getHeight());
+        (inputPoint.x() - texture->getX()) / (GLfloat) texture->getWidth(),
+        (inputPoint.y() - texture->getY()) / (GLfloat) texture->getHeight());
       glVertex2f(
-        outputShape->getVertex(i)->x(),
-        outputShape->getVertex(i)->y()
-        );
+        outputPoint.x(),
+        outputPoint.y()
+      );
     }
   }
   glEnd();
@@ -375,8 +377,8 @@ void MeshTextureMapper::_doDraw(QPainter* painter)
 {
   std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
   std::tr1::shared_ptr<Mesh> inputMesh  = std::tr1::static_pointer_cast<Mesh>(inputShape);
-  std::vector<std::vector<Quad> > outputQuads = outputMesh->getQuads2d();
-  std::vector<std::vector<Quad> > inputQuads  = inputMesh->getQuads2d();
+  QVector<QVector<Quad> > outputQuads = outputMesh->getQuads2d();
+  QVector<QVector<Quad> > inputQuads  = inputMesh->getQuads2d();
   for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
   {
     for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
@@ -386,13 +388,16 @@ void MeshTextureMapper::_doDraw(QPainter* painter)
       glBegin(GL_QUADS);
       for (int i = 0; i < 4; i++)
       {
+        const QPointF& inputPoint  = inputQuad.getVertex(i);
+        const QPointF& outputPoint = outputQuad.getVertex(i);
+
         Util::correctGlTexCoord(
-          (inputQuad.getVertex(i)->x() - texture->getX()) / (GLfloat) texture->getWidth(),
-          (inputQuad.getVertex(i)->y() - texture->getY()) / (GLfloat) texture->getHeight());
+          (inputPoint.x() - texture->getX()) / (GLfloat) texture->getWidth(),
+          (inputPoint.y() - texture->getY()) / (GLfloat) texture->getHeight());
         glVertex2f(
-          outputQuad.getVertex(i)->x(),
-          outputQuad.getVertex(i)->y()
-          );
+          outputPoint.x(),
+          outputPoint.y()
+        );
       }
       glEnd();
     }

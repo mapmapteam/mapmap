@@ -101,7 +101,7 @@ Mesh::Mesh(const QList<QPointF>& points, int nColumns, int nRows)
   for (int x=0; x<_nColumns; x++)
     for (int y=0; y<_nRows; y++)
     {
-      vertices.push_back( new Point(points[k].x(), points[k].y()) );
+      vertices.push_back( points[k] );
       _vertices2d[x][y] = k;
       k++;
     }
@@ -110,14 +110,14 @@ Mesh::Mesh(const QList<QPointF>& points, int nColumns, int nRows)
 QPolygonF Mesh::toPolygon() const
 {
   QPolygonF polygon;
-  polygon.append(getVertex2d(0,            0)->toPoint());
-  polygon.append(getVertex2d(nColumns()-1, 0)->toPoint());
-  polygon.append(getVertex2d(nColumns()-1, nRows()-1)->toPoint());
-  polygon.append(getVertex2d(0,            nRows()-1)->toPoint());
+  polygon.append(getVertex2d(0,            0));
+  polygon.append(getVertex2d(nColumns()-1, 0));
+  polygon.append(getVertex2d(nColumns()-1, nRows()-1));
+  polygon.append(getVertex2d(0,            nRows()-1));
   return polygon;
 }
 
-void Mesh::resizeVertices2d(std::vector< std::vector<int> >& vertices2d, int nColumns, int nRows)
+void Mesh::resizeVertices2d(IndexVector2d& vertices2d, int nColumns, int nRows)
 {
   vertices2d.resize(nColumns);
   for (int i=0; i<nColumns; i++)
@@ -159,14 +159,14 @@ void Mesh::addColumn()
   for (int y=0; y<nRows(); y++)
   {
     // Get left and right vertices.
-    QPointF left  = *getVertex2d( 0,            y );
-    QPointF right = *getVertex2d( nColumns()-1, y );
-    QPointF diff = right - left;
+    QPointF left  = getVertex2d( 0,            y );
+    QPointF right = getVertex2d( nColumns()-1, y );
+    QPointF diff  = right - left;
 
     // First pass: move middle points.
     for (int x=1; x<nColumns()-1; x++)
     {
-      QPointF p = *getVertex( _vertices2d[x][y] );
+      QPointF p = getVertex( _vertices2d[x][y] );
       p -= diff * x * leftMoveProp;
       setVertex( _vertices2d[x][y], p );
     }
@@ -212,14 +212,14 @@ void Mesh::addRow()
   for (int x=0; x<nColumns(); x++)
   {
     // Get left and right vertices.
-    QPointF top    = *getVertex( _vertices2d[x][0] );
-    QPointF bottom = *getVertex( _vertices2d[x][nRows()-1] );
-    QPointF diff = bottom - top;
+    QPointF top    = getVertex( _vertices2d[x][0] );
+    QPointF bottom = getVertex( _vertices2d[x][nRows()-1] );
+    QPointF diff   = bottom - top;
 
     // First pass: move middle points.
     for (int y=1; y<nRows()-1; y++)
     {
-      QPointF p = *getVertex( _vertices2d[x][y] );
+      QPointF p = getVertex( _vertices2d[x][y] );
       p -= diff * y * topMoveProp;
       setVertex( _vertices2d[x][y], p );
     }
@@ -321,10 +321,10 @@ std::vector<Quad> Mesh::getQuads() const
     for (int j=0; j<nVerticalQuads(); j++)
     {
       Quad quad(
-          *vertices[ _vertices2d[i]  [j]  ],
-          *vertices[ _vertices2d[i+1][j]   ],
-          *vertices[ _vertices2d[i+1][j+1] ],
-          *vertices[ _vertices2d[i]  [j+1] ]
+          getVertex2d(i,   j  ),
+          getVertex2d(i+1, j  ),
+          getVertex2d(i+1, j+1),
+          getVertex2d(i,   j+1)
       );
       quads.push_back(quad);
     }
@@ -342,10 +342,10 @@ std::vector< std::vector<Quad> > Mesh::getQuads2d() const
     for (int j=0; j<nVerticalQuads(); j++)
     {
       Quad quad(
-          *vertices[ _vertices2d[i]  [j]  ],
-          *vertices[ _vertices2d[i+1][j]   ],
-          *vertices[ _vertices2d[i+1][j+1] ],
-          *vertices[ _vertices2d[i]  [j+1] ]
+          getVertex2d(i,   j  ),
+          getVertex2d(i+1, j  ),
+          getVertex2d(i+1, j+1),
+          getVertex2d(i,   j+1)
       );
       column.push_back(quad);
     }
