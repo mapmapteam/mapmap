@@ -304,7 +304,12 @@ public:
       Shape::setVertex(1, v1);
       Shape::setVertex(3, v3);
     }
+  qreal getHorizontalRadius() const {
+    return getHorizontalAxis().length() / 2;
+  }
 
+  qreal getVerticalRadius() const {
+    return getVerticalAxis().length() / 2;
   }
 
 

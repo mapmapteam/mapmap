@@ -243,11 +243,9 @@ void EllipseColorMapper::draw(QPainter* painter)
   painter->resetTransform();
   painter->setBrush(color->getColor());
   const QPointF& center = outputEllipse->getCenter();
-  float rx = outputEllipse->getHorizontalAxis().length() / 2;
-  float ry = outputEllipse->getVerticalAxis().length()   / 2;
   painter->translate(center);
   painter->rotate(rotation);
-  painter->drawEllipse(QPointF(0,0), rx, ry);
+  painter->drawEllipse(QPointF(0,0), outputEllipse->getHorizontalRadius(), outputEllipse->getVerticalRadius());
 
   painter->resetTransform();
   for (int i=0; i<4; i++) {
@@ -443,13 +441,13 @@ void EllipseTextureMapper::_doDraw(QPainter* painter)
 
   // References for performance.
   const QPointF& inputCenter  = inputEllipse->getCenter();
-  float    inputHorizRadius   = inputEllipse->getHorizontalAxis().length() / 2;
-  float    inputVertRadius    = inputEllipse->getVerticalAxis().length()   / 2;
+  float    inputHorizRadius   = inputEllipse->getHorizontalRadius();
+  float    inputVertRadius    = inputEllipse->getVerticalRadius();
   float    inputRotation      = inputEllipse->getRotationRadians();
 
   const QPointF& outputCenter = outputEllipse->getCenter();
-  float    outputHorizRadius  = outputEllipse->getHorizontalAxis().length() / 2;
-  float    outputVertRadius   = outputEllipse->getVerticalAxis().length()   / 2;
+  float    outputHorizRadius  = outputEllipse->getHorizontalRadius();
+  float    outputVertRadius   = outputEllipse->getVerticalRadius();
   float    outputRotation     = outputEllipse->getRotationRadians();
 
   // Variation in angle at each step of the loop.
