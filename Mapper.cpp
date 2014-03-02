@@ -485,7 +485,8 @@ void EllipseTextureMapper::_setPointOfEllipseAtAngle(QPointF& point, const QPoin
   float yCirc = cos(circularAngle) * vRadius;
   float distance = sqrt( xCirc*xCirc + yCirc*yCirc );
   float angle    = atan2( xCirc, yCirc );
-  point.setX( sin(angle + 2*M_PI-rotation) * distance + center.x() );
-  point.setY( cos(angle + 2*M_PI-rotation) * distance + center.y() );
+  rotation = 2*M_PI-rotation; // rotation needs to be inverted (CW <-> CCW)
+  point.setX( sin(angle + rotation) * distance + center.x() );
+  point.setY( cos(angle + rotation) * distance + center.y() );
 }
 
