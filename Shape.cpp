@@ -386,3 +386,68 @@ bool Ellipse::includesPoint(qreal x, qreal y)
   return (horizontal*horizontal + vertical*vertical) <= 1;
 }
 
+void Ellipse::setVertex(int i, const QPointF& v)
+{
+  // Save vertical axis vector.
+  const QVector2D& vAxis  = getVerticalAxis();
+
+  // If changed one of the two rotation-controlling points, adjust the other two points.
+  if (i == 0 || i == 2)
+  {
+    // Change the vertex.
+    Shape::setVertex(i, v);
+
+    // Retrieve the new horizontal axis vector and center.
+    const QVector2D& hAxis  = getHorizontalAxis();
+    const QVector2D center(getCenter());
+
+    // Ajust the two other points.
+
+    // Compute a vector that is the 90 degree rotation of the horizontal axis,
+    // with a magnitude equal to the vertical radius.
+    QVector2D vAxisVec(hAxis.y(), -hAxis.x()); // 90 deg CW rotation of horiz. axis
+    vAxisVec.normalize();
+    vAxisVec *= vAxis.length() / 2;
+
+    // Assign vertical control points.
+    QPointF v1 = (center + vAxisVec).toPointF();
+    QPointF v3 = (center - vAxisVec).toPointF();
+    Shape::setVertex(1, v1);
+    Shape::setVertex(3, v3);
+  }
+
+  // If changed one of the two other points, just change the vertical axis.
+  else if (i == 1 || i == 3)
+  {
+    // Retrieve the new horizontal axis vector and center.
+    const QVector2D center(getCenter());
+
+    QVector2D vFromCenter = QVector2D(v) - center;
+
+    // Find projection of v onto vAxis / 2.
+    QVector2D vAxisNormalized = vAxis.normalized();
+    const QVector2D& projection = QVector2D::dotProduct( vFromCenter, vAxisNormalized ) * vAxisNormalized;
+
+    // Assign vertical control points.
+    QPointF v1;
+    QPointF v3;
+    if (i == 1)
+    {
+      v1 = (center + projection).toPointF();
+      v3 = (center - projection).toPointF();
+    }
+    else
+    {
+      v1 = (center - projection).toPointF();
+      v3 = (center + projection).toPointF();
+    }
+    Shape::setVertex(1, v1);
+    Shape::setVertex(3, v3);
+  }
+
+  // Center control point (make sure it stays inside!).
+  else {
+    if (includesPoint(v))
+      Shape::setVertex(i, v);
+  }
+}
