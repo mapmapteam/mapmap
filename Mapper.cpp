@@ -439,16 +439,19 @@ void EllipseTextureMapper::_doDraw(QPainter* painter)
   QPointF currentOutputPoint;
   QPointF prevOutputPoint(0, 0);
 
-  // References for performance.
-  const QPointF& inputCenter  = inputEllipse->getCenter();
-  float    inputHorizRadius   = inputEllipse->getHorizontalRadius();
-  float    inputVertRadius    = inputEllipse->getVerticalRadius();
-  float    inputRotation      = inputEllipse->getRotationRadians();
+  // Input ellipse parameters.
+  const QPointF& inputCenter         = inputEllipse->getCenter();
+  const QPointF& inputControlCenter  = inputEllipse->getVertex(4);
+  float    inputHorizRadius          = inputEllipse->getHorizontalRadius();
+  float    inputVertRadius           = inputEllipse->getVerticalRadius();
+  float    inputRotation             = inputEllipse->getRotationRadians();
 
-  const QPointF& outputCenter = outputEllipse->getCenter();
-  float    outputHorizRadius  = outputEllipse->getHorizontalRadius();
-  float    outputVertRadius   = outputEllipse->getVerticalRadius();
-  float    outputRotation     = outputEllipse->getRotationRadians();
+  // Output ellipse parameters.
+  const QPointF& outputCenter        = outputEllipse->getCenter();
+  const QPointF& outputControlCenter = outputEllipse->getVertex(4);
+  float    outputHorizRadius         = outputEllipse->getHorizontalRadius();
+  float    outputVertRadius          = outputEllipse->getVerticalRadius();
+  float    outputRotation            = outputEllipse->getRotationRadians();
 
   // Variation in angle at each step of the loop.
   const int N_TRIANGLES = 100;
@@ -461,19 +464,20 @@ void EllipseTextureMapper::_doDraw(QPainter* painter)
     _setPointOfEllipseAtAngle(currentInputPoint, inputCenter, inputHorizRadius, inputVertRadius, inputRotation, circleAngle);
     _setPointOfEllipseAtAngle(currentOutputPoint, outputCenter, outputHorizRadius, outputVertRadius, outputRotation, circleAngle);
 
+    // We don't draw the first point.
     if (i > 0)
     {
       // Draw triangle.
       glBegin(GL_TRIANGLES);
-      Util::setGlTexPoint(*texture, inputCenter, outputCenter);
+      Util::setGlTexPoint(*texture, inputControlCenter, outputControlCenter);
       Util::setGlTexPoint(*texture, prevInputPoint, prevOutputPoint);
       Util::setGlTexPoint(*texture, currentInputPoint, currentOutputPoint);
       glEnd();
     }
 
+    // Save point for next iteration.
     prevInputPoint.setX(currentInputPoint.x());
     prevInputPoint.setY(currentInputPoint.y());
-
     prevOutputPoint.setX(currentOutputPoint.x());
     prevOutputPoint.setY(currentOutputPoint.y());
   }
