@@ -34,10 +34,18 @@
  */
 namespace Util {
 
+/// Calls glTexCoord2f() with the corrected texture coordinates.
 void correctGlTexCoord(GLfloat x, GLfloat y);
+
+/**
+ * Takes a point (intputPoint) on texture and outputs it as a GL vertex on output (outputPoint).
+ * Useful in texture mappings, where one often needs to call this function to project points from texture
+ * between glBegin(<GL_SHAPE>) and glEnd() calls.
+ */
+void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint);
+
 float map_float(float value, float istart, float istop, float ostart, float ostop);
 int map_int(int value, int istart, int istop, int ostart, int ostop);
-
 
 Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight);
 Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight);

@@ -338,16 +338,7 @@ void TriangleTextureMapper::_doDraw(QPainter* painter)
   {
     for (int i = 0; i < inputShape->nVertices(); i++)
     {
-      const QPointF& inputPoint  = inputShape->getVertex(i);
-      const QPointF& outputPoint = outputShape->getVertex(i);
-
-      Util::correctGlTexCoord(
-        (inputPoint.x() - texture->getX()) / (GLfloat) texture->getWidth(),
-        (inputPoint.y() - texture->getY()) / (GLfloat) texture->getHeight());
-      glVertex2f(
-        outputPoint.x(),
-        outputPoint.y()
-      );
+      Util::setGlTexPoint(*texture, inputShape->getVertex(i), outputShape->getVertex(i));
     }
   }
   glEnd();
@@ -421,16 +412,7 @@ void MeshTextureMapper::_doDraw(QPainter* painter)
       glBegin(GL_QUADS);
       for (int i = 0; i < 4; i++)
       {
-        const QPointF& inputPoint  = inputQuad.getVertex(i);
-        const QPointF& outputPoint = outputQuad.getVertex(i);
-
-        Util::correctGlTexCoord(
-          (inputPoint.x() - texture->getX()) / (GLfloat) texture->getWidth(),
-          (inputPoint.y() - texture->getY()) / (GLfloat) texture->getHeight());
-        glVertex2f(
-          outputPoint.x(),
-          outputPoint.y()
-        );
+        Util::setGlTexPoint(*texture, inputQuad.getVertex(i), outputQuad.getVertex(i));
       }
       glEnd();
     }

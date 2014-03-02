@@ -28,6 +28,19 @@ void correctGlTexCoord(GLfloat x, GLfloat y)
   glTexCoord2f (x, 1.0f - y);
 }
 
+void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint)
+{
+  // Set point in texture.
+  correctGlTexCoord(
+    (inputPoint.x() - texture.getX()) / (GLfloat) texture.getWidth(),
+    (inputPoint.y() - texture.getY()) / (GLfloat) texture.getHeight());
+  // Add point in output.
+  glVertex2f(
+    outputPoint.x(),
+    outputPoint.y()
+  );
+}
+
 /**
  * Convenience function to map a variable from one coordinate space
  * to another.
