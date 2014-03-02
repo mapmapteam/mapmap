@@ -217,4 +217,19 @@ private:
   QtVariantProperty* _meshItem;
 };
 
+class EllipseTextureMapper : public TextureMapper {
+  Q_OBJECT
+
+public:
+  EllipseTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  virtual ~EllipseTextureMapper() {}
+
+//  static void drawRotatedEllipse(float centerX, float centerY, float w, float h, float rotation, float baseRes);
+
+protected:
+  virtual void _doDraw(QPainter* painter);
+  static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
+};
+
+
 #endif /* MAPPER_H_ */

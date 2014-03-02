@@ -419,3 +419,75 @@ void MeshTextureMapper::_doDraw(QPainter* painter)
   }
 }
 
+EllipseTextureMapper::EllipseTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
+: TextureMapper(mapping)
+{
+}
+
+void EllipseTextureMapper::_doDraw(QPainter* painter)
+{
+  // Get input and output ellipses.
+  std::tr1::shared_ptr<Ellipse> inputEllipse = std::tr1::static_pointer_cast<Ellipse>(inputShape);
+  std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(outputShape);
+
+  // Start / end angle.
+  const float startAngle = 0;
+  const float endAngle   = 2*M_PI;
+
+  //
+  float angle;
+  QPointF currentInputPoint;
+  QPointF prevInputPoint(0, 0);
+  QPointF currentOutputPoint;
+  QPointF prevOutputPoint(0, 0);
+
+  // References for performance.
+  const QPointF& inputCenter  = inputEllipse->getCenter();
+  float    inputHorizRadius   = inputEllipse->getHorizontalAxis().length() / 2;
+  float    inputVertRadius    = inputEllipse->getVerticalAxis().length()   / 2;
+  float    inputRotation      = inputEllipse->getRotationRadians();
+
+  const QPointF& outputCenter = outputEllipse->getCenter();
+  float    outputHorizRadius  = outputEllipse->getHorizontalAxis().length() / 2;
+  float    outputVertRadius   = outputEllipse->getVerticalAxis().length()   / 2;
+  float    outputRotation     = outputEllipse->getRotationRadians();
+
+  // Variation in angle at each step of the loop.
+  const int N_TRIANGLES = 100;
+  const float ANGLE_STEP = 2*M_PI/N_TRIANGLES;
+
+  float circleAngle = 0;
+  for (int i=0; i<=N_TRIANGLES; i++, circleAngle += ANGLE_STEP)
+  {
+    // Set next (current) points.
+    _setPointOfEllipseAtAngle(currentInputPoint, inputCenter, inputHorizRadius, inputVertRadius, inputRotation, circleAngle);
+    _setPointOfEllipseAtAngle(currentOutputPoint, outputCenter, outputHorizRadius, outputVertRadius, outputRotation, circleAngle);
+
+    if (i > 0)
+    {
+      // Draw triangle.
+      glBegin(GL_TRIANGLES);
+      Util::setGlTexPoint(*texture, inputCenter, outputCenter);
+      Util::setGlTexPoint(*texture, prevInputPoint, prevOutputPoint);
+      Util::setGlTexPoint(*texture, currentInputPoint, currentOutputPoint);
+      glEnd();
+    }
+
+    prevInputPoint.setX(currentInputPoint.x());
+    prevInputPoint.setY(currentInputPoint.y());
+
+    prevOutputPoint.setX(currentOutputPoint.x());
+    prevOutputPoint.setY(currentOutputPoint.y());
+  }
+}
+
+void EllipseTextureMapper::_setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle)
+{
+  float xCirc = sin(circularAngle) * hRadius;
+  float yCirc = cos(circularAngle) * vRadius;
+  float distance = sqrt( xCirc*xCirc + yCirc*yCirc );
+  float angle    = atan2( xCirc, yCirc );
+  point.setX( sin(angle + 2*M_PI-rotation) * distance + center.x() );
+  point.setY( cos(angle + 2*M_PI-rotation) * distance + center.y() );
+}
+

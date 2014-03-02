@@ -9,6 +9,7 @@ HEADERS  = \
     MapperGLCanvas.h \
     Mapping.h \
     MappingManager.h \
+    Math.h \
 #    NameAllocator.h \
     Paint.h \
     ProjectReader.h \

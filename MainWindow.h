@@ -116,6 +116,13 @@ public slots:
 
 
   /**
+   * Creates a textured ellipse.
+   */
+  uid createEllipseTextureMapping(uid mappingId,
+                                  uid paintId,
+                                  const QVector<QPointF> &src, const QVector<QPointF> &dst);
+
+  /**
    * Creates a color quad.
    */
   uid createQuadColorMapping(uid mappingId,

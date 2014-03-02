@@ -303,12 +303,12 @@ void MainWindow::addEllipse()
   }
   else
   {
-//    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
-//    Q_CHECK_PTR(texture);
-//
-//    Shape::ptr outputEllipse = Shape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-//    Shape::ptr inputEllipse = Shape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-//    mappingPtr = new TextureMapping(paint, inputEllipse, outputEllipse);
+    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
+    Q_CHECK_PTR(texture);
+
+    Shape::ptr outputEllipse = Shape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    Shape::ptr inputEllipse = Shape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    mappingPtr = new TextureMapping(paint, inputEllipse, outputEllipse);
   }
 
   // Create mapping.
@@ -495,6 +495,36 @@ uid MainWindow::createTriangleTextureMapping(uid mappingId,
 
     // Add it to the manager.
     Mapping::ptr mapping(new TextureMapping(paint, outputTriangle, inputTriangle, mappingId));
+    uid id = mappingManager->addMapping(mapping);
+
+    // Add it to the GUI.
+    addMappingItem(mappingId);
+
+    // Return the id.
+    return id;
+  }
+}
+
+uid MainWindow::createEllipseTextureMapping(uid mappingId,
+                                            uid paintId,
+                                            const QVector<QPointF> &src, const QVector<QPointF> &dst)
+{
+  // Cannot create element with already existing id or element for which no paint exists.
+  if (Mapping::getUidAllocator().exists(mappingId) ||
+      !Paint::getUidAllocator().exists(paintId) ||
+      paintId == NULL_UID)
+    return NULL_UID;
+
+  else
+  {
+    Paint::ptr paint = mappingManager->getPaintById(paintId);
+    Q_ASSERT(src.size() == 4 && dst.size() == 4);
+
+    Shape::ptr inputEllipse( new Ellipse(src[0], src[1], src[2], dst[3]));
+    Shape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3]));
+
+    // Add it to the manager.
+    Mapping::ptr mapping(new TextureMapping(paint, inputEllipse, outputEllipse, mappingId));
     uid id = mappingManager->addMapping(mapping);
 
     // Add it to the GUI.
@@ -1087,7 +1117,7 @@ void MainWindow::addMappingItem(uint mappingId)
     if (paintType == "color")
       mapper = Mapper::ptr(new EllipseColorMapper(mapping));
     else
-      mapper = Mapper::ptr(new MeshTextureMapper(textureMapping));
+      mapper = Mapper::ptr(new EllipseTextureMapper(textureMapping));
   }
   else
   {

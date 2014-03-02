@@ -25,6 +25,7 @@
 #include <cmath>
 
 #include <QtGlobal>
+
 #include <QObject>
 #include <QPointF>
 #include <QVector2D>
@@ -34,6 +35,8 @@
 #include <QMap>
 #include <QString>
 #include <QMetaType>
+
+#include "Math.h"
 
 /**
  * Point (or vertex) on the 2-D canvas.
@@ -216,9 +219,13 @@ public:
 
   virtual QString getType() const { return "ellipse"; }
 
-  qreal getRotation() const {
+  qreal getRotationRadians() const {
     QVector2D hAxis = getHorizontalAxis();
-    return atan2(hAxis.y(), hAxis.x()) * 180.0 / M_PI;
+    return atan2( hAxis.y(), hAxis.x() );
+  }
+
+  qreal getRotation() const {
+    return radiansToDegrees( getRotationRadians() );
   }
 
 //  QRect getBoundingRect() const {
