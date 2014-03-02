@@ -371,3 +371,18 @@ void Mesh::_reorderVertices()
   // Copy.
   vertices = newVertices;
 }
+
+bool Ellipse::includesPoint(qreal x, qreal y)
+{
+  // From: http://stackoverflow.com/questions/7946187/point-and-ellipse-rotated-position-test-algorithm
+  qreal rotation = getRotationRadians();
+  const QPointF& center = getCenter();
+  qreal xDiff = x - center.x();
+  qreal yDiff = y - center.y();
+  qreal cosRotation = cos(rotation);
+  qreal sinRotation = sin(rotation);
+  qreal horizontal = (cosRotation*xDiff + sinRotation*yDiff) / getHorizontalRadius();
+  qreal vertical   = (sinRotation*xDiff - cosRotation*yDiff) / getVerticalRadius();
+  return (horizontal*horizontal + vertical*vertical) <= 1;
+}
+

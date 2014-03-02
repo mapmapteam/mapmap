@@ -316,6 +316,17 @@ public:
     return getVerticalAxis().length() / 2;
   }
 
+  /** Return true if Shape includes point (x,y), false otherwise
+   *  Algorithm should work for all polygons, including non-convex
+   *  Found at http://www.cs.tufts.edu/comp/163/notes05/point_inclusion_handout.pdf
+   */
+  virtual bool includesPoint(qreal x, qreal y);
+
+  virtual bool includesPoint(const QPointF& p) {
+    return includesPoint(p.x(), p.y());
+  }
+
+  // Override the parent, checking to make sure the vertices are displaced correctly.
 
 //protected:
 //  virtual void _vertexChanged(int i, Point* p=NULL) {
