@@ -19,7 +19,7 @@
 
 #include "Shape.h"
 
-bool Shape::includesPoint(int x, int y)
+bool Shape::includesPoint(qreal x, qreal y)
 {
   return toPolygon().containsPoint(QPointF(x, y), Qt::OddEvenFill);
 //  QVector<QPointF>::iterator prev;

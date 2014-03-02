@@ -82,7 +82,11 @@ public:
    *  Algorithm should work for all polygons, including non-convex
    *  Found at http://www.cs.tufts.edu/comp/163/notes05/point_inclusion_handout.pdf
    */
-  virtual bool includesPoint(int x, int y);
+  virtual bool includesPoint(qreal x, qreal y);
+
+  virtual bool includesPoint(const QPointF& p) {
+    return includesPoint(p.x(), p.y());
+  }
 
   /* Translate all vertices of shape by the vector (x,y) */
   virtual void translate(int x, int y);
