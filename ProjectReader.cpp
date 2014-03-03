@@ -156,6 +156,21 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
       _xml.raiseError(QObject::tr("Cannot create mesh texture mapping"));
 
   }
+  else if (mappingAttrType == "ellipse_texture")
+  {
+    // Parse destination ellipse.
+    _parseEllipse(dst, dstPoints);
+
+    // Get / parse source shape.
+    QDomElement src = mapping.firstChildElement("source");
+    QVector<QPointF> srcPoints;
+    _parseEllipse(src, srcPoints);
+
+    uid id = _window->createEllipseTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), srcPoints, dstPoints);
+
+    if (id == NULL_UID)
+      _xml.raiseError(QObject::tr("Cannot create ellipse texture mapping"));
+  }
   else if (mappingAttrType == "triangle_color")
   {
     // Parse destination triangle.
@@ -168,7 +183,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
   }
   else if (mappingAttrType == "quad_color")
   {
-    // Parse destination triangle.
+    // Parse destination quad.
     _parseQuad(dst, dstPoints);
 
     uid id = _window->createQuadColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
@@ -176,11 +191,21 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create quad color mapping"));
   }
+  else if (mappingAttrType == "ellipse_color")
+  {
+    // Parse destination ellipse.
+    _parseEllipse(dst, dstPoints);
+
+    uid id = _window->createEllipseColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
+
+    if (id == NULL_UID)
+      _xml.raiseError(QObject::tr("Cannot create ellipse color mapping"));
+  }
   else
     _xml.raiseError(QObject::tr("Unsupported mapping type: %1.").arg(mappingAttrType));
 }
 
-void ProjectReader::_parseStandardShape(const QString& type, int nVertices, const QDomElement& shape, QVector<QPointF>& points)
+void ProjectReader::_parseStandardShape(const QString& type, const QDomElement& shape, QVector<QPointF>& points, int nVertices)
 {
   // Check that the element is really a triangle.
   QString typeAttr = shape.attribute("shape", "");
@@ -198,19 +223,25 @@ void ProjectReader::_parseStandardShape(const QString& type, int nVertices, cons
     vertex = vertex.nextSiblingElement("vertex");
   }
 
-  if (points.size() != nVertices)
-    _xml.raiseError(QObject::tr("Shape has %1 vertices: expected %2.").arg(points.size()).arg(nVertices));
+  if (nVertices >= 0 && points.size() != nVertices)
+    _xml.raiseError(QObject::tr("Shape of type '%1' has %2 vertices: expected %3.").arg(type).arg(points.size()).arg(nVertices));
 }
 
 void ProjectReader::_parseQuad(const QDomElement& quad, QVector<QPointF>& points)
 {
-  _parseStandardShape("quad", 4, quad, points);
+  _parseStandardShape("quad", quad, points, 4);
 }
-
 
 void ProjectReader::_parseTriangle(const QDomElement& triangle, QVector<QPointF>& points)
 {
-  _parseStandardShape("triangle", 3, triangle, points);
+  _parseStandardShape("triangle", triangle, points, 3);
+}
+
+void ProjectReader::_parseEllipse(const QDomElement& ellipse, QVector<QPointF>& points)
+{
+  _parseStandardShape("ellipse", ellipse, points);
+  if (points.size() != 4 && points.size() != 5)
+    _xml.raiseError(QObject::tr("Shape has %1 vertices: expected 4 or 5.").arg(points.size()));
 }
 
 void ProjectReader::_parseMesh(const QDomElement& mesh, QVector<QPointF>& points, int& nColumns, int& nRows)
