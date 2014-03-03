@@ -240,6 +240,7 @@ void EllipseColorMapper::draw(QPainter* painter)
   qDebug() << "Rotation: " << rotation << endl;
 
   painter->save(); // save painter state
+
   painter->resetTransform();
   painter->setBrush(color->getColor());
   const QPointF& center = outputEllipse->getCenter();
@@ -247,6 +248,17 @@ void EllipseColorMapper::draw(QPainter* painter)
   painter->rotate(rotation);
   painter->drawEllipse(QPointF(0,0), outputEllipse->getHorizontalRadius(), outputEllipse->getVerticalRadius());
 
+  painter->restore(); // restore saved painter state
+}
+
+void EllipseColorMapper::drawControls(QPainter* painter)
+{
+  painter->setRenderHint(QPainter::Antialiasing);
+  painter->setPen(Qt::NoPen);
+
+  painter->save(); // save painter state
+
+  std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(outputShape);
   painter->resetTransform();
   for (int i=0; i<4; i++) {
     painter->setBrush(QColor(0, 0, 0));

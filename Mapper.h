@@ -148,7 +148,7 @@ public:
   virtual ~EllipseColorMapper() {}
 
   virtual void draw(QPainter* painter);
-//  virtual void drawControls(QPainter* painter);
+  virtual void drawControls(QPainter* painter);
 };
 
 /**
