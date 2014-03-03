@@ -213,13 +213,14 @@ protected:
 class Ellipse : public Shape {
 public:
   Ellipse() {}
-  Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4)
+  Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4, bool hasCenterControl=true)
   {
     _addVertex(p1);
     _addVertex(p2);
     _addVertex(p3);
     _addVertex(p4);
-    _addVertex(getCenter()); // add a point in the center
+    if (hasCenterControl)
+      _addVertex(getCenter()); // add a point in the center
   }
   virtual ~Ellipse() {}
 
@@ -232,6 +233,10 @@ public:
 
   qreal getRotation() const {
     return radiansToDegrees( getRotationRadians() );
+  }
+
+  bool hasCenterControl() const {
+    return (nVertices() == 5);
   }
 
 //  QRect getBoundingRect() const {
@@ -264,6 +269,7 @@ public:
 
   /// Remaps point from circle with radius 1 set at origin (0,0) to ellipse coordinates.
   QTransform fromUnitCircle() const;
+
   /** Return true if Shape includes point (x,y), false otherwise
    *  Algorithm should work for all polygons, including non-convex
    *  Found at http://www.cs.tufts.edu/comp/163/notes05/point_inclusion_handout.pdf

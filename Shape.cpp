@@ -419,7 +419,8 @@ void Ellipse::setVertex(int i, const QPointF& v)
     // Set vertices.
     Shape::setVertex(1, transform.map( getVertex(1) ));
     Shape::setVertex(3, transform.map( getVertex(3) ));
-    Shape::setVertex(4, transform.map( getVertex(4) ));
+    if (hasCenterControl())
+      Shape::setVertex(4, transform.map( getVertex(4) ));
   }
 
   // If changed one of the two other points, just change the vertical axis.
@@ -459,25 +460,19 @@ void Ellipse::setVertex(int i, const QPointF& v)
     transform *= fromUnitCircle();
 
     // Set vertices.
-    Shape::setVertex(4, transform.map( getVertex(4) ));
+    if (hasCenterControl())
+      Shape::setVertex(4, transform.map( getVertex(4) ));
   }
 
   // Center control point (make sure it stays inside!).
-  else
+  else if (hasCenterControl())
   {
-    if (includesPoint(v))
-      Shape::setVertex(i, v);
+    // Map point as vector on a unit circle.
+    QVector2D vector(toUnitCircle().map(v));
 
-    else
-    {
-      // Map point as vector on a unit circle.
-      QVector2D vector(toUnitCircle().map(v));
-
-      // Normalize it.
-      vector.normalize();
-
-      // Remap it to ellipse.
-      Shape::setVertex(4, fromUnitCircle().map(vector.toPointF()));
-    }
+    // Clip control point.
+    Shape::setVertex(4, vector.length() <= 1 ?
+                          v :
+                          fromUnitCircle().map(vector.toPointF()));
   }
 }

@@ -99,7 +99,8 @@ Ellipse* createEllipseForTexture(Texture* texture, int frameWidth,
     QPointF(texture->getX(), texture->getY() + halfHeight),
     QPointF(texture->getX() + halfWidth, texture->getY()),
     QPointF(texture->getX() + texture->getWidth(), texture->getY() + halfHeight),
-    QPointF(texture->getX() + halfWidth, texture->getY() + texture->getHeight())
+    QPointF(texture->getX() + halfWidth, texture->getY() + texture->getHeight()),
+    true
   );
 }
 
@@ -130,7 +131,8 @@ Ellipse* createEllipseForColor(int frameWidth, int frameHeight)
     QPointF(frameWidth / 4, frameHeight / 2),
     QPointF(frameWidth / 2, frameHeight / 4),
     QPointF(frameWidth * 3 / 4, frameHeight / 2),
-    QPointF(frameWidth / 2, frameHeight * 3 / 4)
+    QPointF(frameWidth / 2, frameHeight * 3 / 4),
+    false
   );
 }
 
