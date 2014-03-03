@@ -473,6 +473,6 @@ void Ellipse::setVertex(int i, const QPointF& v)
     // Clip control point.
     Shape::setVertex(4, vector.length() <= 1 ?
                           v :
-                          fromUnitCircle().map(vector.toPointF()));
+                          fromUnitCircle().map(vector.normalized().toPointF()));
   }
 }
