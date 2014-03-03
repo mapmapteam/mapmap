@@ -213,6 +213,16 @@ protected:
 class Ellipse : public Shape {
 public:
   Ellipse() {}
+  Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4, QPointF p5)
+  {
+    _addVertex(p1);
+    _addVertex(p2);
+    _addVertex(p3);
+    _addVertex(p4);
+    _addVertex(p5);
+    sanitize();
+  }
+
   Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4, bool hasCenterControl=true)
   {
     _addVertex(p1);
@@ -220,23 +230,65 @@ public:
     _addVertex(p3);
     _addVertex(p4);
     if (hasCenterControl)
-      _addVertex(getCenter()); // add a point in the center
+      _addVertex(getCenter());
+    sanitize();
   }
+
+  /// Remaps points so as to make sure this is a correct ellipse, keeping vertices 0 and 2 as
+  /// reference for the horizzontal axis.
+  void sanitize()
+  {
+    // Get horizontal axis rotated 90 degrees CW
+    QVector2D hAxis = getHorizontalAxis();
+    const QVector2D center(getCenter());
+    QVector2D hAxisRotated(hAxis.y(), -hAxis.x());
+
+    // Project vertex 1 onto it.
+    QVector2D vAxisNormalized = hAxisRotated.normalized();
+
+    QVector2D vFromCenter = QVector2D(getVertex(1)) - center;
+    const QVector2D& projection = QVector2D::dotProduct( vFromCenter, vAxisNormalized ) * vAxisNormalized;
+    Shape::setVertex(1, (center + projection).toPointF());
+    Shape::setVertex(3, (center - projection).toPointF());
+
+    if (hasCenterControl())
+    {
+      // Clip control point.
+      Shape::setVertex(4, clipInside(getVertex(4)));
+    }
+  }
+
   virtual ~Ellipse() {}
 
   virtual QString getType() const { return "ellipse"; }
 
-  qreal getRotationRadians() const {
+  qreal getRotationRadians() const
+  {
     QVector2D hAxis = getHorizontalAxis();
     return atan2( hAxis.y(), hAxis.x() );
   }
 
-  qreal getRotation() const {
+  qreal getRotation() const
+  {
     return radiansToDegrees( getRotationRadians() );
   }
 
-  bool hasCenterControl() const {
+  bool hasCenterControl() const
+  {
     return (nVertices() == 5);
+  }
+
+  /// If v is outside boundaries, remap it to the border.
+  QPointF clipInside(const QPointF& v) const
+  {
+    // Map point as vector on a unit circle.
+    QVector2D vector(toUnitCircle().map(v));
+
+    // Clip control point.
+    return (vector.length() <= 1 ?
+                               v :
+                               fromUnitCircle().map(vector.normalized().toPointF()));
+
   }
 
 //  QRect getBoundingRect() const {
@@ -244,23 +296,28 @@ public:
 //                 getHorizontalAxis().manhattanLength(), getVerticalAxis().manhattanLength());
 //  }
 //
-  QPointF getCenter() const {
+  QPointF getCenter() const
+  {
     return (QVector2D(getVertex(0)) - (getHorizontalAxis() / 2)).toPointF();
   }
 
-  QVector2D getHorizontalAxis() const {
+  QVector2D getHorizontalAxis() const
+  {
     return QVector2D(getVertex(0)) - QVector2D(getVertex(2));
   }
 
-  QVector2D getVerticalAxis() const {
+  QVector2D getVerticalAxis() const
+  {
     return QVector2D(getVertex(1)) - QVector2D(getVertex(3));
   }
 
-  qreal getHorizontalRadius() const {
+  qreal getHorizontalRadius() const
+  {
     return getHorizontalAxis().length() / 2;
   }
 
-  qreal getVerticalRadius() const {
+  qreal getVerticalRadius() const
+  {
     return getVerticalAxis().length() / 2;
   }
 
@@ -276,7 +333,8 @@ public:
    */
   virtual bool includesPoint(qreal x, qreal y);
 
-  virtual bool includesPoint(const QPointF& p) {
+  virtual bool includesPoint(const QPointF& p)
+  {
     return includesPoint(p.x(), p.y());
   }
 
