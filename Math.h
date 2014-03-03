@@ -25,7 +25,7 @@
 
 inline float   degreesToRadians(float degrees) { return degrees / 180.0f * M_PI; }
 inline double  degreesToRadians(double degrees) { return degrees / 180.0 * M_PI; }
-inline float   radiansToDegrees(float radians) { return radians * M_PI / 180.0f; }
-inline double  radiansToDegrees(double radians) { return radians * M_PI / 180.0; }
+inline float   radiansToDegrees(float radians) { return radians / M_PI * 180.0f; }
+inline double  radiansToDegrees(double radians) { return radians / M_PI * 180.0; }
 
 #endif /* MATH_H_ */
