@@ -518,13 +518,13 @@ uid MainWindow::createEllipseTextureMapping(uid mappingId,
   else
   {
     Paint::ptr paint = mappingManager->getPaintById(paintId);
-    Q_ASSERT(src.size() == 4 && dst.size() == 4);
+    Q_ASSERT(src.size() == 5 && dst.size() == 5);
 
-    Shape::ptr inputEllipse( new Ellipse(src[0], src[1], src[2], dst[3]));
-    Shape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3]));
+    Shape::ptr inputEllipse( new Ellipse(src[0], src[1], src[2], dst[3], dst[4]));
+    Shape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3], dst[4]));
 
     // Add it to the manager.
-    Mapping::ptr mapping(new TextureMapping(paint, inputEllipse, outputEllipse, mappingId));
+    Mapping::ptr mapping(new TextureMapping(paint, outputEllipse, inputEllipse, mappingId));
     uid id = mappingManager->addMapping(mapping);
 
     // Add it to the GUI.
@@ -595,7 +595,7 @@ uid MainWindow::createTriangleColorMapping(uid mappingId,
 
 uid MainWindow::createEllipseColorMapping(uid mappingId,
                                           uid paintId,
-                                          const QList<QPointF> &dst)
+                                          const QVector<QPointF> &dst)
 {
   // Cannot create element with already existing id or element for which no paint exists.
   if (Mapping::getUidAllocator().exists(mappingId) ||

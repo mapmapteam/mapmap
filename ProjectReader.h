@@ -37,10 +37,11 @@ private:
     void parsePaint(const QDomElement& paint);
     void parseMapping(const QDomElement& mapping);
 
-    void _parseStandardShape(const QString& type, int nVertices, const QDomElement& shape, QVector<QPointF>& points);
+    void _parseStandardShape(const QString& type, const QDomElement& shape, QVector<QPointF>& points, int nVertices=-1);
     void _parseQuad(const QDomElement& quad, QVector<QPointF>& points);
     void _parseTriangle(const QDomElement& triangle, QVector<QPointF>& points);
     void _parseMesh(const QDomElement& mesh, QVector<QPointF>& points, int& nColumns, int& nRows);
+    void _parseEllipse(const QDomElement& ellipse, QVector<QPointF>& points);
     QPointF _parseVertex(const QDomElement& vertex);
 
 //    void readPaint(); //Paint *item);

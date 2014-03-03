@@ -141,7 +141,7 @@ public slots:
    */
   uid createEllipseColorMapping(uid mappingId,
                                 uid paintId,
-                                const QList<QPointF> &dst);
+                                const QVector<QPointF> &dst);
 
 private:
   // Methods.
