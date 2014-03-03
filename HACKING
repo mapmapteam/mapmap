@@ -8,3 +8,5 @@ Coding style
 * private data members with an underscore as a prefix: _likeThis
 * file names all lowercase
 * always add spaces between operators such as +, -, /, * casts, etc. (except pointers and references)
+* MapperGLCanvas has a strange name considering we also have a Mapper class; actually I'm thinking we should rename Mapper to MappingView or something (since a Mapper is actually the View of the Mapping class)
+* Override includesPoint() in Mesh
