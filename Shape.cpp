@@ -463,8 +463,21 @@ void Ellipse::setVertex(int i, const QPointF& v)
   }
 
   // Center control point (make sure it stays inside!).
-  else {
+  else
+  {
     if (includesPoint(v))
       Shape::setVertex(i, v);
+
+    else
+    {
+      // Map point as vector on a unit circle.
+      QVector2D vector(toUnitCircle().map(v));
+
+      // Normalize it.
+      vector.normalize();
+
+      // Remap it to ellipse.
+      Shape::setVertex(4, fromUnitCircle().map(vector.toPointF()));
+    }
   }
 }
