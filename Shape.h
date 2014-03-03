@@ -27,6 +27,7 @@
 #include <QtGlobal>
 
 #include <QObject>
+#include <QTransform>
 #include <QPointF>
 #include <QVector2D>
 #include <QPolygonF>
@@ -258,6 +259,11 @@ public:
     return getVerticalAxis().length() / 2;
   }
 
+  /// Remaps point from ellipse to a circle with radius 1 set at origin (0,0).
+  QTransform toUnitCircle() const;
+
+  /// Remaps point from circle with radius 1 set at origin (0,0) to ellipse coordinates.
+  QTransform fromUnitCircle() const;
   /** Return true if Shape includes point (x,y), false otherwise
    *  Algorithm should work for all polygons, including non-convex
    *  Found at http://www.cs.tufts.edu/comp/163/notes05/point_inclusion_handout.pdf

@@ -372,6 +372,19 @@ void Mesh::_reorderVertices()
   vertices = newVertices;
 }
 
+QTransform Ellipse::toUnitCircle() const
+{
+  const QPointF& center = getCenter();
+  return QTransform().scale(1.0/getHorizontalRadius(), 1.0/getVerticalRadius())
+                     .rotateRadians(-getRotationRadians())
+                     .translate(-center.x(), -center.y());
+}
+
+QTransform Ellipse::fromUnitCircle() const
+{
+  return toUnitCircle().inverted();
+}
+
 bool Ellipse::includesPoint(qreal x, qreal y)
 {
   // From: http://stackoverflow.com/questions/7946187/point-and-ellipse-rotated-position-test-algorithm
@@ -394,26 +407,19 @@ void Ellipse::setVertex(int i, const QPointF& v)
   // If changed one of the two rotation-controlling points, adjust the other two points.
   if (i == 0 || i == 2)
   {
+    // Transformation ellipse_t --> circle.
+    QTransform transform = toUnitCircle();
+
     // Change the vertex.
     Shape::setVertex(i, v);
 
-    // Retrieve the new horizontal axis vector and center.
-    const QVector2D& hAxis  = getHorizontalAxis();
-    const QVector2D center(getCenter());
+    // Combine with transformation circle -> ellipse_{t+1}.
+    transform *= fromUnitCircle();
 
-    // Ajust the two other points.
-
-    // Compute a vector that is the 90 degree rotation of the horizontal axis,
-    // with a magnitude equal to the vertical radius.
-    QVector2D vAxisVec(hAxis.y(), -hAxis.x()); // 90 deg CW rotation of horiz. axis
-    vAxisVec.normalize();
-    vAxisVec *= vAxis.length() / 2;
-
-    // Assign vertical control points.
-    QPointF v1 = (center + vAxisVec).toPointF();
-    QPointF v3 = (center - vAxisVec).toPointF();
-    Shape::setVertex(1, v1);
-    Shape::setVertex(3, v3);
+    // Set vertices.
+    Shape::setVertex(1, transform.map( getVertex(1) ));
+    Shape::setVertex(3, transform.map( getVertex(3) ));
+    Shape::setVertex(4, transform.map( getVertex(4) ));
   }
 
   // If changed one of the two other points, just change the vertical axis.
@@ -441,8 +447,19 @@ void Ellipse::setVertex(int i, const QPointF& v)
       v1 = (center - projection).toPointF();
       v3 = (center + projection).toPointF();
     }
+
+    // Transformation ellipse_t --> circle.
+    QTransform transform = toUnitCircle();
+
+    // Change vertical points.
     Shape::setVertex(1, v1);
     Shape::setVertex(3, v3);
+
+    // Combine with transformation circle -> ellipse_{t+1}.
+    transform *= fromUnitCircle();
+
+    // Set vertices.
+    Shape::setVertex(4, transform.map( getVertex(4) ));
   }
 
   // Center control point (make sure it stays inside!).
