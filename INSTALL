@@ -1,0 +1,17 @@
+Build instructions
+==================
+This file is written in rst, so that one can use rst2pdf to create a PDF out of it.
+
+On Ubuntu 13.10
+---------------
+Do this::
+
+  sudo apt-get install -y \
+      qt4-default \
+      qt4-qmake
+
+For extras::
+
+  sudo apt-get install -y \
+      doxygen
+
