@@ -31,7 +31,7 @@ bool ProjectWriter::writeFile(QIODevice *device)
   _xml.setDevice(device);
   
   _xml.writeStartDocument();
-  _xml.writeDTD("<!DOCTYPE libremapping>");
+  _xml.writeDTD("<!DOCTYPE mapmap>");
   _xml.writeStartElement("project");
   _xml.writeAttribute("version", "1.0");
 

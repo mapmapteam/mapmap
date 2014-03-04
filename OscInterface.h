@@ -31,7 +31,7 @@
 class Facade; // forward decl
 
 /**
- * Open Sound Control sending and receiving for LibreMapping.
+ * Open Sound Control sending and receiving for MapMap.
  */
 class OscInterface 
 {

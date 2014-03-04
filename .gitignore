@@ -9,6 +9,7 @@
 *.gz
 *.tar
 *.rar
+*.qm
 Makefile
 prototypes/sdl/run
 prototypes/wx-01-simple/run
@@ -16,7 +17,7 @@ prototypes/wx-03-polyline/run
 prototypes/wx-04-gst/run
 Debug/
 Release/
-libremapping
+mapmap
 moc_*.cpp
 prototypes/gst/
 prototypes/wx-02-input-output/run

@@ -162,7 +162,7 @@ void MainWindow::open()
   if (okToContinue())
   {
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Open project"), ".", tr("LibreMapping files (*.lmp)"));
+        tr("Open project"), ".", tr("MapMap files (*.lmp)"));
     if (!fileName.isEmpty())
       loadFile(fileName);
   }
@@ -183,7 +183,7 @@ bool MainWindow::save()
 bool MainWindow::saveAs()
 {
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save project"),
-      ".", tr("LibreMapping files (*.lmp)"));
+      ".", tr("MapMap files (*.lmp)"));
   if (fileName.isEmpty())
     return false;
 
@@ -319,14 +319,14 @@ void MainWindow::addEllipse()
 
 void MainWindow::about()
 {
-  QMessageBox::about(this, tr("About LibreMapping"),
-      tr("<h2>LibreMapping "
+  QMessageBox::about(this, tr("About MapMap"),
+      tr("<h2>MapMap "
           LIBREMAPPING_VERSION
           "</h2>"
           "<p>Copyright &copy; 2013 Sofian Audry"
           "<p>Copyright &copy; 2013 Alexandre Quessy"
           "<p>Copyright &copy; 2013 Vasilis Liaskovitis"
-          "<p>LibreMapping is a free software for video mapping. "
+          "<p>MapMap is a free software for video mapping. "
           "<p>Projection mapping, also known as video mapping and spatial augmented reality, "
           "is a projection technology used to turn objects, often irregularly shaped, into "
           "a display surface for video projection. These objects may be complex industrial "
@@ -689,7 +689,7 @@ void MainWindow::createLayout()
   // Upon resizing window, give some extra stretch expansion to canvasSplitter.
   //mainSplitter->setStretchFactor(0, 1);
 
-  setWindowTitle(tr("LibreMapping"));
+  setWindowTitle(tr("MapMap"));
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
   setCentralWidget(mainSplitter);
 
@@ -897,7 +897,7 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
-  QSettings settings("LibreMapping", "LibreMapping");
+  QSettings settings("MapMap", "MapMap");
 
   restoreGeometry(settings.value("geometry").toByteArray());
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
@@ -908,7 +908,7 @@ void MainWindow::readSettings()
 
 void MainWindow::writeSettings()
 {
-  QSettings settings("LibreMapping", "LibreMapping");
+  QSettings settings("MapMap", "MapMap");
 
   settings.setValue("geometry", saveGeometry());
   settings.setValue("mainSplitter", mainSplitter->saveState());
@@ -921,7 +921,7 @@ bool MainWindow::okToContinue()
 {
   if (isWindowModified())
   {
-    int r = QMessageBox::warning(this, tr("LibreMapping"),
+    int r = QMessageBox::warning(this, tr("MapMap"),
         tr("The document has been modified.\n"
             "Do you want to save your changes?"),
         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
@@ -1005,7 +1005,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
     shownName = strippedName(curFile);
   }
 
-  setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("LibreMapping Project")));
+  setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("MapMap Project")));
 }
 
 // TODO
@@ -1017,7 +1017,7 @@ bool MainWindow::importMediaFile(const QString &fileName)
 {
   QFile file(fileName);
   if (!file.open(QIODevice::ReadOnly)) {
-      QMessageBox::warning(this, tr("LibreMapping Project"),
+      QMessageBox::warning(this, tr("MapMap Project"),
                            tr("Cannot read file %1:\n%2.")
                            .arg(file.fileName())
                            .arg(file.errorString()));

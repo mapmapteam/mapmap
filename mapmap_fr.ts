@@ -8,16 +8,16 @@
         <translation type="obsolete">Sauvegarder le projet</translation>
     </message>
     <message>
-        <source>LibreMapping files (*.lmp)</source>
-        <translation>Fichiers LibreMapping (*.lmp)</translation>
+        <source>MapMap files (*.lmp)</source>
+        <translation>Fichiers MapMap (*.lmp)</translation>
     </message>
     <message>
         <source>Import resource</source>
         <translation type="obsolete">Importer une ressource</translation>
     </message>
     <message>
-        <source>About LibreMapping</source>
-        <translation>À propos de LibreMapping</translation>
+        <source>About MapMap</source>
+        <translation>À propos de MapMap</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -149,8 +149,8 @@ Do you want to save your changes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>LibreMapping Project</source>
-        <translation>Projet LibreMapping</translation>
+        <source>MapMap Project</source>
+        <translation>Projet MapMap</translation>
     </message>
     <message>
         <source>File imported</source>
@@ -169,12 +169,12 @@ Do you want to save your changes?</source>
         <translation>Importer une source média</translation>
     </message>
     <message>
-        <source>&lt;h2&gt;LibreMapping </source>
-        <translation>&lt;h2&gt;LibreMapping</translation>
+        <source>&lt;h2&gt;MapMap </source>
+        <translation>&lt;h2&gt;MapMap</translation>
     </message>
     <message>
-        <source>LibreMapping</source>
-        <translation>LibreMapping</translation>
+        <source>MapMap</source>
+        <translation>MapMap</translation>
     </message>
 </context>
 <context>
@@ -201,7 +201,7 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>The file is not a libremapping version 1.0 file.</source>
-        <translation>Ce fichier n&apos;est pas un projet LibreMapping version 1.0</translation>
+        <translation>Ce fichier n&apos;est pas un projet MapMap version 1.0</translation>
     </message>
     <message>
         <source>%1

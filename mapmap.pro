@@ -40,9 +40,9 @@ SOURCES  = \
     main.cpp
 
 QT      += gui opengl xml
-RESOURCES = libremapping.qrc
+RESOURCES = mapmap.qrc
 
-TRANSLATIONS = libremapping_fr.ts
+TRANSLATIONS = mapmap_fr.ts
 
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
 
@@ -56,3 +56,4 @@ macx:QMAKE_CXXFLAGS += -D__MACOSX_CORE__
 
 # not mac
 !macx:LIBS    += -lglut -lGLU
+
