@@ -22,7 +22,8 @@ HEADERS  = \
     SourceGLCanvas.h \
     UidAllocator.h \
     Util.h \
-    unused.h
+    unused.h \
+    VideoImpl.h
 
 SOURCES  = \
 #    Controller.cpp \
@@ -42,6 +43,7 @@ SOURCES  = \
     SourceGLCanvas.cpp \
     UidAllocator.cpp \
     Util.cpp \
+    VideoImpl.cpp \
     main.cpp
 
 RESOURCES = mapmap.qrc

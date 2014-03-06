@@ -161,6 +161,8 @@ public:
   virtual const uchar* getBits() const { return image.bits(); }
 };
 
+class VideoImpl; // forware declaration
+
 /**
  * Paint that is a Texture retrieved via a video file.
  */
@@ -187,6 +189,12 @@ public:
    * Checks whether or not video is supported on this platform.
    */
   static bool hasVideoSupport();
+private:
+  /**
+   * Private implementation, so that GStreamer headers don't need
+   * to be included from every file in the project.
+   */
+  VideoImpl * impl_; // PIMPL opaque pointer
 };
 
 #endif /* PAINT_H_ */

@@ -19,7 +19,7 @@
  */
 
 #include "Paint.h"
-#include <gst/gst.h>
+#include "VideoImpl.h"
 #include <iostream>
 
 UidAllocator Paint::allocator;
@@ -42,51 +42,44 @@ Paint::~Paint()
   allocator.free(_id);
 }
 
+
 /* Implementation of the Video class */
 
 Video::Video(const QString uri_, uid id=NULL_UID):
     Texture(id),
-    uri(uri_)
+    uri(uri_),
+    impl_(new VideoImpl)
 {
+  this->impl_->setUri(uri);
 }
 
 Video::~Video()
 {
+  delete impl_;
 }
 
 void Video::build()
 {
+  this->impl_->build();
 }
 
 int Video::getWidth() const
 {
-  // TODO
-  return 0;
+  return this->impl_->getWidth();
 }
 
 int Video::getHeight() const
 {
-  // TODO
-  return 0;
+  return this->impl_->getHeight();
 }
 
 const uchar* Video::getBits() const
 {
-  // TODO
-  return 0;
+  return this->impl_->getBits();
 }
 
 bool Video::hasVideoSupport()
 {
-  static bool did_print_gst_version = false;
-  if (! did_print_gst_version)
-  {
-    std::cout << "Using GStreamer version " <<
-      GST_VERSION_MAJOR << "." <<
-      GST_VERSION_MINOR << "." <<
-      GST_VERSION_MICRO << std::endl;
-    did_print_gst_version = true;
-  }
-  return true;
+  return VideoImpl::hasVideoSupport();
 }
 
