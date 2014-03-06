@@ -183,6 +183,10 @@ public:
   virtual int getWidth() const;
   virtual int getHeight() const;
   virtual const uchar* getBits() const;
+  /**
+   * Checks whether or not video is supported on this platform.
+   */
+  static bool hasVideoSupport();
 };
 
 #endif /* PAINT_H_ */

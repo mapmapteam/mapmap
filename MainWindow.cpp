@@ -28,6 +28,11 @@ MainWindow* MainWindow::instance = 0;
 
 MainWindow::MainWindow()
 {
+  if (Video::hasVideoSupport())
+    std::cout << "Video support: yes" << std::endl;
+  else
+    std::cout << "Video support: no" << std::endl;
+
   mappingManager = new MappingManager;
  // _facade = new Facade(mappingManager, this);
 

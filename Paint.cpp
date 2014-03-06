@@ -20,6 +20,7 @@
 
 #include "Paint.h"
 #include <gst/gst.h>
+#include <iostream>
 
 UidAllocator Paint::allocator;
 
@@ -73,5 +74,19 @@ const uchar* Video::getBits() const
 {
   // TODO
   return 0;
+}
+
+bool Video::hasVideoSupport()
+{
+  static bool did_print_gst_version = false;
+  if (! did_print_gst_version)
+  {
+    std::cout << "Using GStreamer version " <<
+      GST_VERSION_MAJOR << "." <<
+      GST_VERSION_MINOR << "." <<
+      GST_VERSION_MICRO << std::endl;
+    did_print_gst_version = true;
+  }
+  return true;
 }
 
