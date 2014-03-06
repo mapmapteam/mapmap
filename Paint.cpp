@@ -19,6 +19,7 @@
  */
 
 #include "Paint.h"
+#include <gst/gst.h>
 
 UidAllocator Paint::allocator;
 
