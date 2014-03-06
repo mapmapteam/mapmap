@@ -17,7 +17,8 @@ HEADERS  = \
     Shape.h \
     SourceGLCanvas.h \
     UidAllocator.h \
-    Util.h
+    Util.h \
+    unused.h \
 
 SOURCES  = \
 #    Controller.cpp \
@@ -56,4 +57,5 @@ macx:QMAKE_CXXFLAGS += -D__MACOSX_CORE__
 
 # not mac
 !macx:LIBS    += -lglut -lGLU
+!macx:QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
 
