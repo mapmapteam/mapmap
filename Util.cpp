@@ -19,6 +19,7 @@
  */
 
 #include "Util.h"
+#include "unused.h"
 #include <algorithm>
 
 namespace Util {
@@ -72,6 +73,9 @@ int map_int(int value, int istart, int istop, int ostart, int ostop)
 
 Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight)
 {
+  UNUSED(frameHeight);
+  UNUSED(frameWidth);
+
   return new Mesh(
     QPointF(texture->getX(), texture->getY()),
     QPointF(texture->getX() + texture->getWidth(), texture->getY()),
@@ -82,6 +86,9 @@ Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight)
 
 Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight)
 {
+  UNUSED(frameHeight);
+  UNUSED(frameWidth);
+
   return new Triangle(
     QPointF(texture->getX(), texture->getY() + texture->getHeight()),
     QPointF(texture->getX() + texture->getWidth(), texture->getY() + texture->getHeight()),
@@ -92,6 +99,9 @@ Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHe
 Ellipse* createEllipseForTexture(Texture* texture, int frameWidth,
     int frameHeight)
 {
+  UNUSED(frameHeight);
+  UNUSED(frameWidth);
+
   qreal halfWidth  = texture->getWidth() / 2;
   qreal halfHeight = texture->getHeight() / 2;
 
