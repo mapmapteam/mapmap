@@ -161,4 +161,28 @@ public:
   virtual const uchar* getBits() const { return image.bits(); }
 };
 
+/**
+ * Paint that is a Texture retrieved via a video file.
+ */
+class Video : public Texture
+{
+protected:
+  QString uri;
+public:
+  Video(const QString uri_, uid id);
+  virtual ~Video();
+  const QString getUri() const
+  {
+    return uri;
+  }
+  virtual void build();
+  virtual QString getType() const
+  {
+    return "video";
+  }
+  virtual int getWidth() const;
+  virtual int getHeight() const;
+  virtual const uchar* getBits() const;
+};
+
 #endif /* PAINT_H_ */

@@ -40,3 +40,37 @@ Paint::~Paint()
   allocator.free(_id);
 }
 
+/* Implementation of the Video class */
+
+Video::Video(const QString uri_, uid id=NULL_UID):
+    Texture(id),
+    uri(uri_)
+{
+}
+
+Video::~Video()
+{
+}
+
+void Video::build()
+{
+}
+
+int Video::getWidth() const
+{
+  // TODO
+  return 0;
+}
+
+int Video::getHeight() const
+{
+  // TODO
+  return 0;
+}
+
+const uchar* Video::getBits() const
+{
+  // TODO
+  return 0;
+}
+
