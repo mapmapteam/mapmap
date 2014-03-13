@@ -6,7 +6,6 @@ DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
 HEADERS  = \
     DestinationGLCanvas.h \
-#    Facade.h \
     MainApplication.h \
     MainWindow.h \
     Mapper.h \
@@ -14,8 +13,9 @@ HEADERS  = \
     Mapping.h \
     MappingManager.h \
     Math.h \
-#    NameAllocator.h \
     Paint.h \
+    OscInterface.h \
+    OscReceiver.h \
     ProjectReader.h \
     ProjectWriter.h \
     Shape.h \
@@ -26,16 +26,16 @@ HEADERS  = \
     VideoImpl.h
 
 SOURCES  = \
-#    Controller.cpp \
     DestinationGLCanvas.cpp \
-#    Facade.cpp \
     MainWindow.cpp \
     MainApplication.cpp \
     Mapper.cpp \
     MapperGLCanvas.cpp \
     Mapping.cpp \
     MappingManager.cpp \
-#    NameAllocator.cpp \
+    OscInterface.cpp \
+    OscReceiver.cpp \
+    ProjectReader.h \
     Paint.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
@@ -58,6 +58,7 @@ unix:!mac {
   DEFINES += UNIX
   # stricter build flags:
   QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
+  QMAKE_CXXFLAGS += -DHAVE_OSC
   INCLUDEPATH += /usr/include/gstreamer-0.10 \
     /usr/local/include/gstreamer-0.10 \
     /usr/include/glib-2.0 \
@@ -67,6 +68,7 @@ unix:!mac {
     -lgstinterfaces-0.10 \
     -lglib-2.0 \
     -lglut \
+    -llo -lpthread \
     -lgmodule-2.0 \
     -lgobject-2.0 \
     -lgthread-2.0 \
