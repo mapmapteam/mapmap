@@ -61,8 +61,9 @@ unix:!mac {
     /usr/include/libxml2
   LIBS += \
     -lglut \
-    -lGLU
-    -llo -lpthread \
+    -lGLU \
+    -llo \
+    -lpthread \
     -lX11 \
     -lGLEW
 }
