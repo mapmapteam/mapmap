@@ -68,6 +68,9 @@ MainWindow::~MainWindow()
 {
   delete mappingManager;
 //  delete _facade;
+#ifdef HAVE_OSC
+  delete osc_timer;
+#endif // ifdef
 }
 
 void MainWindow::handlePaintItemSelectionChanged()
@@ -1219,7 +1222,7 @@ void MainWindow::startOscReceiver()
 void MainWindow::pollOscInterface()
 {
 #ifdef HAVE_OSC
-  osc_interface->consume_commands(*_facade);
+  osc_interface->consume_commands(*this);
 #endif
 }
 

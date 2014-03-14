@@ -2,7 +2,6 @@ CONFIG  += qt debug
 TEMPLATE = app
 HEADERS  = \
     DestinationGLCanvas.h \
-#    Facade.h \
     MainApplication.h \
     MainWindow.h \
     Mapper.h \
@@ -10,8 +9,9 @@ HEADERS  = \
     Mapping.h \
     MappingManager.h \
     Math.h \
-#    NameAllocator.h \
     Paint.h \
+    OscInterface.h \
+    OscReceiver.h \
     ProjectReader.h \
     ProjectWriter.h \
     Shape.h \
@@ -21,16 +21,16 @@ HEADERS  = \
     unused.h \
 
 SOURCES  = \
-#    Controller.cpp \
     DestinationGLCanvas.cpp \
-#    Facade.cpp \
     MainWindow.cpp \
     MainApplication.cpp \
     Mapper.cpp \
     MapperGLCanvas.cpp \
     Mapping.cpp \
     MappingManager.cpp \
-#    NameAllocator.cpp \
+    OscInterface.cpp \
+    OscReceiver.cpp \
+    ProjectReader.h \
     Paint.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
@@ -40,22 +40,42 @@ SOURCES  = \
     Util.cpp \
     main.cpp
 
-QT      += gui opengl xml
+QT += gui opengl xml
 RESOURCES = mapmap.qrc
-
 TRANSLATIONS = mapmap_fr.ts
-
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
-
 docs.depends = $(HEADERS) $(SOURCES)
 docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
 QMAKE_EXTRA_TARGETS += docs
 
-# mac
-macx:LIBS += -framework OpenGL -framework GLUT
-macx:QMAKE_CXXFLAGS += -D__MACOSX_CORE__
+# Linux-specific:
+unix:!mac {
+  DEFINES += UNIX
+  # stricter build flags:
+  QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
+  QMAKE_CXXFLAGS += -DHAVE_OSC
+  INCLUDEPATH += /usr/include/gstreamer-0.10 \
+    /usr/local/include/gstreamer-0.10 \
+    /usr/include/glib-2.0 \
+    /usr/lib/x86_64-linux-gnu/glib-2.0/include \
+    /usr/include/libxml2
+  LIBS += \
+    -lglut \
+    -lGLU
+    -llo -lpthread \
+    -lX11 \
+    -lGLEW
+}
 
-# not mac
-!macx:LIBS    += -lglut -lGLU
-!macx:QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
+# Mac OS X-specific:
+mac {
+  DEFINES += MACOSX
+  INCLUDEPATH += /opt/local/include/ \
+    /opt/local/include/libxml2
+  LIBS += -L/opt/local/lib \
+    -lGLEW
+    -framework OpenGL \
+    -framework GLUT
+  QMAKE_CXXFLAGS += -D__MACOSX_CORE__
+}
 

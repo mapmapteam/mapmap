@@ -18,6 +18,7 @@ class OscReceiver {
                 void *user_data);
     private:
         std::string toString() const;
+        bool server_is_ok_;
         std::string port_;
         lo_server_thread server_;
 #ifdef CONFIG_DEBUG
