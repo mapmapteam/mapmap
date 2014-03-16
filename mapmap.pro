@@ -30,7 +30,6 @@ SOURCES  = \
     MappingManager.cpp \
     OscInterface.cpp \
     OscReceiver.cpp \
-    ProjectReader.h \
     Paint.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
