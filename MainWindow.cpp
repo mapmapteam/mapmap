@@ -845,7 +845,7 @@ void MainWindow::createActions()
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
   deleteAction = new QAction(tr("Delete"), this);
-  deleteAction->setShortcut(QKeySequence::Delete);
+  deleteAction->setShortcut(tr("CTRL+DEL"));
   deleteAction->setStatusTip(tr("Delete item"));
   connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
 
