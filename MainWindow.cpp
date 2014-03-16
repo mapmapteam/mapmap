@@ -850,18 +850,21 @@ void MainWindow::createActions()
   connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
 
   addQuadAction = new QAction(tr("Add Quad/&Mesh"), this);
+  addQuadAction->setShortcut(tr("CTRL+M"));
   addQuadAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
   addQuadAction->setStatusTip(tr("Add quad/mesh"));
   connect(addQuadAction, SIGNAL(triggered()), this, SLOT(addMesh()));
   addQuadAction->setEnabled(false);
 
   addTriangleAction = new QAction(tr("Add &Triangle"), this);
+  addTriangleAction->setShortcut(tr("CTRL+T"));
   addTriangleAction->setIcon(QIcon(":/images/draw-triangle.png"));
   addTriangleAction->setStatusTip(tr("Add triangle"));
   connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
   addTriangleAction->setEnabled(false);
 
   addEllipseAction = new QAction(tr("Add &Ellipse"), this);
+  addEllipseAction->setShortcut(tr("CTRL+E"));
   addEllipseAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
   addEllipseAction->setStatusTip(tr("Add ellipse"));
   connect(addEllipseAction, SIGNAL(triggered()), this, SLOT(addEllipse()));
