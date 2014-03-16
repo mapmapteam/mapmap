@@ -720,6 +720,9 @@ void MainWindow::createLayout()
 
   connectAll();
 
+  // Reset focus on main window.
+  setFocus();
+
 //  Common::initializeLibremapper(sourceCanvas->width(), sourceCanvas->height());
 //
 //  for (int i = 0; i < Common::nImages(); i++)
