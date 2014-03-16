@@ -19,18 +19,17 @@
 
 #include "OutputGLWindow.h"
 
+#include "MainWindow.h"
+
 OutputGLWindow::OutputGLWindow(QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
 {
-//  setModal(false);
-  resize(320,240);
 
   canvas = new DestinationGLCanvas(this, shareWidget);
-  canvas->setFocusPolicy(Qt::ClickFocus);
   canvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  canvas->setMinimumSize(320, 240);
+
 }
 
-void OutputGLWindow::updateCanvas() {
-  qDebug() << "Update output canvas" << endl;
-  canvas->updateCanvas();
-}
+//void OutputGLWindow::updateCanvas() {
+//  qDebug() << "Update output canvas" << endl;
+//  canvas->updateCanvas();
+//}

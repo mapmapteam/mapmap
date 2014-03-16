@@ -667,13 +667,16 @@ void MainWindow::createLayout()
           destinationCanvas, SLOT(updateCanvas()));
 
   // Source changed -> change output window
-  connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
-          outputWindow,      SLOT(updateCanvas()));
+  connect(sourceCanvas,              SIGNAL(shapeChanged(Shape*)),
+          outputWindow->getCanvas(), SLOT(updateCanvas()));
 
   // Destination changed -> change output window
-  connect(destinationCanvas, SIGNAL(shapeChanged(Shape*)),
-          outputWindow,      SLOT(updateCanvas()));
+  connect(destinationCanvas,         SIGNAL(shapeChanged(Shape*)),
+          outputWindow->getCanvas(), SLOT(updateCanvas()));
 
+  // Output changed -> change destinatioin
+  connect(outputWindow->getCanvas(), SIGNAL(shapeChanged(Shape*)),
+          destinationCanvas,         SLOT(updateCanvas()));
 //  connect(destinationCanvas, SIGNAL(imageChanged()),
 //          sourceCanvas,      SLOT(updateCanvas()));
 
@@ -1194,7 +1197,7 @@ void MainWindow::updateAll()
 {
   sourceCanvas->update();
   destinationCanvas->update();
-  outputWindow->updateCanvas();
+  outputWindow->getCanvas()->update();
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)

@@ -20,7 +20,6 @@
 #ifndef OUTPUTGLWINDOW_H_
 #define OUTPUTGLWINDOW_H_
 
-
 #include <QDialog>
 #include "DestinationGLCanvas.h"
 
@@ -35,8 +34,8 @@ public:
 protected:
   void closeEvent(QCloseEvent *){}
 
-public slots:
-  void updateCanvas();
+public:
+  DestinationGLCanvas* getCanvas() const { return canvas; }
 
 private:
   DestinationGLCanvas* canvas;
