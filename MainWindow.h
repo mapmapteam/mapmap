@@ -42,28 +42,35 @@
 
 #define LIBREMAPPING_VERSION "0.1"
 
-// Forward declaration:
-//class Facade;
-
+/**
+ * This is the main window of MapMap. It acts as both a view and a controller interface.
+ */
 class MainWindow: public QMainWindow
 {
 Q_OBJECT
 
 public:
+  // Constructor.
   MainWindow();
+
+  // Destructor.
   ~MainWindow();
+
+  // TODO: It is a bad shortcut to make MainWindow a singleton: it would be better to use signals/slots instead.
   static MainWindow& getInstance();
   static void setInstance(MainWindow* inst);
-  void applyOscCommand(QVariantList & command);
+
+  // XXX Unused.
+  void applyOscCommand(const QVariantList& command);
 
 protected:
-  // Events.
+  // Events ///////////////////////////////////////////////////////////////////////////////////////////////////
   void closeEvent(QCloseEvent *event);
 
+  // Slots ////////////////////////////////////////////////////////////////////////////////////////////////////
 private slots:
 
-  // Menu.
-
+  // Menus slots.
   // File menu.
   void newFile();
   void open();
@@ -73,12 +80,8 @@ private slots:
   void addColor();
   void about();
   void updateStatusBar();
-
   // Edit menu.
   void deleteItem();
-
-  // View menu.
-  void toggleOutputWindow(bool display);
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
@@ -89,6 +92,7 @@ private slots:
   void addTriangle();
   void addEllipse();
 
+  // Other.
   void windowModified();
   void pollOscInterface();
 
@@ -142,10 +146,13 @@ public slots:
   /// Deletes/removes a paint and all associated mappigns.
   void deletePaint(uid paintId);
 
-  void updateAll();
+  /// Updates all canvases.
+  void updateCanvases();
 
 private:
-  // Methods.
+  // Internal methods. //////////////////////////////////////////////////////////////////////////////////////
+
+  // Creation of view elements.
   void createLayout();
   void createActions();
   void createMenus();
@@ -153,11 +160,14 @@ private:
   void createToolBars();
   void createStatusBar();
 
+  // Settings.
   void readSettings();
   void writeSettings();
 
+  // OSC.
   void startOscReceiver();
 
+  // Actions-related.
   bool okToContinue();
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
@@ -167,17 +177,21 @@ private:
   void addMappingItem(uint mappingId);
   void removeMappingItem(uint mappingId);
   void clearWindow();
-  QString strippedName(const QString &fullFileName);
 
-  void connectAll();
-  void disconnectAll();
+  // Returns a short version of filename.
+  static QString strippedName(const QString &fullFileName);
 
-  // Variables.
-  QString curFile;
+  // Connects/disconnects project-specific widgets (paints and mappings).
+  void connectProjectWidgets();
+  void disconnectProjectWidgets();
 
-  // GUI elements.
-  QAction *separatorAction;
+  // Get/set id from list item.
+  static uid getItemId(const QListWidgetItem& item);
+  static void setItemId(QListWidgetItem& item, uid id);
 
+  // GUI elements. ////////////////////////////////////////////////////////////////////////////////////////
+
+  // Menu actions.
   QMenu *fileMenu;
 //  QMenu *editMenu;
 //  QMenu *selectSubMenu;
@@ -186,8 +200,12 @@ private:
   QMenu *viewMenu;
   QMenu *editMenu;
   QMenu *helpMenu;
+
+  // Toolbar.
   QToolBar *fileToolBar;
-//  QToolBar *editToolBar;
+
+  // Actions.
+  QAction *separatorAction;
   QAction *newAction;
   QAction *openAction;
   QAction *importAction;
@@ -198,16 +216,16 @@ private:
 //  QAction *cutAction;
 //  QAction *copyAction;
 //  QAction *pasteAction;
-//  QAction *deleteAction;
+  QAction *deleteAction;
   QAction *aboutAction;
 
-  QAction *deleteAction;
-
-  QAction *addQuadAction;
+  QAction *addMeshAction;
   QAction *addTriangleAction;
   QAction *addEllipseAction;
 
   QAction *displayOutputWindow;
+
+  // Widgets and layout.
 
   QListWidget* paintList;
   QListWidget* mappingList;
@@ -215,39 +233,43 @@ private:
 
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
-
   OutputGLWindow* outputWindow;
 
-private:
   QSplitter* mainSplitter;
   QSplitter* resourceSplitter;
   QSplitter* canvasSplitter;
 
+  // Internal variables. ///////////////////////////////////////////////////////////////////////////////////
+
+  // Current filename.
+  QString curFile;
+
+  // Model.
+  MappingManager* mappingManager;
+
+  // OSC.
 #ifdef HAVE_OSC
   OscInterface::ptr osc_interface;
 #endif
   int config_osc_receive_port;
   QTimer *osc_timer;
 
-  // Maps from Mapping id to corresponding mapper.
+  // View.
+
+  // The view counterpart of Mappings.
   QMap<uint, Mapper::ptr> mappers;
 
-private:
-  // Model.
-  MappingManager* mappingManager;
-  //Facade* _facade;
-
-  // View.
+  // Current selected paint/mapping.
   uid currentPaintId;
   uid currentMappingId;
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
 
-  bool _displayOutputWindow;
-
+  // Singleton instance.
   static MainWindow* instance;
 
 public:
+  // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
   MappingManager& getMappingManager() { return *mappingManager; }
   Mapper::ptr getMapperByMappingId(uint id) { return mappers[id]; }
   uid getCurrentPaintId() const { return currentPaintId; }
@@ -274,7 +296,7 @@ public:
   }
 
 public:
-  // Constants.
+  // Constants. ///////////////////////////////////////////////////////////////////////////////////////
   static const int DEFAULT_WIDTH = 1600;
   static const int DEFAULT_HEIGHT = 800;
   static const int PAINT_LIST_ITEM_HEIGHT = 40;
