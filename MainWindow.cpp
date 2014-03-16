@@ -718,6 +718,7 @@ void MainWindow::createLayout()
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
   setCentralWidget(mainSplitter);
 
+  // Connect mapping and paint lists signals and slots.
   connectAll();
 
   // Reset focus on main window.
