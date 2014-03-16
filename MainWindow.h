@@ -284,6 +284,8 @@ public:
   static const int PROPERTY_PANEL_MINIMUM_WIDTH  = 400;
   static const int CANVAS_MINIMUM_WIDTH  = 480;
   static const int CANVAS_MINIMUM_HEIGHT = 270;
+  static const int OUTPUT_WINDOW_MINIMUM_WIDTH = 480;
+  static const int OUTPUT_WINDOW_MINIMUM_HEIGHT = 270;
 };
 
 #endif /* MAIN_WINDOW_H_ */

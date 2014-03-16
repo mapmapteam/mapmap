@@ -23,10 +23,16 @@
 
 OutputGLWindow::OutputGLWindow(QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
 {
+  resize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 
   canvas = new DestinationGLCanvas(this, shareWidget);
   canvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  canvas->setMinimumSize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 
+  QLayout* layout = new QVBoxLayout;
+  layout->setContentsMargins(0,0,0,0); // remove margin
+  layout->addWidget(canvas);
+  setLayout(layout);
 }
 
 //void OutputGLWindow::updateCanvas() {
