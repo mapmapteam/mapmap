@@ -41,8 +41,8 @@ public:
 private:
   virtual void doDraw(QPainter* painter);
 
-  void _drawColor(QPainter* painter, Paint::ptr paint, std::map<uid, Mapping::ptr> mappings);
-  void _drawTexture(QPainter* painter, Paint::ptr paint, std::map<uid, Mapping::ptr> mappings);
+  void _drawColor(QPainter* painter, Paint::ptr paint, QMap<uid, Mapping::ptr> mappings);
+  void _drawTexture(QPainter* painter, Paint::ptr paint, QMap<uid, Mapping::ptr> mappings);
 };
 
 

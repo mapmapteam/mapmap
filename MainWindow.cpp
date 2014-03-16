@@ -118,7 +118,7 @@ void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
 
 void MainWindow::handleMappingIndexesMoved()
 {
-  std::vector<uid> newOrder;
+  QVector<uid> newOrder;
   for (int row=mappingList->count()-1; row>=0; row--)
   {
     uid layerId = mappingList->item(row)->data(Qt::UserRole).toInt();

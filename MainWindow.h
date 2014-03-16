@@ -24,6 +24,7 @@
 #include <QtGui>
 #include <QTimer>
 #include <QVariant>
+#include <QMap>
 #include "SourceGLCanvas.h"
 #ifdef HAVE_OSC
 #include "OscInterface.h"
@@ -230,7 +231,7 @@ private:
   QTimer *osc_timer;
 
   // Maps from Mapping id to corresponding mapper.
-  std::map<uint, Mapper::ptr> mappers;
+  QMap<uint, Mapper::ptr> mappers;
 
 private:
   // Model.

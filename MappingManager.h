@@ -21,6 +21,9 @@
 #ifndef MAPPINGMANAGER_H_
 #define MAPPINGMANAGER_H_
 
+#include <QVector>
+#include <QMap>
+
 #include "Paint.h"
 #include "Mapping.h"
 
@@ -35,15 +38,15 @@ public:
 
 private:
   // Model.
-  std::vector<Paint::ptr> paintVector;
-  std::map<uid, Paint::ptr> paintMap;
-  std::vector<Mapping::ptr> mappingVector;
-  std::map<uid, Mapping::ptr> mappingMap;
+  QVector<Paint::ptr> paintVector;
+  QMap<uid, Paint::ptr> paintMap;
+  QVector<Mapping::ptr> mappingVector;
+  QMap<uid, Mapping::ptr> mappingMap;
 
 public:
   /// Returns the list of mappings associated with given paint.
-  std::map<uid, Mapping::ptr> getPaintMappings(const Paint::ptr paint) const;
-  std::map<uid, Mapping::ptr> getPaintMappingsById(uid paintId) const;
+  QMap<uid, Mapping::ptr> getPaintMappings(const Paint::ptr paint) const;
+  QMap<uid, Mapping::ptr> getPaintMappingsById(uid paintId) const;
 
   uid addPaint(Paint::ptr paint);
 //  bool removePaint(Paint::ptr paint);
@@ -59,9 +62,9 @@ public:
   Mapping::ptr getMapping(int i) { return mappingVector[i]; }
   Mapping::ptr getMappingById(uid id) { return mappingMap[id]; }
 
-  void reorderMappings(std::vector<uid> mappingIds);
+  void reorderMappings(QVector<uid> mappingIds);
 
-  std::vector<Mapping::ptr> getVisibleMappings() const;
+  QVector<Mapping::ptr> getVisibleMappings() const;
 
   void clearAll();
 };
