@@ -63,6 +63,8 @@ protected:
 private slots:
 
   // Menu.
+
+  // File menu.
   void newFile();
   void open();
   bool save();
@@ -71,8 +73,11 @@ private slots:
   void addColor();
   void about();
   void updateStatusBar();
+
   // Edit menu.
   void deleteItem();
+
+  // View menu.
   void toggleOutputWindow(bool display);
 
   // Widget callbacks.
@@ -90,61 +95,43 @@ private slots:
 public slots:
 
   // CRUD.
-  /**
-   * Clears all mappings and paints.
-   */
+
+  /// Clears all mappings and paints.
   bool clearProject();
 
-  /**
-   * Create an image paint.
-   */
+  /// Create an image paint.
   uid createImagePaint(uid paintId, QString uri, float x, float y);
 
-  /**
-   * Create a color paint.
-   */
+  /// Create a color paint.
   uid createColorPaint(uid paintId, QColor color);
 
-  /**
-   * Creates a textured mesh.
-   */
+  /// Creates a textured mesh.
   uid createMeshTextureMapping(uid mappingId,
                                uid paintId,
                                int nColumns, int nRows,
                                const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
-  /**
-   * Creates a textured triangle.
-   */
+  /// Creates a textured triangle.
   uid createTriangleTextureMapping(uid mappingId,
                                    uid paintId,
                                    const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
 
-  /**
-   * Creates a textured ellipse.
-   */
+  /// Creates a textured ellipse.
   uid createEllipseTextureMapping(uid mappingId,
                                   uid paintId,
                                   const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
-  /**
-   * Creates a color quad.
-   */
+  /// Creates a color quad.
   uid createQuadColorMapping(uid mappingId,
                              uid paintId,
                              const QVector<QPointF> &dst);
 
-  /**
-   * Creates a color triangle.
-   */
+  /// Creates a color triangle.
   uid createTriangleColorMapping(uid mappingId,
                                  uid paintId,
                                  const QVector<QPointF> &dst);
 
-  /**
-   * Creates a color ellipse.
-   */
   uid createEllipseColorMapping(uid mappingId,
                                 uid paintId,
                                 const QVector<QPointF> &dst);
