@@ -88,6 +88,7 @@ private slots:
   void handleMappingItemSelectionChanged();
   void handleMappingItemChanged(QListWidgetItem* item);
   void handleMappingIndexesMoved();
+  void handleItemSelected(QListWidgetItem* item);
   void addMesh();
   void addTriangle();
   void addEllipse();
@@ -174,8 +175,9 @@ private:
   void setCurrentFile(const QString &fileName);
   bool importMediaFile(const QString &fileName);
   bool addColorPaint(const QColor& color);
-  void addMappingItem(uint mappingId);
-  void removeMappingItem(uint mappingId);
+  void addMappingItem(uid mappingId);
+  void removeMappingItem(uid mappingId);
+  void removePaintItem(uid paintId);
   void clearWindow();
 
   // Returns a short version of filename.
@@ -188,6 +190,7 @@ private:
   // Get/set id from list item.
   static uid getItemId(const QListWidgetItem& item);
   static void setItemId(QListWidgetItem& item, uid id);
+  static int getItemRowFromId(const QListWidget& list, uid id);
 
   // GUI elements. ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -264,6 +267,9 @@ private:
   uid currentMappingId;
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
+
+  // Keeps track of the current selected item, wether it's a paint or mapping.
+  QListWidgetItem* currentSelectedItem;
 
   // Singleton instance.
   static MainWindow* instance;

@@ -37,6 +37,7 @@ MainWindow::MainWindow()
   // TODO: not sure we need this anymore since we have NULL_UID
   _hasCurrentPaint = false;
   _hasCurrentMapping = false;
+  currentSelectedItem = NULL;
 
   // Create everything.
   createLayout();
@@ -82,14 +83,19 @@ void MainWindow::handlePaintItemSelectionChanged()
 {
   // Set current paint.
   QListWidgetItem* item = paintList->currentItem();
-  uid idx = getItemId(*item);
-  setCurrentPaint(idx);
-  removeCurrentMapping();
+  currentSelectedItem = item;
 
-  // Enable creation of mappings when a paint is selected.
-  addMeshAction->setEnabled(true);
-  addTriangleAction->setEnabled(true);
-  addEllipseAction->setEnabled(true);
+  if (item)
+  {
+    uid idx = getItemId(*item);
+    setCurrentPaint(idx);
+    removeCurrentMapping();
+
+    // Enable creation of mappings when a paint is selected.
+    addMeshAction->setEnabled(true);
+    addTriangleAction->setEnabled(true);
+    addEllipseAction->setEnabled(true);
+  }
 
   // Update canvases.
   updateCanvases();
@@ -99,6 +105,7 @@ void MainWindow::handleMappingItemSelectionChanged()
 {
   // Get current mapping.
   QListWidgetItem* item = mappingList->currentItem();
+  currentSelectedItem = item;
   if (item)
   {
     // Get index.
@@ -138,6 +145,12 @@ void MainWindow::handleMappingIndexesMoved()
 
   // Update canvases according to new order.
   updateCanvases();
+}
+
+void MainWindow::handleItemSelected(QListWidgetItem* item)
+{
+  // Change currently selected item.
+  currentSelectedItem = item;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -353,14 +366,22 @@ void MainWindow::updateStatusBar()
 
 void MainWindow::deleteItem()
 {
-  if (getCurrentMappingId() != NULL_UID)
+  if (currentSelectedItem)
   {
-    // Delete mapping.
-    deleteMapping(getCurrentMappingId());
-  }
-  else if (getCurrentPaintId() != NULL_UID)
-  {
-    // Delete paint.
+    if (currentSelectedItem->listWidget() == mappingList)
+    {
+      // Delete mapping.
+      deleteMapping( getItemId(*mappingList->currentItem()) );
+      //currentSelectedItem = NULL;
+    }
+    else if (currentSelectedItem->listWidget() == paintList)
+    {
+      // Delete paint.
+      deletePaint( getItemId(*paintList->currentItem()) );
+      //currentSelectedItem = NULL;
+    }
+    else
+      qCritical() << "Selected item neither a mapping nor a paint." << endl;
   }
 }
 
@@ -659,7 +680,11 @@ void MainWindow::deleteMapping(uid mappingId)
 /// Deletes/removes a paint and all associated mappigns.
 void MainWindow::deletePaint(uid paintId)
 {
-
+  // Cannot delete unexisting paint.
+  if (Paint::getUidAllocator().exists(paintId))
+  {
+    removePaintItem(paintId);
+  }
 }
 
 
@@ -1144,7 +1169,7 @@ bool MainWindow::addColorPaint(const QColor& color)
   return true;
 }
 
-void MainWindow::addMappingItem(uint mappingId)
+void MainWindow::addMappingItem(uid mappingId)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
   Q_CHECK_PTR(mapping);
@@ -1233,7 +1258,7 @@ void MainWindow::addMappingItem(uint mappingId)
   mappingList->setCurrentItem(item);
 }
 
-void MainWindow::removeMappingItem(uint mappingId)
+void MainWindow::removeMappingItem(uid mappingId)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
   Q_CHECK_PTR(mapping);
@@ -1245,15 +1270,51 @@ void MainWindow::removeMappingItem(uint mappingId)
   propertyPanel->removeWidget(mappers[mappingId]->getPropertiesEditor());
   mappers.remove(mappingId);
 
-  // Remove widget from layerList.
-  qDebug() << "Current mapping: " << mappingList->currentItem()->data(Qt::UserRole).toInt() << endl;
-  qDebug() << "Trying to remove " << mappingId << endl;
-  Q_ASSERT(mappingList->currentItem()->data(Qt::UserRole).toUInt() == mappingId);
-  delete mappingList->takeItem(mappingList->row(mappingList->currentItem()));
+  // Remove widget from mappingList.
+  int row = getItemRowFromId(*mappingList, mappingId);
+  Q_ASSERT( row >= 0 );
+  QListWidgetItem* item = mappingList->takeItem(row);
+  if (item == currentSelectedItem)
+    currentSelectedItem = NULL;
+  delete item;
+
+  // Update list.
   mappingList->update();
 
   // Reset current mapping.
   removeCurrentMapping();
+
+  // Update everything.
+  updateCanvases();
+}
+
+void MainWindow::removePaintItem(uid paintId)
+{
+  Paint::ptr paint = mappingManager->getPaintById(paintId);
+  Q_CHECK_PTR(paint);
+
+  // Remove all mappings associated with paint.
+  QMap<uid, Mapping::ptr> paintMappings = mappingManager->getPaintMappings(paint);
+  for (QMap<uid, Mapping::ptr>::const_iterator it = paintMappings.constBegin();
+       it != paintMappings.constEnd(); ++it)
+    removeMappingItem(it.key());
+
+  // Remove paint from model.
+  Q_ASSERT( mappingManager->removePaint(paintId) );
+
+  // Remove widget from paintList.
+  int row = getItemRowFromId(*paintList, paintId);
+  Q_ASSERT( row >= 0 );
+  QListWidgetItem* item = paintList->takeItem(row);
+  if (item == currentSelectedItem)
+    currentSelectedItem = NULL;
+  delete item;
+
+  // Update list.
+  paintList->update();
+
+  // Reset current paint.
+  removeCurrentPaint();
 
   // Update everything.
   updateCanvases();
@@ -1279,31 +1340,55 @@ QString MainWindow::strippedName(const QString &fullFileName)
 void MainWindow::connectProjectWidgets()
 {
   connect(paintList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handlePaintItemSelectionChanged()));
+          this,      SLOT(handlePaintItemSelectionChanged()));
+
+  connect(paintList, SIGNAL(itemPressed(QListWidgetItem*)),
+          this,      SLOT(handleItemSelected(QListWidgetItem*)));
+
+  connect(paintList, SIGNAL(itemActivated(QListWidgetItem*)),
+          this,      SLOT(handleItemSelected(QListWidgetItem*)));
 
   connect(mappingList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handleMappingItemSelectionChanged()));
+          this,        SLOT(handleMappingItemSelectionChanged()));
 
   connect(mappingList, SIGNAL(itemChanged(QListWidgetItem*)),
-          this, SLOT(handleMappingItemChanged(QListWidgetItem*)));
+          this,        SLOT(handleMappingItemChanged(QListWidgetItem*)));
+
+  connect(mappingList, SIGNAL(itemPressed(QListWidgetItem*)),
+          this,        SLOT(handleItemSelected(QListWidgetItem*)));
+
+  connect(mappingList, SIGNAL(itemActivated(QListWidgetItem*)),
+          this,        SLOT(handleItemSelected(QListWidgetItem*)));
 
   connect(mappingList->model(), SIGNAL(layoutChanged()),
-          this, SLOT(handleMappingIndexesMoved()));
+          this,                 SLOT(handleMappingIndexesMoved()));
 }
 
 void MainWindow::disconnectProjectWidgets()
 {
   disconnect(paintList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handlePaintItemSelectionChanged()));
+             this,      SLOT(handlePaintItemSelectionChanged()));
+
+  disconnect(paintList, SIGNAL(itemPressed(QListWidgetItem*)),
+             this,      SLOT(handleItemSelected(QListWidgetItem*)));
+
+  disconnect(paintList, SIGNAL(itemActivated(QListWidgetItem*)),
+             this,      SLOT(handleItemSelected(QListWidgetItem*)));
 
   disconnect(mappingList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handleMappingItemSelectionChanged()));
+             this,        SLOT(handleMappingItemSelectionChanged()));
 
   disconnect(mappingList, SIGNAL(itemChanged(QListWidgetItem*)),
-          this, SLOT(handleMappingItemChanged(QListWidgetItem*)));
+             this,        SLOT(handleMappingItemChanged(QListWidgetItem*)));
+
+  disconnect(mappingList, SIGNAL(itemPressed(QListWidgetItem*)),
+             this,        SLOT(handleItemSelected(QListWidgetItem*)));
+
+  disconnect(mappingList, SIGNAL(itemActivated(QListWidgetItem*)),
+             this,        SLOT(handleItemSelected(QListWidgetItem*)));
 
   disconnect(mappingList->model(), SIGNAL(layoutChanged()),
-          this, SLOT(handleMappingIndexesMoved()));
+             this,                 SLOT(handleMappingIndexesMoved()));
 }
 
 uid MainWindow::getItemId(const QListWidgetItem& item)
@@ -1315,6 +1400,19 @@ void MainWindow::setItemId(QListWidgetItem& item, uid id)
 {
   item.setData(Qt::UserRole, id);
 }
+
+int MainWindow::getItemRowFromId(const QListWidget& list, uid id)
+{
+  for (int row=0; row<list.count(); row++)
+  {
+    QListWidgetItem* item = list.item(row);
+    if (getItemId(*item) == id)
+      return row;
+  }
+
+  return (-1);
+}
+
 
 void MainWindow::startOscReceiver()
 {

@@ -49,7 +49,7 @@ public:
   QMap<uid, Mapping::ptr> getPaintMappingsById(uid paintId) const;
 
   uid addPaint(Paint::ptr paint);
-//  bool removePaint(Paint::ptr paint);
+  bool removePaint(uid paintId);
   int nPaints() const { return paintVector.size(); }
   Paint::ptr getPaint(int i) { return paintVector[i]; }
   Paint::ptr getPaintById(uid id) { return paintMap[id]; }
@@ -57,7 +57,7 @@ public:
   uid addImage(const QString imagePath, int frameWidth, int frameHeight);
 
   uid addMapping(Mapping::ptr mapping);
-  void removeMapping(uid mappingId);
+  bool removeMapping(uid mappingId);
 //  bool removeMapping(Mapping::ptr mapping);
   int nMappings() const { return mappingVector.size(); }
   Mapping::ptr getMapping(int i) { return mappingVector[i]; }

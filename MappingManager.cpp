@@ -50,6 +50,30 @@ uid MappingManager::addPaint(Paint::ptr paint )
   return paint->getId();
 }
 
+bool MappingManager::removePaint(uid paintId)
+{
+  // Make sure the paint to which this paint refers to exists in the manager.
+  Paint::ptr paint = getPaintById(paintId);
+  if (paint)
+  {
+    // Remove all mappings associated with paint.
+    QMap<uid, Mapping::ptr> paintMappings = getPaintMappings(paint);
+    for (QMap<uid, Mapping::ptr>::const_iterator it = paintMappings.constBegin();
+         it != paintMappings.constEnd(); ++it)
+      removeMapping(it.key());
+
+    // Remove paint.
+    int idx = paintVector.lastIndexOf(paint);
+    Q_ASSERT( idx != -1 ); // Q_ASSERT(mappingVector.contains(mapping));
+    paintVector.remove(idx);
+    paintMap.remove(paint->getId());
+
+    return true;
+  }
+
+  return false;
+}
+
 uid MappingManager::addMapping(Mapping::ptr mapping)
 {
   // Make sure the paint to which this mapping refers to exists in the manager.
@@ -61,7 +85,7 @@ uid MappingManager::addMapping(Mapping::ptr mapping)
   return mapping->getId();
 }
 
-void MappingManager::removeMapping(uid mappingId)
+bool MappingManager::removeMapping(uid mappingId)
 {
   // Make sure the paint to which this mapping refers to exists in the manager.
   Mapping::ptr mapping = getMappingById(mappingId);
@@ -71,7 +95,11 @@ void MappingManager::removeMapping(uid mappingId)
     Q_ASSERT( idx != -1 ); // Q_ASSERT(mappingVector.contains(mapping));
     mappingVector.remove(idx);
     mappingMap.remove(mapping->getId());
+
+    return true;
   }
+
+  return false;
 }
 
 QVector<Mapping::ptr> MappingManager::getVisibleMappings() const
