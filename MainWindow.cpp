@@ -96,12 +96,14 @@ void MainWindow::handlePaintItemSelectionChanged()
 void MainWindow::handleMappingItemSelectionChanged()
 {
   QListWidgetItem* item = mappingList->currentItem();
-  uid idx = item->data(Qt::UserRole).toInt();
+  if (item)
+  {
+    uid idx = item->data(Qt::UserRole).toInt();
 
-  Mapping::ptr mapping = mappingManager->getMappingById(idx);
-  setCurrentPaint(mapping->getPaint()->getId());
-  setCurrentMapping(mapping->getId());
-
+    Mapping::ptr mapping = mappingManager->getMappingById(idx);
+    setCurrentPaint(mapping->getPaint()->getId());
+    setCurrentMapping(mapping->getId());
+  }
   updateAll();
   //sourceCanvas->switchImage(idx);
   //sourceCanvas->repaint();
@@ -352,7 +354,21 @@ void MainWindow::updateStatusBar()
 //  formulaLabel->setText(spreadsheet->currentFormula());
 }
 
-void MainWindow::toggleOutputWindow(bool display) {
+void MainWindow::deleteItem()
+{
+  if (getCurrentMappingId() != NULL_UID)
+  {
+    // Delete mapping.
+    deleteMapping(getCurrentMappingId());
+  }
+  else if (getCurrentPaintId() != NULL_UID)
+  {
+    // Delete paint.
+  }
+}
+
+void MainWindow::toggleOutputWindow(bool display)
+{
   outputWindow->setVisible(display);
   _displayOutputWindow = display; // TODO: on pourrait simplement utiliser outputWindow->isVisible()
 }
@@ -631,6 +647,22 @@ uid MainWindow::createEllipseColorMapping(uid mappingId,
   }
 }
 
+void MainWindow::deleteMapping(uid mappingId)
+{
+  // Cannot delete unexisting mapping.
+  if (Mapping::getUidAllocator().exists(mappingId))
+  {
+    removeMappingItem(mappingId);
+  }
+}
+
+/// Deletes/removes a paint and all associated mappigns.
+void MainWindow::deletePaint(uid paintId)
+{
+
+}
+
+
 void MainWindow::windowModified()
 {
   setWindowModified(true);
@@ -812,6 +844,11 @@ void MainWindow::createActions()
   aboutAction->setStatusTip(tr("Show the application's About box"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
+  deleteAction = new QAction(tr("Delete"), this);
+  deleteAction->setShortcut(QKeySequence::Delete);
+  deleteAction->setStatusTip(tr("Delete item"));
+  connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
+
   addQuadAction = new QAction(tr("Add Quad/&Mesh"), this);
   addQuadAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
   addQuadAction->setStatusTip(tr("Add quad/mesh"));
@@ -856,6 +893,9 @@ void MainWindow::createMenus()
   fileMenu->addAction(addColorAction);
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
+
+  editMenu = menuBar()->addMenu(tr("Edit"));
+  editMenu->addAction(deleteAction);
 
   viewMenu = menuBar()->addMenu(tr("View"));
   viewMenu->addAction(displayOutputWindow);
@@ -1110,7 +1150,6 @@ bool MainWindow::addColorPaint(const QColor& color)
   return true;
 }
 
-
 void MainWindow::addMappingItem(uint mappingId)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
@@ -1198,6 +1237,32 @@ void MainWindow::addMappingItem(uint mappingId)
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
   mappingList->insertItem(0, item);
   mappingList->setCurrentItem(item);
+}
+
+void MainWindow::removeMappingItem(uint mappingId)
+{
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+  Q_CHECK_PTR(mapping);
+
+  // Remove mapping from model.
+  mappingManager->removeMapping(mappingId);
+
+  // Remove associated mapper.
+  propertyPanel->removeWidget(mappers[mappingId]->getPropertiesEditor());
+  mappers.remove(mappingId);
+
+  // Remove widget from layerList.
+  qDebug() << "Current mapping: " << mappingList->currentItem()->data(Qt::UserRole).toInt() << endl;
+  qDebug() << "Trying to remove " << mappingId << endl;
+  Q_ASSERT(mappingList->currentItem()->data(Qt::UserRole).toUInt() == mappingId);
+  delete mappingList->takeItem(mappingList->row(mappingList->currentItem()));
+  mappingList->update();
+
+  // Reset current mapping.
+  removeCurrentMapping();
+
+  // Update everything.
+  updateAll();
 }
 
 void MainWindow::clearWindow()

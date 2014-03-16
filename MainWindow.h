@@ -71,6 +71,8 @@ private slots:
   void addColor();
   void about();
   void updateStatusBar();
+  // Edit menu.
+  void deleteItem();
   void toggleOutputWindow(bool display);
 
   // Widget callbacks.
@@ -147,6 +149,12 @@ public slots:
                                 uid paintId,
                                 const QVector<QPointF> &dst);
 
+  /// Deletes/removes a mapping.
+  void deleteMapping(uid mappingId);
+
+  /// Deletes/removes a paint and all associated mappigns.
+  void deletePaint(uid paintId);
+
   void updateAll();
 
 private:
@@ -170,6 +178,7 @@ private:
   bool importMediaFile(const QString &fileName);
   bool addColorPaint(const QColor& color);
   void addMappingItem(uint mappingId);
+  void removeMappingItem(uint mappingId);
   void clearWindow();
   QString strippedName(const QString &fullFileName);
 
@@ -188,6 +197,7 @@ private:
 //  QMenu *toolsMenu;
 //  QMenu *optionsMenu;
   QMenu *viewMenu;
+  QMenu *editMenu;
   QMenu *helpMenu;
   QToolBar *fileToolBar;
 //  QToolBar *editToolBar;
@@ -203,6 +213,8 @@ private:
 //  QAction *pasteAction;
 //  QAction *deleteAction;
   QAction *aboutAction;
+
+  QAction *deleteAction;
 
   QAction *addQuadAction;
   QAction *addTriangleAction;

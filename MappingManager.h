@@ -57,6 +57,7 @@ public:
   uid addImage(const QString imagePath, int frameWidth, int frameHeight);
 
   uid addMapping(Mapping::ptr mapping);
+  void removeMapping(uid mappingId);
 //  bool removeMapping(Mapping::ptr mapping);
   int nMappings() const { return mappingVector.size(); }
   Mapping::ptr getMapping(int i) { return mappingVector[i]; }

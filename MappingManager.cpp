@@ -61,7 +61,18 @@ uid MappingManager::addMapping(Mapping::ptr mapping)
   return mapping->getId();
 }
 
+void MappingManager::removeMapping(uid mappingId)
 {
+  // Make sure the paint to which this mapping refers to exists in the manager.
+  Mapping::ptr mapping = getMappingById(mappingId);
+  if (mapping)
+  {
+    int idx = mappingVector.lastIndexOf(mapping);
+    Q_ASSERT( idx != -1 ); // Q_ASSERT(mappingVector.contains(mapping));
+    mappingVector.remove(idx);
+    mappingMap.remove(mapping->getId());
+  }
+}
 
 QVector<Mapping::ptr> MappingManager::getVisibleMappings() const
 {
