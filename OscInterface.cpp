@@ -21,7 +21,8 @@
  */
 
 #include "OscInterface.h"
-#include "Facade.h"
+#include "MainWindow.h"
+#include "unused.h"
 #include <QVariant>
 
 OscInterface::OscInterface(
@@ -41,6 +42,11 @@ OscInterface::OscInterface(
         //receiver_.addHandler("/image/path", "ss", image_path_cb, this);
         receiver_.addHandler(NULL, NULL, genericHandler, this);
     }
+}
+
+OscInterface::~OscInterface()
+{
+  // pass
 }
 
 /**
@@ -87,7 +93,7 @@ void OscInterface::push_command(QVariantList command)
  *
  * Should be called when it's time to take action, before rendering a frame, for example.
  */
-void OscInterface::consume_commands(Facade &facade)
+void OscInterface::consume_commands(MainWindow &main_window)
 {
     bool success = true;
     while (success)
@@ -99,7 +105,7 @@ void OscInterface::consume_commands(Facade &facade)
             //if (is_verbose())
             // std::cout << __FUNCTION__ << ": apply " <<
             //     command.first().toString().toStdString() << std::endl;
-            this->applyOscCommand(facade, command);
+            this->applyOscCommand(main_window, command);
         }
     }
 }
@@ -183,8 +189,9 @@ static void printCommand(QVariantList &command)
     std::cout.flush();
 }
 
-void OscInterface::applyOscCommand(Facade &facade, QVariantList & command)
+void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & command)
 {
+  UNUSED(main_window);
   bool VERBOSE = true;
 
   if (VERBOSE)
@@ -209,7 +216,8 @@ void OscInterface::applyOscCommand(Facade &facade, QVariantList & command)
       std::string paint_id = command.at(2).toString().toStdString();
       std::string image_uri = command.at(3).toString().toStdString();
       //std::cout << "TODO load /image/uri " << image_id << " " << image_uri << std::endl;
-      facade.updateImagePaintUri(paint_id.c_str(), image_uri.c_str());
+      // TODO:
+      //main_window.updateImagePaintUri(paint_id.c_str(), image_uri.c_str());
   }
 
   //else if (path == "/add/quad")
@@ -221,3 +229,4 @@ void OscInterface::applyOscCommand(Facade &facade, QVariantList & command)
   //else if (path == "/project/open")
   //    open();
 }
+

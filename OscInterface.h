@@ -28,10 +28,10 @@
 #include "OscReceiver.h"
 #include <QVariant>
 
-class Facade; // forward decl
+class MainWindow; // forward decl
 
 /**
- * Open Sound Control sending and receiving for LibreMapping.
+ * Open Sound Control sending and receiving for MapMap.
  */
 class OscInterface 
 {
@@ -40,7 +40,7 @@ class OscInterface
     OscInterface(
       //MainWindow* owner, 
       const std::string &listen_port);
-    ~OscInterface() {}
+    ~OscInterface();
     void start();
     /**
      * Call this method from the main thread.
@@ -48,7 +48,7 @@ class OscInterface
      * Each message is stored as a QVariantList.
      * <path> <typeTags> [args]
      */
-    void consume_commands(Facade &facade);
+    void consume_commands(MainWindow &main_window);
   private:
     bool is_verbose() { return false; }
     void push_command(QVariantList command);
@@ -72,7 +72,7 @@ class OscInterface
     /*
      * In the main thread, handles the messages.
      */
-    void applyOscCommand(Facade &facade, QVariantList & command);
+    void applyOscCommand(MainWindow &main_window, QVariantList & command);
 };
 
 

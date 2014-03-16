@@ -1,7 +1,7 @@
-LibreMapping
+MapMap
 ============
 
-LibreMapping is a free video mapping software.
+MapMap is a free video mapping software.
 
 Projection mapping, also known as video mapping and spatial augmented reality,
 is a projection technology used to turn objects, often irregularly shaped, into
@@ -44,9 +44,9 @@ To edit translations
 --------------------
 You might need to update the files::
   
-  lupdate libremapping.pro 
+  lupdate mapmap.pro 
 
 Then, do this::
   
-  linguist libremapping_fr.ts
+  linguist mapmap_fr.ts
 

@@ -42,7 +42,7 @@ bool ProjectReader::readFile(QIODevice *device)
 
   QDomElement root = doc.documentElement();
   if (root.tagName() != "project" || root.attribute("version") != "1.0") {
-    _xml.raiseError(QObject::tr("The file is not a libremapping version 1.0 file."));
+    _xml.raiseError(QObject::tr("The file is not a mapmap version 1.0 file."));
     return false;
   }
 

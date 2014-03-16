@@ -19,6 +19,7 @@
  */
 
 #include "Mapper.h"
+#include "unused.h"
 
 Mapper::Mapper(Mapping::ptr mapping)
   : _mapping(mapping)
@@ -169,6 +170,7 @@ void ColorMapper::draw(QPainter* painter)
 
 void ColorMapper::drawControls(QPainter* painter)
 {
+  UNUSED(painter);
 }
 
 MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)
@@ -293,6 +295,7 @@ void TextureMapper::updateShape(Shape* shape)
 
 void TextureMapper::draw(QPainter* painter)
 {
+  UNUSED(painter);
   painter->beginNativePainting();
 
   // Only works for similar shapes.
@@ -324,7 +327,7 @@ void TextureMapper::draw(QPainter* painter)
 
 void TextureMapper::drawInput(QPainter* painter)
 {
-
+  UNUSED(painter);
 }
 
 void TextureMapper::drawControls(QPainter* painter)
@@ -344,6 +347,7 @@ TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping
 
 void TriangleTextureMapper::_doDraw(QPainter* painter)
 {
+  UNUSED(painter);
   glBegin(GL_TRIANGLES);
   {
     for (int i = 0; i < inputShape->nVertices(); i++)
@@ -399,6 +403,8 @@ void MeshTextureMapper::drawControls(QPainter* painter)
 
 void MeshTextureMapper::drawInputControls(QPainter* painter)
 {
+  UNUSED(painter);
+
   std::tr1::shared_ptr<Mesh> inputMesh = std::tr1::static_pointer_cast<Mesh>(inputShape);
   QVector<Quad> inputQuads = inputMesh->getQuads();
   for (QVector<Quad>::const_iterator it = inputQuads.begin(); it != inputQuads.end(); ++it)
@@ -409,6 +415,7 @@ void MeshTextureMapper::drawInputControls(QPainter* painter)
 
 void MeshTextureMapper::_doDraw(QPainter* painter)
 {
+  UNUSED(painter);
   std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
   std::tr1::shared_ptr<Mesh> inputMesh  = std::tr1::static_pointer_cast<Mesh>(inputShape);
   QVector<QVector<Quad> > outputQuads = outputMesh->getQuads2d();
@@ -436,16 +443,17 @@ EllipseTextureMapper::EllipseTextureMapper(std::tr1::shared_ptr<TextureMapping> 
 
 void EllipseTextureMapper::_doDraw(QPainter* painter)
 {
+  UNUSED(painter);
   // Get input and output ellipses.
   std::tr1::shared_ptr<Ellipse> inputEllipse = std::tr1::static_pointer_cast<Ellipse>(inputShape);
   std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(outputShape);
 
   // Start / end angle.
-  const float startAngle = 0;
-  const float endAngle   = 2*M_PI;
+  //const float startAngle = 0;
+  //const float endAngle   = 2*M_PI;
 
   //
-  float angle;
+  //float angle;
   QPointF currentInputPoint;
   QPointF prevInputPoint(0, 0);
   QPointF currentOutputPoint;

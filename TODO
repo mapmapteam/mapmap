@@ -1,0 +1,17 @@
+To do in MapMap
+===============
+
+Code
+----
+
+* MapperGLCanvas has a strange name considering we also have a Mapper class; actually I'm thinking we should rename Mapper to MappingView or something (since a Mapper is actually the View of the Mapping class)
+* Override includesPoint() in Mesh
+* video gstreamer
+
+Packaging
+---------
+* delete old branches
+* update doc
+* does translation work?
+* Instructions build Mac OS X?
+

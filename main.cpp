@@ -1,14 +1,11 @@
 // NOTE: To run, it is recommended not to be in Compiz or Beryl, they have shown some instability.
 
 #include <iostream>
-
 #include <QTranslator>
 #include <QtGui>
 #include "Common.h"
 #include "MainWindow.h"
 #include "MainApplication.h"
-
-#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -22,7 +19,7 @@ int main(int argc, char *argv[])
   }
 
   QTranslator translator;
-  translator.load("libremapping_fr");
+  translator.load("mapmap_fr");
   app.installTranslator(&translator);
 
   MainWindow win;
@@ -34,5 +31,4 @@ int main(int argc, char *argv[])
 
   return app.exec();
 }
-
 

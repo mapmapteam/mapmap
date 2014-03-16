@@ -30,7 +30,7 @@
 #define LIBREMAPPING_VERSION "0.1"
 
 /**
- * The main LibreMapping engine that deals with video mapping projects.
+ * The main MapMap engine that deals with video mapping projects.
  */
 class Common
 {
