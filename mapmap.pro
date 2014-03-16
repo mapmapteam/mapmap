@@ -12,6 +12,7 @@ HEADERS  = \
     Paint.h \
     OscInterface.h \
     OscReceiver.h \
+    OutputGLWindow.h \
     ProjectReader.h \
     ProjectWriter.h \
     Shape.h \
@@ -30,6 +31,7 @@ SOURCES  = \
     MappingManager.cpp \
     OscInterface.cpp \
     OscReceiver.cpp \
+    OutputGLWindow.cpp \
     Paint.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \

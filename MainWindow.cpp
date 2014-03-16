@@ -36,6 +36,7 @@ MainWindow::MainWindow()
   // TODO: not sure we need this anymore since we have NULL_UID
   _hasCurrentPaint = false;
   _hasCurrentMapping = false;
+  _displayOutputWindow = false;
 
   createLayout();
 
@@ -351,6 +352,11 @@ void MainWindow::updateStatusBar()
 //  formulaLabel->setText(spreadsheet->currentFormula());
 }
 
+void MainWindow::toggleOutputWindow(bool display) {
+  outputWindow->setVisible(display);
+  _displayOutputWindow = display; // TODO: on pourrait simplement utiliser outputWindow->isVisible()
+}
+
 bool MainWindow::clearProject()
 {
   // Disconnect signals to avoid problems when clearning mappingList and paintList.
@@ -653,8 +659,20 @@ void MainWindow::createLayout()
   sourceCanvas = new SourceGLCanvas;
   destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
 
+  outputWindow = new OutputGLWindow(this, sourceCanvas);
+  outputWindow->setVisible(true);
+
+  // Source changed -> change destination
   connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
           destinationCanvas, SLOT(updateCanvas()));
+
+  // Source changed -> change output window
+  connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
+          outputWindow,      SLOT(updateCanvas()));
+
+  // Destination changed -> change output window
+  connect(destinationCanvas, SIGNAL(shapeChanged(Shape*)),
+          outputWindow,      SLOT(updateCanvas()));
 
 //  connect(destinationCanvas, SIGNAL(imageChanged()),
 //          sourceCanvas,      SLOT(updateCanvas()));
@@ -803,6 +821,14 @@ void MainWindow::createActions()
   addEllipseAction->setStatusTip(tr("Add ellipse"));
   connect(addEllipseAction, SIGNAL(triggered()), this, SLOT(addEllipse()));
   addEllipseAction->setEnabled(false);
+
+  displayOutputWindow = new QAction(tr("&Display output window"), this);
+  displayOutputWindow->setShortcut(tr("Ctrl+D"));
+  displayOutputWindow->setStatusTip(tr("Display output window"));
+  displayOutputWindow->setCheckable(true);
+  displayOutputWindow->setChecked(true);
+  connect(displayOutputWindow, SIGNAL(toggled(bool)), this, SLOT(toggleOutputWindow(bool)));
+
 }
 
 void MainWindow::createMenus()
@@ -817,6 +843,9 @@ void MainWindow::createMenus()
   fileMenu->addAction(addColorAction);
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
+
+  viewMenu = menuBar()->addMenu(tr("View"));
+  viewMenu->addAction(displayOutputWindow);
 
 //  editMenu = menuBar()->addMenu(tr("&Edit"));
 //  editMenu->addAction(cutAction);
@@ -1165,6 +1194,7 @@ void MainWindow::updateAll()
 {
   sourceCanvas->update();
   destinationCanvas->update();
+  outputWindow->updateCanvas();
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)

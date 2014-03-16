@@ -30,6 +30,8 @@
 #endif
 #include "DestinationGLCanvas.h"
 
+#include "OutputGLWindow.h"
+
 #include "MappingManager.h"
 
 #include "qtpropertymanager.h"
@@ -68,6 +70,7 @@ private slots:
   void addColor();
   void about();
   void updateStatusBar();
+  void toggleOutputWindow(bool display);
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
@@ -143,6 +146,8 @@ public slots:
                                 uid paintId,
                                 const QVector<QPointF> &dst);
 
+  void updateAll();
+
 private:
   // Methods.
   void createLayout();
@@ -181,6 +186,7 @@ private:
 //  QMenu *selectSubMenu;
 //  QMenu *toolsMenu;
 //  QMenu *optionsMenu;
+  QMenu *viewMenu;
   QMenu *helpMenu;
   QToolBar *fileToolBar;
 //  QToolBar *editToolBar;
@@ -201,13 +207,16 @@ private:
   QAction *addTriangleAction;
   QAction *addEllipseAction;
 
+  QAction *displayOutputWindow;
+
   QListWidget* paintList;
   QListWidget* mappingList;
   QStackedWidget* propertyPanel;
 
-public:
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
+
+  OutputGLWindow* outputWindow;
 
 private:
   QSplitter* mainSplitter;
@@ -233,6 +242,8 @@ private:
   uid currentMappingId;
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
+
+  bool _displayOutputWindow;
 
   static MainWindow* instance;
 
@@ -261,10 +272,6 @@ public:
   void removeCurrentMapping() {
     _hasCurrentMapping = false;
   }
-
-public slots:
-  void updateAll();
-
 
 public:
   // Constants.
