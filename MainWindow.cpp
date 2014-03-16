@@ -677,6 +677,7 @@ void MainWindow::createLayout()
   // Output changed -> change destinatioin
   connect(outputWindow->getCanvas(), SIGNAL(shapeChanged(Shape*)),
           destinationCanvas,         SLOT(updateCanvas()));
+
 //  connect(destinationCanvas, SIGNAL(imageChanged()),
 //          sourceCanvas,      SLOT(updateCanvas()));
 
@@ -830,7 +831,12 @@ void MainWindow::createActions()
   displayOutputWindow->setStatusTip(tr("Display output window"));
   displayOutputWindow->setCheckable(true);
   displayOutputWindow->setChecked(true);
+
+  // Manage show/hide of GL output window.
   connect(displayOutputWindow, SIGNAL(toggled(bool)), this, SLOT(toggleOutputWindow(bool)));
+
+  // When closing the GL output window, uncheck the action in menu.
+  connect(outputWindow, SIGNAL(closed()), displayOutputWindow, SLOT(toggle()));
 
 }
 

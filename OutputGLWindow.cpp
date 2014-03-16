@@ -35,6 +35,12 @@ OutputGLWindow::OutputGLWindow(QWidget* parent, const QGLWidget * shareWidget) :
   setLayout(layout);
 }
 
+void OutputGLWindow::closeEvent(QCloseEvent *event)
+{
+  emit closed();
+  event->accept();
+}
+
 //void OutputGLWindow::updateCanvas() {
 //  qDebug() << "Update output canvas" << endl;
 //  canvas->updateCanvas();

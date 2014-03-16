@@ -28,11 +28,16 @@
 //since we dont want this window to be closed by the user
 class OutputGLWindow : public QDialog
 {
+  Q_OBJECT
+
 public:
   OutputGLWindow(QWidget* parent = 0, const QGLWidget * shareWidget = 0);
 
 protected:
-  void closeEvent(QCloseEvent *){}
+  void closeEvent(QCloseEvent* event);
+
+signals:
+  void closed();
 
 public:
   DestinationGLCanvas* getCanvas() const { return canvas; }
