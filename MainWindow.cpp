@@ -85,17 +85,21 @@ void MainWindow::handlePaintItemSelectionChanged()
   QListWidgetItem* item = paintList->currentItem();
   currentSelectedItem = item;
 
-  if (item)
+  // Is a paint item selected?
+  bool paintItemSelected = (item ? true : false);
+
+  if (paintItemSelected)
   {
+    // Set current paint.
     uid idx = getItemId(*item);
     setCurrentPaint(idx);
     removeCurrentMapping();
-
-    // Enable creation of mappings when a paint is selected.
-    addMeshAction->setEnabled(true);
-    addTriangleAction->setEnabled(true);
-    addEllipseAction->setEnabled(true);
   }
+
+  // Enable/disable creation of mappings depending on whether a paint is selected.
+  addMeshAction->setEnabled(paintItemSelected);
+  addTriangleAction->setEnabled(paintItemSelected);
+  addEllipseAction->setEnabled(paintItemSelected);
 
   // Update canvases.
   updateCanvases();
