@@ -687,7 +687,13 @@ void MainWindow::deletePaint(uid paintId)
   // Cannot delete unexisting paint.
   if (Paint::getUidAllocator().exists(paintId))
   {
-    removePaintItem(paintId);
+    int r = QMessageBox::warning(this, tr("MapMap"),
+        tr("Remove this paint and all its associated mappings?"),
+        QMessageBox::Ok | QMessageBox::Cancel);
+    if (r == QMessageBox::Ok)
+    {
+      removePaintItem(paintId);
+    }
   }
 }
 
