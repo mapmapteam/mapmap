@@ -95,6 +95,8 @@ void MainWindow::handlePaintItemSelectionChanged()
     setCurrentPaint(idx);
     removeCurrentMapping();
   }
+  else
+    removeCurrentPaint();
 
   // Enable/disable creation of mappings depending on whether a paint is selected.
   addMeshAction->setEnabled(paintItemSelected);
@@ -120,6 +122,8 @@ void MainWindow::handleMappingItemSelectionChanged()
     setCurrentPaint(mapping->getPaint()->getId());
     setCurrentMapping(mapping->getId());
   }
+  else
+    removeCurrentMapping();
 
   // Update canvases.
   updateCanvases();
@@ -696,7 +700,6 @@ void MainWindow::deletePaint(uid paintId)
     }
   }
 }
-
 
 void MainWindow::windowModified()
 {
@@ -1290,9 +1293,6 @@ void MainWindow::removeMappingItem(uid mappingId)
 
   // Update list.
   mappingList->update();
-
-  // Reset current mapping.
-  removeCurrentMapping();
 
   // Update everything.
   updateCanvases();
