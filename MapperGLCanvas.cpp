@@ -284,11 +284,11 @@ void MapperGLCanvas::updateCanvas()
  * variable. Perhaps the sticky-sensitivity should be configurable through GUI */
 void MapperGLCanvas::glueVertex(Shape *orig, QPointF *p)
 {
-  MappingManager m = MainWindow::getInstance().getMappingManager();
+  MappingManager manager = MainWindow::getInstance().getMappingManager();
   int dist_stick = 10; /*this parameter may*/
-  for (int mappingId = 0; mappingId < m.nMappings(); mappingId++)
+  for (int i = 0; i < manager.nMappings(); i++)
   {
-    Shape *shape = getShapeFromMappingId(mappingId);
+    Shape *shape = getShapeFromMappingId(manager.getMapping(i)->getId());
     if (shape != orig)
     {
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)
