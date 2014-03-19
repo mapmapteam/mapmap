@@ -445,20 +445,13 @@ uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
     // Add it to the manager.
     Paint::ptr paint(img);
 
-    // Add image to paintList widget.
-    QListWidgetItem* item = new QListWidgetItem(strippedName(uri));
-    setItemId(*item, paint->getId()); // TODO: could possibly be replaced by a Paint pointer
-    item->setIcon(QIcon(uri));
-
-    // Set size.
-    item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
-
-    // Add item to paint list.
-    paintList->addItem(item);
-    paintList->setCurrentItem(item);
-
     // Add paint to model and return its uid.
-    return mappingManager->addPaint(paint);
+    uid id = mappingManager->addPaint(paint);
+
+    // Add paint widget item.
+    addPaintItem(id, QIcon(uri), strippedName(uri));
+
+    return id;
   }
 }
 
@@ -475,24 +468,17 @@ uid MainWindow::createColorPaint(uid paintId, QColor color)
     // Add it to the manager.
     Paint::ptr paint(img);
 
-    // Add image to paintList widget.
-    QListWidgetItem* item = new QListWidgetItem(strippedName(color.name()));
-    setItemId(*item, paint->getId()); // TODO: could possibly be replaced by a Paint pointer
+    // Add paint to model and return its uid.
+    uid id = mappingManager->addPaint(paint);
 
     // Create a small icon with the color.
     QPixmap pixmap(100,100);
     pixmap.fill(color);
-    item->setIcon(QIcon(pixmap));
 
-    // Set size.
-    item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
+    // Add paint widget item.
+    addPaintItem(id, QIcon(pixmap), strippedName(color.name()));
 
-    // Add item to paint list.
-    paintList->addItem(item);
-    paintList->setCurrentItem(item);
-
-    // Add paint to model and return its it.
-    return mappingManager->addPaint(paint);
+    return id;
   }
 }
 
@@ -1180,6 +1166,25 @@ bool MainWindow::addColorPaint(const QColor& color)
   statusBar()->showMessage(tr("Color paint added"), 2000);
 
   return true;
+}
+
+void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& name)
+{
+  Paint::ptr paint = mappingManager->getPaintById(paintId);
+  Q_CHECK_PTR(paint);
+
+  // Add image to paintList widget.
+  QListWidgetItem* item = new QListWidgetItem(name);
+  setItemId(*item, paintId); // TODO: could possibly be replaced by a Paint pointer
+  item->setIcon(icon);
+
+  // Set size.
+  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
+
+  // Add item to paint list.
+  paintList->addItem(item);
+  paintList->setCurrentItem(item);
+
 }
 
 void MainWindow::addMappingItem(uid mappingId)

@@ -177,6 +177,7 @@ private:
   bool addColorPaint(const QColor& color);
   void addMappingItem(uid mappingId);
   void removeMappingItem(uid mappingId);
+  void addPaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
   void clearWindow();
 
