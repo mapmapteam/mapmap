@@ -426,6 +426,9 @@ bool MainWindow::clearProject()
   // Reconnect everything.
   connectProjectWidgets();
 
+  // Window was modified.
+  windowModified();
+
   return true;
 }
 
@@ -1185,6 +1188,8 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
   paintList->addItem(item);
   paintList->setCurrentItem(item);
 
+  // Window was modified.
+  windowModified();
 }
 
 void MainWindow::addMappingItem(uid mappingId)
@@ -1274,6 +1279,9 @@ void MainWindow::addMappingItem(uid mappingId)
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
   mappingList->insertItem(0, item);
   mappingList->setCurrentItem(item);
+
+  // Window was modified.
+  windowModified();
 }
 
 void MainWindow::removeMappingItem(uid mappingId)
@@ -1301,6 +1309,9 @@ void MainWindow::removeMappingItem(uid mappingId)
 
   // Update everything.
   updateCanvases();
+
+  // Window was modified.
+  windowModified();
 }
 
 void MainWindow::removePaintItem(uid paintId)
@@ -1333,6 +1344,9 @@ void MainWindow::removePaintItem(uid paintId)
 
   // Update everything.
   updateCanvases();
+
+  // Window was modified.
+  windowModified();
 }
 
 void MainWindow::clearWindow()
