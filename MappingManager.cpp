@@ -66,7 +66,7 @@ bool MappingManager::removePaint(uid paintId)
     int idx = paintVector.lastIndexOf(paint);
     Q_ASSERT( idx != -1 ); // Q_ASSERT(mappingVector.contains(mapping));
     paintVector.remove(idx);
-    paintMap.remove(paint->getId());
+    paintMap.remove(paintId);
 
     return true;
   }
@@ -94,7 +94,7 @@ bool MappingManager::removeMapping(uid mappingId)
     int idx = mappingVector.lastIndexOf(mapping);
     Q_ASSERT( idx != -1 ); // Q_ASSERT(mappingVector.contains(mapping));
     mappingVector.remove(idx);
-    mappingMap.remove(mapping->getId());
+    mappingMap.remove(mappingId);
 
     return true;
   }
