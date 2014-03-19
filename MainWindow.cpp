@@ -702,6 +702,8 @@ void MainWindow::createLayout()
   paintList = new QListWidget;
   paintList->setSelectionMode(QAbstractItemView::SingleSelection);
   paintList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+  paintList->setDefaultDropAction(Qt::MoveAction);
+  paintList->setDragDropMode(QAbstractItemView::InternalMove);
   paintList->setMinimumWidth(PAINT_LIST_MINIMUM_WIDTH);
 
   // Create mapping list.
