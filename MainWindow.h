@@ -296,9 +296,11 @@ public:
   }
   void removeCurrentPaint() {
     _hasCurrentPaint = false;
+    currentPaintId = NULL_UID;
   }
   void removeCurrentMapping() {
     _hasCurrentMapping = false;
+    currentMappingId = NULL_UID;
   }
 
 public:
