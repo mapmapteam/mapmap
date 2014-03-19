@@ -1144,12 +1144,10 @@ bool MainWindow::importMediaFile(const QString &fileName)
   image->setPosition((sourceCanvas->width()  - image->getWidth() ) / 2.0f,
                      (sourceCanvas->height() - image->getHeight()) / 2.0f );
 
-
-//  update();
-
   QApplication::restoreOverrideCursor();
 
   statusBar()->showMessage(tr("File imported"), 2000);
+
   return true;
 }
 
