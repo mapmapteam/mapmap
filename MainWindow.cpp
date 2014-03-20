@@ -1224,7 +1224,7 @@ void MainWindow::addMappingItem(uid mappingId)
     icon = QIcon(":/images/draw-triangle.png");
 
     if (paintType == "color")
-      mapper = Mapper::ptr(new ColorMapper(mapping));
+      mapper = Mapper::ptr(new PolygonColorMapper(mapping));
     else
       mapper = Mapper::ptr(new TriangleTextureMapper(textureMapping));
   }
@@ -1234,7 +1234,7 @@ void MainWindow::addMappingItem(uid mappingId)
     label = QString(shapeType == "mesh" ? "Mesh %1" : "Quad %1").arg(mappingId);
     icon = QIcon(":/images/draw-rectangle-2.png");
     if (paintType == "color")
-      mapper = Mapper::ptr(new ColorMapper(mapping));
+      mapper = Mapper::ptr(new PolygonColorMapper(mapping));
     else
       mapper = Mapper::ptr(new MeshTextureMapper(textureMapping));
   }

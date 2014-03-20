@@ -28,4 +28,7 @@ inline double  degreesToRadians(double degrees) { return degrees / 180.0 * M_PI;
 inline float   radiansToDegrees(float radians) { return radians / M_PI * 180.0f; }
 inline double  radiansToDegrees(double radians) { return radians / M_PI * 180.0; }
 
+// Wrap value around ie. wrapAround(-1, 3) ==> 2
+inline int wrapAround(int index, int max) { return (index + max) % max; }
+
 #endif /* MATH_H_ */

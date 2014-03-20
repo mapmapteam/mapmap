@@ -19,45 +19,6 @@
 
 #include "Shape.h"
 
-bool Shape::includesPoint(qreal x, qreal y)
-{
-  return toPolygon().containsPoint(QPointF(x, y), Qt::OddEvenFill);
-//  QVector<QPointF>::iterator prev;
-//  int left = 0, right = 0, maxy, miny;
-//  for (QVector<QPointF>::iterator it = vertices.begin() ;
-//      it != vertices.end(); it++)
-//  {
-//    if (!prev) {
-//      prev = vertices.back();
-//    }
-//    miny = qMin(it->y(), prev->y());
-//    maxy = qMax(it->y(), prev->y());
-//
-//    if (y > miny && y < maxy) {
-//      if (prev->x() == it->x())
-//      {
-//        if (x < it->x())
-//          right++;
-//        else left++;
-//      }
-//      else
-//      {
-//        double slope = (it->y() - prev->y()) / (it->x() - prev->x());
-//        double offset = it->y() - slope * it->x();
-//        int xintersect = int((y - offset ) / slope);
-//        if (x < xintersect)
-//          right++;
-//        else left++;
-//      }
-//    }
-//    prev = *it;
-//  }
-//  if (right % 2 && left % 2)
-//    return true;
-//  return false;
-}
-
-
 void Shape::translate(int x, int y)
 {
   for (QVector<QPointF>::iterator it = vertices.begin() ;
@@ -68,7 +29,7 @@ void Shape::translate(int x, int y)
   }
 }
 
-QPolygonF Shape::toPolygon() const
+QPolygonF Polygon::toPolygon() const
 {
   QPolygonF polygon;
   for (QVector<QPointF>::const_iterator it = vertices.begin() ;

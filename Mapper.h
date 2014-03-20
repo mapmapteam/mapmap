@@ -61,15 +61,16 @@ class Mapper : public QObject
 {
   Q_OBJECT
 
-protected:
-  Mapping::ptr _mapping;
-
 public:
   typedef std::tr1::shared_ptr<Mapper> ptr;
+
+protected:
+  Mapping::ptr _mapping;
 
   Mapper(Mapping::ptr mapping);
   virtual ~Mapper();
 
+public:
   virtual QWidget* getPropertiesEditor();
   virtual void draw(QPainter* painter) = 0;
   virtual void drawControls(QPainter* painter) = 0;
@@ -110,16 +111,24 @@ class ColorMapper : public Mapper
 {
   Q_OBJECT
 
-public:
+protected:
   ColorMapper(Mapping::ptr mapping);
   virtual ~ColorMapper() {}
 
-  virtual void draw(QPainter* painter);
-  virtual void drawControls(QPainter* painter);
-
 protected:
   std::tr1::shared_ptr<Color> color;
+};
 
+class PolygonColorMapper : public ColorMapper
+{
+  Q_OBJECT
+
+public:
+  PolygonColorMapper(Mapping::ptr mapping) : ColorMapper(mapping) {}
+  virtual ~PolygonColorMapper() {}
+
+  virtual void draw(QPainter* painter);
+  virtual void drawControls(QPainter* painter);
 };
 
 class MeshColorMapper : public ColorMapper
@@ -140,7 +149,8 @@ private:
   QtVariantProperty* _meshItem;
 };
 
-class EllipseColorMapper : public ColorMapper {
+class EllipseColorMapper : public ColorMapper
+{
   Q_OBJECT
 
 public:
