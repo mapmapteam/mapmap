@@ -40,11 +40,7 @@
 #include "Math.h"
 
 /**
- * Point (or vertex) on the 2-D canvas.
- */
-
-/**
- * Series of vertices. (points)
+ * Shape represented by a series of control points.
  */
 class Shape
 {
@@ -68,11 +64,10 @@ public:
 
   virtual void setVertex(int i, const QPointF& v)
   {
-    vertices[i].setX(v.x());
-    vertices[i].setY(v.y());
+    vertices[i] = v;
   }
 
-  virtual void setVertex(int i, double x, double y)
+  virtual void setVertex(int i, qreal x, qreal y)
   {
     setVertex(i, QPointF(x, y));
   }
