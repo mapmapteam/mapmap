@@ -5,8 +5,8 @@
 unamestr=$(uname)
 
 if [[ $unamestr == "Darwin" ]]; then
-    MAKE_CFLAGS_X86_64 += -Xarch_x86_64 -mmacosx-version-min=10.7
-    QMAKE_CFLAGS_PPC_64 += -Xarch_ppc64 -mmacosx-version-min=10.7
+    MAKE_CFLAGS_X86_64+="-Xarch_x86_64 -mmacosx-version-min=10.7"
+    QMAKE_CFLAGS_PPC_64+="-Xarch_ppc64 -mmacosx-version-min=10.7"
     export MAKE_CFLAGS_X86_64
     export QMAKE_CFLAGS_PPC_64
     export QMAKESPEC=macx-g++
