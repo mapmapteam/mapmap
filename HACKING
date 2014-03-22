@@ -3,7 +3,6 @@ Contribute to MapMap
 
 Coding style
 ------------
-
 * indent with 2 spaces
 * opening curly braces on a new line
 * function and method names camelCase, with lowercase first letter
@@ -11,4 +10,23 @@ Coding style
 * private data members with an underscore as a prefix: _likeThis
 * file names all lowercase
 * always add spaces between operators such as +, -, /, * casts, etc. (except pointers and references)
+
+Version numbers
+---------------
+We use Semantic Versioning 2.0.0. Given a version number MAJOR.MINOR.PATCH, increment the:
+* MAJOR version when you make incompatible API changes,
+* MINOR version when you add functionality in a backwards-compatible manner, and
+* PATCH version when you make backwards-compatible bug fixes.
+See http://semver.org/
+
+Files
+-----
+* BUGS: List of bugs to fix. (or, again, use github for these)
+* HACKING: What to know to contribute to the project.
+* INSTALL: Instructions to build and install the software.
+* NEWS: Release notes for each tag.
+* README: The short documentation at the root of the project
+* TODO: You can put things to do there, or use https://github.com/mapmapteam/mapmap, or https://www.pivotaltracker.com/s/projects/954570/
+* images/: Images part of the GUI.
+* prototypes/ : Contains prototypes. Please ask the project maintainer before removing some of these.
 

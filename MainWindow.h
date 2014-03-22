@@ -40,7 +40,7 @@
 #include "qttreepropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 
-#define LIBREMAPPING_VERSION "0.1"
+#define MAPMAP_VERSION "0.0.9"
 
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.

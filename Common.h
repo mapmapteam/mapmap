@@ -27,8 +27,6 @@
 #include "Shape.h"
 #include "Mapper.h"
 
-#define LIBREMAPPING_VERSION "0.1"
-
 /**
  * The main MapMap engine that deals with video mapping projects.
  */
