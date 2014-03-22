@@ -15,21 +15,14 @@ optical illusions, and notions of movement onto previously static objects. The
 video is commonly combined with, or triggered by, audio to create an
 audio-visual narrative.
 
-Build
------
-Dependencies: 
-
- * Qt
- * qt4-default
- * qt4-qmake
-
-Build it::
-
-  ./build.sh
+Build and install
+-----------------
+See the INSTALL file.
 
 Authors
 -------
 * Alexandre Quessy
+* Julien Keable
 * Sofian Audry
 * Vasilis Liaskovitis
 
@@ -39,14 +32,4 @@ Contributors
 * Maxime Damecourt
 * Christian Ambaud
 * Sylvain Cormier
-
-To edit translations
---------------------
-You might need to update the files::
-  
-  lupdate mapmap.pro 
-
-Then, do this::
-  
-  linguist mapmap_fr.ts
 

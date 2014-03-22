@@ -2,6 +2,16 @@ Build instructions
 ==================
 This file is written in rst, so that one can use rst2pdf to create a PDF out of it.
 
+Dependencies: 
+
+ * Qt
+ * qt4-default
+ * qt4-qmake
+
+Build it::
+
+  ./build.sh
+
 On Ubuntu 13.10
 ---------------
 Do this::
@@ -14,4 +24,14 @@ For extras::
 
   sudo apt-get install -y \
       doxygen
+
+To edit translations
+--------------------
+You might need to update the files::
+  
+  lupdate mapmap.pro 
+
+Then, do this::
+  
+  linguist mapmap_fr.ts
 

@@ -27,34 +27,12 @@
 #include "Shape.h"
 #include "Mapper.h"
 
-/**
- * The main MapMap engine that deals with video mapping projects.
- */
-class Common
-{
+class Common {
 public:
-  static std::vector<Mapping::ptr> mappings;
-  static std::vector<Mapper::ptr> mappers;
-  static Mapping::ptr currentMapping;
-  static Mapper::ptr currentMapper;
+  static std::tr1::shared_ptr<Mapping> currentMapping;
+  static std::tr1::shared_ptr<Mapper>  currentMapper;
 
-  static int currentSourceIdx;
-
-  static int getCurrentSourceId() { return currentSourceIdx; }
-
-  static Quad* createQuadForTexture(Texture* texture, int frameWidth, int frameHeight);
-  static void addImage(const QString imagePath, int frameWidth, int frameHeight);
   static void initializeLibremapper(int frameWidth, int frameHeight);
-
-  static void switchImage(int imageId);
-
-  // deprecated
-  static void nextImage();
-
-  static int nImages()
-  {
-    return mappings.size();
-  }
 };
 
 #endif /* COMMON_H_ */

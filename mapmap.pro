@@ -72,12 +72,15 @@ unix:!mac {
 # Mac OS X-specific:
 mac {
   DEFINES += MACOSX
-  INCLUDEPATH += /opt/local/include/ \
+  INCLUDEPATH += \
+    /opt/local/include/ \
     /opt/local/include/libxml2
   LIBS += -L/opt/local/lib \
-    -lGLEW
     -framework OpenGL \
     -framework GLUT
   QMAKE_CXXFLAGS += -D__MACOSX_CORE__
+  QMAKE_CXXFLAGS += -stdlib=libstdc++
+
+  #  -lGLEW
 }
 
