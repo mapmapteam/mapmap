@@ -19,6 +19,7 @@
  */
 
 #include "Mapper.h"
+#include "MainWindow.h"
 #include "unused.h"
 
 Mapper::Mapper(Mapping::ptr mapping)
@@ -157,18 +158,18 @@ ColorMapper::ColorMapper(Mapping::ptr mapping)
   Q_CHECK_PTR(color);
 }
 
-#include "MainWindow.h"
-void ColorMapper::draw(QPainter* painter)
+void PolygonColorMapper::draw(QPainter* painter)
 {
   painter->setRenderHint(QPainter::Antialiasing);
   painter->setPen(Qt::NoPen);
   painter->setBrush(color->getColor());
 
   // Draw shape as polygon.
-  painter->drawPolygon(_mapping->getShape()->toPolygon());
+  Polygon* poly = (Polygon*)_mapping->getShape().get();
+  painter->drawPolygon(poly->toPolygon());
 }
 
-void ColorMapper::drawControls(QPainter* painter)
+void PolygonColorMapper::drawControls(QPainter* painter)
 {
   UNUSED(painter);
 }

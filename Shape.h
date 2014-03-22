@@ -40,11 +40,7 @@
 #include "Math.h"
 
 /**
- * Point (or vertex) on the 2-D canvas.
- */
-
-/**
- * Series of vertices. (points)
+ * Shape represented by a series of control points.
  */
 class Shape
 {
@@ -68,11 +64,10 @@ public:
 
   virtual void setVertex(int i, const QPointF& v)
   {
-    vertices[i].setX(v.x());
-    vertices[i].setY(v.y());
+    vertices[i] = v;
   }
 
-  virtual void setVertex(int i, double x, double y)
+  virtual void setVertex(int i, qreal x, qreal y)
   {
     setVertex(i, QPointF(x, y));
   }
@@ -83,16 +78,14 @@ public:
    *  Algorithm should work for all polygons, including non-convex
    *  Found at http://www.cs.tufts.edu/comp/163/notes05/point_inclusion_handout.pdf
    */
-  virtual bool includesPoint(qreal x, qreal y);
-
-  virtual bool includesPoint(const QPointF& p) {
-    return includesPoint(p.x(), p.y());
+  virtual bool includesPoint(qreal x, qreal y) {
+    return includesPoint(QPoint(x, y));
   }
+
+  virtual bool includesPoint(const QPointF& p) = 0;
 
   /* Translate all vertices of shape by the vector (x,y) */
   virtual void translate(int x, int y);
-
-  virtual QPolygonF toPolygon() const;
 
 protected:
   QVector<QPointF> vertices;
@@ -105,9 +98,32 @@ protected:
 };
 
 /**
+ * This class represents a simple polygon (ie. the control points are vertices).
+ */
+class Polygon : public Shape {
+public:
+  Polygon() {}
+  Polygon(QVector<QPointF> vertices_) : Shape(vertices_) {}
+  virtual ~Polygon() {}
+
+  virtual QPolygonF toPolygon() const;
+
+  virtual bool includesPoint(const QPointF& p) {
+    return toPolygon().containsPoint(p, Qt::OddEvenFill);
+  }
+
+  // Override the parent, checking to make sure the vertices are displaced correctly.
+  virtual void setVertex(int i, const QPointF& v);
+
+protected:
+  // Returns all line segments of the polygon.
+  QVector<QLineF> _getSegments() const;
+};
+
+/**
  * Four-vertex shape.
  */
-class Quad : public Shape
+class Quad : public Polygon
 {
 public:
   Quad() {}
@@ -126,7 +142,7 @@ public:
 /**
  * Triangle shape.
  */
-class Triangle : public Shape
+class Triangle : public Polygon
 {
 public:
   Triangle() {}
@@ -140,8 +156,8 @@ public:
   virtual QString getType() const { return "triangle"; }
 };
 
-class Mesh : public Quad {
-
+class Mesh : public Quad
+{
   typedef QVector<QVector<int> > IndexVector2d;
 
 public:
@@ -155,6 +171,9 @@ public:
   virtual QString getType() const { return "mesh"; }
 
   virtual QPolygonF toPolygon() const;
+
+  // Override the parent, checking to make sure the vertices are displaced correctly.
+  virtual void setVertex(int i, const QPointF& v);
 
   QPointF getVertex2d(int i, int j) const
   {

@@ -19,45 +19,6 @@
 
 #include "Shape.h"
 
-bool Shape::includesPoint(qreal x, qreal y)
-{
-  return toPolygon().containsPoint(QPointF(x, y), Qt::OddEvenFill);
-//  QVector<QPointF>::iterator prev;
-//  int left = 0, right = 0, maxy, miny;
-//  for (QVector<QPointF>::iterator it = vertices.begin() ;
-//      it != vertices.end(); it++)
-//  {
-//    if (!prev) {
-//      prev = vertices.back();
-//    }
-//    miny = qMin(it->y(), prev->y());
-//    maxy = qMax(it->y(), prev->y());
-//
-//    if (y > miny && y < maxy) {
-//      if (prev->x() == it->x())
-//      {
-//        if (x < it->x())
-//          right++;
-//        else left++;
-//      }
-//      else
-//      {
-//        double slope = (it->y() - prev->y()) / (it->x() - prev->x());
-//        double offset = it->y() - slope * it->x();
-//        int xintersect = int((y - offset ) / slope);
-//        if (x < xintersect)
-//          right++;
-//        else left++;
-//      }
-//    }
-//    prev = *it;
-//  }
-//  if (right % 2 && left % 2)
-//    return true;
-//  return false;
-}
-
-
 void Shape::translate(int x, int y)
 {
   for (QVector<QPointF>::iterator it = vertices.begin() ;
@@ -68,7 +29,60 @@ void Shape::translate(int x, int y)
   }
 }
 
-QPolygonF Shape::toPolygon() const
+void Polygon::setVertex(int i, const QPointF& v)
+{
+  // Weird, but nothing to do.
+  if (nVertices() <= 3)
+  {
+    Shape::setVertex(i, v);
+    return;
+  }
+
+  QPointF realV = v;
+
+  // Look at the two adjunct segments to vertex i and see if they
+  // intersect with any non-adjacent segments.
+
+  // Construct the list of segments (with the new candidate vertex).
+  QVector<QLineF> segments = _getSegments();
+  int prev = wrapAround(i - 1, segments.size());
+  int next = wrapAround(i + 1, segments.size());
+  segments[prev] = QLineF(vertices[prev], v);
+  segments[i]    = QLineF(v, vertices[next]);
+
+  // For each adjunct segment.
+  for (int adj=0; adj<2; adj++)
+  {
+    int idx = wrapAround(i + adj - 1, segments.size());
+    for (int j=0; j<segments.size(); j++)
+    {
+      // If the segment to compare to is valid (ie. if it is not
+      // the segment itself nor an adjacent one) then check for
+      // intersection.
+      if (j != idx &&
+          j != wrapAround(idx-1, segments.size()) &&
+          j != wrapAround(idx+1, segments.size()))
+      {
+        QPointF intersection;
+        if (segments[idx].intersect(segments[j], &intersection) == QLineF::BoundedIntersection)
+          realV = intersection;
+      }
+    }
+  }
+
+  // Really set the vertex.
+  Shape::setVertex(i, realV);
+}
+
+QVector<QLineF> Polygon::_getSegments() const
+{
+  QVector<QLineF> segments;
+  for (int i=0; i<vertices.size(); i++)
+    segments.push_back(QLineF(vertices[i], vertices[ (i+1) % vertices.size() ]));
+  return segments;
+}
+
+QPolygonF Polygon::toPolygon() const
 {
   QPolygonF polygon;
   for (QVector<QPointF>::const_iterator it = vertices.begin() ;
@@ -114,6 +128,12 @@ QPolygonF Mesh::toPolygon() const
   polygon.append(getVertex2d(nColumns()-1, nRows()-1));
   polygon.append(getVertex2d(0,            nRows()-1));
   return polygon;
+}
+
+void Mesh::setVertex(int i, const QPointF& v)
+{
+  // TODO
+  Shape::setVertex(i, v);
 }
 
 void Mesh::resizeVertices2d(IndexVector2d& vertices2d, int nColumns, int nRows)
