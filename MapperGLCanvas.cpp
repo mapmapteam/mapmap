@@ -36,16 +36,17 @@ void MapperGLCanvas::initializeGL()
   //glEnable(GL_CULL_FACE);
 }
 
-void MapperGLCanvas::resizeGL(int /* width */, int /* height */)
+void MapperGLCanvas::resizeGL(int width, int height)
 {
-  glViewport(0, 0, width(), height());
+  qDebug() << "Resize to " << width << "x" << height << endl;
+  glViewport(0, 0, width, height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
   glOrtho (
-    0.0f, (GLfloat) width(), // left, right
-    (GLfloat) height(), 0.0f, // bottom, top
+    0.0f, (GLfloat) width, // left, right
+    (GLfloat) height, 0.0f, // bottom, top
     -1.0, 1.0f);
   glMatrixMode (GL_MODELVIEW);
 
@@ -283,11 +284,11 @@ void MapperGLCanvas::updateCanvas()
  * variable. Perhaps the sticky-sensitivity should be configurable through GUI */
 void MapperGLCanvas::glueVertex(Shape *orig, QPointF *p)
 {
-  MappingManager m = MainWindow::getInstance().getMappingManager();
+  MappingManager manager = MainWindow::getInstance().getMappingManager();
   int dist_stick = 10; /*this parameter may*/
-  for (int mappingId = 0; mappingId < m.nMappings(); mappingId++)
+  for (int i = 0; i < manager.nMappings(); i++)
   {
-    Shape *shape = getShapeFromMappingId(mappingId);
+    Shape *shape = getShapeFromMappingId(manager.getMapping(i)->getId());
     if (shape != orig)
     {
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)

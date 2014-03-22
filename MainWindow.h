@@ -24,11 +24,14 @@
 #include <QtGui>
 #include <QTimer>
 #include <QVariant>
+#include <QMap>
 #include "SourceGLCanvas.h"
 #ifdef HAVE_OSC
 #include "OscInterface.h"
 #endif
 #include "DestinationGLCanvas.h"
+
+#include "OutputGLWindow.h"
 
 #include "MappingManager.h"
 
@@ -39,27 +42,36 @@
 
 #define LIBREMAPPING_VERSION "0.1"
 
-// Forward declaration:
-//class Facade;
-
+/**
+ * This is the main window of MapMap. It acts as both a view and a controller interface.
+ */
 class MainWindow: public QMainWindow
 {
 Q_OBJECT
 
 public:
+  // Constructor.
   MainWindow();
+
+  // Destructor.
   ~MainWindow();
+
+  // TODO: It is a bad shortcut to make MainWindow a singleton: it would be better to use signals/slots instead.
   static MainWindow& getInstance();
   static void setInstance(MainWindow* inst);
-  void applyOscCommand(QVariantList & command);
+
+  // XXX Unused.
+  void applyOscCommand(const QVariantList& command);
 
 protected:
-  // Events.
+  // Events ///////////////////////////////////////////////////////////////////////////////////////////////////
   void closeEvent(QCloseEvent *event);
 
+  // Slots ////////////////////////////////////////////////////////////////////////////////////////////////////
 private slots:
 
-  // Menu.
+  // Menus slots.
+  // File menu.
   void newFile();
   void open();
   bool save();
@@ -68,83 +80,80 @@ private slots:
   void addColor();
   void about();
   void updateStatusBar();
+  // Edit menu.
+  void deleteItem();
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
   void handleMappingItemSelectionChanged();
   void handleMappingItemChanged(QListWidgetItem* item);
   void handleMappingIndexesMoved();
+  void handleItemSelected(QListWidgetItem* item);
   void addMesh();
   void addTriangle();
   void addEllipse();
 
+  // Other.
   void windowModified();
   void pollOscInterface();
 
 public slots:
 
   // CRUD.
-  /**
-   * Clears all mappings and paints.
-   */
+
+  /// Clears all mappings and paints.
   bool clearProject();
 
-  /**
-   * Create an image paint.
-   */
+  /// Create an image paint.
   uid createImagePaint(uid paintId, QString uri, float x, float y);
 
-  /**
-   * Create a color paint.
-   */
+  /// Create a color paint.
   uid createColorPaint(uid paintId, QColor color);
 
-  /**
-   * Creates a textured mesh.
-   */
+  /// Creates a textured mesh.
   uid createMeshTextureMapping(uid mappingId,
                                uid paintId,
                                int nColumns, int nRows,
                                const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
-  /**
-   * Creates a textured triangle.
-   */
+  /// Creates a textured triangle.
   uid createTriangleTextureMapping(uid mappingId,
                                    uid paintId,
                                    const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
 
-  /**
-   * Creates a textured ellipse.
-   */
+  /// Creates a textured ellipse.
   uid createEllipseTextureMapping(uid mappingId,
                                   uid paintId,
                                   const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
-  /**
-   * Creates a color quad.
-   */
+  /// Creates a color quad.
   uid createQuadColorMapping(uid mappingId,
                              uid paintId,
                              const QVector<QPointF> &dst);
 
-  /**
-   * Creates a color triangle.
-   */
+  /// Creates a color triangle.
   uid createTriangleColorMapping(uid mappingId,
                                  uid paintId,
                                  const QVector<QPointF> &dst);
 
-  /**
-   * Creates a color ellipse.
-   */
   uid createEllipseColorMapping(uid mappingId,
                                 uid paintId,
                                 const QVector<QPointF> &dst);
 
+  /// Deletes/removes a mapping.
+  void deleteMapping(uid mappingId);
+
+  /// Deletes/removes a paint and all associated mappigns.
+  void deletePaint(uid paintId);
+
+  /// Updates all canvases.
+  void updateCanvases();
+
 private:
-  // Methods.
+  // Internal methods. //////////////////////////////////////////////////////////////////////////////////////
+
+  // Creation of view elements.
   void createLayout();
   void createActions();
   void createMenus();
@@ -152,38 +161,55 @@ private:
   void createToolBars();
   void createStatusBar();
 
+  // Settings.
   void readSettings();
   void writeSettings();
 
+  // OSC.
   void startOscReceiver();
 
+  // Actions-related.
   bool okToContinue();
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
   bool importMediaFile(const QString &fileName);
   bool addColorPaint(const QColor& color);
-  void addMappingItem(uint mappingId);
+  void addMappingItem(uid mappingId);
+  void removeMappingItem(uid mappingId);
+  void addPaintItem(uid paintId, const QIcon& icon, const QString& name);
+  void removePaintItem(uid paintId);
   void clearWindow();
-  QString strippedName(const QString &fullFileName);
 
-  void connectAll();
-  void disconnectAll();
+  // Returns a short version of filename.
+  static QString strippedName(const QString &fullFileName);
 
-  // Variables.
-  QString curFile;
+  // Connects/disconnects project-specific widgets (paints and mappings).
+  void connectProjectWidgets();
+  void disconnectProjectWidgets();
 
-  // GUI elements.
-  QAction *separatorAction;
+  // Get/set id from list item.
+  static uid getItemId(const QListWidgetItem& item);
+  static void setItemId(QListWidgetItem& item, uid id);
+  static int getItemRowFromId(const QListWidget& list, uid id);
 
+  // GUI elements. ////////////////////////////////////////////////////////////////////////////////////////
+
+  // Menu actions.
   QMenu *fileMenu;
 //  QMenu *editMenu;
 //  QMenu *selectSubMenu;
 //  QMenu *toolsMenu;
 //  QMenu *optionsMenu;
+  QMenu *viewMenu;
+  QMenu *editMenu;
   QMenu *helpMenu;
+
+  // Toolbar.
   QToolBar *fileToolBar;
-//  QToolBar *editToolBar;
+
+  // Actions.
+  QAction *separatorAction;
   QAction *newAction;
   QAction *openAction;
   QAction *importAction;
@@ -194,49 +220,63 @@ private:
 //  QAction *cutAction;
 //  QAction *copyAction;
 //  QAction *pasteAction;
-//  QAction *deleteAction;
+  QAction *deleteAction;
   QAction *aboutAction;
 
-  QAction *addQuadAction;
+  QAction *addMeshAction;
   QAction *addTriangleAction;
   QAction *addEllipseAction;
+
+  QAction *displayOutputWindow;
+
+  // Widgets and layout.
 
   QListWidget* paintList;
   QListWidget* mappingList;
   QStackedWidget* propertyPanel;
 
-public:
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
+  OutputGLWindow* outputWindow;
 
-private:
   QSplitter* mainSplitter;
   QSplitter* resourceSplitter;
   QSplitter* canvasSplitter;
 
+  // Internal variables. ///////////////////////////////////////////////////////////////////////////////////
+
+  // Current filename.
+  QString curFile;
+
+  // Model.
+  MappingManager* mappingManager;
+
+  // OSC.
 #ifdef HAVE_OSC
   OscInterface::ptr osc_interface;
 #endif
   int config_osc_receive_port;
   QTimer *osc_timer;
 
-  // Maps from Mapping id to corresponding mapper.
-  std::map<uint, Mapper::ptr> mappers;
-
-private:
-  // Model.
-  MappingManager* mappingManager;
-  //Facade* _facade;
-
   // View.
+
+  // The view counterpart of Mappings.
+  QMap<uint, Mapper::ptr> mappers;
+
+  // Current selected paint/mapping.
   uid currentPaintId;
   uid currentMappingId;
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
 
+  // Keeps track of the current selected item, wether it's a paint or mapping.
+  QListWidgetItem* currentSelectedItem;
+
+  // Singleton instance.
   static MainWindow* instance;
 
 public:
+  // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
   MappingManager& getMappingManager() { return *mappingManager; }
   Mapper::ptr getMapperByMappingId(uint id) { return mappers[id]; }
   uid getCurrentPaintId() const { return currentPaintId; }
@@ -257,17 +297,15 @@ public:
   }
   void removeCurrentPaint() {
     _hasCurrentPaint = false;
+    currentPaintId = NULL_UID;
   }
   void removeCurrentMapping() {
     _hasCurrentMapping = false;
+    currentMappingId = NULL_UID;
   }
 
-public slots:
-  void updateAll();
-
-
 public:
-  // Constants.
+  // Constants. ///////////////////////////////////////////////////////////////////////////////////////
   static const int DEFAULT_WIDTH = 1600;
   static const int DEFAULT_HEIGHT = 800;
   static const int PAINT_LIST_ITEM_HEIGHT = 40;
@@ -277,6 +315,8 @@ public:
   static const int PROPERTY_PANEL_MINIMUM_WIDTH  = 400;
   static const int CANVAS_MINIMUM_WIDTH  = 480;
   static const int CANVAS_MINIMUM_HEIGHT = 270;
+  static const int OUTPUT_WINDOW_MINIMUM_WIDTH = 480;
+  static const int OUTPUT_WINDOW_MINIMUM_HEIGHT = 270;
 };
 
 #endif /* MAIN_WINDOW_H_ */

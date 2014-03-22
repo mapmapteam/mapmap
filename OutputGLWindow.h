@@ -1,7 +1,7 @@
 /*
- * SourceGLCanvas.h
+ * OutputGLWindow.h
  *
- * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2014 Sofian Audry -- info(@)sofianaudry(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,33 +17,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOURCEGLCANVAS_H_
-#define SOURCEGLCANVAS_H_
+#ifndef OUTPUTGLWINDOW_H_
+#define OUTPUTGLWINDOW_H_
 
-#include <QGLWidget>
-
-#include "MapperGLCanvas.h"
+#include <QDialog>
 #include "DestinationGLCanvas.h"
 
-#include "Util.h"
-
-class SourceGLCanvas: public MapperGLCanvas
+//we need to create our own widget for the window containing the droneqglwidget
+//to change the behavior of the close event to do nothing
+//since we dont want this window to be closed by the user
+class OutputGLWindow : public QDialog
 {
   Q_OBJECT
 
 public:
-  SourceGLCanvas(QWidget* parent = 0);
-//  virtual ~SourceGLCanvas() {}
+  OutputGLWindow(QWidget* parent = 0, const QGLWidget * shareWidget = 0);
 
-  virtual Shape* getShapeFromMappingId(uid mappingId);
-//  virtual Quad& getQuad();
+protected:
+  void closeEvent(QCloseEvent* event);
+
+signals:
+  void closed();
+
+public:
+  DestinationGLCanvas* getCanvas() const { return canvas; }
 
 private:
-  virtual void doDraw(QPainter* painter);
-
-  void _drawColor(QPainter* painter, Paint::ptr paint, QMap<uid, Mapping::ptr> mappings);
-  void _drawTexture(QPainter* painter, Paint::ptr paint, QMap<uid, Mapping::ptr> mappings);
+  DestinationGLCanvas* canvas;
 };
 
-
-#endif /* DESTINATIONGLCANVAS_H_ */
+#endif /* OutputGLWINDOW_H_ */

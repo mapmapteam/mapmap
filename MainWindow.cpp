@@ -28,26 +28,32 @@ MainWindow* MainWindow::instance = 0;
 
 MainWindow::MainWindow()
 {
+  // Create model.
   mappingManager = new MappingManager;
- // _facade = new Facade(mappingManager, this);
 
+  // Initialize internal variables.
   currentPaintId = NULL_UID;
   currentMappingId = NULL_UID;
   // TODO: not sure we need this anymore since we have NULL_UID
   _hasCurrentPaint = false;
   _hasCurrentMapping = false;
+  currentSelectedItem = NULL;
 
+  // Create everything.
   createLayout();
-
   createActions();
   createMenus();
   createContextMenu();
   createToolBars();
   createStatusBar();
 
+  // Load settings.
   readSettings();
+
+  // Start osc.
   startOscReceiver();
 
+  // Defaults.
   //setWindowIcon(QIcon(":/images/icon.png"));
   setCurrentFile("");
 }
@@ -75,71 +81,89 @@ MainWindow::~MainWindow()
 
 void MainWindow::handlePaintItemSelectionChanged()
 {
+  // Set current paint.
   QListWidgetItem* item = paintList->currentItem();
-  uid idx = item->data(Qt::UserRole).toInt();
-  setCurrentPaint(idx);
-  removeCurrentMapping();
+  currentSelectedItem = item;
 
-  // Enable creation of mappings when a paint is selected.
-  addQuadAction->setEnabled(true);
-  addTriangleAction->setEnabled(true);
-  addEllipseAction->setEnabled(true);
+  // Is a paint item selected?
+  bool paintItemSelected = (item ? true : false);
+
+  if (paintItemSelected)
+  {
+    // Set current paint.
+    uid idx = getItemId(*item);
+    setCurrentPaint(idx);
+    removeCurrentMapping();
+  }
+  else
+    removeCurrentPaint();
+
+  // Enable/disable creation of mappings depending on whether a paint is selected.
+  addMeshAction->setEnabled(paintItemSelected);
+  addTriangleAction->setEnabled(paintItemSelected);
+  addEllipseAction->setEnabled(paintItemSelected);
 
   // Update canvases.
-  updateAll();
-  //sourceCanvas->switchImage(idx);
-  //sourceCanvas->repaint();
-  //destinationCanvas->repaint();
+  updateCanvases();
 }
 
 void MainWindow::handleMappingItemSelectionChanged()
 {
+  // Get current mapping.
   QListWidgetItem* item = mappingList->currentItem();
-  uid idx = item->data(Qt::UserRole).toInt();
+  currentSelectedItem = item;
+  if (item)
+  {
+    // Get index.
+    uid idx = getItemId(*item);
 
-  Mapping::ptr mapping = mappingManager->getMappingById(idx);
-  setCurrentPaint(mapping->getPaint()->getId());
-  setCurrentMapping(mapping->getId());
+    // Set current paint and mappings.
+    Mapping::ptr mapping = mappingManager->getMappingById(idx);
+    setCurrentPaint(mapping->getPaint()->getId());
+    setCurrentMapping(mapping->getId());
+  }
+  else
+    removeCurrentMapping();
 
-  updateAll();
-  //sourceCanvas->switchImage(idx);
-  //sourceCanvas->repaint();
-  //destinationCanvas->repaint();
+  // Update canvases.
+  updateCanvases();
 }
 
 void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
 {
-  uid mappingId = item->data(Qt::UserRole).toInt();
+  // Toggle visibility of mapping depending on checkbox of item.
+  uid mappingId = getItemId(*item);
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
   mapping->setVisible(item->checkState() == Qt::Checked);
-  updateAll();
+
+  // Update canvases.
+  updateCanvases();
 }
 
 void MainWindow::handleMappingIndexesMoved()
 {
-  std::vector<uid> newOrder;
+  // Reorder mappings.
+  QVector<uid> newOrder;
   for (int row=mappingList->count()-1; row>=0; row--)
   {
     uid layerId = mappingList->item(row)->data(Qt::UserRole).toInt();
     newOrder.push_back(layerId);
   }
-
   mappingManager->reorderMappings(newOrder);
 
-  updateAll();
+  // Update canvases according to new order.
+  updateCanvases();
 }
 
-//void MainWindow::handleSourceSelectionChanged(const QItemSelection& selection)
-//{
-//  std::cout << "selection changed" << std::endl;
-//  QModelIndex& index = selection.indexes().first();
-//  int idx = index.row();
-//  std::cout << "idx=" << idx << std::endl;
-//  sourceCanvas->switchImage(idx);
-//}
+void MainWindow::handleItemSelected(QListWidgetItem* item)
+{
+  // Change currently selected item.
+  currentSelectedItem = item;
+}
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+  // Popup dialog allowing the user to save before closing.
   if (okToContinue())
   {
     writeSettings();
@@ -153,6 +177,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::newFile()
 {
+  // Popup dialog allowing the user to save before creating a new file.
   if (okToContinue())
   {
     clearWindow();
@@ -162,6 +187,7 @@ void MainWindow::newFile()
 
 void MainWindow::open()
 {
+  // Popup dialog allowing the user to save before opening a new file.
   if (okToContinue())
   {
     QString fileName = QFileDialog::getOpenFileName(this,
@@ -173,6 +199,7 @@ void MainWindow::open()
 
 bool MainWindow::save()
 {
+  // Popup save-as dialog if file has never been saved.
   if (curFile.isEmpty())
   {
     return saveAs();
@@ -185,41 +212,40 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
+  // Popul file dialog to choose filename.
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save project"),
       ".", tr("MapMap files (*.lmp)"));
   if (fileName.isEmpty())
     return false;
 
+  // Save to filename.
   return saveFile(fileName);
 }
 
 void MainWindow::import()
 {
-  if (okToContinue())
-  {
-    QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Import media source file"), ".");
-    if (!fileName.isEmpty())
-      importMediaFile(fileName);
-  }
+  // Pop-up file-choosing dialog to choose media file.
+  // TODO: restrict the type of files that can be imported
+  QString fileName = QFileDialog::getOpenFileName(this,
+      tr("Import media source file"), ".");
+  if (!fileName.isEmpty())
+    importMediaFile(fileName);
 }
 
 void MainWindow::addColor()
 {
-  if (okToContinue())
-  {
-    QColor initialColor;
-    QColor color = QColorDialog::getColor(initialColor, this);
-    if (color.isValid())
-      addColorPaint(color);
-  }
+  // Pop-up color-choosing dialog to choose color paint.
+  QColor initialColor;
+  QColor color = QColorDialog::getColor(initialColor, this);
+  if (color.isValid())
+    addColorPaint(color);
 }
 
 void MainWindow::addMesh()
 {
-  // FIXME: crashes if there is no current paint id. (if no paint exists)
-
-  // Create default quad.
+  // A paint must be selected to add a mapping.
+  if (getCurrentPaintId() == NULL_UID)
+    return;
 
   // Retrieve current paint (as texture).
   Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(getCurrentPaintId());
@@ -242,8 +268,6 @@ void MainWindow::addMesh()
     mappingPtr = new TextureMapping(paint, outputQuad, inputQuad);
   }
 
-  qDebug() << "adding mesh" << endl;
-
   // Create texture mapping.
   Mapping::ptr mapping(mappingPtr);
   uint mappingId = mappingManager->addMapping(mapping);
@@ -255,8 +279,6 @@ void MainWindow::addTriangle()
   // A paint must be selected to add a mapping.
   if (getCurrentPaintId() == NULL_UID)
     return;
-
-  // Create default quad.
 
   // Retrieve current paint (as texture).
   Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(getCurrentPaintId());
@@ -291,13 +313,11 @@ void MainWindow::addEllipse()
   if (getCurrentPaintId() == NULL_UID)
     return;
 
-  // Create default quad.
-
   // Retrieve current paint (as texture).
   Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(getCurrentPaintId());
   Q_CHECK_PTR(paint);
 
-  // Create input and output quads.
+  // Create input and output ellipses.
   Mapping* mappingPtr;
   if (paint->getType() == "color")
   {
@@ -322,6 +342,7 @@ void MainWindow::addEllipse()
 
 void MainWindow::about()
 {
+  // Pop-up about dialog.
   QMessageBox::about(this, tr("About MapMap"),
       tr("<h2>MapMap "
           LIBREMAPPING_VERSION
@@ -346,15 +367,36 @@ void MainWindow::about()
 
 void MainWindow::updateStatusBar()
 {
-  // TODO
+  // Nothing to do for now.
 //  locationLabel->setText(spreadsheet->currentLocation());
 //  formulaLabel->setText(spreadsheet->currentFormula());
+}
+
+void MainWindow::deleteItem()
+{
+  if (currentSelectedItem)
+  {
+    if (currentSelectedItem->listWidget() == mappingList)
+    {
+      // Delete mapping.
+      deleteMapping( getItemId(*mappingList->currentItem()) );
+      //currentSelectedItem = NULL;
+    }
+    else if (currentSelectedItem->listWidget() == paintList)
+    {
+      // Delete paint.
+      deletePaint( getItemId(*paintList->currentItem()) );
+      //currentSelectedItem = NULL;
+    }
+    else
+      qCritical() << "Selected item neither a mapping nor a paint." << endl;
+  }
 }
 
 bool MainWindow::clearProject()
 {
   // Disconnect signals to avoid problems when clearning mappingList and paintList.
-  disconnectAll();
+  disconnectProjectWidgets();
 
   // Clear current paint / mapping.
   removeCurrentPaint();
@@ -382,7 +424,10 @@ bool MainWindow::clearProject()
   destinationCanvas->repaint();
 
   // Reconnect everything.
-  connectAll();
+  connectProjectWidgets();
+
+  // Window was modified.
+  windowModified();
 
   return true;
 }
@@ -403,15 +448,13 @@ uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
     // Add it to the manager.
     Paint::ptr paint(img);
 
-    // Add image to paintList widget.
-    QListWidgetItem* item = new QListWidgetItem(strippedName(uri));
-    item->setData(Qt::UserRole, paint->getId()); // TODO: could possibly be replaced by a Paint pointer
-    item->setIcon(QIcon(uri));
-    item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
-    paintList->addItem(item);
-    paintList->setCurrentItem(item);
+    // Add paint to model and return its uid.
+    uid id = mappingManager->addPaint(paint);
 
-    return mappingManager->addPaint(paint);
+    // Add paint widget item.
+    addPaintItem(id, QIcon(uri), strippedName(uri));
+
+    return id;
   }
 }
 
@@ -428,20 +471,17 @@ uid MainWindow::createColorPaint(uid paintId, QColor color)
     // Add it to the manager.
     Paint::ptr paint(img);
 
-    // Add image to paintList widget.
-    QListWidgetItem* item = new QListWidgetItem(strippedName(color.name()));
-    item->setData(Qt::UserRole, paint->getId()); // TODO: could possibly be replaced by a Paint pointer
+    // Add paint to model and return its uid.
+    uid id = mappingManager->addPaint(paint);
 
     // Create a small icon with the color.
     QPixmap pixmap(100,100);
     pixmap.fill(color);
-    item->setIcon(QIcon(pixmap));
 
-    item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
-    paintList->addItem(item);
-    paintList->setCurrentItem(item);
+    // Add paint widget item.
+    addPaintItem(id, QIcon(pixmap), strippedName(color.name()));
 
-    return mappingManager->addPaint(paint);
+    return id;
   }
 }
 
@@ -625,6 +665,31 @@ uid MainWindow::createEllipseColorMapping(uid mappingId,
   }
 }
 
+void MainWindow::deleteMapping(uid mappingId)
+{
+  // Cannot delete unexisting mapping.
+  if (Mapping::getUidAllocator().exists(mappingId))
+  {
+    removeMappingItem(mappingId);
+  }
+}
+
+/// Deletes/removes a paint and all associated mappigns.
+void MainWindow::deletePaint(uid paintId)
+{
+  // Cannot delete unexisting paint.
+  if (Paint::getUidAllocator().exists(paintId))
+  {
+    int r = QMessageBox::warning(this, tr("MapMap"),
+        tr("Remove this paint and all its associated mappings?"),
+        QMessageBox::Ok | QMessageBox::Cancel);
+    if (r == QMessageBox::Ok)
+    {
+      removePaintItem(paintId);
+    }
+  }
+}
+
 void MainWindow::windowModified()
 {
   setWindowModified(true);
@@ -633,11 +698,13 @@ void MainWindow::windowModified()
 
 void MainWindow::createLayout()
 {
+  // Create paint list.
   paintList = new QListWidget;
   paintList->setSelectionMode(QAbstractItemView::SingleSelection);
   paintList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   paintList->setMinimumWidth(PAINT_LIST_MINIMUM_WIDTH);
 
+  // Create mapping list.
   mappingList = new QListWidget;
   mappingList->setSelectionMode(QAbstractItemView::SingleSelection);
   mappingList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -646,29 +713,43 @@ void MainWindow::createLayout()
   mappingList->setDragDropMode(QAbstractItemView::InternalMove);
   mappingList->setMinimumWidth(MAPPING_LIST_MINIMUM_WIDTH);
 
+  // Create property panel.
   propertyPanel = new QStackedWidget;
   propertyPanel->setDisabled(true);
   propertyPanel->setMinimumWidth(PROPERTY_PANEL_MINIMUM_WIDTH);
 
-  sourceCanvas = new SourceGLCanvas;
-  destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
+  // Create canvases.
 
+  sourceCanvas = new SourceGLCanvas;
+  sourceCanvas->setFocusPolicy(Qt::ClickFocus);
+  sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
+
+  destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
+  destinationCanvas->setFocusPolicy(Qt::ClickFocus);
+  destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
+
+  outputWindow = new OutputGLWindow(this, sourceCanvas);
+  outputWindow->setVisible(true);
+
+  // Source changed -> change destination
   connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
           destinationCanvas, SLOT(updateCanvas()));
 
-//  connect(destinationCanvas, SIGNAL(imageChanged()),
-//          sourceCanvas,      SLOT(updateCanvas()));
+  // Source changed -> change output window
+  connect(sourceCanvas,              SIGNAL(shapeChanged(Shape*)),
+          outputWindow->getCanvas(), SLOT(updateCanvas()));
 
-  sourceCanvas->setFocusPolicy(Qt::ClickFocus);
-  destinationCanvas->setFocusPolicy(Qt::ClickFocus);
+  // Destination changed -> change output window
+  connect(destinationCanvas,         SIGNAL(shapeChanged(Shape*)),
+          outputWindow->getCanvas(), SLOT(updateCanvas()));
 
-  sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  // Output changed -> change destinatioin
+  connect(outputWindow->getCanvas(), SIGNAL(shapeChanged(Shape*)),
+          destinationCanvas,         SLOT(updateCanvas()));
 
-  sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
-  destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
-
-  mainSplitter = new QSplitter(Qt::Vertical);
+  // Create layout.
 
   resourceSplitter = new QSplitter(Qt::Horizontal);
   resourceSplitter->addWidget(paintList);
@@ -679,6 +760,7 @@ void MainWindow::createLayout()
   canvasSplitter->addWidget(sourceCanvas);
   canvasSplitter->addWidget(destinationCanvas);
 
+  mainSplitter = new QSplitter(Qt::Vertical);
   mainSplitter->addWidget(canvasSplitter);
   mainSplitter->addWidget(resourceSplitter);
 
@@ -692,68 +774,60 @@ void MainWindow::createLayout()
   // Upon resizing window, give some extra stretch expansion to canvasSplitter.
   //mainSplitter->setStretchFactor(0, 1);
 
+  // Final setups.
   setWindowTitle(tr("MapMap"));
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
   setCentralWidget(mainSplitter);
 
-  connectAll();
+  // Connect mapping and paint lists signals and slots.
+  connectProjectWidgets();
 
-//  Common::initializeLibremapper(sourceCanvas->width(), sourceCanvas->height());
-//
-//  for (int i = 0; i < Common::nImages(); i++)
-//  {
-//    std::tr1::shared_ptr<Image> img = std::tr1::static_pointer_cast<Image>(
-//        Common::mappings[i]->getPaint());
-//    Q_CHECK_PTR(img);
-//
-//    QListWidgetItem* item = new QListWidgetItem(strippedName(img->getImagePath()));
-//    item->setData(Qt::UserRole, i);
-//
-//    sourceList->addItem(item);
-//  }
-
-  //  sourceList->setModel(sourcesModel);
-//
-//  connect(sourceList->selectionModel(),
-//          SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-//          this, SLOT(handleSourceSelectionChanged(QItemSelection)));
+  // Reset focus on main window.
+  setFocus();
 }
 
 void MainWindow::createActions()
 {
+  // New.
   newAction = new QAction(tr("&New"), this);
   newAction->setIcon(QIcon(":/images/document-new-4.png"));
   newAction->setShortcut(QKeySequence::New);
   newAction->setStatusTip(tr("Create a new project"));
   connect(newAction, SIGNAL(triggered()), this, SLOT(newFile()));
 
+  // Open.
   openAction = new QAction(tr("&Open..."), this);
   openAction->setIcon(QIcon(":/images/document-open-3.png"));
   openAction->setShortcut(QKeySequence::Open);
   openAction->setStatusTip(tr("Open an existing project"));
   connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
+  // Save.
   saveAction = new QAction(tr("&Save"), this);
   saveAction->setIcon(QIcon(":/images/document-save-2.png"));
   saveAction->setShortcut(QKeySequence::Save);
   saveAction->setStatusTip(tr("Save the project"));
   connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
 
+  // Save as.
   saveAsAction = new QAction(tr("Save &As..."), this);
   saveAsAction->setIcon(QIcon(":/images/document-save-as-2.png"));
   saveAsAction->setStatusTip(tr("Save the project as..."));
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
+  // Import media.
   importAction = new QAction(tr("&Import media source file..."), this);
   importAction->setIcon(QIcon(":/images/document-import-2.png"));
   importAction->setStatusTip(tr("Import a media source file..."));
   connect(importAction, SIGNAL(triggered()), this, SLOT(import()));
 
+  // Add color.
   addColorAction = new QAction(tr("Add &Color paint..."), this);
   addColorAction->setIcon(QIcon(":/images/colorize.png"));
   addColorAction->setStatusTip(tr("Add a color paint..."));
   connect(addColorAction, SIGNAL(triggered()), this, SLOT(addColor()));
 
+  // Exit/quit.
   exitAction = new QAction(tr("E&xit"), this);
   exitAction->setShortcut(tr("Ctrl+Q"));
   exitAction->setStatusTip(tr("Exit the application"));
@@ -782,31 +856,56 @@ void MainWindow::createActions()
 //  deleteAction->setStatusTip(tr("Delete the current selection's contents"));
 //  connect(deleteAction, SIGNAL(triggered()), spreadsheet, SLOT(del()));
 
+  // About.
   aboutAction = new QAction(tr("&About"), this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
-  addQuadAction = new QAction(tr("Add Quad/&Mesh"), this);
-  addQuadAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
-  addQuadAction->setStatusTip(tr("Add quad/mesh"));
-  connect(addQuadAction, SIGNAL(triggered()), this, SLOT(addMesh()));
-  addQuadAction->setEnabled(false);
+  // Delete.
+  deleteAction = new QAction(tr("Delete"), this);
+  deleteAction->setShortcut(tr("CTRL+DEL"));
+  deleteAction->setStatusTip(tr("Delete item"));
+  connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
 
+  // Add quad/mesh.
+  addMeshAction = new QAction(tr("Add Quad/&Mesh"), this);
+  addMeshAction->setShortcut(tr("CTRL+M"));
+  addMeshAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
+  addMeshAction->setStatusTip(tr("Add quad/mesh"));
+  connect(addMeshAction, SIGNAL(triggered()), this, SLOT(addMesh()));
+  addMeshAction->setEnabled(false);
+
+  // Add triangle.
   addTriangleAction = new QAction(tr("Add &Triangle"), this);
+  addTriangleAction->setShortcut(tr("CTRL+T"));
   addTriangleAction->setIcon(QIcon(":/images/draw-triangle.png"));
   addTriangleAction->setStatusTip(tr("Add triangle"));
   connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
   addTriangleAction->setEnabled(false);
 
+  // Add ellipse.
   addEllipseAction = new QAction(tr("Add &Ellipse"), this);
+  addEllipseAction->setShortcut(tr("CTRL+E"));
   addEllipseAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
   addEllipseAction->setStatusTip(tr("Add ellipse"));
   connect(addEllipseAction, SIGNAL(triggered()), this, SLOT(addEllipse()));
   addEllipseAction->setEnabled(false);
+
+  // Toggle display of output window.
+  displayOutputWindow = new QAction(tr("&Display output window"), this);
+  displayOutputWindow->setShortcut(tr("Ctrl+D"));
+  displayOutputWindow->setStatusTip(tr("Display output window"));
+  displayOutputWindow->setCheckable(true);
+  displayOutputWindow->setChecked(true);
+  // Manage show/hide of GL output window.
+  connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindow, SLOT(setVisible(bool)));
+  // When closing the GL output window, uncheck the action in menu.
+  connect(outputWindow, SIGNAL(closed()), displayOutputWindow, SLOT(toggle()));
 }
 
 void MainWindow::createMenus()
 {
+  // File.
   fileMenu = menuBar()->addMenu(tr("&File"));
   fileMenu->addAction(newAction);
   fileMenu->addAction(openAction);
@@ -818,11 +917,16 @@ void MainWindow::createMenus()
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
 
-//  editMenu = menuBar()->addMenu(tr("&Edit"));
-//  editMenu->addAction(cutAction);
-//  editMenu->addAction(copyAction);
-//  editMenu->addAction(pasteAction);
-//  editMenu->addAction(deleteAction);
+  // Edit.
+  editMenu = menuBar()->addMenu(tr("&Edit"));
+  //  editMenu->addAction(cutAction);
+  //  editMenu->addAction(copyAction);
+  //  editMenu->addAction(pasteAction);
+  editMenu->addAction(deleteAction);
+
+  // View.
+  viewMenu = menuBar()->addMenu(tr("&View"));
+  viewMenu->addAction(displayOutputWindow);
 
 //  selectSubMenu = editMenu->addMenu(tr("&Select"));
 //  selectSubMenu->addAction(selectRowAction);
@@ -841,8 +945,7 @@ void MainWindow::createMenus()
 //  optionsMenu->addAction(showGridAction);
 //  optionsMenu->addAction(autoRecalcAction);
 
-  menuBar()->addSeparator();
-
+  // Help.
   helpMenu = menuBar()->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAction);
 //  helpMenu->addAction(aboutQtAction);
@@ -866,7 +969,7 @@ void MainWindow::createToolBars()
   fileToolBar->addAction(openAction);
   fileToolBar->addAction(saveAction);
   fileToolBar->addSeparator();
-  fileToolBar->addAction(addQuadAction);
+  fileToolBar->addAction(addMeshAction);
   fileToolBar->addAction(addTriangleAction);
   fileToolBar->addAction(addEllipseAction);
 
@@ -906,6 +1009,7 @@ void MainWindow::readSettings()
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
   resourceSplitter->restoreState(settings.value("resourceSplitter").toByteArray());
   canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
+  outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
   config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 }
 
@@ -917,6 +1021,7 @@ void MainWindow::writeSettings()
   settings.setValue("mainSplitter", mainSplitter->saveState());
   settings.setValue("resourceSplitter", resourceSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
+  settings.setValue("outputWindow", outputWindow->saveGeometry());
   settings.setValue("osc_receive_port", config_osc_receive_port);
 }
 
@@ -1039,12 +1144,10 @@ bool MainWindow::importMediaFile(const QString &fileName)
   image->setPosition((sourceCanvas->width()  - image->getWidth() ) / 2.0f,
                      (sourceCanvas->height() - image->getHeight()) / 2.0f );
 
-
-//  update();
-
   QApplication::restoreOverrideCursor();
 
   statusBar()->showMessage(tr("File imported"), 2000);
+
   return true;
 }
 
@@ -1066,8 +1169,28 @@ bool MainWindow::addColorPaint(const QColor& color)
   return true;
 }
 
+void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& name)
+{
+  Paint::ptr paint = mappingManager->getPaintById(paintId);
+  Q_CHECK_PTR(paint);
 
-void MainWindow::addMappingItem(uint mappingId)
+  // Add image to paintList widget.
+  QListWidgetItem* item = new QListWidgetItem(name);
+  setItemId(*item, paintId); // TODO: could possibly be replaced by a Paint pointer
+  item->setIcon(icon);
+
+  // Set size.
+  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
+
+  // Add item to paint list.
+  paintList->addItem(item);
+  paintList->setCurrentItem(item);
+
+  // Window was modified.
+  windowModified();
+}
+
+void MainWindow::addMappingItem(uid mappingId)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
   Q_CHECK_PTR(mapping);
@@ -1137,7 +1260,7 @@ void MainWindow::addMappingItem(uint mappingId)
 
   // When mapper value is changed, update canvases.
   connect(mapper.get(), SIGNAL(valueChanged()),
-          this,         SLOT(updateAll()));
+          this,         SLOT(updateCanvases()));
 
   connect(sourceCanvas, SIGNAL(shapeChanged(Shape*)),
           mapper.get(), SLOT(updateShape(Shape*)));
@@ -1149,11 +1272,79 @@ void MainWindow::addMappingItem(uint mappingId)
   QListWidgetItem* item = new QListWidgetItem(label);
   item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
   item->setCheckState(Qt::Checked);
-  item->setData(Qt::UserRole, mappingId); // TODO: could possibly be replaced by a Paint pointer
+  setItemId(*item, mappingId); // TODO: could possibly be replaced by a Paint pointer
   item->setIcon(icon);
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
   mappingList->insertItem(0, item);
   mappingList->setCurrentItem(item);
+
+  // Window was modified.
+  windowModified();
+}
+
+void MainWindow::removeMappingItem(uid mappingId)
+{
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+  Q_CHECK_PTR(mapping);
+
+  // Remove mapping from model.
+  mappingManager->removeMapping(mappingId);
+
+  // Remove associated mapper.
+  propertyPanel->removeWidget(mappers[mappingId]->getPropertiesEditor());
+  mappers.remove(mappingId);
+
+  // Remove widget from mappingList.
+  int row = getItemRowFromId(*mappingList, mappingId);
+  Q_ASSERT( row >= 0 );
+  QListWidgetItem* item = mappingList->takeItem(row);
+  if (item == currentSelectedItem)
+    currentSelectedItem = NULL;
+  delete item;
+
+  // Update list.
+  mappingList->update();
+
+  // Update everything.
+  updateCanvases();
+
+  // Window was modified.
+  windowModified();
+}
+
+void MainWindow::removePaintItem(uid paintId)
+{
+  Paint::ptr paint = mappingManager->getPaintById(paintId);
+  Q_CHECK_PTR(paint);
+
+  // Remove all mappings associated with paint.
+  QMap<uid, Mapping::ptr> paintMappings = mappingManager->getPaintMappings(paint);
+  for (QMap<uid, Mapping::ptr>::const_iterator it = paintMappings.constBegin();
+       it != paintMappings.constEnd(); ++it)
+    removeMappingItem(it.key());
+
+  // Remove paint from model.
+  Q_ASSERT( mappingManager->removePaint(paintId) );
+
+  // Remove widget from paintList.
+  int row = getItemRowFromId(*paintList, paintId);
+  Q_ASSERT( row >= 0 );
+  QListWidgetItem* item = paintList->takeItem(row);
+  if (item == currentSelectedItem)
+    currentSelectedItem = NULL;
+  delete item;
+
+  // Update list.
+  paintList->update();
+
+  // Reset current paint.
+  removeCurrentPaint();
+
+  // Update everything.
+  updateCanvases();
+
+  // Window was modified.
+  windowModified();
 }
 
 void MainWindow::clearWindow()
@@ -1161,10 +1352,11 @@ void MainWindow::clearWindow()
   clearProject();
 }
 
-void MainWindow::updateAll()
+void MainWindow::updateCanvases()
 {
   sourceCanvas->update();
   destinationCanvas->update();
+  outputWindow->getCanvas()->update();
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)
@@ -1172,35 +1364,82 @@ QString MainWindow::strippedName(const QString &fullFileName)
   return QFileInfo(fullFileName).fileName();
 }
 
-void MainWindow::connectAll()
+void MainWindow::connectProjectWidgets()
 {
   connect(paintList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handlePaintItemSelectionChanged()));
+          this,      SLOT(handlePaintItemSelectionChanged()));
+
+  connect(paintList, SIGNAL(itemPressed(QListWidgetItem*)),
+          this,      SLOT(handleItemSelected(QListWidgetItem*)));
+
+  connect(paintList, SIGNAL(itemActivated(QListWidgetItem*)),
+          this,      SLOT(handleItemSelected(QListWidgetItem*)));
 
   connect(mappingList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handleMappingItemSelectionChanged()));
+          this,        SLOT(handleMappingItemSelectionChanged()));
 
   connect(mappingList, SIGNAL(itemChanged(QListWidgetItem*)),
-          this, SLOT(handleMappingItemChanged(QListWidgetItem*)));
+          this,        SLOT(handleMappingItemChanged(QListWidgetItem*)));
+
+  connect(mappingList, SIGNAL(itemPressed(QListWidgetItem*)),
+          this,        SLOT(handleItemSelected(QListWidgetItem*)));
+
+  connect(mappingList, SIGNAL(itemActivated(QListWidgetItem*)),
+          this,        SLOT(handleItemSelected(QListWidgetItem*)));
 
   connect(mappingList->model(), SIGNAL(layoutChanged()),
-          this, SLOT(handleMappingIndexesMoved()));
+          this,                 SLOT(handleMappingIndexesMoved()));
 }
 
-void MainWindow::disconnectAll()
+void MainWindow::disconnectProjectWidgets()
 {
   disconnect(paintList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handlePaintItemSelectionChanged()));
+             this,      SLOT(handlePaintItemSelectionChanged()));
+
+  disconnect(paintList, SIGNAL(itemPressed(QListWidgetItem*)),
+             this,      SLOT(handleItemSelected(QListWidgetItem*)));
+
+  disconnect(paintList, SIGNAL(itemActivated(QListWidgetItem*)),
+             this,      SLOT(handleItemSelected(QListWidgetItem*)));
 
   disconnect(mappingList, SIGNAL(itemSelectionChanged()),
-          this, SLOT(handleMappingItemSelectionChanged()));
+             this,        SLOT(handleMappingItemSelectionChanged()));
 
   disconnect(mappingList, SIGNAL(itemChanged(QListWidgetItem*)),
-          this, SLOT(handleMappingItemChanged(QListWidgetItem*)));
+             this,        SLOT(handleMappingItemChanged(QListWidgetItem*)));
+
+  disconnect(mappingList, SIGNAL(itemPressed(QListWidgetItem*)),
+             this,        SLOT(handleItemSelected(QListWidgetItem*)));
+
+  disconnect(mappingList, SIGNAL(itemActivated(QListWidgetItem*)),
+             this,        SLOT(handleItemSelected(QListWidgetItem*)));
 
   disconnect(mappingList->model(), SIGNAL(layoutChanged()),
-          this, SLOT(handleMappingIndexesMoved()));
+             this,                 SLOT(handleMappingIndexesMoved()));
 }
+
+uid MainWindow::getItemId(const QListWidgetItem& item)
+{
+  return item.data(Qt::UserRole).toInt();
+}
+
+void MainWindow::setItemId(QListWidgetItem& item, uid id)
+{
+  item.setData(Qt::UserRole, id);
+}
+
+int MainWindow::getItemRowFromId(const QListWidget& list, uid id)
+{
+  for (int row=0; row<list.count(); row++)
+  {
+    QListWidgetItem* item = list.item(row);
+    if (getItemId(*item) == id)
+      return row;
+  }
+
+  return (-1);
+}
+
 
 void MainWindow::startOscReceiver()
 {
@@ -1226,7 +1465,7 @@ void MainWindow::pollOscInterface()
 #endif
 }
 
-void MainWindow::applyOscCommand(QVariantList & command)
+void MainWindow::applyOscCommand(const QVariantList& command)
 {
   bool VERBOSE = true;
   if (VERBOSE)

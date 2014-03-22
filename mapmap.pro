@@ -12,6 +12,7 @@ HEADERS  = \
     Paint.h \
     OscInterface.h \
     OscReceiver.h \
+    OutputGLWindow.h \
     ProjectReader.h \
     ProjectWriter.h \
     Shape.h \
@@ -30,7 +31,7 @@ SOURCES  = \
     MappingManager.cpp \
     OscInterface.cpp \
     OscReceiver.cpp \
-    ProjectReader.h \
+    OutputGLWindow.cpp \
     Paint.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
@@ -71,12 +72,15 @@ unix:!mac {
 # Mac OS X-specific:
 mac {
   DEFINES += MACOSX
-  INCLUDEPATH += /opt/local/include/ \
+  INCLUDEPATH += \
+    /opt/local/include/ \
     /opt/local/include/libxml2
   LIBS += -L/opt/local/lib \
-    -lGLEW
     -framework OpenGL \
     -framework GLUT
   QMAKE_CXXFLAGS += -D__MACOSX_CORE__
+  QMAKE_CXXFLAGS += -stdlib=libstdc++
+
+  #  -lGLEW
 }
 

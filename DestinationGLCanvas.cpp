@@ -64,8 +64,8 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
   glPushMatrix();
 
   MappingManager& mappingManager = MainWindow::getInstance().getMappingManager();
-  std::vector<Mapping::ptr> mappings = mappingManager.getVisibleMappings();
-  for (std::vector<Mapping::ptr>::const_iterator it = mappings.begin(); it != mappings.end(); ++it)
+  QVector<Mapping::ptr> mappings = mappingManager.getVisibleMappings();
+  for (QVector<Mapping::ptr>::const_iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
     Mapping::ptr mapping = (*it);
 
