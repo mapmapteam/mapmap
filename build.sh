@@ -12,7 +12,7 @@ if [[ $unamestr == "Darwin" ]]; then
     export QMAKESPEC=macx-g++
     #export QMAKESPEC=macx-xcode
     qmake
-elif [[ $unamestr == "linux" ]]; then
+elif [[ $unamestr == "Linux" ]]; then
     qmake-qt4
 fi
 
