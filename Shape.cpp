@@ -33,7 +33,10 @@ void Polygon::setVertex(int i, const QPointF& v)
 {
   // Weird, but nothing to do.
   if (nVertices() <= 3)
+  {
+    Shape::setVertex(i, v);
     return;
+  }
 
   QPointF realV = v;
 
