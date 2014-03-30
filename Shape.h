@@ -37,7 +37,7 @@
 #include <QString>
 #include <QMetaType>
 
-#include "Math.h"
+#include "Maths.h"
 
 /**
  * Shape represented by a series of control points.

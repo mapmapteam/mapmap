@@ -8,7 +8,7 @@ HEADERS  = \
     MapperGLCanvas.h \
     Mapping.h \
     MappingManager.h \
-    Math.h \
+    Maths.h \
     Paint.h \
     OscInterface.h \
     OscReceiver.h \
