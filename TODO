@@ -13,5 +13,33 @@ Packaging
 * delete old branches
 * update doc
 * does translation work?
-* Instructions build Mac OS X?
+
+Fonctionnalités importantes manquantes
+--------------------------------------
+En plus du support de la lecture de fichiers vidéo, (et de la mémoire partagée) sur la quelle je travaille, voici les éléments à faire que j'ai notés. Certains d'entre eux sont critiques.
+
+* FIXME: Lorsque les images sont très grandes, il est impossible de saisir les coins de sa source, ou de sa destination. Pour cela:
+* TODO: Clic-centre pour se déplacer dans la scène au complet.
+* TODO: Clic-drag gauche pour déplacer un objet. (et non clic-drag droit)
+* TODO: Clic-gauche pour sélectionner un objet.
+* TODO: Clic-droit devrait faire apparaître un menu contextuel. (effacer, masquer, etc.)
+* TODO: Il faudrait qu'on puisse ne voir aucun contour bleu autour des mappings.
+* FIXME: La fenêtre de sortie devrait pouvoir être plein-écran.
+* TODO: La roulette de la souris devrait permettre de zommer/dézoomer dans la scène.
+* TODO: On devrait pouvoir changer une couleur. (double-clic clic-droit sur la couleur)
+* TODO: Afficher davantage d'aide contextuelle quand on survole un élément de l'interface.
+
+Bogues majeurs
+--------------
+* BUG: Le focus devrait revenir sur la fenêtre principale quand on ferme le dialogue de sauvegarde.
+* BUG: Coin de quads croisés quand on load.
+* BUG: Plante que redimensionne une source cercle d'une image. (mais pas quand on roule sous GDB?)
+* BUG: L'inspecteur, ou un des panneaux, peut être caché si l'usager en a rangé le tiroir.
+
+Trucs à faire plus tard
+-----------------------
+* LATER: Si on déplace les coins d'une source au-délà de la texture, mettre du noir plutôt que clamper la texture.
+* LATER: Soft edge sur les polygones.
+* LATER: Supporter Syphon sur Mac OS X.
+* BUG: Les textures des rectangles ont une apparence étrange. (deux zones triangles)
 
