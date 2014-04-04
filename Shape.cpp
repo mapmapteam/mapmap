@@ -93,18 +93,33 @@ QPolygonF Polygon::toPolygon() const
   return polygon;
 }
 
-Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4, int nColumns, int nRows)
-: Quad(p1, p2, p3, p4), _nColumns(0), _nRows(0)
+Mesh::Mesh() : Quad(), _nColumns(0), _nRows(0) {}
+
+Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4) : Quad()
 {
-  Q_ASSERT(nColumns >= 2 && nRows >= 2);
-  init(nColumns, nRows);
+  // Add points in standard order.
+  QVector<QPointF> points;
+  points.push_back(p1);
+  points.push_back(p2);
+  points.push_back(p4);
+  points.push_back(p3);
+
+  // Init.
+  init(points, 2, 2);
 }
 
-Mesh::Mesh(const QVector<QPointF>& points, int nColumns, int nRows)
-: Quad(), _nColumns(nColumns), _nRows(nRows)
+Mesh::Mesh(const QVector<QPointF>& points, int nColumns, int nRows) : Quad()
+{
+  init(points, nColumns, nRows);
+}
+
+void Mesh::init(const QVector<QPointF>& points, int nColumns, int nRows)
 {
   Q_ASSERT(nColumns >= 2 && nRows >= 2);
   Q_ASSERT(points.size() == nColumns * nRows);
+
+  _nColumns = nColumns;
+  _nRows    = nRows;
 
   // Resize the vertices2d vector to appropriate dimensions.
   resizeVertices2d(_vertices2d, _nColumns, _nRows);
@@ -143,24 +158,24 @@ void Mesh::resizeVertices2d(IndexVector2d& vertices2d, int nColumns, int nRows)
     vertices2d[i].resize(nRows);
 }
 
-void Mesh::init(int nColumns, int nRows)
-{
-  // Create vertices correspondence of bouding quad.
-  resizeVertices2d(_vertices2d, 2, 2);
-  _vertices2d[0][0] = 0;
-  _vertices2d[1][0] = 1;
-  _vertices2d[1][1] = 2;
-  _vertices2d[0][1] = 3;
-
-  // Init number of columns and rows.
-  _nColumns = _nRows = 2;
-
-  // Add extra columns and rows.
-  for (int i=0; i<nColumns-2; i++)
-    addColumn();
-  for (int i=0; i<nRows-2; i++)
-    addRow();
-}
+//void Mesh::init(int nColumns, int nRows)
+//{
+//  // Create vertices correspondence of bouding quad.
+//  resizeVertices2d(_vertices2d, 2, 2);
+//  _vertices2d[0][0] = 0;
+//  _vertices2d[1][0] = 1;
+//  _vertices2d[1][1] = 2;
+//  _vertices2d[0][1] = 3;
+//
+//  // Init number of columns and rows.
+//  _nColumns = _nRows = 2;
+//
+//  // Add extra columns and rows.
+//  for (int i=0; i<nColumns-2; i++)
+//    addColumn();
+//  for (int i=0; i<nRows-2; i++)
+//    addRow();
+//}
 
 // vertices 0..3 = 4 corners
 //

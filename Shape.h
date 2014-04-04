@@ -161,12 +161,19 @@ class Mesh : public Quad
   typedef QVector<QVector<int> > IndexVector2d;
 
 public:
-  Mesh() : _nColumns(0), _nRows(0) {
-    init(1, 1);
-  }
-  Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4, int nColumns=2, int nRows=2);
+  Mesh();
+
+  // This constructor creates a quad mesh (four corners) using the same order as for the quad
+  // constructor (ie. clockwise).
+  Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4);
+
+  // Standard mesh constructor.
   Mesh(const QVector<QPointF>& points, int nColumns, int nRows);
+
   virtual ~Mesh() {}
+
+  // Performs the actual adding of points (used for loading).
+  void init(const QVector<QPointF>& points, int nColumns, int nRows);
 
   virtual QString getType() const { return "mesh"; }
 
@@ -191,8 +198,6 @@ public:
   }
 
   void resizeVertices2d(IndexVector2d& vertices2d, int nColumns, int nRows);
-
-  void init(int nColumns, int nRows);
 
   //
   void addColumn();
