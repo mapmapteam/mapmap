@@ -23,7 +23,6 @@ int main(int argc, char *argv[])
   app.installTranslator(&translator);
 
   MainWindow win;
-  MainWindow::setInstance(&win);
 
   //win.setLocale(QLocale("fr"));
 

@@ -1,5 +1,6 @@
 #ifndef _OSC_RECEIVER_H_
 #define _OSC_RECEIVER_H_
+#ifdef HAVE_OSC
 
 #include "lo/lo.h"
 #include <string>
@@ -29,5 +30,6 @@ class OscReceiver {
         static void error(int num, const char *msg, const char *path);
 };
 
+#endif // HAVE_OSC
 #endif // _OSC_RECEIVER_H_
 

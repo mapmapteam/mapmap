@@ -1,3 +1,4 @@
+#ifdef HAVE_OSC
 #include "OscReceiver.h"
 #include <iostream>
 #include <cstdio>
@@ -84,4 +85,6 @@ std::string OscReceiver::toString() const
 {
     return "port:" + port_;
 }
+
+#endif // HAVE_OSC
 

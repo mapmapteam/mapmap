@@ -22,6 +22,7 @@
 
 #ifndef OSC_INTERFACE_H_
 #define OSC_INTERFACE_H_
+#ifdef HAVE_OSC
 
 #include <tr1/memory>
 #include "concurrentqueue.h"
@@ -76,4 +77,5 @@ class OscInterface
 };
 
 
+#endif // HAVE_OSC
 #endif /* include guard */

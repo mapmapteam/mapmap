@@ -75,9 +75,10 @@ mac {
   INCLUDEPATH += \
     /opt/local/include/ \
     /opt/local/include/libxml2
-  LIBS += -L/opt/local/lib \
+  LIBS += \
     -framework OpenGL \
     -framework GLUT
+  # -L/opt/local/lib \
   QMAKE_CXXFLAGS += -D__MACOSX_CORE__
   QMAKE_CXXFLAGS += -stdlib=libstdc++
 

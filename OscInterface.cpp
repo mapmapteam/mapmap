@@ -20,6 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_OSC
 #include "OscInterface.h"
 #include "MainWindow.h"
 #include "unused.h"
@@ -230,3 +231,4 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
   //    open();
 }
 
+#endif // HAVE_OSC
