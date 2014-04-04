@@ -26,3 +26,8 @@ qteditorfactory.moc
 qtpropertymanager.moc
 qttreepropertybrowser.moc
 html/
+.DS_Store
+.qmake.stash
+Info.plist
+*.xcodeproj/
+*.pro.user
