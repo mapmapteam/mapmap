@@ -28,6 +28,7 @@ MainWindow* MainWindow::instance = 0;
 
 MainWindow::MainWindow()
 {
+  MainWindow::setInstance(this);
   // Create model.
   mappingManager = new MappingManager;
 
@@ -60,7 +61,7 @@ MainWindow::MainWindow()
 
 MainWindow& MainWindow::getInstance()
 {
-  Q_ASSERT(instance);
+  //Q_ASSERT(instance);
 
   return *instance;
 }
