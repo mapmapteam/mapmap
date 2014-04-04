@@ -43,3 +43,9 @@ Trucs à faire plus tard
 * LATER: Supporter Syphon sur Mac OS X.
 * BUG: Les textures des rectangles ont une apparence étrange. (deux zones triangles)
 
+Fonctionnalités cool à faire plus tard
+--------------------------------------
+* lignes des quads assignable on/off, voire animales, en midi
+* animation de stroke par groupe
+* OSC pour controler les positions et l'alpha des quads
+
