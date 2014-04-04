@@ -2,11 +2,15 @@ Build instructions
 ==================
 This file is written in rst, so that one can use rst2pdf to create a PDF out of it.
 
+
+Build on GNU/Linux
+------------------
 Dependencies: 
 
  * Qt
  * qt4-default
  * qt4-qmake
+ * liblo
 
 Build it::
 
@@ -18,6 +22,7 @@ Do this::
 
   sudo apt-get install -y \
       qt4-default \
+      liblo-dev \
       qt4-qmake
 
 For extras::
@@ -34,4 +39,15 @@ You might need to update the files::
 Then, do this::
   
   linguist mapmap_fr.ts
+
+Build on Mac OS X
+-----------------
+
+* Install the Apple Developer Tools. You need to register with a credit card in the Apple Store in order to download it.
+* Install Qt5. You can get it from http://qt-project.org/downloads and choose the default location.
+
+Do this::
+
+  ~/Qt5.2.1/5.2.1/clang_64/bin/qmake
+  make
 
