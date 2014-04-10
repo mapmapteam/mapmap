@@ -891,6 +891,17 @@ void MainWindow::createActions()
   connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindow, SLOT(setVisible(bool)));
   // When closing the GL output window, uncheck the action in menu.
   connect(outputWindow, SIGNAL(closed()), displayOutputWindow, SLOT(toggle()));
+
+  // Toggle display of canvas controls.
+  displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
+//  displayCanvasControls->setShortcut(tr("Ctrl+E"));
+  displayCanvasControls->setStatusTip(tr("Display canvas controls"));
+  displayCanvasControls->setCheckable(true);
+  displayCanvasControls->setChecked(true);
+  // Manage show/hide of canvas controls.
+  connect(displayCanvasControls, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableDisplayControls(bool)));
+  connect(displayCanvasControls, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableDisplayControls(bool)));
+  connect(displayCanvasControls, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableDisplayControls(bool)));
 }
 
 void MainWindow::createMenus()
@@ -917,6 +928,7 @@ void MainWindow::createMenus()
   // View.
   viewMenu = menuBar()->addMenu(tr("&View"));
   viewMenu->addAction(displayOutputWindow);
+  viewMenu->addAction(displayCanvasControls);
 
 //  selectSubMenu = editMenu->addMenu(tr("&Select"));
 //  selectSubMenu->addAction(selectRowAction);

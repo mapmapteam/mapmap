@@ -163,7 +163,8 @@ void SourceGLCanvas::_drawTexture(QPainter* painter, Paint::ptr paint, QMap<uid,
     std::tr1::shared_ptr<Shape> inputShape = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
     Q_CHECK_PTR(inputShape);
 
-   if (it.key() == getMainWindow()->getCurrentMappingId())
+   if (displayControls() &&
+       it.key() == getMainWindow()->getCurrentMappingId())
    {
      Mapper::ptr mapper = getMainWindow()->getMapperByMappingId(it.key());
      Q_CHECK_PTR(mapper);

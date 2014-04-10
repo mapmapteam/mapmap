@@ -51,6 +51,7 @@ public:
   void glueVertex(Shape *, QPointF *);
 
   MainWindow* getMainWindow() const { return _mainWindow; }
+  bool displayControls() const { return _displayControls; }
 
 protected:
   void initializeGL();
@@ -74,6 +75,7 @@ private:
   int _active_vertex;
   bool _shapegrabbed;
   bool _shapefirstgrab;
+  bool _displayControls;
 
 signals:
   void shapeChanged(Shape*);
@@ -81,6 +83,7 @@ signals:
 
 public slots:
   void updateCanvas();
+  void enableDisplayControls(bool display);
   void deselectAll();
 
 public:

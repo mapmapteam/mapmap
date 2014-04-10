@@ -23,7 +23,7 @@
 #include "MainWindow.h"
 
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
-  : QGLWidget(parent, shareWidget), _mainWindow(mainWindow), _mousepressed(false), _active_vertex(NO_VERTEX)
+  : QGLWidget(parent, shareWidget), _mainWindow(mainWindow), _mousepressed(false), _active_vertex(NO_VERTEX), _displayControls(true)
 {
 }
 
@@ -277,6 +277,13 @@ void MapperGLCanvas::exitDraw(QPainter* painter)
 void MapperGLCanvas::updateCanvas()
 {
   update();
+}
+
+void MapperGLCanvas::enableDisplayControls(bool display)
+{
+  _displayControls = display;
+  qDebug() << "Toggle display to " << display << endl;
+  updateCanvas();
 }
 
 /* Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are

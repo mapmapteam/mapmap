@@ -90,7 +90,8 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
   }
 
   // Draw the controls of current mapping.
-  if (getMainWindow()->hasCurrentMapping() &&
+  if (displayControls() &&
+      getMainWindow()->hasCurrentMapping() &&
       getCurrentShape() != NULL)
   {
     getMainWindow()->getMapperByMappingId(getMainWindow()->getCurrentMappingId())->drawControls(painter);
