@@ -32,7 +32,7 @@ class SourceGLCanvas: public MapperGLCanvas
   Q_OBJECT
 
 public:
-  SourceGLCanvas(QWidget* parent = 0);
+  SourceGLCanvas(MainWindow* mainWindow, QWidget* parent = 0);
 //  virtual ~SourceGLCanvas() {}
 
   virtual Shape* getShapeFromMappingId(uid mappingId);

@@ -22,8 +22,8 @@
 
 #include "MainWindow.h"
 
-MapperGLCanvas::MapperGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
-  : QGLWidget(parent, shareWidget), _mousepressed(false), _active_vertex(NO_VERTEX)
+MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
+  : QGLWidget(parent, shareWidget), _mainWindow(mainWindow), _mousepressed(false), _active_vertex(NO_VERTEX)
 {
 }
 
@@ -98,7 +98,7 @@ void MapperGLCanvas::enterDraw(QPainter* painter)
 
 Shape* MapperGLCanvas::getCurrentShape()
 {
-  return getShapeFromMappingId(MainWindow::getInstance().getCurrentMappingId());
+  return getShapeFromMappingId(getMainWindow()->getCurrentMappingId());
 }
 
 void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
@@ -284,7 +284,7 @@ void MapperGLCanvas::updateCanvas()
  * variable. Perhaps the sticky-sensitivity should be configurable through GUI */
 void MapperGLCanvas::glueVertex(Shape *orig, QPointF *p)
 {
-  MappingManager manager = MainWindow::getInstance().getMappingManager();
+  MappingManager manager = getMainWindow()->getMappingManager();
   int dist_stick = 10; /*this parameter may*/
   for (int i = 0; i < manager.nMappings(); i++)
   {

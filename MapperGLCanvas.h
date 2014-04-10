@@ -26,11 +26,10 @@
 
 #include <iostream>
 
-//#include "Common.h"
 #include "UidAllocator.h"
 #include "Shape.h"
 
-//#include "MainWindow.h"
+class MainWindow;
 
 /**
  * Qt GUI widget that draws a mapper, which is a shape with some paint.
@@ -40,7 +39,7 @@ class MapperGLCanvas: public QGLWidget
   Q_OBJECT
 
 public:
-  MapperGLCanvas(QWidget* parent = 0, const QGLWidget* shareWidget = 0);
+  MapperGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0);
   virtual ~MapperGLCanvas() {}
 
   virtual Shape* getShapeFromMappingId(uid mappingId) = 0;
@@ -50,6 +49,8 @@ public:
 //  QSize minimumSizeHint() const;
   Shape* getCurrentShape();
   void glueVertex(Shape *, QPointF *);
+
+  MainWindow* getMainWindow() const { return _mainWindow; }
 
 protected:
   void initializeGL();
@@ -67,6 +68,8 @@ private:
   void enterDraw(QPainter* painter);
   virtual void doDraw(QPainter* painter) = 0;
   void exitDraw(QPainter* painter);
+
+  MainWindow* _mainWindow;
   bool _mousepressed;
   int _active_vertex;
   bool _shapegrabbed;

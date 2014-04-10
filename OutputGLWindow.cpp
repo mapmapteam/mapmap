@@ -21,11 +21,11 @@
 
 #include "MainWindow.h"
 
-OutputGLWindow::OutputGLWindow(QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
+OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
 {
   resize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 
-  canvas = new DestinationGLCanvas(this, shareWidget);
+  canvas = new DestinationGLCanvas(mainWindow, this, shareWidget);
   canvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   canvas->setMinimumSize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 

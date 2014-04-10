@@ -56,10 +56,6 @@ public:
   // Destructor.
   ~MainWindow();
 
-  // TODO: It is a bad shortcut to make MainWindow a singleton: it would be better to use signals/slots instead.
-  static MainWindow& getInstance();
-  static void setInstance(MainWindow* inst);
-
   // XXX Unused.
   void applyOscCommand(const QVariantList& command);
 
@@ -271,9 +267,6 @@ private:
 
   // Keeps track of the current selected item, wether it's a paint or mapping.
   QListWidgetItem* currentSelectedItem;
-
-  // Singleton instance.
-  static MainWindow* instance;
 
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////

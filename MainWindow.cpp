@@ -24,11 +24,8 @@
 #include "Facade.h"
 #include <sstream>
 
-MainWindow* MainWindow::instance = 0;
-
 MainWindow::MainWindow()
 {
-  MainWindow::setInstance(this);
   // Create model.
   mappingManager = new MappingManager;
 
@@ -57,18 +54,6 @@ MainWindow::MainWindow()
   // Defaults.
   //setWindowIcon(QIcon(":/images/icon.png"));
   setCurrentFile("");
-}
-
-MainWindow& MainWindow::getInstance()
-{
-  //Q_ASSERT(instance);
-
-  return *instance;
-}
-
-void MainWindow::setInstance(MainWindow* inst)
-{
-  instance = inst;
 }
 
 MainWindow::~MainWindow()
@@ -249,7 +234,7 @@ void MainWindow::addMesh()
     return;
 
   // Retrieve current paint (as texture).
-  Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(getCurrentPaintId());
+  Paint::ptr paint = getMappingManager().getPaint(getCurrentPaintId());
   Q_CHECK_PTR(paint);
 
   // Create input and output quads.
@@ -282,7 +267,7 @@ void MainWindow::addTriangle()
     return;
 
   // Retrieve current paint (as texture).
-  Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(getCurrentPaintId());
+  Paint::ptr paint = getMappingManager().getPaint(getCurrentPaintId());
   Q_CHECK_PTR(paint);
 
   // Create input and output quads.
@@ -315,7 +300,7 @@ void MainWindow::addEllipse()
     return;
 
   // Retrieve current paint (as texture).
-  Paint::ptr paint = MainWindow::getInstance().getMappingManager().getPaint(getCurrentPaintId());
+  Paint::ptr paint = getMappingManager().getPaint(getCurrentPaintId());
   Q_CHECK_PTR(paint);
 
   // Create input and output ellipses.
@@ -725,17 +710,17 @@ void MainWindow::createLayout()
 
   // Create canvases.
 
-  sourceCanvas = new SourceGLCanvas;
+  sourceCanvas = new SourceGLCanvas(this);
   sourceCanvas->setFocusPolicy(Qt::ClickFocus);
   sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  destinationCanvas = new DestinationGLCanvas(0, sourceCanvas);
+  destinationCanvas = new DestinationGLCanvas(this, 0, sourceCanvas);
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  outputWindow = new OutputGLWindow(this, sourceCanvas);
+  outputWindow = new OutputGLWindow(this, this, sourceCanvas);
   outputWindow->setVisible(true);
 
   // Source changed -> change destination

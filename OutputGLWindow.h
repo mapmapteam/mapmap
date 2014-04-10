@@ -31,7 +31,7 @@ class OutputGLWindow : public QDialog
   Q_OBJECT
 
 public:
-  OutputGLWindow(QWidget* parent = 0, const QGLWidget * shareWidget = 0);
+  OutputGLWindow(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
 
 protected:
   void closeEvent(QCloseEvent* event);

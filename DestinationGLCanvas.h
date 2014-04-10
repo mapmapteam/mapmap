@@ -31,7 +31,7 @@ class DestinationGLCanvas: public MapperGLCanvas
   Q_OBJECT
 
 public:
-  DestinationGLCanvas(QWidget* parent = 0, const QGLWidget * shareWidget = 0);
+  DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
 //  virtual ~DestinationGLCanvas();
 
   virtual Shape* getShapeFromMappingId(uid mappingId);

@@ -21,8 +21,8 @@
 #include "DestinationGLCanvas.h"
 #include "MainWindow.h"
 
-DestinationGLCanvas::DestinationGLCanvas(QWidget* parent, const QGLWidget * shareWidget)
-: MapperGLCanvas(parent, shareWidget)
+DestinationGLCanvas::DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
+: MapperGLCanvas(mainWindow, parent, shareWidget)
 {
 }
 
@@ -31,7 +31,7 @@ Shape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
   if (mappingId == NULL_UID)
     return NULL;
   else
-    return MainWindow::getInstance().getMappingManager().getMappingById(mappingId)->getShape().get();
+    return getMainWindow()->getMappingManager().getMappingById(mappingId)->getShape().get();
 }
 
 void DestinationGLCanvas::doDraw(QPainter* painter)
@@ -62,12 +62,11 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
 //  }
 
 
-  MainWindow &mainwindow = MainWindow::getInstance();
-  if ((&mainwindow) == NULL)
+  if (getMainWindow() == NULL)
     return;
 
   glPushMatrix();
-  MappingManager& mappingManager = MainWindow::getInstance().getMappingManager();
+  MappingManager& mappingManager = getMainWindow()->getMappingManager();
   QVector<Mapping::ptr> mappings = mappingManager.getVisibleMappings();
   for (QVector<Mapping::ptr>::const_iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
@@ -87,14 +86,14 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
     }
 
     // Draw the mappings.
-    MainWindow::getInstance().getMapperByMappingId(mapping->getId())->draw(painter);
+    getMainWindow()->getMapperByMappingId(mapping->getId())->draw(painter);
   }
 
   // Draw the controls of current mapping.
-  if (MainWindow::getInstance().hasCurrentMapping() &&
+  if (getMainWindow()->hasCurrentMapping() &&
       getCurrentShape() != NULL)
   {
-    MainWindow::getInstance().getMapperByMappingId(MainWindow::getInstance().getCurrentMappingId())->drawControls(painter);
+    getMainWindow()->getMapperByMappingId(getMainWindow()->getCurrentMappingId())->drawControls(painter);
   }
 
   glPopMatrix();
