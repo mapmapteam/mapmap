@@ -18,8 +18,7 @@ HEADERS  = \
     Shape.h \
     SourceGLCanvas.h \
     UidAllocator.h \
-    Util.h \
-    unused.h \
+    Util.h
 
 SOURCES  = \
     DestinationGLCanvas.cpp \
