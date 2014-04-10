@@ -23,9 +23,6 @@
 #include <QDialog>
 #include "DestinationGLCanvas.h"
 
-//we need to create our own widget for the window containing the droneqglwidget
-//to change the behavior of the close event to do nothing
-//since we dont want this window to be closed by the user
 class OutputGLWindow : public QDialog
 {
   Q_OBJECT
