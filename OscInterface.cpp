@@ -23,7 +23,6 @@
 #ifdef HAVE_OSC
 #include "OscInterface.h"
 #include "MainWindow.h"
-#include "unused.h"
 #include <QVariant>
 
 OscInterface::OscInterface(
@@ -192,7 +191,7 @@ static void printCommand(QVariantList &command)
 
 void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & command)
 {
-  UNUSED(main_window);
+  Q_UNUSED(main_window);
   bool VERBOSE = true;
 
   if (VERBOSE)

@@ -20,7 +20,6 @@
 
 #include "Mapper.h"
 #include "MainWindow.h"
-#include "unused.h"
 
 Mapper::Mapper(Mapping::ptr mapping)
   : _mapping(mapping)
@@ -171,7 +170,7 @@ void PolygonColorMapper::draw(QPainter* painter)
 
 void PolygonColorMapper::drawControls(QPainter* painter)
 {
-  UNUSED(painter);
+  Q_UNUSED(painter);
 }
 
 MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)
@@ -296,7 +295,7 @@ void TextureMapper::updateShape(Shape* shape)
 
 void TextureMapper::draw(QPainter* painter)
 {
-  UNUSED(painter);
+  Q_UNUSED(painter);
   painter->beginNativePainting();
 
   // Only works for similar shapes.
@@ -328,7 +327,7 @@ void TextureMapper::draw(QPainter* painter)
 
 void TextureMapper::drawInput(QPainter* painter)
 {
-  UNUSED(painter);
+  Q_UNUSED(painter);
 }
 
 void TextureMapper::drawControls(QPainter* painter)
@@ -348,7 +347,7 @@ TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping
 
 void TriangleTextureMapper::_doDraw(QPainter* painter)
 {
-  UNUSED(painter);
+  Q_UNUSED(painter);
   glBegin(GL_TRIANGLES);
   {
     for (int i = 0; i < inputShape->nVertices(); i++)
@@ -404,7 +403,7 @@ void MeshTextureMapper::drawControls(QPainter* painter)
 
 void MeshTextureMapper::drawInputControls(QPainter* painter)
 {
-  UNUSED(painter);
+  Q_UNUSED(painter);
 
   std::tr1::shared_ptr<Mesh> inputMesh = std::tr1::static_pointer_cast<Mesh>(inputShape);
   QVector<Quad> inputQuads = inputMesh->getQuads();
@@ -416,7 +415,7 @@ void MeshTextureMapper::drawInputControls(QPainter* painter)
 
 void MeshTextureMapper::_doDraw(QPainter* painter)
 {
-  UNUSED(painter);
+  Q_UNUSED(painter);
   std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
   std::tr1::shared_ptr<Mesh> inputMesh  = std::tr1::static_pointer_cast<Mesh>(inputShape);
   QVector<QVector<Quad> > outputQuads = outputMesh->getQuads2d();
@@ -444,7 +443,7 @@ EllipseTextureMapper::EllipseTextureMapper(std::tr1::shared_ptr<TextureMapping> 
 
 void EllipseTextureMapper::_doDraw(QPainter* painter)
 {
-  UNUSED(painter);
+  Q_UNUSED(painter);
   // Get input and output ellipses.
   std::tr1::shared_ptr<Ellipse> inputEllipse = std::tr1::static_pointer_cast<Ellipse>(inputShape);
   std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(outputShape);
