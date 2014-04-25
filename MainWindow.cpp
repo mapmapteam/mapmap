@@ -400,7 +400,8 @@ uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
 
   else
   {
-    Image* img = new Image(uri, paintId);
+    Video* img = new Video(uri, paintId);
+//    Image* img = new Image(uri, paintId);
 
     // Create new image with corresponding ID.
     img->setPosition(x, y);

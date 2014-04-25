@@ -171,7 +171,7 @@ class Video : public Texture
 protected:
   QString uri;
 public:
-  Video(const QString uri_, uid id);
+  Video(const QString uri_, uid id=NULL_UID);
   virtual ~Video();
   const QString getUri() const
   {

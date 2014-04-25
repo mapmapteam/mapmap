@@ -45,13 +45,15 @@ Paint::~Paint()
 
 /* Implementation of the Video class */
 
-Video::Video(const QString uri_, uid id=NULL_UID):
+Video::Video(const QString uri_, uid id):
     Texture(id),
     uri(uri_),
-    impl_(new VideoImpl)
+    impl_(NULL)
 {
-  this->impl_->setUri(uri);
+  impl_ = new VideoImpl(uri_);
 }
+
+// vertigo
 
 Video::~Video()
 {
