@@ -1087,7 +1087,7 @@ void MainWindow::addMappingItem(uint mappingId)
   // Add mapper.
   // XXX hardcoded for textures
   std::tr1::shared_ptr<TextureMapping> textureMapping;
-  if (paintType == "image")
+  if (paintType == "image" || paintType == "video")
   {
     textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);
@@ -1160,6 +1160,9 @@ void MainWindow::addMappingItem(uint mappingId)
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
   mappingList->insertItem(0, item);
   mappingList->setCurrentItem(item);
+
+  // Build mapping!
+  mapping->build();
 }
 
 void MainWindow::clearWindow()

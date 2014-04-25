@@ -93,7 +93,7 @@ public:
     {}
 
     bool isConnected() const {
-      return (audioIsConnected && videoIsConnected);
+      return (/*audioIsConnected && */videoIsConnected);
     }
   };
 

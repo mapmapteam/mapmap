@@ -75,6 +75,10 @@ int Video::getHeight() const
   return this->impl_->getHeight();
 }
 
+void Video::update() {
+  impl_->runVideo();
+}
+
 const uchar* Video::getBits() const
 {
   return this->impl_->getBits();

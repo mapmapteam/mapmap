@@ -64,6 +64,9 @@ public:
 
   virtual void build() {}
 
+  /// This method should be called at each call of draw().
+  virtual void update() {}
+
   void setName(const QString& name) { _name = name; }
   QString getName() const { return _name; }
   uid getId() const { return _id; }
@@ -178,6 +181,7 @@ public:
     return uri;
   }
   virtual void build();
+  virtual void update();
   virtual QString getType() const
   {
     return "video";

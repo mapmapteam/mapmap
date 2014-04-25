@@ -54,6 +54,7 @@ const uchar* VideoImpl::getBits() const
 
 void VideoImpl::build()
 {
+  qDebug() << "Building video impl" << endl;
   if (!loadMovie(_uri))
   {
     qDebug() << "Cannot load movie " << _currentMovie << "." << endl;
@@ -69,6 +70,8 @@ VideoImpl::~VideoImpl()
 
 bool VideoImpl::_videoPull()
 {
+  qDebug() << "video pull" << endl;
+
   GstBuffer *buffer;
 
   // Retrieve the buffer.
@@ -85,8 +88,8 @@ bool VideoImpl::_videoPull()
     GstCaps* caps = GST_BUFFER_CAPS(buffer);
     GstStructure *capsStruct = gst_caps_get_structure (caps, 0);
 
-    int width  = 320;
-    int height = 240;
+    int width  = 640;
+    int height = 480;
     int bpp    = 24;
     int depth  = 24;
 
@@ -170,7 +173,7 @@ _videoConvert(NULL),
 _videoColorSpace(NULL),
 _audioSink(NULL),
 _videoSink(NULL),
-_width(720),
+_width(640),
 _height(480),
 _data(NULL),
 //_audioBufferAdapter(NULL),
