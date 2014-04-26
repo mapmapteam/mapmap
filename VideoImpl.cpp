@@ -19,6 +19,7 @@
  */
 #include "VideoImpl.h"
 #include <cstring>
+#include <iostream>
 
 // -------- private implementation of VideoImpl -------
 
@@ -421,6 +422,7 @@ void VideoImpl::runVideo() {
 
 
     _videoNewBufferCounter--;
+    std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
   }
 
   _postRun();
@@ -596,7 +598,7 @@ void VideoImpl::_setReady(bool ready)
 }
 
 void VideoImpl::_setFinished(bool finished) {
-  qDebug() << "Clip " << (finished ? "finished" : "not finished") << endl;
+  // qDebug() << "Clip " << (finished ? "finished" : "not finished") << endl;
 }
 
 void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl::GstPadHandlerData* data) {

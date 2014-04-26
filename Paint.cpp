@@ -76,6 +76,7 @@ int Video::getHeight() const
 }
 
 void Video::update() {
+  //std::cout << "XXX Video::update()!" << std::endl;
   impl_->runVideo();
 }
 
