@@ -89,9 +89,9 @@ unix:!mac {
 # Mac OS X-specific:
 mac {
   DEFINES += MACOSX
-  INCLUDEPATH += \
-    /opt/local/include/ \
-    /opt/local/include/libxml2
+  # INCLUDEPATH += \
+  #   /opt/local/include/ \
+  #   /opt/local/include/libxml2
   LIBS += \
     -framework OpenGL \
     -framework GLUT
