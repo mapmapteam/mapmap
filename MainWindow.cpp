@@ -1536,3 +1536,10 @@ void MainWindow::applyOscCommand(const QVariantList& command)
       open();
 }
 
+void MainWindow::updateAll()
+{
+  sourceCanvas->update();
+  destinationCanvas->update();
+}
+
+
