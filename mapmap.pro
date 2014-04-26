@@ -81,6 +81,11 @@ mac {
   QMAKE_CXXFLAGS += -D__MACOSX_CORE__
   QMAKE_CXXFLAGS += -stdlib=libstdc++
 
+  INCLUDEPATH += /Library/Frameworks/GStreamer.framework/Headers
+  LIBS+=-L/opt/local/lib -lavformat -lavcodec -lavutil -lswscale -lz
+  LIBS+=-framework GStreamer
+  QMAKE_LFLAGS+=-read_only_relocs suppress
+
   #  -lGLEW
 }
 
