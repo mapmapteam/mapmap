@@ -270,8 +270,9 @@ void VideoImpl::resetMovie()
   else
   {
     // Just reload movie.
-    qDebug() << "Reloading the movie" << endl;
+    qDebug() << "Reloading the movie" << _seekEnabled << endl;
     _currentMovie = "";
+    loadMovie(_uri);
   }
 }
 
@@ -458,6 +459,8 @@ bool VideoImpl::_preRun()
   if (_eos() || _terminate)
   {
     _setFinished(true);
+    resetMovie();
+
 //    _FINISH_OUT->type()->setValue(1.0f);
 //    _VIDEO_OUT->sleeping(true);
 //    _AUDIO_OUT->sleeping(true);
