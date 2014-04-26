@@ -23,6 +23,7 @@
 #include "ProjectReader.h"
 #include "Facade.h"
 #include <sstream>
+#include <string>
 
 MainWindow::MainWindow()
 {
@@ -1480,59 +1481,86 @@ void MainWindow::pollOscInterface()
 #endif
 }
 
-void MainWindow::applyOscCommand(const QVariantList& command)
+// void MainWindow::applyOscCommand(const QVariantList& command)
+// {
+//   bool VERBOSE = true;
+//   if (VERBOSE)
+//   {
+//     std::cout << "Receive OSC: ";
+//     for (int i = 0; i < command.size(); ++i)
+//     {
+//       if (command.at(i).type()  == QVariant::Int)
+//       {
+//         std::cout << command.at(i).toInt() << " ";
+//       }
+//       else if (command.at(i).type()  == QVariant::Double)
+//       {
+//         std::cout << command.at(i).toDouble() << " ";
+//       }
+//       else if (command.at(i).type()  == QVariant::String)
+//       {
+//         std::cout << command.at(i).toString().toStdString() << " ";
+//       }
+//       else
+//       {
+//         std::cout << "??? ";
+//       }
+//     }
+//     std::cout << std::endl;
+//     std::cout.flush();
+//   }
+// 
+//   if (command.size() < 2)
+//       return;
+//   if (command.at(0).type() != QVariant::String)
+//       return;
+//   if (command.at(1).type() != QVariant::String)
+//       return;
+//   std::string path = command.at(0).toString().toStdString();
+//   std::string typetags = command.at(1).toString().toStdString();
+// 
+//   // Handle all OSC messages here
+//   if (path == "/image/uri" && typetags == "s")
+//   {
+//       std::string image_uri = command.at(2).toString().toStdString();
+//       std::cout << "TODO load /image/uri " << image_uri << std::endl;
+//   }
+//   else if (path == "/add/quad")
+//       addMesh();
+//   else if (path == "/add/triangle")
+//       addTriangle();
+//   else if (path == "/add/ellipse")
+//       addEllipse();
+//   else if (path == "/project/save")
+//       save();
+//   else if (path == "/project/open")
+//       open();
+// }
+
+bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
 {
-  bool VERBOSE = true;
-  if (VERBOSE)
-  {
-    std::cout << "Receive OSC: ";
-    for (int i = 0; i < command.size(); ++i)
+    // TODO: const QString &
+
+    bool success = false;
+    Paint::ptr paint = this->mappingManager->getPaintById(texture_id);
+    if (paint.get() == NULL)
     {
-      if (command.at(i).type()  == QVariant::Int)
-      {
-        std::cout << command.at(i).toInt() << " ";
-      }
-      else if (command.at(i).type()  == QVariant::Double)
-      {
-        std::cout << command.at(i).toDouble() << " ";
-      }
-      else if (command.at(i).type()  == QVariant::String)
-      {
-        std::cout << command.at(i).toString().toStdString() << " ";
-      }
-      else
-      {
-        std::cout << "??? ";
-      }
+        std::cout << "No such texture paint id " << texture_id << std::endl;
+        success = false;
     }
-    std::cout << std::endl;
-    std::cout.flush();
-  }
-
-  if (command.size() < 2)
-      return;
-  if (command.at(0).type() != QVariant::String)
-      return;
-  if (command.at(1).type() != QVariant::String)
-      return;
-  std::string path = command.at(0).toString().toStdString();
-  std::string typetags = command.at(1).toString().toStdString();
-
-  // Handle all OSC messages here
-  if (path == "/image/uri" && typetags == "s")
-  {
-      std::string image_uri = command.at(2).toString().toStdString();
-      std::cout << "TODO load /image/uri " << image_uri << std::endl;
-  }
-  else if (path == "/add/quad")
-      addMesh();
-  else if (path == "/add/triangle")
-      addTriangle();
-  else if (path == "/add/ellipse")
-      addEllipse();
-  else if (path == "/project/save")
-      save();
-  else if (path == "/project/open")
-      open();
+    else
+    {
+        if (paint->getType() == "media")
+        {
+            Media *media = (Media *) paint.get(); // FIXME: use sharedptr cast
+            success = media->setUri(QString(uri.c_str()));
+        }
+        else
+        {
+            std::cout << "Paint id " << texture_id << " is not a media texture." << std::endl;
+            return false;
+        }
+    }
+    return success;
 }
 

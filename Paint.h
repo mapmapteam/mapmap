@@ -189,6 +189,7 @@ public:
   {
     return uri;
   }
+  bool setUri(const QString &uri);
   virtual void build();
   virtual void update();
   virtual QString getType() const
