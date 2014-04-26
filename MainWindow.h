@@ -58,7 +58,7 @@ public:
   ~MainWindow();
 
   // XXX Unused.
-  void applyOscCommand(const QVariantList& command);
+  //void applyOscCommand(const QVariantList& command);
 
 protected:
   // Events ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,6 +146,9 @@ public slots:
 
   /// Updates all canvases.
   void updateCanvases();
+
+public:
+  bool setTextureUri(int texture_id, const std::string &uri);
 
 private:
   // Internal methods. //////////////////////////////////////////////////////////////////////////////////////

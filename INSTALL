@@ -11,6 +11,7 @@ Dependencies:
  * qt4-default
  * qt4-qmake
  * liblo
+ * gstreamer-0.10
 
 Build it::
 
@@ -45,9 +46,9 @@ Build on Mac OS X
 
 * Install the Apple Developer Tools. You need to register with a credit card in the Apple Store in order to download it.
 * Install Qt5. You can get it from http://qt-project.org/downloads and choose the default location.
+* Install the GStreamer SDK development files.
 
 Do this::
 
-  ~/Qt5.2.1/5.2.1/clang_64/bin/qmake
-  make
+  ./build.sh
 

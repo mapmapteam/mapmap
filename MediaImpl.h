@@ -56,9 +56,9 @@ public:
   /// Returns true if the image has changed.
   bool runVideo();
 //  void runAudio();
+  bool loadMovie(QString filename);
 
 protected:
-  bool loadMovie(QString filename);
   void unloadMovie();
   void freeResources();
   void resetMovie();

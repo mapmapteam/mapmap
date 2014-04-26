@@ -90,3 +90,13 @@ bool Media::hasVideoSupport()
   return MediaImpl::hasVideoSupport();
 }
 
+bool Media::setUri(const QString &uri)
+{
+  bool success = false;
+  this->uri = uri;
+  success = this->impl_->loadMovie(uri);
+  if (! success)
+    qDebug() << "Cannot load movie " << uri << "." << endl;
+  return success;
+}
+
