@@ -21,7 +21,6 @@ class OscReceiver {
         static bool server_is_ok_;
     private:
         std::string toString() const;
-        bool server_is_ok_;
         std::string port_;
         lo_server_thread server_;
 #ifdef CONFIG_DEBUG
