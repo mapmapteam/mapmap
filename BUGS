@@ -1,8 +1,5 @@
 LibreMapping known bugs
 =======================
-* segfaults if OSC receiving port is busy
-* should ask for confirmation when we quit if the project has not been saved.
-* cannot load state saving
 * cannot delete mappings
 * cannot delete paints
 * cannot remove points in meshes
