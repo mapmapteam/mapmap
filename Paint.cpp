@@ -76,10 +76,11 @@ int Media::getHeight() const
 }
 
 void Media::update() {
-  impl_->runVideo();
+  if (impl_->runVideo())
+    bitsChanged = true;
 }
 
-const uchar* Media::getBits() const
+const uchar* Media::_getBits() const
 {
   return this->impl_->getBits();
 }

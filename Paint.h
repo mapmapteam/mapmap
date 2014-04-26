@@ -103,12 +103,14 @@ protected:
   GLuint textureId;
   GLfloat x;
   GLfloat y;
+  mutable bool bitsChanged;
 
   Texture(uid id=NULL_UID) :
     Paint(id),
     textureId(0),
     x(0),
-    y(0)
+    y(0),
+    bitsChanged(true)
   {}
   virtual ~Texture() {
     if (textureId != 0)
@@ -123,7 +125,14 @@ public:
   }
   virtual int getWidth() const = 0;
   virtual int getHeight() const = 0;
-  virtual const uchar* getBits() const = 0;
+  virtual const uchar* getBits() const {
+    bitsChanged = false;
+    return _getBits();
+  }
+  virtual const uchar* _getBits() const = 0;
+
+  /// Returns true iff bits have changed since last call to getBits().
+  bool bitsHaveChanged() const { return bitsChanged; }
 
   virtual void setPosition(GLfloat xPos, GLfloat yPos) {
     x = xPos;
@@ -147,7 +156,6 @@ public:
     Texture(id),
     uri(uri_)
   {
-    image = QGLWidget::convertToGLFormat(QImage(uri));
   }
 
   virtual ~Image() {}
@@ -155,13 +163,14 @@ public:
   const QString getUri() const { return uri; }
 
   virtual void build() {
+    image = QGLWidget::convertToGLFormat(QImage(uri));
   }
 
   virtual QString getType() const { return "image"; }
 
   virtual int getWidth() const { return image.width(); }
   virtual int getHeight() const { return image.height(); }
-  virtual const uchar* getBits() const { return image.bits(); }
+  virtual const uchar* _getBits() const { return image.bits(); }
 };
 
 class MediaImpl; // forward declaration
@@ -188,7 +197,7 @@ public:
   }
   virtual int getWidth() const;
   virtual int getHeight() const;
-  virtual const uchar* getBits() const;
+  virtual const uchar* _getBits() const;
   /**
    * Checks whether or not video is supported on this platform.
    */

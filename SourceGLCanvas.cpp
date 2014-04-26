@@ -112,8 +112,11 @@ void SourceGLCanvas::_drawTexture(QPainter* painter, Paint::ptr paint, QMap<uid,
   glEnable (GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, texture->getBits());
+  if (texture->bitsHaveChanged())
+  {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, texture->getBits());
+  }
 
   //std::cout << texture->getX() << "x" << texture->getY() << " : " << texture->getWidth() << "x" << texture->getHeight() << " " << texture->getTextureId() << std::endl;
 

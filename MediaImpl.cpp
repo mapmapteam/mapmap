@@ -404,13 +404,15 @@ bool MediaImpl::loadMovie(QString filename)
 }
 
 
-void MediaImpl::runVideo() {
+bool MediaImpl::runVideo() {
 
 //  if (!_VIDEO_OUT->connected())
 //    return;
 
   if (!_preRun())
-    return;
+    return false;
+
+  bool bitsChanged = false;
 
   if (_videoNewBufferCounter > 0) {
 
@@ -420,14 +422,19 @@ void MediaImpl::runVideo() {
       _setFinished(true);
 //      _FINISH_OUT->type()->setValue(1.0f);
 //      _VIDEO_OUT->sleeping(true);
-    } else
-//      _VIDEO_OUT->sleeping(false);
-
+    }
+    else
+    {
+      bitsChanged = true;
+      //      _VIDEO_OUT->sleeping(false);
+    }
 
     _videoNewBufferCounter--;
   }
 
   _postRun();
+
+  return bitsChanged;
 }
 
 

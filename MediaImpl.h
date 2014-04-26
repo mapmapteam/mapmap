@@ -53,7 +53,8 @@ public:
   int getHeight() const;
   const uchar* getBits() const;
 
-  void runVideo();
+  /// Returns true if the image has changed.
+  bool runVideo();
 //  void runAudio();
 
 protected:
