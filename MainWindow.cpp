@@ -159,6 +159,9 @@ void MainWindow::handleItemSelected(QListWidgetItem* item)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+  // Stop video playback to avoid lags. XXX Hack
+  videoTimer->stop();
+
   // Popup dialog allowing the user to save before closing.
   if (okToContinue())
   {
@@ -169,20 +172,32 @@ void MainWindow::closeEvent(QCloseEvent *event)
   {
     event->ignore();
   }
+
+  // Restart video playback. XXX Hack
+  videoTimer->start();
 }
 
 void MainWindow::newFile()
 {
+  // Stop video playback to avoid lags. XXX Hack
+  videoTimer->stop();
+
   // Popup dialog allowing the user to save before creating a new file.
   if (okToContinue())
   {
     clearWindow();
     setCurrentFile("");
   }
+
+  // Restart video playback. XXX Hack
+  videoTimer->start();
 }
 
 void MainWindow::open()
 {
+  // Stop video playback to avoid lags. XXX Hack
+  videoTimer->stop();
+
   // Popup dialog allowing the user to save before opening a new file.
   if (okToContinue())
   {
@@ -191,6 +206,9 @@ void MainWindow::open()
     if (!fileName.isEmpty())
       loadFile(fileName);
   }
+
+  // Restart video playback. XXX Hack
+  videoTimer->start();
 }
 
 bool MainWindow::save()
@@ -208,9 +226,16 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
+  // Stop video playback to avoid lags. XXX Hack
+  videoTimer->stop();
+
   // Popul file dialog to choose filename.
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save project"),
       ".", tr("MapMap files (*." MAPMAP_EXTENSION ")"));
+
+  // Restart video playback. XXX Hack
+  videoTimer->start();
+
   if (fileName.isEmpty())
     return false;
 
@@ -220,21 +245,34 @@ bool MainWindow::saveAs()
 
 void MainWindow::import()
 {
+  // Stop video playback to avoid lags. XXX Hack
+  videoTimer->stop();
+
   // Pop-up file-choosing dialog to choose media file.
   // TODO: restrict the type of files that can be imported
   QString fileName = QFileDialog::getOpenFileName(this,
       tr("Import media source file"), ".");
+
+  // Restart video playback. XXX Hack
+  videoTimer->start();
+
   if (!fileName.isEmpty())
     importMediaFile(fileName);
 }
 
 void MainWindow::addColor()
 {
+  // Stop video playback to avoid lags. XXX Hack
+  videoTimer->stop();
+
   // Pop-up color-choosing dialog to choose color paint.
   QColor initialColor;
   QColor color = QColorDialog::getColor(initialColor, this);
   if (color.isValid())
     addColorPaint(color);
+
+  // Restart video playback. XXX Hack
+  videoTimer->start();
 }
 
 void MainWindow::addMesh()
@@ -338,6 +376,9 @@ void MainWindow::addEllipse()
 
 void MainWindow::about()
 {
+  // Stop video playback to avoid lags. XXX Hack
+  videoTimer->stop();
+
   // Pop-up about dialog.
   QMessageBox::about(this, tr("About MapMap"),
       tr("<h2>MapMap "
@@ -361,6 +402,9 @@ void MainWindow::about()
           "La Francophonie."
           "http://www.francophonie.org/"
           ));
+
+  // Restart video playback. XXX Hack
+  videoTimer->start();
 }
 
 void MainWindow::updateStatusBar()
