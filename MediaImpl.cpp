@@ -1,8 +1,12 @@
 /*
- * VideoImpl.cpp
+ * MediaImpl.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2012 Jean-Sebastien Senecal
+ * (c) 2004 Mathieu Guindon, Julien Keable
+ *           Based on code from Drone http://github.com/sofian/drone
+ *           Based on code from the GStreamer Tutorials http://docs.gstreamer.com/display/GstSDK/Tutorials
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +21,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "VideoImpl.h"
+#include "MediaImpl.h"
 #include <cstring>
 
 // -------- private implementation of VideoImpl -------
 
-bool VideoImpl::hasVideoSupport()
+bool MediaImpl::hasVideoSupport()
 {
   static bool did_print_gst_version = false;
   if (! did_print_gst_version)
@@ -37,22 +41,22 @@ bool VideoImpl::hasVideoSupport()
   return true;
 }
 
-int VideoImpl::getWidth() const
+int MediaImpl::getWidth() const
 {
   return _width;
 }
 
-int VideoImpl::getHeight() const
+int MediaImpl::getHeight() const
 {
   return _height;
 }
 
-const uchar* VideoImpl::getBits() const
+const uchar* MediaImpl::getBits() const
 {
   return _data;
 }
 
-void VideoImpl::build()
+void MediaImpl::build()
 {
   qDebug() << "Building video impl" << endl;
   if (!loadMovie(_uri))
@@ -61,16 +65,16 @@ void VideoImpl::build()
   }
 }
 
-VideoImpl::~VideoImpl()
+MediaImpl::~MediaImpl()
 {
   freeResources();
   if (_data)
     free(_data);
 }
 
-bool VideoImpl::_videoPull()
+bool MediaImpl::_videoPull()
 {
-  qDebug() << "video pull" << endl;
+//  qDebug() << "video pull" << endl;
 
   GstBuffer *buffer;
 
@@ -123,7 +127,7 @@ bool VideoImpl::_videoPull()
 
 }
 
-bool VideoImpl::_eos() const
+bool MediaImpl::_eos() const
 {
   if (_movieReady)
   {
@@ -155,12 +159,12 @@ bool VideoImpl::_eos() const
 //}
 
 
-void VideoImpl::gstNewBufferCallback(GstElement*, int *newBufferCounter)
+void MediaImpl::gstNewBufferCallback(GstElement*, int *newBufferCounter)
 {
   (*newBufferCounter)++;
 }
 
-VideoImpl::VideoImpl(const QString uri) :
+MediaImpl::MediaImpl(const QString uri) :
 _currentMovie(""),
 _bus(NULL),
 _pipeline(NULL),
@@ -205,7 +209,7 @@ _uri(uri)
 //  _audioBufferAdapter = gst_adapter_new();
 }
 
-void VideoImpl::unloadMovie()
+void MediaImpl::unloadMovie()
 {
   // Free allocated resources.
   freeResources();
@@ -224,7 +228,7 @@ void VideoImpl::unloadMovie()
   // unSynch(); // XXX: I'm not sure why we are doing this...
 }
 
-void VideoImpl::freeResources()
+void MediaImpl::freeResources()
 {
   // Free resources.
   if (_bus)
@@ -256,7 +260,7 @@ void VideoImpl::freeResources()
 
 }
 
-void VideoImpl::resetMovie()
+void MediaImpl::resetMovie()
 {
   // TODO: Check if we can still seek when we reach EOS. It seems like it's then impossible and we
   // have to reload but it seems weird so we should check.
@@ -276,7 +280,7 @@ void VideoImpl::resetMovie()
   }
 }
 
-bool VideoImpl::loadMovie(QString filename)
+bool MediaImpl::loadMovie(QString filename)
 {
   qDebug() << "Opening movie: " << filename << ".";
 
@@ -359,7 +363,7 @@ bool VideoImpl::loadMovie(QString filename)
   g_object_set (_source, "uri", uri, NULL);
 
   // Connect to the pad-added signal
-  g_signal_connect (_source, "pad-added", G_CALLBACK (VideoImpl::gstPadAddedCallback), &_padHandlerData);
+  g_signal_connect (_source, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
 
   // Configure audio appsink.
   // TODO: change from mono to stereo
@@ -383,7 +387,7 @@ bool VideoImpl::loadMovie(QString filename)
                             "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
                             "drop", TRUE,         // ... other buffers are dropped
                             NULL);
-  g_signal_connect (_videoSink, "new-buffer", G_CALLBACK (VideoImpl::gstNewBufferCallback), &_videoNewBufferCounter);
+  g_signal_connect (_videoSink, "new-buffer", G_CALLBACK (MediaImpl::gstNewBufferCallback), &_videoNewBufferCounter);
   gst_caps_unref (videoCaps);
 
   // Listen to the bus.
@@ -400,7 +404,7 @@ bool VideoImpl::loadMovie(QString filename)
 }
 
 
-void VideoImpl::runVideo() {
+void MediaImpl::runVideo() {
 
 //  if (!_VIDEO_OUT->connected())
 //    return;
@@ -453,7 +457,7 @@ void VideoImpl::runVideo() {
 //  _postRun();
 //}
 
-bool VideoImpl::_preRun()
+bool MediaImpl::_preRun()
 {
   // Check for end-of-stream or terminate.
   if (_eos() || _terminate)
@@ -482,7 +486,7 @@ bool VideoImpl::_preRun()
   return true;
 }
 
-void VideoImpl::_postRun()
+void MediaImpl::_postRun()
 {
   // Parse message.
   if (_bus != NULL)
@@ -568,7 +572,7 @@ void VideoImpl::_postRun()
 }
 
 
-bool VideoImpl::_setPlayState(bool play)
+bool MediaImpl::_setPlayState(bool play)
 {
   if (_pipeline == NULL)
     return false;
@@ -588,18 +592,18 @@ bool VideoImpl::_setPlayState(bool play)
   }
 }
 
-void VideoImpl::_setReady(bool ready)
+void MediaImpl::_setReady(bool ready)
 {
   _movieReady = ready;
 //  _VIDEO_OUT->sleeping(!ready);
 //  _AUDIO_OUT->sleeping(!ready);
 }
 
-void VideoImpl::_setFinished(bool finished) {
-  qDebug() << "Clip " << (finished ? "finished" : "not finished") << endl;
+void MediaImpl::_setFinished(bool finished) {
+//  qDebug() << "Clip " << (finished ? "finished" : "not finished") << endl;
 }
 
-void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl::GstPadHandlerData* data) {
+void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data) {
   g_print ("Received new pad '%s' from '%s':\n", GST_PAD_NAME (newPad), GST_ELEMENT_NAME (src));
   bool isAudio = false;
   GstPad *sinkPad = NULL;
@@ -708,13 +712,13 @@ exit:
 //  }
 //}
 
-void VideoImpl::internalPrePlay()
+void MediaImpl::internalPrePlay()
 {
   // Start/resume playback.
   _setPlayState(true);
 }
 
-void VideoImpl::internalPostPlay()
+void MediaImpl::internalPostPlay()
 {
   // Pause playback.
   _setPlayState(false);

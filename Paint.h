@@ -164,18 +164,18 @@ public:
   virtual const uchar* getBits() const { return image.bits(); }
 };
 
-class VideoImpl; // forware declaration
+class MediaImpl; // forward declaration
 
 /**
  * Paint that is a Texture retrieved via a video file.
  */
-class Video : public Texture
+class Media : public Texture
 {
 protected:
   QString uri;
 public:
-  Video(const QString uri_, uid id=NULL_UID);
-  virtual ~Video();
+  Media(const QString uri_, uid id=NULL_UID);
+  virtual ~Media();
   const QString getUri() const
   {
     return uri;
@@ -184,7 +184,7 @@ public:
   virtual void update();
   virtual QString getType() const
   {
-    return "video";
+    return "media";
   }
   virtual int getWidth() const;
   virtual int getHeight() const;
@@ -198,7 +198,7 @@ private:
    * Private implementation, so that GStreamer headers don't need
    * to be included from every file in the project.
    */
-  VideoImpl * impl_; // PIMPL opaque pointer
+  MediaImpl * impl_; // PIMPL opaque pointer
 };
 
 #endif /* PAINT_H_ */

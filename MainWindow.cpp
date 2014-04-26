@@ -27,7 +27,7 @@
 MainWindow::MainWindow()
 {
   // Create model.
-  if (Video::hasVideoSupport())
+  if (Media::hasVideoSupport())
     std::cout << "Video support: yes" << std::endl;
   else
     std::cout << "Video support: no" << std::endl;
@@ -430,7 +430,7 @@ bool MainWindow::clearProject()
   return true;
 }
 
-uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
+uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y)
 {
   // Cannot create image with already existing id.
   if (Paint::getUidAllocator().exists(paintId))
@@ -438,7 +438,7 @@ uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
 
   else
   {
-    Video* img = new Video(uri, paintId);
+    Media* img = new Media(uri, paintId);
 //    Image* img = new Image(uri, paintId);
 
     // Create new image with corresponding ID.
@@ -1147,15 +1147,15 @@ bool MainWindow::importMediaFile(const QString &fileName)
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  // Add image to model.
-  uint imageId = createImagePaint(NULL_UID, fileName, 0, 0);
+  // Add media file to model.
+  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0);
 
   // Initialize position (center).
-  std::tr1::shared_ptr<Image> image = std::tr1::static_pointer_cast<Image>(mappingManager->getPaintById(imageId));
-  Q_CHECK_PTR(image);
+  std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(mappingManager->getPaintById(mediaId));
+  Q_CHECK_PTR(media);
 
-  image->setPosition((sourceCanvas->width()  - image->getWidth() ) / 2.0f,
-                     (sourceCanvas->height() - image->getHeight()) / 2.0f );
+  media->setPosition((sourceCanvas->width()  - media->getWidth() ) / 2.0f,
+                     (sourceCanvas->height() - media->getHeight()) / 2.0f );
 
   QApplication::restoreOverrideCursor();
 
@@ -1168,7 +1168,7 @@ bool MainWindow::addColorPaint(const QColor& color)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  // Add image to model.
+  // Add color to model.
   uint colorId = createColorPaint(NULL_UID, color);
 
   // Initialize position (center).
@@ -1187,7 +1187,7 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
   Paint::ptr paint = mappingManager->getPaintById(paintId);
   Q_CHECK_PTR(paint);
 
-  // Add image to paintList widget.
+  // Add paint item to paintList widget.
   QListWidgetItem* item = new QListWidgetItem(name);
   setItemId(*item, paintId); // TODO: could possibly be replaced by a Paint pointer
   item->setIcon(icon);
@@ -1217,7 +1217,7 @@ void MainWindow::addMappingItem(uid mappingId)
   // Add mapper.
   // XXX hardcoded for textures
   std::tr1::shared_ptr<TextureMapping> textureMapping;
-  if (paintType == "image" || paintType == "video")
+  if (paintType == "media")
   {
     textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);

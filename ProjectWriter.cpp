@@ -57,21 +57,21 @@ void ProjectWriter::writeItem(Paint *item)
   _xml.writeAttribute("name", item->getName());
   _xml.writeAttribute("type", item->getType());
 
-  if (item->getType() == "image")
+  if (item->getType() == "media")
   {
     // FIXME: check paint type before casting to Image
-    Image *image = (Image *) item;
+    Media *media = (Media *) item;
 
-    _xml.writeTextElement("uri", image->getUri());
+    _xml.writeTextElement("uri", media->getUri());
     {
       std::ostringstream os;
-      os << image->getX();
+      os << media->getX();
       _xml.writeTextElement("x", os.str().c_str());
     }
 
     {
       std::ostringstream os;
-      os << image->getY();
+      os << media->getY();
       _xml.writeTextElement("y", os.str().c_str());
     }
 

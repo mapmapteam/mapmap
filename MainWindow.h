@@ -101,7 +101,7 @@ public slots:
   bool clearProject();
 
   /// Create an image paint.
-  uid createImagePaint(uid paintId, QString uri, float x, float y);
+  uid createMediaPaint(uid paintId, QString uri, float x, float y);
 
   /// Create a color paint.
   uid createColorPaint(uid paintId, QColor color);

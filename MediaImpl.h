@@ -1,5 +1,5 @@
 /*
- * VideoImpl.h
+ * MediaImpl.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -40,11 +40,11 @@
  * This is done this way so that GStreamer header don't need to be 
  * included in the whole project. (just in this file)
  */
-class VideoImpl
+class MediaImpl
 {
 public:
-  VideoImpl(const QString uri);
-  ~VideoImpl();
+  MediaImpl(const QString uri);
+  ~MediaImpl();
 
 //  void setUri(const QString uri);
   static bool hasVideoSupport();
@@ -110,7 +110,7 @@ public:
 
   // GStreamer callback that plugs the audio/video pads into the proper elements when they
   // are made available by the source.
-  static void gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl::GstPadHandlerData* data);
+  static void gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data);
 
 private:
 //  PlugOut<VideoRGBAType> *_VIDEO_OUT;

@@ -14,6 +14,7 @@ HEADERS  = \
     Mapping.h \
     MappingManager.h \
     Maths.h \
+    MediaImpl.h \
     Paint.h \
     OscInterface.h \
     OscReceiver.h \
@@ -24,8 +25,7 @@ HEADERS  = \
     Shape.h \
     SourceGLCanvas.h \
     UidAllocator.h \
-    Util.h \
-    VideoImpl.h
+    Util.h
 
 SOURCES  = \
     DestinationGLCanvas.cpp \
@@ -35,6 +35,7 @@ SOURCES  = \
     MapperGLCanvas.cpp \
     Mapping.cpp \
     MappingManager.cpp \
+    MediaImpl.cpp \
     OscInterface.cpp \
     OscReceiver.cpp \
     OutputGLWindow.cpp \
@@ -45,7 +46,6 @@ SOURCES  = \
     SourceGLCanvas.cpp \
     UidAllocator.cpp \
     Util.cpp \
-    VideoImpl.cpp \
     main.cpp
 
 QT += gui opengl xml
