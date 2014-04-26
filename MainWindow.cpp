@@ -45,7 +45,7 @@ MainWindow::MainWindow()
   // Create everything.
   videoTimer = new QTimer(this);
   videoTimer->setInterval(1000/30);
-  connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateAll()));
+  connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateCanvases()));
   videoTimer->start();
 
   createLayout();
@@ -1535,11 +1535,4 @@ void MainWindow::applyOscCommand(const QVariantList& command)
   else if (path == "/project/open")
       open();
 }
-
-void MainWindow::updateAll()
-{
-  sourceCanvas->update();
-  destinationCanvas->update();
-}
-
 

@@ -301,9 +301,6 @@ public:
     currentMappingId = NULL_UID;
   }
 
-public slots:
-  void updateAll();
-
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////
   static const int DEFAULT_WIDTH = 1600;
