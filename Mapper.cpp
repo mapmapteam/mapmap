@@ -20,7 +20,6 @@
 
 #include "Mapper.h"
 #include "MainWindow.h"
-#include "unused.h"
 
 Mapper::Mapper(Mapping::ptr mapping)
   : _mapping(mapping)
@@ -172,7 +171,6 @@ void PolygonColorMapper::draw(QPainter* painter)
 void PolygonColorMapper::drawControls(QPainter* painter)
 {
   Q_UNUSED(painter);
-  UNUSED(painter);
 }
 
 MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)

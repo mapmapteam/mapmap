@@ -19,7 +19,6 @@
  */
 
 #include "Util.h"
-#include "unused.h"
 #include <algorithm>
 
 namespace Util {
