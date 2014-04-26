@@ -104,19 +104,11 @@ mac {
   LIBS+=-framework GStreamer
   QMAKE_LFLAGS+=-read_only_relocs suppress
 
-  #  -lGLEW
-  INCLUDEPATH += /opt/local/include/ \
-    /opt/local/include/gstreamer-0.10/ \
-    /opt/local/include/glib-2.0/ \
-    /opt/local/lib/glib-2.0/include \
-    /opt/local/include/libxml2
-  LIBS += -L/opt/local/lib \
-    -lGLEW \
-    -lgstreamer-0.10 \
-    -lgstapp-0.10 \
-    -lgstvideo-0.10 \
-    -lglib-2.0 \
-    -lgobject-2.0
+  # LIBS += -lgstreamer-0.10 \
+  #   -lgstapp-0.10 \
+  #   -lgstvideo-0.10 \
+  #   -lglib-2.0 \
+  #   -lgobject-2.0
   LIBS += -framework OpenGL -framework GLUT
   QMAKE_CXXFLAGS += -D__MACOSX_CORE__
 }
