@@ -344,7 +344,7 @@ bool MediaImpl::loadMovie(QString filename)
   }
 
   // Process URI.
-  gchar* uri = (gchar*) filename.toAscii().constData();
+  gchar* uri = (gchar*) filename.toUtf8().constData();
   if (!gst_uri_is_valid(uri))
   {
     // Try to convert filename to URI.
@@ -527,7 +527,7 @@ void MediaImpl::_postRun()
           gst_message_parse_state_changed(msg, &oldState, &newState,
               &pendingState);
           g_print("Pipeline state for movie %s changed from %s to %s:\n",
-              _currentMovie.toAscii().constData(),
+              _currentMovie.toUtf8().constData(),
               gst_element_state_get_name(oldState),
               gst_element_state_get_name(newState));
 
