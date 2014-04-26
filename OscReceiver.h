@@ -17,6 +17,8 @@ class OscReceiver {
         void addHandler(const char *path, 
                 const char *types, lo_method_handler handler, 
                 void *user_data);
+    public:
+        static bool server_is_ok_;
     private:
         std::string toString() const;
         bool server_is_ok_;

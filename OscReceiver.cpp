@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cstdio>
 
+bool OscReceiver::server_is_ok_ = true;
+
 OscReceiver::OscReceiver(const std::string &port) :
     port_(port),
     server_(lo_server_thread_new(port_.c_str(), error))
@@ -57,6 +59,7 @@ void OscReceiver::error(int num, const char *msg, const char *path)
 {
     std::cerr << "liblo server error " << num << " in path " << path 
         << ": " << msg << std::endl;
+    OscReceiver::server_is_ok_ = false;
 }
 
 // #ifdef CONFIG_DEBUG

@@ -268,6 +268,9 @@ private:
 
   // Keeps track of the current selected item, wether it's a paint or mapping.
   QListWidgetItem* currentSelectedItem;
+  QTimer *videoTimer;
+
+  static MainWindow* instance;
 
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
@@ -297,6 +300,9 @@ public:
     _hasCurrentMapping = false;
     currentMappingId = NULL_UID;
   }
+
+public slots:
+  void updateAll();
 
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////

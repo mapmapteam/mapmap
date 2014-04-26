@@ -27,6 +27,11 @@
 MainWindow::MainWindow()
 {
   // Create model.
+  if (Video::hasVideoSupport())
+    std::cout << "Video support: yes" << std::endl;
+  else
+    std::cout << "Video support: no" << std::endl;
+
   mappingManager = new MappingManager;
 
   // Initialize internal variables.
@@ -38,6 +43,11 @@ MainWindow::MainWindow()
   currentSelectedItem = NULL;
 
   // Create everything.
+  videoTimer = new QTimer(this);
+  videoTimer->setInterval(1000/30);
+  connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateAll()));
+  videoTimer->start();
+
   createLayout();
   createActions();
   createMenus();
@@ -428,7 +438,8 @@ uid MainWindow::createImagePaint(uid paintId, QString uri, float x, float y)
 
   else
   {
-    Image* img = new Image(uri, paintId);
+    Video* img = new Video(uri, paintId);
+//    Image* img = new Image(uri, paintId);
 
     // Create new image with corresponding ID.
     img->setPosition(x, y);
@@ -1206,7 +1217,7 @@ void MainWindow::addMappingItem(uid mappingId)
   // Add mapper.
   // XXX hardcoded for textures
   std::tr1::shared_ptr<TextureMapping> textureMapping;
-  if (paintType == "image")
+  if (paintType == "image" || paintType == "video")
   {
     textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);
@@ -1347,6 +1358,8 @@ void MainWindow::removePaintItem(uid paintId)
 
   // Window was modified.
   windowModified();
+  // Build mapping!
+  // FIXME: mapping->build(); // I removed this 2014-04-25
 }
 
 void MainWindow::clearWindow()

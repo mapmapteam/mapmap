@@ -1,5 +1,9 @@
-CONFIG  += qt debug
 TEMPLATE = app
+TARGET = mapmap
+QT += gui opengl xml
+CONFIG += qt debug
+DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
+
 HEADERS  = \
     DestinationGLCanvas.h \
     MainApplication.h \
@@ -9,16 +13,18 @@ HEADERS  = \
     Mapping.h \
     MappingManager.h \
     Maths.h \
-    Paint.h \
     OscInterface.h \
     OscReceiver.h \
     OutputGLWindow.h \
+    Paint.h \
     ProjectReader.h \
     ProjectWriter.h \
     Shape.h \
     SourceGLCanvas.h \
     UidAllocator.h \
-    Util.h
+    Util.h \
+    unused.h \
+    VideoImpl.h
 
 SOURCES  = \
     DestinationGLCanvas.cpp \
@@ -31,6 +37,7 @@ SOURCES  = \
     OscInterface.cpp \
     OscReceiver.cpp \
     OutputGLWindow.cpp \
+    ProjectReader.h \
     Paint.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
@@ -38,6 +45,7 @@ SOURCES  = \
     SourceGLCanvas.cpp \
     UidAllocator.cpp \
     Util.cpp \
+    VideoImpl.cpp \
     main.cpp
 
 QT += gui opengl xml
@@ -63,7 +71,17 @@ unix:!mac {
     -lglut \
     -lGLU \
     -llo \
-    -lpthread \
+    -lpthread
+  LIBS += -lgstreamer-0.10 \
+    -lgstinterfaces-0.10 \
+    -lglib-2.0 \
+    -lglut \
+    -llo -lpthread \
+    -lgmodule-2.0 \
+    -lgobject-2.0 \
+    -lgthread-2.0 \
+    -lGLU \
+    -lGL \
     -lX11 \
     -lGLEW
 }
@@ -87,5 +105,44 @@ mac {
   QMAKE_LFLAGS+=-read_only_relocs suppress
 
   #  -lGLEW
+  INCLUDEPATH += /opt/local/include/ \
+    /opt/local/include/gstreamer-0.10/ \
+    /opt/local/include/glib-2.0/ \
+    /opt/local/lib/glib-2.0/include \
+    /opt/local/include/libxml2
+  LIBS += -L/opt/local/lib \
+    -lGLEW \
+    -lgstreamer-0.10 \
+    -lgstapp-0.10 \
+    -lgstvideo-0.10 \
+    -lglib-2.0 \
+    -lgobject-2.0
+  LIBS += -framework OpenGL -framework GLUT
+  QMAKE_CXXFLAGS += -D__MACOSX_CORE__
+}
+
+# Windows-specific:
+win32 {
+  DEFINES += WIN32
+  INCLUDEPATH += \
+    C:/gstreamer/include \
+    C:/gstreamer/include/libxml2 \
+    C:/gstreamer/include/glib-2.0 \
+    C:/gstreamer/lib/glib-2.0/include \
+    C:/gstreamer/include/gstreamer-0.10
+  LIBS += -L"C:/gstreamer/lib" \
+    -L"C:/gstreamer/bin" \
+    -lgstreamer-0.10 \
+    -lglib-2.0 \
+    -lgmodule-2.0 \
+    -lgobject-2.0 \
+    -lgthread-2.0 \
+    -lgstinterfaces-0.10 \
+    -lopengl32 \
+    -lglu32 \
+    -lglew32
+  # Add console to the CONFIG to see debug messages printed in 
+  # the console on Windows
+  CONFIG += console
 }
 
