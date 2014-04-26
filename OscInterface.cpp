@@ -23,6 +23,7 @@
 #ifdef HAVE_OSC
 #include "OscInterface.h"
 #include "MainWindow.h"
+#include "unused.h"
 #include <QVariant>
 
 OscInterface::OscInterface(

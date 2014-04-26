@@ -71,6 +71,10 @@ public:
 
   static const UidAllocator& getUidAllocator() { return allocator; }
 
+  /**
+   * Sets up this Mapping: its Paint and its Shape.
+   * Calls the build() method of its Paint and Shape.
+   */
   virtual void build() {
     _paint->build();
     _shape->build();

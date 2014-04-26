@@ -20,6 +20,7 @@
 
 #include "Mapper.h"
 #include "MainWindow.h"
+#include "unused.h"
 
 Mapper::Mapper(Mapping::ptr mapping)
   : _mapping(mapping)
@@ -171,6 +172,7 @@ void PolygonColorMapper::draw(QPainter* painter)
 void PolygonColorMapper::drawControls(QPainter* painter)
 {
   Q_UNUSED(painter);
+  UNUSED(painter);
 }
 
 MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)
@@ -302,6 +304,7 @@ void TextureMapper::draw(QPainter* painter)
   Q_ASSERT( outputShape->nVertices() == outputShape->nVertices());
 
   // Project source texture and sent it to destination.
+  texture->update();
 
   glEnable (GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, texture->getTextureId());

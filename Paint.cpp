@@ -19,6 +19,8 @@
  */
 
 #include "Paint.h"
+#include "VideoImpl.h"
+#include <iostream>
 
 UidAllocator Paint::allocator;
 
@@ -38,5 +40,52 @@ Paint::Paint(uid id)
 Paint::~Paint()
 {
   allocator.free(_id);
+}
+
+
+/* Implementation of the Video class */
+
+Video::Video(const QString uri_, uid id):
+    Texture(id),
+    uri(uri_),
+    impl_(NULL)
+{
+  impl_ = new VideoImpl(uri_);
+}
+
+// vertigo
+
+Video::~Video()
+{
+  delete impl_;
+}
+
+void Video::build()
+{
+  this->impl_->build();
+}
+
+int Video::getWidth() const
+{
+  return this->impl_->getWidth();
+}
+
+int Video::getHeight() const
+{
+  return this->impl_->getHeight();
+}
+
+void Video::update() {
+  impl_->runVideo();
+}
+
+const uchar* Video::getBits() const
+{
+  return this->impl_->getBits();
+}
+
+bool Video::hasVideoSupport()
+{
+  return VideoImpl::hasVideoSupport();
 }
 

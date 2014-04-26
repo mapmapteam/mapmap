@@ -64,6 +64,9 @@ public:
 
   virtual void build() {}
 
+  /// This method should be called at each call of draw().
+  virtual void update() {}
+
   void setName(const QString& name) { _name = name; }
   QString getName() const { return _name; }
   uid getId() const { return _id; }
@@ -159,6 +162,43 @@ public:
   virtual int getWidth() const { return image.width(); }
   virtual int getHeight() const { return image.height(); }
   virtual const uchar* getBits() const { return image.bits(); }
+};
+
+class VideoImpl; // forware declaration
+
+/**
+ * Paint that is a Texture retrieved via a video file.
+ */
+class Video : public Texture
+{
+protected:
+  QString uri;
+public:
+  Video(const QString uri_, uid id=NULL_UID);
+  virtual ~Video();
+  const QString getUri() const
+  {
+    return uri;
+  }
+  virtual void build();
+  virtual void update();
+  virtual QString getType() const
+  {
+    return "video";
+  }
+  virtual int getWidth() const;
+  virtual int getHeight() const;
+  virtual const uchar* getBits() const;
+  /**
+   * Checks whether or not video is supported on this platform.
+   */
+  static bool hasVideoSupport();
+private:
+  /**
+   * Private implementation, so that GStreamer headers don't need
+   * to be included from every file in the project.
+   */
+  VideoImpl * impl_; // PIMPL opaque pointer
 };
 
 #endif /* PAINT_H_ */
