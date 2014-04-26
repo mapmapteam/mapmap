@@ -187,7 +187,7 @@ void MainWindow::open()
   if (okToContinue())
   {
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Open project"), ".", tr("MapMap files (*.lmp)"));
+        tr("Open project"), ".", tr("MapMap files (*." MAPMAP_EXTENSION ")"));
     if (!fileName.isEmpty())
       loadFile(fileName);
   }
@@ -210,7 +210,7 @@ bool MainWindow::saveAs()
 {
   // Popul file dialog to choose filename.
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save project"),
-      ".", tr("MapMap files (*.lmp)"));
+      ".", tr("MapMap files (*." MAPMAP_EXTENSION ")"));
   if (fileName.isEmpty())
     return false;
 
