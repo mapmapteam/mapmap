@@ -234,6 +234,8 @@ private:
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
 
+  QTimer *videoTimer;
+
   static MainWindow* instance;
 
 public:
@@ -264,7 +266,6 @@ public:
 
 public slots:
   void updateAll();
-
 
 public:
   // Constants.

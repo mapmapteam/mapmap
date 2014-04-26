@@ -42,6 +42,11 @@ MainWindow::MainWindow()
   _hasCurrentPaint = false;
   _hasCurrentMapping = false;
 
+  videoTimer = new QTimer(this);
+  videoTimer->setInterval(1000/30);
+  connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateAll()));
+  videoTimer->start();
+
   createLayout();
 
   createActions();
