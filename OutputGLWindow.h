@@ -23,12 +23,17 @@
 #include <QDialog>
 #include "DestinationGLCanvas.h"
 
+// TODO: add SLOT for mySetVisible
+// TODO: Maybe improve support for Ubuntu: http://stackoverflow.com/questions/12645880/fullscreen-for-qdialog-from-within-mainwindow-only-working-sometimes
+
 class OutputGLWindow : public QDialog
 {
   Q_OBJECT
 
 public:
   OutputGLWindow(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
+  void fullscreen(bool is_fullscreen);
+  void mySetVisible(bool value);
 
 protected:
   void closeEvent(QCloseEvent* event);

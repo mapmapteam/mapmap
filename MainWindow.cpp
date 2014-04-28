@@ -777,7 +777,7 @@ void MainWindow::createLayout()
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
   outputWindow = new OutputGLWindow(this, this, sourceCanvas);
-  outputWindow->setVisible(true);
+  outputWindow->mySetVisible(true);
 
   // Source changed -> change destination
   connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
@@ -944,7 +944,7 @@ void MainWindow::createActions()
   displayOutputWindow->setCheckable(true);
   displayOutputWindow->setChecked(true);
   // Manage show/hide of GL output window.
-  connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindow, SLOT(setVisible(bool)));
+  connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindow, SLOT(mySetVisible(bool)));
   // When closing the GL output window, uncheck the action in menu.
   connect(outputWindow, SIGNAL(closed()), displayOutputWindow, SLOT(toggle()));
 

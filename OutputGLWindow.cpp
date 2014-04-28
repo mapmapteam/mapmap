@@ -41,6 +41,27 @@ void OutputGLWindow::closeEvent(QCloseEvent *event)
   event->accept();
 }
 
+void OutputGLWindow::fullscreen(bool is_fullscreen)
+{
+    if (is_fullscreen)
+    {
+        this->showFullScreen();
+    }
+    else
+    {
+        this->showNormal();
+    }
+}
+
+void OutputGLWindow::mySetVisible(bool value)
+{
+    this->setVisible(value);
+    if (value)
+    {
+        this->fullscreen(value);
+    }
+}
+
 //void OutputGLWindow::updateCanvas() {
 //  qDebug() << "Update output canvas" << endl;
 //  canvas->updateCanvas();
