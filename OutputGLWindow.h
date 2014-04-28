@@ -32,6 +32,8 @@ class OutputGLWindow : public QDialog
 
 public:
   OutputGLWindow(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
+
+public slots:
   void fullscreen(bool is_fullscreen);
   void mySetVisible(bool value);
 
