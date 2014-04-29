@@ -228,6 +228,7 @@ private:
   QAction *addEllipseAction;
 
   QAction *displayOutputWindow;
+  QAction *outputWindowFullScreen;
   QAction *displayCanvasControls;
 
   // Widgets and layout.

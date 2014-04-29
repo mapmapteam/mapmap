@@ -33,6 +33,9 @@ OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QG
   layout->setContentsMargins(0,0,0,0); // remove margin
   layout->addWidget(canvas);
   setLayout(layout);
+
+  // Save window geometry.
+  _geometry = saveGeometry();
 }
 
 void OutputGLWindow::closeEvent(QCloseEvent *event)
@@ -41,28 +44,65 @@ void OutputGLWindow::closeEvent(QCloseEvent *event)
   event->accept();
 }
 
-void OutputGLWindow::fullscreen(bool is_fullscreen)
+void OutputGLWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (is_fullscreen)
-    {
-        this->showFullScreen();
-    }
-    else
-    {
-        this->showNormal();
-    }
+  // Escape from full screen mode.
+  if (isFullScreen() && event->key() == Qt::Key_Escape)
+  {
+    setFullScreen(false);
+    emit fullScreenToggled(false);
+  }
+  else
+    QDialog::keyPressEvent(event);
 }
 
-void OutputGLWindow::mySetVisible(bool value)
-{
-    this->setVisible(value);
-    if (value)
-    {
-        this->fullscreen(value);
-    }
-}
 
-//void OutputGLWindow::updateCanvas() {
-//  qDebug() << "Update output canvas" << endl;
-//  canvas->updateCanvas();
-//}
+void OutputGLWindow::setFullScreen(bool fullscreen)
+{
+  // NOTE: The showFullScreen() method does not work well under Ubuntu Linux. The code below fixes the issue.
+  // Notice that there might be problems with the fullscreen in other OS / window managers. If so, please add
+  // the code to fix those issues here.
+  // See: http://qt-project.org/doc/qt-4.8/qwidget.html#showFullScreen
+  // Source: http://stackoverflow.com/questions/12645880/fullscreen-for-qdialog-from-within-mainwindow-only-working-sometimes
+#ifdef Q_OS_UNIX
+  const QString session = QString(getenv("DESKTOP_SESSION")).toLower();
+#endif
+  if (fullscreen)
+  {
+    // Save window geometry.
+    _geometry = saveGeometry();
+
+    // Move window to second screen before fullscreening it.
+    if (QApplication::desktop()->screenCount() > 1)
+      setGeometry(QApplication::desktop()->screenGeometry(1));
+
+#ifdef Q_OS_UNIX
+    // Special case for Unity.
+    if (session == "ubuntu") {
+      setWindowState( windowState() | Qt::WindowFullScreen | Qt::WindowMaximized);
+      setWindowFlags(Qt::Dialog);
+      show();
+    } else {
+      showFullScreen();
+    }
+#else
+    showFullScreen();
+#endif
+  }
+  else
+  {
+    // Restore geometry of window to what it was before full screen call.
+    restoreGeometry(_geometry);
+
+#ifdef Q_OS_UNIX
+    // Special case for Unity.
+    if (session == "ubuntu") {
+      setWindowState( windowState() & ~Qt::WindowFullScreen);
+    } else {
+      showNormal();
+    }
+#else
+    showNormal();
+#endif
+  }
+}

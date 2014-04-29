@@ -21,6 +21,7 @@
 #define OUTPUTGLWINDOW_H_
 
 #include <QDialog>
+#include <QtGlobal>
 #include "DestinationGLCanvas.h"
 
 // TODO: add SLOT for mySetVisible
@@ -34,20 +35,22 @@ public:
   OutputGLWindow(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
 
 public slots:
-  void fullscreen(bool is_fullscreen);
-  void mySetVisible(bool value);
+  void setFullScreen(bool fullScreen);
 
 protected:
   void closeEvent(QCloseEvent* event);
+  void keyPressEvent(QKeyEvent *event);
 
 signals:
   void closed();
+  void fullScreenToggled(bool fullScreen);
 
 public:
   DestinationGLCanvas* getCanvas() const { return canvas; }
 
 private:
   DestinationGLCanvas* canvas;
+  QByteArray _geometry;
 };
 
 #endif /* OutputGLWINDOW_H_ */

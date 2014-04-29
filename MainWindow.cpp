@@ -777,7 +777,7 @@ void MainWindow::createLayout()
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
   outputWindow = new OutputGLWindow(this, this, sourceCanvas);
-  outputWindow->mySetVisible(true);
+  outputWindow->setVisible(true);
 
   // Source changed -> change destination
   connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
@@ -944,10 +944,22 @@ void MainWindow::createActions()
   displayOutputWindow->setCheckable(true);
   displayOutputWindow->setChecked(true);
   // Manage show/hide of GL output window.
-  connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindow, SLOT(mySetVisible(bool)));
+  connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindow, SLOT(setVisible(bool)));
   // When closing the GL output window, uncheck the action in menu.
   connect(outputWindow, SIGNAL(closed()), displayOutputWindow, SLOT(toggle()));
 
+  // Toggle display of output window.
+  outputWindowFullScreen = new QAction(tr("&Full screen"), this);
+  outputWindowFullScreen->setShortcut(tr("Ctrl+F"));
+  outputWindowFullScreen->setStatusTip(tr("Full screen"));
+  outputWindowFullScreen->setCheckable(true);
+  outputWindowFullScreen->setChecked(false);
+  // Manage fullscreen mode for output window.
+//  connect(outputWindowFullScreen, SIGNAL(toggled(bool)), outputWindow, SLOT(showFullScreen()));
+//  connect(outputWindowFullScreen, SIGNAL(toggled(bool)), this, SLOT(outputFullScreen(bool)));
+  connect(outputWindowFullScreen, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
+  // When closing the GL output window, uncheck the action in menu.
+  connect(outputWindow, SIGNAL(fullScreenToggled(bool)), outputWindowFullScreen, SLOT(setChecked(bool)));
   // Toggle display of canvas controls.
   displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
 //  displayCanvasControls->setShortcut(tr("Ctrl+E"));
@@ -984,6 +996,7 @@ void MainWindow::createMenus()
   // View.
   viewMenu = menuBar()->addMenu(tr("&View"));
   viewMenu->addAction(displayOutputWindow);
+  viewMenu->addAction(outputWindowFullScreen);
   viewMenu->addAction(displayCanvasControls);
 
 //  selectSubMenu = editMenu->addMenu(tr("&Select"));
