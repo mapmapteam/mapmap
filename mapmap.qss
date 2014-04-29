@@ -1,0 +1,12 @@
+/*
+Colors:
+White: #f6f5f5
+Dark gray: #323541
+Darker gray: #272a36
+*/
+
+QMainWindow
+{
+  background-color: #f6f5f5;
+}
+

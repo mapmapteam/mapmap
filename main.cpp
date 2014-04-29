@@ -18,14 +18,22 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  // Load translation.
   QTranslator translator;
   translator.load("mapmap_fr");
   app.installTranslator(&translator);
 
+  // Create main window.
   MainWindow win;
+
+  // Load stylesheet.
+  QFile stylesheet("mapmap.qss");
+  stylesheet.open(QFile::ReadOnly);
+  app.setStyleSheet(QLatin1String(stylesheet.readAll()));
 
   //win.setLocale(QLocale("fr"));
 
+  // Launch program.
   win.show();
 
   return app.exec();
