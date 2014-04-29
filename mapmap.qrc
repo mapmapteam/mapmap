@@ -1,14 +1,14 @@
 <RCC>
 <qresource>
-    <file>images/document-new-4.png</file>
-    <file>images/document-open-3.png</file>
-    <file>images/document-save-2.png</file>
-    <file>images/document-save-as-2.png</file>
-    <file>images/document-import-2.png</file>
-    <file>images/draw-rectangle-2.png</file>
-    <file>images/draw-triangle.png</file>
-    <file>images/draw-ellipse-2.png</file>
-    <file>images/colorize.png</file>
+    <file alias="new">images/document-new-4.png</file>
+    <file alias="open">images/document-open-3.png</file>
+    <file alias="save">images/document-save-2.png</file>
+    <file alias="save-as">images/document-save-as-2.png</file>
+    <file alias="add-media">images/document-import-2.png</file>
+    <file alias="add-color">images/colorize.png</file>
+    <file alias="add-mesh">images/draw-rectangle-2.png</file>
+    <file alias="add-triangle">images/draw-triangle.png</file>
+    <file alias="add-ellipse">images/draw-ellipse-2.png</file>
 </qresource>
 </RCC>
 
