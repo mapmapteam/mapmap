@@ -955,11 +955,13 @@ void MainWindow::createActions()
   outputWindowFullScreen->setCheckable(true);
   outputWindowFullScreen->setChecked(false);
   // Manage fullscreen mode for output window.
-//  connect(outputWindowFullScreen, SIGNAL(toggled(bool)), outputWindow, SLOT(showFullScreen()));
-//  connect(outputWindowFullScreen, SIGNAL(toggled(bool)), this, SLOT(outputFullScreen(bool)));
   connect(outputWindowFullScreen, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
-  // When closing the GL output window, uncheck the action in menu.
+  // When fullscreen is toggled by the output window (eg. when pressing ESC), change the action checkbox.
   connect(outputWindow, SIGNAL(fullScreenToggled(bool)), outputWindowFullScreen, SLOT(setChecked(bool)));
+  // Output window should be displayed for full screen option to be available.
+  connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindowFullScreen, SLOT(setEnabled(bool)));
+
+
   // Toggle display of canvas controls.
   displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
 //  displayCanvasControls->setShortcut(tr("Ctrl+E"));
