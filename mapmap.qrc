@@ -20,6 +20,7 @@
 
     <file alias="shape-polygon">resources/images/shapes/add_circle.png</file>
 
+    <file alias="base-font">resources/fonts/HelveticaNeueLTPro-Bd.otf</file>
 </qresource>
 </RCC>
 

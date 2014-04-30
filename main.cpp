@@ -26,6 +26,10 @@ int main(int argc, char *argv[])
   // Create main window.
   MainWindow win;
 
+  QFontDatabase db;
+  Q_ASSERT( QFontDatabase::addApplicationFont(":/base-font") != -1);
+  app.setFont(QFont(":/base-font", 10, QFont::Bold));
+
   // Load stylesheet.
   QFile stylesheet("mapmap.qss");
   stylesheet.open(QFile::ReadOnly);
