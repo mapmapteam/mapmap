@@ -1,6 +1,5 @@
 MapMap
-============
-
+====== 
 MapMap is a free video mapping software.
 
 Projection mapping, also known as video mapping and spatial augmented reality,
@@ -29,15 +28,16 @@ See the INSTALL file.
 
 Authors
 -------
-* Alexandre Quessy
-* Julien Keable
-* Sofian Audry
-* Vasilis Liaskovitis
+* Sofian Audry, lead developer, project manager.
+* Alexandre Quessy, release manager, developer, technical writer, project manager.
 
 Contributors
 ------------
-* Mike Latona
-* Maxime Damecour
-* Christian Ambaud
-* Sylvain Cormier
+* Mike Latona, user interface designer.
+* Vasilis Liaskovitis, developer.
+* Maxime Damecour, inspiration.
+* Christian Ambaud, sponsor, inspiration.
+* Louis Desjardins, project manager.
+* Julien Keable, developer.
+* Sylvain Cormier, developer.
 

@@ -1,6 +1,10 @@
 Contribute to MapMap
 ====================
 
+Build software, doc and the translations
+----------------------------------------
+See INSTALL.
+
 Coding style
 ------------
 * indent with 2 spaces
@@ -29,4 +33,35 @@ Files
 * TODO: You can put things to do there, or use https://github.com/mapmapteam/mapmap, or https://www.pivotaltracker.com/s/projects/954570/
 * images/: Images part of the GUI.
 * prototypes/ : Contains prototypes. Please ask the project maintainer before removing some of these.
+
+Code management with Git
+------------------------
+* We develop in the develop branch. The master branch is only for the latest tag.
+* Create a branch for each new features. Merge it to develop.
+* Create release-x.y.z branch for releases.
+* If possible, avoid merges, and use git rebase instead. (like in the GNOME projects)
+* Create a x.y branch for each x.y major.minor version series.
+* For a new release, merge develop to master (or your branch to the major.minor branch if it's a bugfix release) and then tag it there.
+* In doubt, ask the release manager.
+
+Make a release
+--------------
+* If it's a new feature, increment minor. If it's bugfix, increment micro. If it's not backward-compatible, increment major.
+* Create a release-x.y.z branch
+* Verify the version number:
+  * VERSION in mapmap.pro
+  * PROJECT_NUMBER in Doxyfile
+  * MAPMAP_VERSION in MainWindow.h
+  * MAPMAP_VERSION in sh_make_tarball.sh (until we fixe the tarball target in .pro)
+* Edit NEWS
+* run make
+* run ./sh_build_doc.sh
+* merge to master, or to the major.minor branch
+* run ./sh_make_tarball.sh
+* then untar it, cd to that dir and build the whole thing to see if it works
+* git tag x.y.z
+* go back to your release branch
+* increment micro (or minor) version number in the files above.
+* merge into develop.
+* keep developing.
 
