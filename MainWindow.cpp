@@ -836,40 +836,40 @@ void MainWindow::createActions()
 {
   // New.
   newAction = new QAction(tr("&New"), this);
-  newAction->setIcon(QIcon(":/images/document-new-4.png"));
+  newAction->setIcon(QIcon(":/new"));
   newAction->setShortcut(QKeySequence::New);
   newAction->setStatusTip(tr("Create a new project"));
   connect(newAction, SIGNAL(triggered()), this, SLOT(newFile()));
 
   // Open.
   openAction = new QAction(tr("&Open..."), this);
-  openAction->setIcon(QIcon(":/images/document-open-3.png"));
+  openAction->setIcon(QIcon(":/open"));
   openAction->setShortcut(QKeySequence::Open);
   openAction->setStatusTip(tr("Open an existing project"));
   connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
   // Save.
   saveAction = new QAction(tr("&Save"), this);
-  saveAction->setIcon(QIcon(":/images/document-save-2.png"));
+  saveAction->setIcon(QIcon(":/save"));
   saveAction->setShortcut(QKeySequence::Save);
   saveAction->setStatusTip(tr("Save the project"));
   connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
 
   // Save as.
   saveAsAction = new QAction(tr("Save &As..."), this);
-  saveAsAction->setIcon(QIcon(":/images/document-save-as-2.png"));
+  saveAsAction->setIcon(QIcon(":/save-as"));
   saveAsAction->setStatusTip(tr("Save the project as..."));
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
   // Import media.
   importAction = new QAction(tr("&Import media source file..."), this);
-  importAction->setIcon(QIcon(":/images/document-import-2.png"));
+  importAction->setIcon(QIcon(":/add-media"));
   importAction->setStatusTip(tr("Import a media source file..."));
   connect(importAction, SIGNAL(triggered()), this, SLOT(import()));
 
   // Add color.
   addColorAction = new QAction(tr("Add &Color paint..."), this);
-  addColorAction->setIcon(QIcon(":/images/colorize.png"));
+  addColorAction->setIcon(QIcon(":/add-color"));
   addColorAction->setStatusTip(tr("Add a color paint..."));
   connect(addColorAction, SIGNAL(triggered()), this, SLOT(addColor()));
 
@@ -916,7 +916,7 @@ void MainWindow::createActions()
   // Add quad/mesh.
   addMeshAction = new QAction(tr("Add Quad/&Mesh"), this);
   addMeshAction->setShortcut(tr("CTRL+M"));
-  addMeshAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
+  addMeshAction->setIcon(QIcon(":/add-mesh"));
   addMeshAction->setStatusTip(tr("Add quad/mesh"));
   connect(addMeshAction, SIGNAL(triggered()), this, SLOT(addMesh()));
   addMeshAction->setEnabled(false);
@@ -924,7 +924,7 @@ void MainWindow::createActions()
   // Add triangle.
   addTriangleAction = new QAction(tr("Add &Triangle"), this);
   addTriangleAction->setShortcut(tr("CTRL+T"));
-  addTriangleAction->setIcon(QIcon(":/images/draw-triangle.png"));
+  addTriangleAction->setIcon(QIcon(":/add-triangle"));
   addTriangleAction->setStatusTip(tr("Add triangle"));
   connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
   addTriangleAction->setEnabled(false);
@@ -932,7 +932,7 @@ void MainWindow::createActions()
   // Add ellipse.
   addEllipseAction = new QAction(tr("Add &Ellipse"), this);
   addEllipseAction->setShortcut(tr("CTRL+E"));
-  addEllipseAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
+  addEllipseAction->setIcon(QIcon(":/add-ellipse"));
   addEllipseAction->setStatusTip(tr("Add ellipse"));
   connect(addEllipseAction, SIGNAL(triggered()), this, SLOT(addEllipse()));
   addEllipseAction->setEnabled(false);
@@ -950,6 +950,7 @@ void MainWindow::createActions()
 
   // Toggle display of output window.
   outputWindowFullScreen = new QAction(tr("&Full screen"), this);
+  outputWindowFullScreen->setIcon(QIcon(":/fullscreen"));
   outputWindowFullScreen->setShortcut(tr("Ctrl+F"));
   outputWindowFullScreen->setStatusTip(tr("Full screen"));
   outputWindowFullScreen->setCheckable(true);
@@ -1292,7 +1293,7 @@ void MainWindow::addMappingItem(uid mappingId)
   if (shapeType == "triangle")
   {
     label = QString("Triangle %1").arg(mappingId);
-    icon = QIcon(":/images/draw-triangle.png");
+    icon = QIcon(":/shape-triangle");
 
     if (paintType == "color")
       mapper = Mapper::ptr(new PolygonColorMapper(mapping));
@@ -1303,7 +1304,7 @@ void MainWindow::addMappingItem(uid mappingId)
   else if (shapeType == "mesh" || shapeType == "quad")
   {
     label = QString(shapeType == "mesh" ? "Mesh %1" : "Quad %1").arg(mappingId);
-    icon = QIcon(":/images/draw-rectangle-2.png");
+    icon = QIcon(":/shape-mesh");
     if (paintType == "color")
       mapper = Mapper::ptr(new PolygonColorMapper(mapping));
     else
@@ -1312,7 +1313,7 @@ void MainWindow::addMappingItem(uid mappingId)
   else if (shapeType == "ellipse")
   {
     label = QString("Ellipse %1").arg(mappingId);
-    icon = QIcon(":/images/draw-ellipse-2.png");
+    icon = QIcon(":/shape-ellipse");
     if (paintType == "color")
       mapper = Mapper::ptr(new EllipseColorMapper(mapping));
     else
@@ -1321,7 +1322,7 @@ void MainWindow::addMappingItem(uid mappingId)
   else
   {
     label = QString("Polygon %1").arg(mappingId);
-    icon = QIcon(":/images/draw-polygon-2.png");
+    icon = QIcon(":/shape-polygon");
   }
 
   // Add to list of mappers.
