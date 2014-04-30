@@ -85,6 +85,9 @@ public:
   Paint::ptr getPaint() const { return _paint; }
   Shape::ptr getShape() const { return _shape; }
 
+  virtual bool hasInputShape() const { return false; }
+  virtual Shape::ptr getInputShape() const { return Shape::ptr(); }
+
   uid getId() const { return _id; }
 
   void setLocked(bool locked)    { _isLocked = locked; }
@@ -148,7 +151,8 @@ public:
   }
 
 public:
-  Shape::ptr getInputShape() const { return _inputShape; }
+  virtual bool hasInputShape() const { return true; }
+  virtual Shape::ptr getInputShape() const { return _inputShape; }
 };
 
 #endif /* MAPPING_H_ */

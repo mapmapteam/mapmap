@@ -333,6 +333,54 @@ void TextureMapper::draw(QPainter* painter)
 void TextureMapper::drawInput(QPainter* painter)
 {
   Q_UNUSED(painter);
+  painter->beginNativePainting();
+
+  // Only works for similar shapes.
+  Q_ASSERT( outputShape->nVertices() == outputShape->nVertices());
+
+  // Project source texture and sent it to destination.
+  texture->update();
+
+  glEnable (GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
+
+  // Copy bits to texture iff necessary.
+  if (texture->bitsHaveChanged())
+  {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+      texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
+      GL_UNSIGNED_BYTE, texture->getBits());
+  }
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+  // FIXME: Does this draw the quad counterclockwise?
+  glBegin (GL_QUADS);
+  {
+    Util::correctGlTexCoord(0, 0);
+    glVertex3f (texture->getX(), texture->getY(), 0);
+
+    Util::correctGlTexCoord(1, 0);
+    glVertex3f (texture->getX()+texture->getWidth(), texture->getY(), 0);
+
+    Util::correctGlTexCoord(1, 1);
+    glVertex3f (texture->getX()+texture->getWidth(), texture->getY() + texture->getHeight(), 0);
+
+    Util::correctGlTexCoord(0, 1);
+    glVertex3f (texture->getX(), texture->getY() + texture->getHeight(), 0);
+  }
+  glEnd ();
+
+  glDisable(GL_TEXTURE_2D);
+
+  glPopMatrix();
+
+  painter->endNativePainting();
 }
 
 void TextureMapper::drawControls(QPainter* painter)
