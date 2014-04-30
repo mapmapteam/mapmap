@@ -1036,7 +1036,6 @@ void MainWindow::createContextMenu()
 void MainWindow::createToolBars()
 {
   fileToolBar = addToolBar(tr("&File"));
-  fileToolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
   fileToolBar->addAction(importAction);
   fileToolBar->addAction(addColorAction);
   fileToolBar->addAction(newAction);
