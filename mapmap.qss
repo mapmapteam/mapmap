@@ -7,6 +7,43 @@ Darker gray: #272a36
 
 QMainWindow
 {
-  background-color: #f6f5f5;
+/*  background-color: #f6f5f5;*/
+  background-color: #272a36;
 }
 
+QToolButton {
+  color: #f6f5f5;
+}
+
+QListView {
+  background-color: #323541;
+  border: 1px solid #323541;
+}
+
+QListView::item {
+   color: #f6f5f5;
+}
+
+QListView::item:alternate {
+     background: #EEEEEE;
+ }
+
+ QListView::item:selected {
+   background: #272a36;
+ }
+
+/*
+ QListView::item:selected:!active {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #ABAFE5, stop: 1 #8588B2);
+ }
+
+ QListView::item:selected:active {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #6a6ea9, stop: 1 #888dd9);
+ }
+
+ QListView::item:hover {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #FAFBFE, stop: 1 #DCDEF1);
+ }*/
