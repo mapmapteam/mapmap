@@ -7,3 +7,8 @@ LibreMapping known bugs
 * cannot delete paints
 * cannot remove points in meshes
 
+On OS X
+-------
+QObject: shared QObject was deleted directly. The program is malformed and may crash.
+mapmap(299,0x7fff79da0310) malloc: *** error for object 0x102229ce0: pointer being freed was not allocated
+*** set a breakpoint in malloc_error_break to debug
