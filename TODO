@@ -64,9 +64,9 @@ You should make sure to block all incoming messages on that port if you don't wa
 /mapmap/project/load ,s <file>
 /mapmap/project/save ,s <file>
 /mapmap/paint/color/rgba ,iffff <paint identifier> <red> <green> <blue> <alpha> (each channel within [0,1])
-/mapmap/paint/texture/load ,is <paint identifier> <file>
-/mapmap/paint/texture/speed ,if <paint identifier> <speed ratio> (1.0 means 100% speed)
-/mapmap/paint/texture/seek ,il <paint identifier> <time position> (in milliseconds)
+/mapmap/paint/media/load ,is <paint identifier> <file>
+/mapmap/paint/media/speed ,if <paint identifier> <speed ratio> (1.0 means 100% speed)
+/mapmap/paint/media/seek ,il <paint identifier> <time position> (in milliseconds)
 /mapmap/output/fullscreen ,i <enable>
 /mapmap/output/size ,ii <width> <height>
 /mapmap/output/position ,ii <x> <y>
