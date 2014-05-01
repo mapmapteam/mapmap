@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   // Show splash.
   splash.show();
 
-  splash.showMessage("  " + QObject::tr("Initiating your program now..."),
+  splash.showMessage("  " + QObject::tr("Initiating program..."),
                      Qt::AlignLeft | Qt::AlignTop, QColor("#f6f5f5"));
 
   // Set translator.
@@ -60,6 +60,9 @@ int main(int argc, char *argv[])
   win.show();
 
   // Terminate splash.
+  splash.showMessage("  " + QObject::tr("Done."),
+                     Qt::AlignLeft | Qt::AlignTop, QColor("#f6f5f5"));
+  I::msleep(500);
   splash.finish(&win);
   splash.raise();
 
