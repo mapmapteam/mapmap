@@ -40,7 +40,7 @@
 #include "qttreepropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 
-#define MAPMAP_VERSION "0.1.0"
+#define MAPMAP_VERSION "0.1.1"
 #define MAPMAP_EXTENSION "mmp"
 
 /**
