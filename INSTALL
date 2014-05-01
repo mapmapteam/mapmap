@@ -13,6 +13,11 @@ Dependencies:
  * liblo
  * gstreamer-0.10
 
+Non-mandatory:
+
+ * doxygen
+ * graphviz
+
 Build it::
 
   ./build.sh
@@ -29,6 +34,7 @@ Do this::
 For extras::
 
   sudo apt-get install -y \
+      graphviz \
       doxygen
 
 To edit translations

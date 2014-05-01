@@ -1,6 +1,27 @@
 To do in MapMap
 ===============
 
+TODO before 0.2.0
+-----------------
+* change xy position to integers?
+* "avec le soutien de l'Organisation internationale de la Francophonie", with the logo.
+* integration des icones de mike
+* shmsrc???? non... on a plutot autre chose.. c'est a dire, plus de formes.
+* traduction complete. multilinguisme fonctionnel.
+* video upside-down fixed
+* manuel de base, bilingue. (en HTML dans le Contents?)
+* save media URI when it's changed via OSC
+* remove name? (and re-add it soon)
+* allow the user to change the OSC port number user a menu item and a dialog.
+* be able to change the media source
+* is it really the closest vertex that is dragged?
+* how come paint quads don't have a dimension?
+* create more number boxes for points when we change the dimension of a quad texture mapping.
+* Be able to cancel a change when moving around a mapping.
+* Be able to change the color of a color paint.
+* Be able to undo deleting a mapping, and a paint.
+* implement name : dans l'inspecteur
+
 Code
 ----
 
@@ -64,9 +85,9 @@ You should make sure to block all incoming messages on that port if you don't wa
 /mapmap/project/load ,s <file>
 /mapmap/project/save ,s <file>
 /mapmap/paint/color/rgba ,iffff <paint identifier> <red> <green> <blue> <alpha> (each channel within [0,1])
-/mapmap/paint/texture/load ,is <paint identifier> <file>
-/mapmap/paint/texture/speed ,if <paint identifier> <speed ratio> (1.0 means 100% speed)
-/mapmap/paint/texture/seek ,il <paint identifier> <time position> (in milliseconds)
+/mapmap/paint/media/load ,is <paint identifier> <file>
+/mapmap/paint/media/speed ,if <paint identifier> <speed ratio> (1.0 means 100% speed)
+/mapmap/paint/media/seek ,il <paint identifier> <time position> (in milliseconds)
 /mapmap/output/fullscreen ,i <enable>
 /mapmap/output/size ,ii <width> <height>
 /mapmap/output/position ,ii <x> <y>

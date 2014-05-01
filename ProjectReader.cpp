@@ -41,8 +41,10 @@ bool ProjectReader::readFile(QIODevice *device)
   }
 
   QDomElement root = doc.documentElement();
-  if (root.tagName() != "project" || root.attribute("version") != "1.0") {
-    _xml.raiseError(QObject::tr("The file is not a mapmap version 1.0 file."));
+  // The handling of the version number will get fancier as we go.
+  if (root.tagName() != "project" || root.attribute("version") != "0.1")
+  {
+    _xml.raiseError(QObject::tr("The file is not a mapmap version 0.1 file."));
     return false;
   }
 

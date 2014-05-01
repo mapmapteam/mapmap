@@ -431,7 +431,7 @@ bool MediaImpl::runVideo() {
     }
 
     _videoNewBufferCounter--;
-    std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
+    //std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
   }
 
   _postRun();

@@ -1,0 +1,13 @@
+Release notes for MapMap
+========================
+
+2014-04-30 - MapMap 0.1.0
+-------------------------
+* Initial release.
+* Qt user interface.
+* Video mapping with GStreamer.
+* Quad, meshes, triangles, circles.
+* Color paint.
+* Fullscreen output window.
+* MMP project XML file format version 0.1.
+

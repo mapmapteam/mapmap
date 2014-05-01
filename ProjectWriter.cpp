@@ -33,7 +33,7 @@ bool ProjectWriter::writeFile(QIODevice *device)
   _xml.writeStartDocument();
   _xml.writeDTD("<!DOCTYPE mapmap>");
   _xml.writeStartElement("project");
-  _xml.writeAttribute("version", "1.0");
+  _xml.writeAttribute("version", "0.1"); // Similar to pkg-config version numbers.
 
   _xml.writeStartElement("paints");
   for (int i = 0; i < _manager->nPaints(); i++)

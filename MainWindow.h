@@ -40,8 +40,8 @@
 #include "qttreepropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 
-#define MAPMAP_VERSION "0.0.9"
-#define MAPMAP_EXTENSION "mpm"
+#define MAPMAP_VERSION "0.1.1"
+#define MAPMAP_EXTENSION "mmp"
 
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
