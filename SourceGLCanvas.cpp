@@ -36,149 +36,21 @@ Shape* SourceGLCanvas::getShapeFromMappingId(uid mappingId)
   else
   {
     Mapping::ptr mapping = getMainWindow()->getMappingManager().getMappingById(mappingId);
-    // TODO: this is real shit... : we should at the very least use some dynamic casting or (better) implement a correct
-    // class architecture to suit our needs
-    if (mapping->getType().endsWith("_texture"))
-    {
-      std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
-      Q_CHECK_PTR(textureMapping);
-
-      return textureMapping->getInputShape().get();
-    }
-    else
-      return NULL;
+    Q_CHECK_PTR(mapping);
+    return mapping->getInputShape().get();
   }
 }
 
-//Quad& SourceGLCanvas::getQuad()
-//{
-//  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-//  Q_CHECK_PTR(textureMapping);
-//
-//  std::tr1::shared_ptr<Quad> inputQuad = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
-//  Q_CHECK_PTR(inputQuad);
-//
-//  return (*inputQuad);
-//}
 
 void SourceGLCanvas::doDraw(QPainter* painter)
 {
-  if (!getMainWindow()->hasCurrentPaint())
-    return;
-
-  uint paintId = getMainWindow()->getCurrentPaintId();
-
-  // Retrieve paint (as texture) and draw it.
-  Paint::ptr paint = getMainWindow()->getMappingManager().getPaintById(paintId);
-  Q_CHECK_PTR(paint);
-
-  // Retrieve all mappings associated to paint.
-  QMap<uid, Mapping::ptr> mappings = getMainWindow()->getMappingManager().getPaintMappingsById(paintId);
-
-  if (paint->getType() == "color")
-    _drawColor(painter, paint, mappings);
-  else
-    _drawTexture(painter, paint, mappings);
-}
-
-void SourceGLCanvas::_drawColor(QPainter* painter, Paint::ptr paint, QMap<uid, Mapping::ptr> mappings)
-{
-  // Not doing anything for now.
-  Q_UNUSED(painter);
-  Q_UNUSED(paint);
-  Q_UNUSED(mappings);
-}
-
-void SourceGLCanvas::_drawTexture(QPainter* painter, Paint::ptr paint, QMap<uid, Mapping::ptr> mappings)
-{
-  Q_UNUSED(painter);
-
-  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
-  Q_CHECK_PTR(texture);
-
-  // Load texture if needed.
-  if (texture->getTextureId() == 0) {
-    texture->loadTexture();
-  }
-
-  // Draw the texture.
-  glPushMatrix();
-
-  // Enable blending mode (for alphas).
-  glEnable (GL_BLEND);
-  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  glDisable (GL_LIGHTING);
-  glEnable (GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
-
-  if (texture->bitsHaveChanged())
+  if (getMainWindow()->hasCurrentMapping())
   {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, texture->getBits());
+    uint mappingId = getMainWindow()->getCurrentMappingId();
+    Mapper::ptr mapper = getMainWindow()->getMapperByMappingId(mappingId);
+    mapper->drawInput(painter);
+    if (displayControls())
+      mapper->drawInputControls(painter);
   }
-
-  //std::cout << texture->getX() << "x" << texture->getY() << " : " << texture->getWidth() << "x" << texture->getHeight() << " " << texture->getTextureId() << std::endl;
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  // TODO: Exact projection of texture
-  // see http://stackoverflow.com/questions/15242507/perspective-correct-texturing-of-trapezoid-in-opengl-es-2-0
-
-  // Draw source texture (not moving) in the center of the area.
-
-  // float centerX = (float) width()  / 2.0f;
-  // float centerY = (float) height() / 2.0f;
-  // float textureHalfWidth  = (float) texture->getWidth()  / 2.0f;
-  // float textureHalfHeight = (float) texture->getHeight() / 2.0f;
-
-
-  glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
-  // FIXME: Does this draw the quad counterclockwise?
-  glBegin (GL_QUADS);
-  {
-    Util::correctGlTexCoord(0, 0);
-    glVertex3f (texture->getX(), texture->getY(), 0);
-
-    Util::correctGlTexCoord(1, 0);
-    glVertex3f (texture->getX()+texture->getWidth(), texture->getY(), 0);
-
-    Util::correctGlTexCoord(1, 1);
-    glVertex3f (texture->getX()+texture->getWidth(), texture->getY() + texture->getHeight(), 0);
-
-    Util::correctGlTexCoord(0, 1);
-    glVertex3f (texture->getX(), texture->getY() + texture->getHeight(), 0);
-  }
-  glEnd ();
-
-  glDisable(GL_TEXTURE_2D);
-
-  for (QMap<uid, Mapping::ptr>::iterator it = mappings.begin(); it != mappings.end(); ++it)
-  {
-    // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
-    // Il faut changer ca.
-    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(it.value());
-    Q_CHECK_PTR(textureMapping);
-
-    std::tr1::shared_ptr<Shape> inputShape = std::tr1::static_pointer_cast<Quad>(textureMapping->getInputShape());
-    Q_CHECK_PTR(inputShape);
-
-   if (displayControls() &&
-       it.key() == getMainWindow()->getCurrentMappingId())
-   {
-     Mapper::ptr mapper = getMainWindow()->getMapperByMappingId(it.key());
-     Q_CHECK_PTR(mapper);
-
-     std::tr1::shared_ptr<TextureMapper> textureMapper = std::tr1::static_pointer_cast<TextureMapper>(mapper);
-     Q_CHECK_PTR(textureMapper);
-
-     textureMapper->drawInputControls(painter);
-   }
-  }
-
-  glPopMatrix();
 }
 

@@ -36,8 +36,6 @@ public:
 
   virtual Shape* getShapeFromMappingId(uid mappingId);
 
-//  virtual Quad& getQuad();
-
 private:
   virtual void doDraw(QPainter* painter);
 };

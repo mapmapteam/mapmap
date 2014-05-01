@@ -72,8 +72,13 @@ protected:
 
 public:
   virtual QWidget* getPropertiesEditor();
+
+
   virtual void draw(QPainter* painter) = 0;
   virtual void drawControls(QPainter* painter) = 0;
+
+  virtual void drawInput(QPainter* painter)  { Q_UNUSED(painter); }
+  virtual void drawInputControls(QPainter* painter) { Q_UNUSED(painter); }
 
   static void drawShapeContour(QPainter* painter, const Shape& shape, int lineWidth, const QColor& color);
 
