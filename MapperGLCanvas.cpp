@@ -29,7 +29,13 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
 
 void MapperGLCanvas::initializeGL()
 {
-  glClearColor(0.0, 0.0, 0.0, 0.0);
+  // Clear to black.
+  qglClearColor(Qt::black);
+
+  // Antialiasing options.
+  glEnable(GL_MULTISAMPLE);
+  glEnable(GL_LINE_SMOOTH);
+  glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
   //qglClearColor(Qt::black);
   //glShadeModel(GL_FLAT);
   //glEnable(GL_DEPTH_TEST);
