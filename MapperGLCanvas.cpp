@@ -33,13 +33,7 @@ void MapperGLCanvas::initializeGL()
   qglClearColor(Qt::black);
 
   // Antialiasing options.
-  glEnable(GL_MULTISAMPLE);
-  glEnable(GL_LINE_SMOOTH);
-  glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-  //qglClearColor(Qt::black);
-  //glShadeModel(GL_FLAT);
-  //glEnable(GL_DEPTH_TEST);
-  //glEnable(GL_CULL_FACE);
+  QGLWidget::setFormat(QGLFormat(QGL::SampleBuffers));
 }
 
 void MapperGLCanvas::resizeGL(int width, int height)
