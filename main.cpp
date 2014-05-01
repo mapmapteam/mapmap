@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   MainApplication app(argc, argv);
 
   if (!QGLFormat::hasOpenGL())
-    qFatal(QObject::tr("This system has no OpenGL support.").toUtf8().constData());
+    qFatal("This system has no OpenGL support.");
 
   // Create splash screen.
   QPixmap pixmap("splash.png");
