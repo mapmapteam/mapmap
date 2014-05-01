@@ -23,6 +23,7 @@
  */
 #include "MediaImpl.h"
 #include <cstring>
+#include <iostream>
 
 // -------- private implementation of VideoImpl -------
 
@@ -430,6 +431,7 @@ bool MediaImpl::runVideo() {
     }
 
     _videoNewBufferCounter--;
+    std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
   }
 
   _postRun();

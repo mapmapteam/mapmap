@@ -27,17 +27,19 @@ Build and install
 -----------------
 See the INSTALL file.
 
+On Mac OS X, you need GStreamer: http://cdn.gstreamer.com/osx/universal/gstreamer-sdk-2013.6-universal.pkg
+
 Authors
 -------
 * Alexandre Quessy
-* Julien Keable
 * Sofian Audry
+* Mike Latona
 * Vasilis Liaskovitis
 
 Contributors
 ------------
-* Mike Latona
-* Maxime Damecour
 * Christian Ambaud
+* Maxime Damecour
+* Julien Keable
 * Sylvain Cormier
 
