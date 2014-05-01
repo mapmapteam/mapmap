@@ -76,8 +76,8 @@ int Media::getHeight() const
 }
 
 void Media::update() {
-  if (impl_->runVideo())
-    bitsChanged = true;
+  //std::cout << "XXX Video::update()!" << std::endl;
+  impl_->runVideo();
 }
 
 const uchar* Media::_getBits() const

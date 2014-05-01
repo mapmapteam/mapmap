@@ -52,7 +52,7 @@ Build on Mac OS X
 
 * Install the Apple Developer Tools. You need to register with a credit card in the Apple Store in order to download it.
 * Install Qt5. You can get it from http://qt-project.org/downloads and choose the default location.
-* Install the GStreamer SDK development files.
+* Install the GStreamer SDK development files http://docs.gstreamer.com/display/GstSDK/Installing+on+Mac+OS+X
 
 Do this::
 

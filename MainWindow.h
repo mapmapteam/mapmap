@@ -170,6 +170,8 @@ private:
 
   // Actions-related.
   bool okToContinue();
+
+public:
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
@@ -184,6 +186,7 @@ private:
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
 
+private:
   // Connects/disconnects project-specific widgets (paints and mappings).
   void connectProjectWidgets();
   void disconnectProjectWidgets();

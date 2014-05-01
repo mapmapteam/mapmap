@@ -49,3 +49,25 @@ Fonctionnalités cool à faire plus tard
 * animation de stroke par groupe
 * OSC pour controler les positions et l'alpha des quads
 
+OSC INTERFACE ADDITIONAL CALLBACKS
+----------------------------------
+Instead of using boolean values (true or false) we use numbers, where 0 means false, and any positive number means true.
+
+You should make sure to block all incoming messages on that port if you don't want to be hacked during a show.
+
+/mapmap/mapping/move/xy ,iff <mapping identifier> <x> <y>
+/mapmap/mapping/vertex/source/xy ,iiff <mapping identifier> <vertex index> <x> <y>
+/mapmap/mapping/vertex/destination/xy ,iiff <mapping identifier> <vertex index> <x> <y>
+/mapmap/mapping/visible ,ii <mapping identifier> <enable>
+/mapmap/mapping/highlight ,ii <mapping identifier> <enable>
+/mapmap/mapping/vertex/highlight ,iii <mapping identifier> <vertex identifier> <enable>
+/mapmap/project/load ,s <file>
+/mapmap/project/save ,s <file>
+/mapmap/paint/color/rgba ,iffff <paint identifier> <red> <green> <blue> <alpha> (each channel within [0,1])
+/mapmap/paint/media/load ,is <paint identifier> <file>
+/mapmap/paint/media/speed ,if <paint identifier> <speed ratio> (1.0 means 100% speed)
+/mapmap/paint/media/seek ,il <paint identifier> <time position> (in milliseconds)
+/mapmap/output/fullscreen ,i <enable>
+/mapmap/output/size ,ii <width> <height>
+/mapmap/output/position ,ii <x> <y>
+
