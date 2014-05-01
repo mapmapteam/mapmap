@@ -27,7 +27,9 @@ Build and install
 -----------------
 See the INSTALL file.
 
-On Mac OS X, you need GStreamer: http://cdn.gstreamer.com/osx/universal/gstreamer-sdk-2013.6-universal.pkg
+To use this software on Mac OS X:
+* Install Qt5. You can get it from http://qt-project.org/downloads and choose the default location.
+* Install the GStreamer SDK Runtime files from http://docs.gstreamer.com/display/GstSDK/Installing+on+Mac+OS+X
 
 Authors
 -------
