@@ -3,7 +3,6 @@
 #include <iostream>
 #include <QTranslator>
 #include <QtGui>
-#include "Common.h"
 #include "MainWindow.h"
 #include "MainApplication.h"
 
