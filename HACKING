@@ -23,6 +23,8 @@ We use Semantic Versioning 2.0.0. Given a version number MAJOR.MINOR.PATCH, incr
 * PATCH version when you make backwards-compatible bug fixes.
 See http://semver.org/
 
+We want the 0 series to be backward-compatible. That means that a project created with MapMap 0.1 should still work with MapMap 0.99, if we ever get to such a version number. When we will break this backward-compatibilty, we will start the 1 series and provide a migration script. This script might be ran from the command-line or on the Web. The other thing we need to be backward-compatible is the OSC interface. The rest of the software can change. This includes the names of the menu items and the appearance of the user interface. We will try to keep these consistent, though.
+
 Files
 -----
 * BUGS: List of bugs to fix. (or, again, use github for these)
