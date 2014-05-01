@@ -299,7 +299,7 @@ void TextureMapper::draw(QPainter* painter)
   painter->beginNativePainting();
 
   // Only works for similar shapes.
-  Q_ASSERT( outputShape->nVertices() == outputShape->nVertices());
+  Q_ASSERT( inputShape->nVertices() == outputShape->nVertices());
 
   // Project source texture and sent it to destination.
   texture->update();
@@ -336,7 +336,7 @@ void TextureMapper::drawInput(QPainter* painter)
   painter->beginNativePainting();
 
   // Only works for similar shapes.
-  Q_ASSERT( outputShape->nVertices() == outputShape->nVertices());
+  Q_ASSERT( inputShape->nVertices() == outputShape->nVertices());
 
   // Project source texture and sent it to destination.
   texture->update();
