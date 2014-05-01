@@ -6,8 +6,8 @@ Release notes for MapMap
 * Initial release.
 * Qt user interface.
 * Video mapping with GStreamer.
-* State saving in XML.
 * Quad, meshes, triangles, circles.
 * Color paint.
 * Fullscreen output window.
+* MMP project XML file format version 0.1.
 
