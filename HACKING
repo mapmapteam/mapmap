@@ -30,3 +30,10 @@ Files
 * images/: Images part of the GUI.
 * prototypes/ : Contains prototypes. Please ask the project maintainer before removing some of these.
 
+XML file version number
+-----------------------
+* update its minor number when you introduce new features.
+* update its major number when it's not backward-comptatible anymore with its previous versions
+* generally, we should follow the MapMap version, when new changes are introduced. (no need to increment it otherwise)
+* we will need to implement some fancy XML file version number checking in the future.
+
