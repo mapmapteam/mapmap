@@ -249,7 +249,6 @@ void MapperGLCanvas::enableDisplayControls(bool display)
 void MapperGLCanvas::glueVertex(Shape *orig, QPointF *p)
 {
   MappingManager manager = getMainWindow()->getMappingManager();
-  int dist_stick = 10; /*this parameter may*/
   for (int i = 0; i < manager.nMappings(); i++)
   {
     Shape *shape = getShapeFromMappingId(manager.getMapping(i)->getId());
@@ -258,8 +257,7 @@ void MapperGLCanvas::glueVertex(Shape *orig, QPointF *p)
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)
       {
         const QPointF& v = shape->getVertex(vertex);
-        if ((qAbs(v.x() - p->x()) < dist_stick) &&
-            (qAbs(v.y() - p->y()) < dist_stick))
+        if (distIsInside(v, *p, MM::VERTEX_STICK_RADIUS))
         {
           p->setX(v.x());
           p->setY(v.y());
