@@ -25,6 +25,9 @@
 #include <QTimer>
 #include <QVariant>
 #include <QMap>
+
+#include "MM.h"
+
 #include "SourceGLCanvas.h"
 #ifdef HAVE_OSC
 #include "OscInterface.h"
