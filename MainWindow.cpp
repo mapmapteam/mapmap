@@ -203,8 +203,9 @@ void MainWindow::open()
   if (okToContinue())
   {
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Open project"), ".", tr("MapMap files (*." MAPMAP_EXTENSION ")"));
-    if (!fileName.isEmpty())
+        tr("Open project"), ".",
+        tr("MapMap files (*.%1)", MAPMAP_EXTENSION));
+    if (! fileName.isEmpty())
       loadFile(fileName);
   }
 
@@ -232,7 +233,8 @@ bool MainWindow::saveAs()
 
   // Popul file dialog to choose filename.
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save project"),
-      ".", tr("MapMap files (*." MAPMAP_EXTENSION ")"));
+      ".",
+      tr("MapMap files (*.%1)", MAPMAP_EXTENSION));
 
   // Restart video playback. XXX Hack
   videoTimer->start();

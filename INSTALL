@@ -45,7 +45,7 @@ You might need to update the files::
 
 Then, do this::
   
-  linguist mapmap_fr.ts
+  lrelease mapmap.pro
 
 Build on Mac OS X
 -----------------
