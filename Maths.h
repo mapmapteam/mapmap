@@ -21,12 +21,11 @@
 #ifndef MATH_H_
 #define MATH_H_
 
+#include <QtGlobal>
 #include <cmath>
 
-inline float   degreesToRadians(float degrees) { return degrees / 180.0f * M_PI; }
-inline double  degreesToRadians(double degrees) { return degrees / 180.0 * M_PI; }
-inline float   radiansToDegrees(float radians) { return radians / M_PI * 180.0f; }
-inline double  radiansToDegrees(double radians) { return radians / M_PI * 180.0; }
+inline qreal degreesToRadians(qreal degrees) { return degrees / 180.0f * M_PI; }
+inline qreal radiansToDegrees(qreal radians) { return radians / M_PI * 180.0f; }
 
 // Wrap value around ie. wrapAround(-1, 3) ==> 2
 inline int wrapAround(int index, int max) { return (index + max) % max; }
