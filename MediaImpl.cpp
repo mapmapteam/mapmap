@@ -105,9 +105,10 @@ bool MediaImpl::_videoPull()
 
     _width = width;
     _height = height;
+    int size = _width * _height;
 
     if (!_data)
-      _data = (uchar*)calloc(_width * _height, sizeof(uchar*));
+      _data = (uchar*)calloc(size, sizeof(uchar*));
 
 //    video->resize(width, height);
 
@@ -117,10 +118,19 @@ bool MediaImpl::_videoPull()
 //        qDebug() << "Buffer size: " << GST_BUFFER_SIZE(buffer) << endl;
 
     if (bpp == 32)
-      memcpy(_data, GST_BUFFER_DATA(buffer), _width * _height * 4);
+      memcpy(_data, GST_BUFFER_DATA(buffer), size * 4);
     else
-      convert24to32(_data, GST_BUFFER_DATA(buffer), _width * _height);
+      convert24to32(_data, GST_BUFFER_DATA(buffer), size);
 
+    // Reverse data.
+    uint* ptr = (uint*)_data;
+    for (int i=0, j=size-1; i<size/2; i++, j--) {
+      uint tmp = ptr[i];
+      ptr[i] = ptr[j];
+      ptr[j] = tmp;
+     }
+
+    // Free buffer.
     gst_buffer_unref (buffer);
 
     return true;
