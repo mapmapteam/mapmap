@@ -40,8 +40,6 @@ void MapperGLCanvas::resizeGL(int width, int height)
 {
   qDebug() << "Resize to " << width << "x" << height << endl;
   glViewport(0, 0, width, height);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
   glOrtho (
@@ -49,19 +47,6 @@ void MapperGLCanvas::resizeGL(int width, int height)
     (GLfloat) height, 0.0f, // bottom, top
     -1.0, 1.0f);
   glMatrixMode (GL_MODELVIEW);
-
-//  glClearColor(0.0, 0.0, 0.0, 0.0);
-//
-//  glViewport(0, 0, width, height);
-//  glMatrixMode(GL_PROJECTION);
-//  glLoadIdentity();
-//  glMatrixMode (GL_PROJECTION);
-//  glLoadIdentity ();
-//  glOrtho (
-//    0.0f, (GLfloat) width, // left, right
-//    (GLfloat) height, 0.0f, // bottom, top
-//    -1.0, 1.0f);
-//  glMatrixMode (GL_MODELVIEW);
 }
 
 void MapperGLCanvas::paintGL()
@@ -77,23 +62,18 @@ void MapperGLCanvas::draw(QPainter* painter)
 
 void MapperGLCanvas::enterDraw(QPainter* painter)
 {
-  glClearColor(0.0, 0.0, 0.0, 0.0);
-  glClear(GL_COLOR_BUFFER_BIT);
   Q_UNUSED(painter);
 
-//  glClearColor(0.0, 0.0, 0.0, 0.0);
-//  glClear(GL_COLOR_BUFFER_BIT);
-//  glViewport(0, 0, (GLint) GetSize().x, (GLint) GetSize().y);
+  // Clear to black.
+  qglClearColor(Qt::black);
 
-//  glMatrixMode (GL_PROJECTION);
-//  glLoadIdentity ();
-//  glOrtho (
-//    0.0f, (float) GetSize().x, // left, right
-//    (float) GetSize().y, 0.0f, // bottom, top
-//    -1.0, 1.0f);
-//  glMatrixMode (GL_MODELVIEW);
+  // Clear buffer.
+  glClear(GL_COLOR_BUFFER_BIT);
+}
 
-////  glLoadIdentity (); // FIXME? is this needed here?
+void MapperGLCanvas::exitDraw(QPainter* painter)
+{
+  Q_UNUSED(painter);
 }
 
 Shape* MapperGLCanvas::getCurrentShape()
@@ -173,7 +153,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
     static QPointF prevMousePosition(0,0); // point that keeps track of last position of the mouse
     if (shape)
     {
-      if (_shapefirstgrab == false)
+      if (!_shapefirstgrab)
       {    
         shape->translate(event->x() - prevMousePosition.x(), event->y() - prevMousePosition.y());
         update();
@@ -249,29 +229,6 @@ void MapperGLCanvas::paintEvent(QPaintEvent* /* event */)
 
   painter.end();
 //  updateGL();
-}
-
-//void MapperGLCanvas::switchImage(int imageId)
-//{
-//  MainWindow::getInstance().setCurrentPaint(imageId);
-//  emit imageChanged();
-//}
-
-//QSize MapperGLCanvas::sizeHint() const
-//{
-//  return QSize( 640, 480 );
-//}
-//
-//QSize MapperGLCanvas::minimumSizeHint() const
-//{
-//  return QSize( 320, 240 );
-//}
-
-void MapperGLCanvas::exitDraw(QPainter* painter)
-{
-  Q_UNUSED(painter);
-//  glFlush();
-//  swapBuffers();
 }
 
 void MapperGLCanvas::updateCanvas()
