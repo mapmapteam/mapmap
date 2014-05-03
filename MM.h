@@ -40,14 +40,14 @@ public:
   static const QColor CONTROL_COLOR;
   static const QBrush VERTEX_BACKGROUND;
 
-  static const qreal SHAPE_STROKE_WIDTH = 3;
-  static const qreal SHAPE_INNER_STROKE_WIDTH = 1;
+  static const qreal SHAPE_STROKE_WIDTH = 2;
+  static const qreal SHAPE_INNER_STROKE_WIDTH = 0.5;
   static const QPen  SHAPE_STROKE;
   static const QPen  SHAPE_INNER_STROKE;
 
   // Control.
   static const qreal VERTEX_STICK_RADIUS = 10;
-  static const qreal VERTEX_SELECT_RADIUS = 20;
+  static const qreal VERTEX_SELECT_RADIUS = 10;
   static const qreal VERTEX_SELECT_STROKE_WIDTH = 1;
 };
 
