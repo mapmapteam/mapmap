@@ -4,18 +4,6 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <source>Save mapping project</source>
-        <translation type="obsolete">Sauvegarder le projet</translation>
-    </message>
-    <message>
-        <source>MapMap files (*.lmp)</source>
-        <translation>Fichiers MapMap (*.lmp)</translation>
-    </message>
-    <message>
-        <source>Import resource</source>
-        <translation type="obsolete">Importer une ressource</translation>
-    </message>
-    <message>
         <source>About MapMap</source>
         <translation>À propos de MapMap</translation>
     </message>
@@ -24,44 +12,20 @@
         <translation>&amp;Nouveau</translation>
     </message>
     <message>
-        <source>Create a new mapping file</source>
-        <translation type="unfinished">Créer un nouveau projet</translation>
-    </message>
-    <message>
         <source>&amp;Open...</source>
-        <translation type="unfinished">&amp;Ouvrir</translation>
-    </message>
-    <message>
-        <source>Open an existing mapping file</source>
-        <translation type="unfinished">Ouvrir un projet existant</translation>
+        <translation>&amp;Ouvrir...</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation type="unfinished">&amp;Sauvegarder</translation>
-    </message>
-    <message>
-        <source>Save the mapping to disk</source>
-        <translation type="unfinished">Sauvegarder le projet</translation>
+        <translation>&amp;Sauvegarder</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation type="unfinished">S&amp;auvegarder sous...</translation>
-    </message>
-    <message>
-        <source>Save the mapping under a new name</source>
-        <translation type="unfinished">Sauvegarder sous un nouveau nom</translation>
-    </message>
-    <message>
-        <source>&amp;Import media source...</source>
-        <translation type="unfinished">Importer un média</translation>
-    </message>
-    <message>
-        <source>Import a media source file</source>
-        <translation type="unfinished">Importer un fichier média</translation>
+        <translation>S&amp;auvegarder sous...</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
-        <translation type="unfinished">Quitter</translation>
+        <translation>Quitter</translation>
     </message>
     <message>
         <source>Ctrl+Q</source>
@@ -78,18 +42,6 @@
     <message>
         <source>Show the application&apos;s About box</source>
         <translation>Afficher le dialogue À propos de l&apos;application</translation>
-    </message>
-    <message>
-        <source>&amp;Add quad</source>
-        <translation>&amp;Ajouter un mesh</translation>
-    </message>
-    <message>
-        <source>Add quad</source>
-        <translation>Ajouter un mesh</translation>
-    </message>
-    <message>
-        <source>&amp;Add triangle</source>
-        <translation>Ajouter un triangle</translation>
     </message>
     <message>
         <source>Add triangle</source>
@@ -165,16 +117,144 @@ Do you want to save your changes?</source>
         <translation>Sauvegarder le projet</translation>
     </message>
     <message>
-        <source>Import media resource</source>
-        <translation>Importer une source média</translation>
-    </message>
-    <message>
         <source>&lt;h2&gt;MapMap </source>
         <translation>&lt;h2&gt;MapMap</translation>
     </message>
     <message>
         <source>MapMap</source>
         <translation>MapMap</translation>
+    </message>
+    <message>
+        <source>Import media source file</source>
+        <translation>Importer un média</translation>
+    </message>
+    <message>
+        <source>Remove this paint and all its associated mappings?</source>
+        <translation>Effacer cette peinture et tous les mappings qui y sont associés?</translation>
+    </message>
+    <message>
+        <source>Create a new project</source>
+        <translation>Créer un nouveau projet</translation>
+    </message>
+    <message>
+        <source>Open an existing project</source>
+        <translation>Ouvrir un projet existant</translation>
+    </message>
+    <message>
+        <source>Save the project</source>
+        <translation>Sauvegarder le projet</translation>
+    </message>
+    <message>
+        <source>Save the project as...</source>
+        <translation>Sauvegarder le projet sous...</translation>
+    </message>
+    <message>
+        <source>&amp;Import media source file...</source>
+        <translation>&amp;Importer un fichier média source...</translation>
+    </message>
+    <message>
+        <source>Import a media source file...</source>
+        <translation>Importer un fichier média source...</translation>
+    </message>
+    <message>
+        <source>Add &amp;Color paint...</source>
+        <translation>Ajouter une peinture &amp;Couleur...</translation>
+    </message>
+    <message>
+        <source>Add a color paint...</source>
+        <translation>Ajouter une peinture Couleur...</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Effacer l'élément sélectionné</translation>
+    </message>
+    <message>
+        <source>CTRL+DEL</source>
+        <translation>CTRL+SUPPR</translation>
+    </message>
+    <message>
+        <source>Delete item</source>
+        <translation>Effacer l'élément sélectionné</translation>
+    </message>
+    <message>
+        <source>Add Quad/&amp;Mesh</source>
+        <translation>Ajouter un quadrilatère/&amp;Mesh</translation>
+    </message>
+    <message>
+        <source>CTRL+M</source>
+        <translation>CTRL+M</translation>
+    </message>
+    <message>
+        <source>Add quad/mesh</source>
+        <translation>Ajouter un quadrilatère/&amp;Mesh</translation>
+    </message>
+    <message>
+        <source>Add &amp;Triangle</source>
+        <translation>Ajouter un &amp;Triangle</translation>
+    </message>
+    <message>
+        <source>CTRL+T</source>
+        <translation>CTRL+T</translation>
+    </message>
+    <message>
+        <source>Add &amp;Ellipse</source>
+        <translation>Ajouter une &amp;Ellipse</translation>
+    </message>
+    <message>
+        <source>CTRL+E</source>
+        <translation>CTRL+E</translation>
+    </message>
+    <message>
+        <source>Add ellipse</source>
+        <translation>Ajouter une ellipse</translation>
+    </message>
+    <message>
+        <source>&amp;Display output window</source>
+        <translation>Afficher la fenêtre de sortie</translation>
+    </message>
+    <message>
+        <source>Ctrl+D</source>
+        <translation>CTRL+D</translation>
+    </message>
+    <message>
+        <source>Display output window</source>
+        <translation>Afficher la fenêtre de sortie</translation>
+    </message>
+    <message>
+        <source>&amp;Full screen</source>
+        <translation>Plein écran</translation>
+    </message>
+    <message>
+        <source>Ctrl+F</source>
+        <translation>CTRL+F</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Plein écran</translation>
+    </message>
+    <message>
+        <source>&amp;Display canvas controls</source>
+        <translation>Afficher les contrôles du canevas</translation>
+    </message>
+    <message>
+        <source>Display canvas controls</source>
+        <translation>Afficher les contrôles du canevas</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>Édition</translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation>Apparence</translation>
+    </message>
+    <message>
+        <source>Color paint added</source>
+        <translation>Peinture couleur ajoutée</translation>
+    </message>
+    <message>
+        <source>MapMap files (*.%1)</source>
+        <translation>Fichiers MapMap (*.%1)</translation>
     </message>
 </context>
 <context>
@@ -200,13 +280,81 @@ Do you want to save your changes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The file is not a libremapping version 1.0 file.</source>
-        <translation>Ce fichier n&apos;est pas un projet MapMap version 1.0</translation>
-    </message>
-    <message>
         <source>%1
 Line %2, column %3</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file is not a mapmap version 0.1 file.</source>
+        <translation>Ce fichier n'est pas un project MapMap version 0.1.</translation>
+    </message>
+    <message>
+        <source>Cannot create media with URI %1.</source>
+        <translation>Impossible de créer un média avec l'URI %1</translation>
+    </message>
+    <message>
+        <source>Cannot create color with RGB hex code %1.</source>
+        <translation>Impossible de créer une couleur avec le code RVB hexadécimal %1</translation>
+    </message>
+    <message>
+        <source>Unsupported paint type: %1.</source>
+        <translation>Type de peinture non-supporté: %1</translation>
+    </message>
+    <message>
+        <source>Cannot create triangle texture mapping</source>
+        <translation>Impossible de créer un mapping de texture vers triangle</translation>
+    </message>
+    <message>
+        <source>Cannot create mesh texture mapping</source>
+        <translation>Impossible de créer un mapping de texture vers mesh</translation>
+    </message>
+    <message>
+        <source>Cannot create ellipse texture mapping</source>
+        <translation>Impossible de créer un mapping de texture vers ellipse</translation>
+    </message>
+    <message>
+        <source>Cannot create triangle color mapping</source>
+        <translation>Impossible de créer un mapping de couleur vers triangle</translation>
+    </message>
+    <message>
+        <source>Cannot create quad color mapping</source>
+        <translation>Impossible de créer un mapping de couleur vers quadrilatère</translation>
+    </message>
+    <message>
+        <source>Cannot create ellipse color mapping</source>
+        <translation>Impossible de créer un mapping de couleur vers ellipse</translation>
+    </message>
+    <message>
+        <source>Unsupported mapping type: %1.</source>
+        <translation>Type de mapping non supporté: %1</translation>
+    </message>
+    <message>
+        <source>Wrong shape type &quot;%1&quot; for destination: expected &quot;%2&quot;.</source>
+        <translation>Mauvais type de forme &quot;%1&quot; pour la destination. On s'attend à &quot;%2&quot;</translation>
+    </message>
+    <message>
+        <source>Shape of type &apos;%1&apos; has %2 vertices: expected %3.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shape has %1 vertices: expected 4 or 5.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wrong shape type for destination: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shape has wrong number of vertices.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Initiating program...</source>
+        <translation>Lancement du logiciel...</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>Terminé.</translation>
     </message>
 </context>
 <context>
@@ -224,11 +372,11 @@ Line %2, column %3</source>
     <name>QtBoolPropertyManager</name>
     <message>
         <source>True</source>
-        <translation type="unfinished"></translation>
+        <translation>vrai</translation>
     </message>
     <message>
         <source>False</source>
-        <translation type="unfinished"></translation>
+        <translation>faux</translation>
     </message>
 </context>
 <context>
