@@ -64,7 +64,7 @@ public:
 
   virtual void setVertex(int i, const QPointF& v)
   {
-    vertices[i] = v;
+    _rawSetVertex(i, v);
   }
 
   virtual void setVertex(int i, qreal x, qreal y)
@@ -95,6 +95,11 @@ protected:
     vertices.push_back(vertex);
   }
 
+  void _rawSetVertex(int i, const QPointF& v)
+  {
+    vertices[i] = v;
+  }
+
 };
 
 /**
@@ -116,8 +121,14 @@ public:
   virtual void setVertex(int i, const QPointF& v);
 
 protected:
-  // Returns all line segments of the polygon.
+  /// Returns all line segments of the polygon.
   QVector<QLineF> _getSegments() const;
+
+  /// Returns all line segments of a polygon.
+  static QVector<QLineF> _getSegments(const QPolygonF& polygon);
+
+  /// Makes sure vertex v as the i-th point of polygon stays inside the polygon.
+  static void _constrainVertex(const QPolygonF& polygon, int i, QPointF& v);
 };
 
 /**
