@@ -205,7 +205,8 @@ void MainWindow::open()
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open project"),
         ".", // TODO : change this to previous used one, if any
-        tr("MapMap files (*.%1)", MAPMAP_EXTENSION));
+        //tr("MapMap files (*.%1)", MAPMAP_EXTENSION));
+        tr("All files (*)"));
     if (! fileName.isEmpty())
       loadFile(fileName);
   }
