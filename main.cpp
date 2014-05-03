@@ -54,10 +54,15 @@ int main(int argc, char *argv[])
   splash.showMessage("  " + QObject::tr("Initiating program..."),
                      Qt::AlignLeft | Qt::AlignTop, QColor("#f6f5f5"));
 
-  // Set translator.
-  QTranslator translator;
-  translator.load("mapmap_fr");
-  app.installTranslator(&translator);
+  bool FORCE_FRENCH_LANG = false;
+  // set_language_to_french(app);
+  if (FORCE_FRENCH_LANG)
+  {
+    // Set translator.
+    QTranslator translator;
+    translator.load("mapmap_fr");
+    app.installTranslator(&translator);
+  }
 
   // Let splash for at least one second.
   I::sleep(1);
