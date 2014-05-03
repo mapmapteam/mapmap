@@ -42,7 +42,9 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
   QVector<Mapping::ptr> mappings = getMainWindow()->getMappingManager().getVisibleMappings();
   for (QVector<Mapping::ptr>::const_iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
+    painter->save();
     getMainWindow()->getMapperByMappingId((*it)->getId())->draw(painter);
+    painter->restore();
   }
 
   // Draw the controls of current mapping.
@@ -50,7 +52,9 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
       getMainWindow()->hasCurrentMapping() &&
       getCurrentShape() != NULL)
   {
+    painter->save();
     getMainWindow()->getMapperByMappingId(getMainWindow()->getCurrentMappingId())->drawControls(painter);
+    painter->restore();
   }
 
   glPopMatrix();

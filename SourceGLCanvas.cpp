@@ -48,9 +48,15 @@ void SourceGLCanvas::doDraw(QPainter* painter)
   {
     uint mappingId = getMainWindow()->getCurrentMappingId();
     Mapper::ptr mapper = getMainWindow()->getMapperByMappingId(mappingId);
+    painter->save();
     mapper->drawInput(painter);
+    painter->restore();
     if (displayControls())
+    {
+      painter->save();
       mapper->drawInputControls(painter);
+      painter->restore();
+    }
   }
 }
 

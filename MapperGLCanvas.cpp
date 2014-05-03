@@ -70,6 +70,8 @@ void MapperGLCanvas::enterDraw(QPainter* painter)
 
   // Antialiasing.
   painter->setRenderHint(QPainter::Antialiasing);
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(Qt::NoBrush);
 }
 
 void MapperGLCanvas::exitDraw(QPainter* painter)

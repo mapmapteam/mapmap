@@ -167,7 +167,6 @@ MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)
 
 void MeshColorMapper::draw(QPainter* painter)
 {
-  painter->setRenderHint(QPainter::Antialiasing);
   painter->setPen(Qt::NoPen);
   painter->setBrush(color->getColor());
 
@@ -260,7 +259,6 @@ void TextureMapper::updateShape(Shape* shape)
 
 void TextureMapper::draw(QPainter* painter)
 {
-  Q_UNUSED(painter);
   painter->beginNativePainting();
 
   // Only works for similar shapes.
@@ -297,7 +295,6 @@ void TextureMapper::draw(QPainter* painter)
 
 void TextureMapper::drawInput(QPainter* painter)
 {
-  Q_UNUSED(painter);
   painter->beginNativePainting();
 
   // Only works for similar shapes.
