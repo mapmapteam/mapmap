@@ -145,5 +145,94 @@ Ellipse* createEllipseForColor(int frameWidth, int frameHeight)
   );
 }
 
+void drawControlsVertices(QPainter* painter, const Shape& shape)
+{
+  for (int i=0; i<shape.nVertices(); i++)
+    drawControlsVertex(painter, shape.getVertex(i));
+}
+
+void drawControlsVertex(QPainter* painter, const QPointF& vertex, qreal radius, qreal strokeWidth)
+{
+  // Init colors and stroke.
+  painter->setBrush(MM::VERTEX_BACKGROUND);
+  painter->setPen(QPen(MM::CONTROL_COLOR, strokeWidth));
+
+  // Draw ellipse.
+  painter->drawEllipse(vertex, radius, radius);
+
+  // Draw cross.
+  qreal offset = sin(M_PI/4) * radius;
+  painter->drawLine( vertex + QPointF(offset, offset),  vertex + QPointF(-offset, -offset) );
+  painter->drawLine( vertex + QPointF(offset, -offset), vertex + QPointF(-offset, offset) );
+}
+
+void drawControlsEllipse(QPainter* painter, const Ellipse& ellipse)
+{
+  // Init colors and stroke.
+  painter->setPen(MM::SHAPE_STROKE);
+  painter->setBrush(Qt::NoBrush);
+
+  // Draw ellipse contour.
+  qreal rotation = ellipse.getRotation();
+
+  painter->save(); // save painter state
+
+  painter->resetTransform();
+  const QPointF& center = ellipse.getCenter();
+  painter->translate(center);
+  painter->rotate(rotation);
+  painter->drawEllipse(QPointF(0,0), ellipse.getHorizontalRadius(), ellipse.getVerticalRadius());
+
+  painter->restore(); // restore saved painter state
+
+  // Draw control points.
+  drawControlsVertices(painter, ellipse);
+}
+
+void drawControlsQuad(QPainter* painter, const Quad& quad)
+{
+  // Init colors and stroke.
+  painter->setPen(MM::SHAPE_STROKE);
+
+  // Draw quad.
+  painter->drawPolygon(quad.toPolygon());
+
+  // Draw control points.
+  drawControlsVertices(painter, quad);
+}
+
+void drawControlsMesh(QPainter* painter, const Mesh& mesh)
+{
+  // Init colors and stroke.
+  painter->setPen(MM::SHAPE_INNER_STROKE);
+
+  // Draw inner quads.
+  QVector<Quad> quads = mesh.getQuads();
+  for (QVector<Quad>::const_iterator it = quads.begin(); it != quads.end(); ++it)
+  {
+    painter->drawPolygon(it->toPolygon());
+  }
+
+  // Draw outer quad.
+  painter->setPen(MM::SHAPE_STROKE);
+  painter->drawPolygon(mesh.toPolygon());
+
+  // Draw control points.
+  drawControlsVertices(painter, mesh);
+}
+
+void drawControlsPolygon(QPainter* painter, const Polygon& polygon)
+{
+  // Init colors and stroke.
+   painter->setPen(MM::SHAPE_STROKE);
+
+   // Draw inner quads.
+   painter->drawPolygon(polygon.toPolygon());
+
+   // Draw control points.
+   drawControlsVertices(painter, polygon);
+}
+
+
 } // end of namespace
 

@@ -39,6 +39,7 @@ SOURCES  = \
     OscInterface.cpp \
     OscReceiver.cpp \
     OutputGLWindow.cpp \
+    MM.cpp \
     Paint.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \

@@ -23,7 +23,7 @@
 #include "MainWindow.h"
 
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
-  : QGLWidget(parent, shareWidget), _mainWindow(mainWindow), _mousepressed(false), _active_vertex(NO_VERTEX), _displayControls(true)
+  : QGLWidget(parent, shareWidget), _mainWindow(mainWindow), _mousepressed(false), _activeVertex(NO_VERTEX), _displayControls(true)
 {
 }
 
@@ -62,13 +62,16 @@ void MapperGLCanvas::draw(QPainter* painter)
 
 void MapperGLCanvas::enterDraw(QPainter* painter)
 {
-  Q_UNUSED(painter);
-
   // Clear to black.
   qglClearColor(Qt::black);
 
   // Clear buffer.
   glClear(GL_COLOR_BUFFER_BIT);
+
+  // Antialiasing.
+  painter->setRenderHint(QPainter::Antialiasing);
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(Qt::NoBrush);
 }
 
 void MapperGLCanvas::exitDraw(QPainter* painter)
@@ -86,7 +89,9 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   int i, dist, maxdist, mindist;
   int xmouse = event->x();
   int ymouse = event->y();
-  maxdist = mindist = 50;
+  const QPointF& mousePos = event->posF();
+  // Note: we compare with the square value for fastest computation of the distance
+  maxdist = mindist = MM::VERTEX_SELECT_RADIUS * MM::VERTEX_SELECT_RADIUS;
   if (event->buttons() & Qt::LeftButton)
   {
     Shape* shape = getCurrentShape();
@@ -94,11 +99,10 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     {
       for (i = 0; i < shape->nVertices(); i++)
       {
-        const QPointF& p = shape->getVertex(i);
-        dist = qAbs(xmouse - p.x()) + qAbs(ymouse - p.y());
+        dist = distSq(mousePos, shape->getVertex(i)); // squared distance
         if (dist < maxdist && dist < mindist)
         {
-          _active_vertex = i;
+          _activeVertex = i;
           mindist = dist;
         }
       }
@@ -131,16 +135,16 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
   {
     // std::cout << "Move event " << std::endl;
     Shape* shape = getCurrentShape();
-    if (shape && _active_vertex != NO_VERTEX)
+    if (shape && _activeVertex != NO_VERTEX)
     {
-      QPointF p = shape->getVertex(_active_vertex);
+      QPointF p = shape->getVertex(_activeVertex);
       // Set point to mouse coordinates.
       p.setX(event->x());
       p.setY(event->y());
 
       // Stick to vertices.
       glueVertex(shape, &p);
-      shape->setVertex(_active_vertex, p);
+      shape->setVertex(_activeVertex, p);
 
       update();
       emit shapeChanged(getCurrentShape());
@@ -239,7 +243,6 @@ void MapperGLCanvas::updateCanvas()
 void MapperGLCanvas::enableDisplayControls(bool display)
 {
   _displayControls = display;
-  qDebug() << "Toggle display to " << display << endl;
   updateCanvas();
 }
 
@@ -249,7 +252,6 @@ void MapperGLCanvas::enableDisplayControls(bool display)
 void MapperGLCanvas::glueVertex(Shape *orig, QPointF *p)
 {
   MappingManager manager = getMainWindow()->getMappingManager();
-  int dist_stick = 10; /*this parameter may*/
   for (int i = 0; i < manager.nMappings(); i++)
   {
     Shape *shape = getShapeFromMappingId(manager.getMapping(i)->getId());
@@ -258,8 +260,7 @@ void MapperGLCanvas::glueVertex(Shape *orig, QPointF *p)
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)
       {
         const QPointF& v = shape->getVertex(vertex);
-        if ((qAbs(v.x() - p->x()) < dist_stick) &&
-            (qAbs(v.y() - p->y()) < dist_stick))
+        if (distIsInside(v, *p, MM::VERTEX_STICK_RADIUS))
         {
           p->setX(v.x());
           p->setY(v.y());
@@ -271,7 +272,7 @@ void MapperGLCanvas::glueVertex(Shape *orig, QPointF *p)
 
 void MapperGLCanvas::deselectAll()
 {
-  _active_vertex = NO_VERTEX;
+  _activeVertex = NO_VERTEX;
   _shapegrabbed = false;
   _shapefirstgrab = false;
   _mousepressed = false;
