@@ -3,6 +3,7 @@
 #include <iostream>
 #include <QTranslator>
 #include <QtGui>
+#include "MM.h"
 #include "MainWindow.h"
 #include "MainApplication.h"
 #include <stdlib.h>
@@ -52,7 +53,7 @@ int main(int argc, char *argv[])
   splash.show();
 
   splash.showMessage("  " + QObject::tr("Initiating program..."),
-                     Qt::AlignLeft | Qt::AlignTop, QColor("#f6f5f5"));
+                     Qt::AlignLeft | Qt::AlignTop, MM::WHITE);
 
   // Set translator.
   QTranslator translator;
@@ -75,7 +76,7 @@ int main(int argc, char *argv[])
 
   // Terminate splash.
   splash.showMessage("  " + QObject::tr("Done."),
-                     Qt::AlignLeft | Qt::AlignTop, QColor("#f6f5f5"));
+                     Qt::AlignLeft | Qt::AlignTop, MM::WHITE);
   I::msleep(500);
   splash.finish(&win);
   splash.raise();
