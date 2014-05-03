@@ -232,15 +232,25 @@ bool MainWindow::saveAs()
   videoTimer->stop();
 
   // Popul file dialog to choose filename.
-  QString fileName = QFileDialog::getSaveFileName(this, tr("Save project"),
+  QString fileName = QFileDialog::getSaveFileName(this,
+      tr("Save project"),
       ".",
-      tr("MapMap files (*.%1)", MAPMAP_EXTENSION));
+      tr("MapMap files (*.%1)", MAPMAP_EXTENSION)
+      );
 
   // Restart video playback. XXX Hack
   videoTimer->start();
 
   if (fileName.isEmpty())
     return false;
+  
+  if (! fileName.endsWith(MAPMAP_EXTENSION))
+  {
+    std::cout << "filename doesn't end with expected extension: " <<
+      fileName.toStdString() << std::endl;
+      fileName.append(".");
+      fileName.append(MAPMAP_EXTENSION);
+  }
 
   // Save to filename.
   return saveFile(fileName);
