@@ -63,23 +63,6 @@ QWidget* Mapper::getPropertiesEditor()
   return _propertyBrowser;
 }
 
-void Mapper::drawShapeContour(QPainter* painter, const Shape& shape, int lineWidth, const QColor& color)
-{
-  Q_UNUSED(painter);
-  QColor rgbColor = color.toRgb();
-
-  glColor4f(rgbColor.redF(), rgbColor.greenF(), rgbColor.blueF(), 1.0f);
-
-  glLineWidth(lineWidth);
-  glBegin (GL_LINE_STRIP);
-  for (int i = 0; i < shape.nVertices()+1; i++)
-  {
-    const QPointF& v = shape.getVertex(i % shape.nVertices());
-    glVertex2f( v.x(), v.y() );
-  }
-  glEnd();
-}
-
 TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   : Mapper(mapping)
 {
@@ -149,7 +132,6 @@ void Mapper::_updateShapeProperty(QtProperty* shapeItem, Shape* shape)
   }
 }
 
-
 ColorMapper::ColorMapper(Mapping::ptr mapping)
   : Mapper(mapping)
 {
@@ -170,7 +152,8 @@ void PolygonColorMapper::draw(QPainter* painter)
 
 void PolygonColorMapper::drawControls(QPainter* painter)
 {
-  Q_UNUSED(painter);
+  Polygon* poly = (Polygon*)_mapping->getShape().get();
+  Util::drawControlsPolygon(painter, *poly);
 }
 
 MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)
@@ -203,11 +186,7 @@ void MeshColorMapper::draw(QPainter* painter)
 void MeshColorMapper::drawControls(QPainter* painter)
 {
   std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
-  QVector<Quad> outputQuads = outputMesh->getQuads();
-  for (QVector<Quad>::const_iterator it = outputQuads.begin(); it != outputQuads.end(); ++it)
-  {
-    drawShapeContour(painter, *it, 1, QColor(0, 0, 255));
-  }
+  Util::drawControlsMesh(painter, *outputMesh);
 }
 
 void MeshColorMapper::setValue(QtProperty* property, const QVariant& value)
@@ -233,13 +212,11 @@ EllipseColorMapper::EllipseColorMapper(Mapping::ptr mapping)
 
 void EllipseColorMapper::draw(QPainter* painter)
 {
-  painter->setRenderHint(QPainter::Antialiasing);
   painter->setPen(Qt::NoPen);
   painter->setBrush(color->getColor());
 
   std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(outputShape);
   qreal rotation = outputEllipse->getRotation();
-  qDebug() << "Rotation: " << rotation << endl;
 
   painter->save(); // save painter state
 
@@ -255,20 +232,8 @@ void EllipseColorMapper::draw(QPainter* painter)
 
 void EllipseColorMapper::drawControls(QPainter* painter)
 {
-  painter->setRenderHint(QPainter::Antialiasing);
-  painter->setPen(Qt::NoPen);
-
-  painter->save(); // save painter state
-
   std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(outputShape);
-  painter->resetTransform();
-  for (int i=0; i<4; i++) {
-    painter->setBrush(QColor(0, 0, 0));
-    painter->setPen(QPen(QBrush(QColor(0, 0, 255)), 2));
-    painter->drawEllipse(outputEllipse->getVertex(i), 5, 5);
-  }
-
-  painter->restore(); // restore saved painter state
+  Util::drawControlsEllipse(painter, *outputEllipse);
 }
 
 void TextureMapper::updateShape(Shape* shape)
@@ -385,16 +350,28 @@ void TextureMapper::drawInput(QPainter* painter)
 
 void TextureMapper::drawControls(QPainter* painter)
 {
-  drawShapeContour(painter, *outputShape, 3, QColor(0, 0, 255));
+
 }
 
 void TextureMapper::drawInputControls(QPainter* painter)
 {
-  drawShapeContour(painter, *inputShape, 3, QColor(0, 0, 255));
+//  drawShapeContour(painter, *inputShape, 3, QColor(0, 0, 255));
+}
+
+void PolygonTextureMapper::drawControls(QPainter* painter)
+{
+  std::tr1::shared_ptr<Polygon> outputPoly = std::tr1::static_pointer_cast<Polygon>(outputShape);
+  Util::drawControlsPolygon(painter, *outputPoly);
+}
+
+void PolygonTextureMapper::drawInputControls(QPainter* painter)
+{
+  std::tr1::shared_ptr<Polygon> inputPoly = std::tr1::static_pointer_cast<Polygon>(inputShape);
+  Util::drawControlsPolygon(painter, *inputPoly);
 }
 
 TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
-  : TextureMapper(mapping)
+  : PolygonTextureMapper(mapping)
 {
 }
 
@@ -412,7 +389,7 @@ void TriangleTextureMapper::_doDraw(QPainter* painter)
 }
 
 MeshTextureMapper::MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
-  : TextureMapper(mapping)
+  : PolygonTextureMapper(mapping)
 {
   // Add mesh sub property.
   Mesh* mesh = (Mesh*)textureMapping->getShape().get();
@@ -447,23 +424,13 @@ void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
 void MeshTextureMapper::drawControls(QPainter* painter)
 {
   std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
-  QVector<Quad> outputQuads = outputMesh->getQuads();
-  for (QVector<Quad>::const_iterator it = outputQuads.begin(); it != outputQuads.end(); ++it)
-  {
-    drawShapeContour(painter, *it, 1, QColor(0, 0, 255));
-  }
+  Util::drawControlsMesh(painter, *outputMesh);
 }
 
 void MeshTextureMapper::drawInputControls(QPainter* painter)
 {
-  Q_UNUSED(painter);
-
   std::tr1::shared_ptr<Mesh> inputMesh = std::tr1::static_pointer_cast<Mesh>(inputShape);
-  QVector<Quad> inputQuads = inputMesh->getQuads();
-  for (QVector<Quad>::const_iterator it = inputQuads.begin(); it != inputQuads.end(); ++it)
-  {
-    drawShapeContour(painter, *it, 1, QColor(0, 0, 255));
-  }
+  Util::drawControlsMesh(painter, *inputMesh);
 }
 
 void MeshTextureMapper::_doDraw(QPainter* painter)
@@ -490,8 +457,20 @@ void MeshTextureMapper::_doDraw(QPainter* painter)
 }
 
 EllipseTextureMapper::EllipseTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
-: TextureMapper(mapping)
+: PolygonTextureMapper(mapping)
 {
+}
+
+void EllipseTextureMapper::drawControls(QPainter* painter)
+{
+  std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(outputShape);
+  Util::drawControlsEllipse(painter, *outputEllipse);
+}
+
+void EllipseTextureMapper::drawInputControls(QPainter* painter)
+{
+  std::tr1::shared_ptr<Ellipse> inputEllipse = std::tr1::static_pointer_cast<Ellipse>(inputShape);
+  Util::drawControlsEllipse(painter, *inputEllipse);
 }
 
 void EllipseTextureMapper::_doDraw(QPainter* painter)

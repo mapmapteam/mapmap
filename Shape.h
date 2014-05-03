@@ -177,6 +177,7 @@ public:
 
   virtual QString getType() const { return "mesh"; }
 
+  /// Returns a polygon that is formed by all the contour points of the mesh.
   virtual QPolygonF toPolygon() const;
 
   // Override the parent, checking to make sure the vertices are displaced correctly.

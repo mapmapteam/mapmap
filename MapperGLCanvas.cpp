@@ -62,13 +62,14 @@ void MapperGLCanvas::draw(QPainter* painter)
 
 void MapperGLCanvas::enterDraw(QPainter* painter)
 {
-  Q_UNUSED(painter);
-
   // Clear to black.
   qglClearColor(Qt::black);
 
   // Clear buffer.
   glClear(GL_COLOR_BUFFER_BIT);
+
+  // Antialiasing.
+  painter->setRenderHint(QPainter::Antialiasing);
 }
 
 void MapperGLCanvas::exitDraw(QPainter* painter)

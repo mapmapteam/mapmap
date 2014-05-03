@@ -138,10 +138,14 @@ void Mesh::init(const QVector<QPointF>& points, int nColumns, int nRows)
 QPolygonF Mesh::toPolygon() const
 {
   QPolygonF polygon;
-  polygon.append(getVertex2d(0,            0));
-  polygon.append(getVertex2d(nColumns()-1, 0));
-  polygon.append(getVertex2d(nColumns()-1, nRows()-1));
-  polygon.append(getVertex2d(0,            nRows()-1));
+  for (int i=0; i<nColumns(); i++)
+    polygon.append(getVertex2d(i, 0));
+  for (int i=0; i<nRows(); i++)
+    polygon.append(getVertex2d(nColumns()-1, i));
+  for (int i=nColumns()-1; i>=0; i--)
+    polygon.append(getVertex2d(i, nRows()-1));
+  for (int i=nRows()-1; i>=1; i--)
+    polygon.append(getVertex2d(0, i));
   return polygon;
 }
 
