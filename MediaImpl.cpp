@@ -198,6 +198,9 @@ _videoNewBufferCounter(0),
 _movieReady(false),
 _uri(uri)
 {
+  if (uri != "")
+    loadMovie(uri);
+
 //  addPlug(_VIDEO_OUT = new PlugOut<VideoRGBAType>(this, "ImgOut", false));
 //  addPlug(_AUDIO_OUT = new PlugOut<SignalType>(this, "AudioOut", false));
 //
