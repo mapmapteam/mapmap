@@ -126,8 +126,8 @@ void Mesh::init(const QVector<QPointF>& points, int nColumns, int nRows)
 
   // Just build vertices2d in the standard order.
   int k = 0;
-  for (int x=0; x<_nColumns; x++)
-    for (int y=0; y<_nRows; y++)
+  for (int y=0; y<_nRows; y++)
+    for (int x=0; x<_nColumns; x++)
     {
       vertices.push_back( points[k] );
       _vertices2d[x][y] = k;
@@ -397,14 +397,14 @@ void Mesh::_reorderVertices()
   // Populate new vertices vector.
   QVector<QPointF> newVertices(vertices.size());
   int k = 0;
-  for (int x=0; x<nColumns(); x++)
-    for (int y=0; y<nRows(); y++)
+  for (int y=0; y<nRows(); y++)
+    for (int x=0; x<nColumns(); x++)
       newVertices[k++] = getVertex2d( x, y );
 
   // Populate _vertices2d.
   k = 0;
-  for (int x=0; x<nColumns(); x++)
-    for (int y=0; y<nRows(); y++)
+  for (int y=0; y<nRows(); y++)
+    for (int x=0; x<nColumns(); x++)
       _vertices2d[x][y] = k++;
 
   // Copy.
