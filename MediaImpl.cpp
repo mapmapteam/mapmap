@@ -122,14 +122,6 @@ bool MediaImpl::_videoPull()
     else
       convert24to32(_data, GST_BUFFER_DATA(buffer), size);
 
-    // Reverse data.
-    uint* ptr = (uint*)_data;
-    for (int i=0, j=size-1; i<size/2; i++, j--) {
-      uint tmp = ptr[i];
-      ptr[i] = ptr[j];
-      ptr[j] = tmp;
-     }
-
     // Free buffer.
     gst_buffer_unref (buffer);
 

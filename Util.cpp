@@ -25,7 +25,7 @@ namespace Util {
 
 void correctGlTexCoord(GLfloat x, GLfloat y)
 {
-  glTexCoord2f (x, 1.0f - y);
+  glTexCoord2f (x, y);
 }
 
 void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint)
