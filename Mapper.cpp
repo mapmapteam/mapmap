@@ -352,7 +352,7 @@ void TextureMapper::drawControls(QPainter* painter)
 
 void TextureMapper::drawInputControls(QPainter* painter)
 {
-//  drawShapeContour(painter, *inputShape, 3, QColor(0, 0, 255));
+
 }
 
 void PolygonTextureMapper::drawControls(QPainter* painter)

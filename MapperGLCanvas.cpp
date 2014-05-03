@@ -242,7 +242,6 @@ void MapperGLCanvas::updateCanvas()
 void MapperGLCanvas::enableDisplayControls(bool display)
 {
   _displayControls = display;
-  qDebug() << "Toggle display to " << display << endl;
   updateCanvas();
 }
 
