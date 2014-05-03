@@ -89,7 +89,9 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   int i, dist, maxdist, mindist;
   int xmouse = event->x();
   int ymouse = event->y();
-  maxdist = mindist = 50;
+  const QPointF& mousePos = event->posF();
+  // Note: we compare with the square value for fastest computation of the distance
+  maxdist = mindist = MM::VERTEX_SELECT_RADIUS * MM::VERTEX_SELECT_RADIUS;
   if (event->buttons() & Qt::LeftButton)
   {
     Shape* shape = getCurrentShape();
@@ -97,8 +99,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     {
       for (i = 0; i < shape->nVertices(); i++)
       {
-        const QPointF& p = shape->getVertex(i);
-        dist = qAbs(xmouse - p.x()) + qAbs(ymouse - p.y());
+        dist = distSq(mousePos, shape->getVertex(i)); // squared distance
         if (dist < maxdist && dist < mindist)
         {
           _active_vertex = i;
