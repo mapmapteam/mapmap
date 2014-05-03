@@ -293,6 +293,8 @@ void MediaImpl::resetMovie()
 
 bool MediaImpl::loadMovie(QString filename)
 {
+  _uri = filename;
+
   qDebug() << "Opening movie: " << filename << ".";
 
   // Free previously allocated structures
