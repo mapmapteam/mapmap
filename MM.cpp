@@ -1,5 +1,5 @@
 /*
- * SourceGLCanvas.h
+ * MM.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  *
@@ -17,29 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOURCEGLCANVAS_H_
-#define SOURCEGLCANVAS_H_
+#include "MM.h"
 
-#include <QGLWidget>
+const QColor MM::WHITE("#f6f5f5");
+const QColor MM::BLUE_GRAY("#323541");
+const QColor MM::DARK_GRAY("#272a36");
 
-#include "MapperGLCanvas.h"
-#include "DestinationGLCanvas.h"
+const QColor MM::CONTROL_COLOR(BLUE_GRAY);
+const QBrush MM::VERTEX_BACKGROUND(QColor(CONTROL_COLOR.red(), CONTROL_COLOR.green(), CONTROL_COLOR.blue(), 63));
+const QPen MM::SHAPE_STROKE(QBrush(CONTROL_COLOR), SHAPE_STROKE_WIDTH);
+const QPen MM::SHAPE_INNER_STROKE(QBrush(CONTROL_COLOR), SHAPE_INNER_STROKE_WIDTH);
 
-#include "Util.h"
-
-class SourceGLCanvas: public MapperGLCanvas
-{
-  Q_OBJECT
-
-public:
-  SourceGLCanvas(MainWindow* mainWindow, QWidget* parent = 0);
-//  virtual ~SourceGLCanvas() {}
-
-  virtual Shape* getShapeFromMappingId(uid mappingId);
-
-private:
-  virtual void doDraw(QPainter* painter);
-};
-
-
-#endif /* DESTINATIONGLCANVAS_H_ */

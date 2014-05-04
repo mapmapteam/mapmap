@@ -64,7 +64,7 @@ public:
 
   virtual void setVertex(int i, const QPointF& v)
   {
-    vertices[i] = v;
+    _rawSetVertex(i, v);
   }
 
   virtual void setVertex(int i, qreal x, qreal y)
@@ -84,7 +84,7 @@ public:
 
   virtual bool includesPoint(const QPointF& p) = 0;
 
-  /* Translate all vertices of shape by the vector (x,y) */
+  /// Translate all vertices of shape by the vector (x,y).
   virtual void translate(int x, int y);
 
 protected:
@@ -93,6 +93,11 @@ protected:
   void _addVertex(const QPointF& vertex)
   {
     vertices.push_back(vertex);
+  }
+
+  void _rawSetVertex(int i, const QPointF& v)
+  {
+    vertices[i] = v;
   }
 
 };
@@ -116,8 +121,14 @@ public:
   virtual void setVertex(int i, const QPointF& v);
 
 protected:
-  // Returns all line segments of the polygon.
+  /// Returns all line segments of the polygon.
   QVector<QLineF> _getSegments() const;
+
+  /// Returns all line segments of a polygon.
+  static QVector<QLineF> _getSegments(const QPolygonF& polygon);
+
+  /// Makes sure vertex v as the i-th point of polygon stays inside the polygon.
+  static void _constrainVertex(const QPolygonF& polygon, int i, QPointF& v);
 };
 
 /**
@@ -177,6 +188,7 @@ public:
 
   virtual QString getType() const { return "mesh"; }
 
+  /// Returns a polygon that is formed by all the contour points of the mesh.
   virtual QPolygonF toPolygon() const;
 
   // Override the parent, checking to make sure the vertices are displaced correctly.

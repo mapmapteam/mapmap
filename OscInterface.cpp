@@ -211,12 +211,11 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
   std::string typetags = command.at(1).toString().toStdString();
 
   // Handle all OSC messages here
-  if (path == "/texture/uri" && typetags == "is")
+  if (path == "/mapmap/paint/media/load" && typetags == "is")
   {
       int paint_id = command.at(2).toInt();
       std::string image_uri = command.at(3).toString().toStdString();
-      //std::cout << "TODO load /image/uri " << image_id << " " << image_uri << std::endl;
-      // TODO:
+      //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
       main_window.setTextureUri(paint_id, image_uri);
   }
 

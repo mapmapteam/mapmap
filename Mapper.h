@@ -72,10 +72,12 @@ protected:
 
 public:
   virtual QWidget* getPropertiesEditor();
+
   virtual void draw(QPainter* painter) = 0;
   virtual void drawControls(QPainter* painter) = 0;
 
-  static void drawShapeContour(QPainter* painter, const Shape& shape, int lineWidth, const QColor& color);
+  virtual void drawInput(QPainter* painter)  { Q_UNUSED(painter); }
+  virtual void drawInputControls(QPainter* painter) { Q_UNUSED(painter); }
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
@@ -101,7 +103,6 @@ protected:
 
   virtual void _buildShapeProperty(QtProperty* shapeItem, Shape* shape);
   virtual void _updateShapeProperty(QtProperty* shapeItem, Shape* shape);
-
 };
 
 /**
@@ -194,7 +195,19 @@ protected:
   std::tr1::shared_ptr<Shape> inputShape;
 };
 
-class TriangleTextureMapper : public TextureMapper
+class PolygonTextureMapper : public TextureMapper
+{
+  Q_OBJECT
+
+public:
+  PolygonTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping) : TextureMapper(mapping) {}
+  virtual ~PolygonTextureMapper() {}
+
+  virtual void drawControls(QPainter* painter);
+  virtual void drawInputControls(QPainter* painter);
+};
+
+class TriangleTextureMapper : public PolygonTextureMapper
 {
   Q_OBJECT
 
@@ -206,7 +219,7 @@ protected:
   virtual void _doDraw(QPainter* painter);
 };
 
-class MeshTextureMapper : public TextureMapper
+class MeshTextureMapper : public PolygonTextureMapper
 {
   Q_OBJECT
 
@@ -227,14 +240,15 @@ private:
   QtVariantProperty* _meshItem;
 };
 
-class EllipseTextureMapper : public TextureMapper {
+class EllipseTextureMapper : public PolygonTextureMapper {
   Q_OBJECT
 
 public:
   EllipseTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
   virtual ~EllipseTextureMapper() {}
 
-//  static void drawRotatedEllipse(float centerX, float centerY, float w, float h, float rotation, float baseRes);
+  virtual void drawControls(QPainter* painter);
+  virtual void drawInputControls(QPainter* painter);
 
 protected:
   virtual void _doDraw(QPainter* painter);

@@ -36,57 +36,15 @@ Shape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
 
 void DestinationGLCanvas::doDraw(QPainter* painter)
 {
-//  // No sources = nothing to do.
-//  if (Common::nImages() == 0)
-//    return;
-//
-//  // TODO: Ceci est un hack necessaire car tout est en fonction de la width/height de la texture.
-//  // Il faut changer ca.
-//  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(Common::currentMapping);
-//  Q_CHECK_PTR(textureMapping);
-//
-//  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-//  Q_CHECK_PTR(texture);
-//
-//  for (int i=0; i < Common::nImages(); i++)
-//  {
-//    std::tr1::shared_ptr<Texture> tex = std::tr1::static_pointer_cast<Texture>(Common::mappings[i]->getPaint());
-//    Q_CHECK_PTR(tex);
-//
-//    // FIXME: maybe the texture id is actually 0 and it's ok, no?
-//    // we should use a boolean is_texture_loaded, or so
-//    if (tex->getTextureId() == 0)
-//    {
-//      tex->loadTexture();
-//    }
-//  }
-
-
-  if (getMainWindow() == NULL)
-    return;
-
   glPushMatrix();
-  MappingManager& mappingManager = getMainWindow()->getMappingManager();
-  QVector<Mapping::ptr> mappings = mappingManager.getVisibleMappings();
+
+  // Draw the mappings.
+  QVector<Mapping::ptr> mappings = getMainWindow()->getMappingManager().getVisibleMappings();
   for (QVector<Mapping::ptr>::const_iterator it = mappings.begin(); it != mappings.end(); ++it)
   {
-    Mapping::ptr mapping = (*it);
-
-    // XXX: change : UGLY!
-    if (mapping->getType().endsWith("_texture"))
-    {
-      std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
-      Q_CHECK_PTR(textureMapping);
-
-      std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-      Q_CHECK_PTR(texture);
-
-      if (texture->getTextureId() == 0)
-        texture->loadTexture();
-    }
-
-    // Draw the mappings.
-    getMainWindow()->getMapperByMappingId(mapping->getId())->draw(painter);
+    painter->save();
+    getMainWindow()->getMapperByMappingId((*it)->getId())->draw(painter);
+    painter->restore();
   }
 
   // Draw the controls of current mapping.
@@ -94,7 +52,9 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
       getMainWindow()->hasCurrentMapping() &&
       getCurrentShape() != NULL)
   {
+    painter->save();
     getMainWindow()->getMapperByMappingId(getMainWindow()->getCurrentMappingId())->drawControls(painter);
+    painter->restore();
   }
 
   glPopMatrix();

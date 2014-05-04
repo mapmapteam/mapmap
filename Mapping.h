@@ -18,20 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef MAPPING_H_
 #define MAPPING_H_
 
 #include <QtGlobal>
 #include <tr1/memory>
-
 #include "Shape.h"
 #include "Paint.h"
-
 #include "UidAllocator.h"
 
 /**
- * Mapping is the central concept of Libremapping.
+ * Mapping is the central concept of this software.
  *
  * A Mapping represents a relationship between an input Paint and
  * and output Shape where the paint (possibly modified by some other
@@ -84,6 +81,9 @@ public:
 
   Paint::ptr getPaint() const { return _paint; }
   Shape::ptr getShape() const { return _shape; }
+
+  virtual bool hasInputShape() const { return false; }
+  virtual Shape::ptr getInputShape() const { return Shape::ptr(); }
 
   uid getId() const { return _id; }
 
@@ -148,7 +148,8 @@ public:
   }
 
 public:
-  Shape::ptr getInputShape() const { return _inputShape; }
+  virtual bool hasInputShape() const { return true; }
+  virtual Shape::ptr getInputShape() const { return _inputShape; }
 };
 
 #endif /* MAPPING_H_ */

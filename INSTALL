@@ -5,31 +5,52 @@ This file is written in rst, so that one can use rst2pdf to create a PDF out of 
 
 Build on GNU/Linux
 ------------------
-Dependencies: 
 
- * Qt
- * qt4-default
- * qt4-qmake
- * liblo
- * gstreamer-0.10
+Install the dependencies. (see below)
 
 Build it::
 
   ./build.sh
 
 On Ubuntu 13.10
----------------
-Do this::
+~~~~~~~~~~~~~~~
+Install basic development tools fot Qt projects, plus liblo for OSC support::
 
   sudo apt-get install -y \
-      qt4-default \
       liblo-dev \
+      libqt4-dev \
+      libqt4-opengl-dev \
+      qt4-default \
       qt4-qmake
 
-For extras::
+Install GStreamer 0.10 librairies and plugins::
 
   sudo apt-get install -y \
-      doxygen
+      libgstreamer-plugins-base0.10-dev \
+      libgstreamer0.10-dev \
+      gstreamer0.10-alsa \
+      gstreamer0.10-ffmpeg \
+      gstreamer0.10-fluendo-mp3 \
+      gstreamer0.10-gnonlin \
+      gstreamer0.10-nice \
+      gstreamer0.10-plugins-bad \
+      gstreamer0.10-plugins-base \
+      gstreamer0.10-plugins-base-apps \
+      gstreamer0.10-plugins-good \
+      gstreamer0.10-plugins-ugly \
+      gstreamer0.10-pulseaudio \
+      gstreamer0.10-tools \
+      gstreamer0.10-x
+
+(Note: On Ubuntu 14.04 you need to install gstreamer0.10-ffmpeg from
+https://bugs.launchpad.net/~mc3man/+archive/trusty-media)
+
+Install extra packages if you want to build the documentation::
+
+  sudo apt-get install -y \
+      doxygen \
+      graphviz \
+      rst2pdf
 
 To edit translations
 --------------------
@@ -39,14 +60,14 @@ You might need to update the files::
 
 Then, do this::
   
-  linguist mapmap_fr.ts
+  lrelease mapmap.pro
 
 Build on Mac OS X
 -----------------
 
 * Install the Apple Developer Tools. You need to register with a credit card in the Apple Store in order to download it.
 * Install Qt5. You can get it from http://qt-project.org/downloads and choose the default location.
-* Install the GStreamer SDK development files.
+* Install the GStreamer SDK development files http://docs.gstreamer.com/display/GstSDK/Installing+on+Mac+OS+X
 
 Do this::
 

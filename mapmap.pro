@@ -1,5 +1,6 @@
 CONFIG  += qt debug
 TEMPLATE = app
+VERSION = 0.1.1
 TARGET = mapmap
 QT += gui opengl xml
 CONFIG += qt debug
@@ -15,7 +16,6 @@ HEADERS  = \
     MappingManager.h \
     Maths.h \
     MediaImpl.h \
-    Paint.h \
     OscInterface.h \
     OscReceiver.h \
     OutputGLWindow.h \
@@ -29,8 +29,8 @@ HEADERS  = \
 
 SOURCES  = \
     DestinationGLCanvas.cpp \
-    MainWindow.cpp \
     MainApplication.cpp \
+    MainWindow.cpp \
     Mapper.cpp \
     MapperGLCanvas.cpp \
     Mapping.cpp \
@@ -39,6 +39,7 @@ SOURCES  = \
     OscInterface.cpp \
     OscReceiver.cpp \
     OutputGLWindow.cpp \
+    MM.cpp \
     Paint.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
@@ -52,6 +53,8 @@ QT += gui opengl xml
 RESOURCES = mapmap.qrc
 TRANSLATIONS = mapmap_fr.ts
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
+
+# Add the docs target:
 docs.depends = $(HEADERS) $(SOURCES)
 docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
 QMAKE_EXTRA_TARGETS += docs
@@ -92,10 +95,11 @@ unix:!mac {
 
 # Mac OS X-specific:
 mac {
+  TARGET = MapMap
   DEFINES += MACOSX
-  INCLUDEPATH += \
-    /opt/local/include/ \
-    /opt/local/include/libxml2
+  # INCLUDEPATH += \
+  #   /opt/local/include/ \
+  #   /opt/local/include/libxml2
   LIBS += \
     -framework OpenGL \
     -framework GLUT
@@ -141,4 +145,19 @@ win32 {
   # the console on Windows
   CONFIG += console
 }
+
+# Adds the tarball target
+tarball.target = mapmap-$${VERSION}.tar.gz
+tarball.commands = git archive --format=tar.gz -9 --prefix=mapmap-$${VERSION}/ --output=mapmap-$${VERSION}.tar.gz HEAD
+tarball.depends = .git
+QMAKE_EXTRA_TARGETS += tarball
+
+# Show various messages
+message("MapMap version: $${VERSION}")
+# message("Qt version: $$[QT_VERSION]")
+# message("LIBS: $${LIBS}")
+# message("PKGCONFIG: $${PKGCONFIG}")
+# message("The project contains the following files: $${SOURCES} $${HEADERS}}")
+# message("To create a tarball, run `make tarball`")
+# message("To build the documentation, run `make docs`")
 

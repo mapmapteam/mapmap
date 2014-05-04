@@ -25,6 +25,9 @@
 #include <QTimer>
 #include <QVariant>
 #include <QMap>
+
+#include "MM.h"
+
 #include "SourceGLCanvas.h"
 #ifdef HAVE_OSC
 #include "OscInterface.h"
@@ -40,8 +43,8 @@
 #include "qttreepropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 
-#define MAPMAP_VERSION "0.0.9"
-#define MAPMAP_EXTENSION "mpm"
+#define MAPMAP_VERSION "0.1.1"
+#define MAPMAP_EXTENSION "mmp"
 
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
@@ -170,6 +173,8 @@ private:
 
   // Actions-related.
   bool okToContinue();
+
+public:
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
@@ -184,6 +189,7 @@ private:
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
 
+private:
   // Connects/disconnects project-specific widgets (paints and mappings).
   void connectProjectWidgets();
   void disconnectProjectWidgets();

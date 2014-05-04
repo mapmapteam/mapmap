@@ -23,6 +23,7 @@
  */
 #include "MediaImpl.h"
 #include <cstring>
+#include <iostream>
 
 // -------- private implementation of VideoImpl -------
 
@@ -104,9 +105,10 @@ bool MediaImpl::_videoPull()
 
     _width = width;
     _height = height;
+    int size = _width * _height;
 
     if (!_data)
-      _data = (uchar*)calloc(_width * _height, sizeof(uchar*));
+      _data = (uchar*)calloc(size, sizeof(uchar*));
 
 //    video->resize(width, height);
 
@@ -116,10 +118,11 @@ bool MediaImpl::_videoPull()
 //        qDebug() << "Buffer size: " << GST_BUFFER_SIZE(buffer) << endl;
 
     if (bpp == 32)
-      memcpy(_data, GST_BUFFER_DATA(buffer), _width * _height * 4);
+      memcpy(_data, GST_BUFFER_DATA(buffer), size * 4);
     else
-      convert24to32(_data, GST_BUFFER_DATA(buffer), _width * _height);
+      convert24to32(_data, GST_BUFFER_DATA(buffer), size);
 
+    // Free buffer.
     gst_buffer_unref (buffer);
 
     return true;
@@ -187,6 +190,9 @@ _videoNewBufferCounter(0),
 _movieReady(false),
 _uri(uri)
 {
+  if (uri != "")
+    loadMovie(uri);
+
 //  addPlug(_VIDEO_OUT = new PlugOut<VideoRGBAType>(this, "ImgOut", false));
 //  addPlug(_AUDIO_OUT = new PlugOut<SignalType>(this, "AudioOut", false));
 //
@@ -282,6 +288,8 @@ void MediaImpl::resetMovie()
 
 bool MediaImpl::loadMovie(QString filename)
 {
+  _uri = filename;
+
   qDebug() << "Opening movie: " << filename << ".";
 
   // Free previously allocated structures
@@ -430,6 +438,7 @@ bool MediaImpl::runVideo() {
     }
 
     _videoNewBufferCounter--;
+    //std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
   }
 
   _postRun();

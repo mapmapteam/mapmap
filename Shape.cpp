@@ -31,24 +31,41 @@ void Shape::translate(int x, int y)
 
 void Polygon::setVertex(int i, const QPointF& v)
 {
-  // Weird, but nothing to do.
-  if (nVertices() <= 3)
-  {
-    Shape::setVertex(i, v);
-    return;
-  }
-
+  // Constrain vertex.
   QPointF realV = v;
+  _constrainVertex(toPolygon(), i, realV);
+  // Really set the vertex.
+  _rawSetVertex(i, realV);
+}
+
+void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
+{
+  // Weird, but nothing to do.
+  if (polygon.size() <= 3)
+    return;
+
+  // Save previous position of vertex.
+  QPointF prevV = polygon.at(i);
 
   // Look at the two adjunct segments to vertex i and see if they
   // intersect with any non-adjacent segments.
 
   // Construct the list of segments (with the new candidate vertex).
-  QVector<QLineF> segments = _getSegments();
+  QVector<QLineF> segments = _getSegments(polygon);
   int prev = wrapAround(i - 1, segments.size());
   int next = wrapAround(i + 1, segments.size());
-  segments[prev] = QLineF(vertices[prev], v);
-  segments[i]    = QLineF(v, vertices[next]);
+  segments[prev] = QLineF(polygon.at(prev), v);
+  segments[i]    = QLineF(v, polygon.at(next));
+
+  // We now stretch segments a little bit to cope with approximation errors.
+  for (QVector<QLineF>::Iterator it = segments.begin(); it != segments.end(); ++it)
+  {
+    QLineF& seg = *it;
+    QPointF p1 = seg.p1();
+    QPointF p2 = seg.p2();
+    seg.setP1( p1 + (p1 - p2) * 0.2f);
+    seg.setP2( p2 + (p2 - p1) * 0.2f);
+  }
 
   // For each adjunct segment.
   for (int adj=0; adj<2; adj++)
@@ -65,20 +82,28 @@ void Polygon::setVertex(int i, const QPointF& v)
       {
         QPointF intersection;
         if (segments[idx].intersect(segments[j], &intersection) == QLineF::BoundedIntersection)
-          realV = intersection;
+        {
+          // Rearrange segments with new position at intersection point.
+          v = intersection;
+          segments[prev] = QLineF(polygon.at(prev), v);
+          segments[i]    = QLineF(v, polygon.at(next));
+        }
       }
     }
   }
-
-  // Really set the vertex.
-  Shape::setVertex(i, realV);
 }
+
 
 QVector<QLineF> Polygon::_getSegments() const
 {
+  return _getSegments(toPolygon());
+}
+
+QVector<QLineF> Polygon::_getSegments(const QPolygonF& polygon)
+{
   QVector<QLineF> segments;
-  for (int i=0; i<vertices.size(); i++)
-    segments.push_back(QLineF(vertices[i], vertices[ (i+1) % vertices.size() ]));
+  for (int i=0; i<polygon.size(); i++)
+    segments.push_back(QLineF(polygon.at(i), polygon.at( (i+1) % polygon.size() )));
   return segments;
 }
 
@@ -126,8 +151,8 @@ void Mesh::init(const QVector<QPointF>& points, int nColumns, int nRows)
 
   // Just build vertices2d in the standard order.
   int k = 0;
-  for (int x=0; x<_nColumns; x++)
-    for (int y=0; y<_nRows; y++)
+  for (int y=0; y<_nRows; y++)
+    for (int x=0; x<_nColumns; x++)
     {
       vertices.push_back( points[k] );
       _vertices2d[x][y] = k;
@@ -138,17 +163,56 @@ void Mesh::init(const QVector<QPointF>& points, int nColumns, int nRows)
 QPolygonF Mesh::toPolygon() const
 {
   QPolygonF polygon;
-  polygon.append(getVertex2d(0,            0));
-  polygon.append(getVertex2d(nColumns()-1, 0));
-  polygon.append(getVertex2d(nColumns()-1, nRows()-1));
-  polygon.append(getVertex2d(0,            nRows()-1));
+  for (int i=0; i<nColumns(); i++)
+    polygon.append(getVertex2d(i, 0));
+  for (int i=0; i<nRows(); i++)
+    polygon.append(getVertex2d(nColumns()-1, i));
+  for (int i=nColumns()-1; i>=0; i--)
+    polygon.append(getVertex2d(i, nRows()-1));
+  for (int i=nRows()-1; i>=1; i--)
+    polygon.append(getVertex2d(0, i));
   return polygon;
 }
 
 void Mesh::setVertex(int i, const QPointF& v)
 {
-  // TODO
-  Shape::setVertex(i, v);
+  // Extract column and row of vertex.
+  int col = i % nColumns();
+  int row = i / nColumns();
+
+  // Make a copy.
+  QPointF realV = v;
+
+  // Constrain vertex to stay within the internal quads it is part of.
+  if (col < nColumns()-1)
+  {
+    if (row < nRows() - 1)
+    {
+      Quad quad(getVertex2d(col, row), getVertex2d(col+1, row), getVertex2d(col+1, row+1), getVertex2d(col, row+1));
+      _constrainVertex(quad.toPolygon(), 0, realV);
+    }
+    if (row > 0)
+    {
+      Quad quad(getVertex2d(col, row), getVertex2d(col+1, row), getVertex2d(col+1, row-1), getVertex2d(col, row-1));
+      _constrainVertex(quad.toPolygon(), 0, realV);
+    }
+  }
+  if (col > 0)
+  {
+    if (row < nRows() - 1)
+    {
+      Quad quad(getVertex2d(col, row), getVertex2d(col-1, row), getVertex2d(col-1, row+1), getVertex2d(col, row+1));
+      _constrainVertex(quad.toPolygon(), 0, realV);
+    }
+    if (row > 0)
+    {
+      Quad quad(getVertex2d(col, row), getVertex2d(col-1, row), getVertex2d(col-1, row-1), getVertex2d(col, row-1));
+      _constrainVertex(quad.toPolygon(), 0, realV);
+    }
+  }
+
+  // Do set vertex.
+  _rawSetVertex(i, realV);
 }
 
 void Mesh::resizeVertices2d(IndexVector2d& vertices2d, int nColumns, int nRows)
@@ -202,7 +266,7 @@ void Mesh::addColumn()
     {
       QPointF p = getVertex( _vertices2d[x][y] );
       p -= diff * x * leftMoveProp;
-      setVertex( _vertices2d[x][y], p );
+      _rawSetVertex( _vertices2d[x][y], p );
     }
 
     // Create and add new point.
@@ -255,7 +319,7 @@ void Mesh::addRow()
     {
       QPointF p = getVertex( _vertices2d[x][y] );
       p -= diff * y * topMoveProp;
-      setVertex( _vertices2d[x][y], p );
+      _rawSetVertex( _vertices2d[x][y], p );
     }
 
     // Create and add new point.
@@ -393,14 +457,14 @@ void Mesh::_reorderVertices()
   // Populate new vertices vector.
   QVector<QPointF> newVertices(vertices.size());
   int k = 0;
-  for (int x=0; x<nColumns(); x++)
-    for (int y=0; y<nRows(); y++)
+  for (int y=0; y<nRows(); y++)
+    for (int x=0; x<nColumns(); x++)
       newVertices[k++] = getVertex2d( x, y );
 
   // Populate _vertices2d.
   k = 0;
-  for (int x=0; x<nColumns(); x++)
-    for (int y=0; y<nRows(); y++)
+  for (int y=0; y<nRows(); y++)
+    for (int x=0; x<nColumns(); x++)
       _vertices2d[x][y] = k++;
 
   // Copy.
@@ -437,7 +501,7 @@ void Ellipse::setVertex(int i, const QPointF& v)
     QTransform transform = toUnitCircle();
 
     // Change the vertex.
-    Shape::setVertex(i, v);
+    _rawSetVertex(i, v);
 
     // Combine with transformation circle -> ellipse_{t+1}.
     transform *= fromUnitCircle();
@@ -479,22 +543,22 @@ void Ellipse::setVertex(int i, const QPointF& v)
     QTransform transform = toUnitCircle();
 
     // Change vertical points.
-    Shape::setVertex(1, v1);
-    Shape::setVertex(3, v3);
+    _rawSetVertex(1, v1);
+    _rawSetVertex(3, v3);
 
     // Combine with transformation circle -> ellipse_{t+1}.
     transform *= fromUnitCircle();
 
     // Set vertices.
     if (hasCenterControl())
-      Shape::setVertex(4, transform.map( getVertex(4) ));
+      _rawSetVertex(4, transform.map( getVertex(4) ));
   }
 
   // Center control point (make sure it stays inside!).
   else if (hasCenterControl())
   {
     // Clip control point.
-    Shape::setVertex(4, clipInside(v));
+    _rawSetVertex(4, clipInside(v));
   }
 
   // Just to be sure.

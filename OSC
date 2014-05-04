@@ -4,21 +4,21 @@ MapMap OSC Interface
 API Reference
 -------------
 
-/texture/uri
+/mapmap/paint/media/load
 ~~~~~~~~~~~~
 Change a media URI::
   
-  /texture/uri ,is <paintId> <URI>
+  /mapmap/paint/media/load ,is <paintId> <path>
 
-URI: Path to a file. (WARNING: we will change this API soon.
 paintID: A number. Usually 0, or 1 or 2... depending on how many paints you have in your project.
+path: Path to a file.
 
 Examples
 --------
 
-Change a media URI::
+Change a media path::
   
-  osc-send osc.udp://localhost:12345 /texture/uri ,is 0 ~/Videos/clips_finaux_ok/lys_flou_net.mov
+  osc-send osc.udp://localhost:12345 /mapmap/paint/media/load ,is 0 ~/Videos/clips_finaux_ok/lys_flou_net.mov
 
 See also
 --------
