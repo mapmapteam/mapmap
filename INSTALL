@@ -42,6 +42,9 @@ Install GStreamer 0.10 librairies and plugins::
       gstreamer0.10-tools \
       gstreamer0.10-x
 
+(Note: On Ubuntu 14.04 you need to install gstreamer0.10-ffmpeg from
+https://bugs.launchpad.net/~mc3man/+archive/trusty-media)
+
 Install extra packages if you want to build the documentation::
 
   sudo apt-get install -y \
