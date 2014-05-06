@@ -112,7 +112,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   if (event->buttons() & Qt::RightButton)
   {
     Shape* shape = getCurrentShape();
-    if (shape->includesPoint(xmouse, ymouse))
+    if (shape && shape->includesPoint(xmouse, ymouse))
     {
       _shapegrabbed = true;
       _shapefirstgrab = true;
