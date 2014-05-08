@@ -50,7 +50,7 @@ Mapper::Mapper(Mapping::ptr mapping)
 
   _propertyBrowser->addProperty(_topItem);
 
-  qDebug() << "Creating mapper" << endl;
+  //qDebug() << "Creating mapper" << endl;
 }
 
 Mapper::~Mapper()

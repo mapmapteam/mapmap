@@ -36,7 +36,7 @@ bool MediaImpl::hasVideoSupport()
     qDebug() << "Using GStreamer version " <<
       GST_VERSION_MAJOR << "." <<
       GST_VERSION_MINOR << "." <<
-      GST_VERSION_MICRO << endl;
+      GST_VERSION_MICRO;
     did_print_gst_version = true;
   }
   // TODO: actually check if we have it
@@ -60,10 +60,10 @@ const uchar* MediaImpl::getBits() const
 
 void MediaImpl::build()
 {
-  qDebug() << "Building video impl" << endl;
+  qDebug() << "Building video impl";
   if (!loadMovie(_uri))
   {
-    qDebug() << "Cannot load movie " << _currentMovie << "." << endl;
+    qDebug() << "Cannot load movie " << _currentMovie << ".";
   }
 }
 
@@ -282,7 +282,7 @@ void MediaImpl::resetMovie()
   // have to reload but it seems weird so we should check.
   if (!_eos() && _seekEnabled)
   {
-    qDebug() << "Seeking at position 0." << endl;
+    qDebug() << "Seeking at position 0.";
     gst_element_seek_simple (_pipeline, GST_FORMAT_TIME,
                              (GstSeekFlags) (GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT), 0);
     _setReady(true);
@@ -290,7 +290,7 @@ void MediaImpl::resetMovie()
   else
   {
     // Just reload movie.
-    qDebug() << "Reloading the movie" << _seekEnabled << endl;
+    qDebug() << "Reloading the movie" << _seekEnabled;
     _currentMovie = "";
     loadMovie(_uri);
   }
@@ -374,7 +374,7 @@ bool MediaImpl::loadMovie(QString filename)
     GError* error = NULL;
     uri = gst_filename_to_uri(uri, &error);
     if (error) {
-      qDebug() << "Filename to URI error: " << error->message << endl;
+      qDebug() << "Filename to URI error: " << error->message;
       g_error_free(error);
       gst_object_unref (uri);
       freeResources();
@@ -383,7 +383,7 @@ bool MediaImpl::loadMovie(QString filename)
   }
 
   // Set URI to be played.
-  qDebug() << "URI for uridecodebin: " << uri << endl;
+  qDebug() << "URI for uridecodebin: " << uri;
   g_object_set (_source, "uri", uri, NULL);
 
   // Connect to the pad-added signal
@@ -421,7 +421,7 @@ bool MediaImpl::loadMovie(QString filename)
   if (!_setPlayState(true))
     return false;
 
-  qDebug() << "Pipeline started." << endl;
+  qDebug() << "Pipeline started.";
 
   //_movieReady = true;
   return true;
@@ -612,7 +612,7 @@ bool MediaImpl::_setPlayState(bool play)
   GstStateChangeReturn ret = gst_element_set_state (_pipeline, (play ? GST_STATE_PLAYING : GST_STATE_PAUSED));
   if (ret == GST_STATE_CHANGE_FAILURE)
   {
-    qDebug() << "Unable to set the pipeline to the playing state." << endl;
+    qDebug() << "Unable to set the pipeline to the playing state.";
     unloadMovie();
     return false;
   }
@@ -632,7 +632,7 @@ void MediaImpl::_setReady(bool ready)
 }
 
 void MediaImpl::_setFinished(bool finished) {
-//  qDebug() << "Clip " << (finished ? "finished" : "not finished") << endl;
+//  qDebug() << "Clip " << (finished ? "finished" : "not finished");
 }
 
 void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data) {
