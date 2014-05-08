@@ -172,9 +172,10 @@ bool MediaImpl::_eos() const
 //}
 
 
-void MediaImpl::gstNewSampleCallback(GstElement*, int *newBufferCounter)
+GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, int *newBufferCounter)
 {
   (*newBufferCounter)++;
+  return GST_FLOW_OK;
 }
 
 MediaImpl::MediaImpl(const QString uri) :

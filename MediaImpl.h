@@ -105,7 +105,8 @@ public:
 //  };
 
   // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
-  static void gstNewSampleCallback(GstElement *sink, int *newBufferCounter);
+  static GstFlowReturn gstNewSampleCallback(GstElement*, int *newBufferCounter);
+  static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
 
 //  static void gstNewAudioBufferCallback(GstElement *sink, GstNewAudioBufferHandlerData *data);
 
