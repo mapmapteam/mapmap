@@ -63,34 +63,9 @@ QMAKE_EXTRA_TARGETS += docs
 unix:!mac {
   DEFINES += UNIX
   CONFIG += link_pkgconfig
-  PKGCONFIG += gstreamer-0.10 gstreamer-base-0.10 glib-2.0 libxml-2.0
-
-  # stricter build flags:
+  PKGCONFIG += gstreamer-0.10 gstreamer-base-0.10 liblo gl x11 glew
   QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
   QMAKE_CXXFLAGS += -DHAVE_OSC
-
-  QMAKE_LFLAGS_RPATH+=-Wl,-rpath=/opt/gstreamer-sdk/lib
-  #INCLUDEPATH += \
-   # /usr/include/gstreamer-0.10 \
-   # /usr/local/include/gstreamer-0.10 \
-   # /usr/include/glib-2.0 \
-   # /usr/lib/x86_64-linux-gnu/glib-2.0/include \
-   # /usr/include/libxml2
-  LIBS += \
-   # -lgstreamer-0.10 \
-   # -lgstinterfaces-0.10 \
-   # -lglib-2.0 \
-    -lglut \
-    -llo -lpthread \
-  #  -lgmodule-2.0 \
-  #  -lgobject-2.0 \
-    -lgthread-2.0 \
-    -lGL \
-    -lGLU \
-    -llo \
-    -lpthread \
-    -lX11 \
-    -lGLEW
 }
 
 # Mac OS X-specific:
