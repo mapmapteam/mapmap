@@ -93,8 +93,6 @@ bool MediaImpl::_videoPull()
   }
   else
   {
-    gst_sample_ref(sample);
-
     caps = gst_sample_get_caps(sample);
     structure = gst_caps_get_structure(caps, 0);
     buffer = gst_sample_get_buffer(sample);
