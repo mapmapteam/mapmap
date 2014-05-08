@@ -101,7 +101,7 @@ bool MediaImpl::_videoPull()
 
     int width  = 640;
     int height = 480;
-    int bpp    = 24;
+    int bpp    = 32;
     int depth  = 24;
 
     gst_structure_get_int(structure, "width",  &width);
