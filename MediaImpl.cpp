@@ -455,6 +455,16 @@ bool MediaImpl::runVideo() {
     _videoNewBufferCounter--;
     //std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
   }
+  /* TODO: This causes the texture to be loaded always in Mapper.cpp . The
+ * problem if this is not set is: When we have more than one shape, a
+ * shape that has a new buffer coming in will overdraw the old buffer of the
+ * shape on top. This implementation seems to be fast enough that
+ * _videoNewBufferCounter is often 1 or 0. If bitsChanged is often switching
+ * between true and false (as in the case described above), than the shape
+ * textures will appear to be flickering/alternating. Maybe a better solution is
+ * needed (in the GL layer or here?)*/
+  else
+      bitsChanged = true;
 
   _postRun();
 
