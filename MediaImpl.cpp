@@ -102,12 +102,12 @@ bool MediaImpl::_videoPull()
     int width  = 640;
     int height = 480;
     int bpp    = 32;
-    int depth  = 24;
+    int depth  = 32;
 
     gst_structure_get_int(structure, "width",  &width);
     gst_structure_get_int(structure, "height", &height);
-    gst_structure_get_int(structure, "bpp",    &bpp);
-    gst_structure_get_int(structure, "depth",  &depth);
+    // TODO: use gst_video_info_from_caps if we want to support many different formats
+    // otherwise, since we set the caps ourselves, we can assume bpp is 32 and depth too.
 
     _width = width;
     _height = height;
@@ -757,8 +757,4 @@ void MediaImpl::internalPostPlay()
   // Pause playback.
   _setPlayState(false);
 }
-
-
-
-
 
