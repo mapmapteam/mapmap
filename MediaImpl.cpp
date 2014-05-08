@@ -309,6 +309,8 @@ bool MediaImpl::loadMovie(QString filename)
 
   // Initialize GStreamer.
   gst_init (NULL, NULL);
+  GstElement *capsFilter = NULL;
+  GstElement *videoScale = NULL;
 
   // Create the elements.
   _source =          gst_element_factory_make ("uridecodebin", "source");
@@ -320,6 +322,8 @@ bool MediaImpl::loadMovie(QString filename)
 //
   _videoQueue =      gst_element_factory_make ("queue", "vqueue");
   _videoColorSpace = gst_element_factory_make ("videoconvert", "vcolorspace");
+  videoScale = gst_element_factory_make ("videoscale", "videoscale0");
+  capsFilter = gst_element_factory_make ("capsfilter", "capsfilter0");
   _videoSink =       gst_element_factory_make ("appsink", "vsink");
 
   // Prepare handler data.
@@ -337,7 +341,8 @@ bool MediaImpl::loadMovie(QString filename)
 
   if (!_pipeline || !_source ||
 //      !_audioQueue || !_audioConvert || !_audioResample || !_audioSink ||
-      !_videoQueue || !_videoColorSpace || !_videoSink) {
+      !_videoQueue || !_videoColorSpace || ! videoScale || ! capsFilter || ! _videoSink)
+  {
     g_printerr ("Not all elements could be created.\n");
     unloadMovie();
     return -1;
@@ -347,7 +352,7 @@ bool MediaImpl::loadMovie(QString filename)
   // point. We will do it later.
   gst_bin_add_many (GST_BIN (_pipeline), _source,
 //                    _audioQueue, _audioConvert, _audioResample, _audioSink,
-                    _videoQueue, _videoColorSpace, _videoSink, NULL);
+                    _videoQueue, _videoColorSpace, videoScale, capsFilter, _videoSink, NULL);
 
 //  if (!gst_element_link_many(_audioQueue, _audioConvert, _audioResample, _audioSink, NULL)) {
 //    g_printerr ("Audio elements could not be linked.\n");
@@ -355,7 +360,7 @@ bool MediaImpl::loadMovie(QString filename)
 //    return false;
 //  }
 
-  if (!gst_element_link_many (_videoQueue, _videoColorSpace, _videoSink, NULL)) {
+  if (!gst_element_link_many (_videoQueue, _videoColorSpace, capsFilter, videoScale, _videoSink, NULL)) {
     g_printerr ("Video elements could not be linked.\n");
     unloadMovie();
     return false;
@@ -378,6 +383,7 @@ bool MediaImpl::loadMovie(QString filename)
   }
 
   // Set URI to be played.
+  qDebug() << "URI for uridecodebin: " << uri << endl;
   g_object_set (_source, "uri", uri, NULL);
 
   // Connect to the pad-added signal
@@ -399,9 +405,9 @@ bool MediaImpl::loadMovie(QString filename)
 
   // Configure video appsink.
 //  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw-rgb");
-  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA,bpp=32,depth=32");
+  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA");
+  g_object_set (capsFilter, "caps", videoCaps, NULL);
   g_object_set (_videoSink, "emit-signals", TRUE,
-                            "caps", videoCaps,    // this sets video caps to "video/x-raw-rgb"
                             "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
                             "drop", TRUE,         // ... other buffers are dropped
                             NULL);
