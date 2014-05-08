@@ -63,7 +63,10 @@ QMAKE_EXTRA_TARGETS += docs
 unix:!mac {
   DEFINES += UNIX
   CONFIG += link_pkgconfig
-  PKGCONFIG += gstreamer-0.10 gstreamer-base-0.10 liblo gl x11 glew
+  PKGCONFIG += \
+    gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 \
+    liblo \
+    gl x11 glew
   QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
   QMAKE_CXXFLAGS += -DHAVE_OSC
 }

@@ -24,6 +24,7 @@
 #include "MediaImpl.h"
 #include <cstring>
 #include <iostream>
+#include <gst/app/gstappsink.h>
 
 // -------- private implementation of VideoImpl -------
 
@@ -77,38 +78,43 @@ bool MediaImpl::_videoPull()
 {
 //  qDebug() << "video pull" << endl;
 
-  GstBuffer *buffer;
+  GstSample *sample = NULL;
+  GstStructure *structure = NULL;
+  GstCaps* caps = NULL;
+  GstBuffer *buffer = NULL;
 
-  // Retrieve the buffer.
-  g_signal_emit_by_name (_videoSink, "pull-buffer", &buffer);
+  // Retrieve the sample
+  sample = gst_app_sink_pull_sample(GST_APP_SINK(_videoSink));
 
-  if (!buffer)
+  if (sample == NULL)
   {
     // Either means we are not playing or we have reached EOS.
     return false;
   }
-
   else
   {
-    GstCaps* caps = GST_BUFFER_CAPS(buffer);
-    GstStructure *capsStruct = gst_caps_get_structure (caps, 0);
+    gst_sample_ref(sample);
+
+    caps = gst_sample_get_caps(sample);
+    structure = gst_caps_get_structure(caps, 0);
+    buffer = gst_sample_get_buffer(sample);
 
     int width  = 640;
     int height = 480;
     int bpp    = 24;
     int depth  = 24;
 
-    gst_structure_get_int(capsStruct, "width",  &width);
-    gst_structure_get_int(capsStruct, "height", &height);
-    gst_structure_get_int(capsStruct, "bpp",    &bpp);
-    gst_structure_get_int(capsStruct, "depth",  &depth);
+    gst_structure_get_int(structure, "width",  &width);
+    gst_structure_get_int(structure, "height", &height);
+    gst_structure_get_int(structure, "bpp",    &bpp);
+    gst_structure_get_int(structure, "depth",  &depth);
 
     _width = width;
     _height = height;
     int size = _width * _height;
 
     if (!_data)
-      _data = (uchar*)calloc(size, sizeof(uchar*));
+      _data = (uchar*) calloc(size, sizeof(uchar*));
 
 //    video->resize(width, height);
 
@@ -117,17 +123,21 @@ bool MediaImpl::_videoPull()
 //        qDebug() << "bpp: " << bpp << " depth: " << depth << endl;
 //        qDebug() << "Buffer size: " << GST_BUFFER_SIZE(buffer) << endl;
 
-    if (bpp == 32)
-      memcpy(_data, GST_BUFFER_DATA(buffer), size * 4);
-    else
-      convert24to32(_data, GST_BUFFER_DATA(buffer), size);
+    GstMapInfo map; 
+    if (gst_buffer_map(buffer, &map, GST_MAP_READ))
+    { 
+      // For debugging:
+      //gst_util_dump_mem(map.data, map.size)
+      if (bpp == 32)
+        memcpy(_data, map.data, size * 4);
+      else
+        convert24to32(_data, map.data, size);
+      gst_buffer_unmap(buffer, &map); 
+    } 
 
-    // Free buffer.
-    gst_buffer_unref (buffer);
-
+    gst_sample_unref(sample);
     return true;
   }
-
 }
 
 bool MediaImpl::_eos() const
@@ -162,7 +172,7 @@ bool MediaImpl::_eos() const
 //}
 
 
-void MediaImpl::gstNewBufferCallback(GstElement*, int *newBufferCounter)
+void MediaImpl::gstNewSampleCallback(GstElement*, int *newBufferCounter)
 {
   (*newBufferCounter)++;
 }
@@ -309,7 +319,7 @@ bool MediaImpl::loadMovie(QString filename)
 //  _audioSink =       gst_element_factory_make ("appsink", "asink");
 //
   _videoQueue =      gst_element_factory_make ("queue", "vqueue");
-  _videoColorSpace = gst_element_factory_make ("ffmpegcolorspace", "vcolorspace");
+  _videoColorSpace = gst_element_factory_make ("videoconvert", "vcolorspace");
   _videoSink =       gst_element_factory_make ("appsink", "vsink");
 
   // Prepare handler data.
@@ -389,13 +399,13 @@ bool MediaImpl::loadMovie(QString filename)
 
   // Configure video appsink.
 //  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw-rgb");
-  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw-rgb,format=RGBA,bpp=32,depth=32");
+  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA,bpp=32,depth=32");
   g_object_set (_videoSink, "emit-signals", TRUE,
                             "caps", videoCaps,    // this sets video caps to "video/x-raw-rgb"
                             "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
                             "drop", TRUE,         // ... other buffers are dropped
                             NULL);
-  g_signal_connect (_videoSink, "new-buffer", G_CALLBACK (MediaImpl::gstNewBufferCallback), &_videoNewBufferCounter);
+  g_signal_connect (_videoSink, "new-sample", G_CALLBACK (MediaImpl::gstNewSampleCallback), &_videoNewBufferCounter);
   gst_caps_unref (videoCaps);
 
   // Listen to the bus.
@@ -625,7 +635,7 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
   GstPad *sinkPad = NULL;
 
   // Check the new pad's type.
-  GstCaps *newPadCaps   = gst_pad_get_caps (newPad);
+  GstCaps *newPadCaps = gst_pad_query_caps (newPad, NULL);
   GstStructure *newPadStruct = gst_caps_get_structure (newPadCaps, 0);
   const gchar *newPadType   = gst_structure_get_name (newPadStruct);
   g_print("Structure is %s\n", gst_structure_to_string(newPadStruct));

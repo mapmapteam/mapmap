@@ -104,8 +104,8 @@ public:
 //    GstNewAudioBufferHandlerData() : audioSink(NULL), audioBufferAdapter(NULL) {}
 //  };
 
-  // GStreamer callback that simply sets the #newBuffer# flag to point to TRUE.
-  static void gstNewBufferCallback(GstElement *sink, int *newBufferCounter);
+  // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
+  static void gstNewSampleCallback(GstElement *sink, int *newBufferCounter);
 
 //  static void gstNewAudioBufferCallback(GstElement *sink, GstNewAudioBufferHandlerData *data);
 
