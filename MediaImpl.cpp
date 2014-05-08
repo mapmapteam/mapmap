@@ -384,8 +384,8 @@ bool MediaImpl::loadMovie(QString filename)
 
   // Set URI to be played.
   qDebug() << "URI for uridecodebin: " << uri;
+  // FIXME: sometimes it's just the path to the directory that is given, not the file itself.
   g_object_set (_source, "uri", uri, NULL);
-
   // Connect to the pad-added signal
   g_signal_connect (_source, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
 
@@ -554,7 +554,8 @@ void MediaImpl::_postRun()
 
       case GST_MESSAGE_STATE_CHANGED:
         // We are only interested in state-changed messages from the pipeline.
-        if (GST_MESSAGE_SRC (msg) == GST_OBJECT (_pipeline)) {
+        if (GST_MESSAGE_SRC (msg) == GST_OBJECT (_pipeline))
+        {
           GstState oldState, newState, pendingState;
           gst_message_parse_state_changed(msg, &oldState, &newState,
               &pendingState);
@@ -566,7 +567,8 @@ void MediaImpl::_postRun()
 //          if (oldState == GST_STATE_PAUSED && newState == GST_STATE_READY)
 //            gst_adapter_clear(_audioBufferAdapter);
 
-          if (newState == GST_STATE_PLAYING) {
+          if (newState == GST_STATE_PLAYING)
+          {
             // Check if seeking is allowed.
             gint64 start, end;
             GstQuery *query = gst_query_new_seeking (GST_FORMAT_TIME);
