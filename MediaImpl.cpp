@@ -24,7 +24,6 @@
 #include "MediaImpl.h"
 #include <cstring>
 #include <iostream>
-#include <gst/app/gstappsink.h>
 
 // -------- private implementation of VideoImpl -------
 

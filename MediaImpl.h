@@ -26,6 +26,7 @@
 #define VIDEO_IMPL_H_
 
 #include <gst/gst.h>
+#include <gst/app/gstappsink.h>
 #include <QtGlobal>
 #include <QtOpenGL>
 #if __APPLE__
