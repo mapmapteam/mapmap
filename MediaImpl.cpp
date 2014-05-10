@@ -125,10 +125,7 @@ bool MediaImpl::_videoPull()
     { 
       // For debugging:
       //gst_util_dump_mem(map.data, map.size)
-      if (bpp == 32)
-        memcpy(_data, map.data, size * 4);
-      else
-        convert24to32(_data, map.data, size);
+      memcpy(_data, map.data, size * 4);
       gst_buffer_unmap(buffer, &map); 
     } 
 
