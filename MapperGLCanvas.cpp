@@ -38,7 +38,7 @@ void MapperGLCanvas::initializeGL()
 
 void MapperGLCanvas::resizeGL(int width, int height)
 {
-  qDebug() << "Resize to " << width << "x" << height << endl;
+  //qDebug() << "Resize to " << width << "x" << height << endl;
   glViewport(0, 0, width, height);
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();

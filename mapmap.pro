@@ -63,7 +63,10 @@ QMAKE_EXTRA_TARGETS += docs
 unix:!mac {
   DEFINES += UNIX
   CONFIG += link_pkgconfig
-  PKGCONFIG += gstreamer-0.10 gstreamer-base-0.10 liblo gl x11 glew
+  PKGCONFIG += \
+    gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 \
+    liblo \
+    gl x11 glew
   QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
   QMAKE_CXXFLAGS += -DHAVE_OSC
 }
@@ -72,27 +75,13 @@ unix:!mac {
 mac {
   TARGET = MapMap
   DEFINES += MACOSX
-  # INCLUDEPATH += \
-  #   /opt/local/include/ \
-  #   /opt/local/include/libxml2
-  LIBS += \
-    -framework OpenGL \
-    -framework GLUT
-  # -L/opt/local/lib \
   QMAKE_CXXFLAGS += -D__MACOSX_CORE__
   QMAKE_CXXFLAGS += -stdlib=libstdc++
-
-  INCLUDEPATH += /Library/Frameworks/GStreamer.framework/Headers
-  # LIBS+=-lavformat -lavcodec -lavutil -lswscale -lz
+  INCLUDEPATH += /Library/Frameworks/GStreamer.framework/Versions/1.0/Headers
   LIBS += -F /Library/Frameworks/ -framework GStreamer
-  # QMAKE_LFLAGS+=-read_only_relocs suppress
-
-  # LIBS += -lgstreamer-0.10 \
-  #   -lgstapp-0.10 \
-  #   -lgstvideo-0.10 \
-  #   -lglib-2.0 \
-  #   -lgobject-2.0
   LIBS += -framework OpenGL -framework GLUT
+  # With Xcode Tools > 1.5, to reduce the size of your binary even more:
+  LIBS += -dead_strip
   QMAKE_CXXFLAGS += -D__MACOSX_CORE__
 }
 

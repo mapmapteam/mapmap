@@ -35,7 +35,7 @@ bool MediaImpl::hasVideoSupport()
     qDebug() << "Using GStreamer version " <<
       GST_VERSION_MAJOR << "." <<
       GST_VERSION_MINOR << "." <<
-      GST_VERSION_MICRO << endl;
+      GST_VERSION_MICRO;
     did_print_gst_version = true;
   }
   // TODO: actually check if we have it
@@ -59,10 +59,10 @@ const uchar* MediaImpl::getBits() const
 
 void MediaImpl::build()
 {
-  qDebug() << "Building video impl" << endl;
+  qDebug() << "Building video impl";
   if (!loadMovie(_uri))
   {
-    qDebug() << "Cannot load movie " << _currentMovie << "." << endl;
+    qDebug() << "Cannot load movie " << _currentMovie << ".";
   }
 }
 
@@ -77,38 +77,41 @@ bool MediaImpl::_videoPull()
 {
 //  qDebug() << "video pull" << endl;
 
-  GstBuffer *buffer;
+  GstSample *sample = NULL;
+  GstStructure *structure = NULL;
+  GstCaps* caps = NULL;
+  GstBuffer *buffer = NULL;
 
-  // Retrieve the buffer.
-  g_signal_emit_by_name (_videoSink, "pull-buffer", &buffer);
+  // Retrieve the sample
+  sample = gst_app_sink_pull_sample(GST_APP_SINK(_videoSink));
 
-  if (!buffer)
+  if (sample == NULL)
   {
     // Either means we are not playing or we have reached EOS.
     return false;
   }
-
   else
   {
-    GstCaps* caps = GST_BUFFER_CAPS(buffer);
-    GstStructure *capsStruct = gst_caps_get_structure (caps, 0);
+    caps = gst_sample_get_caps(sample);
+    structure = gst_caps_get_structure(caps, 0);
+    buffer = gst_sample_get_buffer(sample);
 
     int width  = 640;
     int height = 480;
-    int bpp    = 24;
-    int depth  = 24;
+    int bpp    = 32;
+    int depth  = 32;
 
-    gst_structure_get_int(capsStruct, "width",  &width);
-    gst_structure_get_int(capsStruct, "height", &height);
-    gst_structure_get_int(capsStruct, "bpp",    &bpp);
-    gst_structure_get_int(capsStruct, "depth",  &depth);
+    gst_structure_get_int(structure, "width",  &width);
+    gst_structure_get_int(structure, "height", &height);
+    // TODO: use gst_video_info_from_caps if we want to support many different formats
+    // otherwise, since we set the caps ourselves, we can assume bpp is 32 and depth too.
 
     _width = width;
     _height = height;
     int size = _width * _height;
 
     if (!_data)
-      _data = (uchar*)calloc(size, sizeof(uchar*));
+      _data = (uchar*) calloc(size, sizeof(uchar*));
 
 //    video->resize(width, height);
 
@@ -117,17 +120,21 @@ bool MediaImpl::_videoPull()
 //        qDebug() << "bpp: " << bpp << " depth: " << depth << endl;
 //        qDebug() << "Buffer size: " << GST_BUFFER_SIZE(buffer) << endl;
 
-    if (bpp == 32)
-      memcpy(_data, GST_BUFFER_DATA(buffer), size * 4);
-    else
-      convert24to32(_data, GST_BUFFER_DATA(buffer), size);
+    GstMapInfo map; 
+    if (gst_buffer_map(buffer, &map, GST_MAP_READ))
+    { 
+      // For debugging:
+      //gst_util_dump_mem(map.data, map.size)
+      if (bpp == 32)
+        memcpy(_data, map.data, size * 4);
+      else
+        convert24to32(_data, map.data, size);
+      gst_buffer_unmap(buffer, &map); 
+    } 
 
-    // Free buffer.
-    gst_buffer_unref (buffer);
-
+    gst_sample_unref(sample);
     return true;
   }
-
 }
 
 bool MediaImpl::_eos() const
@@ -162,9 +169,10 @@ bool MediaImpl::_eos() const
 //}
 
 
-void MediaImpl::gstNewBufferCallback(GstElement*, int *newBufferCounter)
+GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, int *newBufferCounter)
 {
   (*newBufferCounter)++;
+  return GST_FLOW_OK;
 }
 
 MediaImpl::MediaImpl(const QString uri) :
@@ -272,7 +280,7 @@ void MediaImpl::resetMovie()
   // have to reload but it seems weird so we should check.
   if (!_eos() && _seekEnabled)
   {
-    qDebug() << "Seeking at position 0." << endl;
+    qDebug() << "Seeking at position 0.";
     gst_element_seek_simple (_pipeline, GST_FORMAT_TIME,
                              (GstSeekFlags) (GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT), 0);
     _setReady(true);
@@ -280,7 +288,7 @@ void MediaImpl::resetMovie()
   else
   {
     // Just reload movie.
-    qDebug() << "Reloading the movie" << _seekEnabled << endl;
+    qDebug() << "Reloading the movie" << _seekEnabled;
     _currentMovie = "";
     loadMovie(_uri);
   }
@@ -299,6 +307,8 @@ bool MediaImpl::loadMovie(QString filename)
 
   // Initialize GStreamer.
   gst_init (NULL, NULL);
+  GstElement *capsFilter = NULL;
+  GstElement *videoScale = NULL;
 
   // Create the elements.
   _source =          gst_element_factory_make ("uridecodebin", "source");
@@ -309,7 +319,9 @@ bool MediaImpl::loadMovie(QString filename)
 //  _audioSink =       gst_element_factory_make ("appsink", "asink");
 //
   _videoQueue =      gst_element_factory_make ("queue", "vqueue");
-  _videoColorSpace = gst_element_factory_make ("ffmpegcolorspace", "vcolorspace");
+  _videoColorSpace = gst_element_factory_make ("videoconvert", "vcolorspace");
+  videoScale = gst_element_factory_make ("videoscale", "videoscale0");
+  capsFilter = gst_element_factory_make ("capsfilter", "capsfilter0");
   _videoSink =       gst_element_factory_make ("appsink", "vsink");
 
   // Prepare handler data.
@@ -327,7 +339,8 @@ bool MediaImpl::loadMovie(QString filename)
 
   if (!_pipeline || !_source ||
 //      !_audioQueue || !_audioConvert || !_audioResample || !_audioSink ||
-      !_videoQueue || !_videoColorSpace || !_videoSink) {
+      !_videoQueue || !_videoColorSpace || ! videoScale || ! capsFilter || ! _videoSink)
+  {
     g_printerr ("Not all elements could be created.\n");
     unloadMovie();
     return -1;
@@ -337,7 +350,7 @@ bool MediaImpl::loadMovie(QString filename)
   // point. We will do it later.
   gst_bin_add_many (GST_BIN (_pipeline), _source,
 //                    _audioQueue, _audioConvert, _audioResample, _audioSink,
-                    _videoQueue, _videoColorSpace, _videoSink, NULL);
+                    _videoQueue, _videoColorSpace, videoScale, capsFilter, _videoSink, NULL);
 
 //  if (!gst_element_link_many(_audioQueue, _audioConvert, _audioResample, _audioSink, NULL)) {
 //    g_printerr ("Audio elements could not be linked.\n");
@@ -345,7 +358,7 @@ bool MediaImpl::loadMovie(QString filename)
 //    return false;
 //  }
 
-  if (!gst_element_link_many (_videoQueue, _videoColorSpace, _videoSink, NULL)) {
+  if (!gst_element_link_many (_videoQueue, _videoColorSpace, capsFilter, videoScale, _videoSink, NULL)) {
     g_printerr ("Video elements could not be linked.\n");
     unloadMovie();
     return false;
@@ -359,7 +372,7 @@ bool MediaImpl::loadMovie(QString filename)
     GError* error = NULL;
     uri = gst_filename_to_uri(uri, &error);
     if (error) {
-      qDebug() << "Filename to URI error: " << error->message << endl;
+      qDebug() << "Filename to URI error: " << error->message;
       g_error_free(error);
       gst_object_unref (uri);
       freeResources();
@@ -368,8 +381,9 @@ bool MediaImpl::loadMovie(QString filename)
   }
 
   // Set URI to be played.
+  qDebug() << "URI for uridecodebin: " << uri;
+  // FIXME: sometimes it's just the path to the directory that is given, not the file itself.
   g_object_set (_source, "uri", uri, NULL);
-
   // Connect to the pad-added signal
   g_signal_connect (_source, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
 
@@ -389,13 +403,13 @@ bool MediaImpl::loadMovie(QString filename)
 
   // Configure video appsink.
 //  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw-rgb");
-  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw-rgb,format=RGBA,bpp=32,depth=32");
+  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA");
+  g_object_set (capsFilter, "caps", videoCaps, NULL);
   g_object_set (_videoSink, "emit-signals", TRUE,
-                            "caps", videoCaps,    // this sets video caps to "video/x-raw-rgb"
                             "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
                             "drop", TRUE,         // ... other buffers are dropped
                             NULL);
-  g_signal_connect (_videoSink, "new-buffer", G_CALLBACK (MediaImpl::gstNewBufferCallback), &_videoNewBufferCounter);
+  g_signal_connect (_videoSink, "new-sample", G_CALLBACK (MediaImpl::gstNewSampleCallback), &_videoNewBufferCounter);
   gst_caps_unref (videoCaps);
 
   // Listen to the bus.
@@ -405,7 +419,7 @@ bool MediaImpl::loadMovie(QString filename)
   if (!_setPlayState(true))
     return false;
 
-  qDebug() << "Pipeline started." << endl;
+  qDebug() << "Pipeline started.";
 
   //_movieReady = true;
   return true;
@@ -440,6 +454,16 @@ bool MediaImpl::runVideo() {
     _videoNewBufferCounter--;
     //std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
   }
+  /* TODO: This causes the texture to be loaded always in Mapper.cpp . The
+ * problem if this is not set is: When we have more than one shape, a
+ * shape that has a new buffer coming in will overdraw the old buffer of the
+ * shape on top. This implementation seems to be fast enough that
+ * _videoNewBufferCounter is often 1 or 0. If bitsChanged is often switching
+ * between true and false (as in the case described above), than the shape
+ * textures will appear to be flickering/alternating. Maybe a better solution is
+ * needed (in the GL layer or here?)*/
+  else
+      bitsChanged = true;
 
   _postRun();
 
@@ -538,7 +562,8 @@ void MediaImpl::_postRun()
 
       case GST_MESSAGE_STATE_CHANGED:
         // We are only interested in state-changed messages from the pipeline.
-        if (GST_MESSAGE_SRC (msg) == GST_OBJECT (_pipeline)) {
+        if (GST_MESSAGE_SRC (msg) == GST_OBJECT (_pipeline))
+        {
           GstState oldState, newState, pendingState;
           gst_message_parse_state_changed(msg, &oldState, &newState,
               &pendingState);
@@ -550,7 +575,8 @@ void MediaImpl::_postRun()
 //          if (oldState == GST_STATE_PAUSED && newState == GST_STATE_READY)
 //            gst_adapter_clear(_audioBufferAdapter);
 
-          if (newState == GST_STATE_PLAYING) {
+          if (newState == GST_STATE_PLAYING)
+          {
             // Check if seeking is allowed.
             gint64 start, end;
             GstQuery *query = gst_query_new_seeking (GST_FORMAT_TIME);
@@ -596,7 +622,7 @@ bool MediaImpl::_setPlayState(bool play)
   GstStateChangeReturn ret = gst_element_set_state (_pipeline, (play ? GST_STATE_PLAYING : GST_STATE_PAUSED));
   if (ret == GST_STATE_CHANGE_FAILURE)
   {
-    qDebug() << "Unable to set the pipeline to the playing state." << endl;
+    qDebug() << "Unable to set the pipeline to the playing state.";
     unloadMovie();
     return false;
   }
@@ -616,7 +642,7 @@ void MediaImpl::_setReady(bool ready)
 }
 
 void MediaImpl::_setFinished(bool finished) {
-//  qDebug() << "Clip " << (finished ? "finished" : "not finished") << endl;
+//  qDebug() << "Clip " << (finished ? "finished" : "not finished");
 }
 
 void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data) {
@@ -625,7 +651,7 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
   GstPad *sinkPad = NULL;
 
   // Check the new pad's type.
-  GstCaps *newPadCaps   = gst_pad_get_caps (newPad);
+  GstCaps *newPadCaps = gst_pad_query_caps (newPad, NULL);
   GstStructure *newPadStruct = gst_caps_get_structure (newPadCaps, 0);
   const gchar *newPadType   = gst_structure_get_name (newPadStruct);
   g_print("Structure is %s\n", gst_structure_to_string(newPadStruct));
@@ -739,8 +765,4 @@ void MediaImpl::internalPostPlay()
   // Pause playback.
   _setPlayState(false);
 }
-
-
-
-
 

@@ -26,6 +26,7 @@
 #define VIDEO_IMPL_H_
 
 #include <gst/gst.h>
+#include <gst/app/gstappsink.h>
 #include <QtGlobal>
 #include <QtOpenGL>
 #if __APPLE__
@@ -104,8 +105,9 @@ public:
 //    GstNewAudioBufferHandlerData() : audioSink(NULL), audioBufferAdapter(NULL) {}
 //  };
 
-  // GStreamer callback that simply sets the #newBuffer# flag to point to TRUE.
-  static void gstNewBufferCallback(GstElement *sink, int *newBufferCounter);
+  // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
+  static GstFlowReturn gstNewSampleCallback(GstElement*, int *newBufferCounter);
+  static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
 
 //  static void gstNewAudioBufferCallback(GstElement *sink, GstNewAudioBufferHandlerData *data);
 
