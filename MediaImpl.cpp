@@ -69,8 +69,9 @@ void MediaImpl::build()
 MediaImpl::~MediaImpl()
 {
   freeResources();
-  if (_data)
-    free(_data);
+  /* _data points to gstreamer-allocated data, we don't manage it ourselves */
+  //if (_data)
+  //  free(_data);
 }
 
 bool MediaImpl::_videoPull()
@@ -83,7 +84,7 @@ bool MediaImpl::_videoPull()
   GstBuffer *buffer = NULL;
 
   // Retrieve the sample
-  sample = gst_app_sink_pull_sample(GST_APP_SINK(_videoSink));
+  sample = queue_input_buf.get();
 
   if (sample == NULL)
   {
@@ -110,9 +111,6 @@ bool MediaImpl::_videoPull()
     _height = height;
     int size = _width * _height;
 
-    if (!_data)
-      _data = (uchar*) calloc(size, sizeof(uchar*));
-
 //    video->resize(width, height);
 
 //        qDebug() << gst_structure_to_string(capsStruct) << endl;
@@ -125,11 +123,13 @@ bool MediaImpl::_videoPull()
     { 
       // For debugging:
       //gst_util_dump_mem(map.data, map.size)
-      memcpy(_data, map.data, size * 4);
+      _data = map.data;
       gst_buffer_unmap(buffer, &map); 
+      if(this->_frame != NULL)
+        queue_output_buf.put(this->_frame);
+      _frame = sample;
     } 
 
-    gst_sample_unref(sample);
     return true;
   }
 }
@@ -166,9 +166,16 @@ bool MediaImpl::_eos() const
 //}
 
 
-GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, int *newBufferCounter)
+GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
 {
-  (*newBufferCounter)++;
+  GstSample *sample;
+  sample = gst_app_sink_pull_sample(GST_APP_SINK(p->_videoSink));
+  //g_signal_emit_by_name (p->_videoSink, "pull-sample", &sample);
+  p->get_queue_input_buf()->put(sample);
+  if (p->get_queue_output_buf()->size() > 1) {
+    sample = p->get_queue_output_buf()->get();
+    gst_sample_unref(sample);
+  }
   return GST_FLOW_OK;
 }
 
@@ -185,13 +192,13 @@ _videoConvert(NULL),
 _videoColorSpace(NULL),
 _audioSink(NULL),
 _videoSink(NULL),
+_frame(NULL),
 _width(640),
 _height(480),
 _data(NULL),
 //_audioBufferAdapter(NULL),
 _seekEnabled(false),
 //_audioNewBufferCounter(0),
-_videoNewBufferCounter(0),
 _movieReady(false),
 _uri(uri)
 {
@@ -227,7 +234,6 @@ void MediaImpl::unloadMovie()
 
   // Reset flags.
 //  _audioNewBufferCounter = 0;
-  _videoNewBufferCounter = 0;
 
   _terminate = false;
   _seekEnabled = false;
@@ -264,6 +270,7 @@ void MediaImpl::freeResources()
   _videoColorSpace = NULL;
   _audioSink = NULL;
   _videoSink = NULL;
+  _frame = NULL;
   _padHandlerData = GstPadHandlerData();
 
   // Flush buffers in adapter.
@@ -280,6 +287,7 @@ void MediaImpl::resetMovie()
     qDebug() << "Seeking at position 0.";
     gst_element_seek_simple (_pipeline, GST_FORMAT_TIME,
                              (GstSeekFlags) (GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT), 0);
+    this->_frame = NULL;
     _setReady(true);
   }
   else
@@ -296,6 +304,7 @@ bool MediaImpl::loadMovie(QString filename)
   _uri = filename;
 
   qDebug() << "Opening movie: " << filename << ".";
+  this->_frame = NULL;
 
   // Free previously allocated structures
   unloadMovie();
@@ -406,7 +415,7 @@ bool MediaImpl::loadMovie(QString filename)
                             "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
                             "drop", TRUE,         // ... other buffers are dropped
                             NULL);
-  g_signal_connect (_videoSink, "new-sample", G_CALLBACK (MediaImpl::gstNewSampleCallback), &_videoNewBufferCounter);
+  g_signal_connect (_videoSink, "new-sample", G_CALLBACK (MediaImpl::gstNewSampleCallback), this);
   gst_caps_unref (videoCaps);
 
   // Listen to the bus.
@@ -433,7 +442,7 @@ bool MediaImpl::runVideo() {
 
   bool bitsChanged = false;
 
-  if (_videoNewBufferCounter > 0) {
+  if (queue_input_buf.size() > 0) {
 
     // Pull video.
     if (!_videoPull())
@@ -448,7 +457,6 @@ bool MediaImpl::runVideo() {
       //      _VIDEO_OUT->sleeping(false);
     }
 
-    _videoNewBufferCounter--;
     //std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
   }
   /* TODO: This causes the texture to be loaded always in Mapper.cpp . The
@@ -695,7 +703,7 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
     g_print ("  Link succeeded (type '%s').\n", newPadType);
     if (isAudio)
     {
-      data->audioIsConnected = true;
+      //data->audioIsConnected = true;
     }
     else
     {

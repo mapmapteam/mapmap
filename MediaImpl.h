@@ -35,6 +35,7 @@
 #include <GL/gl.h>
 #endif
 #include <tr1/memory>
+#include "AsyncQueue.h"
 
 /**
  * Private declaration of the video player.
@@ -106,7 +107,7 @@ public:
 //  };
 
   // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
-  static GstFlowReturn gstNewSampleCallback(GstElement*, int *newBufferCounter);
+  static GstFlowReturn gstNewSampleCallback(GstElement*, MediaImpl *p);
   static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
 
 //  static void gstNewAudioBufferCallback(GstElement *sink, GstNewAudioBufferHandlerData *data);
@@ -114,6 +115,14 @@ public:
   // GStreamer callback that plugs the audio/video pads into the proper elements when they
   // are made available by the source.
   static void gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data);
+  AsyncQueue<GstSample*> *get_queue_input_buf() {
+    return &this->queue_input_buf;
+  }
+
+  AsyncQueue<GstSample*> *get_queue_output_buf() {
+    return &this->queue_output_buf;
+  }
+
 
 private:
 //  PlugOut<VideoRGBAType> *_VIDEO_OUT;
@@ -139,6 +148,7 @@ private:
   GstElement *_videoColorSpace;
   GstElement *_audioSink;
   GstElement *_videoSink;
+  GstSample  *_frame;
 
 //  GstAdapter *_audioBufferAdapter;
 
@@ -152,10 +162,12 @@ private:
   bool _seekEnabled;
 
   int _audioNewBufferCounter;
-  int _videoNewBufferCounter;
 
   bool _terminate;
   bool _movieReady;
+  AsyncQueue<GstSample*> queue_input_buf;
+  AsyncQueue<GstSample*> queue_output_buf;
+
 
 private:
   QString _uri;
