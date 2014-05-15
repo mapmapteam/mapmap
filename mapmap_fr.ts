@@ -166,7 +166,7 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Effacer l'élément sélectionné</translation>
+        <translation>Effacer l&apos;élément sélectionné</translation>
     </message>
     <message>
         <source>CTRL+DEL</source>
@@ -174,7 +174,7 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Delete item</source>
-        <translation>Effacer l'élément sélectionné</translation>
+        <translation>Effacer l&apos;élément sélectionné</translation>
     </message>
     <message>
         <source>Add Quad/&amp;Mesh</source>
@@ -256,6 +256,10 @@ Do you want to save your changes?</source>
         <source>MapMap files (*.%1)</source>
         <translation>Fichiers MapMap (*.%1)</translation>
     </message>
+    <message>
+        <source>All files (*)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -286,11 +290,11 @@ Line %2, column %3</source>
     </message>
     <message>
         <source>The file is not a mapmap version 0.1 file.</source>
-        <translation>Ce fichier n'est pas un project MapMap version 0.1.</translation>
+        <translation>Ce fichier n&apos;est pas un project MapMap version 0.1.</translation>
     </message>
     <message>
         <source>Cannot create media with URI %1.</source>
-        <translation>Impossible de créer un média avec l'URI %1</translation>
+        <translation type="obsolete">Impossible de créer un média avec l&apos;URI %1</translation>
     </message>
     <message>
         <source>Cannot create color with RGB hex code %1.</source>
@@ -330,7 +334,7 @@ Line %2, column %3</source>
     </message>
     <message>
         <source>Wrong shape type &quot;%1&quot; for destination: expected &quot;%2&quot;.</source>
-        <translation>Mauvais type de forme &quot;%1&quot; pour la destination. On s'attend à &quot;%2&quot;</translation>
+        <translation>Mauvais type de forme &quot;%1&quot; pour la destination. On s&apos;attend à &quot;%2&quot;</translation>
     </message>
     <message>
         <source>Shape of type &apos;%1&apos; has %2 vertices: expected %3.</source>
@@ -355,6 +359,10 @@ Line %2, column %3</source>
     <message>
         <source>Done.</source>
         <translation>Terminé.</translation>
+    </message>
+    <message>
+        <source>Cannot create media with uri %1.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -51,7 +51,7 @@ SOURCES  = \
 
 QT += gui opengl xml
 RESOURCES = mapmap.qrc
-TRANSLATIONS = mapmap_fr.ts
+TRANSLATIONS = mapmap_fr.ts mapmap_ar.ts
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
 
 # Add the docs target:
