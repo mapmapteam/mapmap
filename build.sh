@@ -13,7 +13,8 @@ if [[ $unamestr == "Darwin" ]]; then
     #export QMAKESPEC=macx-xcode
     PATH=$PATH:~/Qt5.2.1/5.2.1/clang_64/bin
     qmake5=~/Qt5.2.1/5.2.1/clang_64/bin/qmake
-    $qmake5 -spec macx-llvm
+    # $qmake5 -spec macx-llvm
+    $qmake5 -config release -spec macx-llvm
 elif [[ $unamestr == "Linux" ]]; then
     qmake-qt4
 fi
