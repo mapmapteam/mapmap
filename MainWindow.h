@@ -67,6 +67,9 @@ protected:
   // Events ///////////////////////////////////////////////////////////////////////////////////////////////////
   void closeEvent(QCloseEvent *event);
 
+signals:
+  void paintChanged();
+
   // Slots ////////////////////////////////////////////////////////////////////////////////////////////////////
 private slots:
 
@@ -85,6 +88,7 @@ private slots:
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
+  void handleItemDoubleClicked(QListWidgetItem* item);
   void handleMappingItemSelectionChanged();
   void handleMappingItemChanged(QListWidgetItem* item);
   void handleMappingIndexesMoved();
@@ -104,11 +108,11 @@ public slots:
   /// Clears all mappings and paints.
   bool clearProject();
 
-  /// Create an image paint.
-  uid createMediaPaint(uid paintId, QString uri, float x, float y);
+  /// Create or replace an image paint.
+  uid createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint);
 
-  /// Create a color paint.
-  uid createColorPaint(uid paintId, QColor color);
+  /// Create or replace a color paint.
+  uid createColorPaint(uid paintId, QColor color, Paint::ptr oldPaint);
 
   /// Creates a textured mesh.
   uid createMeshTextureMapping(uid mappingId,
@@ -145,7 +149,7 @@ public slots:
   void deleteMapping(uid mappingId);
 
   /// Deletes/removes a paint and all associated mappigns.
-  void deletePaint(uid paintId);
+  void deletePaint(uid paintId, bool replace);
 
   /// Updates all canvases.
   void updateCanvases();
@@ -178,8 +182,8 @@ public:
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
-  bool importMediaFile(const QString &fileName);
-  bool addColorPaint(const QColor& color);
+  bool importMediaFile(const QString &fileName, Paint::ptr oldPaint);
+  bool addColorPaint(const QColor& color, Paint::ptr oldPaint);
   void addMappingItem(uid mappingId);
   void removeMappingItem(uid mappingId);
   void addPaintItem(uid paintId, const QIcon& icon, const QString& name);

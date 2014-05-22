@@ -85,6 +85,9 @@ public slots:
   {
     Q_UNUSED(shape);
   }
+  virtual void updatePaint()
+  {
+  }
 
 signals:
   void valueChanged();
@@ -111,6 +114,9 @@ protected:
 class ColorMapper : public Mapper
 {
   Q_OBJECT
+
+public slots:
+  virtual void updatePaint();
 
 protected:
   ColorMapper(Mapping::ptr mapping);
@@ -181,6 +187,7 @@ public:
 
 public slots:
   virtual void updateShape(Shape* shape);
+  virtual void updatePaint();
 
 protected:
   virtual void _doDraw(QPainter* painter) = 0;

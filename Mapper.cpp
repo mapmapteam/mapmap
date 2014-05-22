@@ -84,6 +84,13 @@ TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   _topItem->insertSubProperty(_inputItem, 0); // insert before output item
 }
 
+void TextureMapper::updatePaint()
+{
+  texture.reset();
+  texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+  Q_CHECK_PTR(texture);
+}
+
 void Mapper::setValue(QtProperty* property, const QVariant& value)
 {
   std::map<QtProperty*, std::pair<Shape*, int> >::iterator it = _propertyToVertex.find(property);
@@ -135,6 +142,13 @@ void Mapper::_updateShapeProperty(QtProperty* shapeItem, Shape* shape)
 ColorMapper::ColorMapper(Mapping::ptr mapping)
   : Mapper(mapping)
 {
+  color = std::tr1::static_pointer_cast<Color>(_mapping->getPaint());
+  Q_CHECK_PTR(color);
+}
+
+void ColorMapper::updatePaint()
+{
+  color.reset();
   color = std::tr1::static_pointer_cast<Color>(_mapping->getPaint());
   Q_CHECK_PTR(color);
 }

@@ -71,6 +71,25 @@ bool MappingManager::removePaint(uid paintId)
     return true;
   }
 
+
+
+  return false;
+}
+
+bool MappingManager::replacePaintMappings(Paint::ptr oldpaint, Paint::ptr newpaint)
+{
+  // Make sure the paint to which this paint refers to exists in the manager.
+  if (oldpaint && newpaint)
+  {
+    QMap<uid, Mapping::ptr> paintMappings = getPaintMappings(oldpaint);
+    for (QMap<uid, Mapping::ptr>::const_iterator it = paintMappings.constBegin();
+         it != paintMappings.constEnd(); ++it) {
+      Mapping::ptr mapping = it.value();
+      mapping->setPaint(newpaint);
+    }
+    return true;
+  }
+
   return false;
 }
 

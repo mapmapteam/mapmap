@@ -166,7 +166,6 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       else
         _shapefirstgrab = false;
     }
-
     // Update previous mouse position.
     prevMousePosition.setX( event->x() );
     prevMousePosition.setY( event->y() );

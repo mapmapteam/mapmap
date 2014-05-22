@@ -94,6 +94,8 @@ public:
     Q_ASSERT(0.0f <= opacity && opacity <= 1.0f);
     _opacity = opacity;
   }
+  void setPaint(Paint::ptr p) { _paint = p; }
+  void removePaint() { if (_paint) delete _paint.get(); }
 
   void toggleLocked()  { _isLocked = !_isLocked; }
   void toggleSolo()    { _isSolo = !_isSolo; }

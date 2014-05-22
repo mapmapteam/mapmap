@@ -96,7 +96,8 @@ void ProjectReader::parsePaint(const QDomElement& paint)
     QString x   = paint.firstChildElement("x").text();
     QString y   = paint.firstChildElement("y").text();
 
-    uid id = _window->createMediaPaint(paintAttrId.toInt(), uri, x.toFloat(), y.toFloat());
+    uid id = _window->createMediaPaint(paintAttrId.toInt(), uri, x.toFloat(), y.toFloat(),
+                  std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)));
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create media with uri %1.").arg(uri));
   }
@@ -105,7 +106,7 @@ void ProjectReader::parsePaint(const QDomElement& paint)
     QString rgb = paint.firstChildElement("rgb").text();
     QColor color(rgb);
 
-    uid id = _window->createColorPaint(paintAttrId.toInt(), color);
+    uid id = _window->createColorPaint(paintAttrId.toInt(), color, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)));
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create color with RGB hex code %1.").arg(rgb));
 

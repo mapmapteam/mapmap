@@ -50,6 +50,7 @@ public:
 
   uid addPaint(Paint::ptr paint);
   bool removePaint(uid paintId);
+  bool replacePaintMappings(Paint::ptr oldpaint, Paint::ptr newpaint);
   int nPaints() const { return paintVector.size(); }
   Paint::ptr getPaint(int i) { return paintVector[i]; }
   Paint::ptr getPaintById(uid id) { return paintMap[id]; }
