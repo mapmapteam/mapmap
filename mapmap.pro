@@ -83,6 +83,8 @@ mac {
   # With Xcode Tools > 1.5, to reduce the size of your binary even more:
   LIBS += -dead_strip
   QMAKE_CXXFLAGS += -D__MACOSX_CORE__
+  # This tells qmake not to put the executable inside a bundle.
+  # CONFIG-=app_bundle
 }
 
 # Windows-specific:
