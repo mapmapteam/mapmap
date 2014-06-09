@@ -12,8 +12,9 @@ Build it::
 
   ./build.sh
 
-On Ubuntu 13.10
-~~~~~~~~~~~~~~~
+Ubuntu 13.10
+~~~~~~~~~~~~
+
 Install basic development tools fot Qt projects, plus liblo for OSC support::
 
   sudo apt-get install -y \
@@ -23,7 +24,25 @@ Install basic development tools fot Qt projects, plus liblo for OSC support::
       qt4-default \
       qt4-qmake
 
-Install GStreamer 0.10 librairies and plugins::
+Install GStreamer 1.0 libraries and plugins:
+
+  sudo apt-get install -y \
+      libgstreamer1.0-dev \
+      libgstreamer-plugins-base1.0-dev \
+      gstreamer1.0-alsa \
+      gstreamer1.0-fluendo-mp3 \
+      gstreamer1.0-gnonlin \
+      gstreamer1.0-nice \
+      gstreamer1.0-plugins-bad \
+      gstreamer1.0-plugins-base \
+      gstreamer1.0-plugins-base-apps \
+      gstreamer1.0-plugins-good \
+      gstreamer1.0-plugins-ugly \
+      gstreamer1.0-pulseaudio \
+      gstreamer1.0-tools \
+      gstreamer1.0-x
+
+DEPRECATED Install GStreamer 0.10 librairies and plugins::
 
   sudo apt-get install -y \
       libgstreamer-plugins-base0.10-dev \
