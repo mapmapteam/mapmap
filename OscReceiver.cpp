@@ -7,9 +7,10 @@ bool OscReceiver::server_is_ok_ = true;
 
 OscReceiver::OscReceiver(const std::string &port) :
     port_(port),
-    server_(lo_server_thread_new(port_.c_str(), error))
+    server_(0)
 {
     server_is_ok_ = (server_ != NULL);
+    server_ = lo_server_thread_new(port_.c_str(), error);
 // #ifdef CONFIG_DEBUG
 //     /* add method that will match any path and args */
 //     lo_server_thread_add_method(server_, NULL, NULL, genericHandler, this);
