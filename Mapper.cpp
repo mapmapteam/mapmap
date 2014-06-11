@@ -354,7 +354,6 @@ void TextureMapper::drawInput(QPainter* painter)
 
   glDisable(GL_TEXTURE_2D);
 
-  glPopMatrix();
 
   painter->endNativePainting();
 }
