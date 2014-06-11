@@ -249,6 +249,44 @@ void EllipseColorMapper::drawControls(QPainter* painter)
   Util::drawControlsEllipse(painter, *outputEllipse);
 }
 
+void TextureMapper::draw(QPainter* painter)
+{
+  // Prepare drawing.
+  _preDraw(painter);
+
+  // Perform the actual mapping (done by subclasses).
+  _doDraw(painter);
+
+  // End drawing.
+  _postDraw(painter);
+}
+
+void TextureMapper::drawInput(QPainter* painter)
+{
+  // Prepare drawing.
+  _preDraw(painter);
+
+  // FIXME: Does this draw the quad counterclockwise?
+  glBegin (GL_QUADS);
+  {
+    Util::correctGlTexCoord(0, 0);
+    glVertex3f (texture->getX(), texture->getY(), 0);
+
+    Util::correctGlTexCoord(1, 0);
+    glVertex3f (texture->getX()+texture->getWidth(), texture->getY(), 0);
+
+    Util::correctGlTexCoord(1, 1);
+    glVertex3f (texture->getX()+texture->getWidth(), texture->getY() + texture->getHeight(), 0);
+
+    Util::correctGlTexCoord(0, 1);
+    glVertex3f (texture->getX(), texture->getY() + texture->getHeight(), 0);
+  }
+  glEnd ();
+
+  // End drawing.
+  _postDraw(painter);
+}
+
 void TextureMapper::updateShape(Shape* shape)
 {
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
@@ -270,8 +308,10 @@ void TextureMapper::updateShape(Shape* shape)
 
 }
 
+{
+}
 
-void TextureMapper::draw(QPainter* painter)
+void TextureMapper::_preDraw(QPainter* painter)
 {
   painter->beginNativePainting();
 
@@ -298,74 +338,17 @@ void TextureMapper::draw(QPainter* painter)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-  // Perform the actual mapping (done by subclasses).
-  _doDraw(painter);
-
-  glDisable(GL_TEXTURE_2D);
-
-  painter->endNativePainting();
-}
-
-void TextureMapper::drawInput(QPainter* painter)
-{
-  painter->beginNativePainting();
-
-  // Only works for similar shapes.
-  Q_ASSERT( inputShape->nVertices() == outputShape->nVertices());
-
-  // Project source texture and sent it to destination.
-  texture->update();
-
-  glEnable (GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
-
-  // Copy bits to texture iff necessary.
-  if (texture->bitsHaveChanged())
-  {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-      texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
-      GL_UNSIGNED_BYTE, texture->getBits());
-  }
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-  // FIXME: Does this draw the quad counterclockwise?
-  glBegin (GL_QUADS);
-  {
-    Util::correctGlTexCoord(0, 0);
-    glVertex3f (texture->getX(), texture->getY(), 0);
-
-    Util::correctGlTexCoord(1, 0);
-    glVertex3f (texture->getX()+texture->getWidth(), texture->getY(), 0);
-
-    Util::correctGlTexCoord(1, 1);
-    glVertex3f (texture->getX()+texture->getWidth(), texture->getY() + texture->getHeight(), 0);
-
-    Util::correctGlTexCoord(0, 1);
-    glVertex3f (texture->getX(), texture->getY() + texture->getHeight(), 0);
-  }
-  glEnd ();
-
-  glDisable(GL_TEXTURE_2D);
-
-
-  painter->endNativePainting();
-}
-
 void TextureMapper::drawControls(QPainter* painter)
 {
 
 }
 
+void TextureMapper::_postDraw(QPainter* painter)
 void TextureMapper::drawInputControls(QPainter* painter)
 {
+  glDisable(GL_TEXTURE_2D);
 
+  painter->endNativePainting();
 }
 
 void PolygonTextureMapper::drawControls(QPainter* painter)

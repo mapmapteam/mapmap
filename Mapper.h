@@ -201,6 +201,8 @@ public slots:
 
 protected:
   virtual void _doDraw(QPainter* painter) = 0;
+  void _preDraw(QPainter* painter);
+  void _postDraw(QPainter* painter);
 
 protected:
   QtProperty* _inputItem;
