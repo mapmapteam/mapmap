@@ -1145,6 +1145,7 @@ void MainWindow::readSettings()
   resourceSplitter->restoreState(settings.value("resourceSplitter").toByteArray());
   canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
   outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
+  displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
   config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 }
 
@@ -1157,6 +1158,7 @@ void MainWindow::writeSettings()
   settings.setValue("resourceSplitter", resourceSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
   settings.setValue("outputWindow", outputWindow->saveGeometry());
+  settings.setValue("displayOutputWindow", displayOutputWindow->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
 }
 
