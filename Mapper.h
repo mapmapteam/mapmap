@@ -51,9 +51,9 @@
  * A way to draw on some kind of shape.
  * 
  * This is an abstract class for specific ways to draw
- * a given paint of a shape.
+ * a mapping ie. a shape applied to a paint.
  * 
- * Each shape x paint combination that is possible in 
+ * Each mapping (ie. shape x paint combination) that is possible in
  * this software are implemented using a child of this
  * class.
  */
@@ -65,18 +65,24 @@ public:
   typedef std::tr1::shared_ptr<Mapper> ptr;
 
 protected:
-  Mapping::ptr _mapping;
-
+  /// Constructor. A mapper applies to a mapping.
   Mapper(Mapping::ptr mapping);
   virtual ~Mapper();
 
 public:
+  /// Returns a pointer to the properties editor for that mapper.
   virtual QWidget* getPropertiesEditor();
 
+  /// Draws the output.
   virtual void draw(QPainter* painter) = 0;
+
+  /// Draws the output controls.
   virtual void drawControls(QPainter* painter) = 0;
 
+  /// Draws the input (source) (if applicable).
   virtual void drawInput(QPainter* painter)  { Q_UNUSED(painter); }
+
+  /// Draws the input (source) controls (if applicable).
   virtual void drawInputControls(QPainter* painter) { Q_UNUSED(painter); }
 
 public slots:
@@ -109,7 +115,7 @@ protected:
 };
 
 /**
- * Draws a color.
+ * Draws a color (abstract class).
  */
 class ColorMapper : public Mapper
 {
@@ -169,7 +175,7 @@ public:
 };
 
 /**
- * Draws a texture.
+ * Draws a texture (abstract class).
  */
 class TextureMapper : public Mapper
 {
@@ -179,6 +185,10 @@ public:
   TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
   virtual ~TextureMapper() {}
 
+  /**
+   * This method will call the _doDraw(QPainter*) method to actually perform the drawing.
+   * of the mapping.
+   */
   virtual void draw(QPainter* painter);
   virtual void drawInput(QPainter* painter);
 
