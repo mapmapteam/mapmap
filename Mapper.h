@@ -87,18 +87,14 @@ public:
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
-  virtual void updateShape(Shape* shape)
-  {
-    Q_UNUSED(shape);
-  }
-  virtual void updatePaint()
-  {
-  }
+  virtual void updateShape(Shape* shape) { Q_UNUSED(shape); }
+  virtual void updatePaint() {}
 
 signals:
   void valueChanged();
 
 protected:
+  Mapping::ptr _mapping;
   QtAbstractPropertyBrowser* _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
@@ -192,8 +188,8 @@ public:
   virtual void draw(QPainter* painter);
   virtual void drawInput(QPainter* painter);
 
-  virtual void drawControls(QPainter* painter);
-  virtual void drawInputControls(QPainter* painter);
+  virtual void drawControls(QPainter* painter) = 0;
+  virtual void drawInputControls(QPainter* painter) = 0;
 
 public slots:
   virtual void updateShape(Shape* shape);

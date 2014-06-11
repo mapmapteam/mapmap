@@ -63,34 +63,6 @@ QWidget* Mapper::getPropertiesEditor()
   return _propertyBrowser;
 }
 
-TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
-  : Mapper(mapping)
-{
-  // Assign members pointers.
-  textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
-  Q_CHECK_PTR(textureMapping);
-
-  texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-  Q_CHECK_PTR(texture);
-
-  inputShape = std::tr1::static_pointer_cast<Shape>(textureMapping->getInputShape());
-  Q_CHECK_PTR(inputShape);
-
-  // Input shape.
-  _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
-                                            QObject::tr("Input shape"));
-
-  _buildShapeProperty(_inputItem, textureMapping->getInputShape().get());
-  _topItem->insertSubProperty(_inputItem, 0); // insert before output item
-}
-
-void TextureMapper::updatePaint()
-{
-  texture.reset();
-  texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-  Q_CHECK_PTR(texture);
-}
-
 void Mapper::setValue(QtProperty* property, const QVariant& value)
 {
   std::map<QtProperty*, std::pair<Shape*, int> >::iterator it = _propertyToVertex.find(property);
@@ -249,6 +221,28 @@ void EllipseColorMapper::drawControls(QPainter* painter)
   Util::drawControlsEllipse(painter, *outputEllipse);
 }
 
+
+TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
+  : Mapper(mapping)
+{
+  // Assign members pointers.
+  textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
+  Q_CHECK_PTR(textureMapping);
+
+  texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+  Q_CHECK_PTR(texture);
+
+  inputShape = std::tr1::static_pointer_cast<Shape>(textureMapping->getInputShape());
+  Q_CHECK_PTR(inputShape);
+
+  // Input shape.
+  _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
+                                            QObject::tr("Input shape"));
+
+  _buildShapeProperty(_inputItem, textureMapping->getInputShape().get());
+  _topItem->insertSubProperty(_inputItem, 0); // insert before output item
+}
+
 void TextureMapper::draw(QPainter* painter)
 {
   // Prepare drawing.
@@ -308,7 +302,11 @@ void TextureMapper::updateShape(Shape* shape)
 
 }
 
+void TextureMapper::updatePaint()
 {
+  texture.reset();
+  texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+  Q_CHECK_PTR(texture);
 }
 
 void TextureMapper::_preDraw(QPainter* painter)
@@ -338,13 +336,9 @@ void TextureMapper::_preDraw(QPainter* painter)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-void TextureMapper::drawControls(QPainter* painter)
-{
-
 }
 
 void TextureMapper::_postDraw(QPainter* painter)
-void TextureMapper::drawInputControls(QPainter* painter)
 {
   glDisable(GL_TEXTURE_2D);
 
