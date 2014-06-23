@@ -223,7 +223,8 @@ void EllipseColorMapper::drawControls(QPainter* painter)
 
 
 TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
-  : Mapper(mapping)
+  : Mapper(mapping),
+    _meshItem(NULL)
 {
   // Assign members pointers.
   textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);

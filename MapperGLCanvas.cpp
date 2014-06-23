@@ -23,7 +23,13 @@
 #include "MainWindow.h"
 
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
-  : QGLWidget(QGLFormat(QGL::SampleBuffers), parent, shareWidget), _mainWindow(mainWindow), _mousepressed(false), _activeVertex(NO_VERTEX), _displayControls(true)
+  : QGLWidget(QGLFormat(QGL::SampleBuffers), parent, shareWidget),
+    _mainWindow(mainWindow),
+    _mousepressed(false),
+    _activeVertex(NO_VERTEX),
+    _shapeGrabbed(false),
+    _shapeFirstGrab(false),
+    _displayControls(true)
 {
 }
 
@@ -110,8 +116,8 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     Shape* shape = getCurrentShape();
     if (shape && shape->includesPoint(xmouse, ymouse))
     {
-      _shapegrabbed = true;
-      _shapefirstgrab = true;
+      _shapeGrabbed = true;
+      _shapeFirstGrab = true;
     }
   }
 }
@@ -121,7 +127,7 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
   Q_UNUSED(event);
   // std::cout << "Mouse Release event " << std::endl;
   _mousepressed = false;
-  _shapegrabbed = false;
+  _shapeGrabbed = false;
 }
 
 void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
@@ -146,21 +152,21 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       emit shapeChanged(getCurrentShape());
     }
   }
-  else if (_shapegrabbed)
+  else if (_shapeGrabbed)
   {
     // std::cout << "Move event " << std::endl;
     Shape* shape = getCurrentShape();
     static QPointF prevMousePosition(0,0); // point that keeps track of last position of the mouse
     if (shape)
     {
-      if (!_shapefirstgrab)
+      if (!_shapeFirstGrab)
       {    
         shape->translate(event->x() - prevMousePosition.x(), event->y() - prevMousePosition.y());
         update();
         emit shapeChanged(getCurrentShape());
       }  
       else
-        _shapefirstgrab = false;
+        _shapeFirstGrab = false;
     }
     // Update previous mouse position.
     prevMousePosition.setX( event->x() );
@@ -268,7 +274,7 @@ void MapperGLCanvas::glueVertex(Shape *orig, QPointF *p)
 void MapperGLCanvas::deselectAll()
 {
   _activeVertex = NO_VERTEX;
-  _shapegrabbed = false;
-  _shapefirstgrab = false;
+  _shapeGrabbed = false;
+  _shapeFirstGrab = false;
   _mousepressed = false;
 }
