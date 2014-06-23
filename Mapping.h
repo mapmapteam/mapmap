@@ -59,6 +59,7 @@ private:
   float _opacity;
 
 protected:
+  /// Constructor.
   Mapping(Paint::ptr paint, Shape::ptr shape, uid id=NULL_UID);
 
 public:
@@ -77,12 +78,19 @@ public:
     _shape->build();
   }
 
+  /// The type of the mapping (expressed as a string).
   virtual QString getType() const = 0;
 
+  /// Returns the paint.
   Paint::ptr getPaint() const { return _paint; }
+
+  /// Returns the (output) shape.
   Shape::ptr getShape() const { return _shape; }
 
+  /// Returns true iff the mapping possesses an input (source) shape.
   virtual bool hasInputShape() const { return false; }
+
+  /// Returns the input (source) shape (if this mapping has one) or a null pointer if not.
   virtual Shape::ptr getInputShape() const { return Shape::ptr(); }
 
   uid getId() const { return _id; }
@@ -107,6 +115,9 @@ public:
   float getOpacity() const { return _opacity; }
 };
 
+/**
+ * Mapping of a Color paint into a shape.
+ */
 class ColorMapping : public Mapping
 {
 public:
