@@ -827,13 +827,12 @@ void MainWindow::createLayout()
   propertyPanel->setMinimumWidth(PROPERTY_PANEL_MINIMUM_WIDTH);
 
   // Create canvases.
+  sourceCanvas = new SourceGLCanvas(this);
+  //sourceCanvas->setFocusPolicy(Qt::ClickFocus);
+  //sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  //sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-//  sourceCanvas = new SourceGLCanvas(this);
-//  sourceCanvas->setFocusPolicy(Qt::ClickFocus);
-//  sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-//  sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
-//
-//  destinationCanvas = new DestinationGLCanvas(this, 0, sourceCanvas);
+  destinationCanvas = new DestinationGLCanvas(this, 0, sourceCanvas);
 //  destinationCanvas->setFocusPolicy(Qt::ClickFocus);
 //  destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 //  destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
@@ -864,29 +863,29 @@ void MainWindow::createLayout()
   resourceSplitter->addWidget(mappingList);
   resourceSplitter->addWidget(propertyPanel);
 
-//  canvasSplitter = new QSplitter(Qt::Horizontal);
-//  canvasSplitter->addWidget(sourceCanvas);
-//  canvasSplitter->addWidget(destinationCanvas);
-//
-//  mainSplitter = new QSplitter(Qt::Vertical);
-//  mainSplitter->addWidget(canvasSplitter);
-//  mainSplitter->addWidget(resourceSplitter);
-//
-//  // Initialize size to 2:1 proportions.
-//  QSize sz = mainSplitter->size();
-//  QList<int> sizes;
-//  sizes.append(sz.height() * 2 / 3);
-//  sizes.append(sz.height() - sizes.at(0));
-//  mainSplitter->setSizes(sizes);
-//
+  canvasSplitter = new QSplitter(Qt::Horizontal);
+  canvasSplitter->addWidget(sourceCanvas);
+  canvasSplitter->addWidget(destinationCanvas);
+
+  mainSplitter = new QSplitter(Qt::Vertical);
+  mainSplitter->addWidget(canvasSplitter);
+  mainSplitter->addWidget(resourceSplitter);
+
+  // Initialize size to 2:1 proportions.
+  QSize sz = mainSplitter->size();
+  QList<int> sizes;
+  sizes.append(sz.height() * 2 / 3);
+  sizes.append(sz.height() - sizes.at(0));
+  mainSplitter->setSizes(sizes);
+
   // Upon resizing window, give some extra stretch expansion to canvasSplitter.
   //mainSplitter->setStretchFactor(0, 1);
 
   // Final setups.
   setWindowTitle(tr("MapMap"));
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-  setCentralWidget(resourceSplitter);
-  //setCentralWidget(mainSplitter);
+  //setCentralWidget(sourceCanvas);
+  setCentralWidget(mainSplitter);
 
   // Connect mapping and paint lists signals and slots.
   //connectProjectWidgets();

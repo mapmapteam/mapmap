@@ -23,22 +23,23 @@
 #include "MainWindow.h"
 
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
-  : QGLWidget(parent, shareWidget), _mainWindow(mainWindow), _mousepressed(false), _activeVertex(NO_VERTEX), _displayControls(true)
+  : QGLWidget(QGLFormat(QGL::SampleBuffers), parent, shareWidget), _mainWindow(mainWindow), _mousepressed(false), _activeVertex(NO_VERTEX), _displayControls(true)
 {
 }
 
 void MapperGLCanvas::initializeGL()
 {
+  qDebug() << "initializeGL" << endl;
   // Clear to black.
   qglClearColor(Qt::black);
 
   // Antialiasing options.
-  QGLWidget::setFormat(QGLFormat(QGL::SampleBuffers));
+  //QGLWidget::setFormat(QGLFormat(QGL::SampleBuffers));
 }
 
 void MapperGLCanvas::resizeGL(int width, int height)
 {
-  //qDebug() << "Resize to " << width << "x" << height << endl;
+  qDebug() << "Resize to " << width << "x" << height << endl;
   glViewport(0, 0, width, height);
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
@@ -47,6 +48,7 @@ void MapperGLCanvas::resizeGL(int width, int height)
     (GLfloat) height, 0.0f, // bottom, top
     -1.0, 1.0f);
   glMatrixMode (GL_MODELVIEW);
+  qDebug() << "done resizing" << endl;
 }
 
 void MapperGLCanvas::paintGL()
@@ -55,9 +57,11 @@ void MapperGLCanvas::paintGL()
 
 void MapperGLCanvas::draw(QPainter* painter)
 {
+  qDebug() << "draw mappergl" << endl;
   enterDraw(painter);
   doDraw(painter);
   exitDraw(painter);
+  qDebug() << "done." << endl;
 }
 
 void MapperGLCanvas::enterDraw(QPainter* painter)
