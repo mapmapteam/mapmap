@@ -97,6 +97,10 @@ private slots:
   void addTriangle();
   void addEllipse();
 
+  void play();
+  void pause();
+  void rewind();
+
   // Other.
   void windowModified();
   void pollOscInterface();
@@ -211,8 +215,9 @@ private:
 //  QMenu *selectSubMenu;
 //  QMenu *toolsMenu;
 //  QMenu *optionsMenu;
-  QMenu *viewMenu;
   QMenu *editMenu;
+  QMenu *viewMenu;
+  QMenu *runMenu;
   QMenu *helpMenu;
 
   // Toolbar.
@@ -236,6 +241,10 @@ private:
   QAction *addMeshAction;
   QAction *addTriangleAction;
   QAction *addEllipseAction;
+
+  QAction *playAction;
+  QAction *pauseAction;
+  QAction *rewindAction;
 
   QAction *displayOutputWindow;
   QAction *outputWindowFullScreen;

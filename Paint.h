@@ -67,6 +67,15 @@ public:
   /// This method should be called at each call of draw().
   virtual void update() {}
 
+  /// Starts playback.
+  virtual void play() {}
+
+  /// Pauses playback.
+  virtual void pause() {}
+
+  /// Rewinds.
+  virtual void rewind() {}
+
   void setName(const QString& name) { _name = name; }
   QString getName() const { return _name; }
   uid getId() const { return _id; }
@@ -192,6 +201,14 @@ public:
   bool setUri(const QString &uri);
   virtual void build();
   virtual void update();
+
+  /// Starts playback.
+  virtual void play();
+  /// Pauses playback.
+  virtual void pause();
+  /// Rewinds.
+  virtual void rewind();
+
   virtual QString getType() const
   {
     return "media";

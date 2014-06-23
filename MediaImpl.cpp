@@ -422,7 +422,7 @@ bool MediaImpl::loadMovie(QString filename)
   _bus = gst_element_get_bus (_pipeline);
 
   // Start playing.
-  if (!_setPlayState(true))
+  if (!setPlayState(true))
     return false;
 
   qDebug() << "Pipeline started.";
@@ -430,7 +430,6 @@ bool MediaImpl::loadMovie(QString filename)
   //_movieReady = true;
   return true;
 }
-
 
 bool MediaImpl::runVideo() {
 
@@ -475,6 +474,25 @@ bool MediaImpl::runVideo() {
   return bitsChanged;
 }
 
+bool MediaImpl::setPlayState(bool play)
+{
+  if (_pipeline == NULL)
+    return false;
+
+  GstStateChangeReturn ret = gst_element_set_state (_pipeline, (play ? GST_STATE_PLAYING : GST_STATE_PAUSED));
+  if (ret == GST_STATE_CHANGE_FAILURE)
+  {
+    qDebug() << "Unable to set the pipeline to the playing state.";
+    unloadMovie();
+    return false;
+  }
+  else
+  {
+    _setReady(play);
+
+    return true;
+  }
+}
 
 //void VideoImpl::runAudio() {
 //
@@ -618,27 +636,6 @@ void MediaImpl::_postRun()
   }
 }
 
-
-bool MediaImpl::_setPlayState(bool play)
-{
-  if (_pipeline == NULL)
-    return false;
-
-  GstStateChangeReturn ret = gst_element_set_state (_pipeline, (play ? GST_STATE_PLAYING : GST_STATE_PAUSED));
-  if (ret == GST_STATE_CHANGE_FAILURE)
-  {
-    qDebug() << "Unable to set the pipeline to the playing state.";
-    unloadMovie();
-    return false;
-  }
-  else
-  {
-    _setReady(play);
-
-    return true;
-  }
-}
-
 void MediaImpl::_setReady(bool ready)
 {
   _movieReady = ready;
@@ -762,12 +759,12 @@ exit:
 void MediaImpl::internalPrePlay()
 {
   // Start/resume playback.
-  _setPlayState(true);
+  setPlayState(true);
 }
 
 void MediaImpl::internalPostPlay()
 {
   // Pause playback.
-  _setPlayState(false);
+  setPlayState(false);
 }
 

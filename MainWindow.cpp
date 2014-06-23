@@ -420,6 +420,27 @@ void MainWindow::addEllipse()
   addMappingItem(mappingId);
 }
 
+void MainWindow::play()
+{
+  // Start all paints.
+  for (int i=0; i<mappingManager->nPaints(); i++)
+    mappingManager->getPaint(i)->play();
+}
+
+void MainWindow::pause()
+{
+  // Pause all paints.
+  for (int i=0; i<mappingManager->nPaints(); i++)
+    mappingManager->getPaint(i)->pause();
+}
+
+void MainWindow::rewind()
+{
+  // Rewind all paints.
+  for (int i=0; i<mappingManager->nPaints(); i++)
+    mappingManager->getPaint(i)->rewind();
+}
+
 void MainWindow::about()
 {
   // Stop video playback to avoid lags. XXX Hack
@@ -997,6 +1018,27 @@ void MainWindow::createActions()
   connect(addEllipseAction, SIGNAL(triggered()), this, SLOT(addEllipse()));
   addEllipseAction->setEnabled(false);
 
+  // Play.
+  playAction = new QAction(tr("Play"), this);
+  playAction->setShortcut(tr("CTRL+P"));
+  playAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
+  playAction->setStatusTip(tr("Play"));
+  connect(playAction, SIGNAL(triggered()), this, SLOT(play()));
+
+  // Pause.
+  pauseAction = new QAction(tr("Pause"), this);
+  pauseAction->setShortcut(tr("CTRL+P"));
+  pauseAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
+  pauseAction->setStatusTip(tr("Pause"));
+  connect(pauseAction, SIGNAL(triggered()), this, SLOT(pause()));
+
+  // Pause.
+  rewindAction = new QAction(tr("Rewind"), this);
+  rewindAction->setShortcut(tr("CTRL+R"));
+  rewindAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
+  rewindAction->setStatusTip(tr("Rewind"));
+  connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
+
   // Toggle display of output window.
   displayOutputWindow = new QAction(tr("&Display output window"), this);
   displayOutputWindow->setShortcut(tr("Ctrl+D"));
@@ -1070,6 +1112,12 @@ void MainWindow::createMenus()
   viewMenu->addAction(outputWindowFullScreen);
   viewMenu->addAction(displayCanvasControls);
 
+  // Run.
+  runMenu = menuBar->addMenu(tr("&Run"));
+  runMenu->addAction(playAction);
+  runMenu->addAction(pauseAction);
+  runMenu->addAction(rewindAction);
+
 //  selectSubMenu = editMenu->addMenu(tr("&Select"));
 //  selectSubMenu->addAction(selectRowAction);
 //  selectSubMenu->addAction(selectColumnAction);
@@ -1114,6 +1162,10 @@ void MainWindow::createToolBars()
   fileToolBar->addAction(addMeshAction);
   fileToolBar->addAction(addTriangleAction);
   fileToolBar->addAction(addEllipseAction);
+  fileToolBar->addSeparator();
+  fileToolBar->addAction(playAction);
+  fileToolBar->addAction(pauseAction);
+  fileToolBar->addAction(rewindAction);
 
 //  editToolBar = addToolBar(tr("&Edit"));
 //  editToolBar->addAction(cutAction);

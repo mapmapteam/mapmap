@@ -80,6 +80,21 @@ void Media::update() {
     bitsChanged = true;
 }
 
+void Media::play()
+{
+  impl_->setPlayState(true);
+}
+
+void Media::pause()
+{
+  impl_->setPlayState(false);
+}
+
+void Media::rewind()
+{
+  impl_->resetMovie();
+}
+
 const uchar* Media::_getBits() const
 {
   return this->impl_->getBits();
