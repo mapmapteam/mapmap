@@ -827,7 +827,6 @@ void MainWindow::createLayout()
   propertyPanel->setMinimumWidth(PROPERTY_PANEL_MINIMUM_WIDTH);
 
   // Create canvases.
-
   sourceCanvas = new SourceGLCanvas(this);
   sourceCanvas->setFocusPolicy(Qt::ClickFocus);
   sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -858,7 +857,6 @@ void MainWindow::createLayout()
           destinationCanvas,         SLOT(updateCanvas()));
 
   // Create layout.
-
   resourceSplitter = new QSplitter(Qt::Horizontal);
   resourceSplitter->addWidget(paintList);
   resourceSplitter->addWidget(mappingList);
@@ -1026,7 +1024,7 @@ void MainWindow::createActions()
 
   // Toggle display of canvas controls.
   displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
-//  displayCanvasControls->setShortcut(tr("Ctrl+E"));
+  //  displayCanvasControls->setShortcut(tr("Ctrl+E"));
   displayCanvasControls->setStatusTip(tr("Display canvas controls"));
   displayCanvasControls->setCheckable(true);
   displayCanvasControls->setChecked(true);
@@ -1038,8 +1036,17 @@ void MainWindow::createActions()
 
 void MainWindow::createMenus()
 {
-  // File.
-  fileMenu = menuBar()->addMenu(tr("&File"));
+  QMenuBar *menuBar = NULL;
+
+#ifdef __MACOSX_CORE__
+  menuBar = new QMenuBar(0);
+  //this->setMenuBar(menuBar);
+#else
+  menuBar = this->menuBar();
+#endif
+
+  // File
+  fileMenu = menuBar->addMenu(tr("&File"));
   fileMenu->addAction(newAction);
   fileMenu->addAction(openAction);
   fileMenu->addAction(saveAction);
@@ -1051,14 +1058,14 @@ void MainWindow::createMenus()
   fileMenu->addAction(exitAction);
 
   // Edit.
-  editMenu = menuBar()->addMenu(tr("&Edit"));
+  editMenu = menuBar->addMenu(tr("&Edit"));
   //  editMenu->addAction(cutAction);
   //  editMenu->addAction(copyAction);
   //  editMenu->addAction(pasteAction);
   editMenu->addAction(deleteAction);
 
   // View.
-  viewMenu = menuBar()->addMenu(tr("&View"));
+  viewMenu = menuBar->addMenu(tr("&View"));
   viewMenu->addAction(displayOutputWindow);
   viewMenu->addAction(outputWindowFullScreen);
   viewMenu->addAction(displayCanvasControls);
@@ -1081,7 +1088,7 @@ void MainWindow::createMenus()
 //  optionsMenu->addAction(autoRecalcAction);
 
   // Help.
-  helpMenu = menuBar()->addMenu(tr("&Help"));
+  helpMenu = menuBar->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAction);
 //  helpMenu->addAction(aboutQtAction);
 }
