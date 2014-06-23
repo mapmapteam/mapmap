@@ -59,10 +59,8 @@ int main(int argc, char *argv[])
   // set_language_to_french(app);
   if (FORCE_FRENCH_LANG)
   {
-    // Set translator.
-    QTranslator translator;
-    translator.load("mapmap_fr");
-    app.installTranslator(&translator);
+    std::cerr << "This system has no OpenGL support" << std::endl;
+    return 1;
   }
 
   // Let splash for at least one second.
@@ -70,14 +68,17 @@ int main(int argc, char *argv[])
 
   // Create window.
   MainWindow win;
+
+  QFontDatabase db;
+  Q_ASSERT( QFontDatabase::addApplicationFont(":/base-font") != -1);
+  app.setFont(QFont(":/base-font", 10, QFont::Bold));
+
+  // Load stylesheet.
+  QFile stylesheet("mapmap.qss");
+  stylesheet.open(QFile::ReadOnly);
+  app.setStyleSheet(QLatin1String(stylesheet.readAll()));
+
   //win.setLocale(QLocale("fr"));
-
-  // Load file from commandline (optional).
-  if (QCoreApplication::arguments().size() > 1)
-    win.loadFile(QCoreApplication::arguments().at(1));
-
-  // Show window.
-  win.show();
 
   // Terminate splash.
   splash.showMessage("  " + QObject::tr("Done."),
@@ -85,6 +86,9 @@ int main(int argc, char *argv[])
   I::msleep(500);
   splash.finish(&win);
   splash.raise();
+
+  // Launch program.
+  win.show();
 
   // Start app.
   return app.exec();
