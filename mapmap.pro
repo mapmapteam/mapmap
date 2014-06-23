@@ -2,8 +2,7 @@ CONFIG  += qt debug
 TEMPLATE = app
 VERSION = 0.1.1
 TARGET = mapmap
-QT += gui opengl xml
-CONFIG += qt debug
+QT += gui opengl xml widgets
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
 HEADERS  = \
@@ -49,7 +48,6 @@ SOURCES  = \
     Util.cpp \
     main.cpp
 
-QT += gui opengl xml
 RESOURCES = mapmap.qrc
 TRANSLATIONS = mapmap_fr.ts mapmap_ar.ts
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
@@ -81,9 +79,9 @@ mac {
   LIBS += -F /Library/Frameworks/ -framework GStreamer
   LIBS += -framework OpenGL -framework GLUT
   # With Xcode Tools > 1.5, to reduce the size of your binary even more:
-  LIBS += -dead_strip
-  QMAKE_CXXFLAGS += -D__MACOSX_CORE__
+  # LIBS += -dead_strip
   # This tells qmake not to put the executable inside a bundle.
+  # just for reference. Do not uncomment.
   # CONFIG-=app_bundle
 }
 
