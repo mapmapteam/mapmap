@@ -289,6 +289,7 @@ private:
   uid currentMappingId;
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
+  bool _isPlaying;
 
   // Keeps track of the current selected item, wether it's a paint or mapping.
   QListWidgetItem* currentSelectedItem;

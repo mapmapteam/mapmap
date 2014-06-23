@@ -43,6 +43,9 @@ MainWindow::MainWindow()
   _hasCurrentMapping = false;
   currentSelectedItem = NULL;
 
+  // Play state.
+  _isPlaying = false;
+
   // Create everything.
   videoTimer = new QTimer(this);
   videoTimer->setInterval(1000/30);
@@ -425,6 +428,11 @@ void MainWindow::play()
   // Start all paints.
   for (int i=0; i<mappingManager->nPaints(); i++)
     mappingManager->getPaint(i)->play();
+
+  // Update buttons.
+  _isPlaying = true;
+  playAction->setEnabled(!_isPlaying);
+  pauseAction->setEnabled(_isPlaying);
 }
 
 void MainWindow::pause()
@@ -432,6 +440,11 @@ void MainWindow::pause()
   // Pause all paints.
   for (int i=0; i<mappingManager->nPaints(); i++)
     mappingManager->getPaint(i)->pause();
+
+  // Update buttons.
+  _isPlaying = false;
+  playAction->setEnabled(!_isPlaying);
+  pauseAction->setEnabled(_isPlaying);
 }
 
 void MainWindow::rewind()
@@ -1024,6 +1037,7 @@ void MainWindow::createActions()
   playAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
   playAction->setStatusTip(tr("Play"));
   connect(playAction, SIGNAL(triggered()), this, SLOT(play()));
+  playAction->setEnabled(!_isPlaying);
 
   // Pause.
   pauseAction = new QAction(tr("Pause"), this);
@@ -1031,6 +1045,7 @@ void MainWindow::createActions()
   pauseAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
   pauseAction->setStatusTip(tr("Pause"));
   connect(pauseAction, SIGNAL(triggered()), this, SLOT(pause()));
+  pauseAction->setEnabled(_isPlaying);
 
   // Pause.
   rewindAction = new QAction(tr("Rewind"), this);
@@ -1337,6 +1352,11 @@ bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint)
   std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(mappingManager->getPaintById(mediaId));
   Q_CHECK_PTR(media);
 
+  if (_isPlaying)
+    media->play();
+  else
+    media->pause();
+
   media->setPosition((sourceCanvas->width()  - media->getWidth() ) / 2.0f,
                      (sourceCanvas->height() - media->getHeight()) / 2.0f );
 
@@ -1357,6 +1377,12 @@ bool MainWindow::addColorPaint(const QColor& color, Paint::ptr oldPaint)
   // Initialize position (center).
   std::tr1::shared_ptr<Color> colorPaint = std::tr1::static_pointer_cast<Color>(mappingManager->getPaintById(colorId));
   Q_CHECK_PTR(colorPaint);
+
+  // Does not do anything...
+  if (_isPlaying)
+    colorPaint->play();
+  else
+    colorPaint->pause();
 
   QApplication::restoreOverrideCursor();
 
