@@ -1057,6 +1057,7 @@ void MainWindow::createActions()
   // Toggle display of output window.
   displayOutputWindow = new QAction(tr("&Display output window"), this);
   displayOutputWindow->setShortcut(tr("Ctrl+D"));
+  displayOutputWindow->setIcon(QIcon(":/images/draw-ellipse-2.png"));
   displayOutputWindow->setStatusTip(tr("Display output window"));
   displayOutputWindow->setCheckable(true);
   displayOutputWindow->setChecked(true);
@@ -1068,6 +1069,7 @@ void MainWindow::createActions()
   // Toggle display of output window.
   outputWindowFullScreen = new QAction(tr("&Full screen"), this);
   outputWindowFullScreen->setShortcut(tr("Ctrl+F"));
+  outputWindowFullScreen->setIcon(QIcon(":/images/draw-ellipse-2.png"));
   outputWindowFullScreen->setStatusTip(tr("Full screen"));
   outputWindowFullScreen->setCheckable(true);
   outputWindowFullScreen->setChecked(false);
@@ -1082,6 +1084,7 @@ void MainWindow::createActions()
   // Toggle display of canvas controls.
   displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
   //  displayCanvasControls->setShortcut(tr("Ctrl+E"));
+  displayCanvasControls->setIcon(QIcon(":/images/draw-ellipse-2.png"));
   displayCanvasControls->setStatusTip(tr("Display canvas controls"));
   displayCanvasControls->setCheckable(true);
   displayCanvasControls->setChecked(true);
@@ -1181,6 +1184,10 @@ void MainWindow::createToolBars()
   fileToolBar->addAction(playAction);
   fileToolBar->addAction(pauseAction);
   fileToolBar->addAction(rewindAction);
+  fileToolBar->addSeparator();
+  fileToolBar->addAction(displayOutputWindow);
+  fileToolBar->addAction(outputWindowFullScreen);
+  fileToolBar->addAction(displayCanvasControls);
 
 //  editToolBar = addToolBar(tr("&Edit"));
 //  editToolBar->addAction(cutAction);
