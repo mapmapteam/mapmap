@@ -44,23 +44,23 @@ MainWindow::MainWindow()
   currentSelectedItem = NULL;
 
   // Create everything.
-  videoTimer = new QTimer(this);
-  videoTimer->setInterval(1000/30);
-  connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateCanvases()));
-  videoTimer->start();
-
+//  videoTimer = new QTimer(this);
+//  videoTimer->setInterval(1000/30);
+//  connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateCanvases()));
+//  videoTimer->start();
+//
   createLayout();
   createActions();
-  createMenus();
-  createContextMenu();
-  createToolBars();
-  createStatusBar();
+  //createMenus();
+  //createContextMenu();
+  //createToolBars();
+  //createStatusBar();
 
   // Load settings.
-  readSettings();
+//  readSettings();
 
   // Start osc.
-  startOscReceiver();
+//  startOscReceiver();
 
   // Defaults.
   //setWindowIcon(QIcon(":/images/icon.png"));
@@ -828,67 +828,68 @@ void MainWindow::createLayout()
 
   // Create canvases.
 
-  sourceCanvas = new SourceGLCanvas(this);
-  sourceCanvas->setFocusPolicy(Qt::ClickFocus);
-  sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
-
-  destinationCanvas = new DestinationGLCanvas(this, 0, sourceCanvas);
-  destinationCanvas->setFocusPolicy(Qt::ClickFocus);
-  destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
-
-  outputWindow = new OutputGLWindow(this, this, sourceCanvas);
-  outputWindow->setVisible(true);
-
-  // Source changed -> change destination
-  connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
-          destinationCanvas, SLOT(updateCanvas()));
-
-  // Source changed -> change output window
-  connect(sourceCanvas,              SIGNAL(shapeChanged(Shape*)),
-          outputWindow->getCanvas(), SLOT(updateCanvas()));
-
-  // Destination changed -> change output window
-  connect(destinationCanvas,         SIGNAL(shapeChanged(Shape*)),
-          outputWindow->getCanvas(), SLOT(updateCanvas()));
-
-  // Output changed -> change destinatioin
-  connect(outputWindow->getCanvas(), SIGNAL(shapeChanged(Shape*)),
-          destinationCanvas,         SLOT(updateCanvas()));
-
-  // Create layout.
-
+//  sourceCanvas = new SourceGLCanvas(this);
+//  sourceCanvas->setFocusPolicy(Qt::ClickFocus);
+//  sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//  sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
+//
+//  destinationCanvas = new DestinationGLCanvas(this, 0, sourceCanvas);
+//  destinationCanvas->setFocusPolicy(Qt::ClickFocus);
+//  destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//  destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
+//
+//  outputWindow = new OutputGLWindow(this, this, sourceCanvas);
+//  outputWindow->setVisible(true);
+//
+//  // Source changed -> change destination
+//  connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
+//          destinationCanvas, SLOT(updateCanvas()));
+//
+//  // Source changed -> change output window
+//  connect(sourceCanvas,              SIGNAL(shapeChanged(Shape*)),
+//          outputWindow->getCanvas(), SLOT(updateCanvas()));
+//
+//  // Destination changed -> change output window
+//  connect(destinationCanvas,         SIGNAL(shapeChanged(Shape*)),
+//          outputWindow->getCanvas(), SLOT(updateCanvas()));
+//
+//  // Output changed -> change destinatioin
+//  connect(outputWindow->getCanvas(), SIGNAL(shapeChanged(Shape*)),
+//          destinationCanvas,         SLOT(updateCanvas()));
+//
+//  // Create layout.
+//
   resourceSplitter = new QSplitter(Qt::Horizontal);
   resourceSplitter->addWidget(paintList);
   resourceSplitter->addWidget(mappingList);
   resourceSplitter->addWidget(propertyPanel);
 
-  canvasSplitter = new QSplitter(Qt::Horizontal);
-  canvasSplitter->addWidget(sourceCanvas);
-  canvasSplitter->addWidget(destinationCanvas);
-
-  mainSplitter = new QSplitter(Qt::Vertical);
-  mainSplitter->addWidget(canvasSplitter);
-  mainSplitter->addWidget(resourceSplitter);
-
-  // Initialize size to 2:1 proportions.
-  QSize sz = mainSplitter->size();
-  QList<int> sizes;
-  sizes.append(sz.height() * 2 / 3);
-  sizes.append(sz.height() - sizes.at(0));
-  mainSplitter->setSizes(sizes);
-
+//  canvasSplitter = new QSplitter(Qt::Horizontal);
+//  canvasSplitter->addWidget(sourceCanvas);
+//  canvasSplitter->addWidget(destinationCanvas);
+//
+//  mainSplitter = new QSplitter(Qt::Vertical);
+//  mainSplitter->addWidget(canvasSplitter);
+//  mainSplitter->addWidget(resourceSplitter);
+//
+//  // Initialize size to 2:1 proportions.
+//  QSize sz = mainSplitter->size();
+//  QList<int> sizes;
+//  sizes.append(sz.height() * 2 / 3);
+//  sizes.append(sz.height() - sizes.at(0));
+//  mainSplitter->setSizes(sizes);
+//
   // Upon resizing window, give some extra stretch expansion to canvasSplitter.
   //mainSplitter->setStretchFactor(0, 1);
 
   // Final setups.
   setWindowTitle(tr("MapMap"));
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-  setCentralWidget(mainSplitter);
+  setCentralWidget(resourceSplitter);
+  //setCentralWidget(mainSplitter);
 
   // Connect mapping and paint lists signals and slots.
-  connectProjectWidgets();
+  //connectProjectWidgets();
 
   // Reset focus on main window.
   setFocus();
@@ -1000,46 +1001,55 @@ void MainWindow::createActions()
   addEllipseAction->setEnabled(false);
 
   // Toggle display of output window.
-  displayOutputWindow = new QAction(tr("&Display output window"), this);
-  displayOutputWindow->setShortcut(tr("Ctrl+D"));
-  displayOutputWindow->setStatusTip(tr("Display output window"));
-  displayOutputWindow->setCheckable(true);
-  displayOutputWindow->setChecked(true);
-  // Manage show/hide of GL output window.
-  connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindow, SLOT(setVisible(bool)));
-  // When closing the GL output window, uncheck the action in menu.
-  connect(outputWindow, SIGNAL(closed()), displayOutputWindow, SLOT(toggle()));
-
-  // Toggle display of output window.
-  outputWindowFullScreen = new QAction(tr("&Full screen"), this);
-  outputWindowFullScreen->setShortcut(tr("Ctrl+F"));
-  outputWindowFullScreen->setStatusTip(tr("Full screen"));
-  outputWindowFullScreen->setCheckable(true);
-  outputWindowFullScreen->setChecked(false);
-  // Manage fullscreen mode for output window.
-  connect(outputWindowFullScreen, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
-  // When fullscreen is toggled by the output window (eg. when pressing ESC), change the action checkbox.
-  connect(outputWindow, SIGNAL(fullScreenToggled(bool)), outputWindowFullScreen, SLOT(setChecked(bool)));
-  // Output window should be displayed for full screen option to be available.
-  connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindowFullScreen, SLOT(setEnabled(bool)));
-
-
-  // Toggle display of canvas controls.
-  displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
-//  displayCanvasControls->setShortcut(tr("Ctrl+E"));
-  displayCanvasControls->setStatusTip(tr("Display canvas controls"));
-  displayCanvasControls->setCheckable(true);
-  displayCanvasControls->setChecked(true);
-  // Manage show/hide of canvas controls.
-  connect(displayCanvasControls, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableDisplayControls(bool)));
-  connect(displayCanvasControls, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableDisplayControls(bool)));
-  connect(displayCanvasControls, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableDisplayControls(bool)));
+//  displayOutputWindow = new QAction(tr("&Display output window"), this);
+//  displayOutputWindow->setShortcut(tr("Ctrl+D"));
+//  displayOutputWindow->setStatusTip(tr("Display output window"));
+//  displayOutputWindow->setCheckable(true);
+//  displayOutputWindow->setChecked(true);
+//  // Manage show/hide of GL output window.
+//  connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindow, SLOT(setVisible(bool)));
+//  // When closing the GL output window, uncheck the action in menu.
+//  connect(outputWindow, SIGNAL(closed()), displayOutputWindow, SLOT(toggle()));
+//
+//  // Toggle display of output window.
+//  outputWindowFullScreen = new QAction(tr("&Full screen"), this);
+//  outputWindowFullScreen->setShortcut(tr("Ctrl+F"));
+//  outputWindowFullScreen->setStatusTip(tr("Full screen"));
+//  outputWindowFullScreen->setCheckable(true);
+//  outputWindowFullScreen->setChecked(false);
+//  // Manage fullscreen mode for output window.
+//  connect(outputWindowFullScreen, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
+//  // When fullscreen is toggled by the output window (eg. when pressing ESC), change the action checkbox.
+//  connect(outputWindow, SIGNAL(fullScreenToggled(bool)), outputWindowFullScreen, SLOT(setChecked(bool)));
+//  // Output window should be displayed for full screen option to be available.
+//  connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindowFullScreen, SLOT(setEnabled(bool)));
+//
+//
+//  // Toggle display of canvas controls.
+//  displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
+////  displayCanvasControls->setShortcut(tr("Ctrl+E"));
+//  displayCanvasControls->setStatusTip(tr("Display canvas controls"));
+//  displayCanvasControls->setCheckable(true);
+//  displayCanvasControls->setChecked(true);
+//  // Manage show/hide of canvas controls.
+//  connect(displayCanvasControls, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableDisplayControls(bool)));
+//  connect(displayCanvasControls, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableDisplayControls(bool)));
+//  connect(displayCanvasControls, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableDisplayControls(bool)));
 }
 
 void MainWindow::createMenus()
 {
-  // File.
-  fileMenu = menuBar()->addMenu(tr("&File"));
+  QMenuBar *menuBar = NULL;
+
+#ifdef __MACOSX_CORE__
+  menuBar = new QMenuBar(0);
+  //this->setMenuBar(menuBar);
+#else
+  menuBar = this->menuBar();
+#endif
+
+  // File
+  fileMenu = menuBar->addMenu(tr("&File"));
   fileMenu->addAction(newAction);
   fileMenu->addAction(openAction);
   fileMenu->addAction(saveAction);
@@ -1051,14 +1061,14 @@ void MainWindow::createMenus()
   fileMenu->addAction(exitAction);
 
   // Edit.
-  editMenu = menuBar()->addMenu(tr("&Edit"));
+  editMenu = menuBar->addMenu(tr("&Edit"));
   //  editMenu->addAction(cutAction);
   //  editMenu->addAction(copyAction);
   //  editMenu->addAction(pasteAction);
   editMenu->addAction(deleteAction);
 
   // View.
-  viewMenu = menuBar()->addMenu(tr("&View"));
+  viewMenu = menuBar->addMenu(tr("&View"));
   viewMenu->addAction(displayOutputWindow);
   viewMenu->addAction(outputWindowFullScreen);
   viewMenu->addAction(displayCanvasControls);
@@ -1081,7 +1091,7 @@ void MainWindow::createMenus()
 //  optionsMenu->addAction(autoRecalcAction);
 
   // Help.
-  helpMenu = menuBar()->addMenu(tr("&Help"));
+  helpMenu = menuBar->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAction);
 //  helpMenu->addAction(aboutQtAction);
 }
@@ -1138,15 +1148,15 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
-  QSettings settings("MapMap", "MapMap");
+//  QSettings settings("MapMap", "MapMap");
 
-  restoreGeometry(settings.value("geometry").toByteArray());
-  mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
-  resourceSplitter->restoreState(settings.value("resourceSplitter").toByteArray());
-  canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
-  outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
-  displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
-  config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
+//  restoreGeometry(settings.value("geometry").toByteArray());
+//  mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
+//  resourceSplitter->restoreState(settings.value("resourceSplitter").toByteArray());
+//  canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
+//  outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
+//  displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
+//  config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 }
 
 void MainWindow::writeSettings()
