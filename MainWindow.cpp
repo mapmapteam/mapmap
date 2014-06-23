@@ -1539,7 +1539,10 @@ void MainWindow::connectProjectWidgets()
   connect(mappingList, SIGNAL(itemActivated(QListWidgetItem*)),
           this,        SLOT(handleItemSelected(QListWidgetItem*)));
 
-  connect(mappingList->model(), SIGNAL(layoutChanged()),
+  connect(mappingList,  SIGNAL(indexesMoved(const QModelIndexList&)),
+          this,                 SLOT(handleMappingIndexesMoved()));
+
+  connect(mappingList->model(), SIGNAL(rowsMoved(const QModelIndex&, int, int, const QModelIndex &, int)),
           this,                 SLOT(handleMappingIndexesMoved()));
 }
 
@@ -1566,7 +1569,7 @@ void MainWindow::disconnectProjectWidgets()
   disconnect(mappingList, SIGNAL(itemActivated(QListWidgetItem*)),
              this,        SLOT(handleItemSelected(QListWidgetItem*)));
 
-  disconnect(mappingList->model(), SIGNAL(layoutChanged()),
+  disconnect(mappingList->model(), SIGNAL(rowsMoved(const QModelIndex&, int, int, const QModelIndex &, int)),
              this,                 SLOT(handleMappingIndexesMoved()));
 }
 
