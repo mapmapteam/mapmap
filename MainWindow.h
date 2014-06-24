@@ -221,9 +221,7 @@ private:
   QMenu *helpMenu;
 
   // Toolbar.
-  QToolBar *fileToolBar;
-  QToolBar *shapeToolBar;
-  QToolBar *viewToolBar;
+  QToolBar *mainToolBar;
   QToolBar *runToolBar;
 
   // Actions.
