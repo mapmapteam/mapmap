@@ -425,26 +425,26 @@ void MainWindow::addEllipse()
 
 void MainWindow::play()
 {
+  // Update buttons.
+  playAction->setVisible(false);
+  pauseAction->setVisible(true);
+  _isPlaying = true;
+
   // Start all paints.
   for (int i=0; i<mappingManager->nPaints(); i++)
     mappingManager->getPaint(i)->play();
-
-  // Update buttons.
-  _isPlaying = true;
-  playAction->setEnabled(!_isPlaying);
-  pauseAction->setEnabled(_isPlaying);
 }
 
 void MainWindow::pause()
 {
+  // Update buttons.
+  playAction->setVisible(true);
+  pauseAction->setVisible(false);
+  _isPlaying = false;
+
   // Pause all paints.
   for (int i=0; i<mappingManager->nPaints(); i++)
     mappingManager->getPaint(i)->pause();
-
-  // Update buttons.
-  _isPlaying = false;
-  playAction->setEnabled(!_isPlaying);
-  pauseAction->setEnabled(_isPlaying);
 }
 
 void MainWindow::rewind()
@@ -1037,7 +1037,7 @@ void MainWindow::createActions()
   playAction->setIcon(QIcon(":/play"));
   playAction->setStatusTip(tr("Play"));
   connect(playAction, SIGNAL(triggered()), this, SLOT(play()));
-  playAction->setEnabled(!_isPlaying);
+  playAction->setVisible(true);
 
   // Pause.
   pauseAction = new QAction(tr("Pause"), this);
@@ -1045,7 +1045,7 @@ void MainWindow::createActions()
   pauseAction->setIcon(QIcon(":/pause"));
   pauseAction->setStatusTip(tr("Pause"));
   connect(pauseAction, SIGNAL(triggered()), this, SLOT(pause()));
-  pauseAction->setEnabled(_isPlaying);
+  pauseAction->setVisible(false);
 
   // Pause.
   rewindAction = new QAction(tr("Rewind"), this);
