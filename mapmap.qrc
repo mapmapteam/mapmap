@@ -10,16 +10,20 @@
     <file alias="control-points">resources/images/icons/ctrl_w.png</file>
 
     <file alias="add-media">resources/images/icons/add_movie_w.png</file>
-    <file alias="add-color">resources/images/icons/color_w.png</file>
+    <file alias="add-color">resources/images/icons/add_color2_w.png</file>
 
+    <file alias="add-mesh">resources/images/shapes/add_quad.png</file>
+    <file alias="add-triangle">resources/images/shapes/add_triangle.png</file>
+    <file alias="add-ellipse">resources/images/shapes/add_circle.png</file>
+
+<!--
     <file alias="add-mesh">resources/images/icons/ad_quad_w.png</file>
     <file alias="add-triangle">resources/images/icons/ad_tri_w.png</file>
     <file alias="add-ellipse">resources/images/icons/ad_cerl_w.png</file>
 
-<!--
-    <file alias="add-mesh">resources/images/shapes/add_quad.png</file>
-    <file alias="add-triangle">resources/images/shapes/add_triangle.png</file>
-    <file alias="add-ellipse">resources/images/shapes/add_circle.png</file>
+    <file alias="add-mesh">resources/images/icons/ad_quad.png</file>
+    <file alias="add-triangle">resources/images/icons/ad_tri_.png</file>
+    <file alias="add-ellipse">resources/images/icons/ad_cer.png</file>
 -->
 
     <file alias="play">resources/images/icons/play_w.png</file>
