@@ -83,7 +83,6 @@ int main(int argc, char *argv[])
   // Terminate splash.
   splash.showMessage("  " + QObject::tr("Done."),
                      Qt::AlignLeft | Qt::AlignTop, MM::WHITE);
-  I::msleep(500);
   splash.finish(&win);
   splash.raise();
 
