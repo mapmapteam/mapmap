@@ -1,7 +1,7 @@
 /*
 Colors:
 White: #f6f5f5
-Dark gray: #323541
+Dark gray: #323541 (darker: #00020E lighter: #4C4F5B)
 Darker gray: #272a36
 */
 
@@ -9,14 +9,32 @@ QMainWindow
 {
 /*  background-color: #f6f5f5;*/
   background-color: #272a36;
+  border-radius: 10px;
 }
 
-QToolButton::hover {
-  background-color: #0c0927;
-}
-
-QToolButton {
+/*QToolButton {
   color: #f6f5f5;
+}
+*/
+
+QToolButton::hover, QToolButton::checked {
+  background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 #0c0927, stop: 1 #00020E);
+  border-radius: 10px;
+}
+
+QToolButton::checked:hover {
+  background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 #0c0927, stop: 1 #191C28);
+  border-radius: 10px;
+}
+
+QToolBar::separator:horizontal {
+/*  background-color: #272a36;
+  width: 3px;
+  color: #f6f5f5;
+/*  image: url(:/separator); */
+  width: 64;
 }
 
 QListView {
