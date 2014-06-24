@@ -11,6 +11,10 @@ QMainWindow
   background-color: #272a36;
 }
 
+QToolButton::hover {
+  background-color: #0c0927;
+}
+
 QToolButton {
   color: #f6f5f5;
 }
@@ -26,11 +30,11 @@ QListView::item {
 
 QListView::item:alternate {
      background: #EEEEEE;
- }
+}
 
- QListView::item:selected {
-   background: #272a36;
- }
+QListView::item:selected {
+  background: #272a36;
+}
 
 /*
  QListView::item:selected:!active {
@@ -44,6 +48,6 @@ QListView::item:alternate {
  }
 
  QListView::item:hover {
-     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                  stop: 0 #FAFBFE, stop: 1 #DCDEF1);
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
  }*/
