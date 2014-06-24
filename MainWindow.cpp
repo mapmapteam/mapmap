@@ -1169,23 +1169,47 @@ void MainWindow::createContextMenu()
 void MainWindow::createToolBars()
 {
   fileToolBar = addToolBar(tr("&File"));
+  fileToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
+  fileToolBar->setMovable(false);
   fileToolBar->addAction(importAction);
   fileToolBar->addAction(addColorAction);
   fileToolBar->addAction(newAction);
   fileToolBar->addAction(openAction);
   fileToolBar->addAction(saveAction);
-  fileToolBar->addSeparator();
-  fileToolBar->addAction(addMeshAction);
-  fileToolBar->addAction(addTriangleAction);
-  fileToolBar->addAction(addEllipseAction);
-  fileToolBar->addSeparator();
-  fileToolBar->addAction(playAction);
-  fileToolBar->addAction(pauseAction);
-  fileToolBar->addAction(rewindAction);
-  fileToolBar->addSeparator();
-  fileToolBar->addAction(displayOutputWindow);
-  fileToolBar->addAction(outputWindowFullScreen);
-  fileToolBar->addAction(displayCanvasControls);
+
+  shapeToolBar = addToolBar(tr("&Shapes"));
+  shapeToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
+  shapeToolBar->setStyleSheet("background-color: #f6f5f5;");
+  shapeToolBar->setMovable(false);
+  shapeToolBar->addAction(addMeshAction);
+  shapeToolBar->addAction(addTriangleAction);
+  shapeToolBar->addAction(addEllipseAction);
+
+  viewToolBar = addToolBar(tr("&View"));
+  viewToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
+  viewToolBar->setMovable(false);
+  viewToolBar->addAction(displayOutputWindow);
+  viewToolBar->addAction(outputWindowFullScreen);
+  viewToolBar->addAction(displayCanvasControls);
+
+  runToolBar = addToolBar(tr("&Run"));
+  runToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
+  runToolBar->setMovable(false);
+  // XXX: style hack: dummy expanding widget allows the placement of toolbar at the top right
+  // From: http://www.qtcentre.org/threads/9102-QToolbar-setContentsMargins
+  QWidget* spacer = new QWidget(runToolBar);
+  spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  runToolBar->addWidget(spacer);
+  // Add player actions.
+  runToolBar->addAction(playAction);
+  runToolBar->addAction(pauseAction);
+  runToolBar->addAction(rewindAction);
+
+  // Add toolbars.
+  addToolBar(Qt::TopToolBarArea, fileToolBar);
+  addToolBar(Qt::TopToolBarArea, shapeToolBar);
+  addToolBar(Qt::TopToolBarArea, viewToolBar);
+  addToolBar(Qt::TopToolBarArea, runToolBar);
 
 //  editToolBar = addToolBar(tr("&Edit"));
 //  editToolBar->addAction(cutAction);

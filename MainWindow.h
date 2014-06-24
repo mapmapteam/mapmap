@@ -222,6 +222,9 @@ private:
 
   // Toolbar.
   QToolBar *fileToolBar;
+  QToolBar *shapeToolBar;
+  QToolBar *viewToolBar;
+  QToolBar *runToolBar;
 
   // Actions.
   QAction *separatorAction;
