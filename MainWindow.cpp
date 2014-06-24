@@ -1034,7 +1034,7 @@ void MainWindow::createActions()
   // Play.
   playAction = new QAction(tr("Play"), this);
   playAction->setShortcut(tr("CTRL+P"));
-  playAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
+  playAction->setIcon(QIcon(":/play"));
   playAction->setStatusTip(tr("Play"));
   connect(playAction, SIGNAL(triggered()), this, SLOT(play()));
   playAction->setEnabled(!_isPlaying);
@@ -1042,7 +1042,7 @@ void MainWindow::createActions()
   // Pause.
   pauseAction = new QAction(tr("Pause"), this);
   pauseAction->setShortcut(tr("CTRL+P"));
-  pauseAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
+  pauseAction->setIcon(QIcon(":/pause"));
   pauseAction->setStatusTip(tr("Pause"));
   connect(pauseAction, SIGNAL(triggered()), this, SLOT(pause()));
   pauseAction->setEnabled(_isPlaying);
@@ -1050,14 +1050,14 @@ void MainWindow::createActions()
   // Pause.
   rewindAction = new QAction(tr("Rewind"), this);
   rewindAction->setShortcut(tr("CTRL+R"));
-  rewindAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
+  rewindAction->setIcon(QIcon(":/rewind"));
   rewindAction->setStatusTip(tr("Rewind"));
   connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
 
   // Toggle display of output window.
   displayOutputWindow = new QAction(tr("&Display output window"), this);
   displayOutputWindow->setShortcut(tr("Ctrl+D"));
-  displayOutputWindow->setIcon(QIcon(":/images/draw-ellipse-2.png"));
+  displayOutputWindow->setIcon(QIcon(":/output-window"));
   displayOutputWindow->setStatusTip(tr("Display output window"));
   displayOutputWindow->setCheckable(true);
   displayOutputWindow->setChecked(true);
@@ -1070,7 +1070,6 @@ void MainWindow::createActions()
   outputWindowFullScreen = new QAction(tr("&Full screen"), this);
   outputWindowFullScreen->setIcon(QIcon(":/fullscreen"));
   outputWindowFullScreen->setShortcut(tr("Ctrl+F"));
-  outputWindowFullScreen->setIcon(QIcon(":/images/draw-ellipse-2.png"));
   outputWindowFullScreen->setStatusTip(tr("Full screen"));
   outputWindowFullScreen->setCheckable(true);
   outputWindowFullScreen->setChecked(false);
@@ -1081,11 +1080,10 @@ void MainWindow::createActions()
   // Output window should be displayed for full screen option to be available.
   connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindowFullScreen, SLOT(setEnabled(bool)));
 
-
   // Toggle display of canvas controls.
   displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
   //  displayCanvasControls->setShortcut(tr("Ctrl+E"));
-  displayCanvasControls->setIcon(QIcon(":/images/draw-ellipse-2.png"));
+  displayCanvasControls->setIcon(QIcon(":/control-points"));
   displayCanvasControls->setStatusTip(tr("Display canvas controls"));
   displayCanvasControls->setCheckable(true);
   displayCanvasControls->setChecked(true);

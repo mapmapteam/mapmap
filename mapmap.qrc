@@ -1,18 +1,30 @@
 <RCC>
 <qresource>
-    <file alias="new">resources/images/menu/save.png</file>
-    <file alias="open">resources/images/menu/save.png</file>
-    <file alias="save">resources/images/menu/save.png</file>
-    <file alias="save-as">resources/images/menu/save.png</file>
+    <file alias="new">resources/images/icons/newdoc_w.png</file>
+    <file alias="open">resources/images/icons/open_w.png</file>
+    <file alias="save">resources/images/icons/save_w.png</file>
+    <file alias="save-as">resources/images/icons/save_w.png</file>
 
-    <file alias="fullscreen">resources/images/menu/fullscreen.png</file>
+    <file alias="fullscreen">resources/images/icons/fullscreen_w.png</file>
+    <file alias="output-window">resources/images/icons/nofullscreen_w.png</file>
+    <file alias="control-points">resources/images/icons/ctrl_w.png</file>
 
-    <file alias="add-media">resources/images/media/video.png</file>
-    <file alias="add-color">resources/images/menu/add_color.png</file>
+    <file alias="add-media">resources/images/icons/add_movie_w.png</file>
+    <file alias="add-color">resources/images/icons/color_w.png</file>
 
+    <file alias="add-mesh">resources/images/icons/ad_quad_w.png</file>
+    <file alias="add-triangle">resources/images/icons/ad_tri_w.png</file>
+    <file alias="add-ellipse">resources/images/icons/ad_cerl_w.png</file>
+
+<!--
     <file alias="add-mesh">resources/images/shapes/add_quad.png</file>
     <file alias="add-triangle">resources/images/shapes/add_triangle.png</file>
     <file alias="add-ellipse">resources/images/shapes/add_circle.png</file>
+-->
+
+    <file alias="play">resources/images/icons/play_w.png</file>
+    <file alias="pause">resources/images/icons/pause_w.png</file>
+    <file alias="rewind">resources/images/icons/rewind_w.png</file>
 
     <file alias="shape-mesh">resources/images/shapes/add_quad.png</file>
     <file alias="shape-triangle">resources/images/shapes/add_triangle.png</file>
