@@ -21,6 +21,7 @@ HEADERS  = \
     Paint.h \
     ProjectReader.h \
     ProjectWriter.h \
+    ProxyAction.h \
     Shape.h \
     SourceGLCanvas.h \
     UidAllocator.h \
@@ -42,6 +43,7 @@ SOURCES  = \
     Paint.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
+    ProxyAction.cpp \
     Shape.cpp \
     SourceGLCanvas.cpp \
     UidAllocator.cpp \

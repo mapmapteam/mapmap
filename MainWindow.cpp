@@ -1171,23 +1171,24 @@ void MainWindow::createToolBars()
   mainToolBar = addToolBar(tr("&File"));
   mainToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
   mainToolBar->setMovable(false);
-  mainToolBar->addAction(importAction);
-  mainToolBar->addAction(addColorAction);
-  mainToolBar->addAction(newAction);
-  mainToolBar->addAction(openAction);
-  mainToolBar->addAction(saveAction);
+
+  _addActionToToolBar(mainToolBar, importAction, QIcon(":/add-media-w"));
+  _addActionToToolBar(mainToolBar, addColorAction, QIcon(":/add-color-w"));
+  _addActionToToolBar(mainToolBar, newAction, QIcon(":/new-w"));
+  _addActionToToolBar(mainToolBar, openAction, QIcon(":/open-w"));
+  _addActionToToolBar(mainToolBar, saveAction, QIcon(":/save-w"));
 
   mainToolBar->addSeparator();
 
-  mainToolBar->addAction(addMeshAction);
-  mainToolBar->addAction(addTriangleAction);
-  mainToolBar->addAction(addEllipseAction);
+  _addActionToToolBar(mainToolBar, addMeshAction, QIcon(":/add-mesh-w"));
+  _addActionToToolBar(mainToolBar, addTriangleAction, QIcon(":/add-triangle-w"));
+  _addActionToToolBar(mainToolBar, addEllipseAction, QIcon(":/add-ellipse-w"));
 
   mainToolBar->addSeparator();
 
-  mainToolBar->addAction(displayOutputWindow);
-  mainToolBar->addAction(outputWindowFullScreen);
-  mainToolBar->addAction(displayCanvasControls);
+  _addActionToToolBar(mainToolBar, displayOutputWindow, QIcon(":/output-window-w"));
+  _addActionToToolBar(mainToolBar, outputWindowFullScreen, QIcon(":/fullscreen-w"));
+  _addActionToToolBar(mainToolBar, displayCanvasControls, QIcon(":/control-points-w"));
 
   runToolBar = addToolBar(tr("&Run"));
   runToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
@@ -1197,9 +1198,9 @@ void MainWindow::createToolBars()
   QWidget* spacer = new QWidget(runToolBar);
   spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   runToolBar->addWidget(spacer);
-  runToolBar->addAction(playAction);
-  runToolBar->addAction(pauseAction);
-  runToolBar->addAction(rewindAction);
+  _addActionToToolBar(runToolBar, playAction, QIcon(":/play-w"));
+  _addActionToToolBar(runToolBar, pauseAction, QIcon(":/pause-w"));
+  _addActionToToolBar(runToolBar, rewindAction, QIcon(":/rewind-w"));
 
   // Add toolbars.
   addToolBar(Qt::TopToolBarArea, mainToolBar);
@@ -1802,5 +1803,17 @@ bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
         }
     }
     return success;
+}
+
+void MainWindow::_addActionToToolBar(QToolBar* toolbar, QAction* action, const QIcon& icon)
+{
+  ProxyAction* toolbarAction = new ProxyAction(icon, action->toolTip(), action);
+  toolbar->addAction(toolbarAction);
+//  connect(action, SIGNAL(changed()), toolbarActionProxy, SLOT(change()));
+
+//  QToolButton* actionButton = new QToolButton;
+//  actionButton->setDefaultAction(action);
+//  actionButton->setIcon(icon);
+//  toolbar->addWidget(actionButton);
 }
 

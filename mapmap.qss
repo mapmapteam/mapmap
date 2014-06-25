@@ -7,15 +7,8 @@ Darker gray: #272a36
 
 QMainWindow
 {
-/*  background-color: #f6f5f5;*/
   background-color: #272a36;
-  border-radius: 10px;
 }
-
-/*QToolButton {
-  color: #f6f5f5;
-}
-*/
 
 QToolButton::hover, QToolButton::checked {
   background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
@@ -31,9 +24,8 @@ QToolButton::checked:hover {
 
 QToolBar::separator:horizontal {
 /*  background-color: #272a36;
-  width: 3px;
-  color: #f6f5f5;
-/*  image: url(:/separator); */
+/*  color: #f6f5f5;*/
+/*  image: url(:/toolbar-separator);*/
   width: 64;
 }
 

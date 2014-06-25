@@ -1,34 +1,41 @@
 <RCC>
 <qresource>
-    <file alias="new">resources/images/icons/newdoc_w.png</file>
-    <file alias="open">resources/images/icons/open_w.png</file>
-    <file alias="save">resources/images/icons/save_w.png</file>
-    <file alias="save-as">resources/images/icons/save_w.png</file>
+    <file alias="new">resources/images/icons/newdoc.png</file>
+    <file alias="new-w">resources/images/icons/newdoc_w.png</file>
+    <file alias="open">resources/images/icons/open.png</file>
+    <file alias="open-w">resources/images/icons/open_w.png</file>
+    <file alias="save">resources/images/icons/save.png</file>
+    <file alias="save-w">resources/images/icons/save_w.png</file>
+    <file alias="save-as">resources/images/icons/save.png</file>
+    <file alias="save-as-w">resources/images/icons/save_w.png</file>
 
-    <file alias="fullscreen">resources/images/icons/fullscreen_w.png</file>
-    <file alias="output-window">resources/images/icons/nofullscreen_w.png</file>
-    <file alias="control-points">resources/images/icons/ctrl_w.png</file>
+    <file alias="fullscreen">resources/images/icons/fullscreen.png</file>
+    <file alias="fullscreen-w">resources/images/icons/fullscreen_w.png</file>
+    <file alias="output-window">resources/images/icons/nofullscreen.png</file>
+    <file alias="output-window-w">resources/images/icons/nofullscreen_w.png</file>
+    <file alias="control-points">resources/images/icons/ctrl2.png</file>
+    <file alias="control-points-w">resources/images/icons/ctrl2_w.png</file>
 
-    <file alias="add-media">resources/images/icons/add_movie_w.png</file>
-    <file alias="add-color">resources/images/icons/add_color2_w.png</file>
+    <file alias="add-media">resources/images/icons/add_movie.png</file>
+    <file alias="add-media-w">resources/images/icons/add_movie_w.png</file>
+    <file alias="add-color">resources/images/icons/add_paint.png</file>
+    <file alias="add-color-w">resources/images/icons/add_paint_w.png</file>
 
-    <file alias="add-mesh">resources/images/shapes/add_quad.png</file>
-    <file alias="add-triangle">resources/images/shapes/add_triangle.png</file>
-    <file alias="add-ellipse">resources/images/shapes/add_circle.png</file>
+    <file alias="add-mesh">resources/images/icons/add_quad.png</file>
+    <file alias="add-mesh-w">resources/images/shapes/add_quad.png</file>
+    <file alias="add-triangle">resources/images/icons/add_tri.png</file>
+    <file alias="add-triangle-w">resources/images/shapes/add_triangle.png</file>
+    <file alias="add-ellipse">resources/images/icons/add_circ.png</file>
+    <file alias="add-ellipse-w">resources/images/shapes/add_circle.png</file>
 
-<!--
-    <file alias="add-mesh">resources/images/icons/ad_quad_w.png</file>
-    <file alias="add-triangle">resources/images/icons/ad_tri_w.png</file>
-    <file alias="add-ellipse">resources/images/icons/ad_cerl_w.png</file>
+    <file alias="play">resources/images/icons/play.png</file>
+    <file alias="play-w">resources/images/icons/play_w.png</file>
+    <file alias="pause">resources/images/icons/pause.png</file>
+    <file alias="pause-w">resources/images/icons/pause_w.png</file>
+    <file alias="rewind">resources/images/icons/rewind.png</file>
+    <file alias="rewind-w">resources/images/icons/rewind_w.png</file>
 
-    <file alias="add-mesh">resources/images/icons/ad_quad.png</file>
-    <file alias="add-triangle">resources/images/icons/ad_tri_.png</file>
-    <file alias="add-ellipse">resources/images/icons/ad_cer.png</file>
--->
-
-    <file alias="play">resources/images/icons/play_w.png</file>
-    <file alias="pause">resources/images/icons/pause_w.png</file>
-    <file alias="rewind">resources/images/icons/rewind_w.png</file>
+    <file alias="toolbar-separator">resources/images/icons/toolbar_separator.png</file>
 
     <file alias="shape-mesh">resources/images/shapes/add_quad.png</file>
     <file alias="shape-triangle">resources/images/shapes/add_triangle.png</file>

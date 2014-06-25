@@ -38,6 +38,8 @@
 
 #include "MappingManager.h"
 
+#include "ProxyAction.h"
+
 #include "qtpropertymanager.h"
 #include "qtvariantproperty.h"
 #include "qttreepropertybrowser.h"
@@ -158,6 +160,10 @@ public slots:
   /// Updates all canvases.
   void updateCanvases();
 
+  void debug() {
+    qDebug() << "Item changed" << endl;
+  }
+
 public:
   bool setTextureUri(int texture_id, const std::string &uri);
 
@@ -225,7 +231,7 @@ private:
   QToolBar *runToolBar;
 
   // Actions.
-  QAction *separatorAction;
+  //QAction *separatorAction;
   QAction *newAction;
   QAction *openAction;
   QAction *importAction;
@@ -296,6 +302,7 @@ private:
   QListWidgetItem* currentSelectedItem;
   QTimer *videoTimer;
 
+  // Singleton.
   static MainWindow* instance;
 
 public:
@@ -326,6 +333,11 @@ public:
     _hasCurrentMapping = false;
     currentMappingId = NULL_UID;
   }
+
+private:
+  // Adds an action to the toolbar with a different icon (to allow different icons in the
+  // menu and in the toolbar.
+  void _addActionToToolBar(QToolBar* toolbar, QAction* action, const QIcon& icon);
 
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////
