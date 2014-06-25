@@ -45,7 +45,7 @@
 class MediaImpl
 {
 public:
-  MediaImpl(const QString uri);
+  MediaImpl(const QString uri, bool live);
   ~MediaImpl();
 
 //  void setUri(const QString uri);
@@ -53,6 +53,8 @@ public:
   void build();
   int getWidth() const;
   int getHeight() const;
+  QString getUri() const;
+  bool getAttached();
   const uchar* getBits() const;
 
   bool isReady() const { return _padHandlerData.isConnected(); }
@@ -61,8 +63,9 @@ public:
   bool runVideo();
 //  void runAudio();
   bool loadMovie(QString filename);
-
   bool setPlayState(bool play);
+  void setAttached(bool attach);
+
   void resetMovie();
 
 protected:
@@ -129,7 +132,6 @@ public:
     return &this->queue_output_buf;
   }
 
-
 private:
 //  PlugOut<VideoRGBAType> *_VIDEO_OUT;
 //  PlugOut<SignalType> *_AUDIO_OUT;
@@ -146,6 +148,7 @@ private:
   GstBus *_bus;
   GstElement *_pipeline;
   GstElement *_source;
+  GstElement *_deserializer;
   GstElement *_audioQueue;
   GstElement *_audioConvert;
   GstElement *_audioResample;
@@ -155,6 +158,7 @@ private:
   GstElement *_audioSink;
   GstElement *_videoSink;
   GstSample  *_frame;
+  GSource *_pollSource;
 
 //  GstAdapter *_audioBufferAdapter;
 
@@ -166,6 +170,8 @@ private:
   uchar *_data;
 
   bool _seekEnabled;
+  bool _live;
+  bool _attached;
 
   int _audioNewBufferCounter;
 
@@ -177,6 +183,7 @@ private:
 
 private:
   QString _uri;
+
 };
 
 //! Fast converts 24-bits color to 32 bits (alpha is set to specified alpha value).

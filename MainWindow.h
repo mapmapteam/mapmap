@@ -111,7 +111,8 @@ public slots:
   bool clearProject();
 
   /// Create or replace a media paint (or image).
-  uid createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint, bool isImage);
+  uid createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr
+oldPaint, bool isImage, bool live);
 
   /// Create or replace a color paint.
   uid createColorPaint(uid paintId, QColor color, Paint::ptr oldPaint);

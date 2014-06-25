@@ -51,12 +51,12 @@ bool Image::setUri(const QString &uri)
 
 /* Implementation of the Video class */
 
-Media::Media(const QString uri_, uid id):
+Media::Media(const QString uri_, bool live, uid id):
     Texture(id),
     uri(uri_),
     impl_(NULL)
 {
-  impl_ = new MediaImpl(uri_);
+  impl_ = new MediaImpl(uri_, live);
 }
 
 // vertigo
