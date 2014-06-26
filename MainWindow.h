@@ -295,8 +295,6 @@ private:
   QListWidgetItem* currentSelectedItem;
   QTimer *videoTimer;
 
-  static MainWindow* instance;
-
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
   MappingManager& getMappingManager() { return *mappingManager; }
