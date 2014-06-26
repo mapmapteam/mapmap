@@ -247,9 +247,8 @@ void MainWindow::open()
   {
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open project"),
-        ".", // TODO : change this to previous used one, if any
-        //tr("MapMap files (*.%1)", MAPMAP_EXTENSION));
-        tr("All files (*)"));
+        ".",
+        tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
     if (! fileName.isEmpty())
       loadFile(fileName);
   }
@@ -280,8 +279,7 @@ bool MainWindow::saveAs()
   QString fileName = QFileDialog::getSaveFileName(this,
       tr("Save project"),
       ".",
-      tr("MapMap files (*.%1)", MAPMAP_EXTENSION)
-      );
+      tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
 
   // Restart video playback. XXX Hack
   videoTimer->start();
@@ -289,12 +287,12 @@ bool MainWindow::saveAs()
   if (fileName.isEmpty())
     return false;
   
-  if (! fileName.endsWith(MAPMAP_EXTENSION))
+  if (! fileName.endsWith(MM::FILE_EXTENSION))
   {
     std::cout << "filename doesn't end with expected extension: " <<
       fileName.toStdString() << std::endl;
       fileName.append(".");
-      fileName.append(MAPMAP_EXTENSION);
+      fileName.append(MM::FILE_EXTENSION);
   }
 
   // Save to filename.
@@ -487,9 +485,7 @@ void MainWindow::about()
 
   // Pop-up about dialog.
   QMessageBox::about(this, tr("About MapMap"),
-      tr("<h2>MapMap "
-          MAPMAP_VERSION
-          "</h2>"
+      tr("<h2>MapMap %1</h2>"
           "<p>Copyright &copy; 2013 Sofian Audry, Alexandre Quessy, Julien Keable, "
           "Mike Latona and Vasilis Liaskovitis."
           "<p>MapMap is a free software for video mapping. "
@@ -507,7 +503,7 @@ void MainWindow::about()
           "This project was made possible by the support of the International Organization of "
           "La Francophonie."
           "http://www.francophonie.org/"
-          ));
+          ).arg(MM::VERSION));
 
   // Restart video playback. XXX Hack
   videoTimer->start();

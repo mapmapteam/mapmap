@@ -19,6 +19,8 @@
 
 #include "MM.h"
 
+const QString MM::VERSION = "0.1.1";
+const QString MM::FILE_EXTENSION = "mmp";
 const QColor MM::WHITE("#f6f5f5");
 const QColor MM::BLUE_GRAY("#323541");
 const QColor MM::DARK_GRAY("#272a36");

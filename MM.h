@@ -28,6 +28,9 @@
 class MM
 {
 public:
+  // General.
+  static const QString VERSION;
+  static const QString FILE_EXTENSION;
   // GUI.
   static const int DEFAULT_WINDOW_WIDTH = 640;
   static const int DEFAULT_WINDOW_HEIGHT = 480;
