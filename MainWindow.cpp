@@ -933,6 +933,7 @@ void MainWindow::createActions()
   newAction->setIcon(QIcon(":/new"));
   newAction->setShortcut(QKeySequence::New);
   newAction->setStatusTip(tr("Create a new project"));
+  newAction->setIconVisibleInMenu(false);
   connect(newAction, SIGNAL(triggered()), this, SLOT(newFile()));
 
   // Open.
@@ -940,6 +941,7 @@ void MainWindow::createActions()
   openAction->setIcon(QIcon(":/open"));
   openAction->setShortcut(QKeySequence::Open);
   openAction->setStatusTip(tr("Open an existing project"));
+  openAction->setIconVisibleInMenu(false);
   connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
   // Save.
@@ -947,30 +949,35 @@ void MainWindow::createActions()
   saveAction->setIcon(QIcon(":/save"));
   saveAction->setShortcut(QKeySequence::Save);
   saveAction->setStatusTip(tr("Save the project"));
+  saveAction->setIconVisibleInMenu(false);
   connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
 
   // Save as.
   saveAsAction = new QAction(tr("Save &As..."), this);
   saveAsAction->setIcon(QIcon(":/save-as"));
   saveAsAction->setStatusTip(tr("Save the project as..."));
+  saveAsAction->setIconVisibleInMenu(false);
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
   // Import media.
   importAction = new QAction(tr("&Import media source file..."), this);
   importAction->setIcon(QIcon(":/add-media"));
   importAction->setStatusTip(tr("Import a media source file..."));
+  importAction->setIconVisibleInMenu(false);
   connect(importAction, SIGNAL(triggered()), this, SLOT(import()));
 
   // Add color.
   addColorAction = new QAction(tr("Add &Color paint..."), this);
   addColorAction->setIcon(QIcon(":/add-color"));
   addColorAction->setStatusTip(tr("Add a color paint..."));
+  addColorAction->setIconVisibleInMenu(false);
   connect(addColorAction, SIGNAL(triggered()), this, SLOT(addColor()));
 
   // Exit/quit.
   exitAction = new QAction(tr("E&xit"), this);
   exitAction->setShortcut(tr("Ctrl+Q"));
   exitAction->setStatusTip(tr("Exit the application"));
+  exitAction->setIconVisibleInMenu(false);
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
 //  cutAction = new QAction(tr("Cu&t"), this);
@@ -999,12 +1006,14 @@ void MainWindow::createActions()
   // About.
   aboutAction = new QAction(tr("&About"), this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
+  aboutAction->setIconVisibleInMenu(false);
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
   // Delete.
   deleteAction = new QAction(tr("Delete"), this);
   deleteAction->setShortcut(tr("CTRL+DEL"));
   deleteAction->setStatusTip(tr("Delete item"));
+  deleteAction->setIconVisibleInMenu(false);
   connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
 
   // Add quad/mesh.
@@ -1012,6 +1021,7 @@ void MainWindow::createActions()
   addMeshAction->setShortcut(tr("CTRL+M"));
   addMeshAction->setIcon(QIcon(":/add-mesh"));
   addMeshAction->setStatusTip(tr("Add quad/mesh"));
+  addMeshAction->setIconVisibleInMenu(false);
   connect(addMeshAction, SIGNAL(triggered()), this, SLOT(addMesh()));
   addMeshAction->setEnabled(false);
 
@@ -1020,6 +1030,7 @@ void MainWindow::createActions()
   addTriangleAction->setShortcut(tr("CTRL+T"));
   addTriangleAction->setIcon(QIcon(":/add-triangle"));
   addTriangleAction->setStatusTip(tr("Add triangle"));
+  addTriangleAction->setIconVisibleInMenu(false);
   connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
   addTriangleAction->setEnabled(false);
 
@@ -1028,6 +1039,7 @@ void MainWindow::createActions()
   addEllipseAction->setShortcut(tr("CTRL+E"));
   addEllipseAction->setIcon(QIcon(":/add-ellipse"));
   addEllipseAction->setStatusTip(tr("Add ellipse"));
+  addEllipseAction->setIconVisibleInMenu(false);
   connect(addEllipseAction, SIGNAL(triggered()), this, SLOT(addEllipse()));
   addEllipseAction->setEnabled(false);
 
@@ -1036,6 +1048,7 @@ void MainWindow::createActions()
   playAction->setShortcut(tr("CTRL+P"));
   playAction->setIcon(QIcon(":/play"));
   playAction->setStatusTip(tr("Play"));
+  playAction->setIconVisibleInMenu(false);
   connect(playAction, SIGNAL(triggered()), this, SLOT(play()));
   playAction->setVisible(true);
 
@@ -1044,6 +1057,7 @@ void MainWindow::createActions()
   pauseAction->setShortcut(tr("CTRL+P"));
   pauseAction->setIcon(QIcon(":/pause"));
   pauseAction->setStatusTip(tr("Pause"));
+  pauseAction->setIconVisibleInMenu(false);
   connect(pauseAction, SIGNAL(triggered()), this, SLOT(pause()));
   pauseAction->setVisible(false);
 
@@ -1052,6 +1066,7 @@ void MainWindow::createActions()
   rewindAction->setShortcut(tr("CTRL+R"));
   rewindAction->setIcon(QIcon(":/rewind"));
   rewindAction->setStatusTip(tr("Rewind"));
+  rewindAction->setIconVisibleInMenu(false);
   connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
 
   // Toggle display of output window.
@@ -1059,6 +1074,7 @@ void MainWindow::createActions()
   displayOutputWindow->setShortcut(tr("Ctrl+D"));
   displayOutputWindow->setIcon(QIcon(":/output-window"));
   displayOutputWindow->setStatusTip(tr("Display output window"));
+  displayOutputWindow->setIconVisibleInMenu(false);
   displayOutputWindow->setCheckable(true);
   displayOutputWindow->setChecked(true);
   // Manage show/hide of GL output window.
@@ -1071,6 +1087,7 @@ void MainWindow::createActions()
   outputWindowFullScreen->setIcon(QIcon(":/fullscreen"));
   outputWindowFullScreen->setShortcut(tr("Ctrl+F"));
   outputWindowFullScreen->setStatusTip(tr("Full screen"));
+  outputWindowFullScreen->setIconVisibleInMenu(false);
   outputWindowFullScreen->setCheckable(true);
   outputWindowFullScreen->setChecked(false);
   // Manage fullscreen mode for output window.
@@ -1085,6 +1102,7 @@ void MainWindow::createActions()
   //  displayCanvasControls->setShortcut(tr("Ctrl+E"));
   displayCanvasControls->setIcon(QIcon(":/control-points"));
   displayCanvasControls->setStatusTip(tr("Display canvas controls"));
+  displayCanvasControls->setIconVisibleInMenu(false);
   displayCanvasControls->setCheckable(true);
   displayCanvasControls->setChecked(true);
   // Manage show/hide of canvas controls.
