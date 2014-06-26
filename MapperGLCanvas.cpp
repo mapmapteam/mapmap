@@ -64,14 +64,19 @@ void MapperGLCanvas::draw(QPainter* painter)
 
 void MapperGLCanvas::enterDraw(QPainter* painter)
 {
+  painter->beginNativePainting();
+
   // Clear to black.
-  qglClearColor(Qt::black);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
 
   // Clear buffer.
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  painter->endNativePainting();
 
   // Antialiasing.
   painter->setRenderHint(QPainter::Antialiasing);
+  //painter->setBackground(Qt::black);
   painter->setPen(Qt::NoPen);
   painter->setBrush(Qt::NoBrush);
 }
@@ -224,16 +229,12 @@ void MapperGLCanvas::paintEvent(QPaintEvent* /* event */)
 {
   makeCurrent();
 
-  glClearColor(0.0, 0.0, 0.0, 0.0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
 
   draw(&painter);
 
   painter.end();
-//  updateGL();
 }
 
 void MapperGLCanvas::updateCanvas()
