@@ -31,6 +31,9 @@ public:
   // General.
   static const QString VERSION;
   static const QString FILE_EXTENSION;
+  static const QString VIDEO_FILES_FILTER;
+  static const QString IMAGE_FILES_FILTER;
+
   // GUI.
   static const int DEFAULT_WINDOW_WIDTH = 640;
   static const int DEFAULT_WINDOW_HEIGHT = 480;

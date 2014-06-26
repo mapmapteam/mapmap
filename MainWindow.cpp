@@ -307,8 +307,7 @@ void MainWindow::importVideo()
   // Pop-up file-choosing dialog to choose media file.
   // TODO: restrict the type of files that can be imported
   QString fileName = QFileDialog::getOpenFileName(this,
-      tr("Import media source file"), ".");
-
+      tr("Import media source file"), ".", tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER));
   // Restart video playback. XXX Hack
   videoTimer->start();
 
@@ -324,7 +323,7 @@ void MainWindow::importImage()
   // Pop-up file-choosing dialog to choose media file.
   // TODO: restrict the type of files that can be imported
   QString fileName = QFileDialog::getOpenFileName(this,
-      tr("Import media source file"), ".");
+      tr("Import media source file"), ".", tr("Image files (%1);;All files (*)").arg(MM::IMAGE_FILES_FILTER));
 
   // Restart video playback. XXX Hack
   videoTimer->start();
