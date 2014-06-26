@@ -47,11 +47,6 @@ MainWindow::MainWindow()
   _isPlaying = false;
 
   // Create everything.
-  videoTimer = new QTimer(this);
-  videoTimer->setInterval(1000/30);
-  connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateCanvases()));
-  videoTimer->start();
-
   createLayout();
   createActions();
   createMenus();
@@ -68,6 +63,12 @@ MainWindow::MainWindow()
   // Defaults.
   //setWindowIcon(QIcon(":/images/icon.png"));
   setCurrentFile("");
+
+  // Create and start timer.
+  videoTimer = new QTimer(this);
+  videoTimer->setInterval(1000/30);
+  connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateCanvases()));
+  videoTimer->start();
 }
 
 MainWindow::~MainWindow()
