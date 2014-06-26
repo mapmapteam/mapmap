@@ -178,7 +178,15 @@ void MainWindow::handleItemDoubleClicked(QListWidgetItem* item)
     // Restart video playback. XXX Hack
     videoTimer->start();
     if (!fileName.isEmpty()) 
-      importMediaFile(fileName, paint);
+      importMediaFile(fileName, paint, false);
+  }
+  if (paint->getType() == "image") {
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Import media source file"), ".");
+    // Restart video playback. XXX Hack
+    videoTimer->start();
+    if (!fileName.isEmpty())
+      importMediaFile(fileName, paint, true);
   }
   else if (paint->getType() == "color") {
     // Pop-up color-choosing dialog to choose color paint.
@@ -293,7 +301,7 @@ bool MainWindow::saveAs()
   return saveFile(fileName);
 }
 
-void MainWindow::import()
+void MainWindow::importVideo()
 {
   // Stop video playback to avoid lags. XXX Hack
   videoTimer->stop();
@@ -307,7 +315,24 @@ void MainWindow::import()
   videoTimer->start();
 
   if (!fileName.isEmpty())
-    importMediaFile(fileName, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)));
+    importMediaFile(fileName, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)), false);
+}
+
+void MainWindow::importImage()
+{
+  // Stop video playback to avoid lags. XXX Hack
+  videoTimer->stop();
+
+  // Pop-up file-choosing dialog to choose media file.
+  // TODO: restrict the type of files that can be imported
+  QString fileName = QFileDialog::getOpenFileName(this,
+      tr("Import media source file"), ".");
+
+  // Restart video playback. XXX Hack
+  videoTimer->start();
+
+  if (!fileName.isEmpty())
+    importMediaFile(fileName, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)), true);
 }
 
 void MainWindow::addColor()
@@ -555,7 +580,7 @@ bool MainWindow::clearProject()
   return true;
 }
 
-uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint)
+uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint, bool isImage)
 {
   // Cannot create image with already existing id.
   if (Paint::getUidAllocator().exists(paintId))
@@ -563,14 +588,18 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, Pai
 
   else
   {
-    Media* img = new Media(uri, paintId);
-//    Image* img = new Image(uri, paintId);
+    qDebug() << "Is image " << isImage << endl;
+    Texture* tex = 0;
+    if (isImage)
+      tex = new Image(uri, paintId);
+    else
+      tex = new Media(uri, paintId);
 
     // Create new image with corresponding ID.
-    img->setPosition(x, y);
+    tex->setPosition(x, y);
 
     // Add it to the manager.
-    Paint::ptr paint(img);
+    Paint::ptr paint(tex);
 
     // Add paint to model and return its uid.
     uid id = mappingManager->addPaint(paint);
@@ -960,12 +989,19 @@ void MainWindow::createActions()
   saveAsAction->setIconVisibleInMenu(false);
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-  // Import media.
-  importAction = new QAction(tr("&Import media source file..."), this);
-  importAction->setIcon(QIcon(":/add-media"));
-  importAction->setStatusTip(tr("Import a media source file..."));
-  importAction->setIconVisibleInMenu(false);
-  connect(importAction, SIGNAL(triggered()), this, SLOT(import()));
+  // Import video.
+  importVideoAction = new QAction(tr("&Import media source file..."), this);
+  importVideoAction->setIcon(QIcon(":/add-video"));
+  importVideoAction->setStatusTip(tr("Import a media source file..."));
+  importVideoAction->setIconVisibleInMenu(false);
+  connect(importVideoAction, SIGNAL(triggered()), this, SLOT(importVideo()));
+
+  // Import imiage.
+  importImageAction = new QAction(tr("&Import media source file..."), this);
+  importImageAction->setIcon(QIcon(":/add-image"));
+  importImageAction->setStatusTip(tr("Import a media source file..."));
+  importImageAction->setIconVisibleInMenu(false);
+  connect(importImageAction, SIGNAL(triggered()), this, SLOT(importImage()));
 
   // Add color.
   addColorAction = new QAction(tr("Add &Color paint..."), this);
@@ -1130,7 +1166,8 @@ void MainWindow::createMenus()
   fileMenu->addAction(saveAction);
   fileMenu->addAction(saveAsAction);
   fileMenu->addSeparator();
-  fileMenu->addAction(importAction);
+  fileMenu->addAction(importVideoAction);
+  fileMenu->addAction(importImageAction);
   fileMenu->addAction(addColorAction);
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
@@ -1190,7 +1227,8 @@ void MainWindow::createToolBars()
   mainToolBar = addToolBar(tr("&File"));
   mainToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
   mainToolBar->setMovable(false);
-  mainToolBar->addAction(importAction);
+  mainToolBar->addAction(importVideoAction);
+  mainToolBar->addAction(importImageAction);
   mainToolBar->addAction(addColorAction);
   mainToolBar->addAction(newAction);
   mainToolBar->addAction(openAction);
@@ -1374,7 +1412,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
 // {
 // }
 
-bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint)
+bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint, bool isImage)
 {
   QFile file(fileName);
   if (!file.open(QIODevice::ReadOnly)) {
@@ -1388,7 +1426,7 @@ bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint)
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   // Add media file to model.
-  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, oldPaint);
+  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, oldPaint, isImage);
 
   // Initialize position (center).
   std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(mappingManager->getPaintById(mediaId));
@@ -1468,7 +1506,7 @@ void MainWindow::addMappingItem(uid mappingId)
   // Add mapper.
   // XXX hardcoded for textures
   std::tr1::shared_ptr<TextureMapping> textureMapping;
-  if (paintType == "media")
+  if (paintType == "media" || paintType == "image")
   {
     textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);
@@ -1811,8 +1849,13 @@ bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
     {
         if (paint->getType() == "media")
         {
-            Media *media = (Media *) paint.get(); // FIXME: use sharedptr cast
-            success = media->setUri(QString(uri.c_str()));
+          Media *media = (Media *) paint.get(); // FIXME: use sharedptr cast
+          success = media->setUri(QString(uri.c_str()));
+        }
+        else if (paint->getType() == "image")
+        {
+          Image *media = (Image*) paint.get(); // FIXME: use sharedptr cast
+          success = media->setUri(QString(uri.c_str()));
         }
         else
         {

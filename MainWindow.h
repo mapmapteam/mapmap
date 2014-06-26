@@ -79,7 +79,8 @@ private slots:
   void open();
   bool save();
   bool saveAs();
-  void import();
+  void importVideo();
+  void importImage();
   void addColor();
   void about();
   void updateStatusBar();
@@ -112,8 +113,8 @@ public slots:
   /// Clears all mappings and paints.
   bool clearProject();
 
-  /// Create or replace an image paint.
-  uid createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint);
+  /// Create or replace a media paint (or image).
+  uid createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint, bool isImage);
 
   /// Create or replace a color paint.
   uid createColorPaint(uid paintId, QColor color, Paint::ptr oldPaint);
@@ -186,7 +187,7 @@ public:
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
-  bool importMediaFile(const QString &fileName, Paint::ptr oldPaint);
+  bool importMediaFile(const QString &fileName, Paint::ptr oldPaint, bool isImage);
   bool addColorPaint(const QColor& color, Paint::ptr oldPaint);
   void addMappingItem(uid mappingId);
   void removeMappingItem(uid mappingId);
@@ -228,7 +229,8 @@ private:
   QAction *separatorAction;
   QAction *newAction;
   QAction *openAction;
-  QAction *importAction;
+  QAction *importVideoAction;
+  QAction *importImageAction;
   QAction *addColorAction;
   QAction *saveAction;
   QAction *saveAsAction;

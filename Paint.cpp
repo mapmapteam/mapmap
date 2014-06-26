@@ -42,6 +42,12 @@ Paint::~Paint()
   allocator.free(_id);
 }
 
+bool Image::setUri(const QString &uri)
+{
+  this->uri = uri;
+  build();
+  return true;
+}
 
 /* Implementation of the Video class */
 

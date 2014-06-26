@@ -9,7 +9,8 @@
     <file alias="output-window">resources/images/icons/nofullscreen_w.png</file>
     <file alias="control-points">resources/images/icons/ctrl2_w.png</file>
 
-    <file alias="add-media">resources/images/icons/add_movie_w.png</file>
+    <file alias="add-video">resources/images/icons/add_movie_w.png</file>
+    <file alias="add-image">resources/images/icons/add_img_w.png</file>
     <file alias="add-color">resources/images/icons/add_paint_w.png</file>
 
     <file alias="add-mesh">resources/images/shapes/add_quad.png</file>

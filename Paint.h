@@ -121,6 +121,7 @@ protected:
     y(0),
     bitsChanged(true)
   {}
+public:
   virtual ~Texture() {
     if (textureId != 0)
       glDeleteTextures(1, &textureId);
@@ -162,18 +163,20 @@ protected:
 
 public:
   Image(const QString uri_, uid id=NULL_UID) :
-    Texture(id),
-    uri(uri_)
+    Texture(id)
   {
+    setUri(uri_);
   }
 
   virtual ~Image() {}
 
-  const QString getUri() const { return uri; }
-
   virtual void build() {
-    image = QGLWidget::convertToGLFormat(QImage(uri));
+    image = QGLWidget::convertToGLFormat(QImage(uri)).mirrored(true, false).transformed(QTransform().rotate(180));
+    bitsChanged = true;
   }
+
+  const QString getUri() const { return uri; }
+  bool setUri(const QString &uri);
 
   virtual QString getType() const { return "image"; }
 
