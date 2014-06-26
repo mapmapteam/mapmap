@@ -120,7 +120,10 @@ protected:
     x(0),
     y(0),
     bitsChanged(true)
-  {}
+  {
+    glGenTextures(1, &textureId);
+  }
+
 public:
   virtual ~Texture() {
     if (textureId != 0)
@@ -129,10 +132,6 @@ public:
 
 public:
   GLuint getTextureId() const { return textureId; }
-  virtual void loadTexture() {
-    if (textureId == 0)
-      glGenTextures(1, &textureId);
-  }
   virtual int getWidth() const = 0;
   virtual int getHeight() const = 0;
   virtual const uchar* getBits() const {
