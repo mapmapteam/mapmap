@@ -588,7 +588,6 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, Pai
 
   else
   {
-    qDebug() << "Is image " << isImage << endl;
     Texture* tex = 0;
     if (isImage)
       tex = new Image(uri, paintId);
