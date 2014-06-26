@@ -90,25 +90,14 @@ void ProjectReader::parsePaint(const QDomElement& paint)
   QString paintAttrName = paint.attribute("name", "");
   QString paintAttrType = paint.attribute("type", "");
 
-  if (paintAttrType == "media")
+  if (paintAttrType == "media" || paintAttrType == "image")
   {
     QString uri = paint.firstChildElement("uri").text();
     QString x   = paint.firstChildElement("x").text();
     QString y   = paint.firstChildElement("y").text();
 
     uid id = _window->createMediaPaint(paintAttrId.toInt(), uri, x.toFloat(), y.toFloat(),
-                  std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)), false);
-    if (id == NULL_UID)
-      _xml.raiseError(QObject::tr("Cannot create media with uri %1.").arg(uri));
-  }
-  else if (paintAttrType == "image")
-  {
-    QString uri = paint.firstChildElement("uri").text();
-    QString x   = paint.firstChildElement("x").text();
-    QString y   = paint.firstChildElement("y").text();
-
-    uid id = _window->createMediaPaint(paintAttrId.toInt(), uri, x.toFloat(), y.toFloat(),
-                  std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)), true);
+                  std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)), paintAttrType == "image");
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create media with uri %1.").arg(uri));
   }
