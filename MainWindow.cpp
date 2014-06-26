@@ -728,7 +728,7 @@ uid MainWindow::createEllipseTextureMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(src.size() == 5 && dst.size() == 5);
 
-    Shape::ptr inputEllipse( new Ellipse(src[0], src[1], src[2], dst[3], dst[4]));
+    Shape::ptr inputEllipse( new Ellipse(src[0], src[1], src[2], src[3], src[4]));
     Shape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3], dst[4]));
 
     // Add it to the manager.
