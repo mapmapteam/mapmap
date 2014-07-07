@@ -1,6 +1,19 @@
 Release notes for MapMap
 ========================
 
+2014-07-07 - MapMap 0.1.1
+-------------------------
+* Fix packaging on OS X 10.9.3.
+* Fix: all media share same OpenGL texture
+* Fix: Avoid segfault when right-click with no existing output shape.
+* Fix: fix error in ordering of mesh vertices.
+* Use GStreamer 1.x
+* New icons. Nicer looking control points.
+* Play/pause/rewind buttons
+* Change URI of media with double-click.
+* Play movies when we load a project.
+* Append file extension if none is provided.
+
 2014-04-30 - MapMap 0.1.0
 -------------------------
 * Initial release.
