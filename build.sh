@@ -15,6 +15,7 @@ do_create_dmg() {
     DMGVERSION=$(cat DMGVERSION.txt)
     DMGDIR=MapMap-${VERSION}-${DMGVERSION}
     echo "Creating directory ${DMGDIR}"
+    rm -rf $DMGDIR
     mkdir -p $DMGDIR
     cp -R MapMap.app ${DMGDIR}
     cp README ${DMGDIR}/README.txt
