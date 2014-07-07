@@ -18,6 +18,7 @@ do_create_dmg() {
     mkdir -p $DMGDIR
     cp -R MapMap.app ${DMGDIR}
     cp README ${DMGDIR}/README.txt
+    cp NEWS ${DMGDIR}/NEWS.txt
     hdiutil create \
         -volname ${DMGDIR} \
         -srcfolder ${DMGDIR} \

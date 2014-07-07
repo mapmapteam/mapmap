@@ -22,9 +22,9 @@ http://www.francophonie.org/
 Ce projet a été rendu possible grâce au support de l'Organisation internationale de la Francophonie.
 http://www.francophonie.org/
 
-Build and install
------------------
-See the INSTALL file.
+Build and installation
+----------------------
+To build and install it, see the INSTALL file provided with the source code.
 
 To use this software on Mac OS X:
 * Install GStreamer using http://gstreamer.freedesktop.org/data/pkg/osx/1.2.4.1/gstreamer-1.0-1.2.4.1-universal.pkg : you should customize the installation and choose to install all components.
@@ -44,3 +44,6 @@ Contributors
 * Julien Keable: developer.
 * Sylvain Cormier: developer.
 
+More info
+---------
+Get more info from http://mapmap.info
