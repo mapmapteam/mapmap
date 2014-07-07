@@ -43,12 +43,10 @@ MainWindow::MainWindow()
   _hasCurrentMapping = false;
   currentSelectedItem = NULL;
 
-  // Create everything.
-  videoTimer = new QTimer(this);
-  videoTimer->setInterval(1000/30);
-  connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateCanvases()));
-  videoTimer->start();
+  // Play state.
+  _isPlaying = false;
 
+  // Create everything.
   createLayout();
   createActions();
   createMenus();
@@ -65,6 +63,12 @@ MainWindow::MainWindow()
   // Defaults.
   //setWindowIcon(QIcon(":/images/icon.png"));
   setCurrentFile("");
+
+  // Create and start timer.
+  videoTimer = new QTimer(this);
+  videoTimer->setInterval(1000/30);
+  connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateCanvases()));
+  videoTimer->start();
 }
 
 MainWindow::~MainWindow()
@@ -174,7 +178,15 @@ void MainWindow::handleItemDoubleClicked(QListWidgetItem* item)
     // Restart video playback. XXX Hack
     videoTimer->start();
     if (!fileName.isEmpty()) 
-      importMediaFile(fileName, paint);
+      importMediaFile(fileName, paint, false);
+  }
+  if (paint->getType() == "image") {
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Import media source file"), ".");
+    // Restart video playback. XXX Hack
+    videoTimer->start();
+    if (!fileName.isEmpty())
+      importMediaFile(fileName, paint, true);
   }
   else if (paint->getType() == "color") {
     // Pop-up color-choosing dialog to choose color paint.
@@ -235,9 +247,8 @@ void MainWindow::open()
   {
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open project"),
-        ".", // TODO : change this to previous used one, if any
-        //tr("MapMap files (*.%1)", MAPMAP_EXTENSION));
-        tr("All files (*)"));
+        ".",
+        tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
     if (! fileName.isEmpty())
       loadFile(fileName);
   }
@@ -268,8 +279,7 @@ bool MainWindow::saveAs()
   QString fileName = QFileDialog::getSaveFileName(this,
       tr("Save project"),
       ".",
-      tr("MapMap files (*.%1)", MAPMAP_EXTENSION)
-      );
+      tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
 
   // Restart video playback. XXX Hack
   videoTimer->start();
@@ -277,19 +287,19 @@ bool MainWindow::saveAs()
   if (fileName.isEmpty())
     return false;
   
-  if (! fileName.endsWith(MAPMAP_EXTENSION))
+  if (! fileName.endsWith(MM::FILE_EXTENSION))
   {
     std::cout << "filename doesn't end with expected extension: " <<
       fileName.toStdString() << std::endl;
       fileName.append(".");
-      fileName.append(MAPMAP_EXTENSION);
+      fileName.append(MM::FILE_EXTENSION);
   }
 
   // Save to filename.
   return saveFile(fileName);
 }
 
-void MainWindow::import()
+void MainWindow::importVideo()
 {
   // Stop video playback to avoid lags. XXX Hack
   videoTimer->stop();
@@ -297,13 +307,29 @@ void MainWindow::import()
   // Pop-up file-choosing dialog to choose media file.
   // TODO: restrict the type of files that can be imported
   QString fileName = QFileDialog::getOpenFileName(this,
-      tr("Import media source file"), ".");
+      tr("Import media source file"), ".", tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER));
+  // Restart video playback. XXX Hack
+  videoTimer->start();
+
+  if (!fileName.isEmpty())
+    importMediaFile(fileName, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)), false);
+}
+
+void MainWindow::importImage()
+{
+  // Stop video playback to avoid lags. XXX Hack
+  videoTimer->stop();
+
+  // Pop-up file-choosing dialog to choose media file.
+  // TODO: restrict the type of files that can be imported
+  QString fileName = QFileDialog::getOpenFileName(this,
+      tr("Import media source file"), ".", tr("Image files (%1);;All files (*)").arg(MM::IMAGE_FILES_FILTER));
 
   // Restart video playback. XXX Hack
   videoTimer->start();
 
   if (!fileName.isEmpty())
-    importMediaFile(fileName, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)));
+    importMediaFile(fileName, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)), true);
 }
 
 void MainWindow::addColor()
@@ -420,6 +446,37 @@ void MainWindow::addEllipse()
   addMappingItem(mappingId);
 }
 
+void MainWindow::play()
+{
+  // Update buttons.
+  playAction->setVisible(false);
+  pauseAction->setVisible(true);
+  _isPlaying = true;
+
+  // Start all paints.
+  for (int i=0; i<mappingManager->nPaints(); i++)
+    mappingManager->getPaint(i)->play();
+}
+
+void MainWindow::pause()
+{
+  // Update buttons.
+  playAction->setVisible(true);
+  pauseAction->setVisible(false);
+  _isPlaying = false;
+
+  // Pause all paints.
+  for (int i=0; i<mappingManager->nPaints(); i++)
+    mappingManager->getPaint(i)->pause();
+}
+
+void MainWindow::rewind()
+{
+  // Rewind all paints.
+  for (int i=0; i<mappingManager->nPaints(); i++)
+    mappingManager->getPaint(i)->rewind();
+}
+
 void MainWindow::about()
 {
   // Stop video playback to avoid lags. XXX Hack
@@ -427,9 +484,7 @@ void MainWindow::about()
 
   // Pop-up about dialog.
   QMessageBox::about(this, tr("About MapMap"),
-      tr("<h2>MapMap "
-          MAPMAP_VERSION
-          "</h2>"
+      tr("<h2>MapMap %1</h2>"
           "<p>Copyright &copy; 2013 Sofian Audry, Alexandre Quessy, Julien Keable, "
           "Mike Latona and Vasilis Liaskovitis."
           "<p>MapMap is a free software for video mapping. "
@@ -447,7 +502,7 @@ void MainWindow::about()
           "This project was made possible by the support of the International Organization of "
           "La Francophonie."
           "http://www.francophonie.org/"
-          ));
+          ).arg(MM::VERSION));
 
   // Restart video playback. XXX Hack
   videoTimer->start();
@@ -520,7 +575,7 @@ bool MainWindow::clearProject()
   return true;
 }
 
-uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint)
+uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint, bool isImage)
 {
   // Cannot create image with already existing id.
   if (Paint::getUidAllocator().exists(paintId))
@@ -528,14 +583,17 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, Pai
 
   else
   {
-    Media* img = new Media(uri, paintId);
-//    Image* img = new Image(uri, paintId);
+    Texture* tex = 0;
+    if (isImage)
+      tex = new Image(uri, paintId);
+    else
+      tex = new Media(uri, paintId);
 
     // Create new image with corresponding ID.
-    img->setPosition(x, y);
+    tex->setPosition(x, y);
 
     // Add it to the manager.
-    Paint::ptr paint(img);
+    Paint::ptr paint(tex);
 
     // Add paint to model and return its uid.
     uid id = mappingManager->addPaint(paint);
@@ -665,7 +723,7 @@ uid MainWindow::createEllipseTextureMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(src.size() == 5 && dst.size() == 5);
 
-    Shape::ptr inputEllipse( new Ellipse(src[0], src[1], src[2], dst[3], dst[4]));
+    Shape::ptr inputEllipse( new Ellipse(src[0], src[1], src[2], src[3], src[4]));
     Shape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3], dst[4]));
 
     // Add it to the manager.
@@ -896,47 +954,61 @@ void MainWindow::createActions()
 {
   // New.
   newAction = new QAction(tr("&New"), this);
-  newAction->setIcon(QIcon(":/images/document-new-4.png"));
+  newAction->setIcon(QIcon(":/new"));
   newAction->setShortcut(QKeySequence::New);
   newAction->setStatusTip(tr("Create a new project"));
+  newAction->setIconVisibleInMenu(false);
   connect(newAction, SIGNAL(triggered()), this, SLOT(newFile()));
 
   // Open.
   openAction = new QAction(tr("&Open..."), this);
-  openAction->setIcon(QIcon(":/images/document-open-3.png"));
+  openAction->setIcon(QIcon(":/open"));
   openAction->setShortcut(QKeySequence::Open);
   openAction->setStatusTip(tr("Open an existing project"));
+  openAction->setIconVisibleInMenu(false);
   connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
   // Save.
   saveAction = new QAction(tr("&Save"), this);
-  saveAction->setIcon(QIcon(":/images/document-save-2.png"));
+  saveAction->setIcon(QIcon(":/save"));
   saveAction->setShortcut(QKeySequence::Save);
   saveAction->setStatusTip(tr("Save the project"));
+  saveAction->setIconVisibleInMenu(false);
   connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
 
   // Save as.
   saveAsAction = new QAction(tr("Save &As..."), this);
-  saveAsAction->setIcon(QIcon(":/images/document-save-as-2.png"));
+  saveAsAction->setIcon(QIcon(":/save-as"));
   saveAsAction->setStatusTip(tr("Save the project as..."));
+  saveAsAction->setIconVisibleInMenu(false);
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-  // Import media.
-  importAction = new QAction(tr("&Import media source file..."), this);
-  importAction->setIcon(QIcon(":/images/document-import-2.png"));
-  importAction->setStatusTip(tr("Import a media source file..."));
-  connect(importAction, SIGNAL(triggered()), this, SLOT(import()));
+  // Import video.
+  importVideoAction = new QAction(tr("&Import media source file..."), this);
+  importVideoAction->setIcon(QIcon(":/add-video"));
+  importVideoAction->setStatusTip(tr("Import a media source file..."));
+  importVideoAction->setIconVisibleInMenu(false);
+  connect(importVideoAction, SIGNAL(triggered()), this, SLOT(importVideo()));
+
+  // Import imiage.
+  importImageAction = new QAction(tr("&Import media source file..."), this);
+  importImageAction->setIcon(QIcon(":/add-image"));
+  importImageAction->setStatusTip(tr("Import a media source file..."));
+  importImageAction->setIconVisibleInMenu(false);
+  connect(importImageAction, SIGNAL(triggered()), this, SLOT(importImage()));
 
   // Add color.
   addColorAction = new QAction(tr("Add &Color paint..."), this);
-  addColorAction->setIcon(QIcon(":/images/colorize.png"));
+  addColorAction->setIcon(QIcon(":/add-color"));
   addColorAction->setStatusTip(tr("Add a color paint..."));
+  addColorAction->setIconVisibleInMenu(false);
   connect(addColorAction, SIGNAL(triggered()), this, SLOT(addColor()));
 
   // Exit/quit.
   exitAction = new QAction(tr("E&xit"), this);
   exitAction->setShortcut(tr("Ctrl+Q"));
   exitAction->setStatusTip(tr("Exit the application"));
+  exitAction->setIconVisibleInMenu(false);
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
 //  cutAction = new QAction(tr("Cu&t"), this);
@@ -965,42 +1037,75 @@ void MainWindow::createActions()
   // About.
   aboutAction = new QAction(tr("&About"), this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
+  aboutAction->setIconVisibleInMenu(false);
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
   // Delete.
   deleteAction = new QAction(tr("Delete"), this);
   deleteAction->setShortcut(tr("CTRL+DEL"));
   deleteAction->setStatusTip(tr("Delete item"));
+  deleteAction->setIconVisibleInMenu(false);
   connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
 
   // Add quad/mesh.
   addMeshAction = new QAction(tr("Add Quad/&Mesh"), this);
   addMeshAction->setShortcut(tr("CTRL+M"));
-  addMeshAction->setIcon(QIcon(":/images/draw-rectangle-2.png"));
+  addMeshAction->setIcon(QIcon(":/add-mesh"));
   addMeshAction->setStatusTip(tr("Add quad/mesh"));
+  addMeshAction->setIconVisibleInMenu(false);
   connect(addMeshAction, SIGNAL(triggered()), this, SLOT(addMesh()));
   addMeshAction->setEnabled(false);
 
   // Add triangle.
   addTriangleAction = new QAction(tr("Add &Triangle"), this);
   addTriangleAction->setShortcut(tr("CTRL+T"));
-  addTriangleAction->setIcon(QIcon(":/images/draw-triangle.png"));
+  addTriangleAction->setIcon(QIcon(":/add-triangle"));
   addTriangleAction->setStatusTip(tr("Add triangle"));
+  addTriangleAction->setIconVisibleInMenu(false);
   connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
   addTriangleAction->setEnabled(false);
 
   // Add ellipse.
   addEllipseAction = new QAction(tr("Add &Ellipse"), this);
   addEllipseAction->setShortcut(tr("CTRL+E"));
-  addEllipseAction->setIcon(QIcon(":/images/draw-ellipse-2.png"));
+  addEllipseAction->setIcon(QIcon(":/add-ellipse"));
   addEllipseAction->setStatusTip(tr("Add ellipse"));
+  addEllipseAction->setIconVisibleInMenu(false);
   connect(addEllipseAction, SIGNAL(triggered()), this, SLOT(addEllipse()));
   addEllipseAction->setEnabled(false);
+
+  // Play.
+  playAction = new QAction(tr("Play"), this);
+  playAction->setShortcut(tr("CTRL+P"));
+  playAction->setIcon(QIcon(":/play"));
+  playAction->setStatusTip(tr("Play"));
+  playAction->setIconVisibleInMenu(false);
+  connect(playAction, SIGNAL(triggered()), this, SLOT(play()));
+  playAction->setVisible(true);
+
+  // Pause.
+  pauseAction = new QAction(tr("Pause"), this);
+  pauseAction->setShortcut(tr("CTRL+P"));
+  pauseAction->setIcon(QIcon(":/pause"));
+  pauseAction->setStatusTip(tr("Pause"));
+  pauseAction->setIconVisibleInMenu(false);
+  connect(pauseAction, SIGNAL(triggered()), this, SLOT(pause()));
+  pauseAction->setVisible(false);
+
+  // Pause.
+  rewindAction = new QAction(tr("Rewind"), this);
+  rewindAction->setShortcut(tr("CTRL+R"));
+  rewindAction->setIcon(QIcon(":/rewind"));
+  rewindAction->setStatusTip(tr("Rewind"));
+  rewindAction->setIconVisibleInMenu(false);
+  connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
 
   // Toggle display of output window.
   displayOutputWindow = new QAction(tr("&Display output window"), this);
   displayOutputWindow->setShortcut(tr("Ctrl+D"));
+  displayOutputWindow->setIcon(QIcon(":/output-window"));
   displayOutputWindow->setStatusTip(tr("Display output window"));
+  displayOutputWindow->setIconVisibleInMenu(false);
   displayOutputWindow->setCheckable(true);
   displayOutputWindow->setChecked(true);
   // Manage show/hide of GL output window.
@@ -1010,8 +1115,10 @@ void MainWindow::createActions()
 
   // Toggle display of output window.
   outputWindowFullScreen = new QAction(tr("&Full screen"), this);
+  outputWindowFullScreen->setIcon(QIcon(":/fullscreen"));
   outputWindowFullScreen->setShortcut(tr("Ctrl+F"));
   outputWindowFullScreen->setStatusTip(tr("Full screen"));
+  outputWindowFullScreen->setIconVisibleInMenu(false);
   outputWindowFullScreen->setCheckable(true);
   outputWindowFullScreen->setChecked(false);
   // Manage fullscreen mode for output window.
@@ -1021,11 +1128,12 @@ void MainWindow::createActions()
   // Output window should be displayed for full screen option to be available.
   connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindowFullScreen, SLOT(setEnabled(bool)));
 
-
   // Toggle display of canvas controls.
   displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
   //  displayCanvasControls->setShortcut(tr("Ctrl+E"));
+  displayCanvasControls->setIcon(QIcon(":/control-points"));
   displayCanvasControls->setStatusTip(tr("Display canvas controls"));
+  displayCanvasControls->setIconVisibleInMenu(false);
   displayCanvasControls->setCheckable(true);
   displayCanvasControls->setChecked(true);
   // Manage show/hide of canvas controls.
@@ -1052,7 +1160,8 @@ void MainWindow::createMenus()
   fileMenu->addAction(saveAction);
   fileMenu->addAction(saveAsAction);
   fileMenu->addSeparator();
-  fileMenu->addAction(importAction);
+  fileMenu->addAction(importVideoAction);
+  fileMenu->addAction(importImageAction);
   fileMenu->addAction(addColorAction);
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
@@ -1069,6 +1178,12 @@ void MainWindow::createMenus()
   viewMenu->addAction(displayOutputWindow);
   viewMenu->addAction(outputWindowFullScreen);
   viewMenu->addAction(displayCanvasControls);
+
+  // Run.
+  runMenu = menuBar->addMenu(tr("&Run"));
+  runMenu->addAction(playAction);
+  runMenu->addAction(pauseAction);
+  runMenu->addAction(rewindAction);
 
 //  selectSubMenu = editMenu->addMenu(tr("&Select"));
 //  selectSubMenu->addAction(selectRowAction);
@@ -1103,17 +1218,43 @@ void MainWindow::createContextMenu()
 
 void MainWindow::createToolBars()
 {
-  fileToolBar = addToolBar(tr("&File"));
-  fileToolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-  fileToolBar->addAction(importAction);
-  fileToolBar->addAction(addColorAction);
-  fileToolBar->addAction(newAction);
-  fileToolBar->addAction(openAction);
-  fileToolBar->addAction(saveAction);
-  fileToolBar->addSeparator();
-  fileToolBar->addAction(addMeshAction);
-  fileToolBar->addAction(addTriangleAction);
-  fileToolBar->addAction(addEllipseAction);
+  mainToolBar = addToolBar(tr("&File"));
+  mainToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
+  mainToolBar->setMovable(false);
+  mainToolBar->addAction(importVideoAction);
+  mainToolBar->addAction(importImageAction);
+  mainToolBar->addAction(addColorAction);
+  mainToolBar->addAction(newAction);
+  mainToolBar->addAction(openAction);
+  mainToolBar->addAction(saveAction);
+
+  mainToolBar->addSeparator();
+
+  mainToolBar->addAction(addMeshAction);
+  mainToolBar->addAction(addTriangleAction);
+  mainToolBar->addAction(addEllipseAction);
+
+  mainToolBar->addSeparator();
+
+  mainToolBar->addAction(displayOutputWindow);
+  mainToolBar->addAction(outputWindowFullScreen);
+  mainToolBar->addAction(displayCanvasControls);
+
+  runToolBar = addToolBar(tr("&Run"));
+  runToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
+  runToolBar->setMovable(false);
+  // XXX: style hack: dummy expanding widget allows the placement of toolbar at the top right
+  // From: http://www.qtcentre.org/threads/9102-QToolbar-setContentsMargins
+  QWidget* spacer = new QWidget(runToolBar);
+  spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  runToolBar->addWidget(spacer);
+  runToolBar->addAction(playAction);
+  runToolBar->addAction(pauseAction);
+  runToolBar->addAction(rewindAction);
+
+  // Add toolbars.
+  addToolBar(Qt::TopToolBarArea, mainToolBar);
+  addToolBar(Qt::TopToolBarArea, runToolBar);
 
 //  editToolBar = addToolBar(tr("&Edit"));
 //  editToolBar->addAction(cutAction);
@@ -1265,7 +1406,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
 // {
 // }
 
-bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint)
+bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint, bool isImage)
 {
   QFile file(fileName);
   if (!file.open(QIODevice::ReadOnly)) {
@@ -1279,11 +1420,16 @@ bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint)
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   // Add media file to model.
-  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, oldPaint);
+  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, oldPaint, isImage);
 
   // Initialize position (center).
   std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(mappingManager->getPaintById(mediaId));
   Q_CHECK_PTR(media);
+
+  if (_isPlaying)
+    media->play();
+  else
+    media->pause();
 
   media->setPosition((sourceCanvas->width()  - media->getWidth() ) / 2.0f,
                      (sourceCanvas->height() - media->getHeight()) / 2.0f );
@@ -1305,6 +1451,12 @@ bool MainWindow::addColorPaint(const QColor& color, Paint::ptr oldPaint)
   // Initialize position (center).
   std::tr1::shared_ptr<Color> colorPaint = std::tr1::static_pointer_cast<Color>(mappingManager->getPaintById(colorId));
   Q_CHECK_PTR(colorPaint);
+
+  // Does not do anything...
+  if (_isPlaying)
+    colorPaint->play();
+  else
+    colorPaint->pause();
 
   QApplication::restoreOverrideCursor();
 
@@ -1348,7 +1500,7 @@ void MainWindow::addMappingItem(uid mappingId)
   // Add mapper.
   // XXX hardcoded for textures
   std::tr1::shared_ptr<TextureMapping> textureMapping;
-  if (paintType == "media")
+  if (paintType == "media" || paintType == "image")
   {
     textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);
@@ -1363,7 +1515,7 @@ void MainWindow::addMappingItem(uid mappingId)
   if (shapeType == "triangle")
   {
     label = QString("Triangle %1").arg(mappingId);
-    icon = QIcon(":/images/draw-triangle.png");
+    icon = QIcon(":/shape-triangle");
 
     if (paintType == "color")
       mapper = Mapper::ptr(new PolygonColorMapper(mapping));
@@ -1374,7 +1526,7 @@ void MainWindow::addMappingItem(uid mappingId)
   else if (shapeType == "mesh" || shapeType == "quad")
   {
     label = QString(shapeType == "mesh" ? "Mesh %1" : "Quad %1").arg(mappingId);
-    icon = QIcon(":/images/draw-rectangle-2.png");
+    icon = QIcon(":/shape-mesh");
     if (paintType == "color")
       mapper = Mapper::ptr(new PolygonColorMapper(mapping));
     else
@@ -1383,7 +1535,7 @@ void MainWindow::addMappingItem(uid mappingId)
   else if (shapeType == "ellipse")
   {
     label = QString("Ellipse %1").arg(mappingId);
-    icon = QIcon(":/images/draw-ellipse-2.png");
+    icon = QIcon(":/shape-ellipse");
     if (paintType == "color")
       mapper = Mapper::ptr(new EllipseColorMapper(mapping));
     else
@@ -1392,7 +1544,7 @@ void MainWindow::addMappingItem(uid mappingId)
   else
   {
     label = QString("Polygon %1").arg(mappingId);
-    icon = QIcon(":/images/draw-polygon-2.png");
+    icon = QIcon(":/shape-polygon");
   }
 
   // Add to list of mappers.
@@ -1539,7 +1691,10 @@ void MainWindow::connectProjectWidgets()
   connect(mappingList, SIGNAL(itemActivated(QListWidgetItem*)),
           this,        SLOT(handleItemSelected(QListWidgetItem*)));
 
-  connect(mappingList->model(), SIGNAL(layoutChanged()),
+  connect(mappingList,  SIGNAL(indexesMoved(const QModelIndexList&)),
+          this,                 SLOT(handleMappingIndexesMoved()));
+
+  connect(mappingList->model(), SIGNAL(rowsMoved(const QModelIndex&, int, int, const QModelIndex &, int)),
           this,                 SLOT(handleMappingIndexesMoved()));
 }
 
@@ -1566,7 +1721,7 @@ void MainWindow::disconnectProjectWidgets()
   disconnect(mappingList, SIGNAL(itemActivated(QListWidgetItem*)),
              this,        SLOT(handleItemSelected(QListWidgetItem*)));
 
-  disconnect(mappingList->model(), SIGNAL(layoutChanged()),
+  disconnect(mappingList->model(), SIGNAL(rowsMoved(const QModelIndex&, int, int, const QModelIndex &, int)),
              this,                 SLOT(handleMappingIndexesMoved()));
 }
 
@@ -1688,8 +1843,13 @@ bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
     {
         if (paint->getType() == "media")
         {
-            Media *media = (Media *) paint.get(); // FIXME: use sharedptr cast
-            success = media->setUri(QString(uri.c_str()));
+          Media *media = (Media *) paint.get(); // FIXME: use sharedptr cast
+          success = media->setUri(QString(uri.c_str()));
+        }
+        else if (paint->getType() == "image")
+        {
+          Image *media = (Image*) paint.get(); // FIXME: use sharedptr cast
+          success = media->setUri(QString(uri.c_str()));
         }
         else
         {

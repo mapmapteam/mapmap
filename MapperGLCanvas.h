@@ -73,8 +73,8 @@ private:
   MainWindow* _mainWindow;
   bool _mousepressed;
   int _activeVertex;
-  bool _shapegrabbed;
-  bool _shapefirstgrab;
+  bool _shapeGrabbed;
+  bool _shapeFirstGrab;
   bool _displayControls;
 
 signals:

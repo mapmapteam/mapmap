@@ -59,8 +59,29 @@ void ProjectWriter::writeItem(Paint *item)
 
   if (item->getType() == "media")
   {
-    // FIXME: check paint type before casting to Image
+    // FIXME: check paint type before casting to Media
     Media *media = (Media *) item;
+
+    _xml.writeTextElement("uri", media->getUri());
+    {
+      std::ostringstream os;
+      os << media->getX();
+      _xml.writeTextElement("x", os.str().c_str());
+    }
+
+    {
+      std::ostringstream os;
+      os << media->getY();
+      _xml.writeTextElement("y", os.str().c_str());
+    }
+
+    _xml.writeEndElement();
+    //_xml.writeEmptyElement("hello");
+  }
+  else if (item->getType() == "image")
+  {
+    // FIXME: check paint type before casting to Image
+    Image *media = (Image *) item;
 
     _xml.writeTextElement("uri", media->getUri());
     {

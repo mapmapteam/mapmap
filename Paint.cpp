@@ -42,6 +42,12 @@ Paint::~Paint()
   allocator.free(_id);
 }
 
+bool Image::setUri(const QString &uri)
+{
+  this->uri = uri;
+  build();
+  return true;
+}
 
 /* Implementation of the Video class */
 
@@ -78,6 +84,21 @@ int Media::getHeight() const
 void Media::update() {
   if (impl_->runVideo())
     bitsChanged = true;
+}
+
+void Media::play()
+{
+  impl_->setPlayState(true);
+}
+
+void Media::pause()
+{
+  impl_->setPlayState(false);
+}
+
+void Media::rewind()
+{
+  impl_->resetMovie();
 }
 
 const uchar* Media::_getBits() const

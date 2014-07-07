@@ -67,6 +67,15 @@ public:
   /// This method should be called at each call of draw().
   virtual void update() {}
 
+  /// Starts playback.
+  virtual void play() {}
+
+  /// Pauses playback.
+  virtual void pause() {}
+
+  /// Rewinds.
+  virtual void rewind() {}
+
   void setName(const QString& name) { _name = name; }
   QString getName() const { return _name; }
   uid getId() const { return _id; }
@@ -111,7 +120,11 @@ protected:
     x(0),
     y(0),
     bitsChanged(true)
-  {}
+  {
+    glGenTextures(1, &textureId);
+  }
+
+public:
   virtual ~Texture() {
     if (textureId != 0)
       glDeleteTextures(1, &textureId);
@@ -119,10 +132,6 @@ protected:
 
 public:
   GLuint getTextureId() const { return textureId; }
-  virtual void loadTexture() {
-    if (textureId == 0)
-      glGenTextures(1, &textureId);
-  }
   virtual int getWidth() const = 0;
   virtual int getHeight() const = 0;
   virtual const uchar* getBits() const {
@@ -153,18 +162,20 @@ protected:
 
 public:
   Image(const QString uri_, uid id=NULL_UID) :
-    Texture(id),
-    uri(uri_)
+    Texture(id)
   {
+    setUri(uri_);
   }
 
   virtual ~Image() {}
 
-  const QString getUri() const { return uri; }
-
   virtual void build() {
-    image = QGLWidget::convertToGLFormat(QImage(uri));
+    image = QGLWidget::convertToGLFormat(QImage(uri)).mirrored(true, false).transformed(QTransform().rotate(180));
+    bitsChanged = true;
   }
+
+  const QString getUri() const { return uri; }
+  bool setUri(const QString &uri);
 
   virtual QString getType() const { return "image"; }
 
@@ -192,6 +203,14 @@ public:
   bool setUri(const QString &uri);
   virtual void build();
   virtual void update();
+
+  /// Starts playback.
+  virtual void play();
+  /// Pauses playback.
+  virtual void pause();
+  /// Rewinds.
+  virtual void rewind();
+
   virtual QString getType() const
   {
     return "media";

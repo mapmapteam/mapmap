@@ -1,14 +1,43 @@
 <RCC>
 <qresource>
-    <file>images/document-new-4.png</file>
-    <file>images/document-open-3.png</file>
-    <file>images/document-save-2.png</file>
-    <file>images/document-save-as-2.png</file>
-    <file>images/document-import-2.png</file>
-    <file>images/draw-rectangle-2.png</file>
-    <file>images/draw-triangle.png</file>
-    <file>images/draw-ellipse-2.png</file>
-    <file>images/colorize.png</file>
+    <file alias="new">resources/images/icons/newdoc_w.png</file>
+    <file alias="open">resources/images/icons/open_w.png</file>
+    <file alias="save">resources/images/icons/save_w.png</file>
+    <file alias="save-as">resources/images/icons/save_w.png</file>
+
+    <file alias="fullscreen">resources/images/icons/fullscreen_w.png</file>
+    <file alias="output-window">resources/images/icons/nofullscreen_w.png</file>
+    <file alias="control-points">resources/images/icons/ctrl2_w.png</file>
+
+    <file alias="add-video">resources/images/icons/add_movie_w.png</file>
+    <file alias="add-image">resources/images/icons/add_img_w.png</file>
+    <file alias="add-color">resources/images/icons/add_paint_w.png</file>
+
+    <file alias="add-mesh">resources/images/shapes/add_quad.png</file>
+    <file alias="add-triangle">resources/images/shapes/add_triangle.png</file>
+    <file alias="add-ellipse">resources/images/shapes/add_circle.png</file>
+
+<!--
+    <file alias="add-mesh">resources/images/icons/ad_quad_w.png</file>
+    <file alias="add-triangle">resources/images/icons/ad_tri_w.png</file>
+    <file alias="add-ellipse">resources/images/icons/ad_cerl_w.png</file>
+
+    <file alias="add-mesh">resources/images/icons/ad_quad.png</file>
+    <file alias="add-triangle">resources/images/icons/ad_tri_.png</file>
+    <file alias="add-ellipse">resources/images/icons/ad_cer.png</file>
+-->
+
+    <file alias="play">resources/images/icons/play_w.png</file>
+    <file alias="pause">resources/images/icons/pause_w.png</file>
+    <file alias="rewind">resources/images/icons/rewind_w.png</file>
+
+    <file alias="shape-mesh">resources/images/shapes/add_quad.png</file>
+    <file alias="shape-triangle">resources/images/shapes/add_triangle.png</file>
+    <file alias="shape-ellipse">resources/images/shapes/add_circle.png</file>
+
+    <file alias="shape-polygon">resources/images/shapes/add_circle.png</file>
+
+    <file alias="base-font">resources/fonts/HelveticaNeueLTPro-Bd.otf</file>
 </qresource>
 </RCC>
 

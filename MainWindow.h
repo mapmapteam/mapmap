@@ -43,9 +43,6 @@
 #include "qttreepropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 
-#define MAPMAP_VERSION "0.1.1"
-#define MAPMAP_EXTENSION "mmp"
-
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
  */
@@ -79,7 +76,8 @@ private slots:
   void open();
   bool save();
   bool saveAs();
-  void import();
+  void importVideo();
+  void importImage();
   void addColor();
   void about();
   void updateStatusBar();
@@ -97,6 +95,10 @@ private slots:
   void addTriangle();
   void addEllipse();
 
+  void play();
+  void pause();
+  void rewind();
+
   // Other.
   void windowModified();
   void pollOscInterface();
@@ -108,8 +110,8 @@ public slots:
   /// Clears all mappings and paints.
   bool clearProject();
 
-  /// Create or replace an image paint.
-  uid createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint);
+  /// Create or replace a media paint (or image).
+  uid createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint, bool isImage);
 
   /// Create or replace a color paint.
   uid createColorPaint(uid paintId, QColor color, Paint::ptr oldPaint);
@@ -182,7 +184,7 @@ public:
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
-  bool importMediaFile(const QString &fileName, Paint::ptr oldPaint);
+  bool importMediaFile(const QString &fileName, Paint::ptr oldPaint, bool isImage);
   bool addColorPaint(const QColor& color, Paint::ptr oldPaint);
   void addMappingItem(uid mappingId);
   void removeMappingItem(uid mappingId);
@@ -211,18 +213,21 @@ private:
 //  QMenu *selectSubMenu;
 //  QMenu *toolsMenu;
 //  QMenu *optionsMenu;
-  QMenu *viewMenu;
   QMenu *editMenu;
+  QMenu *viewMenu;
+  QMenu *runMenu;
   QMenu *helpMenu;
 
   // Toolbar.
-  QToolBar *fileToolBar;
+  QToolBar *mainToolBar;
+  QToolBar *runToolBar;
 
   // Actions.
   QAction *separatorAction;
   QAction *newAction;
   QAction *openAction;
-  QAction *importAction;
+  QAction *importVideoAction;
+  QAction *importImageAction;
   QAction *addColorAction;
   QAction *saveAction;
   QAction *saveAsAction;
@@ -236,6 +241,10 @@ private:
   QAction *addMeshAction;
   QAction *addTriangleAction;
   QAction *addEllipseAction;
+
+  QAction *playAction;
+  QAction *pauseAction;
+  QAction *rewindAction;
 
   QAction *displayOutputWindow;
   QAction *outputWindowFullScreen;
@@ -280,12 +289,11 @@ private:
   uid currentMappingId;
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
+  bool _isPlaying;
 
   // Keeps track of the current selected item, wether it's a paint or mapping.
   QListWidgetItem* currentSelectedItem;
   QTimer *videoTimer;
-
-  static MainWindow* instance;
 
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////

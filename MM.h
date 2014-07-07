@@ -28,9 +28,17 @@
 class MM
 {
 public:
+  // General.
+  static const QString VERSION;
+  static const QString FILE_EXTENSION;
+  static const QString VIDEO_FILES_FILTER;
+  static const QString IMAGE_FILES_FILTER;
+
   // GUI.
   static const int DEFAULT_WINDOW_WIDTH = 640;
   static const int DEFAULT_WINDOW_HEIGHT = 480;
+  static const int TOP_TOOLBAR_ICON_SIZE = 64;
+  static const int BOTTOM_TOOLBAR_ICON_SIZE = 32;
 
   // Style.
   static const QColor WHITE;

@@ -60,10 +60,12 @@ public:
 //  void runAudio();
   bool loadMovie(QString filename);
 
+  bool setPlayState(bool play);
+  void resetMovie();
+
 protected:
   void unloadMovie();
   void freeResources();
-  void resetMovie();
 
   void internalPrePlay();
   void internalPostPlay();
@@ -76,7 +78,6 @@ private:
 
   bool _preRun();
   void _postRun();
-  bool _setPlayState(bool play);
   void _setReady(bool ready);
   void _setFinished(bool finished);
 
