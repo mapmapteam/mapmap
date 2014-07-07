@@ -40,6 +40,7 @@ if [[ $unamestr == "Darwin" ]]; then
 
     make
     macdeployqt MapMap.app
+    #cp -R /Library/Frameworks/GStreamer.framework ./MapMap.app/Contents/Frameworks/
     lrelease mapmap_fr.ts
     # do_fix_qt_plugins_in_app
 elif [[ $unamestr == "Linux" ]]; then
