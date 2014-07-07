@@ -3,6 +3,28 @@
 # On Mac, install it from http://qt-project.org/downloads
 # set -o verbose
 
+do_create_dmg() {
+    if [ -f DMGVERSION.txt ]
+    then
+        echo "Using DMGVERSION.txt"
+        cat DMGVERSION.txt
+    else
+        echo 1 > DMGVERSION.txt
+    fi
+    VERSION=$(cat VERSION.txt)
+    DMGVERSION=$(cat DMGVERSION.txt)
+    DMGDIR=MapMap-${VERSION}-${DMGVERSION}
+    echo "Creating directory ${DMGDIR}"
+    mkdir -p $DMGDIR
+    cp -R MapMap.app ${DMGDIR}
+    cp README ${DMGDIR}/README.txt
+    hdiutil create \
+        -volname ${DMGDIR} \
+        -srcfolder ${DMGDIR} \
+        -ov -format UDZO \
+        ${DMGDIR}.dmg
+}
+
 do_fix_qt_plugins_in_app() {
     appdir=./MapMap.app
     qtdir=~/Qt/5.3/clang_64
@@ -43,6 +65,7 @@ if [[ $unamestr == "Darwin" ]]; then
     #cp -R /Library/Frameworks/GStreamer.framework ./MapMap.app/Contents/Frameworks/
     lrelease mapmap_fr.ts
     # do_fix_qt_plugins_in_app
+    do_create_dmg
 elif [[ $unamestr == "Linux" ]]; then
     qmake-qt4
     make

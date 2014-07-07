@@ -51,6 +51,7 @@ Make a release
 * If it's a new feature, increment minor. If it's bugfix, increment micro. If it's not backward-compatible, increment major.
 * Create a release-x.y.z branch
 * Verify the version number:
+  * VERSION.txt
   * VERSION in mapmap.pro
   * PROJECT_NUMBER in Doxyfile
   * MAPMAP_VERSION in MainWindow.h

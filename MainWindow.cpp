@@ -485,7 +485,7 @@ void MainWindow::about()
   // Pop-up about dialog.
   QMessageBox::about(this, tr("About MapMap"),
       tr("<h2>MapMap %1</h2>"
-          "<p>Copyright &copy; 2013 Sofian Audry, Alexandre Quessy, Julien Keable, "
+          "<p>Copyright &copy; 2013 Sofian Audry, Alexandre Quessy, "
           "Mike Latona and Vasilis Liaskovitis."
           "<p>MapMap is a free software for video mapping. "
           "<p>Projection mapping, also known as video mapping and spatial augmented reality, "

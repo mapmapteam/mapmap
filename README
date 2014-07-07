@@ -27,18 +27,17 @@ Build and install
 See the INSTALL file.
 
 To use this software on Mac OS X:
-* Install Qt5. You can get it from http://qt-project.org/downloads and choose the default location.
-* Install the GStreamer SDK Runtime files from http://docs.gstreamer.com/display/GstSDK/Installing+on+Mac+OS+X
+* Install GStreamer using http://gstreamer.freedesktop.org/data/pkg/osx/1.2.4.1/gstreamer-1.0-1.2.4.1-universal.pkg : you should customize the installation and choose to install all components.
 
 Authors
 -------
 * Alexandre Quessy: release manager, developer, technical writer, project manager.
 * Sofian Audry: lead developer, user interface designer, project manager.
+* Vasilis Liaskovitis: developer.
+* Mike Latona: user interface designer.
 
 Contributors
 ------------
-* Mike Latona: user interface designer.
-* Vasilis Liaskovitis: developer.
 * Maxime Damecour: inspiration.
 * Christian Ambaud: sponsor, inspiration.
 * Louis Desjardins: project manager.
