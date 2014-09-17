@@ -69,6 +69,9 @@ MainWindow::MainWindow()
   videoTimer->setInterval(1000/30);
   connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateCanvases()));
   videoTimer->start();
+
+  // Start playing by default.
+  play();
 }
 
 MainWindow::~MainWindow()
