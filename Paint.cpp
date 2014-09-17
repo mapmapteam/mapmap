@@ -73,11 +73,15 @@ void Media::build()
 
 int Media::getWidth() const
 {
+  // Wait for impl to be ready.
+  while (!this->impl_->isReady());
   return this->impl_->getWidth();
 }
 
 int Media::getHeight() const
 {
+  // Wait for impl to be ready.
+  while (!this->impl_->isReady());
   return this->impl_->getHeight();
 }
 

@@ -44,12 +44,12 @@ bool MediaImpl::hasVideoSupport()
 
 int MediaImpl::getWidth() const
 {
-  return _width;
+  return _padHandlerData.width;
 }
 
 int MediaImpl::getHeight() const
 {
-  return _height;
+  return _padHandlerData.height;
 }
 
 const uchar* MediaImpl::getBits() const
@@ -665,6 +665,9 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
   else if (g_str_has_prefix (newPadType, "video/x-raw"))
   {
     sinkPad = gst_element_get_static_pad (data->videoToConnect, "sink");
+    gst_structure_get_int(newPadStruct, "width",  &data->width);
+    gst_structure_get_int(newPadStruct, "height", &data->height);
+
     isAudio = false;
   }
   else

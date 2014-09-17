@@ -55,6 +55,8 @@ public:
   int getHeight() const;
   const uchar* getBits() const;
 
+  bool isReady() const { return _padHandlerData.isConnected(); }
+
   /// Returns true if the image has changed.
   bool runVideo();
 //  void runAudio();
@@ -90,10 +92,13 @@ public:
     GstElement* videoSink;
     bool audioIsConnected;
     bool videoIsConnected;
+    int width;
+    int height;
 
     GstPadHandlerData() :
       audioToConnect(NULL), videoToConnect(NULL), videoSink(NULL),
-      audioIsConnected(false), videoIsConnected(false)
+      audioIsConnected(false), videoIsConnected(false),
+      width(-1), height(-1)
     {}
 
     bool isConnected() const {
