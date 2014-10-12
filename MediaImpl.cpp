@@ -76,15 +76,7 @@ MediaImpl::~MediaImpl()
 
 bool MediaImpl::_videoPull()
 {
-//  qDebug() << "video pull" << endl;
-
-  GstSample *sample = NULL;
-  GstStructure *structure = NULL;
-  GstCaps* caps = NULL;
-  GstBuffer *buffer = NULL;
-
-  // Retrieve the sample
-  sample = queue_input_buf.get();
+  GstSample *sample = _queueInputBuffer.get();
 
   if (sample == NULL)
   {
@@ -93,30 +85,8 @@ bool MediaImpl::_videoPull()
   }
   else
   {
-    caps = gst_sample_get_caps(sample);
-    structure = gst_caps_get_structure(caps, 0);
-    buffer = gst_sample_get_buffer(sample);
-
-    int width  = 640;
-    int height = 480;
-    int bpp    = 32;
-    int depth  = 32;
-
-    gst_structure_get_int(structure, "width",  &width);
-    gst_structure_get_int(structure, "height", &height);
-    // TODO: use gst_video_info_from_caps if we want to support many different formats
-    // otherwise, since we set the caps ourselves, we can assume bpp is 32 and depth too.
-
-    _width = width;
-    _height = height;
-    int size = _width * _height;
-
-//    video->resize(width, height);
-
-//        qDebug() << gst_structure_to_string(capsStruct) << endl;
-//        qDebug() << width << "x" << height << "=" << width*height << "(" << width*height*4 << "," << width*height*3 << ")" << endl;
-//        qDebug() << "bpp: " << bpp << " depth: " << depth << endl;
-//        qDebug() << "Buffer size: " << GST_BUFFER_SIZE(buffer) << endl;
+    // Pull current frame buffer.
+    GstBuffer *buffer = gst_sample_get_buffer(sample);
 
     GstMapInfo map; 
     if (gst_buffer_map(buffer, &map, GST_MAP_READ))
@@ -126,7 +96,7 @@ bool MediaImpl::_videoPull()
       _data = map.data;
       gst_buffer_unmap(buffer, &map); 
       if(this->_frame != NULL)
-        queue_output_buf.put(this->_frame);
+        _queueOutputBuffer.put(this->_frame);
       _frame = sample;
     } 
 
@@ -139,41 +109,22 @@ bool MediaImpl::_eos() const
   if (_movieReady)
   {
     Q_ASSERT( _videoSink );
-//    Q_ASSERT( _audioSink );
     gboolean videoEos;
-//    gboolean audioEos;
     g_object_get (G_OBJECT (_videoSink), "eos", &videoEos, NULL);
-//    g_object_get (G_OBJECT (_audioSink), "eos", &audioEos, NULL);
-    return (bool) (videoEos /*|| audioEos*/);
+    return (bool) (videoEos);
   }
   else
     return false;
 }
-
-//void VideoImpl::_init()
-//{
-//  _audioHasNewBuffer = false;
-//  _videoHasNewBuffer = false;
-//
-//  _terminate = false;
-//  _seekEnabled = false;
-//
-//  _movieReady=true;
-//
-//  // Stop sleeping the video output.
-//  _VIDEO_OUT->sleeping(false);
-//  _AUDIO_OUT->sleeping(false);
-//}
-
 
 GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
 {
   GstSample *sample;
   sample = gst_app_sink_pull_sample(GST_APP_SINK(p->_videoSink));
   //g_signal_emit_by_name (p->_videoSink, "pull-sample", &sample);
-  p->get_queue_input_buf()->put(sample);
-  if (p->get_queue_output_buf()->size() > 1) {
-    sample = p->get_queue_output_buf()->get();
+  p->getQueueInputBuffer()->put(sample);
+  if (p->getQueueOutputBuffer()->size() > 1) {
+    sample = p->getQueueOutputBuffer()->get();
     gst_sample_unref(sample);
   }
   return GST_FLOW_OK;
@@ -184,9 +135,6 @@ _currentMovie(""),
 _bus(NULL),
 _pipeline(NULL),
 _source(NULL),
-//_audioQueue(NULL),
-//_audioConvert(NULL),
-//_audioResample(NULL),
 _videoQueue(NULL),
 _videoConvert(NULL),
 _videoColorSpace(NULL),
@@ -196,35 +144,12 @@ _frame(NULL),
 _width(640),
 _height(480),
 _data(NULL),
-//_audioBufferAdapter(NULL),
 _seekEnabled(false),
-//_audioNewBufferCounter(0),
 _movieReady(false),
 _uri(uri)
 {
   if (uri != "")
     loadMovie(uri);
-
-//  addPlug(_VIDEO_OUT = new PlugOut<VideoRGBAType>(this, "ImgOut", false));
-//  addPlug(_AUDIO_OUT = new PlugOut<SignalType>(this, "AudioOut", false));
-//
-//  addPlug(_FINISH_OUT = new PlugOut<ValueType>(this, "FinishOut", false));
-//
-//  QList<AbstractPlug*> atLeastOneOfThem;
-//  atLeastOneOfThem.push_back(_VIDEO_OUT);
-//  atLeastOneOfThem.push_back(_AUDIO_OUT);
-//  setPlugAtLeastOneNeeded(atLeastOneOfThem);
-//
-//  addPlug(_RESET_IN = new PlugIn<ValueType>(this, "Reset", false, new ValueType(0, 0, 1)));
-//  addPlug(_MOVIE_IN = new PlugIn<StringType>(this, "Movie", false));
-//
-//  //_settings.add(Property::FILENAME, SETTING_FILENAME)->valueStr("");
-//
-//  _VIDEO_OUT->sleeping(true);
-//  _AUDIO_OUT->sleeping(true);
-//
-//  // Crease audio buffer handler.
-//  _audioBufferAdapter = gst_adapter_new();
 }
 
 void MediaImpl::unloadMovie()
@@ -232,17 +157,12 @@ void MediaImpl::unloadMovie()
   // Free allocated resources.
   freeResources();
 
-  // Reset flags.
-//  _audioNewBufferCounter = 0;
-
+  // Reset variables.
   _terminate = false;
   _seekEnabled = false;
 
+  // Un-ready.
   _setReady(false);
-
-  // Unsynch.
-  // NOTE: I commented this out, it was in Drone, most probably useless but who knows.
-  // unSynch(); // XXX: I'm not sure why we are doing this...
 }
 
 void MediaImpl::freeResources()
@@ -262,9 +182,6 @@ void MediaImpl::freeResources()
   }
 
   _source = NULL;
-//  _audioQueue = NULL;
-//  _audioConvert = NULL;
-//  _audioResample = NULL;
   _videoQueue = NULL;
   _videoConvert = NULL;
   _videoColorSpace = NULL;
@@ -272,10 +189,6 @@ void MediaImpl::freeResources()
   _videoSink = NULL;
   _frame = NULL;
   _padHandlerData = GstPadHandlerData();
-
-  // Flush buffers in adapter.
-//  gst_adapter_clear(_audioBufferAdapter);
-
 }
 
 void MediaImpl::resetMovie()
@@ -309,8 +222,6 @@ bool MediaImpl::loadMovie(QString filename)
   // Free previously allocated structures
   unloadMovie();
 
-  //_firstFrameTime=_formatContext->start_time;
-
   // Initialize GStreamer.
   gst_init (NULL, NULL);
   GstElement *capsFilter = NULL;
@@ -318,12 +229,6 @@ bool MediaImpl::loadMovie(QString filename)
 
   // Create the elements.
   _source =          gst_element_factory_make ("uridecodebin", "source");
-
-//  _audioQueue =      gst_element_factory_make ("queue", "aqueue");
-//  _audioConvert =    gst_element_factory_make ("audioconvert", "aconvert");
-//  _audioResample =   gst_element_factory_make ("audioresample", "aresample");
-//  _audioSink =       gst_element_factory_make ("appsink", "asink");
-//
   _videoQueue =      gst_element_factory_make ("queue", "vqueue");
   _videoColorSpace = gst_element_factory_make ("videoconvert", "vcolorspace");
   videoScale = gst_element_factory_make ("videoscale", "videoscale0");
@@ -331,20 +236,14 @@ bool MediaImpl::loadMovie(QString filename)
   _videoSink =       gst_element_factory_make ("appsink", "vsink");
 
   // Prepare handler data.
-//  _padHandlerData.audioToConnect   = _audioQueue;
   _padHandlerData.videoToConnect   = _videoQueue;
   _padHandlerData.videoSink        = _videoSink;
-  //_padHandlerData.audioIsConnected = false;
   _padHandlerData.videoIsConnected = false;
-
-//  _newAudioBufferHandlerData.audioSink          = _audioSink;
-//  _newAudioBufferHandlerData.audioBufferAdapter = _audioBufferAdapter;
 
   // Create the empty pipeline.
   _pipeline = gst_pipeline_new ( "video-source-pipeline" );
 
   if (!_pipeline || !_source ||
-//      !_audioQueue || !_audioConvert || !_audioResample || !_audioSink ||
       !_videoQueue || !_videoColorSpace || ! videoScale || ! capsFilter || ! _videoSink)
   {
     g_printerr ("Not all elements could be created.\n");
@@ -355,14 +254,7 @@ bool MediaImpl::loadMovie(QString filename)
   // Build the pipeline. Note that we are NOT linking the source at this
   // point. We will do it later.
   gst_bin_add_many (GST_BIN (_pipeline), _source,
-//                    _audioQueue, _audioConvert, _audioResample, _audioSink,
                     _videoQueue, _videoColorSpace, videoScale, capsFilter, _videoSink, NULL);
-
-//  if (!gst_element_link_many(_audioQueue, _audioConvert, _audioResample, _audioSink, NULL)) {
-//    g_printerr ("Audio elements could not be linked.\n");
-//    unloadMovie();
-//    return false;
-//  }
 
   if (!gst_element_link_many (_videoQueue, _videoColorSpace, capsFilter, videoScale, _videoSink, NULL)) {
     g_printerr ("Video elements could not be linked.\n");
@@ -393,22 +285,7 @@ bool MediaImpl::loadMovie(QString filename)
   // Connect to the pad-added signal
   g_signal_connect (_source, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
 
-  // Configure audio appsink.
-  // TODO: change from mono to stereo
-//  gchar* audioCapsText = g_strdup_printf ("audio/x-raw-float,channels=1,rate=%d,signed=(boolean)true,width=%d,depth=%d,endianness=BYTE_ORDER",
-//                                          Engine::signalInfo().sampleRate(), (int)(sizeof(Signal_T)*8), (int)(sizeof(Signal_T)*8) );
-//  GstCaps* audioCaps = gst_caps_from_string (audioCapsText);
-//  g_object_set (_audioSink, "emit-signals", TRUE,
-//                            "caps", audioCaps,
-////                            "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
-////                            "drop", TRUE,         // ... other buffers are dropped
-//                            NULL);
-//  g_signal_connect (_audioSink, "new-buffer", G_CALLBACK (VideoImpl::gstNewAudioBufferCallback), &_newAudioBufferHandlerData);
-//  gst_caps_unref (audioCaps);
-//  g_free (audioCapsText);
-
   // Configure video appsink.
-//  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw-rgb");
   GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA");
   g_object_set (capsFilter, "caps", videoCaps, NULL);
   g_object_set (_videoSink, "emit-signals", TRUE,
@@ -433,31 +310,21 @@ bool MediaImpl::loadMovie(QString filename)
 
 bool MediaImpl::runVideo() {
 
-//  if (!_VIDEO_OUT->connected())
-//    return;
-
   if (!_preRun())
     return false;
 
   bool bitsChanged = false;
 
-  if (queue_input_buf.size() > 0) {
+  // Check if we have some frames in the input buffer.
+  if (_queueInputBuffer.size() > 0) {
 
     // Pull video.
-    if (!_videoPull())
-    {
-      _setFinished(true);
-//      _FINISH_OUT->type()->setValue(1.0f);
-//      _VIDEO_OUT->sleeping(true);
-    }
-    else
-    {
+    if (_videoPull())
       bitsChanged = true;
-      //      _VIDEO_OUT->sleeping(false);
-    }
 
     //std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
   }
+
   /* TODO: This causes the texture to be loaded always in Mapper.cpp . The
  * problem if this is not set is: When we have more than one shape, a
  * shape that has a new buffer coming in will overdraw the old buffer of the
@@ -494,56 +361,14 @@ bool MediaImpl::setPlayState(bool play)
   }
 }
 
-//void VideoImpl::runAudio() {
-//
-//  if (!_AUDIO_OUT->connected())
-//    return;
-//
-//  if (!_preRun())
-//    return;
-//
-//  unsigned int blockByteSize = Engine::signalInfo().blockSize()*sizeof(Signal_T);
-//  if (gst_adapter_available(_audioBufferAdapter) >= blockByteSize )
-//  {
-//    // Copy block of data to audio output.
-//    gst_adapter_copy(_audioBufferAdapter, (guint8*)_AUDIO_OUT->type()->data(), 0, blockByteSize);
-//    gst_adapter_flush (_audioBufferAdapter, blockByteSize);
-//
-//    _AUDIO_OUT->sleeping(false);
-//  }
-//  else
-//  {
-//    _FINISH_OUT->type()->setValue(1.0f);
-//    _AUDIO_OUT->sleeping(true);
-//  }
-//
-//  _postRun();
-//}
-
 bool MediaImpl::_preRun()
 {
   // Check for end-of-stream or terminate.
   if (_eos() || _terminate)
-  {
-    _setFinished(true);
     resetMovie();
 
-//    _FINISH_OUT->type()->setValue(1.0f);
-//    _VIDEO_OUT->sleeping(true);
-//    _AUDIO_OUT->sleeping(true);
-//
-//    if (_audioBufferAdapter != NULL)
-//      gst_adapter_clear(_audioBufferAdapter);
-  }
-  else
-    _setFinished(false);
-//    _FINISH_OUT->type()->setValue(0.0f);
-
-//  if (_RESET_IN->type()->boolValue())
-//    resetMovie();
-
   if (!_movieReady ||
-      !_padHandlerData.isConnected())
+      !_padHandlerData.videoIsConnected)
     return false;
 
   return true;
@@ -574,13 +399,10 @@ void MediaImpl::_postRun()
         g_free(debug_info);
 
         _terminate = true;
-//        _finish();
         break;
 
       case GST_MESSAGE_EOS:
         g_print("End-Of-Stream reached.\n");
-//        _terminate = true;
-//        _finish();
         break;
 
       case GST_MESSAGE_STATE_CHANGED:
@@ -594,9 +416,6 @@ void MediaImpl::_postRun()
               _currentMovie.toUtf8().constData(),
               gst_element_state_get_name(oldState),
               gst_element_state_get_name(newState));
-
-//          if (oldState == GST_STATE_PAUSED && newState == GST_STATE_READY)
-//            gst_adapter_clear(_audioBufferAdapter);
 
           if (newState == GST_STATE_PLAYING)
           {
@@ -639,17 +458,10 @@ void MediaImpl::_postRun()
 void MediaImpl::_setReady(bool ready)
 {
   _movieReady = ready;
-//  _VIDEO_OUT->sleeping(!ready);
-//  _AUDIO_OUT->sleeping(!ready);
-}
-
-void MediaImpl::_setFinished(bool finished) {
-//  qDebug() << "Clip " << (finished ? "finished" : "not finished");
 }
 
 void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data) {
   g_print ("Received new pad '%s' from '%s':\n", GST_PAD_NAME (newPad), GST_ELEMENT_NAME (src));
-  bool isAudio = false;
   GstPad *sinkPad = NULL;
 
   // Check the new pad's type.
@@ -657,18 +469,11 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
   GstStructure *newPadStruct = gst_caps_get_structure (newPadCaps, 0);
   const gchar *newPadType   = gst_structure_get_name (newPadStruct);
   g_print("Structure is %s\n", gst_structure_to_string(newPadStruct));
-  if (g_str_has_prefix (newPadType, "audio/x-raw"))
-  {
-    sinkPad = gst_element_get_static_pad (data->audioToConnect, "sink");
-    isAudio = true;
-  }
-  else if (g_str_has_prefix (newPadType, "video/x-raw"))
+  if (g_str_has_prefix (newPadType, "video/x-raw"))
   {
     sinkPad = gst_element_get_static_pad (data->videoToConnect, "sink");
     gst_structure_get_int(newPadStruct, "width",  &data->width);
     gst_structure_get_int(newPadStruct, "height", &data->height);
-
-    isAudio = false;
   }
   else
   {
@@ -700,15 +505,8 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
     g_print ("  Type is '%s' but link failed.\n", newPadType);
     goto exit;
   } else {
+    data->videoIsConnected = true;
     g_print ("  Link succeeded (type '%s').\n", newPadType);
-    if (isAudio)
-    {
-      //data->audioIsConnected = true;
-    }
-    else
-    {
-      data->videoIsConnected = true;
-    }
   }
 
 exit:
@@ -720,54 +518,3 @@ exit:
   if (sinkPad != NULL)
     gst_object_unref (sinkPad);
 }
-
-//void VideoImpl::gstNewAudioBufferCallback(GstElement *sink, GstNewAudioBufferHandlerData *data) {
-//  GstBuffer *buffer = NULL;
-//
-//  // Retrieve the buffer.
-//  // TODO: we should pull ALL buffers and add them to the adapter
-//  g_signal_emit_by_name (data->audioSink, "pull-buffer", &buffer);
-//
-//  if (buffer)
-//  {
-//    ASSERT_WARNING_MESSAGE( ! GST_BUFFER_IS_DISCONT(buffer), "Discontinuity detected in audio buffer." );
-//
-////    int blockSize  = 2;
-////    int sampleRate = 1;
-////    int channels  = 0;
-////    int width = 0;
-////    GstCaps* caps = GST_BUFFER_CAPS(buffer);
-////    GstStructure *capsStruct = gst_caps_get_structure (caps, 0);
-////
-////    gst_structure_get_int(capsStruct, "rate",  &sampleRate);
-////    gst_structure_get_int(capsStruct, "channels", &channels);
-////    gst_structure_get_int(capsStruct, "width",  &width);
-//
-////    qDebug() << "rate = " << sampleRate << " channels = " << channels << " width = " << width << endl;
-////    unsigned int blockByteSize = Engine::signalInfo().blockSize() * sizeof(Signal_T);
-//
-////    qDebug() << "bufsize: "<< GST_BUFFER_SIZE(buffer) <<
-////                 " / adaptersize: " << gst_adapter_available(data->audioBufferAdapter) << endl;
-//
-//    // Add buffer to the adapter.
-//    gst_adapter_push(data->audioBufferAdapter, buffer);
-// //   qDebug() << " .. after push = : "<< gst_adapter_available(_audioBufferAdapter);
-//
-//    // NOTE: no need to unref the buffer here because the buffer was given away with the
-//    // call to gst_adapter_push()
-//    //gst_buffer_unref (buffer);
-//  }
-//}
-
-void MediaImpl::internalPrePlay()
-{
-  // Start/resume playback.
-  setPlayState(true);
-}
-
-void MediaImpl::internalPostPlay()
-{
-  // Pause playback.
-  setPlayState(false);
-}
-
