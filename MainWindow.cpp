@@ -1302,15 +1302,16 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
-//  QSettings settings("MapMap", "MapMap");
+  QSettings settings("MapMap", "MapMap");
 
-//  restoreGeometry(settings.value("geometry").toByteArray());
-//  mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
-//  resourceSplitter->restoreState(settings.value("resourceSplitter").toByteArray());
-//  canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
-//  outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
-//  displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
-//  config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
+  restoreGeometry(settings.value("geometry").toByteArray());
+  mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
+  paintSplitter->restoreState(settings.value("paintSplitter").toByteArray());
+  mappingSplitter->restoreState(settings.value("mappingSplitter").toByteArray());
+  canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
+  outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
+  displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
+  config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 }
 
 void MainWindow::writeSettings()
@@ -1319,6 +1320,8 @@ void MainWindow::writeSettings()
 
   settings.setValue("geometry", saveGeometry());
   settings.setValue("mainSplitter", mainSplitter->saveState());
+  settings.setValue("paintSplitter", paintSplitter->saveState());
+  settings.setValue("mappingSplitter", mappingSplitter->saveState());
 //  settings.setValue("resourceSplitter", resourceSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
   settings.setValue("outputWindow", outputWindow->saveGeometry());
