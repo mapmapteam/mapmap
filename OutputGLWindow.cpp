@@ -52,8 +52,14 @@ void OutputGLWindow::keyPressEvent(QKeyEvent *event)
     setFullScreen(false);
     emit fullScreenToggled(false);
   }
+  else if (event->key() == Qt::Key_Escape)
+  {
+    // pass
+  }
   else
+  {
     QDialog::keyPressEvent(event);
+  }
 }
 
 
