@@ -21,7 +21,6 @@
 #include "MainWindow.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
-#include "Facade.h"
 #include <sstream>
 #include <string>
 
