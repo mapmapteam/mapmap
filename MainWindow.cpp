@@ -894,7 +894,7 @@ void MainWindow::createLayout()
   // Create property panel.
   mappingPropertyPanel = new QStackedWidget;
   mappingPropertyPanel->setDisabled(true);
-  mappingPropertyPanel->setMinimumWidth(MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT);
+  mappingPropertyPanel->setMinimumHeight(MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT);
 
   // Create canvases.
   sourceCanvas = new SourceGLCanvas(this);
@@ -937,7 +937,7 @@ void MainWindow::createLayout()
 
   // Content tab.
   contentTab = new QTabWidget;
-  contentTab->addTab(paintSplitter, QIcon(":/add-media"), tr("Paints"));
+  contentTab->addTab(paintSplitter, QIcon(":/add-video"), tr("Paints"));
   contentTab->addTab(mappingSplitter, QIcon(":/add-mesh"), tr("Mappings"));
 
   canvasSplitter = new QSplitter(Qt::Vertical);
