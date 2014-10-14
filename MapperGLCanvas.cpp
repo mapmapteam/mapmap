@@ -29,7 +29,8 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
     _activeVertex(NO_VERTEX),
     _shapeGrabbed(false), // comment out?
     _shapeFirstGrab(false), // comment out?
-    _displayControls(true)
+    _displayControls(true),
+    _stickyVertices(true)
 {
 }
 
@@ -156,7 +157,8 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       p.setY(event->y());
 
       // Stick to vertices.
-      glueVertex(shape, &p);
+      if (stickyVertices())
+        glueVertex(shape, &p);
       shape->setVertex(_activeVertex, p);
 
       update();
@@ -252,6 +254,11 @@ void MapperGLCanvas::enableDisplayControls(bool display)
 {
   _displayControls = display;
   updateCanvas();
+}
+
+void MapperGLCanvas::enableStickyVertices(bool value)
+{
+  _stickyVertices = value;
 }
 
 /* Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are

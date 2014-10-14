@@ -1143,6 +1143,19 @@ void MainWindow::createActions()
   connect(displayCanvasControls, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableDisplayControls(bool)));
   connect(displayCanvasControls, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableDisplayControls(bool)));
   connect(displayCanvasControls, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableDisplayControls(bool)));
+
+  // Toggle sticky vertices
+  stickyVertices = new QAction(tr("&Sticky vertices"), this);
+  // stickyVertices->setShortcut(tr("Ctrl+E"));
+  stickyVertices->setIcon(QIcon(":/control-points"));
+  stickyVertices->setStatusTip(tr("Enable sticky vertices"));
+  stickyVertices->setIconVisibleInMenu(false);
+  stickyVertices->setCheckable(true);
+  stickyVertices->setChecked(true);
+  // Manage sticky vertices
+  connect(stickyVertices, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableStickyVertices(bool)));
+  connect(stickyVertices, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableStickyVertices(bool)));
+  connect(stickyVertices, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableStickyVertices(bool)));
 }
 
 void MainWindow::createMenus()
@@ -1181,6 +1194,7 @@ void MainWindow::createMenus()
   viewMenu->addAction(displayOutputWindow);
   viewMenu->addAction(outputWindowFullScreen);
   viewMenu->addAction(displayCanvasControls);
+  viewMenu->addAction(stickyVertices);
 
   // Run.
   runMenu = menuBar->addMenu(tr("&Run"));
@@ -1242,6 +1256,7 @@ void MainWindow::createToolBars()
   mainToolBar->addAction(displayOutputWindow);
   mainToolBar->addAction(outputWindowFullScreen);
   mainToolBar->addAction(displayCanvasControls);
+  mainToolBar->addAction(stickyVertices);
 
   runToolBar = addToolBar(tr("&Run"));
   runToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));

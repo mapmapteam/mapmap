@@ -52,6 +52,7 @@ public:
 
   MainWindow* getMainWindow() const { return _mainWindow; }
   bool displayControls() const { return _displayControls; }
+  bool stickyVertices() const { return _stickyVertices; }
 
 protected:
   void initializeGL();
@@ -76,6 +77,7 @@ private:
   bool _shapeGrabbed;
   bool _shapeFirstGrab;
   bool _displayControls;
+  bool _stickyVertices;
 
 signals:
   void shapeChanged(Shape*);
@@ -84,6 +86,7 @@ signals:
 public slots:
   void updateCanvas();
   void enableDisplayControls(bool display);
+  void enableStickyVertices(bool display);
   void deselectAll();
 
 public:
