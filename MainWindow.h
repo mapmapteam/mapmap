@@ -43,6 +43,8 @@
 #include "qttreepropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 
+#include "PaintGui.h"
+
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
  */
@@ -86,11 +88,13 @@ private slots:
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
-  void handleItemDoubleClicked(QListWidgetItem* item);
+//  void handleItemDoubleClicked(QListWidgetItem* item);
   void handleMappingItemSelectionChanged();
   void handleMappingItemChanged(QListWidgetItem* item);
   void handleMappingIndexesMoved();
   void handleItemSelected(QListWidgetItem* item);
+  void handlePaintChanged(Paint::ptr paint);
+
   void addMesh();
   void addTriangle();
   void addEllipse();
@@ -189,6 +193,7 @@ public:
   void addMappingItem(uid mappingId);
   void removeMappingItem(uid mappingId);
   void addPaintItem(uid paintId, const QIcon& icon, const QString& name);
+  void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
   void clearWindow();
 
@@ -203,7 +208,9 @@ private:
   // Get/set id from list item.
   static uid getItemId(const QListWidgetItem& item);
   static void setItemId(QListWidgetItem& item, uid id);
+  static QListWidgetItem* getItemFromId(const QListWidget& list, uid id);
   static int getItemRowFromId(const QListWidget& list, uid id);
+  static QIcon createColorIcon(const QColor &color);
 
   // GUI elements. ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -286,7 +293,8 @@ private:
   // View.
 
   // The view counterpart of Mappings.
-  QMap<uint, Mapper::ptr> mappers;
+  QMap<uid, Mapper::ptr> mappers;
+  QMap<uid, PaintGui::ptr> paintGuis;
 
   // Current selected paint/mapping.
   uid currentPaintId;

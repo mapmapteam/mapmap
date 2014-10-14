@@ -49,6 +49,7 @@ public:
   QMap<uid, Mapping::ptr> getPaintMappingsById(uid paintId) const;
 
   uid addPaint(Paint::ptr paint);
+  uid getPaintId(Paint::ptr paint) const { return paintMap.key(paint); }
   bool removePaint(uid paintId);
   bool replacePaintMappings(Paint::ptr oldpaint, Paint::ptr newpaint);
   int nPaints() const { return paintVector.size(); }
