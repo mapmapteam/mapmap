@@ -251,17 +251,21 @@ private:
   QAction *displayCanvasControls;
 
   // Widgets and layout.
+  QTabWidget* contentTab;
 
+  QSplitter* paintSplitter;
   QListWidget* paintList;
+  QStackedWidget* paintPropertyPanel;
+
+  QSplitter* mappingSplitter;
   QListWidget* mappingList;
-  QStackedWidget* propertyPanel;
+  QStackedWidget* mappingPropertyPanel;
 
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
   OutputGLWindow* outputWindow;
 
   QSplitter* mainSplitter;
-  QSplitter* resourceSplitter;
   QSplitter* canvasSplitter;
 
   // Internal variables. ///////////////////////////////////////////////////////////////////////////////////
@@ -312,7 +316,7 @@ public:
   {
     currentMappingId = uid;
     if (uid != NULL_UID)
-      propertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
+      mappingPropertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
     _hasCurrentMapping = true;
   }
   void removeCurrentPaint() {
@@ -330,9 +334,10 @@ public:
   static const int DEFAULT_HEIGHT = 800;
   static const int PAINT_LIST_ITEM_HEIGHT = 40;
   static const int SHAPE_LIST_ITEM_HEIGHT = 40;
-  static const int PAINT_LIST_MINIMUM_WIDTH = 100;
-  static const int MAPPING_LIST_MINIMUM_WIDTH  = 300;
-  static const int PROPERTY_PANEL_MINIMUM_WIDTH  = 400;
+  static const int PAINT_LIST_MINIMUM_HEIGHT = 320;
+  static const int MAPPING_LIST_MINIMUM_HEIGHT = 320;
+  static const int PAINT_PROPERTY_PANEL_MINIMUM_HEIGHT = 320;
+  static const int MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT = 320;
   static const int CANVAS_MINIMUM_WIDTH  = 480;
   static const int CANVAS_MINIMUM_HEIGHT = 270;
   static const int OUTPUT_WINDOW_MINIMUM_WIDTH = 480;

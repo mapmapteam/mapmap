@@ -553,11 +553,11 @@ bool MainWindow::clearProject()
   paintList->clear();
 
   // Clear property panel.
-  for (int i=propertyPanel->count()-1; i>=0; i--)
-    propertyPanel->removeWidget(propertyPanel->widget(i));
+  for (int i=mappingPropertyPanel->count()-1; i>=0; i--)
+    mappingPropertyPanel->removeWidget(mappingPropertyPanel->widget(i));
 
   // Disable property panel.
-  propertyPanel->setDisabled(true);
+  mappingPropertyPanel->setDisabled(true);
 
   // Clear list of mappers.
   mappers.clear();
@@ -871,7 +871,12 @@ void MainWindow::createLayout()
   paintList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   paintList->setDefaultDropAction(Qt::MoveAction);
   paintList->setDragDropMode(QAbstractItemView::InternalMove);
-  paintList->setMinimumWidth(PAINT_LIST_MINIMUM_WIDTH);
+  paintList->setMinimumWidth(PAINT_LIST_MINIMUM_HEIGHT);
+
+  // Create paint panel.
+  paintPropertyPanel = new QStackedWidget;
+  paintPropertyPanel->setDisabled(true);
+  paintPropertyPanel->setMinimumHeight(PAINT_PROPERTY_PANEL_MINIMUM_HEIGHT);
 
   // Create mapping list.
   mappingList = new QListWidget;
@@ -880,12 +885,12 @@ void MainWindow::createLayout()
   //layerList->setDragDropMode(QAbstractItemView::DragDrop);
   mappingList->setDefaultDropAction(Qt::MoveAction);
   mappingList->setDragDropMode(QAbstractItemView::InternalMove);
-  mappingList->setMinimumWidth(MAPPING_LIST_MINIMUM_WIDTH);
+  mappingList->setMinimumHeight(MAPPING_LIST_MINIMUM_HEIGHT);
 
   // Create property panel.
-  propertyPanel = new QStackedWidget;
-  propertyPanel->setDisabled(true);
-  propertyPanel->setMinimumWidth(PROPERTY_PANEL_MINIMUM_WIDTH);
+  mappingPropertyPanel = new QStackedWidget;
+  mappingPropertyPanel->setDisabled(true);
+  mappingPropertyPanel->setMinimumWidth(MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT);
 
   // Create canvases.
   sourceCanvas = new SourceGLCanvas(this);
@@ -918,18 +923,26 @@ void MainWindow::createLayout()
           destinationCanvas,         SLOT(updateCanvas()));
 
   // Create layout.
-  resourceSplitter = new QSplitter(Qt::Horizontal);
-  resourceSplitter->addWidget(paintList);
-  resourceSplitter->addWidget(mappingList);
-  resourceSplitter->addWidget(propertyPanel);
+  paintSplitter = new QSplitter(Qt::Vertical);
+  paintSplitter->addWidget(paintList);
+  paintSplitter->addWidget(paintPropertyPanel);
 
-  canvasSplitter = new QSplitter(Qt::Horizontal);
+  mappingSplitter = new QSplitter(Qt::Vertical);
+  mappingSplitter->addWidget(mappingList);
+  mappingSplitter->addWidget(mappingPropertyPanel);
+
+  // Content tab.
+  contentTab = new QTabWidget;
+  contentTab->addTab(paintSplitter, QIcon(":/add-media"), tr("Paints"));
+  contentTab->addTab(mappingSplitter, QIcon(":/add-mesh"), tr("Mappings"));
+
+  canvasSplitter = new QSplitter(Qt::Vertical);
   canvasSplitter->addWidget(sourceCanvas);
   canvasSplitter->addWidget(destinationCanvas);
 
-  mainSplitter = new QSplitter(Qt::Vertical);
+  mainSplitter = new QSplitter(Qt::Horizontal);
   mainSplitter->addWidget(canvasSplitter);
-  mainSplitter->addWidget(resourceSplitter);
+  mainSplitter->addWidget(contentTab);
 
   // Initialize size to 2:1 proportions.
   QSize sz = mainSplitter->size();
@@ -1306,7 +1319,7 @@ void MainWindow::writeSettings()
 
   settings.setValue("geometry", saveGeometry());
   settings.setValue("mainSplitter", mainSplitter->saveState());
-  settings.setValue("resourceSplitter", resourceSplitter->saveState());
+//  settings.setValue("resourceSplitter", resourceSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
   settings.setValue("outputWindow", outputWindow->saveGeometry());
   settings.setValue("displayOutputWindow", displayOutputWindow->isChecked());
@@ -1553,9 +1566,9 @@ void MainWindow::addMappingItem(uid mappingId)
   // Add to list of mappers.
   mappers[mappingId] = mapper;
   QWidget* mapperEditor = mapper->getPropertiesEditor();
-  propertyPanel->addWidget(mapperEditor);
-  propertyPanel->setCurrentWidget(mapperEditor);
-  propertyPanel->setEnabled(true);
+  mappingPropertyPanel->addWidget(mapperEditor);
+  mappingPropertyPanel->setCurrentWidget(mapperEditor);
+  mappingPropertyPanel->setEnabled(true);
 
   // When mapper value is changed, update canvases.
   connect(mapper.get(), SIGNAL(valueChanged()),
@@ -1593,7 +1606,7 @@ void MainWindow::removeMappingItem(uid mappingId)
   mappingManager->removeMapping(mappingId);
 
   // Remove associated mapper.
-  propertyPanel->removeWidget(mappers[mappingId]->getPropertiesEditor());
+  mappingPropertyPanel->removeWidget(mappers[mappingId]->getPropertiesEditor());
   mappers.remove(mappingId);
 
   // Remove widget from mappingList.
