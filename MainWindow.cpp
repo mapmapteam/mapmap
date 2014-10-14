@@ -948,11 +948,11 @@ void MainWindow::createLayout()
   mainSplitter->addWidget(canvasSplitter);
   mainSplitter->addWidget(contentTab);
 
-  // Initialize size to 2:1 proportions.
+  // Initialize size to 9:1 proportions.
   QSize sz = mainSplitter->size();
   QList<int> sizes;
-  sizes.append(sz.height() * 2 / 3);
-  sizes.append(sz.height() - sizes.at(0));
+  sizes.append(sz.width() * 0.9);
+  sizes.append(sz.width() - sizes.at(0));
   mainSplitter->setSizes(sizes);
 
   // Upon resizing window, give some extra stretch expansion to canvasSplitter.
