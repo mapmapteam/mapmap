@@ -97,7 +97,9 @@ void MainWindow::handlePaintItemSelectionChanged()
     // Set current paint.
     uid idx = getItemId(*item);
     setCurrentPaint(idx);
+    // Unselect current mapping.
     removeCurrentMapping();
+    mappingList->clearSelection();
   }
   else
     removeCurrentPaint();
