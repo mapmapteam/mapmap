@@ -1589,7 +1589,10 @@ void MainWindow::addMappingItem(uid mappingId)
   connect(this, SIGNAL(paintChanged()),
           mapper.get(), SLOT(updatePaint()));
 
-    // Add item to layerList widget.
+  // Switch to mapping tab.
+  contentTab->setCurrentWidget(mappingSplitter);
+
+  // Add item to layerList widget.
   QListWidgetItem* item = new QListWidgetItem(label);
   item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
   item->setCheckState(Qt::Checked);
