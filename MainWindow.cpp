@@ -956,7 +956,7 @@ void MainWindow::createLayout()
   mainSplitter->setSizes(sizes);
 
   // Upon resizing window, give some extra stretch expansion to canvasSplitter.
-  //mainSplitter->setStretchFactor(0, 1);
+  mainSplitter->setStretchFactor(0, 1);
 
   // Final setups.
   setWindowTitle(tr("MapMap"));
