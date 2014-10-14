@@ -72,7 +72,7 @@ private:
   void exitDraw(QPainter* painter);
 
   MainWindow* _mainWindow;
-  bool _mousepressed;
+  bool _mousePressedToDragVertex;
   int _activeVertex;
   bool _shapeGrabbed;
   bool _shapeFirstGrab;
