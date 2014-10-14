@@ -307,26 +307,10 @@ public:
   uid getCurrentMappingId() const { return currentMappingId; }
   bool hasCurrentPaint() const { return _hasCurrentPaint; }
   bool hasCurrentMapping() const { return _hasCurrentMapping; }
-  void setCurrentPaint(int uid)
-  {
-    currentPaintId = uid;
-    _hasCurrentPaint = true;
-  }
-  void setCurrentMapping(int uid)
-  {
-    currentMappingId = uid;
-    if (uid != NULL_UID)
-      mappingPropertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
-    _hasCurrentMapping = true;
-  }
-  void removeCurrentPaint() {
-    _hasCurrentPaint = false;
-    currentPaintId = NULL_UID;
-  }
-  void removeCurrentMapping() {
-    _hasCurrentMapping = false;
-    currentMappingId = NULL_UID;
-  }
+  void setCurrentPaint(int uid);
+  void setCurrentMapping(int uid);
+  void removeCurrentPaint();
+  void removeCurrentMapping();
 
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////

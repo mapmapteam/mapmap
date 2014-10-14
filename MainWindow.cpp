@@ -1776,6 +1776,31 @@ int MainWindow::getItemRowFromId(const QListWidget& list, uid id)
   return (-1);
 }
 
+void MainWindow::setCurrentPaint(int uid)
+{
+  currentPaintId = uid;
+  if (uid != NULL_UID)
+    paintPropertyPanel->setCurrentWidget(paintGuis[uid]->getPropertiesEditor());
+  _hasCurrentPaint = true;
+}
+
+void MainWindow::setCurrentMapping(int uid)
+{
+  currentMappingId = uid;
+  if (uid != NULL_UID)
+    mappingPropertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
+  _hasCurrentMapping = true;
+}
+
+void MainWindow::removeCurrentPaint() {
+  _hasCurrentPaint = false;
+  currentPaintId = NULL_UID;
+}
+
+void MainWindow::removeCurrentMapping() {
+  _hasCurrentMapping = false;
+  currentMappingId = NULL_UID;
+}
 
 void MainWindow::startOscReceiver()
 {
