@@ -123,7 +123,9 @@ void MainWindow::handleMappingItemSelectionChanged()
 
     // Set current paint and mappings.
     Mapping::ptr mapping = mappingManager->getMappingById(idx);
-    setCurrentPaint(mapping->getPaint()->getId());
+    uid paintId = mapping->getPaint()->getId();
+    setCurrentPaint(paintId);
+    paintList->setCurrentRow( getItemRowFromId(*paintList, paintId) );
     setCurrentMapping(mapping->getId());
   }
   else
