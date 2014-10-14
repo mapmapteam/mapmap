@@ -1501,6 +1501,9 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
   paintList->addItem(item);
   paintList->setCurrentItem(item);
 
+  // Switch to paint tab.
+  contentTab->setCurrentWidget(paintSplitter);
+
   // Window was modified.
   windowModified();
 }
