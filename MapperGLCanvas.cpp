@@ -128,14 +128,34 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
           _mousePressedToDragVertex = true;
         }
       }
+      if (_mousePressedToDragVertex) {
+          return;
+      }
     }
   }
 
-  if (_mousePressedToDragVertex) {
-      return;
+  if (event->buttons() & Qt::LeftButton)
+  {
+    // Select a shape with a click
+    Shape* orig = getCurrentShape();
+    MappingManager manager = getMainWindow()->getMappingManager();
+    QVector<Mapping::ptr> mappings = manager.getVisibleMappings();
+    for (QVector<Mapping::ptr>::const_iterator it = mappings.end() - 1; it >= mappings.begin(); --it)
+    {
+      Shape *shape = getShapeFromMappingId((*it)->getId());
+      if (shape && shape->includesPoint(xmouse, ymouse))
+      {
+        if (shape != orig)
+        {
+          getMainWindow()->setCurrentMapping((*it)->getId());
+        }
+        break;
+      }
+    }
   }
+
   // Drag the currently selected shape
-  if (event->buttons() & Qt::LeftButton) //Qt::RightButton)
+  if (event->buttons() & Qt::LeftButton)
   {
     Shape* shape = getCurrentShape();
     if (shape && shape->includesPoint(xmouse, ymouse))
@@ -144,8 +164,6 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
       _shapeFirstGrab = true;
     }
   }
-
-  // TODO: Select a shape with a click
 }
 
 void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
@@ -158,7 +176,6 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
 
 void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 {
-
   if (_mousePressedToDragVertex)
   {
     // std::cout << "Move event " << std::endl;
@@ -198,7 +215,6 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
     // Update previous mouse position.
     prevMousePosition.setX( event->x() );
     prevMousePosition.setY( event->y() );
-
   }
 }
 
