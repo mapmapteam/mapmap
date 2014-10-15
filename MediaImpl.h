@@ -55,7 +55,7 @@ public:
   int getHeight() const;
   const uchar* getBits() const;
 
-  bool isReady() const { return _padHandlerData.isConnected(); }
+  bool isReady() const { return _padHandlerData.videoIsConnected; }
 
   /// Returns true if the image has changed.
   bool runVideo();
@@ -69,9 +69,6 @@ protected:
   void unloadMovie();
   void freeResources();
 
-  void internalPrePlay();
-  void internalPostPlay();
-
 private:
   bool _videoPull();
   bool _eos() const;
@@ -81,64 +78,42 @@ private:
   bool _preRun();
   void _postRun();
   void _setReady(bool ready);
-  void _setFinished(bool finished);
+//  void _setFinished(bool finished);
 
 public:
   // GStreamer callbacks.
 
   struct GstPadHandlerData {
-    GstElement* audioToConnect;
     GstElement* videoToConnect;
     GstElement* videoSink;
-    bool audioIsConnected;
     bool videoIsConnected;
     int width;
     int height;
 
     GstPadHandlerData() :
-      audioToConnect(NULL), videoToConnect(NULL), videoSink(NULL),
-      audioIsConnected(false), videoIsConnected(false),
+      videoToConnect(NULL), videoSink(NULL),
+      videoIsConnected(false),
       width(-1), height(-1)
     {}
-
-    bool isConnected() const {
-      return (/*audioIsConnected && */videoIsConnected);
-    }
   };
-
-//  struct GstNewAudioBufferHandlerData {
-//    GstElement* audioSink;
-//    GstAdapter* audioBufferAdapter;
-//    GstNewAudioBufferHandlerData() : audioSink(NULL), audioBufferAdapter(NULL) {}
-//  };
 
   // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
   static GstFlowReturn gstNewSampleCallback(GstElement*, MediaImpl *p);
   static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
 
-//  static void gstNewAudioBufferCallback(GstElement *sink, GstNewAudioBufferHandlerData *data);
-
   // GStreamer callback that plugs the audio/video pads into the proper elements when they
   // are made available by the source.
   static void gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data);
-  AsyncQueue<GstSample*> *get_queue_input_buf() {
-    return &this->queue_input_buf;
+  AsyncQueue<GstSample*> *getQueueInputBuffer() {
+    return &this->_queueInputBuffer;
   }
 
-  AsyncQueue<GstSample*> *get_queue_output_buf() {
-    return &this->queue_output_buf;
+  AsyncQueue<GstSample*> *getQueueOutputBuffer() {
+    return &this->_queueOutputBuffer;
   }
 
 
 private:
-//  PlugOut<VideoRGBAType> *_VIDEO_OUT;
-//  PlugOut<SignalType> *_AUDIO_OUT;
-//  PlugOut<ValueType> *_FINISH_OUT;
-//  PlugIn<ValueType> *_RESET_IN;
-//  PlugIn<StringType> *_MOVIE_IN;
-//
-//  VideoRGBAType *_imageOut;
-
   //locals
   QString _currentMovie;
 
@@ -156,10 +131,7 @@ private:
   GstElement *_videoSink;
   GstSample  *_frame;
 
-//  GstAdapter *_audioBufferAdapter;
-
   GstPadHandlerData _padHandlerData;
-//  GstNewAudioBufferHandlerData _newAudioBufferHandlerData;
 
   int _width;
   int _height;
@@ -171,30 +143,11 @@ private:
 
   bool _terminate;
   bool _movieReady;
-  AsyncQueue<GstSample*> queue_input_buf;
-  AsyncQueue<GstSample*> queue_output_buf;
-
+  AsyncQueue<GstSample*> _queueInputBuffer;
+  AsyncQueue<GstSample*> _queueOutputBuffer;
 
 private:
   QString _uri;
 };
-
-//! Fast converts 24-bits color to 32 bits (alpha is set to specified alpha value).
-// Based on: http://stackoverflow.com/questions/7069090/convert-rgb-to-rgba-in-c
-inline void convert24to32(unsigned char *dst, const unsigned char *src, size_t size, unsigned char alpha=0xff) {
-  Q_ASSERT(dst != NULL);
-  Q_ASSERT(src != NULL);
-  if (size==0) return;
-  uint32_t alphaMask = ((uint32_t)alpha) << 24;
-  // Copy by 4 byte blocks.
-  for (size_t i=size; --i; dst+=4, src+=3)
-  {
-    *(uint32_t*)(void*)dst = (*(const uint32_t*)(const void*)src) | alphaMask;
-  }
-  // Copy remaining bytes.
-  *dst++ = *src++;
-  *dst++ = *src++;
-  *dst++ = *src++;
-}
 
 #endif /* ifndef */
