@@ -7,6 +7,7 @@ DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
 HEADERS  = \
     DestinationGLCanvas.h \
+    MM.h \
     MainApplication.h \
     MainWindow.h \
     Mapper.h \
@@ -29,6 +30,7 @@ HEADERS  = \
 
 SOURCES  = \
     DestinationGLCanvas.cpp \
+    MM.cpp \
     MainApplication.cpp \
     MainWindow.cpp \
     Mapper.cpp \
@@ -39,7 +41,6 @@ SOURCES  = \
     OscInterface.cpp \
     OscReceiver.cpp \
     OutputGLWindow.cpp \
-    MM.cpp \
     Paint.cpp \
     PaintGui.cpp \
     ProjectReader.cpp \

@@ -52,8 +52,14 @@ void OutputGLWindow::keyPressEvent(QKeyEvent *event)
     setFullScreen(false);
     emit fullScreenToggled(false);
   }
+  else if (event->key() == Qt::Key_Escape)
+  {
+    // pass
+  }
   else
+  {
     QDialog::keyPressEvent(event);
+  }
 }
 
 
@@ -78,7 +84,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
 
 #ifdef Q_OS_UNIX
     // Special case for Unity.
-    if (session == "ubuntu") {
+    if (session == "ubuntu" || session == "gnome") {
       setWindowState( windowState() | Qt::WindowFullScreen | Qt::WindowMaximized);
       setWindowFlags(Qt::Dialog);
       show();
@@ -96,7 +102,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
 
 #ifdef Q_OS_UNIX
     // Special case for Unity.
-    if (session == "ubuntu") {
+    if (session == "ubuntu" || session == "gnome") {
       setWindowState( windowState() & ~Qt::WindowFullScreen);
     } else {
       showNormal();

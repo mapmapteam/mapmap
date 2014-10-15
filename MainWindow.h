@@ -256,6 +256,7 @@ private:
   QAction *displayOutputWindow;
   QAction *outputWindowFullScreen;
   QAction *displayCanvasControls;
+  QAction *stickyVertices;
 
   // Widgets and layout.
   QTabWidget* contentTab;

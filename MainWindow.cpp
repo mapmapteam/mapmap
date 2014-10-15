@@ -21,7 +21,6 @@
 #include "MainWindow.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
-#include "Facade.h"
 #include <sstream>
 #include <string>
 
@@ -212,6 +211,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   // Change currently selected item.
   uid curMappingId = getCurrentMappingId();
   removeCurrentMapping();
+  removeCurrentPaint();
 
   uid paintId = mappingManager->getPaintId(paint);
 
@@ -239,7 +239,6 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   if (curMappingId != NULL_UID)
     setCurrentMapping(curMappingId);
 }
-
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
@@ -670,7 +669,6 @@ uid MainWindow::createColorPaint(uid paintId, QColor color, Paint::ptr oldPaint)
     // Add paint to model and return its uid.
     uid id = mappingManager->addPaint(paint);
 
-    // Create a small icon with the color.
     // Add paint widget item.
     addPaintItem(id, createColorIcon(color), strippedName(color.name()));
 
@@ -1186,6 +1184,19 @@ void MainWindow::createActions()
   connect(displayCanvasControls, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableDisplayControls(bool)));
   connect(displayCanvasControls, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableDisplayControls(bool)));
   connect(displayCanvasControls, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableDisplayControls(bool)));
+
+  // Toggle sticky vertices
+  stickyVertices = new QAction(tr("&Sticky vertices"), this);
+  // stickyVertices->setShortcut(tr("Ctrl+E"));
+  stickyVertices->setIcon(QIcon(":/control-points"));
+  stickyVertices->setStatusTip(tr("Enable sticky vertices"));
+  stickyVertices->setIconVisibleInMenu(false);
+  stickyVertices->setCheckable(true);
+  stickyVertices->setChecked(true);
+  // Manage sticky vertices
+  connect(stickyVertices, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableStickyVertices(bool)));
+  connect(stickyVertices, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableStickyVertices(bool)));
+  connect(stickyVertices, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableStickyVertices(bool)));
 }
 
 void MainWindow::createMenus()
@@ -1224,6 +1235,7 @@ void MainWindow::createMenus()
   viewMenu->addAction(displayOutputWindow);
   viewMenu->addAction(outputWindowFullScreen);
   viewMenu->addAction(displayCanvasControls);
+  viewMenu->addAction(stickyVertices);
 
   // Run.
   runMenu = menuBar->addMenu(tr("&Run"));
@@ -1285,6 +1297,7 @@ void MainWindow::createToolBars()
   mainToolBar->addAction(displayOutputWindow);
   mainToolBar->addAction(outputWindowFullScreen);
   mainToolBar->addAction(displayCanvasControls);
+  mainToolBar->addAction(stickyVertices);
 
   runToolBar = addToolBar(tr("&Run"));
   runToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
@@ -1341,6 +1354,7 @@ void MainWindow::readSettings()
   canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
   outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
   displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
+  outputWindowFullScreen->setChecked(settings.value("outputWindowFullScreen").toBool());
   config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 }
 
@@ -1352,10 +1366,10 @@ void MainWindow::writeSettings()
   settings.setValue("mainSplitter", mainSplitter->saveState());
   settings.setValue("paintSplitter", paintSplitter->saveState());
   settings.setValue("mappingSplitter", mappingSplitter->saveState());
-//  settings.setValue("resourceSplitter", resourceSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
   settings.setValue("outputWindow", outputWindow->saveGeometry());
   settings.setValue("displayOutputWindow", displayOutputWindow->isChecked());
+  settings.setValue("outputWindowFullScreen", outputWindowFullScreen->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
 }
 
@@ -1548,12 +1562,12 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
   // Set size.
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
 
+  // Switch to paint tab.
+  contentTab->setCurrentWidget(paintSplitter);
+
   // Add item to paint list.
   paintList->addItem(item);
   paintList->setCurrentItem(item);
-
-  // Switch to paint tab.
-  contentTab->setCurrentWidget(paintSplitter);
 
   // Window was modified.
   windowModified();
