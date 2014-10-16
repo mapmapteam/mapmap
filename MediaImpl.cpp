@@ -246,6 +246,12 @@ gstPollShmsrc (void *user_data)
 
 bool MediaImpl::loadMovie(QString filename)
 {
+  gchar* filetestpath = (gchar*) filename.toUtf8().constData();
+  if (FALSE == g_file_test(filetestpath, G_FILE_TEST_EXISTS))
+  {
+      std::cout << "File " << filetestpath << " does not exist" << std::endl;
+      return false;
+  }
   _uri = filename;
 
   qDebug() << "Opening movie: " << filename << ".";

@@ -1351,7 +1351,7 @@ void MainWindow::readSettings()
   outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
   displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
   outputWindowFullScreen->setChecked(settings.value("outputWindowFullScreen").toBool());
-  config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
+  config_osc_receive_port = 12345; // settings.value("osc_receive_port", 12345).toInt();
 }
 
 void MainWindow::writeSettings()
@@ -1904,6 +1904,7 @@ void MainWindow::startOscReceiver()
   int port = config_osc_receive_port;
   std::ostringstream os;
   os << port;
+  std::cout << "OSC port: " << port << std::endl;
   osc_interface.reset(new OscInterface(os.str()));
   if (port != 0)
   {
@@ -1994,12 +1995,16 @@ bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
         if (paint->getType() == "media")
         {
           Media *media = (Media *) paint.get(); // FIXME: use sharedptr cast
+          videoTimer->stop();
           success = media->setUri(QString(uri.c_str()));
+          videoTimer->start();
         }
         else if (paint->getType() == "image")
         {
           Image *media = (Image*) paint.get(); // FIXME: use sharedptr cast
+          videoTimer->stop();
           success = media->setUri(QString(uri.c_str()));
+          videoTimer->start();
         }
         else
         {
