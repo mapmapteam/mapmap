@@ -76,7 +76,6 @@ class ColorGui : public PaintGui {
   Q_OBJECT
 
 public:
-  /// Constructor. A paint gui applies to a paint.
   ColorGui(Paint::ptr paint);
   virtual ~ColorGui() {}
 
@@ -86,6 +85,47 @@ public slots:
 protected:
   std::tr1::shared_ptr<Color> color;
   QtVariantProperty* _colorItem;
+};
+
+class TextureGui : public PaintGui {
+  Q_OBJECT
+
+public:
+  TextureGui(Paint::ptr paint);
+  virtual ~TextureGui() {}
+
+public slots:
+  virtual void setValue(QtProperty* property, const QVariant& value) = 0;
+};
+
+class ImageGui : public TextureGui {
+  Q_OBJECT
+
+public:
+  ImageGui(Paint::ptr paint);
+  virtual ~ImageGui() {}
+
+public slots:
+  virtual void setValue(QtProperty* property, const QVariant& value);
+
+protected:
+  std::tr1::shared_ptr<Image> image;
+  QtVariantProperty* _imageFileItem;
+};
+
+class MediaGui : public TextureGui {
+  Q_OBJECT
+
+public:
+  MediaGui(Paint::ptr paint);
+  virtual ~MediaGui() {}
+
+public slots:
+  virtual void setValue(QtProperty* property, const QVariant& value);
+
+protected:
+  std::tr1::shared_ptr<Media> media;
+  QtVariantProperty* _mediaFileItem;
 };
 
 #endif /* PAINTGUI_H_ */

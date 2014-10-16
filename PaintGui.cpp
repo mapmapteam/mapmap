@@ -68,3 +68,48 @@ void ColorGui::setValue(QtProperty* property, const QVariant& value) {
     emit valueChanged(_paint);
   }
 }
+
+TextureGui::TextureGui(Paint::ptr paint) : PaintGui(paint) {
+}
+
+ImageGui::ImageGui(Paint::ptr paint)
+  : TextureGui(paint)
+{
+  image = std::tr1::static_pointer_cast<Image>(paint);
+  Q_CHECK_PTR(image);
+
+_imageFileItem = _variantManager->addProperty(QVariant::String,
+                                              QObject::tr("Image file"));
+
+_imageFileItem->setValue(image->getUri());
+
+_topItem->addSubProperty(_imageFileItem);
+}
+
+void ImageGui::setValue(QtProperty* property, const QVariant& value) {
+  if (property == _imageFileItem) {
+    image->setUri(value.toString());
+    emit valueChanged(_paint);
+  }
+}
+
+MediaGui::MediaGui(Paint::ptr paint)
+: TextureGui(paint)
+{
+  media = std::tr1::static_pointer_cast<Media>(paint);
+  Q_CHECK_PTR(media);
+
+  _mediaFileItem = _variantManager->addProperty(QVariant::String,
+                                              QObject::tr("Media file"));
+
+  _mediaFileItem->setValue(media->getUri());
+
+  _topItem->addSubProperty(_mediaFileItem);
+}
+
+void MediaGui::setValue(QtProperty* property, const QVariant& value) {
+  if (property == _mediaFileItem) {
+    media->setUri(value.toString());
+    emit valueChanged(_paint);
+  }
+}

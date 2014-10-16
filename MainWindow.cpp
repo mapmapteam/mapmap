@@ -1532,7 +1532,11 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
   // Create paint gui.
   PaintGui::ptr paintGui;
   QString paintType = paint->getType();
-  if (paintType == "color")
+  if (paintType == "media")
+    paintGui = PaintGui::ptr(new MediaGui(paint));
+  else if (paintType == "image")
+    paintGui = PaintGui::ptr(new ImageGui(paint));
+  else if (paintType == "color")
     paintGui = PaintGui::ptr(new ColorGui(paint));
   else
     paintGui = PaintGui::ptr(new PaintGui(paint));
