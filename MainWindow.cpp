@@ -1073,10 +1073,6 @@ void MainWindow::createActions()
 //  pasteAction->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
 //  connect(pasteAction, SIGNAL(triggered()), spreadsheet, SLOT(paste()));
 //
-//  deleteAction = new QAction(tr("&Delete"), this);
-//  deleteAction->setShortcut(QKeySequence::Delete);
-//  deleteAction->setStatusTip(tr("Delete the current selection's contents"));
-//  connect(deleteAction, SIGNAL(triggered()), spreadsheet, SLOT(del()));
 
   // About.
   aboutAction = new QAction(tr("&About"), this);
