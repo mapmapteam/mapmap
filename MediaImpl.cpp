@@ -57,6 +57,21 @@ const uchar* MediaImpl::getBits() const
   return _data;
 }
 
+QString MediaImpl::getUri() const
+{
+  return _uri;
+}
+
+bool MediaImpl::getAttached()
+{
+  return _attached;
+}
+
+void MediaImpl::setAttached(bool attach)
+{
+  _attached = attach;
+}
+
 void MediaImpl::build()
 {
   qDebug() << "Building video impl";
@@ -130,7 +145,7 @@ GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
   return GST_FLOW_OK;
 }
 
-MediaImpl::MediaImpl(const QString uri) :
+MediaImpl::MediaImpl(const QString uri, bool live) :
 _currentMovie(""),
 _bus(NULL),
 _pipeline(NULL),
@@ -145,6 +160,8 @@ _width(640),
 _height(480),
 _data(NULL),
 _seekEnabled(false),
+_live(live),
+_attached(false),
 _movieReady(false),
 _uri(uri)
 {
@@ -212,6 +229,21 @@ void MediaImpl::resetMovie()
   }
 }
 
+gboolean 
+gstPollShmsrc (void *user_data)
+{
+  MediaImpl *p = (MediaImpl*) user_data;
+  if (g_file_test(p->getUri().toUtf8().constData() , G_FILE_TEST_EXISTS) && !p->getAttached()) {
+    if (!p->setPlayState(true)) {
+      qDebug() << "tried to attach, but starting pipeline failed!" << endl;
+      return false;
+    }
+    //qDebug() << "attached, started pipeline!" << endl;
+    p->setAttached(true);
+  }
+  return true;
+}
+
 bool MediaImpl::loadMovie(QString filename)
 {
   _uri = filename;
@@ -256,6 +288,15 @@ bool MediaImpl::loadMovie(QString filename)
   gst_bin_add_many (GST_BIN (_pipeline), _source,
                     _videoQueue, _videoColorSpace, videoScale, capsFilter, _videoSink, NULL);
 
+  if (_live) {
+    gst_bin_add (GST_BIN(_pipeline), _deserializer);
+    if (!gst_element_link_many (_source, _deserializer, _videoQueue, NULL)) {
+      g_printerr ("Video elements could not be linked.\n");
+    }
+  }
+  else if (!gst_element_link (_source, _videoQueue)) 
+      g_printerr ("Video elements could not be linked.\n");
+
   if (!gst_element_link_many (_videoQueue, _videoColorSpace, capsFilter, videoScale, _videoSink, NULL)) {
     g_printerr ("Video elements could not be linked.\n");
     unloadMovie();
@@ -263,8 +304,9 @@ bool MediaImpl::loadMovie(QString filename)
   }
 
   // Process URI.
+  QByteArray ba = filename.toLocal8Bit();
   gchar* uri = (gchar*) filename.toUtf8().constData();
-  if (!gst_uri_is_valid(uri))
+  if (!_live && !gst_uri_is_valid(uri))
   {
     // Try to convert filename to URI.
     GError* error = NULL;
@@ -278,12 +320,39 @@ bool MediaImpl::loadMovie(QString filename)
     }
   }
 
+  if (_live)
+    uri =  (gchar*) ba.data();
+
   // Set URI to be played.
   qDebug() << "URI for uridecodebin: " << uri;
   // FIXME: sometimes it's just the path to the directory that is given, not the file itself.
-  g_object_set (_source, "uri", uri, NULL);
+
+
   // Connect to the pad-added signal
-  g_signal_connect (_source, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
+  if (!_live) {
+    g_object_set (_source, "uri", uri, NULL);
+    g_signal_connect (_source, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
+  }
+  else {
+    //qDebug() << "LIVE mode" << uri;
+    g_object_set (_source, "socket-path", uri, NULL);
+    g_object_set (_source, "is-live", TRUE, NULL);
+    _padHandlerData.videoIsConnected = true;
+  }
+
+  // Configure audio appsink.
+  // TODO: change from mono to stereo
+//  gchar* audioCapsText = g_strdup_printf ("audio/x-raw-float,channels=1,rate=%d,signed=(boolean)true,width=%d,depth=%d,endianness=BYTE_ORDER",
+//                                          Engine::signalInfo().sampleRate(), (int)(sizeof(Signal_T)*8), (int)(sizeof(Signal_T)*8) );
+//  GstCaps* audioCaps = gst_caps_from_string (audioCapsText);
+//  g_object_set (_audioSink, "emit-signals", TRUE,
+//                            "caps", audioCaps,
+////                            "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
+////                            "drop", TRUE,         // ... other buffers are dropped
+//                            NULL);
+//  g_signal_connect (_audioSink, "new-buffer", G_CALLBACK (VideoImpl::gstNewAudioBufferCallback), &_newAudioBufferHandlerData);
+//  gst_caps_unref (audioCaps);
+//  g_free (audioCapsText);
 
   // Configure video appsink.
   GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA");
@@ -291,6 +360,7 @@ bool MediaImpl::loadMovie(QString filename)
   g_object_set (_videoSink, "emit-signals", TRUE,
                             "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
                             "drop", TRUE,         // ... other buffers are dropped
+                            "sync", TRUE,
                             NULL);
   g_signal_connect (_videoSink, "new-sample", G_CALLBACK (MediaImpl::gstNewSampleCallback), this);
   gst_caps_unref (videoCaps);
@@ -299,7 +369,7 @@ bool MediaImpl::loadMovie(QString filename)
   _bus = gst_element_get_bus (_pipeline);
 
   // Start playing.
-  if (!setPlayState(true))
+  if (!_live && !setPlayState(true))
     return false;
 
   qDebug() << "Pipeline started.";
@@ -324,7 +394,6 @@ bool MediaImpl::runVideo() {
 
     //std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
   }
-
   /* TODO: This causes the texture to be loaded always in Mapper.cpp . The
  * problem if this is not set is: When we have more than one shape, a
  * shape that has a new buffer coming in will overdraw the old buffer of the
@@ -365,8 +434,12 @@ bool MediaImpl::_preRun()
 {
   // Check for end-of-stream or terminate.
   if (_eos() || _terminate)
+  {
+    _setFinished(true);
     resetMovie();
-
+  }
+  else
+    _setFinished(false);
   if (!_movieReady ||
       !_padHandlerData.videoIsConnected)
     return false;
@@ -398,11 +471,21 @@ void MediaImpl::_postRun()
         g_clear_error(&err);
         g_free(debug_info);
 
-        _terminate = true;
+        if (!_live)
+          _terminate = true;
+        else {
+          _attached = false;
+          gst_element_set_state (_pipeline, GST_STATE_PAUSED);
+          gst_element_set_state (_pipeline, GST_STATE_NULL);
+          gst_element_set_state (_pipeline, GST_STATE_READY);
+        }
+//        _finish();
         break;
 
       case GST_MESSAGE_EOS:
         g_print("End-Of-Stream reached.\n");
+//        _terminate = true;
+//        _finish();
         break;
 
       case GST_MESSAGE_STATE_CHANGED:
@@ -416,6 +499,9 @@ void MediaImpl::_postRun()
               _currentMovie.toUtf8().constData(),
               gst_element_state_get_name(oldState),
               gst_element_state_get_name(newState));
+
+//          if (oldState == GST_STATE_PAUSED && newState == GST_STATE_READY)
+//            gst_adapter_clear(_audioBufferAdapter);
 
           if (newState == GST_STATE_PLAYING)
           {
@@ -458,6 +544,11 @@ void MediaImpl::_postRun()
 void MediaImpl::_setReady(bool ready)
 {
   _movieReady = ready;
+}
+
+void MediaImpl::_setFinished(bool finished) {
+  Q_UNUSED(finished);
+  //  qDebug() << "Clip " << (finished ? "finished" : "not finished");
 }
 
 void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data) {

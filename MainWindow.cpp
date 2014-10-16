@@ -623,7 +623,8 @@ bool MainWindow::clearProject()
   return true;
 }
 
-uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage)
+uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
+      bool isImage, bool live)
 {
   // Cannot create image with already existing id.
   if (Paint::getUidAllocator().exists(paintId))
@@ -635,7 +636,7 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, boo
     if (isImage)
       tex = new Image(uri, paintId);
     else
-      tex = new Media(uri, paintId);
+      tex = new Media(uri, live, paintId);
 
     // Create new image with corresponding ID.
     tex->setPosition(x, y);
@@ -1467,18 +1468,23 @@ void MainWindow::setCurrentFile(const QString &fileName)
 bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
 {
   QFile file(fileName);
+  bool live = false;
   if (!file.open(QIODevice::ReadOnly)) {
+    if (file.isSequential())
+      live = true;
+    else {
       QMessageBox::warning(this, tr("MapMap Project"),
                            tr("Cannot read file %1:\n%2.")
                            .arg(file.fileName())
                            .arg(file.errorString()));
       return false;
+    }
   }
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   // Add media file to model.
-  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, isImage);
+  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, isImage, live);
 
   // Initialize position (center).
   std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(mappingManager->getPaintById(mediaId));

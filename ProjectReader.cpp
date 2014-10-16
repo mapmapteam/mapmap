@@ -96,7 +96,7 @@ void ProjectReader::parsePaint(const QDomElement& paint)
     QString x   = paint.firstChildElement("x").text();
     QString y   = paint.firstChildElement("y").text();
 
-    uid id = _window->createMediaPaint(paintAttrId.toInt(), uri, x.toFloat(), y.toFloat(), paintAttrType == "image");
+    uid id = _window->createMediaPaint(paintAttrId.toInt(), uri, x.toFloat(), y.toFloat(), paintAttrType == "image", false);
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create media with uri %1.").arg(uri));
   }
