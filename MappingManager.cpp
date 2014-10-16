@@ -149,11 +149,16 @@ QVector<Mapping::ptr> MappingManager::getVisibleMappings() const
 
 void MappingManager::reorderMappings(QVector<uid> mappingIds)
 {
+  // Both vector needs to have the same size.
   Q_ASSERT( mappingIds.size() == mappingVector.size() );
   mappingVector.clear();
   for (QVector<uid>::iterator it = mappingIds.begin(); it != mappingIds.end(); ++it)
   {
+    // Uid should be a key of the mappingMap.
     Q_ASSERT( mappingMap.contains(*it) );
+    // Makes sure the uids are not repeated.
+    Q_ASSERT( !mappingVector.contains(mappingMap[*it]) );
+    // Adds the mapping at the right place in the vector.
     mappingVector.push_back( mappingMap[*it] );
   }
 }
