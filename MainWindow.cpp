@@ -65,7 +65,7 @@ MainWindow::MainWindow()
 
   // Create and start timer.
   videoTimer = new QTimer(this);
-  videoTimer->setInterval(1000/30);
+  videoTimer->setInterval( int( 1000 / MM::FRAMES_PER_SECOND ) );
   connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateCanvases()));
   videoTimer->start();
 
@@ -96,7 +96,9 @@ void MainWindow::handlePaintItemSelectionChanged()
     // Set current paint.
     uid idx = getItemId(*item);
     setCurrentPaint(idx);
+    // Unselect current mapping.
     removeCurrentMapping();
+    mappingList->clearSelection();
   }
   else
     removeCurrentPaint();
@@ -122,7 +124,9 @@ void MainWindow::handleMappingItemSelectionChanged()
 
     // Set current paint and mappings.
     Mapping::ptr mapping = mappingManager->getMappingById(idx);
-    setCurrentPaint(mapping->getPaint()->getId());
+    uid paintId = mapping->getPaint()->getId();
+    setCurrentPaint(paintId);
+    paintList->setCurrentRow( getItemRowFromId(*paintList, paintId) );
     setCurrentMapping(mapping->getId());
   }
   else
@@ -164,39 +168,78 @@ void MainWindow::handleItemSelected(QListWidgetItem* item)
   currentSelectedItem = item;
 }
 
-void MainWindow::handleItemDoubleClicked(QListWidgetItem* item)
-{
+//void MainWindow::handleItemDoubleClicked(QListWidgetItem* item)
+//{
+//  // Change currently selected item.
+//  Paint::ptr paint = mappingManager->getPaintById(getItemId(*item));
+//  uid curMappingId = getCurrentMappingId();
+//  removeCurrentMapping();
+//  removeCurrentPaint();
+//
+//  //qDebug() << "DOUBLE CLICK! " << endl;
+//  videoTimer->stop();
+//  if (paint->getType() == "media") {
+//    QString fileName = QFileDialog::getOpenFileName(this,
+//        tr("Import media source file"), ".");
+//    // Restart video playback. XXX Hack
+//    videoTimer->start();
+//    if (!fileName.isEmpty())
+//      importMediaFile(fileName, paint, false);
+//  }
+//  if (paint->getType() == "image") {
+//    QString fileName = QFileDialog::getOpenFileName(this,
+//        tr("Import media source file"), ".");
+//    // Restart video playback. XXX Hack
+//    videoTimer->start();
+//    if (!fileName.isEmpty())
+//      importMediaFile(fileName, paint, true);
+//  }
+//  else if (paint->getType() == "color") {
+//    // Pop-up color-choosing dialog to choose color paint.
+//    QColor initialColor;
+//    QColor color = QColorDialog::getColor(initialColor, this);
+//    videoTimer->start();
+//    if (color.isValid())
+//      addColorPaint(color, paint);
+//  }
+//
+//  if (curMappingId != NULL_UID)
+//    setCurrentMapping(curMappingId);
+//}
+
+void MainWindow::handlePaintChanged(Paint::ptr paint) {
   // Change currently selected item.
-  Paint::ptr paint = mappingManager->getPaintById(getItemId(*item));
   uid curMappingId = getCurrentMappingId();
   removeCurrentMapping();
   removeCurrentPaint();
 
-  //qDebug() << "DOUBLE CLICK! " << endl;
-  videoTimer->stop();
+  uid paintId = mappingManager->getPaintId(paint);
+
   if (paint->getType() == "media") {
-    QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Import media source file"), ".");
-    // Restart video playback. XXX Hack
-    videoTimer->start();
-    if (!fileName.isEmpty()) 
-      importMediaFile(fileName, paint, false);
+    std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(paint);
+    Q_CHECK_PTR(media);
+    updatePaintItem(paintId, QIcon(), strippedName(media->getUri()));
+//    QString fileName = QFileDialog::getOpenFileName(this,
+//        tr("Import media source file"), ".");
+//    // Restart video playback. XXX Hack
+//    if (!fileName.isEmpty())
+//      importMediaFile(fileName, paint, false);
   }
   if (paint->getType() == "image") {
-    QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Import media source file"), ".");
-    // Restart video playback. XXX Hack
-    videoTimer->start();
-    if (!fileName.isEmpty())
-      importMediaFile(fileName, paint, true);
+    std::tr1::shared_ptr<Image> image = std::tr1::static_pointer_cast<Image>(paint);
+    Q_CHECK_PTR(image);
+    updatePaintItem(paintId, QIcon(), strippedName(image->getUri()));
+//    QString fileName = QFileDialog::getOpenFileName(this,
+//        tr("Import media source file"), ".");
+//    // Restart video playback. XXX Hack
+//    if (!fileName.isEmpty())
+//      importMediaFile(fileName, paint, true);
   }
   else if (paint->getType() == "color") {
     // Pop-up color-choosing dialog to choose color paint.
-    QColor initialColor;
-    QColor color = QColorDialog::getColor(initialColor, this);
-    videoTimer->start();
-    if (color.isValid())
-      addColorPaint(color, paint);
+    std::tr1::shared_ptr<Color> color = std::tr1::static_pointer_cast<Color>(paint);
+    Q_CHECK_PTR(color);
+    updatePaintItem(paintId, createColorIcon(color->getColor()), strippedName(color->getColor().name()));
   }
 
   if (curMappingId != NULL_UID)
@@ -314,7 +357,7 @@ void MainWindow::importVideo()
   videoTimer->start();
 
   if (!fileName.isEmpty())
-    importMediaFile(fileName, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)), false);
+    importMediaFile(fileName, false);
 }
 
 void MainWindow::importImage()
@@ -331,7 +374,7 @@ void MainWindow::importImage()
   videoTimer->start();
 
   if (!fileName.isEmpty())
-    importMediaFile(fileName, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)), true);
+    importMediaFile(fileName, true);
 }
 
 void MainWindow::addColor()
@@ -343,7 +386,7 @@ void MainWindow::addColor()
   QColor initialColor;
   QColor color = QColorDialog::getColor(initialColor, this);
   if (color.isValid())
-    addColorPaint(color, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)));
+    addColorPaint(color);
 
   // Restart video playback. XXX Hack
   videoTimer->start();
@@ -552,14 +595,17 @@ bool MainWindow::clearProject()
   paintList->clear();
 
   // Clear property panel.
-  for (int i=propertyPanel->count()-1; i>=0; i--)
-    propertyPanel->removeWidget(propertyPanel->widget(i));
+  for (int i=mappingPropertyPanel->count()-1; i>=0; i--)
+    mappingPropertyPanel->removeWidget(mappingPropertyPanel->widget(i));
 
   // Disable property panel.
-  propertyPanel->setDisabled(true);
+  mappingPropertyPanel->setDisabled(true);
 
   // Clear list of mappers.
   mappers.clear();
+
+  // Clear list of paint guis.
+  paintGuis.clear();
 
   // Clear model.
   mappingManager->clearAll();
@@ -577,7 +623,7 @@ bool MainWindow::clearProject()
   return true;
 }
 
-uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint, bool isImage)
+uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage)
 {
   // Cannot create image with already existing id.
   if (Paint::getUidAllocator().exists(paintId))
@@ -600,20 +646,13 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, Pai
     // Add paint to model and return its uid.
     uid id = mappingManager->addPaint(paint);
 
-    // If replacing existing paint, extra work needs to be done
-    if (oldPaint.get()) {
-      mappingManager->replacePaintMappings(oldPaint, paint);
-      deletePaint(oldPaint->getId(), true);
-      emit paintChanged();
-    }
-
     // Add paint widget item.
     addPaintItem(id, QIcon(uri), strippedName(uri));
     return id;
   }
 }
 
-uid MainWindow::createColorPaint(uid paintId, QColor color, Paint::ptr oldPaint)
+uid MainWindow::createColorPaint(uid paintId, QColor color)
 {
   // Cannot create image with already existing id.
   if (Paint::getUidAllocator().exists(paintId))
@@ -629,19 +668,8 @@ uid MainWindow::createColorPaint(uid paintId, QColor color, Paint::ptr oldPaint)
     // Add paint to model and return its uid.
     uid id = mappingManager->addPaint(paint);
 
-    // If replacing existing paint, extra work needs to be done
-    if (oldPaint.get()) {
-      mappingManager->replacePaintMappings(oldPaint, paint);
-      deletePaint(oldPaint->getId(), true);
-      emit paintChanged();
-    }
-
-    // Create a small icon with the color.
-    QPixmap pixmap(100,100);
-    pixmap.fill(color);
-
     // Add paint widget item.
-    addPaintItem(id, QIcon(pixmap), strippedName(color.name()));
+    addPaintItem(id, createColorIcon(color), strippedName(color.name()));
 
     return id;
   }
@@ -870,7 +898,12 @@ void MainWindow::createLayout()
   paintList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   paintList->setDefaultDropAction(Qt::MoveAction);
   paintList->setDragDropMode(QAbstractItemView::InternalMove);
-  paintList->setMinimumWidth(PAINT_LIST_MINIMUM_WIDTH);
+  paintList->setMinimumWidth(PAINT_LIST_MINIMUM_HEIGHT);
+
+  // Create paint panel.
+  paintPropertyPanel = new QStackedWidget;
+  paintPropertyPanel->setDisabled(true);
+  paintPropertyPanel->setMinimumHeight(PAINT_PROPERTY_PANEL_MINIMUM_HEIGHT);
 
   // Create mapping list.
   mappingList = new QListWidget;
@@ -879,12 +912,12 @@ void MainWindow::createLayout()
   //layerList->setDragDropMode(QAbstractItemView::DragDrop);
   mappingList->setDefaultDropAction(Qt::MoveAction);
   mappingList->setDragDropMode(QAbstractItemView::InternalMove);
-  mappingList->setMinimumWidth(MAPPING_LIST_MINIMUM_WIDTH);
+  mappingList->setMinimumHeight(MAPPING_LIST_MINIMUM_HEIGHT);
 
   // Create property panel.
-  propertyPanel = new QStackedWidget;
-  propertyPanel->setDisabled(true);
-  propertyPanel->setMinimumWidth(PROPERTY_PANEL_MINIMUM_WIDTH);
+  mappingPropertyPanel = new QStackedWidget;
+  mappingPropertyPanel->setDisabled(true);
+  mappingPropertyPanel->setMinimumHeight(MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT);
 
   // Create canvases.
   sourceCanvas = new SourceGLCanvas(this);
@@ -898,7 +931,7 @@ void MainWindow::createLayout()
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
   outputWindow = new OutputGLWindow(this, this, sourceCanvas);
-  outputWindow->setVisible(false);
+  outputWindow->setVisible(true);
 
   // Source changed -> change destination
   connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
@@ -917,28 +950,36 @@ void MainWindow::createLayout()
           destinationCanvas,         SLOT(updateCanvas()));
 
   // Create layout.
-  resourceSplitter = new QSplitter(Qt::Horizontal);
-  resourceSplitter->addWidget(paintList);
-  resourceSplitter->addWidget(mappingList);
-  resourceSplitter->addWidget(propertyPanel);
+  paintSplitter = new QSplitter(Qt::Vertical);
+  paintSplitter->addWidget(paintList);
+  paintSplitter->addWidget(paintPropertyPanel);
 
-  canvasSplitter = new QSplitter(Qt::Horizontal);
+  mappingSplitter = new QSplitter(Qt::Vertical);
+  mappingSplitter->addWidget(mappingList);
+  mappingSplitter->addWidget(mappingPropertyPanel);
+
+  // Content tab.
+  contentTab = new QTabWidget;
+  contentTab->addTab(paintSplitter, QIcon(":/add-video"), tr("Paints"));
+  contentTab->addTab(mappingSplitter, QIcon(":/add-mesh"), tr("Mappings"));
+
+  canvasSplitter = new QSplitter(Qt::Vertical);
   canvasSplitter->addWidget(sourceCanvas);
   canvasSplitter->addWidget(destinationCanvas);
 
-  mainSplitter = new QSplitter(Qt::Vertical);
+  mainSplitter = new QSplitter(Qt::Horizontal);
   mainSplitter->addWidget(canvasSplitter);
-  mainSplitter->addWidget(resourceSplitter);
+  mainSplitter->addWidget(contentTab);
 
-  // Initialize size to 2:1 proportions.
+  // Initialize size to 9:1 proportions.
   QSize sz = mainSplitter->size();
   QList<int> sizes;
-  sizes.append(sz.height() * 2 / 3);
-  sizes.append(sz.height() - sizes.at(0));
+  sizes.append(sz.width() * 0.9);
+  sizes.append(sz.width() - sizes.at(0));
   mainSplitter->setSizes(sizes);
 
   // Upon resizing window, give some extra stretch expansion to canvasSplitter.
-  //mainSplitter->setStretchFactor(0, 1);
+  mainSplitter->setStretchFactor(0, 1);
 
   // Final setups.
   setWindowTitle(tr("MapMap"));
@@ -1031,10 +1072,6 @@ void MainWindow::createActions()
 //  pasteAction->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
 //  connect(pasteAction, SIGNAL(triggered()), spreadsheet, SLOT(paste()));
 //
-//  deleteAction = new QAction(tr("&Delete"), this);
-//  deleteAction->setShortcut(QKeySequence::Delete);
-//  deleteAction->setStatusTip(tr("Delete the current selection's contents"));
-//  connect(deleteAction, SIGNAL(triggered()), spreadsheet, SLOT(del()));
 
   // About.
   aboutAction = new QAction(tr("&About"), this);
@@ -1109,7 +1146,7 @@ void MainWindow::createActions()
   displayOutputWindow->setStatusTip(tr("Display output window"));
   displayOutputWindow->setIconVisibleInMenu(false);
   displayOutputWindow->setCheckable(true);
-  displayOutputWindow->setChecked(false);
+  displayOutputWindow->setChecked(true);
   // Manage show/hide of GL output window.
   connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindow, SLOT(setVisible(bool)));
   // When closing the GL output window, uncheck the action in menu.
@@ -1307,7 +1344,8 @@ void MainWindow::readSettings()
 
   restoreGeometry(settings.value("geometry").toByteArray());
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
-  resourceSplitter->restoreState(settings.value("resourceSplitter").toByteArray());
+  paintSplitter->restoreState(settings.value("paintSplitter").toByteArray());
+  mappingSplitter->restoreState(settings.value("mappingSplitter").toByteArray());
   canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
   outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
   displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
@@ -1321,7 +1359,8 @@ void MainWindow::writeSettings()
 
   settings.setValue("geometry", saveGeometry());
   settings.setValue("mainSplitter", mainSplitter->saveState());
-  settings.setValue("resourceSplitter", resourceSplitter->saveState());
+  settings.setValue("paintSplitter", paintSplitter->saveState());
+  settings.setValue("mappingSplitter", mappingSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
   settings.setValue("outputWindow", outputWindow->saveGeometry());
   settings.setValue("displayOutputWindow", displayOutputWindow->isChecked());
@@ -1425,7 +1464,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
 // {
 // }
 
-bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint, bool isImage)
+bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
 {
   QFile file(fileName);
   if (!file.open(QIODevice::ReadOnly)) {
@@ -1439,7 +1478,7 @@ bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint, b
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   // Add media file to model.
-  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, oldPaint, isImage);
+  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, isImage);
 
   // Initialize position (center).
   std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(mappingManager->getPaintById(mediaId));
@@ -1460,12 +1499,12 @@ bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint, b
   return true;
 }
 
-bool MainWindow::addColorPaint(const QColor& color, Paint::ptr oldPaint)
+bool MainWindow::addColorPaint(const QColor& color)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   // Add color to model.
-  uint colorId = createColorPaint(NULL_UID, color, oldPaint);
+  uint colorId = createColorPaint(NULL_UID, color);
 
   // Initialize position (center).
   std::tr1::shared_ptr<Color> colorPaint = std::tr1::static_pointer_cast<Color>(mappingManager->getPaintById(colorId));
@@ -1489,17 +1528,57 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
   Paint::ptr paint = mappingManager->getPaintById(paintId);
   Q_CHECK_PTR(paint);
 
+  // Create paint gui.
+  PaintGui::ptr paintGui;
+  QString paintType = paint->getType();
+  if (paintType == "media")
+    paintGui = PaintGui::ptr(new MediaGui(paint));
+  else if (paintType == "image")
+    paintGui = PaintGui::ptr(new ImageGui(paint));
+  else if (paintType == "color")
+    paintGui = PaintGui::ptr(new ColorGui(paint));
+  else
+    paintGui = PaintGui::ptr(new PaintGui(paint));
+
+  // Add to list of paint guis..
+  paintGuis[paintId] = paintGui;
+  QWidget* paintEditor = paintGui->getPropertiesEditor();
+  paintPropertyPanel->addWidget(paintEditor);
+  paintPropertyPanel->setCurrentWidget(paintEditor);
+  paintPropertyPanel->setEnabled(true);
+
+  // When paint value is changed, update canvases.
+//  connect(paintGui.get(), SIGNAL(valueChanged()),
+//          this,           SLOT(updateCanvases()));
+
+  connect(paintGui.get(), SIGNAL(valueChanged(Paint::ptr)),
+          this,           SLOT(handlePaintChanged(Paint::ptr)));
+
   // Add paint item to paintList widget.
-  QListWidgetItem* item = new QListWidgetItem(name);
+  QListWidgetItem* item = new QListWidgetItem(icon, name);
   setItemId(*item, paintId); // TODO: could possibly be replaced by a Paint pointer
-  item->setIcon(icon);
 
   // Set size.
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
 
+  // Switch to paint tab.
+  contentTab->setCurrentWidget(paintSplitter);
+
   // Add item to paint list.
   paintList->addItem(item);
   paintList->setCurrentItem(item);
+
+  // Window was modified.
+  windowModified();
+}
+
+void MainWindow::updatePaintItem(uid paintId, const QIcon& icon, const QString& name) {
+  QListWidgetItem* item = getItemFromId(*paintList, paintId);
+  Q_ASSERT(item);
+
+  // Update item info.
+  item->setIcon(icon);
+  item->setText(name);
 
   // Window was modified.
   windowModified();
@@ -1569,9 +1648,9 @@ void MainWindow::addMappingItem(uid mappingId)
   // Add to list of mappers.
   mappers[mappingId] = mapper;
   QWidget* mapperEditor = mapper->getPropertiesEditor();
-  propertyPanel->addWidget(mapperEditor);
-  propertyPanel->setCurrentWidget(mapperEditor);
-  propertyPanel->setEnabled(true);
+  mappingPropertyPanel->addWidget(mapperEditor);
+  mappingPropertyPanel->setCurrentWidget(mapperEditor);
+  mappingPropertyPanel->setEnabled(true);
 
   // When mapper value is changed, update canvases.
   connect(mapper.get(), SIGNAL(valueChanged()),
@@ -1586,7 +1665,10 @@ void MainWindow::addMappingItem(uid mappingId)
   connect(this, SIGNAL(paintChanged()),
           mapper.get(), SLOT(updatePaint()));
 
-    // Add item to layerList widget.
+  // Switch to mapping tab.
+  contentTab->setCurrentWidget(mappingSplitter);
+
+  // Add item to layerList widget.
   QListWidgetItem* item = new QListWidgetItem(label);
   item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
   item->setCheckState(Qt::Checked);
@@ -1609,7 +1691,7 @@ void MainWindow::removeMappingItem(uid mappingId)
   mappingManager->removeMapping(mappingId);
 
   // Remove associated mapper.
-  propertyPanel->removeWidget(mappers[mappingId]->getPropertiesEditor());
+  mappingPropertyPanel->removeWidget(mappers[mappingId]->getPropertiesEditor());
   mappers.remove(mappingId);
 
   // Remove widget from mappingList.
@@ -1643,6 +1725,10 @@ void MainWindow::removePaintItem(uid paintId)
   }
   // Remove paint from model.
   Q_ASSERT( mappingManager->removePaint(paintId) );
+
+  // Remove associated mapper.
+  paintPropertyPanel->removeWidget(paintGuis[paintId]->getPropertiesEditor());
+  paintGuis.remove(paintId);
 
   // Remove widget from paintList.
   int row = getItemRowFromId(*paintList, paintId);
@@ -1692,8 +1778,8 @@ void MainWindow::connectProjectWidgets()
   connect(paintList, SIGNAL(itemPressed(QListWidgetItem*)),
           this,      SLOT(handleItemSelected(QListWidgetItem*)));
 
-  connect(paintList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-          this,      SLOT(handleItemDoubleClicked(QListWidgetItem*))); 
+//  connect(paintList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+//          this,      SLOT(handleItemDoubleClicked(QListWidgetItem*)));
 
   connect(paintList, SIGNAL(itemActivated(QListWidgetItem*)),
           this,      SLOT(handleItemSelected(QListWidgetItem*)));
@@ -1754,6 +1840,14 @@ void MainWindow::setItemId(QListWidgetItem& item, uid id)
   item.setData(Qt::UserRole, id);
 }
 
+QListWidgetItem* MainWindow::getItemFromId(const QListWidget& list, uid id) {
+  int row = getItemRowFromId(list, id);
+  if (row >= 0)
+    return list.item( row );
+  else
+    return NULL;
+}
+
 int MainWindow::getItemRowFromId(const QListWidget& list, uid id)
 {
   for (int row=0; row<list.count(); row++)
@@ -1766,6 +1860,37 @@ int MainWindow::getItemRowFromId(const QListWidget& list, uid id)
   return (-1);
 }
 
+QIcon MainWindow::createColorIcon(const QColor &color) {
+  QPixmap pixmap(100,100);
+  pixmap.fill(color);
+  return QIcon(pixmap);
+}
+
+void MainWindow::setCurrentPaint(int uid)
+{
+  currentPaintId = uid;
+  if (uid != NULL_UID)
+    paintPropertyPanel->setCurrentWidget(paintGuis[uid]->getPropertiesEditor());
+  _hasCurrentPaint = true;
+}
+
+void MainWindow::setCurrentMapping(int uid)
+{
+  currentMappingId = uid;
+  if (uid != NULL_UID)
+    mappingPropertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
+  _hasCurrentMapping = true;
+}
+
+void MainWindow::removeCurrentPaint() {
+  _hasCurrentPaint = false;
+  currentPaintId = NULL_UID;
+}
+
+void MainWindow::removeCurrentMapping() {
+  _hasCurrentMapping = false;
+  currentMappingId = NULL_UID;
+}
 
 void MainWindow::startOscReceiver()
 {

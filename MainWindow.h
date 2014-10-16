@@ -43,6 +43,8 @@
 #include "qttreepropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 
+#include "PaintGui.h"
+
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
  */
@@ -86,11 +88,13 @@ private slots:
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
-  void handleItemDoubleClicked(QListWidgetItem* item);
+//  void handleItemDoubleClicked(QListWidgetItem* item);
   void handleMappingItemSelectionChanged();
   void handleMappingItemChanged(QListWidgetItem* item);
   void handleMappingIndexesMoved();
   void handleItemSelected(QListWidgetItem* item);
+  void handlePaintChanged(Paint::ptr paint);
+
   void addMesh();
   void addTriangle();
   void addEllipse();
@@ -111,10 +115,10 @@ public slots:
   bool clearProject();
 
   /// Create or replace a media paint (or image).
-  uid createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint, bool isImage);
+  uid createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage);
 
   /// Create or replace a color paint.
-  uid createColorPaint(uid paintId, QColor color, Paint::ptr oldPaint);
+  uid createColorPaint(uid paintId, QColor color);
 
   /// Creates a textured mesh.
   uid createMeshTextureMapping(uid mappingId,
@@ -184,11 +188,12 @@ public:
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
-  bool importMediaFile(const QString &fileName, Paint::ptr oldPaint, bool isImage);
-  bool addColorPaint(const QColor& color, Paint::ptr oldPaint);
+  bool importMediaFile(const QString &fileName, bool isImage);
+  bool addColorPaint(const QColor& color);
   void addMappingItem(uid mappingId);
   void removeMappingItem(uid mappingId);
   void addPaintItem(uid paintId, const QIcon& icon, const QString& name);
+  void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
   void clearWindow();
 
@@ -203,7 +208,9 @@ private:
   // Get/set id from list item.
   static uid getItemId(const QListWidgetItem& item);
   static void setItemId(QListWidgetItem& item, uid id);
+  static QListWidgetItem* getItemFromId(const QListWidget& list, uid id);
   static int getItemRowFromId(const QListWidget& list, uid id);
+  static QIcon createColorIcon(const QColor &color);
 
   // GUI elements. ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -252,17 +259,21 @@ private:
   QAction *stickyVertices;
 
   // Widgets and layout.
+  QTabWidget* contentTab;
 
+  QSplitter* paintSplitter;
   QListWidget* paintList;
+  QStackedWidget* paintPropertyPanel;
+
+  QSplitter* mappingSplitter;
   QListWidget* mappingList;
-  QStackedWidget* propertyPanel;
+  QStackedWidget* mappingPropertyPanel;
 
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
   OutputGLWindow* outputWindow;
 
   QSplitter* mainSplitter;
-  QSplitter* resourceSplitter;
   QSplitter* canvasSplitter;
 
   // Internal variables. ///////////////////////////////////////////////////////////////////////////////////
@@ -283,7 +294,8 @@ private:
   // View.
 
   // The view counterpart of Mappings.
-  QMap<uint, Mapper::ptr> mappers;
+  QMap<uid, Mapper::ptr> mappers;
+  QMap<uid, PaintGui::ptr> paintGuis;
 
   // Current selected paint/mapping.
   uid currentPaintId;
@@ -304,26 +316,10 @@ public:
   uid getCurrentMappingId() const { return currentMappingId; }
   bool hasCurrentPaint() const { return _hasCurrentPaint; }
   bool hasCurrentMapping() const { return _hasCurrentMapping; }
-  void setCurrentPaint(int uid)
-  {
-    currentPaintId = uid;
-    _hasCurrentPaint = true;
-  }
-  void setCurrentMapping(int uid)
-  {
-    currentMappingId = uid;
-    if (uid != NULL_UID)
-      propertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
-    _hasCurrentMapping = true;
-  }
-  void removeCurrentPaint() {
-    _hasCurrentPaint = false;
-    currentPaintId = NULL_UID;
-  }
-  void removeCurrentMapping() {
-    _hasCurrentMapping = false;
-    currentMappingId = NULL_UID;
-  }
+  void setCurrentPaint(int uid);
+  void setCurrentMapping(int uid);
+  void removeCurrentPaint();
+  void removeCurrentMapping();
 
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////
@@ -331,9 +327,10 @@ public:
   static const int DEFAULT_HEIGHT = 800;
   static const int PAINT_LIST_ITEM_HEIGHT = 40;
   static const int SHAPE_LIST_ITEM_HEIGHT = 40;
-  static const int PAINT_LIST_MINIMUM_WIDTH = 100;
-  static const int MAPPING_LIST_MINIMUM_WIDTH  = 300;
-  static const int PROPERTY_PANEL_MINIMUM_WIDTH  = 400;
+  static const int PAINT_LIST_MINIMUM_HEIGHT = 320;
+  static const int MAPPING_LIST_MINIMUM_HEIGHT = 320;
+  static const int PAINT_PROPERTY_PANEL_MINIMUM_HEIGHT = 320;
+  static const int MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT = 320;
   static const int CANVAS_MINIMUM_WIDTH  = 480;
   static const int CANVAS_MINIMUM_HEIGHT = 270;
   static const int OUTPUT_WINDOW_MINIMUM_WIDTH = 480;

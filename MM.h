@@ -57,6 +57,9 @@ public:
   static const qreal VERTEX_STICK_RADIUS = 10;
   static const qreal VERTEX_SELECT_RADIUS = 10;
   static const qreal VERTEX_SELECT_STROKE_WIDTH = 1;
+
+  // Time.
+  static const float FRAMES_PER_SECOND = 29.97f;
 };
 
 #endif

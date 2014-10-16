@@ -61,6 +61,9 @@ public:
   /// Adds a paint and returns its uid.
   uid addPaint(Paint::ptr paint);
 
+  /// Returns the uid of a paint.
+  uid getPaintId(Paint::ptr paint) const { return paintMap.key(paint); }
+
   /// Removes a paint of given uid.
   bool removePaint(uid paintId);
 
@@ -97,14 +100,8 @@ public:
   /// Reorders the mappings according to given list of uids. QVector needs to
   void reorderMappings(QVector<uid> mappingIds);
 
-  /**
-   * Returns the visible mappings from bottom to top layer. If some mappings are solo-ed, only them
-   * will show up. Otherwise, only visible layers will show up. A solo-ed, non-visible layer will
-   * not show up.
-   */
   QVector<Mapping::ptr> getVisibleMappings() const;
 
-  /// Clears the model.
   void clearAll();
 };
 

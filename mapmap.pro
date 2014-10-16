@@ -20,6 +20,7 @@ HEADERS  = \
     OscReceiver.h \
     OutputGLWindow.h \
     Paint.h \
+    PaintGui.h \
     ProjectReader.h \
     ProjectWriter.h \
     Shape.h \
@@ -41,6 +42,7 @@ SOURCES  = \
     OscReceiver.cpp \
     OutputGLWindow.cpp \
     Paint.cpp \
+    PaintGui.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
     Shape.cpp \
@@ -52,6 +54,7 @@ SOURCES  = \
 RESOURCES = mapmap.qrc
 TRANSLATIONS = mapmap_fr.ts mapmap_ar.ts
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
+include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
 
 # Add the docs target:
 docs.depends = $(HEADERS) $(SOURCES)
