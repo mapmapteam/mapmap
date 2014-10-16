@@ -65,7 +65,7 @@ MainWindow::MainWindow()
 
   // Create and start timer.
   videoTimer = new QTimer(this);
-  videoTimer->setInterval(1000/30);
+  videoTimer->setInterval( int( 1000 / MM::FRAMES_PER_SECOND ) );
   connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateCanvases()));
   videoTimer->start();
 
