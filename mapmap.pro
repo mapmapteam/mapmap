@@ -54,6 +54,7 @@ SOURCES  = \
 RESOURCES = mapmap.qrc
 TRANSLATIONS = mapmap_fr.ts mapmap_ar.ts
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
+include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
 
 # Add the docs target:
 docs.depends = $(HEADERS) $(SOURCES)

@@ -31,6 +31,8 @@
 
 #include <tr1/memory>
 
+#include "MM.h"
+
 #include "Paint.h"
 
 #include "qtpropertymanager.h"
@@ -38,6 +40,9 @@
 #include "qttreepropertybrowser.h"
 #include "qtbuttonpropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
+
+#include "variantmanager.h"
+#include "variantfactory.h"
 
 class PaintGui : public QObject {
   Q_OBJECT

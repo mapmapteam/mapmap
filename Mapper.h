@@ -47,6 +47,9 @@
 #include "qtbuttonpropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 
+#include "variantmanager.h"
+#include "variantfactory.h"
+
 /**
  * A way to draw on some kind of shape.
  * 

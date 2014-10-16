@@ -24,8 +24,8 @@ PaintGui::PaintGui(Paint::ptr paint)
 {
   // Create editor.
   _propertyBrowser = new QtTreePropertyBrowser;
-  _variantManager = new QtVariantPropertyManager;
-  _variantFactory = new QtVariantEditorFactory;
+  _variantManager = new VariantManager;
+  _variantFactory = new VariantFactory;
 
   _topItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
                                           QObject::tr("Paint"));
@@ -78,9 +78,10 @@ ImageGui::ImageGui(Paint::ptr paint)
   image = std::tr1::static_pointer_cast<Image>(paint);
   Q_CHECK_PTR(image);
 
-_imageFileItem = _variantManager->addProperty(QVariant::String,
-                                              QObject::tr("Image file"));
+_imageFileItem = _variantManager->addProperty(VariantManager::filePathTypeId(),
+                                              tr("Image file"));
 
+_imageFileItem->setAttribute("filter", tr("Image files (%1);;All files (*)").arg(MM::IMAGE_FILES_FILTER));
 _imageFileItem->setValue(image->getUri());
 
 _topItem->addSubProperty(_imageFileItem);
@@ -99,9 +100,10 @@ MediaGui::MediaGui(Paint::ptr paint)
   media = std::tr1::static_pointer_cast<Media>(paint);
   Q_CHECK_PTR(media);
 
-  _mediaFileItem = _variantManager->addProperty(QVariant::String,
-                                              QObject::tr("Media file"));
+  _mediaFileItem = _variantManager->addProperty(VariantManager::filePathTypeId(),
+                                                tr("Media file"));
 
+  _mediaFileItem->setAttribute("filter", tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER));
   _mediaFileItem->setValue(media->getUri());
 
   _topItem->addSubProperty(_mediaFileItem);

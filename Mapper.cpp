@@ -29,8 +29,8 @@ Mapper::Mapper(Mapping::ptr mapping)
 
   // Create editor.
   _propertyBrowser = new QtTreePropertyBrowser;
-  _variantManager = new QtVariantPropertyManager;
-  _variantFactory = new QtVariantEditorFactory;
+  _variantManager = new VariantManager;
+  _variantFactory = new VariantFactory;
 
   _topItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
                                           QObject::tr("Texture mapping"));
