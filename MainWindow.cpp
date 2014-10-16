@@ -216,6 +216,9 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   uid paintId = mappingManager->getPaintId(paint);
 
   if (paint->getType() == "media") {
+    std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(paint);
+    Q_CHECK_PTR(media);
+    updatePaintItem(paintId, QIcon(), strippedName(media->getUri()));
 //    QString fileName = QFileDialog::getOpenFileName(this,
 //        tr("Import media source file"), ".");
 //    // Restart video playback. XXX Hack
@@ -223,6 +226,9 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
 //      importMediaFile(fileName, paint, false);
   }
   if (paint->getType() == "image") {
+    std::tr1::shared_ptr<Image> image = std::tr1::static_pointer_cast<Image>(paint);
+    Q_CHECK_PTR(image);
+    updatePaintItem(paintId, QIcon(), strippedName(image->getUri()));
 //    QString fileName = QFileDialog::getOpenFileName(this,
 //        tr("Import media source file"), ".");
 //    // Restart video playback. XXX Hack
@@ -351,7 +357,7 @@ void MainWindow::importVideo()
   videoTimer->start();
 
   if (!fileName.isEmpty())
-    importMediaFile(fileName, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)), false);
+    importMediaFile(fileName, false);
 }
 
 void MainWindow::importImage()
@@ -368,7 +374,7 @@ void MainWindow::importImage()
   videoTimer->start();
 
   if (!fileName.isEmpty())
-    importMediaFile(fileName, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)), true);
+    importMediaFile(fileName, true);
 }
 
 void MainWindow::addColor()
@@ -380,7 +386,7 @@ void MainWindow::addColor()
   QColor initialColor;
   QColor color = QColorDialog::getColor(initialColor, this);
   if (color.isValid())
-    addColorPaint(color, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)));
+    addColorPaint(color);
 
   // Restart video playback. XXX Hack
   videoTimer->start();
@@ -617,7 +623,7 @@ bool MainWindow::clearProject()
   return true;
 }
 
-uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint, bool isImage)
+uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage)
 {
   // Cannot create image with already existing id.
   if (Paint::getUidAllocator().exists(paintId))
@@ -640,20 +646,13 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y, Pai
     // Add paint to model and return its uid.
     uid id = mappingManager->addPaint(paint);
 
-    // If replacing existing paint, extra work needs to be done
-    if (oldPaint.get()) {
-      mappingManager->replacePaintMappings(oldPaint, paint);
-      deletePaint(oldPaint->getId(), true);
-      emit paintChanged();
-    }
-
     // Add paint widget item.
     addPaintItem(id, QIcon(uri), strippedName(uri));
     return id;
   }
 }
 
-uid MainWindow::createColorPaint(uid paintId, QColor color, Paint::ptr oldPaint)
+uid MainWindow::createColorPaint(uid paintId, QColor color)
 {
   // Cannot create image with already existing id.
   if (Paint::getUidAllocator().exists(paintId))
@@ -1465,7 +1464,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
 // {
 // }
 
-bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint, bool isImage)
+bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
 {
   QFile file(fileName);
   if (!file.open(QIODevice::ReadOnly)) {
@@ -1479,7 +1478,7 @@ bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint, b
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   // Add media file to model.
-  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, oldPaint, isImage);
+  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, isImage);
 
   // Initialize position (center).
   std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(mappingManager->getPaintById(mediaId));
@@ -1500,12 +1499,12 @@ bool MainWindow::importMediaFile(const QString &fileName, Paint::ptr oldPaint, b
   return true;
 }
 
-bool MainWindow::addColorPaint(const QColor& color, Paint::ptr oldPaint)
+bool MainWindow::addColorPaint(const QColor& color)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   // Add color to model.
-  uint colorId = createColorPaint(NULL_UID, color, oldPaint);
+  uint colorId = createColorPaint(NULL_UID, color);
 
   // Initialize position (center).
   std::tr1::shared_ptr<Color> colorPaint = std::tr1::static_pointer_cast<Color>(mappingManager->getPaintById(colorId));

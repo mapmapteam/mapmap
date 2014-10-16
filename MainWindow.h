@@ -115,10 +115,10 @@ public slots:
   bool clearProject();
 
   /// Create or replace a media paint (or image).
-  uid createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint, bool isImage);
+  uid createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage);
 
   /// Create or replace a color paint.
-  uid createColorPaint(uid paintId, QColor color, Paint::ptr oldPaint);
+  uid createColorPaint(uid paintId, QColor color);
 
   /// Creates a textured mesh.
   uid createMeshTextureMapping(uid mappingId,
@@ -188,8 +188,8 @@ public:
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
-  bool importMediaFile(const QString &fileName, Paint::ptr oldPaint, bool isImage);
-  bool addColorPaint(const QColor& color, Paint::ptr oldPaint);
+  bool importMediaFile(const QString &fileName, bool isImage);
+  bool addColorPaint(const QColor& color);
   void addMappingItem(uid mappingId);
   void removeMappingItem(uid mappingId);
   void addPaintItem(uid paintId, const QIcon& icon, const QString& name);
