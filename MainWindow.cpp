@@ -84,6 +84,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::handlePaintItemSelectionChanged()
 {
+
   // Set current paint.
   QListWidgetItem* item = paintList->currentItem();
   currentSelectedItem = item;
@@ -95,10 +96,25 @@ void MainWindow::handlePaintItemSelectionChanged()
   {
     // Set current paint.
     uid idx = getItemId(*item);
-    setCurrentPaint(idx);
-    // Unselect current mapping.
-    removeCurrentMapping();
-    mappingList->clearSelection();
+    if (currentPaintId != idx) {
+      setCurrentPaint(idx);
+      // Unselect current mapping.
+      removeCurrentMapping();
+
+      // Probably a bug on Qt
+      // Better disconnect and reconnect to resolve the problem
+      // The problem comes from the fact that mappingList->clearSelection()
+      // does NOT set mappingList->currentItem() to NULL while
+      // triggering the itemSelectionChanged() signal which
+      // in turn causes problems in Mainwindow::handleMappingItemSelectionChanged() because there is no
+      // way to know that no no items should be selected.
+      disconnect(mappingList, SIGNAL(itemSelectionChanged()),
+                 this,        SLOT(handleMappingItemSelectionChanged()));
+      mappingList->clearSelection();
+
+      connect(mappingList, SIGNAL(itemSelectionChanged()),
+                 this,        SLOT(handleMappingItemSelectionChanged()));
+    }
   }
   else
     removeCurrentPaint();
@@ -116,17 +132,21 @@ void MainWindow::handleMappingItemSelectionChanged()
 {
   // Get current mapping.
   QListWidgetItem* item = mappingList->currentItem();
+
   currentSelectedItem = item;
   if (item)
   {
-    // Get index.
-    uid idx = getItemId(*item);
+    // Get current mapping uid.
+    uid idm = getItemId(*item);
 
     // Set current paint and mappings.
-    Mapping::ptr mapping = mappingManager->getMappingById(idx);
+    Mapping::ptr mapping = mappingManager->getMappingById(idm);
     uid paintId = mapping->getPaint()->getId();
-    setCurrentPaint(paintId);
-    paintList->setCurrentRow( getItemRowFromId(*paintList, paintId) );
+    if (currentPaintId != paintId) {
+        setCurrentPaint(paintId);
+        paintList->setCurrentRow( getItemRowFromId(*paintList, paintId) );
+    }
+
     setCurrentMapping(mapping->getId());
   }
   else
@@ -165,7 +185,7 @@ void MainWindow::handleMappingIndexesMoved()
 void MainWindow::handleItemSelected(QListWidgetItem* item)
 {
   // Change currently selected item.
-  currentSelectedItem = item;
+  //currentSelectedItem = item;
 }
 
 //void MainWindow::handleItemDoubleClicked(QListWidgetItem* item)
