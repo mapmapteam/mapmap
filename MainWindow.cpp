@@ -100,20 +100,7 @@ void MainWindow::handlePaintItemSelectionChanged()
       setCurrentPaint(idx);
       // Unselect current mapping.
       removeCurrentMapping();
-
-      // Probably a bug on Qt
-      // Better disconnect and reconnect to resolve the problem
-      // The problem comes from the fact that mappingList->clearSelection()
-      // does NOT set mappingList->currentItem() to NULL while
-      // triggering the itemSelectionChanged() signal which
-      // in turn causes problems in Mainwindow::handleMappingItemSelectionChanged() because there is no
-      // way to know that no no items should be selected.
-      disconnect(mappingList, SIGNAL(itemSelectionChanged()),
-                 this,        SLOT(handleMappingItemSelectionChanged()));
       mappingList->clearSelection();
-
-      connect(mappingList, SIGNAL(itemSelectionChanged()),
-                 this,        SLOT(handleMappingItemSelectionChanged()));
     }
   }
   else
@@ -130,27 +117,29 @@ void MainWindow::handlePaintItemSelectionChanged()
 
 void MainWindow::handleMappingItemSelectionChanged()
 {
-  // Get current mapping.
-  QListWidgetItem* item = mappingList->currentItem();
+    if (mappingList->selectedItems().empty())
+    {
+        removeCurrentMapping();
+    }
+    else
+    {
+        QListWidgetItem* item = mappingList->currentItem();
 
-  currentSelectedItem = item;
-  if (item)
-  {
-    // Get current mapping uid.
-    uid idm = getItemId(*item);
+        currentSelectedItem = item;
+          // Get current mapping uid.
+          uid idm = getItemId(*item);
 
-    // Set current paint and mappings.
-    Mapping::ptr mapping = mappingManager->getMappingById(idm);
-    uid paintId = mapping->getPaint()->getId();
-    if (currentPaintId != paintId) {
-        setCurrentPaint(paintId);
-        paintList->setCurrentRow( getItemRowFromId(*paintList, paintId) );
+          // Set current paint and mappings.
+          Mapping::ptr mapping = mappingManager->getMappingById(idm);
+          uid paintId = mapping->getPaint()->getId();
+          if (currentPaintId != paintId) {
+              setCurrentPaint(paintId);
+              paintList->setCurrentRow( getItemRowFromId(*paintList, paintId) );
+          }
+
+          setCurrentMapping(mapping->getId());
     }
 
-    setCurrentMapping(mapping->getId());
-  }
-  else
-    removeCurrentMapping();
 
   // Update canvases.
   updateCanvases();
