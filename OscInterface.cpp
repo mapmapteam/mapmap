@@ -218,6 +218,11 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
       //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
       main_window.setTextureUri(paint_id, image_uri);
   }
+  else
+  {
+      std::cout << "Unhandled OSC message: ";
+      printCommand(command);
+  }
 
   //else if (path == "/add/quad")
   //    addQuad();
