@@ -1921,6 +1921,25 @@ void MainWindow::startOscReceiver()
 #endif
 }
 
+void MainWindow::setOscPort(QString portNumber)
+{
+  if (Util::isNumeric(portNumber))
+  {
+    int port = portNumber.toInt();
+    if (port <= 1023 || port > 65535)
+    {
+      std::cout << "OSC port is out of range: " << portNumber.toInt() << std::endl;
+      return;
+    }
+    config_osc_receive_port = port;
+    startOscReceiver();
+  }
+  else
+  {
+    std::cout << "OSC port is not a number: " << portNumber.toInt() << std::endl;
+  }
+}
+
 void MainWindow::pollOscInterface()
 {
 #ifdef HAVE_OSC

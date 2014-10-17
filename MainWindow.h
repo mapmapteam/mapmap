@@ -322,6 +322,7 @@ public:
   void removeCurrentMapping();
 
   void enableFullscreen();
+  void setOscPort(QString portNumber);
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////
   static const int DEFAULT_WIDTH = 1600;

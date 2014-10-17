@@ -68,6 +68,10 @@ int main(int argc, char *argv[])
     "Reset MapMap settings, such as GUI properties.");
   parser.addOption(resetSettingsOption);
 
+  // --osc-port option
+  QCommandLineOption oscPortOption(QStringList() << "p" << "osc-port", "Use OSC port number <osc-port>.", "osc-port", "");
+  parser.addOption(oscPortOption);
+
   parser.process(app);
   if (parser.isSet(versionOption) || parser.isSet(helpOption))
   {
@@ -78,8 +82,7 @@ int main(int argc, char *argv[])
     Util::eraseSettings();
   }
 
-
-  if (!QGLFormat::hasOpenGL())
+  if (! QGLFormat::hasOpenGL())
     qFatal("This system has no OpenGL support.");
 
   // Create splash screen.
@@ -121,6 +124,12 @@ int main(int argc, char *argv[])
   if (projectFileValue != "")
   {
     win.loadFile(projectFileValue);
+  }
+
+  QString oscPortNumberValue = parser.value("osc-port");
+  if (oscPortNumberValue != "")
+  {
+    win.setOscPort(oscPortNumberValue);
   }
 
   // Terminate splash.

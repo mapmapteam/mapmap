@@ -71,6 +71,8 @@ bool fileExists(const QString& filename);
 bool eraseFile(const QString& filename);
 bool eraseSettings();
 
+bool isNumeric(const QString& text);
+
 } // end of namespace
 
 #endif /* UTIL_H_ */

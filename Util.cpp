@@ -24,6 +24,7 @@
 #include <QFile>
 #include <QDir>
 #include <iostream>
+#include <QRegExp>
 
 namespace Util {
 
@@ -275,6 +276,12 @@ bool eraseSettings()
     settingsFile.close();
     return settingsFile.remove();
   }
+}
+
+bool isNumeric(const QString& text)
+{
+  QRegExp re("\\d*"); // a digit (\d), zero or more times (*)
+  return (re.exactMatch(text));
 }
 
 } // end of namespace
