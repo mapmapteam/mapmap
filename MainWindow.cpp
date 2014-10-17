@@ -1157,6 +1157,10 @@ void MainWindow::createActions()
   connect(stickyVertices, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableStickyVertices(bool)));
 }
 
+void MainWindow::enableFullscreen()
+{
+  outputWindowFullScreen->trigger();
+}
 void MainWindow::createMenus()
 {
   QMenuBar *menuBar = NULL;

@@ -3,6 +3,9 @@
 #include <iostream>
 #include <QTranslator>
 #include <QtGui>
+#include <QCommandLineParser>
+#include <QCommandLineOption>
+#include <QDebug>
 #include "MM.h"
 #include "MainWindow.h"
 #include "MainApplication.h"
@@ -42,8 +45,24 @@ int main(int argc, char *argv[])
 
   MainApplication app(argc, argv);
 
+  QCommandLineParser parser;
+  parser.setApplicationDescription("Video mapping editor");
+  const QCommandLineOption helpOption = parser.addHelpOption();
+  const QCommandLineOption versionOption = parser.addVersionOption();
+  // A boolean option for running it via GUI (--gui)
+  QCommandLineOption fullscreenOption(QStringList() << "f" << "fullscreen",
+    "Display the output window and make it fullscreen.");
+  parser.addOption(fullscreenOption);
+
+  parser.process(app);
+  if (parser.isSet(versionOption) || parser.isSet(helpOption))
+  {
+    return 0;
+  }
+
   if (!QGLFormat::hasOpenGL())
     qFatal("This system has no OpenGL support.");
+
 
   // Create splash screen.
   QPixmap pixmap("splash.png");
@@ -85,6 +104,12 @@ int main(int argc, char *argv[])
                      Qt::AlignLeft | Qt::AlignTop, MM::WHITE);
   splash.finish(&win);
   splash.raise();
+
+  if (parser.isSet(fullscreenOption))
+  {
+    qDebug() << "TODO: Running in fullscreen mode";
+    win.enableFullscreen();
+  }
 
   // Launch program.
   win.show();

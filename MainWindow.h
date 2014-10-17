@@ -325,6 +325,7 @@ public:
     currentMappingId = NULL_UID;
   }
 
+  void enableFullscreen();
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////
   static const int DEFAULT_WIDTH = 1600;
