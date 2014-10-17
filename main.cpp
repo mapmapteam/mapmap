@@ -105,14 +105,14 @@ int main(int argc, char *argv[])
   splash.finish(&win);
   splash.raise();
 
+  // Launch program.
+  win.show();
+
   if (parser.isSet(fullscreenOption))
   {
     qDebug() << "TODO: Running in fullscreen mode";
     win.enableFullscreen();
   }
-
-  // Launch program.
-  win.show();
 
   // Start app.
   return app.exec();

@@ -1159,8 +1159,9 @@ void MainWindow::createActions()
 
 void MainWindow::enableFullscreen()
 {
-  outputWindowFullScreen->trigger();
+  outputWindowFullScreen->setEnabled(true);
 }
+
 void MainWindow::createMenus()
 {
   QMenuBar *menuBar = NULL;
