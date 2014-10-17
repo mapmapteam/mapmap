@@ -529,10 +529,10 @@ void MainWindow::about()
 
   // Pop-up about dialog.
   QMessageBox::about(this, tr("About MapMap"),
-      tr("<h2>MapMap %1</h2>"
+      tr("<h2><img src=\":mapmap-title\"/> %1</h2>"
           "<p>Copyright &copy; 2013 Sofian Audry, Alexandre Quessy, "
-          "Mike Latona and Vasilis Liaskovitis."
-          "<p>MapMap is a free software for video mapping. "
+          "Mike Latona and Vasilis Liaskovitis.</p>"
+          "<p>MapMap is a free software for video mapping.</p>"
           "<p>Projection mapping, also known as video mapping and spatial augmented reality, "
           "is a projection technology used to turn objects, often irregularly shaped, into "
           "a display surface for video projection. These objects may be complex industrial "
@@ -545,8 +545,9 @@ void MainWindow::about()
           "video is commonly combined with, or triggered by, audio to create an "
           "audio-visual narrative."
           "This project was made possible by the support of the International Organization of "
-          "La Francophonie."
-          "http://www.francophonie.org/"
+          "La Francophonie.</p>"
+          "<p>http://mapmap.info<br />"
+          "http://www.francophonie.org</p>"
           ).arg(MM::VERSION));
 
   // Restart video playback. XXX Hack
