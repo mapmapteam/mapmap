@@ -47,26 +47,26 @@ int main(int argc, char *argv[])
 
   QCommandLineParser parser;
   parser.setApplicationDescription("Video mapping editor");
-  // --help
+
+  // --help option
   const QCommandLineOption helpOption = parser.addHelpOption();
-  // --version
+
+  // --version option
   const QCommandLineOption versionOption = parser.addVersionOption();
-  // --fullscreen
+
+  // --fullscreen option
   QCommandLineOption fullscreenOption(QStringList() << "F" << "fullscreen",
     "Display the output window and make it fullscreen.");
   parser.addOption(fullscreenOption);
-  // TODO // --file
-  // TODO QCommandLineOption fileOption(QStringList() << "f" << "file",
-  // TODO   "Project file to load at startup.");
-  // TODO parser.addOption(fileOption);
 
-  // --reset-settings
+  // --file option
+  QCommandLineOption fileOption(QStringList() << "f" << "file", "Load project from <file>.", "file", "");
+  parser.addOption(fileOption);
+
+  // --reset-settings option
   QCommandLineOption resetSettingsOption(QStringList() << "R" << "reset-settings",
     "Reset MapMap settings, such as GUI properties.");
   parser.addOption(resetSettingsOption);
-
-
-
 
   parser.process(app);
   if (parser.isSet(versionOption) || parser.isSet(helpOption))
@@ -78,9 +78,9 @@ int main(int argc, char *argv[])
     Util::eraseSettings();
   }
 
+
   if (!QGLFormat::hasOpenGL())
     qFatal("This system has no OpenGL support.");
-
 
   // Create splash screen.
   QPixmap pixmap("splash.png");
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
   bool FORCE_FRENCH_LANG = false;
   // set_language_to_french(app);
-  if (FORCE_FRENCH_LANG)
+  if (FORCE_FRENCH_LANG) // XXX FIXME this if seems wrong
   {
     std::cerr << "This system has no OpenGL support" << std::endl;
     return 1;
@@ -116,6 +116,12 @@ int main(int argc, char *argv[])
   app.setStyleSheet(QLatin1String(stylesheet.readAll()));
 
   //win.setLocale(QLocale("fr"));
+
+  QString projectFileValue = parser.value("file");
+  if (projectFileValue != "")
+  {
+    win.loadFile(projectFileValue);
+  }
 
   // Terminate splash.
   splash.showMessage("  " + QObject::tr("Done."),
