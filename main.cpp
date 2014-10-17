@@ -47,17 +47,35 @@ int main(int argc, char *argv[])
 
   QCommandLineParser parser;
   parser.setApplicationDescription("Video mapping editor");
+  // --help
   const QCommandLineOption helpOption = parser.addHelpOption();
+  // --version
   const QCommandLineOption versionOption = parser.addVersionOption();
-  // A boolean option for running it via GUI (--gui)
-  QCommandLineOption fullscreenOption(QStringList() << "f" << "fullscreen",
+  // --fullscreen
+  QCommandLineOption fullscreenOption(QStringList() << "F" << "fullscreen",
     "Display the output window and make it fullscreen.");
   parser.addOption(fullscreenOption);
+  // TODO // --file
+  // TODO QCommandLineOption fileOption(QStringList() << "f" << "file",
+  // TODO   "Project file to load at startup.");
+  // TODO parser.addOption(fileOption);
+
+  // --reset-settings
+  QCommandLineOption resetSettingsOption(QStringList() << "R" << "reset-settings",
+    "Reset MapMap settings, such as GUI properties.");
+  parser.addOption(resetSettingsOption);
+
+
+
 
   parser.process(app);
   if (parser.isSet(versionOption) || parser.isSet(helpOption))
   {
     return 0;
+  }
+  if (parser.isSet(resetSettingsOption))
+  {
+    Util::eraseSettings();
   }
 
   if (!QGLFormat::hasOpenGL())

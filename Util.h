@@ -29,6 +29,7 @@
 #include "MM.h"
 #include "Shape.h"
 #include "Paint.h"
+#include <QString>
 
 /**
  * @namespace Util Useful functions.
@@ -62,6 +63,13 @@ void drawControlsEllipse(QPainter* painter, const Ellipse& ellipse);
 void drawControlsQuad(QPainter* painter, const Quad& quad);
 void drawControlsMesh(QPainter* painter, const Mesh& mesh);
 void drawControlsPolygon(QPainter* painter, const Polygon& polygon);
+
+/**
+ * Checks if a file exists or not.
+ */
+bool fileExists(const QString& filename);
+bool eraseFile(const QString& filename);
+bool eraseSettings();
 
 } // end of namespace
 

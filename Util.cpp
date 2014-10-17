@@ -19,7 +19,11 @@
  */
 
 #include "Util.h"
+#include <glib.h>
 #include <algorithm>
+#include <QFile>
+#include <QDir>
+#include <iostream>
 
 namespace Util {
 
@@ -233,6 +237,45 @@ void drawControlsPolygon(QPainter* painter, const Polygon& polygon)
    drawControlsVertices(painter, polygon);
 }
 
+bool fileExists(const QString& filename)
+{
+  return QFile::exists(filename);
+  // gchar* filetestpath = (gchar*) filename.toUtf8().constData();
+  // if (FALSE == g_file_test(filetestpath, G_FILE_TEST_EXISTS))
+  // {
+  //     //std::cout << "File " << filetestpath << " does not exist" << std::endl;
+  //     return false;
+  // }
+  // return true;
+}
+
+bool eraseFile(const QString& filename)
+{
+  if (! fileExists(filename))
+  {
+    return false;
+  }
+  QFile file(filename);
+  file.close();
+  return file.remove();
+}
+
+bool eraseSettings()
+{
+  QString homePath = QDir::homePath();
+  QString settingsFilePath = QDir(homePath).filePath(".config/MapMap/MapMap.conf");
+  QFile settingsFile(settingsFilePath);
+  if (! settingsFile.exists())
+  {
+    return false;
+  }
+  else
+  {
+    std::cout << "Erase MapMap settings." << std::endl;
+    settingsFile.close();
+    return settingsFile.remove();
+  }
+}
 
 } // end of namespace
 
