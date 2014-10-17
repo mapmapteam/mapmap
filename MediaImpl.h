@@ -45,7 +45,7 @@
 class MediaImpl
 {
 public:
-  MediaImpl(const QString uri);
+  MediaImpl(const QString uri, bool live);
   ~MediaImpl();
 
 //  void setUri(const QString uri);
@@ -53,6 +53,8 @@ public:
   void build();
   int getWidth() const;
   int getHeight() const;
+  QString getUri() const;
+  bool getAttached();
   const uchar* getBits() const;
 
   bool isReady() const { return _padHandlerData.videoIsConnected; }
@@ -61,8 +63,9 @@ public:
   bool runVideo();
 //  void runAudio();
   bool loadMovie(QString filename);
-
   bool setPlayState(bool play);
+  void setAttached(bool attach);
+
   void resetMovie();
 
 protected:
@@ -78,7 +81,7 @@ private:
   bool _preRun();
   void _postRun();
   void _setReady(bool ready);
-//  void _setFinished(bool finished);
+  void _setFinished(bool finished);
 
 public:
   // GStreamer callbacks.
@@ -112,7 +115,6 @@ public:
     return &this->_queueOutputBuffer;
   }
 
-
 private:
   //locals
   QString _currentMovie;
@@ -121,6 +123,7 @@ private:
   GstBus *_bus;
   GstElement *_pipeline;
   GstElement *_source;
+  GstElement *_deserializer;
   GstElement *_audioQueue;
   GstElement *_audioConvert;
   GstElement *_audioResample;
@@ -130,6 +133,7 @@ private:
   GstElement *_audioSink;
   GstElement *_videoSink;
   GstSample  *_frame;
+  GSource *_pollSource;
 
   GstPadHandlerData _padHandlerData;
 
@@ -138,6 +142,8 @@ private:
   uchar *_data;
 
   bool _seekEnabled;
+  bool _live;
+  bool _attached;
 
   int _audioNewBufferCounter;
 
@@ -148,6 +154,7 @@ private:
 
 private:
   QString _uri;
+
 };
 
 #endif /* ifndef */

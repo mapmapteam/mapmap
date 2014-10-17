@@ -138,7 +138,6 @@ public:
     bitsChanged = false;
     return _getBits();
   }
-  virtual const uchar* _getBits() const = 0;
 
   /// Returns true iff bits have changed since last call to getBits().
   bool bitsHaveChanged() const { return bitsChanged; }
@@ -149,6 +148,9 @@ public:
   }
   virtual GLfloat getX() const { return x; }
   virtual GLfloat getY() const { return y; }
+
+protected:
+  virtual const uchar* _getBits() const = 0;
 };
 
 /**
@@ -181,6 +183,8 @@ public:
 
   virtual int getWidth() const { return image.width(); }
   virtual int getHeight() const { return image.height(); }
+
+protected:
   virtual const uchar* _getBits() const { return image.bits(); }
 };
 
@@ -194,7 +198,7 @@ class Media : public Texture
 protected:
   QString uri;
 public:
-  Media(const QString uri_, uid id=NULL_UID);
+  Media(const QString uri_, bool live, uid id=NULL_UID);
   virtual ~Media();
   const QString getUri() const
   {
@@ -217,11 +221,15 @@ public:
   }
   virtual int getWidth() const;
   virtual int getHeight() const;
-  virtual const uchar* _getBits() const;
+
   /**
    * Checks whether or not video is supported on this platform.
    */
   static bool hasVideoSupport();
+
+protected:
+  virtual const uchar* _getBits() const;
+
 private:
   /**
    * Private implementation, so that GStreamer headers don't need
