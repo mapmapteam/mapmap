@@ -218,7 +218,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   if (paint->getType() == "media") {
     std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(paint);
     Q_CHECK_PTR(media);
-    updatePaintItem(paintId, QIcon(), strippedName(media->getUri()));
+    updatePaintItem(paintId, createFileIcon(media->getUri()), strippedName(media->getUri()));
 //    QString fileName = QFileDialog::getOpenFileName(this,
 //        tr("Import media source file"), ".");
 //    // Restart video playback. XXX Hack
@@ -228,7 +228,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   if (paint->getType() == "image") {
     std::tr1::shared_ptr<Image> image = std::tr1::static_pointer_cast<Image>(paint);
     Q_CHECK_PTR(image);
-    updatePaintItem(paintId, QIcon(), strippedName(image->getUri()));
+    updatePaintItem(paintId, createImageIcon(image->getUri()), strippedName(image->getUri()));
 //    QString fileName = QFileDialog::getOpenFileName(this,
 //        tr("Import media source file"), ".");
 //    // Restart video playback. XXX Hack
@@ -649,7 +649,7 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
     uid id = mappingManager->addPaint(paint);
 
     // Add paint widget item.
-    addPaintItem(id, QIcon(uri), strippedName(uri));
+    addPaintItem(id, isImage ? createImageIcon(uri) : createFileIcon(uri), strippedName(uri));
     return id;
   }
 }
@@ -1871,6 +1871,15 @@ QIcon MainWindow::createColorIcon(const QColor &color) {
   QPixmap pixmap(100,100);
   pixmap.fill(color);
   return QIcon(pixmap);
+}
+
+QIcon MainWindow::createFileIcon(const QString& filename) {
+  static QFileIconProvider provider;
+  return provider.icon(QFileInfo(filename));
+}
+
+QIcon MainWindow::createImageIcon(const QString& filename) {
+  return QIcon(filename);
 }
 
 void MainWindow::setCurrentPaint(int uid)
