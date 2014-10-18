@@ -210,7 +210,9 @@ private:
   static void setItemId(QListWidgetItem& item, uid id);
   static QListWidgetItem* getItemFromId(const QListWidget& list, uid id);
   static int getItemRowFromId(const QListWidget& list, uid id);
-  static QIcon createColorIcon(const QColor &color);
+  static QIcon createColorIcon(const QColor& color);
+  static QIcon createFileIcon(const QString& filename);
+  static QIcon createImageIcon(const QString& filename);
 
   // GUI elements. ////////////////////////////////////////////////////////////////////////////////////////
 

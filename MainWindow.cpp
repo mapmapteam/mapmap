@@ -84,6 +84,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::handlePaintItemSelectionChanged()
 {
+
   // Set current paint.
   QListWidgetItem* item = paintList->currentItem();
   currentSelectedItem = item;
@@ -95,10 +96,12 @@ void MainWindow::handlePaintItemSelectionChanged()
   {
     // Set current paint.
     uid idx = getItemId(*item);
-    setCurrentPaint(idx);
-    // Unselect current mapping.
-    removeCurrentMapping();
-    mappingList->clearSelection();
+    if (currentPaintId != idx) {
+      setCurrentPaint(idx);
+      // Unselect current mapping.
+      removeCurrentMapping();
+      mappingList->clearSelection();
+    }
   }
   else
     removeCurrentPaint();
@@ -114,23 +117,27 @@ void MainWindow::handlePaintItemSelectionChanged()
 
 void MainWindow::handleMappingItemSelectionChanged()
 {
-  // Get current mapping.
-  QListWidgetItem* item = mappingList->currentItem();
-  currentSelectedItem = item;
-  if (item)
-  {
-    // Get index.
-    uid idx = getItemId(*item);
+    if (mappingList->selectedItems().empty())
+    {
+        removeCurrentMapping();
+    }
+    else
+    {
+        QListWidgetItem* item = mappingList->currentItem();
 
-    // Set current paint and mappings.
-    Mapping::ptr mapping = mappingManager->getMappingById(idx);
-    uid paintId = mapping->getPaint()->getId();
-    setCurrentPaint(paintId);
-    paintList->setCurrentRow( getItemRowFromId(*paintList, paintId) );
-    setCurrentMapping(mapping->getId());
-  }
-  else
-    removeCurrentMapping();
+        currentSelectedItem = item;
+          // Get current mapping uid.
+          uid idm = getItemId(*item);
+          // Set current paint and mappings.
+          Mapping::ptr mapping = mappingManager->getMappingById(idm);
+          uid paintId = mapping->getPaint()->getId();
+          if (currentPaintId != paintId) {
+              setCurrentPaint(paintId);
+          }
+
+          setCurrentMapping(mapping->getId());
+    }
+
 
   // Update canvases.
   updateCanvases();
@@ -165,7 +172,7 @@ void MainWindow::handleMappingIndexesMoved()
 void MainWindow::handleItemSelected(QListWidgetItem* item)
 {
   // Change currently selected item.
-  currentSelectedItem = item;
+  //currentSelectedItem = item;
 }
 
 //void MainWindow::handleItemDoubleClicked(QListWidgetItem* item)
@@ -218,7 +225,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   if (paint->getType() == "media") {
     std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(paint);
     Q_CHECK_PTR(media);
-    updatePaintItem(paintId, QIcon(), strippedName(media->getUri()));
+    updatePaintItem(paintId, createFileIcon(media->getUri()), strippedName(media->getUri()));
 //    QString fileName = QFileDialog::getOpenFileName(this,
 //        tr("Import media source file"), ".");
 //    // Restart video playback. XXX Hack
@@ -228,7 +235,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   if (paint->getType() == "image") {
     std::tr1::shared_ptr<Image> image = std::tr1::static_pointer_cast<Image>(paint);
     Q_CHECK_PTR(image);
-    updatePaintItem(paintId, QIcon(), strippedName(image->getUri()));
+    updatePaintItem(paintId, createImageIcon(image->getUri()), strippedName(image->getUri()));
 //    QString fileName = QFileDialog::getOpenFileName(this,
 //        tr("Import media source file"), ".");
 //    // Restart video playback. XXX Hack
@@ -529,10 +536,10 @@ void MainWindow::about()
 
   // Pop-up about dialog.
   QMessageBox::about(this, tr("About MapMap"),
-      tr("<h2>MapMap %1</h2>"
+      tr("<h2><img src=\":mapmap-title\"/> %1</h2>"
           "<p>Copyright &copy; 2013 Sofian Audry, Alexandre Quessy, "
-          "Mike Latona and Vasilis Liaskovitis."
-          "<p>MapMap is a free software for video mapping. "
+          "Mike Latona and Vasilis Liaskovitis.</p>"
+          "<p>MapMap is a free software for video mapping.</p>"
           "<p>Projection mapping, also known as video mapping and spatial augmented reality, "
           "is a projection technology used to turn objects, often irregularly shaped, into "
           "a display surface for video projection. These objects may be complex industrial "
@@ -545,8 +552,9 @@ void MainWindow::about()
           "video is commonly combined with, or triggered by, audio to create an "
           "audio-visual narrative."
           "This project was made possible by the support of the International Organization of "
-          "La Francophonie."
-          "http://www.francophonie.org/"
+          "La Francophonie.</p>"
+          "<p>http://mapmap.info<br />"
+          "http://www.francophonie.org</p>"
           ).arg(MM::VERSION));
 
   // Restart video playback. XXX Hack
@@ -648,7 +656,7 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
     uid id = mappingManager->addPaint(paint);
 
     // Add paint widget item.
-    addPaintItem(id, QIcon(uri), strippedName(uri));
+    addPaintItem(id, isImage ? createImageIcon(uri) : createFileIcon(uri), strippedName(uri));
     return id;
   }
 }
@@ -1877,19 +1885,35 @@ QIcon MainWindow::createColorIcon(const QColor &color) {
   return QIcon(pixmap);
 }
 
+QIcon MainWindow::createFileIcon(const QString& filename) {
+  static QFileIconProvider provider;
+  return provider.icon(QFileInfo(filename));
+}
+
+QIcon MainWindow::createImageIcon(const QString& filename) {
+  return QIcon(filename);
+}
+
 void MainWindow::setCurrentPaint(int uid)
 {
-  currentPaintId = uid;
-  if (uid != NULL_UID)
-    paintPropertyPanel->setCurrentWidget(paintGuis[uid]->getPropertiesEditor());
+  if (currentPaintId != uid) {
+    currentPaintId = uid;
+    paintList->setCurrentRow( getItemRowFromId(*paintList, uid) );
+
+    if (uid != NULL_UID)
+      paintPropertyPanel->setCurrentWidget(paintGuis[uid]->getPropertiesEditor());
+  }
   _hasCurrentPaint = true;
 }
 
 void MainWindow::setCurrentMapping(int uid)
 {
-  currentMappingId = uid;
-  if (uid != NULL_UID)
-    mappingPropertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
+  if (currentMappingId != uid) {
+    mappingList->setCurrentRow(  getItemRowFromId(*mappingList, uid) );
+    currentMappingId = uid;
+    if (uid != NULL_UID)
+      mappingPropertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
+    }
   _hasCurrentMapping = true;
 }
 
