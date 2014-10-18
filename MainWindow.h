@@ -323,7 +323,7 @@ public:
   void removeCurrentPaint();
   void removeCurrentMapping();
 
-  void enableFullscreen();
+  void startFullScreen();
   void setOscPort(QString portNumber);
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////
