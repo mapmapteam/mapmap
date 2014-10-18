@@ -114,6 +114,7 @@ void MainWindow::handlePaintItemSelectionChanged()
 
 void MainWindow::handleMappingItemSelectionChanged()
 {
+  qDebug() << "CURRENT: " << mappingList->selectedItems().count() << " " <<  mappingList->currentItem() <<endl;
   // Get current mapping.
   QListWidgetItem* item = mappingList->currentItem();
   currentSelectedItem = item;
@@ -135,6 +136,11 @@ void MainWindow::handleMappingItemSelectionChanged()
   // Update canvases.
   updateCanvases();
 }
+
+void  MainWindow::handleMappingCurrentItemChanged(QListWidgetItem* current,QListWidgetItem* previous) {
+  qDebug() << "CURRENT: " << current << " PREVIOUS: " << previous << " " <<     mappingList->selectedItems().count() << endl;
+}
+
 
 void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
 {

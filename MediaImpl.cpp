@@ -210,9 +210,8 @@ void MediaImpl::freeResources()
 
 void MediaImpl::resetMovie()
 {
-  // TODO: Check if we can still seek when we reach EOS. It seems like it's then impossible and we
-  // have to reload but it seems weird so we should check.
-  if (!_eos() && _seekEnabled)
+  // XXX: There used to be an issue that when we reached EOS (_eos() == true) we could not seek anymore.
+  if (_seekEnabled)
   {
     qDebug() << "Seeking at position 0.";
     gst_element_seek_simple (_pipeline, GST_FORMAT_TIME,
@@ -487,7 +486,9 @@ void MediaImpl::_postRun()
         break;
 
       case GST_MESSAGE_EOS:
+        // Automatically loop back.
         g_print("End-Of-Stream reached.\n");
+        resetMovie();
 //        _terminate = true;
 //        _finish();
         break;
