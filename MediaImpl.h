@@ -25,6 +25,7 @@
 #ifndef VIDEO_IMPL_H_
 #define VIDEO_IMPL_H_
 
+#include <glib.h>
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
 #include <QtGlobal>

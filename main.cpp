@@ -3,6 +3,9 @@
 #include <iostream>
 #include <QTranslator>
 #include <QtGui>
+#include <QCommandLineParser>
+#include <QCommandLineOption>
+#include <QDebug>
 #include "MM.h"
 #include "MainWindow.h"
 #include "MainApplication.h"
@@ -42,7 +45,44 @@ int main(int argc, char *argv[])
 
   MainApplication app(argc, argv);
 
-  if (!QGLFormat::hasOpenGL())
+  QCommandLineParser parser;
+  parser.setApplicationDescription("Video mapping editor");
+
+  // --help option
+  const QCommandLineOption helpOption = parser.addHelpOption();
+
+  // --version option
+  const QCommandLineOption versionOption = parser.addVersionOption();
+
+  // --fullscreen option
+  QCommandLineOption fullscreenOption(QStringList() << "F" << "fullscreen",
+    "Display the output window and make it fullscreen.");
+  parser.addOption(fullscreenOption);
+
+  // --file option
+  QCommandLineOption fileOption(QStringList() << "f" << "file", "Load project from <file>.", "file", "");
+  parser.addOption(fileOption);
+
+  // --reset-settings option
+  QCommandLineOption resetSettingsOption(QStringList() << "R" << "reset-settings",
+    "Reset MapMap settings, such as GUI properties.");
+  parser.addOption(resetSettingsOption);
+
+  // --osc-port option
+  QCommandLineOption oscPortOption(QStringList() << "p" << "osc-port", "Use OSC port number <osc-port>.", "osc-port", "");
+  parser.addOption(oscPortOption);
+
+  parser.process(app);
+  if (parser.isSet(versionOption) || parser.isSet(helpOption))
+  {
+    return 0;
+  }
+  if (parser.isSet(resetSettingsOption))
+  {
+    Util::eraseSettings();
+  }
+
+  if (! QGLFormat::hasOpenGL())
     qFatal("This system has no OpenGL support.");
 
   // Create splash screen.
@@ -57,7 +97,7 @@ int main(int argc, char *argv[])
 
   bool FORCE_FRENCH_LANG = false;
   // set_language_to_french(app);
-  if (FORCE_FRENCH_LANG)
+  if (FORCE_FRENCH_LANG) // XXX FIXME this if seems wrong
   {
     std::cerr << "This system has no OpenGL support" << std::endl;
     return 1;
@@ -80,6 +120,18 @@ int main(int argc, char *argv[])
 
   //win.setLocale(QLocale("fr"));
 
+  QString projectFileValue = parser.value("file");
+  if (projectFileValue != "")
+  {
+    win.loadFile(projectFileValue);
+  }
+
+  QString oscPortNumberValue = parser.value("osc-port");
+  if (oscPortNumberValue != "")
+  {
+    win.setOscPort(oscPortNumberValue);
+  }
+
   // Terminate splash.
   splash.showMessage("  " + QObject::tr("Done."),
                      Qt::AlignLeft | Qt::AlignTop, MM::WHITE);
@@ -88,6 +140,12 @@ int main(int argc, char *argv[])
 
   // Launch program.
   win.show();
+
+  if (parser.isSet(fullscreenOption))
+  {
+    qDebug() << "TODO: Running in fullscreen mode";
+    win.enableFullscreen();
+  }
 
   // Start app.
   return app.exec();

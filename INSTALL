@@ -12,6 +12,9 @@ Build it::
 
   ./build.sh
 
+Ubuntu 14.04
+~~~~~~~~~~~~
+
 Ubuntu 13.10
 ~~~~~~~~~~~~
 
@@ -19,10 +22,7 @@ Install basic development tools fot Qt projects, plus liblo for OSC support::
 
   sudo apt-get install -y \
       liblo-dev \
-      libqt4-dev \
-      libqt4-opengl-dev \
-      qt4-default \
-      qt4-qmake
+      qt5-default
 
 Install GStreamer 1.0 libraries and plugins:
 

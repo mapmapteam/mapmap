@@ -69,7 +69,8 @@ if [[ $unamestr == "Darwin" ]]; then
     # do_fix_qt_plugins_in_app
     do_create_dmg
 elif [[ $unamestr == "Linux" ]]; then
-    qmake-qt4
+    qmake
+    # -qt4
     make
     lrelease mapmap_fr.ts
 fi
