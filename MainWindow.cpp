@@ -1198,9 +1198,14 @@ void MainWindow::createActions()
   connect(stickyVertices, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableStickyVertices(bool)));
 }
 
-void MainWindow::enableFullscreen()
+void MainWindow::startFullScreen()
 {
-  outputWindowFullScreen->setEnabled(true);
+  // Remove canvas controls.
+  displayCanvasControls->setChecked(false);
+  // Display output window.
+  displayOutputWindow->setChecked(true);
+  // Send fullscreen.
+  outputWindowFullScreen->setChecked(true);
 }
 
 void MainWindow::createMenus()
