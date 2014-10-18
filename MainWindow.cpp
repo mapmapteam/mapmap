@@ -225,7 +225,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   if (paint->getType() == "media") {
     std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(paint);
     Q_CHECK_PTR(media);
-    updatePaintItem(paintId, QIcon(), strippedName(media->getUri()));
+    updatePaintItem(paintId, createFileIcon(media->getUri()), strippedName(media->getUri()));
 //    QString fileName = QFileDialog::getOpenFileName(this,
 //        tr("Import media source file"), ".");
 //    // Restart video playback. XXX Hack
@@ -235,7 +235,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   if (paint->getType() == "image") {
     std::tr1::shared_ptr<Image> image = std::tr1::static_pointer_cast<Image>(paint);
     Q_CHECK_PTR(image);
-    updatePaintItem(paintId, QIcon(), strippedName(image->getUri()));
+    updatePaintItem(paintId, createImageIcon(image->getUri()), strippedName(image->getUri()));
 //    QString fileName = QFileDialog::getOpenFileName(this,
 //        tr("Import media source file"), ".");
 //    // Restart video playback. XXX Hack
@@ -536,10 +536,10 @@ void MainWindow::about()
 
   // Pop-up about dialog.
   QMessageBox::about(this, tr("About MapMap"),
-      tr("<h2>MapMap %1</h2>"
+      tr("<h2><img src=\":mapmap-title\"/> %1</h2>"
           "<p>Copyright &copy; 2013 Sofian Audry, Alexandre Quessy, "
-          "Mike Latona and Vasilis Liaskovitis."
-          "<p>MapMap is a free software for video mapping. "
+          "Mike Latona and Vasilis Liaskovitis.</p>"
+          "<p>MapMap is a free software for video mapping.</p>"
           "<p>Projection mapping, also known as video mapping and spatial augmented reality, "
           "is a projection technology used to turn objects, often irregularly shaped, into "
           "a display surface for video projection. These objects may be complex industrial "
@@ -552,8 +552,9 @@ void MainWindow::about()
           "video is commonly combined with, or triggered by, audio to create an "
           "audio-visual narrative."
           "This project was made possible by the support of the International Organization of "
-          "La Francophonie."
-          "http://www.francophonie.org/"
+          "La Francophonie.</p>"
+          "<p>http://mapmap.info<br />"
+          "http://www.francophonie.org</p>"
           ).arg(MM::VERSION));
 
   // Restart video playback. XXX Hack
@@ -655,7 +656,7 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
     uid id = mappingManager->addPaint(paint);
 
     // Add paint widget item.
-    addPaintItem(id, QIcon(uri), strippedName(uri));
+    addPaintItem(id, isImage ? createImageIcon(uri) : createFileIcon(uri), strippedName(uri));
     return id;
   }
 }
@@ -1200,6 +1201,11 @@ void MainWindow::createActions()
   connect(stickyVertices, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableStickyVertices(bool)));
   connect(stickyVertices, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableStickyVertices(bool)));
   connect(stickyVertices, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableStickyVertices(bool)));
+}
+
+void MainWindow::enableFullscreen()
+{
+  outputWindowFullScreen->setEnabled(true);
 }
 
 void MainWindow::createMenus()
@@ -1879,6 +1885,15 @@ QIcon MainWindow::createColorIcon(const QColor &color) {
   return QIcon(pixmap);
 }
 
+QIcon MainWindow::createFileIcon(const QString& filename) {
+  static QFileIconProvider provider;
+  return provider.icon(QFileInfo(filename));
+}
+
+QIcon MainWindow::createImageIcon(const QString& filename) {
+  return QIcon(filename);
+}
+
 void MainWindow::setCurrentPaint(int uid)
 {
   if (currentPaintId != uid) {
@@ -1928,6 +1943,25 @@ void MainWindow::startOscReceiver()
   connect(osc_timer, SIGNAL(timeout()), this, SLOT(pollOscInterface()));
   osc_timer->start();
 #endif
+}
+
+void MainWindow::setOscPort(QString portNumber)
+{
+  if (Util::isNumeric(portNumber))
+  {
+    int port = portNumber.toInt();
+    if (port <= 1023 || port > 65535)
+    {
+      std::cout << "OSC port is out of range: " << portNumber.toInt() << std::endl;
+      return;
+    }
+    config_osc_receive_port = port;
+    startOscReceiver();
+  }
+  else
+  {
+    std::cout << "OSC port is not a number: " << portNumber.toInt() << std::endl;
+  }
 }
 
 void MainWindow::pollOscInterface()
