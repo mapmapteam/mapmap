@@ -23,11 +23,14 @@
 MainApplication::MainApplication(int &argc, char *argv[])
   : QApplication(argc, argv)
 {
-
+  // Initialize GStreamer.
+  gst_init (NULL, NULL);
 }
 
 MainApplication::~MainApplication()
 {
+  // Deinitialize GStreamer.
+  gst_deinit();
 }
 
 bool MainApplication::notify(QObject *receiver, QEvent *event)

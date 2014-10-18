@@ -260,8 +260,6 @@ bool MediaImpl::loadMovie(QString filename)
   // Free previously allocated structures
   unloadMovie();
 
-  // Initialize GStreamer.
-  gst_init (NULL, NULL);
   GstElement *capsFilter = NULL;
   GstElement *videoScale = NULL;
 
