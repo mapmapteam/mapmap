@@ -95,10 +95,12 @@ void MainWindow::handlePaintItemSelectionChanged()
   {
     // Set current paint.
     uid idx = getItemId(*item);
-    setCurrentPaint(idx);
-    // Unselect current mapping.
-    removeCurrentMapping();
-    mappingList->clearSelection();
+    if (currentPaintId != idx) {
+      setCurrentPaint(idx);
+      // Unselect current mapping.
+      removeCurrentMapping();
+      mappingList->clearSelection();
+    }
   }
   else
     removeCurrentPaint();
@@ -114,33 +116,27 @@ void MainWindow::handlePaintItemSelectionChanged()
 
 void MainWindow::handleMappingItemSelectionChanged()
 {
-  qDebug() << "CURRENT: " << mappingList->selectedItems().count() << " " <<  mappingList->currentItem() <<endl;
-  // Get current mapping.
-  QListWidgetItem* item = mappingList->currentItem();
-  currentSelectedItem = item;
-  if (item)
-  {
-    // Get index.
-    uid idx = getItemId(*item);
+    if (mappingList->selectedItems().empty())
+    {
+      removeCurrentMapping();
+    }
+    else
+    {
+      QListWidgetItem* item = mappingList->currentItem();
+      currentSelectedItem = item;
 
-    // Set current paint and mappings.
-    Mapping::ptr mapping = mappingManager->getMappingById(idx);
-    uid paintId = mapping->getPaint()->getId();
-    setCurrentPaint(paintId);
-    paintList->setCurrentRow( getItemRowFromId(*paintList, paintId) );
-    setCurrentMapping(mapping->getId());
-  }
-  else
-    removeCurrentMapping();
+      // Set current paint and mappings.
+      Mapping::ptr mapping = mappingManager->getMappingById(idm);
+      uid paintId = mapping->getPaint()->getId();
+      setCurrentPaint(paintId);
+
+      setCurrentMapping(mapping->getId());
+    }
+
 
   // Update canvases.
   updateCanvases();
 }
-
-void  MainWindow::handleMappingCurrentItemChanged(QListWidgetItem* current,QListWidgetItem* previous) {
-  qDebug() << "CURRENT: " << current << " PREVIOUS: " << previous << " " <<     mappingList->selectedItems().count() << endl;
-}
-
 
 void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
 {
@@ -171,7 +167,7 @@ void MainWindow::handleMappingIndexesMoved()
 void MainWindow::handleItemSelected(QListWidgetItem* item)
 {
   // Change currently selected item.
-  currentSelectedItem = item;
+  //currentSelectedItem = item;
 }
 
 //void MainWindow::handleItemDoubleClicked(QListWidgetItem* item)
@@ -1895,18 +1891,30 @@ QIcon MainWindow::createImageIcon(const QString& filename) {
 
 void MainWindow::setCurrentPaint(int uid)
 {
-  currentPaintId = uid;
-  if (uid != NULL_UID)
-    paintPropertyPanel->setCurrentWidget(paintGuis[uid]->getPropertiesEditor());
-  _hasCurrentPaint = true;
+  if (uid == NULL_UID)
+	removeCurrentPaint();
+  else {
+    if (currentPaintId != uid) {
+      currentPaintId = uid;
+      paintList->setCurrentRow( getItemRowFromId(*paintList, uid) );
+      paintPropertyPanel->setCurrentWidget(paintGuis[uid]->getPropertiesEditor());
+    }
+    _hasCurrentPaint = true;
+  }
 }
 
 void MainWindow::setCurrentMapping(int uid)
 {
-  currentMappingId = uid;
-  if (uid != NULL_UID)
-    mappingPropertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
-  _hasCurrentMapping = true;
+  if (uid == NULL_UID)
+    removeCurrentMapping();
+  else {
+    if (currentMappingId != uid) {
+      currentMappingId = uid;
+      mappingList->setCurrentRow(  getItemRowFromId(*mappingList, uid) );
+      mappingPropertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
+    }
+    _hasCurrentMapping = true;
+  }
 }
 
 void MainWindow::removeCurrentPaint() {
