@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
   if (parser.isSet(fullscreenOption))
   {
     qDebug() << "TODO: Running in fullscreen mode";
-    win.enableFullscreen();
+    win.startFullScreen();
   }
 
   // Start app.
