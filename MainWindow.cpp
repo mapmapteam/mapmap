@@ -128,13 +128,11 @@ void MainWindow::handleMappingItemSelectionChanged()
         currentSelectedItem = item;
           // Get current mapping uid.
           uid idm = getItemId(*item);
-
           // Set current paint and mappings.
           Mapping::ptr mapping = mappingManager->getMappingById(idm);
           uid paintId = mapping->getPaint()->getId();
           if (currentPaintId != paintId) {
               setCurrentPaint(paintId);
-              paintList->setCurrentRow( getItemRowFromId(*paintList, paintId) );
           }
 
           setCurrentMapping(mapping->getId());
@@ -1883,17 +1881,24 @@ QIcon MainWindow::createColorIcon(const QColor &color) {
 
 void MainWindow::setCurrentPaint(int uid)
 {
-  currentPaintId = uid;
-  if (uid != NULL_UID)
-    paintPropertyPanel->setCurrentWidget(paintGuis[uid]->getPropertiesEditor());
+  if (currentPaintId != uid) {
+    currentPaintId = uid;
+    paintList->setCurrentRow( getItemRowFromId(*paintList, uid) );
+
+    if (uid != NULL_UID)
+      paintPropertyPanel->setCurrentWidget(paintGuis[uid]->getPropertiesEditor());
+  }
   _hasCurrentPaint = true;
 }
 
 void MainWindow::setCurrentMapping(int uid)
 {
-  currentMappingId = uid;
-  if (uid != NULL_UID)
-    mappingPropertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
+  if (currentMappingId != uid) {
+    mappingList->setCurrentRow(  getItemRowFromId(*mappingList, uid) );
+    currentMappingId = uid;
+    if (uid != NULL_UID)
+      mappingPropertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
+    }
   _hasCurrentMapping = true;
 }
 
