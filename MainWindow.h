@@ -83,6 +83,7 @@ private slots:
   void addColor();
   void about();
   void updateStatusBar();
+  void openRecentFile();
   // Edit menu.
   void deleteItem();
 
@@ -173,6 +174,7 @@ private:
   void createContextMenu();
   void createToolBars();
   void createStatusBar();
+  void updateRecentFileActions();
 
   // Settings.
   void readSettings();
@@ -260,6 +262,9 @@ private:
   QAction *displayCanvasControls;
   QAction *stickyVertices;
 
+  enum { MaxRecentFiles = 5 };
+  QAction *recentFileActions[MaxRecentFiles];
+
   // Widgets and layout.
   QTabWidget* contentTab;
 
@@ -279,6 +284,9 @@ private:
   QSplitter* canvasSplitter;
 
   // Internal variables. ///////////////////////////////////////////////////////////////////////////////////
+
+  // Recent files
+  QStringList recentFiles;
 
   // Current filename.
   QString curFile;

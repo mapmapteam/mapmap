@@ -172,7 +172,7 @@ void MainWindow::handleMappingIndexesMoved()
 void MainWindow::handleItemSelected(QListWidgetItem* item)
 {
   // Change currently selected item.
-  //currentSelectedItem = item;
+  currentSelectedItem = item;
 }
 
 //void MainWindow::handleItemDoubleClicked(QListWidgetItem* item)
@@ -587,6 +587,15 @@ void MainWindow::deleteItem()
     else
       qCritical() << "Selected item neither a mapping nor a paint." << endl;
   }
+}
+
+void MainWindow::openRecentFile()
+{
+    if (okToContinue()) {
+        QAction *action = qobject_cast<QAction *>(sender());
+        if (action)
+            loadFile(action->data().toString());
+    }
 }
 
 bool MainWindow::clearProject()
@@ -1035,6 +1044,15 @@ void MainWindow::createActions()
   saveAsAction->setIconVisibleInMenu(false);
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
+  // Recents file
+  for (int i = 0; i < MaxRecentFiles; ++i) {
+      recentFileActions[i] = new QAction(this);
+      recentFileActions[i]->setVisible(false);
+      connect(recentFileActions[i], SIGNAL(triggered()),
+              this, SLOT(openRecentFile()));
+  }
+
+
   // Import video.
   importVideoAction = new QAction(tr("&Import media source file..."), this);
   importVideoAction->setIcon(QIcon(":/add-video"));
@@ -1229,8 +1247,14 @@ void MainWindow::createMenus()
   fileMenu->addAction(importVideoAction);
   fileMenu->addAction(importImageAction);
   fileMenu->addAction(addColorAction);
+
+  // Recent file separator
+  separatorAction = fileMenu->addSeparator();
+  for (int i = 0; i < MaxRecentFiles; ++i)
+      fileMenu->addAction(recentFileActions[i]);
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
+
 
   // Edit.
   editMenu = menuBar->addMenu(tr("&Edit"));
@@ -1365,6 +1389,8 @@ void MainWindow::readSettings()
   displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
   outputWindowFullScreen->setChecked(settings.value("outputWindowFullScreen").toBool());
   config_osc_receive_port = 12345; // settings.value("osc_receive_port", 12345).toInt();
+  recentFiles = settings.value("recentFiles").toStringList();
+  updateRecentFileActions();
 }
 
 void MainWindow::writeSettings()
@@ -1380,6 +1406,7 @@ void MainWindow::writeSettings()
   settings.setValue("displayOutputWindow", displayOutputWindow->isChecked());
   settings.setValue("outputWindowFullScreen", outputWindowFullScreen->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
+  settings.setValue("recentFiles", recentFiles);
 }
 
 bool MainWindow::okToContinue()
@@ -1468,9 +1495,36 @@ void MainWindow::setCurrentFile(const QString &fileName)
   if (!curFile.isEmpty())
   {
     shownName = strippedName(curFile);
+    recentFiles.removeAll(curFile);
+    recentFiles.prepend(curFile);
+    updateRecentFileActions();
   }
 
   setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("MapMap Project")));
+
+}
+
+void MainWindow::updateRecentFileActions()
+{
+    QMutableStringListIterator i(recentFiles);
+    while (i.hasNext()) {
+        if (!QFile::exists(i.next()))
+            i.remove();
+    }
+
+    for (int j = 0; j < MaxRecentFiles; ++j) {
+        if (j < recentFiles.count()) {
+            QString text = tr("&%1 %2")
+                           .arg(j + 1)
+                           .arg(strippedName(recentFiles[j]));
+            recentFileActions[j]->setText(text);
+            recentFileActions[j]->setData(recentFiles[j]);
+            recentFileActions[j]->setVisible(true);
+        } else {
+            recentFileActions[j]->setVisible(true);
+        }
+    }
+    separatorAction->setVisible(!recentFiles.isEmpty());
 }
 
 // TODO
