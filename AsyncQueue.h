@@ -30,6 +30,9 @@
  * used in classical producers/consumers multithreaded scenario.  The
  * template parameter is the class which can be put/get to/from the
  * queue.
+ *
+ * We could probably use GAsyncQueue instead.
+ * See also https://github.com/aalex/toonloop/blob/master/src/concurrentqueue.h
  */
 template<class T>
 class AsyncQueue
@@ -43,6 +46,10 @@ public:
         return this->buffer.size();
     }
 
+    /**
+     * Appends an element to the queue.
+     * Does not manage ref/unref copy/free memory.
+     */
     void put(const T& item)
     {
         QMutexLocker locker(&mutex);

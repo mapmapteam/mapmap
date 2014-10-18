@@ -109,9 +109,13 @@ bool MediaImpl::_videoPull()
       // For debugging:
       //gst_util_dump_mem(map.data, map.size)
       _data = map.data;
+      // release memory previously mapped with gst_buffer_map
       gst_buffer_unmap(buffer, &map); 
-      if(this->_frame != NULL)
+      if (this->_frame != NULL)
+      {
+        // queue this frame to async queue
         _queueOutputBuffer.put(this->_frame);
+      }
       _frame = sample;
     } 
 
@@ -123,9 +127,9 @@ bool MediaImpl::_eos() const
 {
   if (_movieReady)
   {
-    Q_ASSERT( _videoSink );
+    Q_ASSERT( _appsink0 );
     gboolean videoEos;
-    g_object_get (G_OBJECT (_videoSink), "eos", &videoEos, NULL);
+    g_object_get (G_OBJECT (_appsink0), "eos", &videoEos, NULL);
     return (bool) (videoEos);
   }
   else
@@ -135,11 +139,17 @@ bool MediaImpl::_eos() const
 GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
 {
   GstSample *sample;
-  sample = gst_app_sink_pull_sample(GST_APP_SINK(p->_videoSink));
-  //g_signal_emit_by_name (p->_videoSink, "pull-sample", &sample);
+  sample = gst_app_sink_pull_sample(GST_APP_SINK(p->_appsink0));
+  //g_signal_emit_by_name (p->_appsink0, "pull-sample", &sample);
+
+  // save last frame
   p->getQueueInputBuffer()->put(sample);
-  if (p->getQueueOutputBuffer()->size() > 1) {
+
+  // we only keep the last one:
+  if (p->getQueueOutputBuffer()->size() > 1)
+  {
     sample = p->getQueueOutputBuffer()->get();
+    // We free the memory for the previous frame here
     gst_sample_unref(sample);
   }
   return GST_FLOW_OK;
@@ -149,24 +159,25 @@ MediaImpl::MediaImpl(const QString uri, bool live) :
 _currentMovie(""),
 _bus(NULL),
 _pipeline(NULL),
-_source(NULL),
-_videoQueue(NULL),
-_videoConvert(NULL),
-_videoColorSpace(NULL),
-_audioSink(NULL),
-_videoSink(NULL),
+_uridecodebin0(NULL),
+_queue0(NULL),
+_videoconvert0(NULL),
+//_audioSink(NULL),
+_appsink0(NULL),
 _frame(NULL),
-_width(640),
-_height(480),
+_width(640), // unused
+_height(480), // unused
 _data(NULL),
 _seekEnabled(false),
-_live(live),
+_isSharedMemorySource(live),
 _attached(false),
 _movieReady(false),
 _uri(uri)
 {
   if (uri != "")
+  {
     loadMovie(uri);
+  }
 }
 
 void MediaImpl::unloadMovie()
@@ -198,12 +209,11 @@ void MediaImpl::freeResources()
     _pipeline = NULL;
   }
 
-  _source = NULL;
-  _videoQueue = NULL;
-  _videoConvert = NULL;
-  _videoColorSpace = NULL;
-  _audioSink = NULL;
-  _videoSink = NULL;
+  _uridecodebin0 = NULL;
+  _queue0 = NULL;
+  _videoconvert0 = NULL;
+  //_audioSink = NULL;
+  _appsink0 = NULL;
   _frame = NULL;
   _padHandlerData = GstPadHandlerData();
 }
@@ -233,8 +243,11 @@ gboolean
 gstPollShmsrc (void *user_data)
 {
   MediaImpl *p = (MediaImpl*) user_data;
-  if (g_file_test(p->getUri().toUtf8().constData() , G_FILE_TEST_EXISTS) && !p->getAttached()) {
-    if (!p->setPlayState(true)) {
+  if (g_file_test(p->getUri().toUtf8().constData(), G_FILE_TEST_EXISTS) &&
+    ! p->getAttached())
+  {
+    if (! p->setPlayState(true))
+    {
       qDebug() << "tried to attach, but starting pipeline failed!" << endl;
       return false;
     }
@@ -262,49 +275,103 @@ bool MediaImpl::loadMovie(QString filename)
 
   // Initialize GStreamer.
   gst_init (NULL, NULL);
-  GstElement *capsFilter = NULL;
-  GstElement *videoScale = NULL;
+  GstElement *capsfilter0 = NULL;
+  GstElement *videoscale0 = NULL;
 
   // Create the elements.
-  _source =          gst_element_factory_make ("uridecodebin", "source");
-  _videoQueue =      gst_element_factory_make ("queue", "vqueue");
-  _videoColorSpace = gst_element_factory_make ("videoconvert", "vcolorspace");
-  videoScale = gst_element_factory_make ("videoscale", "videoscale0");
-  capsFilter = gst_element_factory_make ("capsfilter", "capsfilter0");
-  _videoSink =       gst_element_factory_make ("appsink", "vsink");
+  if (_isSharedMemorySource)
+  {
+    _shmsrc0 = gst_element_factory_make ("shmsrc", "shmsrc0");
+    _gdpdepay0 = gst_element_factory_make ("gdpdepay", "gdpdepay0");
+    _pollSource = g_timeout_source_new (500);
+    g_source_set_callback (_pollSource, 
+        gstPollShmsrc, 
+        this, 
+        NULL);
+    g_source_attach (_pollSource, g_main_context_default());
+    g_source_unref (_pollSource);
+  }
+  else {
+    _uridecodebin0 = gst_element_factory_make ("uridecodebin", "uridecodebin0");
+  }
+  _queue0 = gst_element_factory_make ("queue", "queue0");
+  _videoconvert0 = gst_element_factory_make ("videoconvert", "videoconvert0");
+  videoscale0 = gst_element_factory_make ("videoscale", "videoscale0");
+  capsfilter0 = gst_element_factory_make ("capsfilter", "capsfilter0");
+  _appsink0 = gst_element_factory_make ("appsink", "appsink0");
 
   // Prepare handler data.
-  _padHandlerData.videoToConnect   = _videoQueue;
-  _padHandlerData.videoSink        = _videoSink;
+  _padHandlerData.videoToConnect = _queue0;
+  _padHandlerData.videoSink = _appsink0;
   _padHandlerData.videoIsConnected = false;
 
   // Create the empty pipeline.
   _pipeline = gst_pipeline_new ( "video-source-pipeline" );
 
-  if (!_pipeline || !_source ||
-      !_videoQueue || !_videoColorSpace || ! videoScale || ! capsFilter || ! _videoSink)
+  if (!_pipeline ||
+      !_queue0 || !_videoconvert0 || ! videoscale0 || ! capsfilter0 || ! _appsink0)
   {
     g_printerr ("Not all elements could be created.\n");
+
+    if (! _pipeline) g_printerr("_pipeline");
+    if (! _queue0) g_printerr("_queue0");
+    if (! _videoconvert0) g_printerr("_videoconvert0");
+    if (! videoscale0) g_printerr("videoscale0");
+    if (! capsfilter0) g_printerr("capsfilter0");
+    if (! _appsink0) g_printerr("_appsink0");
+
     unloadMovie();
     return -1;
+  }
+  
+  if (_isSharedMemorySource)
+  {
+    if (! _shmsrc0 || ! _gdpdepay0)
+    {
+      g_printerr ("Not all elements could be created.\n");
+      if (! _shmsrc0) g_printerr("_shmsrc0");
+      if (! _gdpdepay0) g_printerr("_gdpdepay0");
+      unloadMovie();
+      return -1;
+    }
+  }
+  else
+  {
+    if (! _uridecodebin0)
+    {
+      g_printerr ("Not all elements could be created.\n");
+      if (! _uridecodebin0) g_printerr("_uridecodebin0");
+      unloadMovie();
+      return -1;
+    }
   }
 
   // Build the pipeline. Note that we are NOT linking the source at this
   // point. We will do it later.
-  gst_bin_add_many (GST_BIN (_pipeline), _source,
-                    _videoQueue, _videoColorSpace, videoScale, capsFilter, _videoSink, NULL);
+  gst_bin_add_many (GST_BIN (_pipeline),
+    _uridecodebin0, _queue0, _videoconvert0,
+    videoscale0, capsfilter0, _appsink0, NULL);
 
-  if (_live) {
-    gst_bin_add (GST_BIN(_pipeline), _deserializer);
-    if (!gst_element_link_many (_source, _deserializer, _videoQueue, NULL)) {
-      g_printerr ("Video elements could not be linked.\n");
+  // special case for shmsrc
+  if (_isSharedMemorySource)
+  {
+    gst_bin_add (GST_BIN(_pipeline), _gdpdepay0);
+    if (! gst_element_link_many (_uridecodebin0, _gdpdepay0, _queue0, NULL))
+    {
+      g_printerr ("Could not link shmsrc, deserializer and video queue.\n");
     }
   }
-  else if (!gst_element_link (_source, _videoQueue)) 
-      g_printerr ("Video elements could not be linked.\n");
+  else
+  {
+    if (! gst_element_link (_uridecodebin0, _queue0)) 
+    {
+      g_printerr ("Could not link uridecodebin to video queue.\n");
+    }
+  }
 
-  if (!gst_element_link_many (_videoQueue, _videoColorSpace, capsFilter, videoScale, _videoSink, NULL)) {
-    g_printerr ("Video elements could not be linked.\n");
+  if (! gst_element_link_many (_queue0, _videoconvert0, capsfilter0, videoscale0, _appsink0, NULL))
+  {
+    g_printerr ("Could not link video queue, colorspace converter, caps filter, scaler and app sink.\n");
     unloadMovie();
     return false;
   }
@@ -312,12 +379,13 @@ bool MediaImpl::loadMovie(QString filename)
   // Process URI.
   QByteArray ba = filename.toLocal8Bit();
   gchar* uri = (gchar*) filename.toUtf8().constData();
-  if (!_live && !gst_uri_is_valid(uri))
+  if (! _isSharedMemorySource && ! gst_uri_is_valid(uri))
   {
     // Try to convert filename to URI.
     GError* error = NULL;
     uri = gst_filename_to_uri(uri, &error);
-    if (error) {
+    if (error)
+    {
       qDebug() << "Filename to URI error: " << error->message;
       g_error_free(error);
       gst_object_unref (uri);
@@ -326,23 +394,26 @@ bool MediaImpl::loadMovie(QString filename)
     }
   }
 
-  if (_live)
+  if (_isSharedMemorySource)
+  {
     uri =  (gchar*) ba.data();
+  }
 
   // Set URI to be played.
   qDebug() << "URI for uridecodebin: " << uri;
   // FIXME: sometimes it's just the path to the directory that is given, not the file itself.
 
-
   // Connect to the pad-added signal
-  if (!_live) {
-    g_object_set (_source, "uri", uri, NULL);
-    g_signal_connect (_source, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
+  if (! _isSharedMemorySource)
+  {
+    g_object_set (_uridecodebin0, "uri", uri, NULL);
+    g_signal_connect (_uridecodebin0, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
   }
-  else {
+  else
+  {
     //qDebug() << "LIVE mode" << uri;
-    g_object_set (_source, "socket-path", uri, NULL);
-    g_object_set (_source, "is-live", TRUE, NULL);
+    g_object_set (_uridecodebin0, "socket-path", uri, NULL);
+    g_object_set (_uridecodebin0, "is-live", TRUE, NULL);
     _padHandlerData.videoIsConnected = true;
   }
 
@@ -362,21 +433,23 @@ bool MediaImpl::loadMovie(QString filename)
 
   // Configure video appsink.
   GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA");
-  g_object_set (capsFilter, "caps", videoCaps, NULL);
-  g_object_set (_videoSink, "emit-signals", TRUE,
+  g_object_set (capsfilter0, "caps", videoCaps, NULL);
+  g_object_set (_appsink0, "emit-signals", TRUE,
                             "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
                             "drop", TRUE,         // ... other buffers are dropped
                             "sync", TRUE,
                             NULL);
-  g_signal_connect (_videoSink, "new-sample", G_CALLBACK (MediaImpl::gstNewSampleCallback), this);
+  g_signal_connect (_appsink0, "new-sample", G_CALLBACK (MediaImpl::gstNewSampleCallback), this);
   gst_caps_unref (videoCaps);
 
   // Listen to the bus.
   _bus = gst_element_get_bus (_pipeline);
 
   // Start playing.
-  if (!_live && !setPlayState(true))
+  if (! _isSharedMemorySource && ! setPlayState(true))
+  {
     return false;
+  }
 
   qDebug() << "Pipeline started.";
 
@@ -384,19 +457,23 @@ bool MediaImpl::loadMovie(QString filename)
   return true;
 }
 
-bool MediaImpl::runVideo() {
-
-  if (!_preRun())
+bool MediaImpl::runVideo()
+{
+  if (! _preRun())
+  {
     return false;
+  }
 
   bool bitsChanged = false;
 
   // Check if we have some frames in the input buffer.
-  if (_queueInputBuffer.size() > 0) {
-
+  if (_queueInputBuffer.size() > 0)
+  {
     // Pull video.
     if (_videoPull())
+    {
       bitsChanged = true;
+    }
 
     //std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
   }
@@ -409,17 +486,20 @@ bool MediaImpl::runVideo() {
  * textures will appear to be flickering/alternating. Maybe a better solution is
  * needed (in the GL layer or here?)*/
   else
-      bitsChanged = true;
+  {
+    bitsChanged = true;
+  }
 
   _postRun();
-
   return bitsChanged;
 }
 
 bool MediaImpl::setPlayState(bool play)
 {
   if (_pipeline == NULL)
+  {
     return false;
+  }
 
   GstStateChangeReturn ret = gst_element_set_state (_pipeline, (play ? GST_STATE_PLAYING : GST_STATE_PAUSED));
   if (ret == GST_STATE_CHANGE_FAILURE)
@@ -431,7 +511,6 @@ bool MediaImpl::setPlayState(bool play)
   else
   {
     _setReady(play);
-
     return true;
   }
 }
@@ -445,11 +524,14 @@ bool MediaImpl::_preRun()
     resetMovie();
   }
   else
+  {
     _setFinished(false);
+  }
   if (!_movieReady ||
       !_padHandlerData.videoIsConnected)
+  {
     return false;
-
+  }
   return true;
 }
 
@@ -459,15 +541,16 @@ void MediaImpl::_postRun()
   if (_bus != NULL)
   {
     GstMessage *msg = gst_bus_timed_pop_filtered(
-                        _bus, 0,
-                        (GstMessageType) (GST_MESSAGE_STATE_CHANGED | GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
+      _bus, 0,
+      (GstMessageType) (GST_MESSAGE_STATE_CHANGED | GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
 
-    if (msg != NULL) {
+    if (msg != NULL)
+    {
       GError *err;
       gchar *debug_info;
 
-      switch (GST_MESSAGE_TYPE (msg)) {
-
+      switch (GST_MESSAGE_TYPE (msg))
+      {
       case GST_MESSAGE_ERROR:
         gst_message_parse_error(msg, &err, &debug_info);
         g_printerr("Error received from element %s: %s\n",
@@ -477,9 +560,12 @@ void MediaImpl::_postRun()
         g_clear_error(&err);
         g_free(debug_info);
 
-        if (!_live)
+        if (!_isSharedMemorySource)
+        {
           _terminate = true;
-        else {
+        }
+        else
+        {
           _attached = false;
           gst_element_set_state (_pipeline, GST_STATE_PAUSED);
           gst_element_set_state (_pipeline, GST_STATE_NULL);
@@ -552,12 +638,17 @@ void MediaImpl::_setReady(bool ready)
   _movieReady = ready;
 }
 
-void MediaImpl::_setFinished(bool finished) {
+void MediaImpl::_setFinished(bool finished)
+{
   Q_UNUSED(finished);
   //  qDebug() << "Clip " << (finished ? "finished" : "not finished");
 }
 
-void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data) {
+/**
+ * FIXME: remove GOTO
+ */
+void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data)
+{
   g_print ("Received new pad '%s' from '%s':\n", GST_PAD_NAME (newPad), GST_ELEMENT_NAME (src));
   GstPad *sinkPad = NULL;
 
@@ -598,7 +689,8 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
   }
 
   // Attempt the link
-  if (GST_PAD_LINK_FAILED (gst_pad_link (newPad, sinkPad))) {
+  if (GST_PAD_LINK_FAILED (gst_pad_link (newPad, sinkPad)))
+  {
     g_print ("  Type is '%s' but link failed.\n", newPadType);
     goto exit;
   } else {
@@ -609,9 +701,13 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
 exit:
   // Unreference the new pad's caps, if we got them.
   if (newPadCaps != NULL)
+  {
     gst_caps_unref (newPadCaps);
+  }
 
   // Unreference the sink pad.
   if (sinkPad != NULL)
+  {
     gst_object_unref (sinkPad);
+  }
 }

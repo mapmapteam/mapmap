@@ -123,16 +123,16 @@ private:
   // gstreamer
   GstBus *_bus;
   GstElement *_pipeline;
-  GstElement *_source;
-  GstElement *_deserializer;
-  GstElement *_audioQueue;
-  GstElement *_audioConvert;
-  GstElement *_audioResample;
-  GstElement *_videoQueue;
-  GstElement *_videoConvert;
-  GstElement *_videoColorSpace;
-  GstElement *_audioSink;
-  GstElement *_videoSink;
+  GstElement *_uridecodebin0;
+  GstElement *_shmsrc0;
+  GstElement *_gdpdepay0;
+  //GstElement *_audioQueue;
+  //GstElement *_audioConvert;
+  //GstElement *_audioResample;
+  GstElement *_queue0;
+  GstElement *_videoconvert0;
+  //GstElement *_audioSink;
+  GstElement *_appsink0;
   GstSample  *_frame;
   GSource *_pollSource;
 
@@ -143,7 +143,7 @@ private:
   uchar *_data;
 
   bool _seekEnabled;
-  bool _live;
+  bool _isSharedMemorySource;
   bool _attached;
 
   int _audioNewBufferCounter;
