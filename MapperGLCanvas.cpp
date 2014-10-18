@@ -30,8 +30,21 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
     _shapeGrabbed(false), // comment out?
     _shapeFirstGrab(false), // comment out?
     _displayControls(true),
-    _stickyVertices(true)
+    _stickyVertices(true),
+    _zoomFactor(8)
 {
+}
+
+void MapperGLCanvas::setZoomFactor(int zoom)
+{
+  qDebug() << zoom << endl;
+  if (zoom < 1)
+    zoom = 1; // the closest we can get is 1:1
+  if (zoom != _zoomFactor) {
+    _zoomFactor = zoom;
+    update();
+    updateGeometry();
+  }
 }
 
 void MapperGLCanvas::initializeGL()
@@ -45,10 +58,11 @@ void MapperGLCanvas::initializeGL()
 
 void MapperGLCanvas::resizeGL(int width, int height)
 {
+  qDebug() << "Resize: " << width << " " << height << " at zoom " << _zoomFactor << endl;
   glViewport(0, 0, width, height);
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
-  glOrtho (
+  glOrtho(
     0.0f, (GLfloat) width, // left, right
     (GLfloat) height, 0.0f, // bottom, top
     -1.0, 1.0f);
@@ -220,11 +234,13 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 
 void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 {
-  Q_UNUSED(event);
-//  std::cout << "Key pressed" << std::endl;
+  qDebug() << "Key pressed" << endl;
 //  int xMove = 0;
 //  int yMove = 0;
-//  switch (event->key()) {
+  switch (event->key()) {
+  case Qt::Key_Equal: setZoomFactor(zoomFactor()+1); break;
+  case Qt::Key_Minus: setZoomFactor(zoomFactor()-1); break;
+  }
 //  case Qt::Key_Tab:
 //    if (event->modifiers() & Qt::ControlModifier)
 //      switchImage( (Common::getCurrentSourceId() + 1) % Common::nImages());

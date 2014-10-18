@@ -37,6 +37,7 @@ class MainWindow;
 class MapperGLCanvas: public QGLWidget
 {
   Q_OBJECT
+  Q_PROPERTY(int zoomFactor READ zoomFactor WRITE setZoomFactor);
 
 public:
   MapperGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0);
@@ -53,6 +54,9 @@ public:
   MainWindow* getMainWindow() const { return _mainWindow; }
   bool displayControls() const { return _displayControls; }
   bool stickyVertices() const { return _stickyVertices; }
+
+  void setZoomFactor(int zoom);
+  int zoomFactor() const { return _zoomFactor; }
 
 protected:
   void initializeGL();
@@ -78,6 +82,7 @@ private:
   bool _shapeFirstGrab;
   bool _displayControls;
   bool _stickyVertices;
+  int _zoomFactor;
 
 signals:
   void shapeChanged(Shape*);
