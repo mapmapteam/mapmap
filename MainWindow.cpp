@@ -94,13 +94,12 @@ void MainWindow::handlePaintItemSelectionChanged()
   if (paintItemSelected)
   {
     // Set current paint.
-    uid idx = getItemId(*item);
-    if (currentPaintId != idx) {
-      setCurrentPaint(idx);
-      // Unselect current mapping.
+    uid paintId = getItemId(*item);
+    // Unselect current mapping.
+    if (currentPaintId != paintId)
       removeCurrentMapping();
-      mappingList->clearSelection();
-    }
+    // Set current paint.
+    setCurrentPaint(paintId);
   }
   else
     removeCurrentPaint();
@@ -126,11 +125,11 @@ void MainWindow::handleMappingItemSelectionChanged()
       currentSelectedItem = item;
 
       // Set current paint and mappings.
-      Mapping::ptr mapping = mappingManager->getMappingById(idm);
+      uid mappingId = getItemId(*item);
+      Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
       uid paintId = mapping->getPaint()->getId();
+      setCurrentMapping(mappingId);
       setCurrentPaint(paintId);
-
-      setCurrentMapping(mapping->getId());
     }
 
 
@@ -166,6 +165,7 @@ void MainWindow::handleMappingIndexesMoved()
 
 void MainWindow::handleItemSelected(QListWidgetItem* item)
 {
+  Q_UNUSED(item);
   // Change currently selected item.
   //currentSelectedItem = item;
 }
@@ -1920,11 +1920,13 @@ void MainWindow::setCurrentMapping(int uid)
 void MainWindow::removeCurrentPaint() {
   _hasCurrentPaint = false;
   currentPaintId = NULL_UID;
+  paintList->clearSelection();
 }
 
 void MainWindow::removeCurrentMapping() {
   _hasCurrentMapping = false;
   currentMappingId = NULL_UID;
+  mappingList->clearSelection();
 }
 
 void MainWindow::startOscReceiver()
