@@ -98,42 +98,7 @@ bool MediaImpl::_videoPull()
     // Either means we are not playing or we have reached EOS.
     return false;
   }
-  else
-  {
-    // Pull current frame buffer.
-    GstBuffer *buffer = gst_sample_get_buffer(sample);
-
-    // for live sources, video dimensions have not been set, because
-    // gstPadAddedCallback is never called. Fix dimensions from first sample /
-    // caps we receive
-    if (_isSharedMemorySource && ( _padHandlerData.width == -1 ||
-          _padHandlerData.height == -1)) {
-      GstCaps *caps = gst_sample_get_caps(sample);
-      GstStructure *structure;
-      structure = gst_caps_get_structure(caps, 0);
-      gst_structure_get_int(structure, "width",  &_padHandlerData.width);
-      gst_structure_get_int(structure, "height", &_padHandlerData.height);
-      // g_print("Size is %u x %u\n", _padHandlerData.width, _padHandlerData.height);
-    }
-
-    GstMapInfo map; 
-    if (gst_buffer_map(buffer, &map, GST_MAP_READ))
-    { 
-      // For debugging:
-      //gst_util_dump_mem(map.data, map.size)
-      _data = map.data;
-      // release memory previously mapped with gst_buffer_map
-      gst_buffer_unmap(buffer, &map); 
-      if (this->_frame != NULL)
-      {
-        // queue this frame to async queue
-        _queueOutputBuffer.put(this->_frame);
-      }
-      _frame = sample;
-    } 
-
-    return true;
-  }
+  else return true;
 }
 
 bool MediaImpl::_eos() const
@@ -152,11 +117,41 @@ bool MediaImpl::_eos() const
 GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
 {
   GstSample *sample;
+  GstMapInfo map; 
   sample = gst_app_sink_pull_sample(GST_APP_SINK(p->_appsink0));
   //g_signal_emit_by_name (p->_appsink0, "pull-sample", &sample);
 
   // save last frame
   p->getQueueInputBuffer()->put(sample);
+  GstBuffer *buffer = gst_sample_get_buffer(sample);
+
+  // for live sources, video dimensions have not been set, because
+  // gstPadAddedCallback is never called. Fix dimensions from first sample /
+  // caps we receive
+  if (p->_isSharedMemorySource && ( p->_padHandlerData.width == -1 ||
+        p->_padHandlerData.height == -1)) {
+    GstCaps *caps = gst_sample_get_caps(sample);
+    GstStructure *structure;
+    structure = gst_caps_get_structure(caps, 0);
+    gst_structure_get_int(structure, "width",  &p->_padHandlerData.width);
+    gst_structure_get_int(structure, "height", &p->_padHandlerData.height);
+    // g_print("Size is %u x %u\n", _padHandlerData.width, _padHandlerData.height);
+  }
+
+  if (gst_buffer_map(buffer, &map, GST_MAP_READ))
+  { 
+    // For debugging:
+    //gst_util_dump_mem(map.data, map.size)
+    p->_data = map.data;
+    // release memory previously mapped with gst_buffer_map
+    gst_buffer_unmap(buffer, &map); 
+    if (p->_frame != NULL)
+    {
+      // queue this frame to async queue
+      p->getQueueOutputBuffer()->put(p->_frame);
+    }
+    p->_frame = sample;
+  } 
 
   // we only keep the last one:
   if (p->getQueueOutputBuffer()->size() > 1)
