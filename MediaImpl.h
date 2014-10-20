@@ -156,6 +156,8 @@ private:
 private:
   QString _uri;
 
+  static const int MAX_SAMPLES_IN_BUFFER_QUEUES = 30;
+
 };
 
 #endif /* ifndef */

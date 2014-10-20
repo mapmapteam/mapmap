@@ -116,14 +116,18 @@ bool MediaImpl::_eos() const
 
 GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
 {
-  GstSample *sample;
-  GstMapInfo map; 
-  sample = gst_app_sink_pull_sample(GST_APP_SINK(p->_appsink0));
-  //g_signal_emit_by_name (p->_appsink0, "pull-sample", &sample);
 
-  // save last frame
+  // get next frame
+  GstSample *sample = gst_app_sink_pull_sample(GST_APP_SINK(p->_appsink0));
+
+  // save frame to input buffer queue
   p->getQueueInputBuffer()->put(sample);
-  GstBuffer *buffer = gst_sample_get_buffer(sample);
+
+  // keep input queue to a reasonable size
+  // the input buffer never releases memory: it is the output queue that releases it.
+  while (p->getQueueInputBuffer()->size() > MAX_SAMPLES_IN_BUFFER_QUEUES) {
+    p->getQueueInputBuffer()->get(); // just remove it from queue
+  }
 
   // for live sources, video dimensions have not been set, because
   // gstPadAddedCallback is never called. Fix dimensions from first sample /
@@ -138,23 +142,28 @@ GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
     // g_print("Size is %u x %u\n", _padHandlerData.width, _padHandlerData.height);
   }
 
+  GstMapInfo map;
+  GstBuffer *buffer = gst_sample_get_buffer(sample);
   if (gst_buffer_map(buffer, &map, GST_MAP_READ))
   { 
     // For debugging:
     //gst_util_dump_mem(map.data, map.size)
+    // retrieve data from map info
     p->_data = map.data;
     // release memory previously mapped with gst_buffer_map
-    gst_buffer_unmap(buffer, &map); 
+    gst_buffer_unmap(buffer, &map);
+
+    // queue previous frame to async queue
     if (p->_frame != NULL)
     {
-      // queue this frame to async queue
       p->getQueueOutputBuffer()->put(p->_frame);
     }
+    // set current frame
     p->_frame = sample;
-  } 
+  }
 
-  // we only keep the last one:
-  if (p->getQueueOutputBuffer()->size() > 1)
+  // keep only the last few output frames.
+  while (p->getQueueOutputBuffer()->size() > MAX_SAMPLES_IN_BUFFER_QUEUES)
   {
     sample = p->getQueueOutputBuffer()->get();
     // We free the memory for the previous frame here
@@ -215,6 +224,21 @@ void MediaImpl::freeResources()
     gst_element_set_state (_pipeline, GST_STATE_NULL);
     gst_object_unref (_pipeline);
     _pipeline = NULL;
+  }
+
+  qDebug() << "Freeing async queue" << endl;
+  // Clear remaining samples in queue.
+  while (getQueueOutputBuffer()->size() > 0)
+  {
+    GstSample *sample = getQueueOutputBuffer()->get();
+    // We free the memory for the previous frame here
+    gst_sample_unref(sample);
+  }
+
+  // Also free last frame.
+  if (_frame) {
+    gst_sample_unref(_frame);
+    _frame = NULL;
   }
 
   _uridecodebin0 = NULL;
