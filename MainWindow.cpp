@@ -562,24 +562,34 @@ void MainWindow::updateStatusBar()
 //  formulaLabel->setText(spreadsheet->currentFormula());
 }
 
+/**
+ * Called when the user wants to delete an item.
+ * 
+ * Deletes either a Paint or a Mapping.
+ */
 void MainWindow::deleteItem()
 {
+  bool isMappingTabSelected = (mappingSplitter == contentTab->currentWidget());
+  bool isPaintTabSelected = (paintSplitter == contentTab->currentWidget());
+
   if (currentSelectedItem)
   {
-    if (currentSelectedItem->listWidget() == mappingList)
+    if (isMappingTabSelected) //currentSelectedItem->listWidget() == mappingList)
     {
       // Delete mapping.
       deleteMapping( getItemId(*mappingList->currentItem()) );
       //currentSelectedItem = NULL;
     }
-    else if (currentSelectedItem->listWidget() == paintList)
+    else if (isPaintTabSelected) //currentSelectedItem->listWidget() == paintList)
     {
       // Delete paint.
       deletePaint( getItemId(*paintList->currentItem()), false );
       //currentSelectedItem = NULL;
     }
     else
+    {
       qCritical() << "Selected item neither a mapping nor a paint." << endl;
+    }
   }
 }
 
