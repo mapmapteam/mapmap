@@ -24,6 +24,7 @@
 #include <gst/gst.h>
 #include <QApplication>
 #include <QDebug>
+#include "MM.h"
 
 class MainApplication : public QApplication
 {

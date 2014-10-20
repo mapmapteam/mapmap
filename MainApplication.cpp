@@ -25,6 +25,12 @@ MainApplication::MainApplication(int &argc, char *argv[])
 {
   // Initialize GStreamer.
   gst_init (NULL, NULL);
+
+  // Set application information.
+  setApplicationName(MM::APPLICATION_NAME);
+  setApplicationVersion(MM::VERSION);
+  setOrganizationName(MM::ORGANIZATION_NAME);
+  setOrganizationDomain(MM::ORGANIZATION_DOMAIN);
 }
 
 MainApplication::~MainApplication()
