@@ -103,6 +103,19 @@ bool MediaImpl::_videoPull()
     // Pull current frame buffer.
     GstBuffer *buffer = gst_sample_get_buffer(sample);
 
+    // for live sources, video dimensions have not been set, because
+    // gstPadAddedCallback is never called. Fix dimensions from first sample /
+    // caps we receive
+    if (_isSharedMemorySource && ( _padHandlerData.width == -1 ||
+          _padHandlerData.height == -1)) {
+      GstCaps *caps = gst_sample_get_caps(sample);
+      GstStructure *structure;
+      structure = gst_caps_get_structure(caps, 0);
+      gst_structure_get_int(structure, "width",  &_padHandlerData.width);
+      gst_structure_get_int(structure, "height", &_padHandlerData.height);
+      // g_print("Size is %u x %u\n", _padHandlerData.width, _padHandlerData.height);
+    }
+
     GstMapInfo map; 
     if (gst_buffer_map(buffer, &map, GST_MAP_READ))
     { 
@@ -347,14 +360,14 @@ bool MediaImpl::loadMovie(QString filename)
   // Build the pipeline. Note that we are NOT linking the source at this
   // point. We will do it later.
   gst_bin_add_many (GST_BIN (_pipeline),
-    _uridecodebin0, _queue0, _videoconvert0,
-    videoscale0, capsfilter0, _appsink0, NULL);
+    _isSharedMemorySource ? _shmsrc0 : _uridecodebin0, _queue0,
+    _videoconvert0, videoscale0, capsfilter0, _appsink0, NULL);
 
   // special case for shmsrc
   if (_isSharedMemorySource)
   {
     gst_bin_add (GST_BIN(_pipeline), _gdpdepay0);
-    if (! gst_element_link_many (_uridecodebin0, _gdpdepay0, _queue0, NULL))
+    if (! gst_element_link_many (_shmsrc0, _gdpdepay0, _queue0, NULL))
     {
       g_printerr ("Could not link shmsrc, deserializer and video queue.\n");
     }
@@ -410,8 +423,8 @@ bool MediaImpl::loadMovie(QString filename)
   else
   {
     //qDebug() << "LIVE mode" << uri;
-    g_object_set (_uridecodebin0, "socket-path", uri, NULL);
-    g_object_set (_uridecodebin0, "is-live", TRUE, NULL);
+    g_object_set (_shmsrc0, "socket-path", uri, NULL);
+    g_object_set (_shmsrc0, "is-live", TRUE, NULL);
     _padHandlerData.videoIsConnected = true;
   }
 
@@ -448,7 +461,6 @@ bool MediaImpl::loadMovie(QString filename)
   {
     return false;
   }
-
   qDebug() << "Pipeline started.";
 
   //_movieReady = true;
