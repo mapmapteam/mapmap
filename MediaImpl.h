@@ -46,25 +46,75 @@
 class MediaImpl
 {
 public:
+  /**
+   * Constructor.
+   * This media player works for both video files and shared memory sockets.
+   * If live is true, it's a shared memory socket.
+   */
   MediaImpl(const QString uri, bool live);
   ~MediaImpl();
 
 //  void setUri(const QString uri);
+  /**
+   * Returns whether or not GStreamer video support is ok.
+   */
   static bool hasVideoSupport();
+  /**
+   * Sets up the player.
+   * Basically calls loadMovie().
+   */
   void build();
+  /**
+   * Returns the width of the video image.
+   */
   int getWidth() const;
+  /**
+   * Returns the height of the video image.
+   */
   int getHeight() const;
+  /**
+   * Returns the path to the media file being played.
+   */
   QString getUri() const;
+  /**
+   * When using the shared memory source, returns whether or not we
+   * are attached to a shared memory socket.
+   */
   bool getAttached();
+  /**
+   * Returns the raw image of the last video frame.
+   * It is currently unused!
+   */
   const uchar* getBits() const;
 
+  /**
+   * Checks if the pipeline is ready.
+   *
+   * Returns whether or not the elements in the pipeline are connected,
+   * and if we are using shmsrc, if the shared memory socket is being read.
+   */
   bool isReady() const { return _padHandlerData.videoIsConnected; }
 
-  /// Returns true if the image has changed.
+  /**
+   * Tries to pull a video frame from the queue. 
+   *
+   * Returns true if the image has changed.
+   */
   bool runVideo();
-//  void runAudio();
+
+  // void runAudio();
+
+  /**
+   * Loads a new movie file.
+   * 
+   * Creates a new GStreamer pipeline, opens a movie or a shmsrc socket.
+   */
   bool loadMovie(QString filename);
   bool setPlayState(bool play);
+  /**
+   * Tells the MediaImpl that we are actually reading from a shmsrc.
+   * Called from the GStreamer callback of the shmsrc.
+   */
   void setAttached(bool attach);
 
   void resetMovie();
@@ -74,10 +124,21 @@ protected:
   void freeResources();
 
 private:
+  /**
+   * Tries to pull a video frame from the asynchronous input buffer.
+   *
+   * Pushes the frame into the asynchronous output buffer.
+   */
   bool _videoPull();
+  /**
+   * Checks if we reached the end of the video file.
+   *
+   * Returns false if the pipeline is not ready yet.
+   */
   bool _eos() const;
-//  void _finish();
-//  void _init();
+
+  // void _finish();
+  // void _init();
 
   bool _preRun();
   void _postRun();
@@ -108,6 +169,7 @@ public:
   // GStreamer callback that plugs the audio/video pads into the proper elements when they
   // are made available by the source.
   static void gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data);
+
   AsyncQueue<GstSample*> *getQueueInputBuffer() {
     return &this->_queueInputBuffer;
   }
@@ -118,9 +180,12 @@ public:
 
 private:
   //locals
+  /**
+   * Path of the movie being played.
+   */
   QString _currentMovie;
 
-  // gstreamer
+  // gstreamer elements
   GstBus *_bus;
   GstElement *_pipeline;
   GstElement *_uridecodebin0;
@@ -133,29 +198,57 @@ private:
   GstElement *_videoconvert0;
   //GstElement *_audioSink;
   GstElement *_appsink0;
+  /**
+   * Temporary contains the image data of the last frame.
+   */
   GstSample  *_frame;
+  /**
+   * shmsrc socket poller.
+   */
   GSource *_pollSource;
 
   GstPadHandlerData _padHandlerData;
 
+  // unused
   int _width;
+  // unused
   int _height;
+
+  /**
+   * Raw image data of the last video frame.
+   */
   uchar *_data;
 
   bool _seekEnabled;
+  /**
+   * Whether or not we are reading video from a shmsrc.
+   */
   bool _isSharedMemorySource;
+  /**
+   * Whether or not we are attached to a shmsrc, if using a shmsrc.
+   */
   bool _attached;
 
   int _audioNewBufferCounter;
 
   bool _terminate;
   bool _movieReady;
+  /**
+   * Input buffer.
+   * Contains the raw data of last image.
+   */
   AsyncQueue<GstSample*> _queueInputBuffer;
+  /**
+   * Output buffer.
+   * Contains the raw data of last image.
+   */
   AsyncQueue<GstSample*> _queueOutputBuffer;
 
 private:
+  /**
+   * Path of the movie file being played.
+   */
   QString _uri;
-
 };
 
 #endif /* ifndef */
