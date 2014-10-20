@@ -84,6 +84,8 @@ private slots:
   void about();
   void updateStatusBar();
   void openRecentFile();
+  void clearRecentFileList();
+  void openRecentVideo();
   // Edit menu.
   void deleteItem();
 
@@ -175,6 +177,7 @@ private:
   void createToolBars();
   void createStatusBar();
   void updateRecentFileActions();
+  void updateRecentVideoActions();
 
   // Settings.
   void readSettings();
@@ -190,6 +193,7 @@ public:
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
+  void setCurrentVideo(const QString &filename);
   bool importMediaFile(const QString &fileName, bool isImage);
   bool addColorPaint(const QColor& color);
   void addMappingItem(uid mappingId);
@@ -229,6 +233,7 @@ private:
   QMenu *runMenu;
   QMenu *helpMenu;
   QMenu *recentFileMenu;
+  QMenu *recentVideoMenu;
 
   // Toolbar.
   QToolBar *mainToolBar;
@@ -249,6 +254,7 @@ private:
 //  QAction *pasteAction;
   QAction *deleteAction;
   QAction *aboutAction;
+  QAction *clearRecentFileActions;
 
   QAction *addMeshAction;
   QAction *addTriangleAction;
@@ -263,8 +269,10 @@ private:
   QAction *displayCanvasControls;
   QAction *stickyVertices;
 
-  enum { MaxRecentFiles = 5 };
+  enum { MaxRecentFiles = 10 };
+  enum { MaxRecentVideo = 5 };
   QAction *recentFileActions[MaxRecentFiles];
+  QAction *recentVideoActions[MaxRecentVideo];
 
   // Widgets and layout.
   QTabWidget* contentTab;
@@ -288,9 +296,13 @@ private:
 
   // Recent files
   QStringList recentFiles;
+  QStringList recentVideos;
 
   // Current filename.
   QString curFile;
+
+  // Current video name
+  QString curVideo;
 
   // Model.
   MappingManager* mappingManager;

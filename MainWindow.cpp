@@ -53,6 +53,7 @@ MainWindow::MainWindow()
   createToolBars();
   createStatusBar();
   updateRecentFileActions();
+  updateRecentVideoActions();
 
   // Load settings.
   readSettings();
@@ -366,6 +367,7 @@ void MainWindow::importVideo()
 
   if (!fileName.isEmpty())
     importMediaFile(fileName, false);
+    setCurrentVideo(fileName);
 }
 
 void MainWindow::importImage()
@@ -595,6 +597,13 @@ void MainWindow::openRecentFile()
 	QAction *action = qobject_cast<QAction *>(sender());
 	if (action)
 		loadFile(action->data().toString());
+}
+
+void MainWindow::openRecentVideo()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action)
+        importMediaFile(action->data().toString(),false);
 }
 
 bool MainWindow::clearProject()
@@ -1044,12 +1053,26 @@ void MainWindow::createActions()
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
   // Recents file
-  for (int i = 0; i < MaxRecentFiles; i++) {
+  for (int i = 0; i < MaxRecentFiles; i++)
+  {
       recentFileActions[i] = new QAction(this);
       recentFileActions[i]->setVisible(false);
       connect(recentFileActions[i], SIGNAL(triggered()),
               this, SLOT(openRecentFile()));
   }
+
+  // Recent video
+  for (int i = 0; i < MaxRecentVideo; i++)
+  {
+      recentVideoActions[i] = new QAction(this);
+      recentVideoActions[i]->setVisible(false);
+      connect(recentVideoActions[i], SIGNAL(triggered()), this, SLOT(openRecentVideo()));
+  }
+
+  // Clear action
+  clearRecentFileActions = new QAction(this);
+  clearRecentFileActions->setVisible(true);
+  connect(clearRecentFileActions, SIGNAL(triggered()), this, SLOT(clearRecentFileList()));
 
 
   // Import video.
@@ -1249,9 +1272,17 @@ void MainWindow::createMenus()
 
   // Recent file separator
   separatorAction = fileMenu->addSeparator();
-  recentFileMenu = fileMenu->addMenu(tr("Open recents files"));
+  recentFileMenu = fileMenu->addMenu(tr("Recents projects"));
   for (int i = 0; i < MaxRecentFiles; ++i)
       recentFileMenu->addAction(recentFileActions[i]);
+  recentFileMenu->addAction(clearRecentFileActions);
+
+  // Recent import video
+  recentVideoMenu = fileMenu->addMenu(tr("Recents video"));
+  for (int i = 0; i < MaxRecentVideo; ++i)
+      recentVideoMenu->addAction(recentVideoActions[i]);
+
+  // Exit
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
 
@@ -1390,7 +1421,9 @@ void MainWindow::readSettings()
   outputWindowFullScreen->setChecked(settings.value("outputWindowFullScreen").toBool());
   config_osc_receive_port = 12345; // settings.value("osc_receive_port", 12345).toInt();
   recentFiles = settings.value("recentFiles").toStringList();
+  recentVideos = settings.value("recentVideos").toStringList();
   updateRecentFileActions();
+  updateRecentVideoActions();
 }
 
 void MainWindow::writeSettings()
@@ -1407,6 +1440,7 @@ void MainWindow::writeSettings()
   settings.setValue("outputWindowFullScreen", outputWindowFullScreen->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
   settings.setValue("recentFiles", recentFiles);
+  settings.setValue("recentVideos", recentVideos);
 }
 
 bool MainWindow::okToContinue()
@@ -1503,43 +1537,89 @@ void MainWindow::setCurrentFile(const QString &fileName)
 		recentFiles.removeLast();
 	settings.setValue("recentFiles", recentFiles);
     updateRecentFileActions();
-	  
-	// This follozing lines may be deleted just for test
-	foreach (QWidget *widget, QApplication::topLevelWidgets()) {
-         MainWindow *mainWin = qobject_cast<MainWindow *>(widget);
-         if (mainWin)
-             mainWin->updateRecentFileActions();
-     }
   }
 
   setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("MapMap Project")));
+}
+
+void MainWindow::setCurrentVideo(const QString &fileName)
+{
+    curVideo = fileName;
+
+    QSettings settings;
+    recentVideos = settings.value("recentVideos").toStringList();
+    recentVideos.removeAll(curVideo);
+    recentVideos.prepend(curVideo);
+    while (recentVideos.size() > MaxRecentVideo)
+        recentVideos.removeLast();
+    settings.setValue("recentVideos", recentVideos);
+    updateRecentVideoActions();
 }
 
 void MainWindow::updateRecentFileActions()
 {
 	QSettings settings;
 	recentFiles = settings.value("recentFiles").toStringList();
-	int numRecentFiles = qMin(recentFiles.size(), int(MaxRecentFiles));
-	
-/*     QMutableStringListIterator i(recentFiles);
-    while (i.hasNext()) {
-        if (!QFile::exists(i.next()))
-            i.remove();
-    } */
+    int numRecentFiles = qMin(recentFiles.size(), int(MaxRecentFiles));
 
-    for (int j = 0; j < numRecentFiles; ++j) {
+    for (int j = 0; j < numRecentFiles; ++j)
+    {
 		QString text = tr("&%1 %2")
 			.arg(j + 1)
 			.arg(strippedName(recentFiles[j]));
 		recentFileActions[j]->setText(text);
 		recentFileActions[j]->setData(recentFiles[j]);
 		recentFileActions[j]->setVisible(true);
+        clearRecentFileActions->setVisible(true);
     }
 	
 	for (int i = numRecentFiles; i < MaxRecentFiles; ++i)
          recentFileActions[i]->setVisible(false);
-	
-    separatorAction->setVisible(numRecentFiles > 0);
+
+    if (numRecentFiles > 0)
+    {
+        separatorAction->setVisible(true);
+        clearRecentFileActions->setText(tr("Clear list"));
+        clearRecentFileActions->setEnabled(true);
+    }
+
+    else
+    {
+        clearRecentFileActions->setText(tr("No Document"));
+        clearRecentFileActions->setEnabled(false);
+    }
+}
+
+void MainWindow::updateRecentVideoActions()
+{
+    QSettings settings;
+    recentVideos = settings.value("recentVideos").toStringList();
+    int numRecentVidoes = qMin(recentVideos.size(), int(MaxRecentVideo));
+
+    for (int i = 0; i < numRecentVidoes; ++i)
+    {
+        QString text = tr("&%1 %2")
+                .arg(i + 1)
+                .arg(strippedName(recentVideos[i]));
+        recentVideoActions[i]->setText(text);
+        recentVideoActions[i]->setData(recentVideos[i]);
+        recentVideoActions[i]->setVisible(true);
+    }
+
+    for (int j = numRecentVidoes; j < MaxRecentVideo; ++j)
+        recentVideoActions[j]->setVisible(false);
+}
+
+void MainWindow::clearRecentFileList()
+{
+    QSettings settings;
+    recentFiles = settings.value("recentFiles").toStringList();
+
+    while (recentFiles.size() > 0)
+        recentFiles.clear();
+
+    settings.setValue("recentFiles", recentFiles);
+    updateRecentFileActions();
 }
 
 // TODO
@@ -1562,6 +1642,8 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
       return false;
     }
   }
+
+  setCurrentVideo(fileName);
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
