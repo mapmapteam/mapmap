@@ -36,6 +36,24 @@ OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QG
 
   // Save window geometry.
   _geometry = saveGeometry();
+
+  _pointerIsVisible = true;
+}
+
+void OutputGLWindow::setCursorVisible(bool visible)
+{
+  _pointerIsVisible = visible;
+
+  if (_pointerIsVisible)
+  {
+    this->setCursor(Qt::BlankCursor);
+    _pointerIsVisible = false;
+  }
+  else
+  {
+    this->setCursor(Qt::ArrowCursor);
+    _pointerIsVisible = true;
+  }
 }
 
 void OutputGLWindow::closeEvent(QCloseEvent *event)
@@ -47,14 +65,16 @@ void OutputGLWindow::closeEvent(QCloseEvent *event)
 void OutputGLWindow::keyPressEvent(QKeyEvent *event)
 {
   // Escape from full screen mode.
-  if (isFullScreen() && event->key() == Qt::Key_Escape)
+  if (event->key() == Qt::Key_Escape)
   {
-    setFullScreen(false);
-    emit fullScreenToggled(false);
-  }
-  else if (event->key() == Qt::Key_Escape)
-  {
-    // pass
+    if (isFullScreen())
+    {
+      setFullScreen(false);
+      emit fullScreenToggled(false);
+    } else {
+      setFullScreen(true);
+      emit fullScreenToggled(true);
+    }
   }
   else
   {

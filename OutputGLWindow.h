@@ -2,6 +2,7 @@
  * OutputGLWindow.h
  *
  * (c) 2014 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2014 Alexandre Quessy -- alexandre(@)quessy(.)net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +23,7 @@
 
 #include <QDialog>
 #include <QtGlobal>
+#include <QTimer>
 #include "DestinationGLCanvas.h"
 
 // TODO: add SLOT for mySetVisible
@@ -36,6 +38,7 @@ public:
 
 public slots:
   void setFullScreen(bool fullScreen);
+  void setCursorVisible(bool visible);
 
 protected:
   void closeEvent(QCloseEvent* event);
@@ -47,10 +50,13 @@ signals:
 
 public:
   DestinationGLCanvas* getCanvas() const { return canvas; }
+  void setPointerHasMoved();
 
 private:
   DestinationGLCanvas* canvas;
   QByteArray _geometry;
+
+  bool _pointerIsVisible;
 };
 
 #endif /* OutputGLWINDOW_H_ */
