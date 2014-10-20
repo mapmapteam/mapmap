@@ -1,11 +1,15 @@
 // NOTE: To run, it is recommended not to be in Compiz or Beryl, they have shown some instability.
 
+#define USING_QT_5 (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+
 #include <iostream>
 #include <QTranslator>
 #include <QtGui>
+#include <QDebug>
+#if USING_QT_5
 #include <QCommandLineParser>
 #include <QCommandLineOption>
-#include <QDebug>
+#endif
 #include "MM.h"
 #include "MainWindow.h"
 #include "MainApplication.h"
@@ -45,6 +49,7 @@ int main(int argc, char *argv[])
 
   MainApplication app(argc, argv);
 
+#if USING_QT_5
   QCommandLineParser parser;
   parser.setApplicationDescription("Video mapping editor");
 
@@ -81,6 +86,7 @@ int main(int argc, char *argv[])
   {
     Util::eraseSettings();
   }
+#endif
 
   if (! QGLFormat::hasOpenGL())
     qFatal("This system has no OpenGL support.");
@@ -120,6 +126,7 @@ int main(int argc, char *argv[])
 
   //win.setLocale(QLocale("fr"));
 
+#if USING_QT_5
   QString projectFileValue = parser.value("file");
   if (projectFileValue != "")
   {
@@ -131,6 +138,7 @@ int main(int argc, char *argv[])
   {
     win.setOscPort(oscPortNumberValue);
   }
+#endif
 
   // Terminate splash.
   splash.showMessage("  " + QObject::tr("Done."),
@@ -141,11 +149,13 @@ int main(int argc, char *argv[])
   // Launch program.
   win.show();
 
+#if USING_QT_5
   if (parser.isSet(fullscreenOption))
   {
     qDebug() << "TODO: Running in fullscreen mode";
     win.enableFullscreen();
   }
+#endif
 
   // Start app.
   return app.exec();
