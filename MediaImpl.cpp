@@ -187,6 +187,7 @@ _attached(false),
 _movieReady(false),
 _uri(uri)
 {
+  _pollSource = NULL;
   if (uri != "")
   {
     loadMovie(uri);
@@ -204,6 +205,7 @@ void MediaImpl::unloadMovie()
 
   // Un-ready.
   _setReady(false);
+
 }
 
 void MediaImpl::freeResources()
@@ -229,6 +231,13 @@ void MediaImpl::freeResources()
   _appsink0 = NULL;
   _frame = NULL;
   _padHandlerData = GstPadHandlerData();
+  
+  // unref the shmsrc poller
+  if (_pollSource)
+  {
+     g_source_unref(_pollSource);
+     _pollSource = NULL;
+  }
 }
 
 void MediaImpl::resetMovie()
