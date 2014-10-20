@@ -690,7 +690,9 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
   GstCaps *newPadCaps = gst_pad_query_caps (newPad, NULL);
   GstStructure *newPadStruct = gst_caps_get_structure (newPadCaps, 0);
   const gchar *newPadType   = gst_structure_get_name (newPadStruct);
-  g_print("Structure is %s\n", gst_structure_to_string(newPadStruct));
+  gchar *newPadStructStr = gst_structure_to_string(newPadStruct);
+  g_print("Structure is %s\n", newPadStructStr);
+  g_free(newPadStructStr);
   if (g_str_has_prefix (newPadType, "video/x-raw"))
   {
     sinkPad = gst_element_get_static_pad (data->videoToConnect, "sink");
