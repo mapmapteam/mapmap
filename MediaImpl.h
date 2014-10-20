@@ -249,6 +249,12 @@ private:
    * Path of the movie file being played.
    */
   QString _uri;
+<<<<<<< HEAD
+=======
+
+  static const int MAX_SAMPLES_IN_BUFFER_QUEUES = 30;
+
+>>>>>>> 2d55e6d9c6a494a369b0843b5784b4bd93642ae4
 };
 
 #endif /* ifndef */
