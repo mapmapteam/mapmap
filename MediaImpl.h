@@ -30,13 +30,14 @@
 #include <gst/app/gstappsink.h>
 #include <QtGlobal>
 #include <QtOpenGL>
+#include <QMutex>
+#include <QWaitCondition>
 #if __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
 #endif
 #include <tr1/memory>
-#include "AsyncQueue.h"
 
 /**
  * Private declaration of the video player.
@@ -145,6 +146,8 @@ private:
   void _setReady(bool ready);
   void _setFinished(bool finished);
 
+  void _freeCurrentSample();
+
 public:
   // GStreamer callbacks.
 
@@ -170,13 +173,11 @@ public:
   // are made available by the source.
   static void gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data);
 
-  AsyncQueue<GstSample*> *getQueueInputBuffer() {
-    return &this->_queueInputBuffer;
-  }
+  /// Locks mutex (default = no effect).
+  void lockMutex();
 
-  AsyncQueue<GstSample*> *getQueueOutputBuffer() {
-    return &this->_queueOutputBuffer;
-  }
+  /// Unlocks mutex (default = no effect).
+  void unlockMutex();
 
 private:
   //locals
@@ -198,10 +199,14 @@ private:
   GstElement *_videoconvert0;
   //GstElement *_audioSink;
   GstElement *_appsink0;
+
   /**
    * Temporary contains the image data of the last frame.
    */
-  GstSample  *_frame;
+  GstSample  *_currentFrameSample;
+  GstBuffer  *_currentFrameBuffer;
+  GstMapInfo _mapInfo;
+
   /**
    * shmsrc socket poller.
    */
@@ -233,16 +238,9 @@ private:
 
   bool _terminate;
   bool _movieReady;
-  /**
-   * Input buffer.
-   * Contains the raw data of last image.
-   */
-  AsyncQueue<GstSample*> _queueInputBuffer;
-  /**
-   * Output buffer.
-   * Contains the raw data of last image.
-   */
-  AsyncQueue<GstSample*> _queueOutputBuffer;
+
+  QMutex _mutex;
+  QMutexLocker* _mutexLocker;
 
 private:
   /**

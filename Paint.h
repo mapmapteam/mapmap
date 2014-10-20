@@ -25,8 +25,8 @@
 #include <QtGlobal>
 #include <QtOpenGL>
 #include <string>
-
 #include <QColor>
+#include <QMutex>
 
 #if __APPLE__
 #include <OpenGL/gl.h>
@@ -75,6 +75,12 @@ public:
 
   /// Rewinds.
   virtual void rewind() {}
+
+  /// Locks mutex (default = no effect).
+  virtual void lockMutex() {}
+
+  /// Unlocks mutex (default = no effect).
+  virtual void unlockMutex() {}
 
   void setName(const QString& name) { _name = name; }
   QString getName() const { return _name; }
@@ -134,6 +140,8 @@ public:
   GLuint getTextureId() const { return textureId; }
   virtual int getWidth() const = 0;
   virtual int getHeight() const = 0;
+
+  /// Returns image bits data. Next call to bitsHaveChanged() will be false.
   virtual const uchar* getBits() const {
     bitsChanged = false;
     return _getBits();
@@ -214,6 +222,12 @@ public:
   virtual void pause();
   /// Rewinds.
   virtual void rewind();
+
+  /// Locks mutex (default = no effect).
+  virtual void lockMutex();
+
+  /// Unlocks mutex (default = no effect).
+  virtual void unlockMutex();
 
   virtual QString getType() const
   {

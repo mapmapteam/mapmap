@@ -105,6 +105,14 @@ void Media::rewind()
   impl_->resetMovie();
 }
 
+void Media::lockMutex() {
+  impl_->lockMutex();
+}
+
+void Media::unlockMutex() {
+  impl_->unlockMutex();
+}
+
 const uchar* Media::_getBits() const
 {
   return this->impl_->getBits();

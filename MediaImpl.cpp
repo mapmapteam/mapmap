@@ -54,6 +54,10 @@ int MediaImpl::getHeight() const
 
 const uchar* MediaImpl::getBits() const
 {
+  if (_currentFrameSample == NULL)
+    return NULL;
+
+
   return _data;
 }
 
@@ -83,15 +87,16 @@ void MediaImpl::build()
 
 MediaImpl::~MediaImpl()
 {
+  // Free all resources.
   freeResources();
-  /* _data points to gstreamer-allocated data, we don't manage it ourselves */
-  //if (_data)
-  //  free(_data);
+
+  // Free mutex locker object.
+  delete _mutexLocker;
 }
 
 bool MediaImpl::_videoPull()
 {
-  GstSample *sample = _queueInputBuffer.get();
+  GstSample *sample = _currentFrameSample;
 
   if (sample == NULL)
   {
@@ -116,22 +121,21 @@ bool MediaImpl::_eos() const
 
 GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
 {
+  // Make it thread-safe.
+  p->lockMutex();
 
-  // get next frame
+  // Get next frame.
   GstSample *sample = gst_app_sink_pull_sample(GST_APP_SINK(p->_appsink0));
 
-  // save frame to input buffer queue
-  p->getQueueInputBuffer()->put(sample);
+  // Unref last frame.
+  p->_freeCurrentSample();
 
-  // keep input queue to a reasonable size
-  // the input buffer never releases memory: it is the output queue that releases it.
-  while (p->getQueueInputBuffer()->size() > MAX_SAMPLES_IN_BUFFER_QUEUES) {
-    p->getQueueInputBuffer()->get(); // just remove it from queue
-  }
+  // Set current frame.
+  p->_currentFrameSample = sample;
 
-  // for live sources, video dimensions have not been set, because
+  // For live sources, video dimensions have not been set, because
   // gstPadAddedCallback is never called. Fix dimensions from first sample /
-  // caps we receive
+  // caps we receive.
   if (p->_isSharedMemorySource && ( p->_padHandlerData.width == -1 ||
         p->_padHandlerData.height == -1)) {
     GstCaps *caps = gst_sample_get_caps(sample);
@@ -142,33 +146,21 @@ GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
     // g_print("Size is %u x %u\n", _padHandlerData.width, _padHandlerData.height);
   }
 
-  GstMapInfo map;
-  GstBuffer *buffer = gst_sample_get_buffer(sample);
+  // Try to retrieve data bits of frame.
+  GstMapInfo& map = p->_mapInfo;
+  GstBuffer *buffer = gst_sample_get_buffer( sample );
   if (gst_buffer_map(buffer, &map, GST_MAP_READ))
-  { 
+  {
+    p->_currentFrameBuffer = buffer;
     // For debugging:
     //gst_util_dump_mem(map.data, map.size)
-    // retrieve data from map info
+
+    // Retrieve data from map info.
     p->_data = map.data;
-    // release memory previously mapped with gst_buffer_map
-    gst_buffer_unmap(buffer, &map);
-
-    // queue previous frame to async queue
-    if (p->_frame != NULL)
-    {
-      p->getQueueOutputBuffer()->put(p->_frame);
-    }
-    // set current frame
-    p->_frame = sample;
   }
 
-  // keep only the last few output frames.
-  while (p->getQueueOutputBuffer()->size() > MAX_SAMPLES_IN_BUFFER_QUEUES)
-  {
-    sample = p->getQueueOutputBuffer()->get();
-    // We free the memory for the previous frame here
-    gst_sample_unref(sample);
-  }
+  p->unlockMutex();
+
   return GST_FLOW_OK;
 }
 
@@ -181,7 +173,8 @@ _queue0(NULL),
 _videoconvert0(NULL),
 //_audioSink(NULL),
 _appsink0(NULL),
-_frame(NULL),
+_currentFrameSample(NULL),
+_currentFrameBuffer(NULL),
 _width(640), // unused
 _height(480), // unused
 _data(NULL),
@@ -196,6 +189,7 @@ _uri(uri)
   {
     loadMovie(uri);
   }
+  _mutexLocker = new QMutexLocker(&_mutex);
 }
 
 void MediaImpl::unloadMovie()
@@ -209,7 +203,6 @@ void MediaImpl::unloadMovie()
 
   // Un-ready.
   _setReady(false);
-
 }
 
 void MediaImpl::freeResources()
@@ -228,27 +221,16 @@ void MediaImpl::freeResources()
     _pipeline = NULL;
   }
 
-  qDebug() << "Freeing async queue" << endl;
-  // Clear remaining samples in queue.
-  while (getQueueOutputBuffer()->size() > 0)
-  {
-    GstSample *sample = getQueueOutputBuffer()->get();
-    // We free the memory for the previous frame here
-    gst_sample_unref(sample);
-  }
+  qDebug() << "Freeing remaining samples/buffers" << endl;
 
-  // Also free last frame.
-  if (_frame) {
-    gst_sample_unref(_frame);
-    _frame = NULL;
-  }
+  _freeCurrentSample();
 
   _uridecodebin0 = NULL;
   _queue0 = NULL;
   _videoconvert0 = NULL;
   //_audioSink = NULL;
   _appsink0 = NULL;
-  _frame = NULL;
+  _currentFrameSample = NULL;
   _padHandlerData = GstPadHandlerData();
   
   // unref the shmsrc poller
@@ -267,7 +249,7 @@ void MediaImpl::resetMovie()
     qDebug() << "Seeking at position 0.";
     gst_element_seek_simple (_pipeline, GST_FORMAT_TIME,
                              (GstSeekFlags) (GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT), 0);
-    this->_frame = NULL;
+    this->_currentFrameSample = NULL;
     _setReady(true);
   }
   else
@@ -308,7 +290,6 @@ bool MediaImpl::loadMovie(QString filename)
   _uri = filename;
 
   qDebug() << "Opening movie: " << filename << ".";
-  this->_frame = NULL;
 
   // Free previously allocated structures
   unloadMovie();
@@ -505,7 +486,7 @@ bool MediaImpl::runVideo()
   bool bitsChanged = false;
 
   // Check if we have some frames in the input buffer.
-  if (_queueInputBuffer.size() > 0)
+  if (_currentFrameSample != NULL)
   {
     // Pull video.
     if (_videoPull())
@@ -687,6 +668,22 @@ void MediaImpl::_setFinished(bool finished)
   //  qDebug() << "Clip " << (finished ? "finished" : "not finished");
 }
 
+void MediaImpl::_freeCurrentSample() {
+  if (_currentFrameBuffer != NULL)
+  {
+    gst_buffer_unmap(_currentFrameBuffer, &_mapInfo);
+  }
+
+  if (_currentFrameSample != NULL)
+  {
+    gst_sample_unref(_currentFrameSample);
+  }
+
+  _currentFrameSample = NULL;
+  _currentFrameBuffer = NULL;
+  _data = NULL;
+}
+
 /**
  * FIXME: remove GOTO
  */
@@ -756,3 +753,14 @@ exit:
     gst_object_unref (sinkPad);
   }
 }
+
+void MediaImpl::lockMutex()
+{
+  _mutexLocker->relock();
+}
+
+void MediaImpl::unlockMutex()
+{
+  _mutexLocker->unlock();
+}
+

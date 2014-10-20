@@ -324,12 +324,14 @@ void TextureMapper::_preDraw(QPainter* painter)
   glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
 
   // Copy bits to texture iff necessary.
+  texture->lockMutex();
   if (texture->bitsHaveChanged())
   {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
       texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
       GL_UNSIGNED_BYTE, texture->getBits());
   }
+  texture->unlockMutex();
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
