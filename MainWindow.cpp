@@ -52,6 +52,7 @@ MainWindow::MainWindow()
   createContextMenu();
   createToolBars();
   createStatusBar();
+  updateRecentFileActions();
 
   // Load settings.
   readSettings();
@@ -591,11 +592,9 @@ void MainWindow::deleteItem()
 
 void MainWindow::openRecentFile()
 {
-    if (okToContinue()) {
-        QAction *action = qobject_cast<QAction *>(sender());
-        if (action)
-            loadFile(action->data().toString());
-    }
+	QAction *action = qobject_cast<QAction *>(sender());
+	if (action)
+		loadFile(action->data().toString());
 }
 
 bool MainWindow::clearProject()
@@ -1045,7 +1044,7 @@ void MainWindow::createActions()
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
   // Recents file
-  for (int i = 0; i < MaxRecentFiles; ++i) {
+  for (int i = 0; i < MaxRecentFiles; i++) {
       recentFileActions[i] = new QAction(this);
       recentFileActions[i]->setVisible(false);
       connect(recentFileActions[i], SIGNAL(triggered()),
@@ -1250,8 +1249,9 @@ void MainWindow::createMenus()
 
   // Recent file separator
   separatorAction = fileMenu->addSeparator();
+  recentFileMenu = fileMenu->addMenu(tr("Open recents files"));
   for (int i = 0; i < MaxRecentFiles; ++i)
-      fileMenu->addAction(recentFileActions[i]);
+      recentFileMenu->addAction(recentFileActions[i]);
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
 
@@ -1495,36 +1495,51 @@ void MainWindow::setCurrentFile(const QString &fileName)
   if (!curFile.isEmpty())
   {
     shownName = strippedName(curFile);
+	QSettings settings;
+	recentFiles = settings.value("recentFiles").toStringList();
     recentFiles.removeAll(curFile);
     recentFiles.prepend(curFile);
+	while (recentFiles.size() > MaxRecentFiles)
+		recentFiles.removeLast();
+	settings.setValue("recentFiles", recentFiles);
     updateRecentFileActions();
+	  
+	// This follozing lines may be deleted just for test
+	foreach (QWidget *widget, QApplication::topLevelWidgets()) {
+         MainWindow *mainWin = qobject_cast<MainWindow *>(widget);
+         if (mainWin)
+             mainWin->updateRecentFileActions();
+     }
   }
 
   setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("MapMap Project")));
-
 }
 
 void MainWindow::updateRecentFileActions()
 {
-    QMutableStringListIterator i(recentFiles);
+	QSettings settings;
+	recentFiles = settings.value("recentFiles").toStringList();
+	int numRecentFiles = qMin(recentFiles.size(), int(MaxRecentFiles));
+	
+/*     QMutableStringListIterator i(recentFiles);
     while (i.hasNext()) {
         if (!QFile::exists(i.next()))
             i.remove();
-    }
+    } */
 
-    for (int j = 0; j < MaxRecentFiles; ++j) {
-        if (j < recentFiles.count()) {
-            QString text = tr("&%1 %2")
-                           .arg(j + 1)
-                           .arg(strippedName(recentFiles[j]));
-            recentFileActions[j]->setText(text);
-            recentFileActions[j]->setData(recentFiles[j]);
-            recentFileActions[j]->setVisible(true);
-        } else {
-            recentFileActions[j]->setVisible(true);
-        }
+    for (int j = 0; j < numRecentFiles; ++j) {
+		QString text = tr("&%1 %2")
+			.arg(j + 1)
+			.arg(strippedName(recentFiles[j]));
+		recentFileActions[j]->setText(text);
+		recentFileActions[j]->setData(recentFiles[j]);
+		recentFileActions[j]->setVisible(true);
     }
-    separatorAction->setVisible(!recentFiles.isEmpty());
+	
+	for (int i = numRecentFiles; i < MaxRecentFiles; ++i)
+         recentFileActions[i]->setVisible(false);
+	
+    separatorAction->setVisible(numRecentFiles > 0);
 }
 
 // TODO

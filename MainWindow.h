@@ -228,6 +228,7 @@ private:
   QMenu *viewMenu;
   QMenu *runMenu;
   QMenu *helpMenu;
+  QMenu *recentFileMenu;
 
   // Toolbar.
   QToolBar *mainToolBar;
