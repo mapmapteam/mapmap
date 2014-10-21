@@ -123,12 +123,12 @@ bool Media::bitsHaveChanged() const
 
 void Media::setRate(double rate)
 {
-  impl_->setRate(rate);
+  impl_->setRate(rate / 100.0);
 }
 
 double Media::getRate() const
 {
-  return impl_->getRate();
+  return impl_->getRate() * 100.0;
 }
 
 bool Media::hasVideoSupport()

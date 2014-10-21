@@ -237,7 +237,10 @@ public:
 
   virtual bool bitsHaveChanged() const;
 
-  virtual void setRate(double rate=1.0);
+  /// Sets playback rate (in %). Negative values mean reverse playback.
+  virtual void setRate(double rate=100.0);
+
+  /// Returns playback rate.
   double getRate() const;
 
 
