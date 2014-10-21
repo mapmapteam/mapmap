@@ -131,6 +131,8 @@ public slots:
 protected:
   std::tr1::shared_ptr<Media> media;
   QtVariantProperty* _mediaFileItem;
+  QtVariantProperty* _mediaRateItem;
+//  QtVariantProperty* _mediaReverseItem;
 };
 
 #endif /* PAINTGUI_H_ */

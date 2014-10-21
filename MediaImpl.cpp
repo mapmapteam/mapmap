@@ -44,11 +44,13 @@ bool MediaImpl::hasVideoSupport()
 
 int MediaImpl::getWidth() const
 {
+  Q_ASSERT(videoIsConnected());
   return _padHandlerData.width;
 }
 
 int MediaImpl::getHeight() const
 {
+  Q_ASSERT(videoIsConnected());
   return _padHandlerData.height;
 }
 
@@ -79,6 +81,23 @@ void MediaImpl::setAttached(bool attach)
   _attached = attach;
 }
 
+
+void MediaImpl::setRate(double rate)
+{
+  if (rate == 0)
+  {
+    qDebug() << "Cannot set rate to zero, ignoring rate " << rate << endl;
+    return;
+  }
+
+  // Set rate.
+  _rate = rate;
+
+  // Send seek events to activate rate.
+  if (_seekEnabled)
+    _updateRate();
+}
+
 void MediaImpl::build()
 {
   qDebug() << "Building video impl";
@@ -102,9 +121,22 @@ bool MediaImpl::_eos() const
   if (_movieReady)
   {
     Q_ASSERT( _appsink0 );
-    gboolean videoEos;
-    g_object_get (G_OBJECT (_appsink0), "eos", &videoEos, NULL);
-    return (bool) (videoEos);
+    if (_rate > 0)
+    {
+      gboolean videoEos;
+      g_object_get (G_OBJECT (_appsink0), "eos", &videoEos, NULL);
+      return (bool) (videoEos);
+    }
+    else
+    {
+      /* Obtain the current position, needed for the seek event */
+      gint64 position;
+      if (!gst_element_query_position (_pipeline, GST_FORMAT_TIME, &position)) {
+        g_printerr ("Unable to retrieve current position.\n");
+        return false;
+      }
+      return (position == 0);
+    }
   }
   else
     return false;
@@ -174,9 +206,11 @@ _width(640), // unused
 _height(480), // unused
 _data(NULL),
 _seekEnabled(false),
+_rate(1.0),
 _isSharedMemorySource(live),
 _attached(false),
 _movieReady(false),
+_playState(false),
 _uri(uri)
 {
   _pollSource = NULL;
@@ -197,7 +231,8 @@ void MediaImpl::unloadMovie()
   _seekEnabled = false;
 
   // Un-ready.
-  _setReady(false);
+  _setMovieReady(false);
+  setPlayState(false);
 }
 
 void MediaImpl::freeResources()
@@ -247,10 +282,21 @@ void MediaImpl::resetMovie()
   if (_seekEnabled)
   {
     qDebug() << "Seeking at position 0.";
-    gst_element_seek_simple (_pipeline, GST_FORMAT_TIME,
-                             (GstSeekFlags) (GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT), 0);
-    this->_currentFrameSample = NULL;
-    _setReady(true);
+    GstEvent* seek_event;
+
+    if (_rate > 0) {
+      seek_event = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
+          GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_NONE, 0);
+    } else {
+      seek_event = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
+          GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_END, 0);
+    }
+    /* Send the event */
+    gst_element_send_event (_appsink0, seek_event);
+//    gst_element_seek_simple (_pipeline, GST_FORMAT_TIME,
+//                             (GstSeekFlags) (GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT), 0);
+//    this->_currentFrameSample = NULL;
+    _setMovieReady(true);
   }
   else
   {
@@ -470,9 +516,7 @@ bool MediaImpl::loadMovie(QString filename)
   {
     return false;
   }
-  qDebug() << "Pipeline started.";
 
-  //_movieReady = true;
   return true;
 }
 
@@ -515,40 +559,39 @@ bool MediaImpl::setPlayState(bool play)
   }
   else
   {
-    _setReady(play);
-
+    _playState = play;
     return true;
   }
 }
 
-bool MediaImpl::_preRun()
-{
-  // Check for end-of-stream or terminate.
-  if (_eos() || _terminate)
-  {
-    _setFinished(true);
-    resetMovie();
-  }
-  else
-  {
-    _setFinished(false);
-  }
-  if (!_movieReady ||
-      !_padHandlerData.videoIsConnected)
-  {
-    return false;
-  }
-  return true;
-}
+//bool MediaImpl::_preRun()
+//{
+//  // Check for end-of-stream or terminate.
+//  if (_eos() || _terminate)
+//  {
+//    _setFinished(true);
+//    resetMovie();
+//  }
+//  else
+//  {
+//    _setFinished(false);
+//  }
+//  if (!_movieReady ||
+//      !_padHandlerData.videoIsConnected)
+//  {
+//    return false;
+//  }
+//  return true;
+//}
 
 void MediaImpl::_checkMessages()
 {
-  // Parse message.
   if (_bus != NULL)
   {
+    // Get message.
     GstMessage *msg = gst_bus_timed_pop_filtered(
                         _bus, 0,
-                        (GstMessageType) (GST_MESSAGE_STATE_CHANGED | GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
+                        (GstMessageType) (GST_MESSAGE_STATE_CHANGED | GST_MESSAGE_ERROR | GST_MESSAGE_EOS | GST_MESSAGE_ASYNC_DONE));
 
     if (msg != NULL)
     {
@@ -557,6 +600,7 @@ void MediaImpl::_checkMessages()
 
       switch (GST_MESSAGE_TYPE (msg))
       {
+      // Error ////////////////////////////////////////////////
       case GST_MESSAGE_ERROR:
         gst_message_parse_error(msg, &err, &debug_info);
         g_printerr("Error received from element %s: %s\n",
@@ -580,12 +624,48 @@ void MediaImpl::_checkMessages()
 //        _finish();
         break;
 
+      // End-of-stream ////////////////////////////////////////
       case GST_MESSAGE_EOS:
         // Automatically loop back.
         g_print("End-Of-Stream reached.\n");
         resetMovie();
 //        _terminate = true;
 //        _finish();
+        break;
+
+      // Pipeline has prerolled/ready to play ///////////////
+      case GST_MESSAGE_ASYNC_DONE:
+        {
+          // Check if seeking is allowed.
+          gint64 start, end;
+          GstQuery *query = gst_query_new_seeking (GST_FORMAT_TIME);
+          if (gst_element_query (_pipeline, query))
+          {
+            gst_query_parse_seeking (query, NULL, (gboolean*)&_seekEnabled, &start, &end);
+            if (_seekEnabled)
+            {
+              g_print ("Seeking is ENABLED from %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT "\n",
+                       GST_TIME_ARGS (start), GST_TIME_ARGS (end));
+
+              // Update playback rate.
+              _updateRate();
+            }
+            else
+            {
+              g_print ("Seeking is DISABLED for this stream.\n");
+            }
+          }
+          else
+          {
+            g_printerr ("Seeking query failed.");
+          }
+
+          gst_query_unref (query);
+
+          // Movie is ready!
+          _setMovieReady(true);
+        }
+
         break;
 
       case GST_MESSAGE_STATE_CHANGED:
@@ -599,35 +679,6 @@ void MediaImpl::_checkMessages()
               _currentMovie.toUtf8().constData(),
               gst_element_state_get_name(oldState),
               gst_element_state_get_name(newState));
-
-//          if (oldState == GST_STATE_PAUSED && newState == GST_STATE_READY)
-//            gst_adapter_clear(_audioBufferAdapter);
-
-          if (newState == GST_STATE_PLAYING)
-          {
-            // Check if seeking is allowed.
-            gint64 start, end;
-            GstQuery *query = gst_query_new_seeking (GST_FORMAT_TIME);
-            if (gst_element_query (_pipeline, query))
-            {
-              gst_query_parse_seeking (query, NULL, (gboolean*)&_seekEnabled, &start, &end);
-              if (_seekEnabled)
-              {
-                g_print ("Seeking is ENABLED from %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT "\n",
-                         GST_TIME_ARGS (start), GST_TIME_ARGS (end));
-              }
-              else
-              {
-                g_print ("Seeking is DISABLED for this stream.\n");
-              }
-            }
-            else
-            {
-              g_printerr ("Seeking query failed.");
-            }
-
-            gst_query_unref (query);
-          }
         }
         break;
 
@@ -641,7 +692,7 @@ void MediaImpl::_checkMessages()
   }
 }
 
-void MediaImpl::_setReady(bool ready)
+void MediaImpl::_setMovieReady(bool ready)
 {
   _movieReady = ready;
 }
@@ -650,6 +701,54 @@ void MediaImpl::_setFinished(bool finished)
 {
   Q_UNUSED(finished);
   //  qDebug() << "Clip " << (finished ? "finished" : "not finished");
+}
+
+void  MediaImpl::_updateRate()
+{
+  if (_pipeline == NULL)
+  {
+    qDebug() << "Cannot set rate: no pipeline!" << endl;
+    return;
+  }
+
+  if (!_seekEnabled)
+  {
+    qDebug() << "Cannot set rate: seek not working" << endl;
+    return;
+  }
+
+  if (!_isMovieReady())
+  {
+    qDebug() << "Movie is not yet ready to play, cannot seek yet." << endl;
+  }
+
+  gint64 position;
+  GstEvent *seekEvent;
+
+  /* Obtain the current position, needed for the seek event */
+  if (!gst_element_query_position (_pipeline, GST_FORMAT_TIME, &position)) {
+    g_printerr ("Unable to retrieve current position.\n");
+    return;
+  }
+
+  /* Create the seek event */
+  if (_rate > 0) {
+    seekEvent = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
+        GST_SEEK_TYPE_SET, position, GST_SEEK_TYPE_NONE, 0);
+  } else {
+    seekEvent = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
+        GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position);
+  }
+
+  if (_appsink0 == NULL) {
+    /* If we have not done so, obtain the sink through which we will send the seek events */
+    g_object_get (_pipeline, "video-sink", &_appsink0, NULL);
+  }
+
+  /* Send the event */
+  gst_element_send_event (_appsink0, seekEvent);
+
+  g_print ("Current rate: %g\n", _rate);
 }
 
 void MediaImpl::_freeCurrentSample() {

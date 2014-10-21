@@ -868,6 +868,28 @@ uid MainWindow::createEllipseColorMapping(uid mappingId,
   }
 }
 
+
+void MainWindow::setMappingVisible(uid mappingId, bool visible)
+{
+  QListWidgetItem* item = getItemFromId(*mappingList, mappingId);
+  Q_ASSERT( item );
+  item->setCheckState(visible ? Qt::Checked : Qt::Unchecked );
+
+  updateCanvases();
+}
+
+void MainWindow::setMappingSolo(uid mappingId, bool solo)
+{
+  Q_UNUSED(mappingId);
+  Q_UNUSED(solo);
+}
+
+void MainWindow::setMappingLocked(uid mappingId, bool locked)
+{
+  Q_UNUSED(mappingId);
+  Q_UNUSED(locked);
+}
+
 void MainWindow::deleteMapping(uid mappingId)
 {
   // Cannot delete unexisting mapping.

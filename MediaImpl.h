@@ -105,6 +105,8 @@ public:
    */
   bool isReady() const { return _movieReady && _padHandlerData.videoIsConnected; }
 
+  bool videoIsConnected() const { return _padHandlerData.videoIsConnected; }
+
   /**
    * Performs regular updates (checks if movie is ready and checks messages).
    */
@@ -118,12 +120,17 @@ public:
    * Creates a new GStreamer pipeline, opens a movie or a shmsrc socket.
    */
   bool loadMovie(QString filename);
+
   bool setPlayState(bool play);
+
   /**
    * Tells the MediaImpl that we are actually reading from a shmsrc.
    * Called from the GStreamer callback of the shmsrc.
    */
   void setAttached(bool attach);
+
+  void setRate(double rate=1.0);
+  double getRate() const { return _rate; }
 
   void resetMovie();
 
@@ -142,10 +149,15 @@ private:
   // void _finish();
   // void _init();
 
-  bool _preRun();
+//  bool _preRun();
   void _checkMessages();
-  void _setReady(bool ready);
+  void _setMovieReady(bool ready);
+  bool _isMovieReady() const { return _movieReady; }
+  bool getPlayState() const { return _playState; };
   void _setFinished(bool finished);
+
+  // Sends the appropriate seek events to adjust to rate.
+  void _updateRate();
 
   void _freeCurrentSample();
 
@@ -168,7 +180,7 @@ public:
 
   // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
   static GstFlowReturn gstNewSampleCallback(GstElement*, MediaImpl *p);
-  static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
+  //static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
 
   // GStreamer callback that plugs the audio/video pads into the proper elements when they
   // are made available by the source.
@@ -221,27 +233,34 @@ private:
   // unused
   int _height;
 
-  /**
-   * Raw image data of the last video frame.
-   */
+  /// Raw image data of the last video frame.
   uchar *_data;
 
+  /// Is seek enabled on the current pipeline?
   bool _seekEnabled;
-  /**
-   * Whether or not we are reading video from a shmsrc.
-   */
+
+  /// Playback rate (negative ==> reverse).
+  double _rate;
+
+  /// Whether or not we are reading video from a shmsrc.
   bool _isSharedMemorySource;
-  /**
-   * Whether or not we are attached to a shmsrc, if using a shmsrc.
-   */
+
+  /// Whether or not we are attached to a shmsrc, if using a shmsrc.
   bool _attached;
 
-  int _audioNewBufferCounter;
-
+  // unused
   bool _terminate;
+
+  /// Is the movie (or rather pipeline) ready to play.
   bool _movieReady;
 
+  /// Is the movie playing (as opposed to paused).
+  bool _playState;
+
+  /// Main mutex.
   QMutex _mutex;
+
+  /// Main mutex locker (for the lockMutex() / unlockMutex() methods).
   QMutexLocker* _mutexLocker;
 
 private:

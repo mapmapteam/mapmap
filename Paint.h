@@ -237,6 +237,10 @@ public:
 
   virtual bool bitsHaveChanged() const;
 
+  virtual void setRate(double rate=1.0);
+  double getRate() const;
+
+
   /**
    * Checks whether or not video is supported on this platform.
    */
