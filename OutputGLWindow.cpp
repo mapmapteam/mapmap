@@ -65,17 +65,21 @@ void OutputGLWindow::closeEvent(QCloseEvent *event)
 void OutputGLWindow::keyPressEvent(QKeyEvent *event)
 {
   // Escape from full screen mode.
-  if (event->key() == Qt::Key_Escape)
+  if (isFullScreen())
   {
-    if (isFullScreen())
+    if (event->key() == Qt::Key_Escape)
     {
       setFullScreen(false);
       emit fullScreenToggled(false);
-    } else {
-      setFullScreen(true);
-      emit fullScreenToggled(true);
     }
+    else
+    {
+       setFullScreen(true);
+       emit fullScreenToggled(true);
+    }
+
   }
+
   else
   {
     QDialog::keyPressEvent(event);
@@ -98,6 +102,9 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
     // Save window geometry.
     _geometry = saveGeometry();
 
+    //hide cursor
+    this->setCursorVisible(false);
+
     // Move window to second screen before fullscreening it.
     if (QApplication::desktop()->screenCount() > 1)
       setGeometry(QApplication::desktop()->screenGeometry(1));
@@ -119,6 +126,9 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   {
     // Restore geometry of window to what it was before full screen call.
     restoreGeometry(_geometry);
+
+    // Show cursor
+    this->setCursorVisible(true);
 
 #ifdef Q_OS_UNIX
     // Special case for Unity.
