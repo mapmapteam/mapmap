@@ -301,7 +301,7 @@ void MainWindow::open()
   {
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open project"),
-        ".",
+        settings.value("defaultProjectDir").toString(),
         tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
     if (! fileName.isEmpty())
       loadFile(fileName);
@@ -360,14 +360,12 @@ void MainWindow::importVideo()
 
   // Pop-up file-choosing dialog to choose media file.
   // TODO: restrict the type of files that can be imported
-  QString fileName = QFileDialog::getOpenFileName(this,
-      tr("Import media source file"), ".", tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER));
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Import media source file"), settings.value("defaultVideoDir").toString(), tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER));
   // Restart video playback. XXX Hack
   videoTimer->start();
 
   if (!fileName.isEmpty())
     importMediaFile(fileName, false);
-    setCurrentVideo(fileName);
 }
 
 void MainWindow::importImage()
@@ -378,7 +376,7 @@ void MainWindow::importImage()
   // Pop-up file-choosing dialog to choose media file.
   // TODO: restrict the type of files that can be imported
   QString fileName = QFileDialog::getOpenFileName(this,
-      tr("Import media source file"), ".", tr("Image files (%1);;All files (*)").arg(MM::IMAGE_FILES_FILTER));
+      tr("Import media source file"), settings.value("defaultImageDir").toString(), tr("Image files (%1);;All files (*)").arg(MM::IMAGE_FILES_FILTER));
 
   // Restart video playback. XXX Hack
   videoTimer->start();
@@ -1420,8 +1418,6 @@ void MainWindow::readSettings()
   displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
   outputWindowFullScreen->setChecked(settings.value("outputWindowFullScreen").toBool());
   config_osc_receive_port = 12345; // settings.value("osc_receive_port", 12345).toInt();
-  recentFiles = settings.value("recentFiles").toStringList();
-  recentVideos = settings.value("recentVideos").toStringList();
   updateRecentFileActions();
   updateRecentVideoActions();
 }
@@ -1439,8 +1435,6 @@ void MainWindow::writeSettings()
   settings.setValue("displayOutputWindow", displayOutputWindow->isChecked());
   settings.setValue("outputWindowFullScreen", outputWindowFullScreen->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
-  settings.setValue("recentFiles", recentFiles);
-  settings.setValue("recentVideos", recentVideos);
 }
 
 bool MainWindow::okToContinue()
@@ -1466,6 +1460,7 @@ bool MainWindow::okToContinue()
 bool MainWindow::loadFile(const QString &fileName)
 {
   QFile file(fileName);
+  QDir currentDir;
 
   if (! file.open(QFile::ReadOnly | QFile::Text))
   {
@@ -1490,6 +1485,7 @@ bool MainWindow::loadFile(const QString &fileName)
   }
   else
   {
+    settings.setValue("defaultProjectDir", currentDir.absoluteFilePath(fileName));
     statusBar()->showMessage(tr("File loaded"), 2000);
     setCurrentFile(fileName);
   }
@@ -1529,7 +1525,6 @@ void MainWindow::setCurrentFile(const QString &fileName)
   if (!curFile.isEmpty())
   {
     shownName = strippedName(curFile);
-	QSettings settings;
 	recentFiles = settings.value("recentFiles").toStringList();
     recentFiles.removeAll(curFile);
     recentFiles.prepend(curFile);
@@ -1546,7 +1541,6 @@ void MainWindow::setCurrentVideo(const QString &fileName)
 {
     curVideo = fileName;
 
-    QSettings settings;
     recentVideos = settings.value("recentVideos").toStringList();
     recentVideos.removeAll(curVideo);
     recentVideos.prepend(curVideo);
@@ -1558,7 +1552,6 @@ void MainWindow::setCurrentVideo(const QString &fileName)
 
 void MainWindow::updateRecentFileActions()
 {
-	QSettings settings;
 	recentFiles = settings.value("recentFiles").toStringList();
     int numRecentFiles = qMin(recentFiles.size(), int(MaxRecentFiles));
 
@@ -1592,7 +1585,6 @@ void MainWindow::updateRecentFileActions()
 
 void MainWindow::updateRecentVideoActions()
 {
-    QSettings settings;
     recentVideos = settings.value("recentVideos").toStringList();
     int numRecentVidoes = qMin(recentVideos.size(), int(MaxRecentVideo));
 
@@ -1612,7 +1604,6 @@ void MainWindow::updateRecentVideoActions()
 
 void MainWindow::clearRecentFileList()
 {
-    QSettings settings;
     recentFiles = settings.value("recentFiles").toStringList();
 
     while (recentFiles.size() > 0)
@@ -1630,6 +1621,8 @@ void MainWindow::clearRecentFileList()
 bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
 {
   QFile file(fileName);
+  QDir currentDir;
+
   bool live = false;
   if (!file.open(QIODevice::ReadOnly)) {
     if (file.isSequential())
@@ -1642,8 +1635,6 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
       return false;
     }
   }
-
-  setCurrentVideo(fileName);
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -1663,6 +1654,16 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
                      (sourceCanvas->height() - media->getHeight()) / 2.0f );
 
   QApplication::restoreOverrideCursor();
+
+  if (!isImage)
+  {
+    settings.setValue("defaultVideoDir", currentDir.absoluteFilePath(fileName));
+    setCurrentVideo(fileName);
+  }
+  else
+  {
+    settings.setValue("defaultImageDir", currentDir.absoluteFilePath(fileName));
+  }
 
   statusBar()->showMessage(tr("File imported"), 2000);
 

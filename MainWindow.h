@@ -304,6 +304,9 @@ private:
   // Current video name
   QString curVideo;
 
+  // Settings
+  QSettings settings;
+
   // Model.
   MappingManager* mappingManager;
 
