@@ -256,7 +256,7 @@ private:
   QAction *rewindAction;
 
   QAction *displayOutputWindow;
-  QAction *outputWindowHasCursor;
+  //QAction *outputWindowHasCursor;
   QAction *outputWindowFullScreen;
   QAction *displayCanvasControls;
   QAction *stickyVertices;

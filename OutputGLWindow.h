@@ -38,7 +38,6 @@ public:
 
 public slots:
   void setFullScreen(bool fullScreen);
-  void setCursorVisible(bool visible);
 
 protected:
   void closeEvent(QCloseEvent* event);
@@ -51,6 +50,7 @@ signals:
 public:
   DestinationGLCanvas* getCanvas() const { return canvas; }
   void setPointerHasMoved();
+  void setCursorVisible(bool visible);
 
 private:
   DestinationGLCanvas* canvas;

@@ -46,13 +46,13 @@ void OutputGLWindow::setCursorVisible(bool visible)
 
   if (_pointerIsVisible)
   {
-    this->setCursor(Qt::BlankCursor);
-    _pointerIsVisible = false;
+    this->setCursor(Qt::ArrowCursor);
+    _pointerIsVisible = true;
   }
   else
   {
-    this->setCursor(Qt::ArrowCursor);
-    _pointerIsVisible = true;
+    this->setCursor(Qt::BlankCursor);
+    _pointerIsVisible = false;
   }
 }
 
