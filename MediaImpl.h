@@ -105,6 +105,8 @@ public:
    */
   bool isReady() const { return _movieReady && _padHandlerData.videoIsConnected; }
 
+  bool videoIsConnected() const { return _padHandlerData.videoIsConnected; }
+
   /**
    * Performs regular updates (checks if movie is ready and checks messages).
    */
@@ -118,12 +120,17 @@ public:
    * Creates a new GStreamer pipeline, opens a movie or a shmsrc socket.
    */
   bool loadMovie(QString filename);
+
   bool setPlayState(bool play);
+
   /**
    * Tells the MediaImpl that we are actually reading from a shmsrc.
    * Called from the GStreamer callback of the shmsrc.
    */
   void setAttached(bool attach);
+
+  void setRate(double rate=1.0);
+  double getRate() const { return _rate; }
 
   void resetMovie();
 
@@ -142,10 +149,15 @@ private:
   // void _finish();
   // void _init();
 
-  bool _preRun();
+//  bool _preRun();
   void _checkMessages();
-  void _setReady(bool ready);
+  void _setMovieReady(bool ready);
+  bool _isMovieReady() const { return _movieReady; }
+  bool getPlayState() const { return _playState; };
   void _setFinished(bool finished);
+
+  // Sends the appropriate seek events to adjust to rate.
+  void _updateRate();
 
   void _freeCurrentSample();
 

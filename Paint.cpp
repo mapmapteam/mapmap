@@ -73,15 +73,13 @@ void Media::build()
 
 int Media::getWidth() const
 {
-  // Wait for impl to be ready.
-  while (!this->impl_->isReady());
+  while (!this->impl_->videoIsConnected());
   return this->impl_->getWidth();
 }
 
 int Media::getHeight() const
 {
-  // Wait for impl to be ready.
-  while (!this->impl_->isReady());
+  while (!this->impl_->videoIsConnected());
   return this->impl_->getHeight();
 }
 
@@ -122,6 +120,15 @@ bool Media::bitsHaveChanged() const
   return this->impl_->bitsHaveChanged();
 }
 
+void Media::setRate(double rate)
+{
+  impl_->setRate(rate);
+}
+
+double Media::getRate() const
+{
+  return impl_->getRate();
+}
 
 bool Media::hasVideoSupport()
 {

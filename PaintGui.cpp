@@ -106,12 +106,41 @@ MediaGui::MediaGui(Paint::ptr paint)
   _mediaFileItem->setAttribute("filter", tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER));
   _mediaFileItem->setValue(media->getUri());
 
+  _mediaRateItem = _variantManager->addProperty(QVariant::Double,
+                                                tr("Speed (%)"));
+
+  _mediaRateItem->setAttribute("minimum", 0.1);
+  _mediaRateItem->setAttribute("decimals", 1);
+  _mediaRateItem->setValue(100.0);
+
+//  _mediaReverseItem = _variantManager->addProperty(QVariant::Bool,
+//                                                tr("Reverse"));
+//  _mediaReverseItem->setValue(false);
+
   _topItem->addSubProperty(_mediaFileItem);
+  _topItem->addSubProperty(_mediaRateItem);
+//  _topItem->addSubProperty(_mediaReverseItem);
 }
 
-void MediaGui::setValue(QtProperty* property, const QVariant& value) {
-  if (property == _mediaFileItem) {
+void MediaGui::setValue(QtProperty* property, const QVariant& value)
+{
+  if (property == _mediaFileItem)
+  {
     media->setUri(value.toString());
     emit valueChanged(_paint);
+  }
+  else {
+    if (property == _mediaRateItem)
+    {
+      double rateSign = (media->getRate() <= 0 ? -1 : +1);
+      media->setRate(value.toDouble() / 100.0 * rateSign);
+      emit valueChanged(_paint);
+    }
+//    else if (property == _mediaReverseItem)
+//    {
+//      double absoluteRate = abs( media->getRate() );
+//      media->setRate( (value.toBool() ? -1 : +1) * absoluteRate );
+//      emit valueChanged(_paint);
+//    }
   }
 }
