@@ -109,9 +109,10 @@ MediaGui::MediaGui(Paint::ptr paint)
   _mediaRateItem = _variantManager->addProperty(QVariant::Double,
                                                 tr("Speed (%)"));
 
-  _mediaRateItem->setAttribute("minimum", 0.1);
+  double rate = media->getRate(); // we need to save it because the call to setAttribute will set it to minimum
+  _mediaRateItem->setAttribute("minimum", 1);
   _mediaRateItem->setAttribute("decimals", 1);
-  _mediaRateItem->setValue(100.0);
+  _mediaRateItem->setValue(rate);
 
 //  _mediaReverseItem = _variantManager->addProperty(QVariant::Bool,
 //                                                tr("Reverse"));
@@ -133,7 +134,7 @@ void MediaGui::setValue(QtProperty* property, const QVariant& value)
     if (property == _mediaRateItem)
     {
       double rateSign = (media->getRate() <= 0 ? -1 : +1);
-      media->setRate(value.toDouble() / 100.0 * rateSign);
+      media->setRate(value.toDouble());
       emit valueChanged(_paint);
     }
 //    else if (property == _mediaReverseItem)
