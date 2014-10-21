@@ -21,8 +21,10 @@
 #ifndef MAINAPPLICATION_H_
 #define MAINAPPLICATION_H_
 
+#include <gst/gst.h>
 #include <QApplication>
 #include <QDebug>
+#include "MM.h"
 
 class MainApplication : public QApplication
 {

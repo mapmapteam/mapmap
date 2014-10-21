@@ -265,6 +265,7 @@ private:
   QAction *rewindAction;
 
   QAction *displayOutputWindow;
+  //QAction *outputWindowHasCursor;
   QAction *outputWindowFullScreen;
   QAction *displayCanvasControls;
   QAction *stickyVertices;
@@ -347,7 +348,7 @@ public:
   void removeCurrentPaint();
   void removeCurrentMapping();
 
-  void enableFullscreen();
+  void startFullScreen();
   void setOscPort(QString portNumber);
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////

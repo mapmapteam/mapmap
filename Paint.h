@@ -25,8 +25,8 @@
 #include <QtGlobal>
 #include <QtOpenGL>
 #include <string>
-
 #include <QColor>
+#include <QMutex>
 
 #if __APPLE__
 #include <OpenGL/gl.h>
@@ -76,6 +76,12 @@ public:
   /// Rewinds.
   virtual void rewind() {}
 
+  /// Locks mutex (default = no effect).
+  virtual void lockMutex() {}
+
+  /// Unlocks mutex (default = no effect).
+  virtual void unlockMutex() {}
+
   void setName(const QString& name) { _name = name; }
   QString getName() const { return _name; }
   uid getId() const { return _id; }
@@ -118,8 +124,7 @@ protected:
     Paint(id),
     textureId(0),
     x(0),
-    y(0),
-    bitsChanged(true)
+    y(0)
   {
     glGenTextures(1, &textureId);
   }
@@ -134,13 +139,12 @@ public:
   GLuint getTextureId() const { return textureId; }
   virtual int getWidth() const = 0;
   virtual int getHeight() const = 0;
-  virtual const uchar* getBits() const {
-    bitsChanged = false;
-    return _getBits();
-  }
+
+  /// Returns image bits data. Next call to bitsHaveChanged() will be false.
+  virtual const uchar* getBits() = 0;
 
   /// Returns true iff bits have changed since last call to getBits().
-  bool bitsHaveChanged() const { return bitsChanged; }
+  virtual bool bitsHaveChanged() const = 0;
 
   virtual void setPosition(GLfloat xPos, GLfloat yPos) {
     x = xPos;
@@ -148,9 +152,6 @@ public:
   }
   virtual GLfloat getX() const { return x; }
   virtual GLfloat getY() const { return y; }
-
-protected:
-  virtual const uchar* _getBits() const = 0;
 };
 
 /**
@@ -184,8 +185,12 @@ public:
   virtual int getWidth() const { return image.width(); }
   virtual int getHeight() const { return image.height(); }
 
-protected:
-  virtual const uchar* _getBits() const { return image.bits(); }
+  virtual const uchar* getBits() {
+    bitsChanged = false;
+    return image.bits();
+  }
+
+  virtual bool bitsHaveChanged() const { return bitsChanged; }
 };
 
 class MediaImpl; // forward declaration
@@ -215,6 +220,12 @@ public:
   /// Rewinds.
   virtual void rewind();
 
+  /// Locks mutex (default = no effect).
+  virtual void lockMutex();
+
+  /// Unlocks mutex (default = no effect).
+  virtual void unlockMutex();
+
   virtual QString getType() const
   {
     return "media";
@@ -222,13 +233,14 @@ public:
   virtual int getWidth() const;
   virtual int getHeight() const;
 
+  virtual const uchar* getBits();
+
+  virtual bool bitsHaveChanged() const;
+
   /**
    * Checks whether or not video is supported on this platform.
    */
   static bool hasVideoSupport();
-
-protected:
-  virtual const uchar* _getBits() const;
 
 private:
   /**

@@ -86,7 +86,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::handlePaintItemSelectionChanged()
 {
-
   // Set current paint.
   QListWidgetItem* item = paintList->currentItem();
   currentSelectedItem = item;
@@ -97,13 +96,12 @@ void MainWindow::handlePaintItemSelectionChanged()
   if (paintItemSelected)
   {
     // Set current paint.
-    uid idx = getItemId(*item);
-    if (currentPaintId != idx) {
-      setCurrentPaint(idx);
-      // Unselect current mapping.
+    uid paintId = getItemId(*item);
+    // Unselect current mapping.
+    if (currentPaintId != paintId)
       removeCurrentMapping();
-      mappingList->clearSelection();
-    }
+    // Set current paint.
+    setCurrentPaint(paintId);
   }
   else
     removeCurrentPaint();
@@ -121,23 +119,19 @@ void MainWindow::handleMappingItemSelectionChanged()
 {
     if (mappingList->selectedItems().empty())
     {
-        removeCurrentMapping();
+      removeCurrentMapping();
     }
     else
     {
-        QListWidgetItem* item = mappingList->currentItem();
+      QListWidgetItem* item = mappingList->currentItem();
+      currentSelectedItem = item;
 
-        currentSelectedItem = item;
-          // Get current mapping uid.
-          uid idm = getItemId(*item);
-          // Set current paint and mappings.
-          Mapping::ptr mapping = mappingManager->getMappingById(idm);
-          uid paintId = mapping->getPaint()->getId();
-          if (currentPaintId != paintId) {
-              setCurrentPaint(paintId);
-          }
-
-          setCurrentMapping(mapping->getId());
+      // Set current paint and mappings.
+      uid mappingId = getItemId(*item);
+      Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+      uid paintId = mapping->getPaint()->getId();
+      setCurrentMapping(mappingId);
+      setCurrentPaint(paintId);
     }
 
 
@@ -173,6 +167,7 @@ void MainWindow::handleMappingIndexesMoved()
 
 void MainWindow::handleItemSelected(QListWidgetItem* item)
 {
+  Q_UNUSED(item);
   // Change currently selected item.
   currentSelectedItem = item;
 }
@@ -538,8 +533,7 @@ void MainWindow::about()
   // Pop-up about dialog.
   QMessageBox::about(this, tr("About MapMap"),
       tr("<h2><img src=\":mapmap-title\"/> %1</h2>"
-          "<p>Copyright &copy; 2013 Sofian Audry, Alexandre Quessy, "
-          "Mike Latona and Vasilis Liaskovitis.</p>"
+          "<p>Copyright &copy; 2013 %2.</p>"
           "<p>MapMap is a free software for video mapping.</p>"
           "<p>Projection mapping, also known as video mapping and spatial augmented reality, "
           "is a projection technology used to turn objects, often irregularly shaped, into "
@@ -556,7 +550,7 @@ void MainWindow::about()
           "La Francophonie.</p>"
           "<p>http://mapmap.info<br />"
           "http://www.francophonie.org</p>"
-          ).arg(MM::VERSION));
+          ).arg(MM::VERSION, MM::COPYRIGHT_OWNERS));
 
   // Restart video playback. XXX Hack
   videoTimer->start();
@@ -569,24 +563,34 @@ void MainWindow::updateStatusBar()
 //  formulaLabel->setText(spreadsheet->currentFormula());
 }
 
+/**
+ * Called when the user wants to delete an item.
+ * 
+ * Deletes either a Paint or a Mapping.
+ */
 void MainWindow::deleteItem()
 {
+  bool isMappingTabSelected = (mappingSplitter == contentTab->currentWidget());
+  bool isPaintTabSelected = (paintSplitter == contentTab->currentWidget());
+
   if (currentSelectedItem)
   {
-    if (currentSelectedItem->listWidget() == mappingList)
+    if (isMappingTabSelected) //currentSelectedItem->listWidget() == mappingList)
     {
       // Delete mapping.
       deleteMapping( getItemId(*mappingList->currentItem()) );
       //currentSelectedItem = NULL;
     }
-    else if (currentSelectedItem->listWidget() == paintList)
+    else if (isPaintTabSelected) //currentSelectedItem->listWidget() == paintList)
     {
       // Delete paint.
       deletePaint( getItemId(*paintList->currentItem()), false );
       //currentSelectedItem = NULL;
     }
     else
+    {
       qCritical() << "Selected item neither a mapping nor a paint." << endl;
+    }
   }
 }
 
@@ -1214,6 +1218,14 @@ void MainWindow::createActions()
   // Output window should be displayed for full screen option to be available.
   connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindowFullScreen, SLOT(setEnabled(bool)));
 
+
+  // outputWindowHasCursor = new QAction(tr("O&utput window has cursor"), this);
+  // outputWindowHasCursor->setStatusTip(tr("Show cursor in output window"));
+  // outputWindowHasCursor->setIconVisibleInMenu(false);
+  // outputWindowHasCursor->setCheckable(true);
+  // outputWindowHasCursor->setChecked(true);
+  // connect(outputWindowHasCursor, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
+
   // Toggle display of canvas controls.
   displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
   //  displayCanvasControls->setShortcut(tr("Ctrl+E"));
@@ -1241,9 +1253,14 @@ void MainWindow::createActions()
   connect(stickyVertices, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableStickyVertices(bool)));
 }
 
-void MainWindow::enableFullscreen()
+void MainWindow::startFullScreen()
 {
-  outputWindowFullScreen->setEnabled(true);
+  // Remove canvas controls.
+  displayCanvasControls->setChecked(false);
+  // Display output window.
+  displayOutputWindow->setChecked(true);
+  // Send fullscreen.
+  outputWindowFullScreen->setChecked(true);
 }
 
 void MainWindow::createMenus()
@@ -1298,6 +1315,7 @@ void MainWindow::createMenus()
   viewMenu->addAction(outputWindowFullScreen);
   viewMenu->addAction(displayCanvasControls);
   viewMenu->addAction(stickyVertices);
+  //viewMenu->addAction(outputWindowHasCursor);
 
   // Run.
   runMenu = menuBar->addMenu(tr("&Run"));
@@ -2048,35 +2066,42 @@ QIcon MainWindow::createImageIcon(const QString& filename) {
 
 void MainWindow::setCurrentPaint(int uid)
 {
-  if (currentPaintId != uid) {
-    currentPaintId = uid;
-    paintList->setCurrentRow( getItemRowFromId(*paintList, uid) );
-
-    if (uid != NULL_UID)
+  if (uid == NULL_UID)
+	removeCurrentPaint();
+  else {
+    if (currentPaintId != uid) {
+      currentPaintId = uid;
+      paintList->setCurrentRow( getItemRowFromId(*paintList, uid) );
       paintPropertyPanel->setCurrentWidget(paintGuis[uid]->getPropertiesEditor());
+    }
+    _hasCurrentPaint = true;
   }
-  _hasCurrentPaint = true;
 }
 
 void MainWindow::setCurrentMapping(int uid)
 {
-  if (currentMappingId != uid) {
-    mappingList->setCurrentRow(  getItemRowFromId(*mappingList, uid) );
-    currentMappingId = uid;
-    if (uid != NULL_UID)
+  if (uid == NULL_UID)
+    removeCurrentMapping();
+  else {
+    if (currentMappingId != uid) {
+      currentMappingId = uid;
+      mappingList->setCurrentRow(  getItemRowFromId(*mappingList, uid) );
       mappingPropertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
     }
-  _hasCurrentMapping = true;
+    _hasCurrentMapping = true;
+  }
 }
 
 void MainWindow::removeCurrentPaint() {
   _hasCurrentPaint = false;
   currentPaintId = NULL_UID;
+  paintList->clearSelection();
 }
 
 void MainWindow::removeCurrentMapping() {
   _hasCurrentMapping = false;
   currentMappingId = NULL_UID;
+  mappingList->clearSelection();
 }
 
 void MainWindow::startOscReceiver()

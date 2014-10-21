@@ -86,8 +86,7 @@ int Media::getHeight() const
 }
 
 void Media::update() {
-  if (impl_->runVideo())
-    bitsChanged = true;
+  impl_->update();
 }
 
 void Media::play()
@@ -105,10 +104,24 @@ void Media::rewind()
   impl_->resetMovie();
 }
 
-const uchar* Media::_getBits() const
+void Media::lockMutex() {
+  impl_->lockMutex();
+}
+
+void Media::unlockMutex() {
+  impl_->unlockMutex();
+}
+
+const uchar* Media::getBits()
 {
   return this->impl_->getBits();
 }
+
+bool Media::bitsHaveChanged() const
+{
+  return this->impl_->bitsHaveChanged();
+}
+
 
 bool Media::hasVideoSupport()
 {
