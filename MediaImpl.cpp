@@ -52,13 +52,16 @@ int MediaImpl::getHeight() const
   return _padHandlerData.height;
 }
 
-const uchar* MediaImpl::getBits() const
+const uchar* MediaImpl::getBits()
 {
+  // Reset bits changed.
+  _bitsChanged = false;
+
+  // Return data.
   if (_currentFrameSample == NULL)
     return NULL;
-
-
-  return _data;
+  else
+    return _data;
 }
 
 QString MediaImpl::getUri() const
@@ -92,18 +95,6 @@ MediaImpl::~MediaImpl()
 
   // Free mutex locker object.
   delete _mutexLocker;
-}
-
-bool MediaImpl::_videoPull()
-{
-  GstSample *sample = _currentFrameSample;
-
-  if (sample == NULL)
-  {
-    // Either means we are not playing or we have reached EOS.
-    return false;
-  }
-  else return true;
 }
 
 bool MediaImpl::_eos() const
@@ -157,6 +148,9 @@ GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
 
     // Retrieve data from map info.
     p->_data = map.data;
+
+    // Bits have changed.
+    p->_bitsChanged = true;
   }
 
   p->unlockMutex();
@@ -175,6 +169,7 @@ _videoconvert0(NULL),
 _appsink0(NULL),
 _currentFrameSample(NULL),
 _currentFrameBuffer(NULL),
+_bitsChanged(false),
 _width(640), // unused
 _height(480), // unused
 _data(NULL),
@@ -221,24 +216,29 @@ void MediaImpl::freeResources()
     _pipeline = NULL;
   }
 
-  qDebug() << "Freeing remaining samples/buffers" << endl;
-
-  _freeCurrentSample();
-
+  // Reset pipeline elements.
   _uridecodebin0 = NULL;
   _queue0 = NULL;
   _videoconvert0 = NULL;
-  //_audioSink = NULL;
   _appsink0 = NULL;
-  _currentFrameSample = NULL;
+
+  // Reset pad handler.
   _padHandlerData = GstPadHandlerData();
-  
-  // unref the shmsrc poller
+
+  // Unref the shmsrc poller.
   if (_pollSource)
   {
      g_source_unref(_pollSource);
      _pollSource = NULL;
   }
+
+  qDebug() << "Freeing remaining samples/buffers" << endl;
+
+  // Frees current sample and buffer.
+  _freeCurrentSample();
+
+  // Resets bits changed.
+  _bitsChanged = false;
 }
 
 void MediaImpl::resetMovie()
@@ -476,43 +476,27 @@ bool MediaImpl::loadMovie(QString filename)
   return true;
 }
 
-bool MediaImpl::runVideo()
+void MediaImpl::update()
 {
-  if (! _preRun())
+  // Check for end-of-stream or terminate.
+  if (_eos() || _terminate)
   {
-    return false;
+    _setFinished(true);
+    resetMovie();
   }
-
-  bool bitsChanged = false;
-
-  // Check if we have some frames in the input buffer.
-  if (_currentFrameSample != NULL)
-  {
-    // Pull video.
-    if (_videoPull())
-    {
-      bitsChanged = true;
-    }
-
-    //std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
-  }
-
-  /* TODO: This causes the texture to be loaded always in Mapper.cpp . The
- * problem if this is not set is: When we have more than one shape, a
- * shape that has a new buffer coming in will overdraw the old buffer of the
- * shape on top. This implementation seems to be fast enough that
- * _videoNewBufferCounter is often 1 or 0. If bitsChanged is often switching
- * between true and false (as in the case described above), than the shape
- * textures will appear to be flickering/alternating. Maybe a better solution is
- * needed (in the GL layer or here?)*/
   else
   {
-    bitsChanged = true;
+    _setFinished(false);
   }
 
-  _postRun();
-
-  return bitsChanged;
+//  // Check if movie is ready and connected.
+//  if (!isReady())
+//  {
+//    _bitsChanged = false;
+//  }
+//
+  // Check gstreamer messages on bus.
+  _checkMessages();
 }
 
 bool MediaImpl::setPlayState(bool play)
@@ -557,7 +541,7 @@ bool MediaImpl::_preRun()
   return true;
 }
 
-void MediaImpl::_postRun()
+void MediaImpl::_checkMessages()
 {
   // Parse message.
   if (_bus != NULL)

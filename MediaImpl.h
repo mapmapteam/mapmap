@@ -60,33 +60,42 @@ public:
    * Returns whether or not GStreamer video support is ok.
    */
   static bool hasVideoSupport();
+
   /**
    * Sets up the player.
    * Basically calls loadMovie().
    */
   void build();
+
   /**
    * Returns the width of the video image.
    */
   int getWidth() const;
+
   /**
    * Returns the height of the video image.
    */
   int getHeight() const;
+
   /**
    * Returns the path to the media file being played.
    */
   QString getUri() const;
+
   /**
    * When using the shared memory source, returns whether or not we
    * are attached to a shared memory socket.
    */
   bool getAttached();
+
   /**
    * Returns the raw image of the last video frame.
    * It is currently unused!
    */
-  const uchar* getBits() const;
+  const uchar* getBits();
+
+  /// Returns true iff bits have changed since last call to getBits().
+  bool bitsHaveChanged() const { return _bitsChanged; }
 
   /**
    * Checks if the pipeline is ready.
@@ -94,14 +103,12 @@ public:
    * Returns whether or not the elements in the pipeline are connected,
    * and if we are using shmsrc, if the shared memory socket is being read.
    */
-  bool isReady() const { return _padHandlerData.videoIsConnected; }
+  bool isReady() const { return _movieReady && _padHandlerData.videoIsConnected; }
 
   /**
-   * Tries to pull a video frame from the queue. 
-   *
-   * Returns true if the image has changed.
+   * Performs regular updates (checks if movie is ready and checks messages).
    */
-  bool runVideo();
+  void update();
 
   // void runAudio();
 
@@ -126,12 +133,6 @@ protected:
 
 private:
   /**
-   * Tries to pull a video frame from the asynchronous input buffer.
-   *
-   * Pushes the frame into the asynchronous output buffer.
-   */
-  bool _videoPull();
-  /**
    * Checks if we reached the end of the video file.
    *
    * Returns false if the pipeline is not ready yet.
@@ -142,7 +143,7 @@ private:
   // void _init();
 
   bool _preRun();
-  void _postRun();
+  void _checkMessages();
   void _setReady(bool ready);
   void _setFinished(bool finished);
 
@@ -205,7 +206,8 @@ private:
    */
   GstSample  *_currentFrameSample;
   GstBuffer  *_currentFrameBuffer;
-  GstMapInfo _mapInfo;
+  GstMapInfo  _mapInfo;
+  bool       _bitsChanged;
 
   /**
    * shmsrc socket poller.
