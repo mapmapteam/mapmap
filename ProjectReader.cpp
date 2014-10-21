@@ -117,9 +117,14 @@ void ProjectReader::parsePaint(const QDomElement& paint)
 
 void ProjectReader::parseMapping(const QDomElement& mapping)
 {
+  uid id = NULL_UID;
   QString mappingAttrId      = mapping.attribute("id", QString::number(NULL_UID));
   QString mappingAttrPaintId = mapping.attribute("paint_id", QString::number(NULL_UID));
   QString mappingAttrType    = mapping.attribute("type", "");
+
+  bool isLocked = (mapping.attribute("locked", QString::number(1)) == "1");
+  bool isSolo = (mapping.attribute("solo", QString::number(1)) == "1");
+  bool isVisible = (mapping.attribute("visible", QString::number(1)) == "1");
 
   // Get destination shape.
   QDomElement dst = mapping.firstChildElement("destination");
@@ -135,7 +140,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     QVector<QPointF> srcPoints;
     _parseTriangle(src, srcPoints);
 
-    uid id = _window->createTriangleTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), srcPoints, dstPoints);
+    id = _window->createTriangleTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), srcPoints, dstPoints);
 
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create triangle texture mapping"));
@@ -152,7 +157,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     QVector<QPointF> srcPoints;
     _parseMesh(src, srcPoints, nColumns, nRows);
 
-    uid id = _window->createMeshTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), nColumns, nRows, srcPoints, dstPoints);
+    id = _window->createMeshTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), nColumns, nRows, srcPoints, dstPoints);
 
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create mesh texture mapping"));
@@ -168,7 +173,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     QVector<QPointF> srcPoints;
     _parseEllipse(src, srcPoints);
 
-    uid id = _window->createEllipseTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), srcPoints, dstPoints);
+    id = _window->createEllipseTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), srcPoints, dstPoints);
 
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create ellipse texture mapping"));
@@ -178,7 +183,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     // Parse destination triangle.
     _parseTriangle(dst, dstPoints);
 
-    uid id = _window->createTriangleColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
+    id = _window->createTriangleColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
 
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create triangle color mapping"));
@@ -188,7 +193,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     // Parse destination quad.
     _parseQuad(dst, dstPoints);
 
-    uid id = _window->createQuadColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
+    id = _window->createQuadColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
 
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create quad color mapping"));
@@ -198,13 +203,22 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     // Parse destination ellipse.
     _parseEllipse(dst, dstPoints);
 
-    uid id = _window->createEllipseColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
+    id = _window->createEllipseColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
 
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create ellipse color mapping"));
   }
   else
     _xml.raiseError(QObject::tr("Unsupported mapping type: %1.").arg(mappingAttrType));
+  // and then set some more attributes:
+  if (id != NULL_UID)
+  {
+    MappingManager& manager = _window->getMappingManager();
+    Mapping::ptr mapping = manager.getMappingById(id);
+    mapping->setSolo(isSolo);
+    mapping->setVisible(isVisible);
+    mapping->setLocked(isLocked);
+  }
 }
 
 void ProjectReader::_parseStandardShape(const QString& type, const QDomElement& shape, QVector<QPointF>& points, int nVertices)

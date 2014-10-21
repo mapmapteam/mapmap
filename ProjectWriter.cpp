@@ -54,7 +54,7 @@ void ProjectWriter::writeItem(Paint *item)
 {
   _xml.writeStartElement("paint");
   _xml.writeAttribute("id", QString::number(item->getId()));
-  _xml.writeAttribute("name", item->getName());
+  //_xml.writeAttribute("name", item->getName());
   _xml.writeAttribute("type", item->getType());
 
   if (item->getType() == "media")
@@ -138,6 +138,11 @@ void ProjectWriter::writeItem(Mapping *item)
   _xml.writeAttribute("id", QString::number(item->getId()));
   _xml.writeAttribute("paint_id", QString::number(item->getPaint()->getId()));
   _xml.writeAttribute("type", item->getType());
+
+  // boolean attributes:
+  _xml.writeAttribute("locked", QString::number((int) item->isLocked() ? 1 : 0));
+  _xml.writeAttribute("solo", QString::number((int) item->isSolo() ? 1 : 0));
+  _xml.writeAttribute("visible", QString::number((int) item->isVisible() ? 1 : 0));
 
   Shape *shape = item->getShape().get();
   _xml.writeStartElement("destination");
