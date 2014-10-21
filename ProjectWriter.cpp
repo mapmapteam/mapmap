@@ -75,6 +75,12 @@ void ProjectWriter::writeItem(Paint *item)
       _xml.writeTextElement("y", os.str().c_str());
     }
 
+    {
+      std::ostringstream os;
+      os << media->getRate();
+      _xml.writeTextElement("rate", os.str().c_str());
+    }
+
     _xml.writeEndElement();
     //_xml.writeEmptyElement("hello");
   }
