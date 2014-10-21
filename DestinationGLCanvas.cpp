@@ -22,7 +22,8 @@
 #include "MainWindow.h"
 
 DestinationGLCanvas::DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
-: MapperGLCanvas(mainWindow, parent, shareWidget)
+: MapperGLCanvas(mainWindow, parent, shareWidget),
+  _displayCrosshair(false)
 {
 }
 
@@ -58,5 +59,19 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
   }
 
   glPopMatrix();
+
+  // Display crosshair cursor.
+  if (_displayCrosshair)
+  {
+    const QPoint& cursorPosition = QCursor::pos();
+    const QRect& geo = geometry();
+    if (geo.contains(cursorPosition))
+    {
+      painter->setPen(MM::CONTROL_COLOR);
+      painter->drawLine(cursorPosition.x(), 0, cursorPosition.x(), geo.height());
+      painter->drawLine(0, cursorPosition.y(), geo.width(), cursorPosition.y());
+    }
+  }
+
 }
 
