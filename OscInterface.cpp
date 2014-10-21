@@ -218,6 +218,13 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
       //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
       main_window.setTextureUri(paint_id, image_uri);
   }
+  else if (path == "/mapmap/paint/media/rate" && typetags == "if")
+  {
+      int paint_id = command.at(2).toInt();
+      float rate = command.at(3).toDouble();
+      //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
+      main_window.setTextureRate(paint_id, rate);
+  }
   else
   {
       std::cout << "Unhandled OSC message: ";

@@ -636,7 +636,7 @@ bool MainWindow::clearProject()
 }
 
 uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
-      bool isImage, bool live)
+                                 bool isImage, bool live, double rate)
 {
   // Cannot create image with already existing id.
   if (Paint::getUidAllocator().exists(paintId))
@@ -647,8 +647,9 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
     Texture* tex = 0;
     if (isImage)
       tex = new Image(uri, paintId);
-    else
-      tex = new Media(uri, live, paintId);
+    else {
+      tex = new Media(uri, live, rate, paintId);
+    }
 
     // Create new image with corresponding ID.
     tex->setPosition(x, y);
@@ -2110,3 +2111,28 @@ bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
     return success;
 }
 
+bool MainWindow::setTextureRate(int texture_id, double rate)
+{
+  Paint::ptr paint = this->mappingManager->getPaintById(texture_id);
+  if (paint.get() == NULL)
+  {
+      std::cout << "No such texture paint id " << texture_id << std::endl;
+      return false;
+  }
+  else
+  {
+      if (paint->getType() == "media")
+      {
+        Media *media = (Media *) paint.get(); // FIXME: use sharedptr cast
+        videoTimer->stop();
+        media->setRate(rate);
+        videoTimer->start();
+      }
+      else
+      {
+          std::cout << "Paint id " << texture_id << " is not a media texture." << std::endl;
+          return false;
+      }
+  }
+  return true;
+}

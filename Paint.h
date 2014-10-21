@@ -203,7 +203,7 @@ class Media : public Texture
 protected:
   QString uri;
 public:
-  Media(const QString uri_, bool live, uid id=NULL_UID);
+  Media(const QString uri_, bool live, double rate, uid id=NULL_UID);
   virtual ~Media();
   const QString getUri() const
   {
