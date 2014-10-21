@@ -180,7 +180,7 @@ public:
 
   // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
   static GstFlowReturn gstNewSampleCallback(GstElement*, MediaImpl *p);
-  static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
+  //static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
 
   // GStreamer callback that plugs the audio/video pads into the proper elements when they
   // are made available by the source.
@@ -233,27 +233,34 @@ private:
   // unused
   int _height;
 
-  /**
-   * Raw image data of the last video frame.
-   */
+  /// Raw image data of the last video frame.
   uchar *_data;
 
+  /// Is seek enabled on the current pipeline?
   bool _seekEnabled;
-  /**
-   * Whether or not we are reading video from a shmsrc.
-   */
+
+  /// Playback rate (negative ==> reverse).
+  double _rate;
+
+  /// Whether or not we are reading video from a shmsrc.
   bool _isSharedMemorySource;
-  /**
-   * Whether or not we are attached to a shmsrc, if using a shmsrc.
-   */
+
+  /// Whether or not we are attached to a shmsrc, if using a shmsrc.
   bool _attached;
 
-  int _audioNewBufferCounter;
-
+  // unused
   bool _terminate;
+
+  /// Is the movie (or rather pipeline) ready to play.
   bool _movieReady;
 
+  /// Is the movie playing (as opposed to paused).
+  bool _playState;
+
+  /// Main mutex.
   QMutex _mutex;
+
+  /// Main mutex locker (for the lockMutex() / unlockMutex() methods).
   QMutexLocker* _mutexLocker;
 
 private:
