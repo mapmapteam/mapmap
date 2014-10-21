@@ -151,6 +151,15 @@ public slots:
                                 uid paintId,
                                 const QVector<QPointF> &dst);
 
+  /// Sets visibility of mapping.
+  void setMappingVisible(uid mappingId, bool visible);
+
+  /// Sets solo status of mapping.
+  void setMappingSolo(uid mappingId, bool solo);
+
+  /// Sets locked attribute of mapping.
+  void setMappingLocked(uid mappingId, bool locked);
+
   /// Deletes/removes a mapping.
   void deleteMapping(uid mappingId);
 

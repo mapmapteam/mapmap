@@ -210,14 +210,13 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
   }
   else
     _xml.raiseError(QObject::tr("Unsupported mapping type: %1.").arg(mappingAttrType));
+
   // and then set some more attributes:
   if (id != NULL_UID)
   {
-    MappingManager& manager = _window->getMappingManager();
-    Mapping::ptr mapping = manager.getMappingById(id);
-    mapping->setSolo(isSolo);
-    mapping->setVisible(isVisible);
-    mapping->setLocked(isLocked);
+    _window->setMappingVisible(id, isVisible);
+    _window->setMappingSolo   (id, isSolo);
+    _window->setMappingLocked (id, isLocked);
   }
 }
 
