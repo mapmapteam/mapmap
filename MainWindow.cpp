@@ -1180,6 +1180,14 @@ void MainWindow::createActions()
   // Output window should be displayed for full screen option to be available.
   connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindowFullScreen, SLOT(setEnabled(bool)));
 
+
+  // outputWindowHasCursor = new QAction(tr("O&utput window has cursor"), this);
+  // outputWindowHasCursor->setStatusTip(tr("Show cursor in output window"));
+  // outputWindowHasCursor->setIconVisibleInMenu(false);
+  // outputWindowHasCursor->setCheckable(true);
+  // outputWindowHasCursor->setChecked(true);
+  // connect(outputWindowHasCursor, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
+
   // Toggle display of canvas controls.
   displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
   //  displayCanvasControls->setShortcut(tr("Ctrl+E"));
@@ -1254,6 +1262,7 @@ void MainWindow::createMenus()
   viewMenu->addAction(outputWindowFullScreen);
   viewMenu->addAction(displayCanvasControls);
   viewMenu->addAction(stickyVertices);
+  //viewMenu->addAction(outputWindowHasCursor);
 
   // Run.
   runMenu = menuBar->addMenu(tr("&Run"));
