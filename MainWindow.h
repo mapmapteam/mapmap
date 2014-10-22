@@ -83,6 +83,9 @@ private slots:
   void addColor();
   void about();
   void updateStatusBar();
+  void openRecentFile();
+  void clearRecentFileList();
+  void openRecentVideo();
   // Edit menu.
   void deleteItem();
 
@@ -115,7 +118,7 @@ public slots:
   bool clearProject();
 
   /// Create or replace a media paint (or image).
-  uid createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage, bool live=false, double rate=1.0);
+  uid createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage, bool live=false, double rate=100.0);
 
   /// Create or replace a color paint.
   uid createColorPaint(uid paintId, QColor color);
@@ -183,6 +186,8 @@ private:
   void createContextMenu();
   void createToolBars();
   void createStatusBar();
+  void updateRecentFileActions();
+  void updateRecentVideoActions();
 
   // Settings.
   void readSettings();
@@ -198,6 +203,7 @@ public:
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
+  void setCurrentVideo(const QString &filename);
   bool importMediaFile(const QString &fileName, bool isImage);
   bool addColorPaint(const QColor& color);
   void addMappingItem(uid mappingId);
@@ -236,6 +242,8 @@ private:
   QMenu *viewMenu;
   QMenu *runMenu;
   QMenu *helpMenu;
+  QMenu *recentFileMenu;
+  QMenu *recentVideoMenu;
 
   // Toolbar.
   QToolBar *mainToolBar;
@@ -256,6 +264,7 @@ private:
 //  QAction *pasteAction;
   QAction *deleteAction;
   QAction *aboutAction;
+  QAction *clearRecentFileActions;
 
   QAction *addMeshAction;
   QAction *addTriangleAction;
@@ -270,6 +279,11 @@ private:
   QAction *outputWindowFullScreen;
   QAction *displayCanvasControls;
   QAction *stickyVertices;
+
+  enum { MaxRecentFiles = 10 };
+  enum { MaxRecentVideo = 5 };
+  QAction *recentFileActions[MaxRecentFiles];
+  QAction *recentVideoActions[MaxRecentVideo];
 
   // Widgets and layout.
   QTabWidget* contentTab;
@@ -291,8 +305,18 @@ private:
 
   // Internal variables. ///////////////////////////////////////////////////////////////////////////////////
 
+  // Recent files
+  QStringList recentFiles;
+  QStringList recentVideos;
+
   // Current filename.
   QString curFile;
+
+  // Current video name
+  QString curVideo;
+
+  // Settings
+  QSettings settings;
 
   // Model.
   MappingManager* mappingManager;

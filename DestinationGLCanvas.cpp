@@ -63,7 +63,7 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
   // Display crosshair cursor.
   if (_displayCrosshair)
   {
-    const QPoint& cursorPosition = QCursor::pos();
+    const QPoint& cursorPosition = this->mapFromGlobal(QCursor::pos());
     const QRect& geo = geometry();
     if (geo.contains(cursorPosition))
     {

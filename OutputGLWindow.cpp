@@ -38,6 +38,7 @@ OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QG
   _geometry = saveGeometry();
 
   _pointerIsVisible = true;
+
 }
 
 void OutputGLWindow::setCursorVisible(bool visible)
@@ -106,9 +107,6 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
     // Save window geometry.
     _geometry = saveGeometry();
 
-    //hide cursor
-    this->setCursorVisible(false);
-
     // Move window to second screen before fullscreening it.
     if (QApplication::desktop()->screenCount() > 1)
       setGeometry(QApplication::desktop()->screenGeometry(1));
@@ -117,7 +115,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
     // Special case for Unity.
     if (session == "ubuntu" || session == "gnome") {
       setWindowState( windowState() | Qt::WindowFullScreen | Qt::WindowMaximized);
-      setWindowFlags(Qt::Dialog);
+      setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
       show();
     } else {
       showFullScreen();
@@ -131,8 +129,9 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
     // Restore geometry of window to what it was before full screen call.
     restoreGeometry(_geometry);
 
-    // Show cursor
-    this->setCursorVisible(true);
+    // Keep window to second screen
+    if (QApplication::desktop()->screenCount() > 1)
+      setGeometry(QApplication::desktop()->screenGeometry(1));
 
 #ifdef Q_OS_UNIX
     // Special case for Unity.
