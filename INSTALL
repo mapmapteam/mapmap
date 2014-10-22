@@ -22,6 +22,7 @@ Install basic development tools fot Qt projects, plus liblo for OSC support::
 
   sudo apt-get install -y \
       liblo-dev \
+      libglew-dev \
       qt5-default
 
 Install GStreamer 1.0 libraries and plugins:
@@ -29,17 +30,22 @@ Install GStreamer 1.0 libraries and plugins:
   sudo apt-get install -y \
       libgstreamer1.0-dev \
       libgstreamer-plugins-base1.0-dev \
-      gstreamer1.0-alsa \
-      gstreamer1.0-fluendo-mp3 \
-      gstreamer1.0-gnonlin \
-      gstreamer1.0-nice \
       gstreamer1.0-plugins-bad \
+      gstreamer1.0-plugins-libav \
       gstreamer1.0-plugins-base \
       gstreamer1.0-plugins-base-apps \
       gstreamer1.0-plugins-good \
       gstreamer1.0-plugins-ugly \
+      gstreamer1.0-tools
+
+You don't really need these ones, but they might be useful one day:
+
+  sudo apt-get install -y \
+      gstreamer1.0-alsa \
+      gstreamer1.0-fluendo-mp3 \
+      gstreamer1.0-gnonlin \
+      gstreamer1.0-nice \
       gstreamer1.0-pulseaudio \
-      gstreamer1.0-tools \
       gstreamer1.0-x
 
 DEPRECATED Install GStreamer 0.10 librairies and plugins::
@@ -47,18 +53,20 @@ DEPRECATED Install GStreamer 0.10 librairies and plugins::
   sudo apt-get install -y \
       libgstreamer-plugins-base0.10-dev \
       libgstreamer0.10-dev \
-      gstreamer0.10-alsa \
       gstreamer0.10-ffmpeg \
-      gstreamer0.10-fluendo-mp3 \
-      gstreamer0.10-gnonlin \
-      gstreamer0.10-nice \
       gstreamer0.10-plugins-bad \
       gstreamer0.10-plugins-base \
       gstreamer0.10-plugins-base-apps \
       gstreamer0.10-plugins-good \
       gstreamer0.10-plugins-ugly \
+      gstreamer0.10-tools
+
+  sudo apt-get install -y \
+      gstreamer0.10-fluendo-mp3 \
+      gstreamer0.10-gnonlin \
+      gstreamer0.10-nice \
       gstreamer0.10-pulseaudio \
-      gstreamer0.10-tools \
+      gstreamer0.10-alsa \
       gstreamer0.10-x
 
 (Note: On Ubuntu 14.04 you need to install gstreamer0.10-ffmpeg from
