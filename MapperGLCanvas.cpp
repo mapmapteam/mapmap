@@ -102,14 +102,10 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
 {
   int i;
   int dist;
-  int max_distance_to_consider;
-  int distance_of_the_closest;
-  int xmouse = event->x();
-  int ymouse = event->y();
+  int minDistance;
   const QPointF& mousePos = event->posF();
   // Note: we compare with the square value for fastest computation of the distance
-  max_distance_to_consider = MM::VERTEX_SELECT_RADIUS * MM::VERTEX_SELECT_RADIUS;
-  distance_of_the_closest = max_distance_to_consider;
+  minDistance = MM::VERTEX_SELECT_RADIUS * MM::VERTEX_SELECT_RADIUS;
 
   // Drag the closest vertex
   if (event->buttons() & Qt::LeftButton)
@@ -121,10 +117,10 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
       for (i = 0; i < shape->nVertices(); i++)
       {
         dist = distSq(mousePos, shape->getVertex(i)); // squared distance
-        if (dist < distance_of_the_closest)
+        if (dist < minDistance)
         {
           _activeVertex = i;
-          distance_of_the_closest = dist;
+          minDistance = dist;
           _mousePressedToDragVertex = true;
         }
       }
@@ -143,7 +139,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     for (QVector<Mapping::ptr>::const_iterator it = mappings.end() - 1; it >= mappings.begin(); --it)
     {
       Shape *shape = getShapeFromMappingId((*it)->getId());
-      if (shape && shape->includesPoint(xmouse, ymouse))
+      if (shape && shape->includesPoint(mousePos))
       {
         if (shape != orig)
         {
@@ -158,7 +154,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   if (event->buttons() & Qt::LeftButton)
   {
     Shape* shape = getCurrentShape();
-    if (shape && shape->includesPoint(xmouse, ymouse))
+    if (shape && shape->includesPoint(mousePos))
     {
       _shapeGrabbed = true;
       _shapeFirstGrab = true;
