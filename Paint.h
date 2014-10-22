@@ -203,7 +203,7 @@ class Media : public Texture
 protected:
   QString uri;
 public:
-  Media(const QString uri_, bool live, uid id=NULL_UID);
+  Media(const QString uri_, bool live, double rate, uid id=NULL_UID);
   virtual ~Media();
   const QString getUri() const
   {
@@ -237,7 +237,10 @@ public:
 
   virtual bool bitsHaveChanged() const;
 
-  virtual void setRate(double rate=1.0);
+  /// Sets playback rate (in %). Negative values mean reverse playback.
+  virtual void setRate(double rate=100.0);
+
+  /// Returns playback rate.
   double getRate() const;
 
 

@@ -92,11 +92,12 @@ void ProjectReader::parsePaint(const QDomElement& paint)
 
   if (paintAttrType == "media" || paintAttrType == "image")
   {
-    QString uri = paint.firstChildElement("uri").text();
-    QString x   = paint.firstChildElement("x").text();
-    QString y   = paint.firstChildElement("y").text();
+    QString uri  = paint.firstChildElement("uri").text();
+    QString x    = paint.firstChildElement("x").text();
+    QString y    = paint.firstChildElement("y").text();
+    QString rate = paint.firstChildElement("rate").text();
 
-    uid id = _window->createMediaPaint(paintAttrId.toInt(), uri, x.toFloat(), y.toFloat(), paintAttrType == "image", false);
+    uid id = _window->createMediaPaint(paintAttrId.toInt(), uri, x.toFloat(), y.toFloat(), paintAttrType == "image", false, rate.toDouble());
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create media with uri %1.").arg(uri));
   }

@@ -51,12 +51,13 @@ bool Image::setUri(const QString &uri)
 
 /* Implementation of the Video class */
 
-Media::Media(const QString uri_, bool live, uid id):
+Media::Media(const QString uri_, bool live, double rate, uid id):
     Texture(id),
     uri(uri_),
     impl_(NULL)
 {
   impl_ = new MediaImpl(uri_, live);
+  setRate(rate);
 }
 
 // vertigo
@@ -122,12 +123,12 @@ bool Media::bitsHaveChanged() const
 
 void Media::setRate(double rate)
 {
-  impl_->setRate(rate);
+  impl_->setRate(rate / 100.0);
 }
 
 double Media::getRate() const
 {
-  return impl_->getRate();
+  return impl_->getRate() * 100.0;
 }
 
 bool Media::hasVideoSupport()

@@ -635,6 +635,7 @@ void MediaImpl::_checkMessages()
 
       // Pipeline has prerolled/ready to play ///////////////
       case GST_MESSAGE_ASYNC_DONE:
+        if (!_isMovieReady())
         {
           // Check if seeking is allowed.
           gint64 start, end;
@@ -647,8 +648,6 @@ void MediaImpl::_checkMessages()
               g_print ("Seeking is ENABLED from %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT "\n",
                        GST_TIME_ARGS (start), GST_TIME_ARGS (end));
 
-              // Update playback rate.
-              _updateRate();
             }
             else
             {

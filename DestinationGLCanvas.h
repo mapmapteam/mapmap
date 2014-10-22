@@ -36,8 +36,14 @@ public:
 
   virtual Shape* getShapeFromMappingId(uid mappingId);
 
+  void setDisplayCrosshair(bool displayCrosshair) {
+    _displayCrosshair = displayCrosshair;
+  }
+
 private:
   virtual void doDraw(QPainter* painter);
+
+  bool _displayCrosshair;
 };
 
 #endif /* DESTINATIONGLCANVAS_H_ */
