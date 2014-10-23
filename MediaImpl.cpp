@@ -90,12 +90,15 @@ void MediaImpl::setRate(double rate)
     return;
   }
 
-  // Set rate.
-  _rate = rate;
+  // Only update rate if needed.
+  if (_rate != rate)
+  {
+    _rate = rate;
 
-  // Send seek events to activate rate.
-  if (_seekEnabled)
-    _updateRate();
+    // Send seek events to activate rate.
+    if (_seekEnabled)
+      _updateRate();
+  }
 }
 
 void MediaImpl::build()
