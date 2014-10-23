@@ -54,7 +54,14 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
       getCurrentShape() != NULL)
   {
     painter->save();
-    getMainWindow()->getMapperByMappingId(getMainWindow()->getCurrentMappingId())->drawControls(painter);
+    const Mapper::ptr& mapper = getMainWindow()->getMapperByMappingId(getMainWindow()->getCurrentMappingId());
+    if (hasActiveVertex()) {
+      QList<int> selectedVertices;
+      selectedVertices.append(getActiveVertexIndex());
+      mapper->drawControls(painter, &selectedVertices);
+    }
+    else
+      mapper->drawControls(painter);
     painter->restore();
   }
 

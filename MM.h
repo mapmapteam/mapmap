@@ -51,6 +51,7 @@ public:
 
   static const QColor CONTROL_COLOR;
   static const QBrush VERTEX_BACKGROUND;
+  static const QBrush VERTEX_SELECTED_BACKGROUND;
 
   static const qreal SHAPE_STROKE_WIDTH = 2;
   static const qreal SHAPE_INNER_STROKE_WIDTH = 0.5;

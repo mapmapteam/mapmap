@@ -57,12 +57,13 @@ Quad* createQuadForColor(int frameWidth, int frameHeight);
 Triangle* createTriangleForColor(int frameWidth, int frameHeight);
 Ellipse* createEllipseForColor(int frameWidth, int frameHeight);
 
-void drawControlsVertices(QPainter* painter, const Shape& shape);
-void drawControlsVertex(QPainter* painter, const QPointF& vertex, qreal radius = MM::VERTEX_SELECT_RADIUS, qreal strokeWidth = MM::VERTEX_SELECT_STROKE_WIDTH);
-void drawControlsEllipse(QPainter* painter, const Ellipse& ellipse);
-void drawControlsQuad(QPainter* painter, const Quad& quad);
-void drawControlsMesh(QPainter* painter, const Mesh& mesh);
-void drawControlsPolygon(QPainter* painter, const Polygon& polygon);
+void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected, qreal radius = MM::VERTEX_SELECT_RADIUS, qreal strokeWidth = MM::VERTEX_SELECT_STROKE_WIDTH);
+
+void drawControlsVertices(QPainter* painter, const QList<int>* selectedVertices, const Shape& shape);
+void drawControlsEllipse(QPainter* painter, const QList<int>* selectedVertices, const Ellipse& ellipse);
+void drawControlsQuad(QPainter* painter, const QList<int>* selectedVertices, const Quad& quad);
+void drawControlsMesh(QPainter* painter, const QList<int>* selectedVertices, const Mesh& mesh);
+void drawControlsPolygon(QPainter* painter, const QList<int>* selectedVertices, const Polygon& polygon);
 
 /**
  * Checks if a file exists or not.

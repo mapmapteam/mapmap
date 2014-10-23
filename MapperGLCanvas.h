@@ -53,6 +53,8 @@ public:
   MainWindow* getMainWindow() const { return _mainWindow; }
   bool displayControls() const { return _displayControls; }
   bool stickyVertices() const { return _stickyVertices; }
+  bool hasActiveVertex() const { return _activeVertex != NO_VERTEX; }
+  int getActiveVertexIndex() const { return _activeVertex; }
 
 protected:
   void initializeGL();
@@ -65,14 +67,20 @@ protected:
   void mouseReleaseEvent(QMouseEvent* event);
   void paintEvent(QPaintEvent* event);
 
-private:
+protected:
   void draw(QPainter* painter);
   void enterDraw(QPainter* painter);
   virtual void doDraw(QPainter* painter) = 0;
   void exitDraw(QPainter* painter);
 
+private:
   MainWindow* _mainWindow;
-  bool _mousePressedToDragVertex;
+
+  // Last point pressed.
+  QPoint _mousePressedPosition;
+
+  // Mouse currently pressed inside a vertex.
+  bool _mousePressedOnVertex;
   int _activeVertex;
   bool _shapeGrabbed;
   bool _shapeFirstGrab;
@@ -87,6 +95,7 @@ public slots:
   void updateCanvas();
   void enableDisplayControls(bool display);
   void enableStickyVertices(bool display);
+  void deselectVertices();
   void deselectAll();
 
 public:
