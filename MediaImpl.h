@@ -194,10 +194,6 @@ public:
 
 private:
   //locals
-  /**
-   * Path of the movie being played.
-   */
-  QString _currentMovie;
 
   // gstreamer elements
   GstBus *_bus;

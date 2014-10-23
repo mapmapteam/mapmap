@@ -106,7 +106,7 @@ void MediaImpl::build()
   qDebug() << "Building video impl";
   if (!loadMovie(_uri))
   {
-    qDebug() << "Cannot load movie " << _currentMovie << ".";
+    qDebug() << "Cannot load movie " << _uri << ".";
   }
 }
 
@@ -194,7 +194,6 @@ GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
 }
 
 MediaImpl::MediaImpl(const QString uri, bool live) :
-_currentMovie(""),
 _bus(NULL),
 _pipeline(NULL),
 _uridecodebin0(NULL),
@@ -305,7 +304,6 @@ void MediaImpl::resetMovie()
   {
     // Just reload movie.
     qDebug() << "Reloading the movie" << _seekEnabled;
-    _currentMovie = "";
     loadMovie(_uri);
   }
 }
@@ -678,7 +676,7 @@ void MediaImpl::_checkMessages()
           gst_message_parse_state_changed(msg, &oldState, &newState,
               &pendingState);
           g_print("Pipeline state for movie %s changed from %s to %s:\n",
-              _currentMovie.toUtf8().constData(),
+              _uri.toUtf8().constData(),
               gst_element_state_get_name(oldState),
               gst_element_state_get_name(newState));
         }
