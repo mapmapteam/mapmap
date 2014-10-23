@@ -231,7 +231,53 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 
 void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 {
-  Q_UNUSED(event);
+  // Checks if the key has been handled by this function or needs to be deferred to superclass.
+  bool handledKey = false;
+
+  // Active vertex selected.
+  if (hasActiveVertex())
+  {
+    Shape* shape = getCurrentShape();
+    QPointF p = shape->getVertex(_activeVertex);
+    handledKey = true;
+    switch (event->key()) {
+    // TODO: key tab should switch to next vertex: not working because somehow caught at a higher level
+    // to switch between frames of the layout
+//    case Qt::Key_Tab:
+//      if (shape)
+//        _activeVertex = (_activeVertex + 1) % shape->nVertices();
+//        p = shape->getVertex(_activeVertex); // reset to new vertex
+//        qDebug() << "New active vertex : " << _activeVertex << endl;
+//      break;
+    // Handle pixel-wise adjustments of vertex.
+    case Qt::Key_Up:
+      p.ry()--;
+      break;
+    case Qt::Key_Down:
+      p.ry()++;
+      break;
+    case Qt::Key_Right:
+      p.rx()++;
+      break;
+    case Qt::Key_Left:
+      p.rx()--;
+      break;
+    default:
+      handledKey = false;
+      break;
+    }
+    // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
+    shape->setVertex(_activeVertex, p);
+    update();
+    emit shapeChanged(getCurrentShape());
+  }
+
+  // Defer unhandled keys to parent.
+  if (!handledKey)
+  {
+    QWidget::keyPressEvent(event);
+  }
+
 //  std::cout << "Key pressed" << std::endl;
 //  int xMove = 0;
 //  int yMove = 0;
