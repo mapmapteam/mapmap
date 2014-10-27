@@ -65,6 +65,7 @@ public:
 protected:
   // Events ///////////////////////////////////////////////////////////////////////////////////////////////////
   void closeEvent(QCloseEvent *event);
+  bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
   void paintChanged();
@@ -212,7 +213,6 @@ public:
   void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
   void clearWindow();
-
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
 

@@ -270,6 +270,66 @@ void MainWindow::closeEvent(QCloseEvent *event)
   videoTimer->start();
 }
 
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    bool eventKey = false;
+  if (event->type() == QEvent::KeyPress)
+  {
+    QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+    eventKey = true;
+    // Menubar shortcut
+    if (keyEvent->modifiers() == Qt::CTRL)
+    {
+        switch (keyEvent->key()) {
+        case Qt::Key_F:
+            outputWindow->setFullScreen(true);
+            break;
+        case Qt::Key_N:
+            newFile();
+            break;
+        case Qt::Key_O:
+            open();
+            break;
+        case Qt::Key_S:
+            save();
+            break;
+        case Qt::Key_Q:
+            close();
+            break;
+        case Qt::Key_Delete:
+            deleteItem();
+            break;
+        case Qt::Key_M:
+            addMesh();
+            break;
+        case Qt::Key_T:
+            addTriangle();
+            break;
+        case Qt::Key_E:
+            addEllipse();
+            break;
+        case Qt::Key_D:
+            outputWindow->setVisible(true);
+            break;
+        case Qt::Key_P:
+            if (_isPlaying) pause(); else play();
+            break;
+        case Qt::Key_R:
+            rewind();
+            break;
+        }
+    }
+    eventKey = false;
+
+    return eventKey;
+  }
+  else
+  {
+    // standard event processing
+    return QObject::eventFilter(obj, event);
+  }
+}
+
 void MainWindow::newFile()
 {
   // Stop video playback to avoid lags. XXX Hack
@@ -326,8 +386,7 @@ bool MainWindow::saveAs()
 
   // Popul file dialog to choose filename.
   QString fileName = QFileDialog::getSaveFileName(this,
-      tr("Save project"),
-      ".",
+      tr("Save project"), settings.value("defaultProjectDir").toString(),
       tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
 
   // Restart video playback. XXX Hack
@@ -983,6 +1042,7 @@ void MainWindow::createLayout()
 
   outputWindow = new OutputGLWindow(this, this, sourceCanvas);
   outputWindow->setVisible(true);
+  outputWindow->installEventFilter(this);
 
   // Source changed -> change destination
   connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
@@ -1641,6 +1701,13 @@ void MainWindow::updateRecentVideoActions()
 
     for (int j = numRecentVidoes; j < MaxRecentVideo; ++j)
         recentVideoActions[j]->setVisible(false);
+
+    if (numRecentVidoes <= 0)
+    {
+        QAction *noVideos = new QAction(tr("No Videos"), this);
+        noVideos->setEnabled(false);
+        recentVideoMenu->addAction(noVideos);
+    }
 }
 
 void MainWindow::clearRecentFileList()
