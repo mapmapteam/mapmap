@@ -1467,20 +1467,30 @@ void MainWindow::readSettings()
   // make sure it exists before reading its value.
   QSettings settings("MapMap", "MapMap");
 
+  // settings present since 0.1.0:
   restoreGeometry(settings.value("geometry").toByteArray());
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
   paintSplitter->restoreState(settings.value("paintSplitter").toByteArray());
   mappingSplitter->restoreState(settings.value("mappingSplitter").toByteArray());
   canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
   outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
-  displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
-  outputWindowFullScreen->setChecked(settings.value("outputWindowFullScreen").toBool());
+
+  // new in 0.1.2:
+  if (settings.contains("displayOutputWindow"))
+  {
+    displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
+  }
+  if (settings.contains("outputWindowFullScreen"))
+  {
+    outputWindowFullScreen->setChecked(settings.value("outputWindowFullScreen").toBool());
+  }
   if (settings.contains("displayTestSignal"))
   {
     displayOutputWindow->setChecked(settings.value("displayTestSignal").toBool());
   }
-  displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
+  // FIXME:
   config_osc_receive_port = 12345; // settings.value("osc_receive_port", 12345).toInt();
+
   updateRecentFileActions();
   updateRecentVideoActions();
 }
@@ -1589,12 +1599,14 @@ void MainWindow::setCurrentFile(const QString &fileName)
   if (!curFile.isEmpty())
   {
     shownName = strippedName(curFile);
-	recentFiles = settings.value("recentFiles").toStringList();
+    recentFiles = settings.value("recentFiles").toStringList();
     recentFiles.removeAll(curFile);
     recentFiles.prepend(curFile);
-	while (recentFiles.size() > MaxRecentFiles)
-		recentFiles.removeLast();
-	settings.setValue("recentFiles", recentFiles);
+    while (recentFiles.size() > MaxRecentFiles)
+    {
+      recentFiles.removeLast();
+    }
+    settings.setValue("recentFiles", recentFiles);
     updateRecentFileActions();
   }
 
@@ -1616,35 +1628,34 @@ void MainWindow::setCurrentVideo(const QString &fileName)
 
 void MainWindow::updateRecentFileActions()
 {
-	recentFiles = settings.value("recentFiles").toStringList();
-    int numRecentFiles = qMin(recentFiles.size(), int(MaxRecentFiles));
+  recentFiles = settings.value("recentFiles").toStringList();
+  int numRecentFiles = qMin(recentFiles.size(), int(MaxRecentFiles));
 
-    for (int j = 0; j < numRecentFiles; ++j)
-    {
-		QString text = tr("&%1 %2")
-			.arg(j + 1)
-			.arg(strippedName(recentFiles[j]));
-		recentFileActions[j]->setText(text);
-		recentFileActions[j]->setData(recentFiles[j]);
-		recentFileActions[j]->setVisible(true);
-        clearRecentFileActions->setVisible(true);
-    }
-	
-	for (int i = numRecentFiles; i < MaxRecentFiles; ++i)
-         recentFileActions[i]->setVisible(false);
+  for (int j = 0; j < numRecentFiles; ++j)
+  {
+    QString text = tr("&%1 %2")
+      .arg(j + 1)
+      .arg(strippedName(recentFiles[j]));
+    recentFileActions[j]->setText(text);
+    recentFileActions[j]->setData(recentFiles[j]);
+    recentFileActions[j]->setVisible(true);
+    clearRecentFileActions->setVisible(true);
+  }
+  
+  for (int i = numRecentFiles; i < MaxRecentFiles; ++i)
+  {
+    recentFileActions[i]->setVisible(false);
+  }
 
-    if (numRecentFiles > 0)
-    {
-        separatorAction->setVisible(true);
-        clearRecentFileActions->setText(tr("Clear list"));
-        clearRecentFileActions->setEnabled(true);
-    }
-
-    else
-    {
-        clearRecentFileActions->setText(tr("No Document"));
-        clearRecentFileActions->setEnabled(false);
-    }
+  if (numRecentFiles > 0)
+  {
+    separatorAction->setVisible(true);
+    clearRecentFileActions->setText(tr("Clear list"));
+    clearRecentFileActions->setEnabled(true);
+  } else {
+    clearRecentFileActions->setText(tr("No Document"));
+    clearRecentFileActions->setEnabled(false);
+  }
 }
 
 void MainWindow::updateRecentVideoActions()
