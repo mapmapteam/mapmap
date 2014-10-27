@@ -80,7 +80,6 @@ void OutputGLWindow::keyPressEvent(QKeyEvent *event)
     }
 
   }
-
   else
   {
     QDialog::keyPressEvent(event);
@@ -90,9 +89,10 @@ void OutputGLWindow::keyPressEvent(QKeyEvent *event)
 
 void OutputGLWindow::setFullScreen(bool fullscreen)
 {
-  // Activate crosshair in fullscreen mode.
   setCursorVisible(!fullscreen);
-  canvas->setDisplayCrosshair(fullscreen);
+  // Activate crosshair in fullscreen mode.
+  // should be only drawn if the controls should be shown
+  canvas->setDisplayCrosshair(fullscreen && this->canvas->displayControls());
 
   // NOTE: The showFullScreen() method does not work well under Ubuntu Linux. The code below fixes the issue.
   // Notice that there might be problems with the fullscreen in other OS / window managers. If so, please add
