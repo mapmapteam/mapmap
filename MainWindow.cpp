@@ -75,6 +75,7 @@ MainWindow::MainWindow()
   // Start playing by default.
   play();
 
+  // after readSettings():
   _preferences_dialog = new PreferencesDialog(this, this);
 }
 
@@ -1505,8 +1506,7 @@ void MainWindow::readSettings()
   {
     displayOutputWindow->setChecked(settings.value("displayTestSignal").toBool());
   }
-  // FIXME:
-  config_osc_receive_port = 12345; // settings.value("osc_receive_port", 12345).toInt();
+  config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 
   updateRecentFileActions();
   updateRecentVideoActions();
@@ -2196,7 +2196,17 @@ void MainWindow::startOscReceiver()
 #endif
 }
 
-void MainWindow::setOscPort(QString portNumber)
+bool MainWindow::setOscPort(int portNumber)
+{
+  return this->setOscPort(QString::number(portNumber));
+}
+
+int MainWindow::getOscPort() const
+{
+  return config_osc_receive_port;
+}
+
+bool MainWindow::setOscPort(QString portNumber)
 {
   if (Util::isNumeric(portNumber))
   {
@@ -2204,7 +2214,7 @@ void MainWindow::setOscPort(QString portNumber)
     if (port <= 1023 || port > 65535)
     {
       std::cout << "OSC port is out of range: " << portNumber.toInt() << std::endl;
-      return;
+      return false;
     }
     config_osc_receive_port = port;
     startOscReceiver();
@@ -2212,7 +2222,9 @@ void MainWindow::setOscPort(QString portNumber)
   else
   {
     std::cout << "OSC port is not a number: " << portNumber.toInt() << std::endl;
+    return false;
   }
+  return true;
 }
 
 void MainWindow::pollOscInterface()

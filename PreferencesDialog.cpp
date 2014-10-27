@@ -25,7 +25,7 @@
 PreferencesDialog::PreferencesDialog(MainWindow* mainWindow, QWidget* parent) :
     QDialog(parent)
 {
-  (void) mainWindow;
+  _main_window = mainWindow;
   // static const int width = 600;
   // static const int height = 400;
   // resize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
@@ -35,7 +35,6 @@ PreferencesDialog::PreferencesDialog(MainWindow* mainWindow, QWidget* parent) :
 
   _osc_port_numbox  = new QSpinBox;
   _osc_port_numbox->setRange(1024, 65534);
-  _osc_port_numbox->setValue(12345); // FIXME read settings
 
   QLayout* hbox_osc_port = new QHBoxLayout;
   hbox_osc_port->addWidget(osc_port_label);
@@ -54,6 +53,8 @@ PreferencesDialog::PreferencesDialog(MainWindow* mainWindow, QWidget* parent) :
   //QLayout* vbox = new QVBoxLayout;
   //vbox->addWidget(hbox_osc_port);
   setLayout(hbox_osc_port);
+
+  this->resetValues();
 }
 
 void PreferencesDialog::closeEvent(QCloseEvent *event)
@@ -64,9 +65,14 @@ void PreferencesDialog::closeEvent(QCloseEvent *event)
 
 void PreferencesDialog::reject_cb()
 {
-  // nothing to do
+  this->resetValues();
   this->setResult(QMessageBox::Cancel);
   this->close();
+}
+
+void PreferencesDialog::resetValues()
+{
+  this->_osc_port_numbox->setValue(this->_main_window->getOscPort());
 }
 
 void PreferencesDialog::accept_cb()
@@ -74,6 +80,7 @@ void PreferencesDialog::accept_cb()
   std::cout << "Values:" <<
     " osc port=" << _osc_port_numbox->value() <<
     std::endl;
+  this->_main_window->setOscPort(this->_osc_port_numbox->value());
   this->setResult(QMessageBox::Ok);
   this->close();
 }

@@ -48,7 +48,9 @@ private slots:
 
 private:
   QSpinBox* _osc_port_numbox;
+  MainWindow* _main_window;
   QDialogButtonBox* _button_box;
+  void resetValues();
 };
 
 #endif /* PREFERENCESDIALOG_H_ */
