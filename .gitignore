@@ -1,3 +1,6 @@
+.cproject
+.project
+.settings
 *.la
 *.lo
 *.o
@@ -7,6 +10,11 @@
 .*.swp
 *.zip
 *.gz
+*.jpg
+*.mmp
+*.mov
+*.ogg
+*.png
 *.tar
 *.rar
 *.qm
