@@ -278,6 +278,7 @@ private:
   //QAction *outputWindowHasCursor;
   QAction *outputWindowFullScreen;
   QAction *displayCanvasControls;
+  QAction *displayTestSignal;
   QAction *stickyVertices;
 
   enum { MaxRecentFiles = 10 };

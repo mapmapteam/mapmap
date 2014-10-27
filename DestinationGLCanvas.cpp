@@ -37,6 +37,14 @@ Shape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
 
 void DestinationGLCanvas::doDraw(QPainter* painter)
 {
+  if (this->displayTestSignal())
+  {
+    glPushMatrix();
+    this->_drawTestSignal(painter);
+    glPopMatrix();
+    return;
+  }
+
   glPushMatrix();
 
   // Draw the mappings.
@@ -61,7 +69,9 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
       mapper->drawControls(painter, &selectedVertices);
     }
     else
+    {
       mapper->drawControls(painter);
+    }
     painter->restore();
   }
 
@@ -79,6 +89,22 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
       painter->drawLine(0, cursorPosition.y(), geo.width(), cursorPosition.y());
     }
   }
+}
 
+void DestinationGLCanvas::_drawTestSignal(QPainter* painter)
+{
+  const QRect& geo = geometry();
+  painter->setPen(MM::CONTROL_COLOR);
+  int height = geo.height();
+  int width = geo.width();
+
+  for (int x = 0; x < width; x += 10)
+  {
+    painter->drawLine(x, 0, x, height);
+  }
+  for (int y = 0; y < height; y += 10)
+  {
+    painter->drawLine(0, y, width, y);
+  }
 }
 

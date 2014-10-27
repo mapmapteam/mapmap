@@ -343,6 +343,12 @@ void MapperGLCanvas::enableDisplayControls(bool display)
   updateCanvas();
 }
 
+void MapperGLCanvas::enableTestSignal(bool enable)
+{
+  _displayTestSignal = enable;
+  updateCanvas();
+}
+
 void MapperGLCanvas::enableStickyVertices(bool value)
 {
   _stickyVertices = value;

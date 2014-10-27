@@ -42,6 +42,7 @@ public:
 
 private:
   virtual void doDraw(QPainter* painter);
+  void _drawTestSignal(QPainter* painter);
 
   bool _displayCrosshair;
 };

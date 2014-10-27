@@ -1274,6 +1274,19 @@ void MainWindow::createActions()
   connect(stickyVertices, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableStickyVertices(bool)));
   connect(stickyVertices, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableStickyVertices(bool)));
   connect(stickyVertices, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableStickyVertices(bool)));
+
+
+  displayTestSignal = new QAction(tr("&Display test signal"), this);
+  // displayTestSignal->setShortcut(tr("Ctrl+T"));
+  displayTestSignal->setIcon(QIcon(":/control-points"));
+  displayTestSignal->setStatusTip(tr("Display test signal"));
+  displayTestSignal->setIconVisibleInMenu(false);
+  displayTestSignal->setCheckable(true);
+  displayTestSignal->setChecked(false);
+  // Manage show/hide of test signal
+  connect(displayTestSignal, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableTestSignal(bool)));
+  connect(displayTestSignal, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableTestSignal(bool)));
+  connect(displayTestSignal, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableTestSignal(bool)));
 }
 
 void MainWindow::startFullScreen()
@@ -1338,6 +1351,7 @@ void MainWindow::createMenus()
   viewMenu->addAction(outputWindowFullScreen);
   viewMenu->addAction(displayCanvasControls);
   viewMenu->addAction(stickyVertices);
+  viewMenu->addAction(displayTestSignal);
   //viewMenu->addAction(outputWindowHasCursor);
 
   // Run.
@@ -1401,6 +1415,7 @@ void MainWindow::createToolBars()
   mainToolBar->addAction(outputWindowFullScreen);
   mainToolBar->addAction(displayCanvasControls);
   mainToolBar->addAction(stickyVertices);
+  mainToolBar->addAction(displayTestSignal);
 
   runToolBar = addToolBar(tr("&Run"));
   runToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
@@ -1448,6 +1463,8 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
+  // FIXME: for each setting that is new since the first release in the major version number branch,
+  // make sure it exists before reading its value.
   QSettings settings("MapMap", "MapMap");
 
   restoreGeometry(settings.value("geometry").toByteArray());
@@ -1458,6 +1475,11 @@ void MainWindow::readSettings()
   outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
   displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
   outputWindowFullScreen->setChecked(settings.value("outputWindowFullScreen").toBool());
+  if (settings.contains("displayTestSignal"))
+  {
+    displayOutputWindow->setChecked(settings.value("displayTestSignal").toBool());
+  }
+  displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
   config_osc_receive_port = 12345; // settings.value("osc_receive_port", 12345).toInt();
   updateRecentFileActions();
   updateRecentVideoActions();
@@ -1475,6 +1497,7 @@ void MainWindow::writeSettings()
   settings.setValue("outputWindow", outputWindow->saveGeometry());
   settings.setValue("displayOutputWindow", displayOutputWindow->isChecked());
   settings.setValue("outputWindowFullScreen", outputWindowFullScreen->isChecked());
+  settings.setValue("displayTestSignal", displayTestSignal->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
 }
 
