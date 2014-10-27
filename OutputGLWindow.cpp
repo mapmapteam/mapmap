@@ -62,24 +62,19 @@ void OutputGLWindow::closeEvent(QCloseEvent *event)
 {
   emit closed();
   event->accept();
+  this->parentWidget()->setFocus();
 }
 
 void OutputGLWindow::keyPressEvent(QKeyEvent *event)
 {
   // Escape from full screen mode.
-  if (isFullScreen())
+  if (event->key() == Qt::Key_Escape)
   {
-    if (event->key() == Qt::Key_Escape)
+    if (isFullScreen())
     {
       setFullScreen(false);
       emit fullScreenToggled(false);
     }
-    else
-    {
-       setFullScreen(true);
-       emit fullScreenToggled(true);
-    }
-
   }
   else
   {
