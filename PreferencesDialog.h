@@ -1,5 +1,5 @@
 /*
- * MainApplication.h
+ * OutputGLWindow.h
  *
  * (c) 2014 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2014 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -18,22 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINAPPLICATION_H_
-#define MAINAPPLICATION_H_
+#ifndef PREFERENCESDIALOG_H_
+#define PREFERENCESDIALOG_H_
 
-#include <gst/gst.h>
-#include <QApplication>
-#include <QDebug>
-#include "MM.h"
-#include "PreferencesDialog.h"
+#include <QDialog>
+#include <QtGlobal>
+#include <QTimer>
+#include <QSpinBox>
+#include <QDialogButtonBox>
 
-class MainApplication : public QApplication
+class MainWindow;
+
+class PreferencesDialog : public QDialog
 {
-public:
-  MainApplication(int &argc, char *argv[]);
-  virtual ~MainApplication();
+  Q_OBJECT
 
-  bool notify(QObject *receiver, QEvent *event);
+public:
+  PreferencesDialog(MainWindow* mainWindow, QWidget* parent = 0);
+
+protected:
+  void closeEvent(QCloseEvent* event);
+
+signals:
+  void closed();
+
+private slots:
+  void accept_cb();
+  void reject_cb();
+
+private:
+  QSpinBox* _osc_port_numbox;
+  QDialogButtonBox* _button_box;
 };
 
-#endif /* MAINAPPLICATION_H_ */
+#endif /* PREFERENCESDIALOG_H_ */

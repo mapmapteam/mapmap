@@ -26,6 +26,7 @@
 
 MainWindow::MainWindow()
 {
+
   // Create model.
   if (Media::hasVideoSupport())
     std::cout << "Video support: yes" << std::endl;
@@ -73,6 +74,8 @@ MainWindow::MainWindow()
 
   // Start playing by default.
   play();
+
+  _preferences_dialog = new PreferencesDialog(this, this);
 }
 
 MainWindow::~MainWindow()
@@ -304,6 +307,11 @@ void MainWindow::open()
 
   // Restart video playback. XXX Hack
   videoTimer->start();
+}
+
+void MainWindow::preferences()
+{
+  this->_preferences_dialog->show();
 }
 
 bool MainWindow::save()
@@ -1160,6 +1168,14 @@ void MainWindow::createActions()
   deleteAction->setIconVisibleInMenu(false);
   connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
 
+  // Preferences...
+  preferencesAction = new QAction(tr("&Preferences..."), this);
+  //preferencesAction->setIcon(QIcon(":/preferences"));
+  preferencesAction->setShortcut(QKeySequence::Preferences);
+  preferencesAction->setStatusTip(tr("Configure preferences..."));
+  //preferencesAction->setIconVisibleInMenu(false);
+  connect(preferencesAction, SIGNAL(triggered()), this, SLOT(preferences()));
+
   // Add quad/mesh.
   addMeshAction = new QAction(tr("Add Quad/&Mesh"), this);
   addMeshAction->setShortcut(tr("CTRL+M"));
@@ -1344,6 +1360,7 @@ void MainWindow::createMenus()
   //  editMenu->addAction(copyAction);
   //  editMenu->addAction(pasteAction);
   editMenu->addAction(deleteAction);
+  editMenu->addAction(preferencesAction);
 
   // View.
   viewMenu = menuBar->addMenu(tr("&View"));

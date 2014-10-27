@@ -35,6 +35,7 @@
 #include "DestinationGLCanvas.h"
 
 #include "OutputGLWindow.h"
+#include "PreferencesDialog.h"
 
 #include "MappingManager.h"
 
@@ -76,6 +77,7 @@ private slots:
   // File menu.
   void newFile();
   void open();
+  void preferences();
   bool save();
   bool saveAs();
   void importVideo();
@@ -263,6 +265,7 @@ private:
 //  QAction *copyAction;
 //  QAction *pasteAction;
   QAction *deleteAction;
+  QAction *preferencesAction;
   QAction *aboutAction;
   QAction *clearRecentFileActions;
 
@@ -345,6 +348,8 @@ private:
   // Keeps track of the current selected item, wether it's a paint or mapping.
   QListWidgetItem* currentSelectedItem;
   QTimer *videoTimer;
+
+  PreferencesDialog* _preferences_dialog;
 
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
