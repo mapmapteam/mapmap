@@ -43,6 +43,8 @@
     <file alias="logo-title">resources/fonts/HelveticaNeueLTPro-Bd.otf</file>
 
     <file alias="base-font">resources/fonts/HelveticaNeueLTPro-Bd.otf</file>
+
+    <file alias="test-signal">resources/images/test-signal/test-signal.svg</file>
 </qresource>
 </RCC>
 

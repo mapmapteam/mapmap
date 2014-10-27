@@ -45,6 +45,12 @@ private:
   void _drawTestSignal(QPainter* painter);
 
   bool _displayCrosshair;
+  QImage _svg_test_signal;
+  QBrush _brush_test_signal;
+
+protected:
+  // overriden from QGlWidget:
+  virtual void resizeGL(int width, int height);
 };
 
 #endif /* DESTINATIONGLCANVAS_H_ */
