@@ -65,27 +65,10 @@ void OutputGLWindow::closeEvent(QCloseEvent *event)
   this->parentWidget()->setFocus();
 }
 
-void OutputGLWindow::keyPressEvent(QKeyEvent *event)
-{
-  // Escape from full screen mode.
-  if (event->key() == Qt::Key_Escape)
-  {
-    if (isFullScreen())
-    {
-      setFullScreen(false);
-      emit fullScreenToggled(false);
-    }
-  }
-  else
-  {
-    QDialog::keyPressEvent(event);
-  }
-}
-
-
 void OutputGLWindow::setFullScreen(bool fullscreen)
 {
   setCursorVisible(!fullscreen);
+  emit fullScreenToggled(fullscreen);
   // Activate crosshair in fullscreen mode.
   // should be only drawn if the controls should be shown
   canvas->setDisplayCrosshair(fullscreen && this->canvas->displayControls());

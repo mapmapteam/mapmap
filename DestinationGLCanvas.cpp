@@ -140,3 +140,18 @@ void DestinationGLCanvas::resizeGL(int width, int height)
   // TODO: _brush_test_signal(_svg_test_signal)
 }
 
+bool DestinationGLCanvas::eventFilter(QObject *target, QEvent *event)
+{
+  if (event->type() == QEvent::KeyPress)
+    {
+      QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+      MapperGLCanvas::keyPressEvent(keyEvent);
+      qDebug() << "Test:" << keyEvent << endl;
+      return true;
+    }
+  else
+    {
+      return QObject::eventFilter(target, event);
+    }
+}
+

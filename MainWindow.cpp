@@ -323,6 +323,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             break;
         }
     }
+    else if (keyEvent->key() == Qt::Key_Escape) outputWindow->setFullScreen(false);
     eventKey = false;
 
     return eventKey;
@@ -1051,6 +1052,7 @@ void MainWindow::createLayout()
 
   outputWindow = new OutputGLWindow(this, this, sourceCanvas);
   outputWindow->setVisible(true);
+  outputWindow->installEventFilter(destinationCanvas);
   outputWindow->installEventFilter(this);
 
   // Source changed -> change destination
