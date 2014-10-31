@@ -21,6 +21,8 @@
 #define MAPPERGLCANVAS_H_
 
 #include <QGLWidget>
+#include <QGraphicsView>
+#include <QGraphicsScene>
 #include <QKeyEvent>
 #include <QPaintEvent>
 
@@ -35,7 +37,7 @@ class MainWindow;
  * Mother class for OpenGL canvases that allow the display and controls of shapes and vertices.
  * Provides common functionality to both main sublasses: SourceGLCanvas and DestinationGLCanvas.
  */
-class MapperGLCanvas: public QGLWidget
+class MapperGLCanvas: public QGraphicsView
 {
   Q_OBJECT
 
@@ -64,6 +66,8 @@ public:
   /// Returns pointer to main window.
   MainWindow* getMainWindow() const { return _mainWindow; }
 
+//  QGLWidget* getViewport() const { return _viewport; }
+
   /// Returns true iff we should display the controls.
   bool displayControls() const { return _displayControls; }
 
@@ -77,39 +81,43 @@ public:
   int getActiveVertexIndex() const { return _activeVertex; }
 
 protected:
-  void initializeGL();
-  void resizeGL(int width, int height);
-  void paintGL();
+//  void initializeGL();
+//  void resizeGL(int width, int height);
+//  void paintGL();
 
-  void keyPressEvent(QKeyEvent* event);
-  void mousePressEvent(QMouseEvent* event);
-  void mouseMoveEvent(QMouseEvent* event);
-  void mouseReleaseEvent(QMouseEvent* event);
-  void paintEvent(QPaintEvent* event);
+//  void keyPressEvent(QKeyEvent* event);
+//  void mousePressEvent(QMouseEvent* event);
+//  void mouseMoveEvent(QMouseEvent* event);
+//  void mouseReleaseEvent(QMouseEvent* event);
+//  void paintEvent(QPaintEvent* event);
 
 protected:
-  /**
-   * Draws the shapes and controls over the canvas. This method calls:
-   * <code>
-   * enterDraw(painter);
-   * doDraw(painter);
-   * exitDraw(painter);
-   * </code>
-   */
-  void draw(QPainter* painter);
-
-  /// Performs initalizations before drawing.
-  void enterDraw(QPainter* painter);
-
-  /// Performs the drawing (implemented by subclasses).
-  virtual void doDraw(QPainter* painter) = 0;
-
-  /// Performs last drawing actions before exiting draw(QPainter*).
-  void exitDraw(QPainter* painter);
+//  /**
+//   * Draws the shapes and controls over the canvas. This method calls:
+//   * <code>
+//   * enterDraw(painter);
+//   * doDraw(painter);
+//   * exitDraw(painter);
+//   * </code>
+//   */
+//  void draw(QPainter* painter);
+//
+//  /// Performs initalizations before drawing.
+//  void enterDraw(QPainter* painter);
+//
+//  /// Performs the drawing (implemented by subclasses).
+//  virtual void doDraw(QPainter* painter) = 0;
+//
+//  /// Performs last drawing actions before exiting draw(QPainter*).
+//  void exitDraw(QPainter* painter);
 
 private:
   // Pointer to main window.
   MainWindow* _mainWindow;
+
+//  QGraphicsScene* _scene;
+
+//  QGLWidget* _viewport;
 
   // Last point pressed.
   QPoint _mousePressedPosition;

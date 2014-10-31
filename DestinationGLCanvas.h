@@ -32,7 +32,7 @@ class DestinationGLCanvas: public MapperGLCanvas
 
 public:
   DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
-//  virtual ~DestinationGLCanvas();
+  virtual ~DestinationGLCanvas() {}
 
   virtual MShape* getShapeFromMappingId(uid mappingId);
 
@@ -41,7 +41,7 @@ public:
   }
 
 private:
-  virtual void doDraw(QPainter* painter);
+//  virtual void doDraw(QPainter* painter);
 
   bool _displayCrosshair;
 };
