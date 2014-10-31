@@ -76,25 +76,16 @@ public:
   /// Returns a pointer to the properties editor for that mapper.
   virtual QWidget* getPropertiesEditor();
 
-  /// Draws the output.
-  virtual void draw(QPainter* painter) = 0;
-
-  /// Draws the output controls.
-  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0) = 0;
-
-  /// Draws the input (source) (if applicable).
-  virtual void drawInput(QPainter* painter)  { Q_UNUSED(painter); }
-
-  /// Draws the input (source) controls (if applicable).
-  virtual void drawInputControls(QPainter* painter, const QList<int>* selectedVertices=0)
-  {
-    Q_UNUSED(painter);
-    Q_UNUSED(selectedVertices);
+  virtual QGraphicsItem* getGraphicsItem() {
+    return _graphicsItem;
+  }
+  virtual QGraphicsItem* getInputGraphicsItem() {
+    return _inputGraphicsItem;
   }
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
-  virtual void updateShape(Shape* shape) { Q_UNUSED(shape); }
+  virtual void updateShape(MShape* shape) { Q_UNUSED(shape); }
   virtual void updatePaint() {}
 
 signals:
@@ -108,14 +99,245 @@ protected:
   QtProperty* _topItem;
   QtProperty* _outputItem;
 
-  std::map<QtProperty*, std::pair<Shape*, int> > _propertyToVertex;
+  std::map<QtProperty*, std::pair<MShape*, int> > _propertyToVertex;
+
+  QGraphicsItem* _graphicsItem;
+  QGraphicsItem* _inputGraphicsItem;
 
   // FIXME: use typedefs, member of the class for type names that are too long to type:
-  std::tr1::shared_ptr<Shape> outputShape;
+  MShape::ptr outputShape;
 
-  virtual void _buildShapeProperty(QtProperty* shapeItem, Shape* shape);
-  virtual void _updateShapeProperty(QtProperty* shapeItem, Shape* shape);
+  virtual void _buildShapeProperty(QtProperty* shapeItem, MShape* shape);
+  virtual void _updateShapeProperty(QtProperty* shapeItem, MShape* shape);
 };
+
+class VertexGraphicsItem;
+
+class ShapeGraphicsItem : public QGraphicsItem
+{
+  Q_DECLARE_TR_FUNCTIONS(ShapeGraphicsItem)
+
+public:
+  ShapeGraphicsItem(Mapping::ptr mapping, bool output=true)
+    : _mapping(mapping), _output(output)
+  {
+    _shape = output ? _mapping->getShape() : _mapping->getInputShape();
+
+    setFlags(ItemIsMovable | ItemIsSelectable);
+
+    _createVertices();
+  }
+  virtual ~ShapeGraphicsItem() {}
+
+  // TODO: dangereux: confusion possible entre shape() et getShape()...
+  MShape::ptr getShape() const { return _shape; }
+
+  Mapping::ptr getMapping() const { return _mapping; }
+
+  bool isOutput() const { return _output; }
+
+  virtual QRectF boundingRect() const = 0;
+//  virtual QPainterPath shape() const;
+//  virtual void paint(QPainter *painter,
+//                     const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+protected:
+  virtual void _createVertices();
+
+  Mapping::ptr _mapping;
+  MShape::ptr _shape;
+  bool _output;
+};
+
+class VertexGraphicsItem : public QGraphicsEllipseItem
+{
+  Q_DECLARE_TR_FUNCTIONS(VertexGraphicsItem)
+
+public:
+  VertexGraphicsItem(int index) : _index(index) {
+    setFlags(ItemIsMovable | ItemIsSelectable);
+  }
+  virtual ~VertexGraphicsItem() {}
+
+  virtual void paint(QPainter *painter,
+                     const QStyleOptionGraphicsItem *option, QWidget *widget)
+  {
+    const QPointF& vertex = ((ShapeGraphicsItem*)parentItem())->getShape()->getVertex(_index);
+    Util::drawControlsVertex(painter, vertex, (option->state & QStyle::State_Selected));
+  }
+
+
+protected:
+  int _index;
+};
+
+class PolygonColorGraphicsItem : public ShapeGraphicsItem
+{
+public:
+  PolygonColorGraphicsItem(Mapping::ptr mapping, bool output=true) : ShapeGraphicsItem(mapping, output) {}
+  virtual ~PolygonColorGraphicsItem() {}
+
+
+  virtual QRectF boundingRect() const {
+    return ((Polygon*)_shape.get())->toPolygon().boundingRect();
+  }
+
+  virtual QPainterPath shape() const {
+    QPainterPath path;
+    path.addPolygon(((Polygon*)_shape.get())->toPolygon());
+    return path;
+  }
+
+  virtual void paint(QPainter *painter,
+                     const QStyleOptionGraphicsItem *option, QWidget *widget)
+  {
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(Qt::red);
+    painter->setBrush(((Color*)_mapping->getPaint().get())->getColor());
+
+    // Draw shape as polygon.
+    Polygon* poly = (Polygon*)_shape.get();
+    painter->drawPolygon(poly->toPolygon());
+
+    if (option->state & QStyle::State_Selected)
+    {
+      QList<int> dummySelectedVertices;
+      Util::drawControlsPolygon(painter, &dummySelectedVertices, *poly);
+    }
+  }
+};
+
+class TextureGraphicsItem : public ShapeGraphicsItem
+{
+public:
+  TextureGraphicsItem(Mapping::ptr mapping, bool output=true) : ShapeGraphicsItem(mapping, output) {
+    _textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+    Q_CHECK_PTR(_textureMapping);
+
+    _texture = std::tr1::static_pointer_cast<Texture>(_textureMapping->getPaint());
+    Q_CHECK_PTR(_texture);
+
+    _inputShape = std::tr1::static_pointer_cast<MShape>(_textureMapping->getInputShape());
+    Q_CHECK_PTR(_inputShape);
+  }
+
+  virtual ~TextureGraphicsItem() {}
+
+  virtual void paint(QPainter *painter,
+                     const QStyleOptionGraphicsItem *option, QWidget *widget)
+  {
+    if (_output)
+    {
+      // Prepare drawing.
+      _preDraw(painter);
+
+      // Perform the actual mapping (done by subclasses).
+      _doDraw(painter, option->state & QStyle::State_Selected);
+
+      // End drawing.
+      _postDraw(painter);
+    }
+
+    if (option->state & QStyle::State_Selected)
+      _drawControls(painter);
+  }
+
+  virtual void _doDraw(QPainter* painter, bool selected) = 0;
+  void _preDraw(QPainter* painter)
+  {
+    painter->beginNativePainting();
+
+    // Only works for similar shapes.
+    // TODO:remettre
+    //Q_ASSERT( _inputShape->nVertices() == outputShape->nVertices());
+
+    // Project source texture and sent it to destination.
+    _texture->update();
+
+    glEnable (GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, _texture->getTextureId());
+
+    // Copy bits to texture iff necessary.
+    _texture->lockMutex();
+    if (_texture->bitsHaveChanged())
+    {
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+        _texture->getWidth(), _texture->getHeight(), 0, GL_RGBA,
+        GL_UNSIGNED_BYTE, _texture->getBits());
+    }
+    _texture->unlockMutex();
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+  }
+
+  void _postDraw(QPainter* painter)
+  {
+    glDisable(GL_TEXTURE_2D);
+
+    painter->endNativePainting();
+  }
+
+  virtual void _drawControls(QPainter *painter)
+  {}
+
+protected:
+  std::tr1::shared_ptr<TextureMapping> _textureMapping;
+  std::tr1::shared_ptr<Texture> _texture;
+  std::tr1::shared_ptr<MShape> _inputShape;
+};
+
+class PolygonTextureGraphicsItem : public TextureGraphicsItem
+{
+public:
+  PolygonTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : TextureGraphicsItem(mapping, output) {}
+  virtual ~PolygonTextureGraphicsItem(){}
+
+  virtual void _drawControls(QPainter* painter)
+  {
+    std::tr1::shared_ptr<Polygon> outputPoly = std::tr1::static_pointer_cast<Polygon>(_shape);
+    QList<int> dummySelectedVertices;
+    Util::drawControlsPolygon(painter, &dummySelectedVertices, *outputPoly);
+  }
+};
+
+class TriangleTextureGraphicsItem : public PolygonTextureGraphicsItem
+{
+public:
+  TriangleTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : PolygonTextureGraphicsItem(mapping, output) {}
+  virtual ~TriangleTextureGraphicsItem(){}
+
+  virtual QRectF boundingRect() const {
+    return ((Polygon*)_shape.get())->toPolygon().boundingRect();
+  }
+
+  virtual QPainterPath shape() const {
+    QPainterPath path;
+    path.addPolygon(((Polygon*)_shape.get())->toPolygon());
+    return path;
+  }
+
+  virtual void _doDraw(QPainter* painter, bool selected)
+  {
+    if (_output)
+    {
+      glBegin(GL_TRIANGLES);
+      {
+        for (int i = 0; i < _inputShape->nVertices(); i++)
+        {
+          Util::setGlTexPoint(*_texture, _inputShape->getVertex(i), _shape->getVertex(i));
+        }
+      }
+      glEnd();
+    }
+  }
+};
+
+
 
 /**
  * Draws a color (abstract class).
@@ -140,11 +362,10 @@ class PolygonColorMapper : public ColorMapper
   Q_OBJECT
 
 public:
-  PolygonColorMapper(Mapping::ptr mapping) : ColorMapper(mapping) {}
+  PolygonColorMapper(Mapping::ptr mapping) : ColorMapper(mapping) {
+    _graphicsItem = new PolygonColorGraphicsItem(mapping, true);
+  }
   virtual ~PolygonColorMapper() {}
-
-  virtual void draw(QPainter* painter);
-  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0);
 };
 
 class MeshColorMapper : public ColorMapper
@@ -199,7 +420,7 @@ public:
   virtual void drawInputControls(QPainter* painter, const QList<int>* selectedVertices=0) = 0;
 
 public slots:
-  virtual void updateShape(Shape* shape);
+  virtual void updateShape(MShape* shape);
   virtual void updatePaint();
 
 protected:
@@ -214,7 +435,7 @@ protected:
   // FIXME: use typedefs, member of the class for type names that are too long to type:
   std::tr1::shared_ptr<TextureMapping> textureMapping;
   std::tr1::shared_ptr<Texture> texture;
-  std::tr1::shared_ptr<Shape> inputShape;
+  std::tr1::shared_ptr<MShape> inputShape;
 };
 
 class PolygonTextureMapper : public TextureMapper

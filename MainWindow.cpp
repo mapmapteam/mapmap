@@ -976,12 +976,12 @@ void MainWindow::createLayout()
   sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  destinationCanvas = new DestinationGLCanvas(this, 0, sourceCanvas);
+  destinationCanvas = new DestinationGLCanvas(this, 0, (QGLWidget*)sourceCanvas->viewport());
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  outputWindow = new OutputGLWindow(this, this, sourceCanvas);
+  outputWindow = new OutputGLWindow(this, this, (QGLWidget*)sourceCanvas->viewport());
   outputWindow->setVisible(true);
 
   // Source changed -> change destination
@@ -1889,6 +1889,12 @@ void MainWindow::addMappingItem(uid mappingId)
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
   mappingList->insertItem(0, item);
   mappingList->setCurrentItem(item);
+
+  // Add items to scenes.
+  if (mapper->getInputGraphicsItem())
+    sourceCanvas->scene()->addItem(mapper->getInputGraphicsItem());
+  if (mapper->getGraphicsItem())
+    destinationCanvas->scene()->addItem(mapper->getGraphicsItem());
 
   // Window was modified.
   windowModified();

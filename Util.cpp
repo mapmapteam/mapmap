@@ -239,7 +239,7 @@ void drawControlsPolygon(QPainter* painter, const QList<int>* selectedVertices, 
    painter->drawPolygon(polygon.toPolygon());
 
    // Draw control points.
-   drawControlsVertices(painter, selectedVertices, polygon);
+   //drawControlsVertices(painter, selectedVertices, polygon);
 }
 
 bool fileExists(const QString& filename)

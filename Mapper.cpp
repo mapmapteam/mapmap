@@ -21,8 +21,24 @@
 #include "Mapper.h"
 #include "MainWindow.h"
 
+void ShapeGraphicsItem::_createVertices()
+{
+  // rect offset
+  qreal offset = MM::VERTEX_SELECT_RADIUS / 2.0;
+  for (int i=0; i<_shape->nVertices(); i++)
+  {
+    // XXX is this freed by parent?
+    VertexGraphicsItem* child = new VertexGraphicsItem(i);
+    QPointF pos = _shape->getVertex(i);
+    child->setRect(pos.x()-offset, pos.y()-offset, MM::VERTEX_SELECT_RADIUS, MM::VERTEX_SELECT_RADIUS);
+    child->setParentItem(this);
+  }
+}
+
 Mapper::Mapper(Mapping::ptr mapping)
-  : _mapping(mapping)
+  : _mapping(mapping),
+    _graphicsItem(NULL),
+    _inputGraphicsItem(NULL)
 {
   outputShape = mapping->getShape();
   Q_CHECK_PTR(outputShape);
@@ -55,7 +71,10 @@ Mapper::Mapper(Mapping::ptr mapping)
 
 Mapper::~Mapper()
 {
-  delete _propertyBrowser;
+  if (_propertyBrowser)
+    delete _propertyBrowser;
+  if (_graphicsItem)
+    delete _graphicsItem;
 }
 
 QWidget* Mapper::getPropertiesEditor()
@@ -123,23 +142,6 @@ void ColorMapper::updatePaint()
   color.reset();
   color = std::tr1::static_pointer_cast<Color>(_mapping->getPaint());
   Q_CHECK_PTR(color);
-}
-
-void PolygonColorMapper::draw(QPainter* painter)
-{
-  painter->setRenderHint(QPainter::Antialiasing);
-  painter->setPen(Qt::NoPen);
-  painter->setBrush(color->getColor());
-
-  // Draw shape as polygon.
-  Polygon* poly = (Polygon*)_mapping->getShape().get();
-  painter->drawPolygon(poly->toPolygon());
-}
-
-void PolygonColorMapper::drawControls(QPainter* painter, const QList<int>* selectedVertices)
-{
-  Polygon* poly = (Polygon*)_mapping->getShape().get();
-  Util::drawControlsPolygon(painter, selectedVertices, *poly);
 }
 
 MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)
@@ -363,6 +365,8 @@ void PolygonTextureMapper::drawInputControls(QPainter* painter, const QList<int>
 TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   : PolygonTextureMapper(mapping)
 {
+  _graphicsItem = new TriangleTextureGraphicsItem(_mapping, true);
+  _inputGraphicsItem = new TriangleTextureGraphicsItem(_mapping, false);
 }
 
 void TriangleTextureMapper::_doDraw(QPainter* painter)
