@@ -22,7 +22,7 @@
 
 UidAllocator Mapping::allocator;
 
-Mapping::Mapping(Paint::ptr paint, Shape::ptr shape, uid id)
+Mapping::Mapping(Paint::ptr paint, MShape::ptr shape, uid id)
   : _paint(paint), _shape(shape),
     _isLocked(false), _isSolo(false), _isVisible(true), _opacity(1.0f)
 {

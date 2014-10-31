@@ -45,13 +45,13 @@ public:
   virtual ~MapperGLCanvas() {}
 
   /// Returns shape associated with mapping id.
-  virtual Shape* getShapeFromMappingId(uid mappingId) = 0;
+  virtual MShape* getShapeFromMappingId(uid mappingId) = 0;
 
 //  QSize sizeHint() const;
 //  QSize minimumSizeHint() const;
 
   /// Returns current shape.
-  Shape* getCurrentShape();
+//  Shape* getCurrentShape();
 
   /**
    * Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
@@ -59,7 +59,7 @@ public:
    * variable.
    */
   // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
-  void glueVertex(Shape *, QPointF *);
+  void glueVertex(MShape *, QPointF *);
 
   /// Returns pointer to main window.
   MainWindow* getMainWindow() const { return _mainWindow; }
@@ -133,7 +133,7 @@ private:
   bool _stickyVertices;
 
 signals:
-  void shapeChanged(Shape*);
+  void shapeChanged(MShape*);
   void imageChanged();
 
 public slots:

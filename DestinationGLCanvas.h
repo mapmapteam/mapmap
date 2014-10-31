@@ -34,7 +34,7 @@ public:
   DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
 //  virtual ~DestinationGLCanvas();
 
-  virtual Shape* getShapeFromMappingId(uid mappingId);
+  virtual MShape* getShapeFromMappingId(uid mappingId);
 
   void setDisplayCrosshair(bool displayCrosshair) {
     _displayCrosshair = displayCrosshair;

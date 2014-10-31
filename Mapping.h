@@ -46,7 +46,7 @@ protected:
   Paint::ptr _paint;
 
   /// The output Shape instance.
-  Shape::ptr _shape;
+  MShape::ptr _shape;
 
 private:
   static UidAllocator allocator;
@@ -60,7 +60,7 @@ private:
 
 protected:
   /// Constructor.
-  Mapping(Paint::ptr paint, Shape::ptr shape, uid id=NULL_UID);
+  Mapping(Paint::ptr paint, MShape::ptr shape, uid id=NULL_UID);
 
 public:
   typedef std::tr1::shared_ptr<Mapping> ptr;
@@ -85,13 +85,13 @@ public:
   Paint::ptr getPaint() const { return _paint; }
 
   /// Returns the (output) shape.
-  Shape::ptr getShape() const { return _shape; }
+  MShape::ptr getShape() const { return _shape; }
 
   /// Returns true iff the mapping possesses an input (source) shape.
   virtual bool hasInputShape() const { return false; }
 
   /// Returns the input (source) shape (if this mapping has one) or a null pointer if not.
-  virtual Shape::ptr getInputShape() const { return Shape::ptr(); }
+  virtual MShape::ptr getInputShape() const { return MShape::ptr(); }
 
   uid getId() const { return _id; }
 
@@ -121,7 +121,7 @@ public:
 class ColorMapping : public Mapping
 {
 public:
-  ColorMapping(Paint::ptr paint, Shape::ptr shape,
+  ColorMapping(Paint::ptr paint, MShape::ptr shape,
                uid id=NULL_UID)
     : Mapping(paint, shape, id) {}
 
@@ -138,12 +138,12 @@ public:
 class TextureMapping : public Mapping
 {
 private:
-  Shape::ptr _inputShape;
+  MShape::ptr _inputShape;
 
 public:
   TextureMapping(Paint::ptr paint,
-                 Shape::ptr shape,
-                 Shape::ptr inputShape, uid id=NULL_UID)
+                 MShape::ptr shape,
+                 MShape::ptr inputShape, uid id=NULL_UID)
     : Mapping(paint, shape, id),
       _inputShape(inputShape)
   {
@@ -162,7 +162,7 @@ public:
 
 public:
   virtual bool hasInputShape() const { return true; }
-  virtual Shape::ptr getInputShape() const { return _inputShape; }
+  virtual MShape::ptr getInputShape() const { return _inputShape; }
 };
 
 #endif /* MAPPING_H_ */

@@ -28,7 +28,7 @@ SourceGLCanvas::SourceGLCanvas(MainWindow* mainWindow, QWidget* parent)
 {
 }
 
-Shape* SourceGLCanvas::getShapeFromMappingId(uid mappingId)
+MShape* SourceGLCanvas::getShapeFromMappingId(uid mappingId)
 {
   if (mappingId == NULL_UID)
     return NULL;

@@ -409,7 +409,7 @@ void MainWindow::addMesh()
   Mapping* mappingPtr;
   if (paint->getType() == "color")
   {
-    Shape::ptr outputQuad = Shape::ptr(Util::createQuadForColor(sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputQuad = MShape::ptr(Util::createQuadForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputQuad);
   }
   else
@@ -417,8 +417,8 @@ void MainWindow::addMesh()
     std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
     Q_CHECK_PTR(texture);
 
-    Shape::ptr outputQuad = Shape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-    Shape::ptr  inputQuad = Shape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputQuad = MShape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr  inputQuad = MShape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, outputQuad, inputQuad);
   }
 
@@ -442,7 +442,7 @@ void MainWindow::addTriangle()
   Mapping* mappingPtr;
   if (paint->getType() == "color")
   {
-    Shape::ptr outputTriangle = Shape::ptr(Util::createTriangleForColor(sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputTriangle);
   }
   else
@@ -450,8 +450,8 @@ void MainWindow::addTriangle()
     std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
     Q_CHECK_PTR(texture);
 
-    Shape::ptr outputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-    Shape::ptr inputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr inputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, inputTriangle, outputTriangle);
   }
 
@@ -475,7 +475,7 @@ void MainWindow::addEllipse()
   Mapping* mappingPtr;
   if (paint->getType() == "color")
   {
-    Shape::ptr outputEllipse = Shape::ptr(Util::createEllipseForColor(sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputEllipse);
   }
   else
@@ -483,8 +483,8 @@ void MainWindow::addEllipse()
     std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
     Q_CHECK_PTR(texture);
 
-    Shape::ptr outputEllipse = Shape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-    Shape::ptr inputEllipse = Shape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr inputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, inputEllipse, outputEllipse);
   }
 
@@ -722,8 +722,8 @@ uid MainWindow::createMeshTextureMapping(uid mappingId,
     qDebug() << nVertices << " vs " << nColumns << "x" << nRows << " vs " << src.size() << " " << dst.size() << endl;
     Q_ASSERT(src.size() == nVertices && dst.size() == nVertices);
 
-    Shape::ptr inputMesh( new Mesh(src, nColumns, nRows));
-    Shape::ptr outputMesh(new Mesh(dst, nColumns, nRows));
+    MShape::ptr inputMesh( new Mesh(src, nColumns, nRows));
+    MShape::ptr outputMesh(new Mesh(dst, nColumns, nRows));
 
     // Add it to the manager.
     Mapping::ptr mapping(new TextureMapping(paint, outputMesh, inputMesh, mappingId));
@@ -752,8 +752,8 @@ uid MainWindow::createTriangleTextureMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(src.size() == 3 && dst.size() == 3);
 
-    Shape::ptr inputTriangle( new Triangle(src[0], src[1], src[2]));
-    Shape::ptr outputTriangle(new Triangle(dst[0], dst[1], dst[2]));
+    MShape::ptr inputTriangle( new Triangle(src[0], src[1], src[2]));
+    MShape::ptr outputTriangle(new Triangle(dst[0], dst[1], dst[2]));
 
     // Add it to the manager.
     Mapping::ptr mapping(new TextureMapping(paint, outputTriangle, inputTriangle, mappingId));
@@ -782,8 +782,8 @@ uid MainWindow::createEllipseTextureMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(src.size() == 5 && dst.size() == 5);
 
-    Shape::ptr inputEllipse( new Ellipse(src[0], src[1], src[2], src[3], src[4]));
-    Shape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3], dst[4]));
+    MShape::ptr inputEllipse( new Ellipse(src[0], src[1], src[2], src[3], src[4]));
+    MShape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3], dst[4]));
 
     // Add it to the manager.
     Mapping::ptr mapping(new TextureMapping(paint, outputEllipse, inputEllipse, mappingId));
@@ -812,7 +812,7 @@ uid MainWindow::createQuadColorMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(dst.size() == 4);
 
-    Shape::ptr outputQuad(new Quad(dst[0], dst[1], dst[2], dst[3]));
+    MShape::ptr outputQuad(new Quad(dst[0], dst[1], dst[2], dst[3]));
 
     // Add it to the manager.
     Mapping::ptr mapping(new ColorMapping(paint, outputQuad, mappingId));
@@ -841,7 +841,7 @@ uid MainWindow::createTriangleColorMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(dst.size() == 3);
 
-    Shape::ptr outputTriangle(new Triangle(dst[0], dst[1], dst[2]));
+    MShape::ptr outputTriangle(new Triangle(dst[0], dst[1], dst[2]));
 
     // Add it to the manager.
     Mapping::ptr mapping(new ColorMapping(paint, outputTriangle, mappingId));
@@ -870,7 +870,7 @@ uid MainWindow::createEllipseColorMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(dst.size() == 4);
 
-    Shape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3]));
+    MShape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3]));
 
     // Add it to the manager.
     Mapping::ptr mapping(new ColorMapping(paint, outputEllipse, mappingId));

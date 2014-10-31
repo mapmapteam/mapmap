@@ -65,11 +65,11 @@ QWidget* Mapper::getPropertiesEditor()
 
 void Mapper::setValue(QtProperty* property, const QVariant& value)
 {
-  std::map<QtProperty*, std::pair<Shape*, int> >::iterator it = _propertyToVertex.find(property);
+  std::map<QtProperty*, std::pair<MShape*, int> >::iterator it = _propertyToVertex.find(property);
   if (it != _propertyToVertex.end())
   {
     const QPointF& p = value.toPointF();
-    Shape* shape = it->second.first;
+    MShape* shape = it->second.first;
     int    v     = it->second.second;
     if (shape->getVertex(v) != p)
     {
@@ -79,7 +79,7 @@ void Mapper::setValue(QtProperty* property, const QVariant& value)
   }
 }
 
-void Mapper::_buildShapeProperty(QtProperty* shapeItem, Shape* shape)
+void Mapper::_buildShapeProperty(QtProperty* shapeItem, MShape* shape)
 {
   for (int i=0; i<shape->nVertices(); i++)
   {
@@ -96,7 +96,7 @@ void Mapper::_buildShapeProperty(QtProperty* shapeItem, Shape* shape)
 
 }
 
-void Mapper::_updateShapeProperty(QtProperty* shapeItem, Shape* shape)
+void Mapper::_updateShapeProperty(QtProperty* shapeItem, MShape* shape)
 {
   QList<QtProperty*> pointItems = shapeItem->subProperties();
   for (int i=0; i<shape->nVertices(); i++)
@@ -233,7 +233,7 @@ TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   Q_CHECK_PTR(texture);
 
-  inputShape = std::tr1::static_pointer_cast<Shape>(textureMapping->getInputShape());
+  inputShape = std::tr1::static_pointer_cast<MShape>(textureMapping->getInputShape());
   Q_CHECK_PTR(inputShape);
 
   // Input shape.
@@ -282,7 +282,7 @@ void TextureMapper::drawInput(QPainter* painter)
   _postDraw(painter);
 }
 
-void TextureMapper::updateShape(Shape* shape)
+void TextureMapper::updateShape(MShape* shape)
 {
   std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
   Q_CHECK_PTR(textureMapping);
@@ -290,8 +290,8 @@ void TextureMapper::updateShape(Shape* shape)
   std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   Q_CHECK_PTR(texture);
 
-  Shape* inputShape  = textureMapping->getInputShape().get();
-  Shape* outputShape = textureMapping->getShape().get();
+  MShape* inputShape  = textureMapping->getInputShape().get();
+  MShape* outputShape = textureMapping->getShape().get();
   if (shape == inputShape)
   {
     _updateShapeProperty(_inputItem, inputShape);

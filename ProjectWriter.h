@@ -32,7 +32,7 @@ class ProjectWriter
   private:
     void writeItem (Paint *item);
     void writeItem (Mapping *item);
-    void writeShapeVertices (Shape *shape);
+    void writeShapeVertices (MShape *shape);
     QXmlStreamWriter _xml;
     MappingManager *_manager;
 };

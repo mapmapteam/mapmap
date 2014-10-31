@@ -351,12 +351,12 @@ void MapperGLCanvas::enableStickyVertices(bool value)
 /* Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
  * close enough. The distance per coordinate is currently set in dist_stick
  * variable. Perhaps the sticky-sensitivity should be configurable through GUI */
-void MapperGLCanvas::glueVertex(Shape *orig, QPointF *p)
+void MapperGLCanvas::glueVertex(MShape *orig, QPointF *p)
 {
   MappingManager manager = getMainWindow()->getMappingManager();
   for (int i = 0; i < manager.nMappings(); i++)
   {
-    Shape *shape = getShapeFromMappingId(manager.getMapping(i)->getId());
+    MShape *shape = getShapeFromMappingId(manager.getMapping(i)->getId());
     if (shape && shape != orig)
     {
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)
