@@ -225,6 +225,14 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
       //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
       main_window.setTextureRate(paint_id, rate);
   }
+  else if (path == "/mapmap/mapping/visible" && typetags == "ii")
+  {
+      int mappingId = command.at(2).toInt();
+      int visible = command.at(3).toInt();
+      //std::cout << "Visibility of MappingId " << mappingId << " set to " << visible << std::endl;
+      main_window.setMappingItemVisibility(mappingId, visible ? true : false);
+      main_window.setMappingVisible(mappingId, visible ? true : false);
+  }
   else
   {
       std::cout << "Unhandled OSC message: ";

@@ -142,16 +142,19 @@ void MainWindow::handleMappingItemSelectionChanged()
   // Update canvases.
   updateCanvases();
 }
+void MainWindow::setMappingItemVisibility(uid mappingId, bool visible)
+{
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+  mapping->setVisible(visible);
+  // Update canvases.
+  updateCanvases();
+}
 
 void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
 {
   // Toggle visibility of mapping depending on checkbox of item.
   uid mappingId = getItemId(*item);
-  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
-  mapping->setVisible(item->checkState() == Qt::Checked);
-
-  // Update canvases.
-  updateCanvases();
+  setMappingItemVisibility(mappingId, item->checkState() == Qt::Checked);
 }
 
 void MainWindow::handleMappingIndexesMoved()

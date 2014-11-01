@@ -217,6 +217,7 @@ public:
   void clearWindow();
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
+  void setMappingItemVisibility(uid mappingId, bool visible);
 
 private:
   // Connects/disconnects project-specific widgets (paints and mappings).
