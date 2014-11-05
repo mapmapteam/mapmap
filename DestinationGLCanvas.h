@@ -51,6 +51,8 @@ private:
 protected:
   // overriden from QGlWidget:
   virtual void resizeGL(int width, int height);
+
+  // Event Filter
   bool eventFilter(QObject *target, QEvent *event);
 };
 

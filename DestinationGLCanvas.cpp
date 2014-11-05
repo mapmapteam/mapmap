@@ -93,6 +93,7 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
       painter->drawLine(0, cursorPosition.y(), geo.width(), cursorPosition.y());
     }
   }
+
 }
 
 void DestinationGLCanvas::_drawTestSignal(QPainter* painter)
@@ -145,8 +146,8 @@ bool DestinationGLCanvas::eventFilter(QObject *target, QEvent *event)
   if (event->type() == QEvent::KeyPress)
     {
       QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+      setActiveVertexIndex(getMainWindow()->getOutputWindow()->getCanvas()->getActiveVertexIndex());
       MapperGLCanvas::keyPressEvent(keyEvent);
-      qDebug() << "Test:" << keyEvent << endl;
       return true;
     }
   else

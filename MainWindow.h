@@ -358,6 +358,7 @@ public:
   Mapper::ptr getMapperByMappingId(uint id) { return mappers[id]; }
   uid getCurrentPaintId() const { return currentPaintId; }
   uid getCurrentMappingId() const { return currentMappingId; }
+  OutputGLWindow* getOutputWindow() const { return outputWindow; }
   bool hasCurrentPaint() const { return _hasCurrentPaint; }
   bool hasCurrentMapping() const { return _hasCurrentMapping; }
   void setCurrentPaint(int uid);

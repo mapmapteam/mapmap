@@ -79,6 +79,9 @@ public:
   /// Returns the currently active (ie. selected) vertex, or NO_VERTEX if none is currently active.
   int getActiveVertexIndex() const { return _activeVertex; }
 
+  /// Set the currently active vertex
+  void setActiveVertexIndex(int activeVertex) { _activeVertex = activeVertex; }
+
 protected:
   void initializeGL();
   void resizeGL(int width, int height);
