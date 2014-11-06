@@ -52,11 +52,10 @@ Make a release
 * Create a release-x.y.z branch
 * Verify the version number:
   * VERSION.txt
+  * VERSION in MM.cpp
   * VERSION in mapmap.pro
   * PROJECT_NUMBER in Doxyfile
-  * MAPMAP_VERSION in MainWindow.h
-  * MAPMAP_VERSION in sh_make_tarball.sh (until we fixe the tarball target in .pro)
-* Edit NEWS
+* Edit NEWS - update with the news for the release you are about to make
 * run make
 * run ./sh_build_doc.sh
 * merge to master, or to the major.minor branch
