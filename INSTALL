@@ -12,6 +12,12 @@ Build it::
 
   ./build.sh
 
+Ubuntu 14.04
+~~~~~~~~~~~~
+
+Follow the instructions for Ubuntu 13.10 (below) but also install the following packages:
+sudo apt-get install -y qttools5-dev-tools
+
 Ubuntu 13.10
 ~~~~~~~~~~~~
 
@@ -19,10 +25,8 @@ Install basic development tools fot Qt projects, plus liblo for OSC support::
 
   sudo apt-get install -y \
       liblo-dev \
-      libqt4-dev \
-      libqt4-opengl-dev \
-      qt4-default \
-      qt4-qmake
+      libglew-dev \
+      qt5-default
 
 Install GStreamer 1.0 libraries and plugins:
 
@@ -34,35 +38,14 @@ Install GStreamer 1.0 libraries and plugins:
       gstreamer1.0-gnonlin \
       gstreamer1.0-nice \
       gstreamer1.0-plugins-bad \
+      gstreamer1.0-plugins-libav \
       gstreamer1.0-plugins-base \
       gstreamer1.0-plugins-base-apps \
       gstreamer1.0-plugins-good \
       gstreamer1.0-plugins-ugly \
       gstreamer1.0-pulseaudio \
-      gstreamer1.0-tools \
-      gstreamer1.0-x
-
-DEPRECATED Install GStreamer 0.10 librairies and plugins::
-
-  sudo apt-get install -y \
-      libgstreamer-plugins-base0.10-dev \
-      libgstreamer0.10-dev \
-      gstreamer0.10-alsa \
-      gstreamer0.10-ffmpeg \
-      gstreamer0.10-fluendo-mp3 \
-      gstreamer0.10-gnonlin \
-      gstreamer0.10-nice \
-      gstreamer0.10-plugins-bad \
-      gstreamer0.10-plugins-base \
-      gstreamer0.10-plugins-base-apps \
-      gstreamer0.10-plugins-good \
-      gstreamer0.10-plugins-ugly \
-      gstreamer0.10-pulseaudio \
-      gstreamer0.10-tools \
-      gstreamer0.10-x
-
-(Note: On Ubuntu 14.04 you need to install gstreamer0.10-ffmpeg from
-https://bugs.launchpad.net/~mc3man/+archive/trusty-media)
+      gstreamer1.0-x \
+      gstreamer1.0-tools
 
 Install extra packages if you want to build the documentation::
 
