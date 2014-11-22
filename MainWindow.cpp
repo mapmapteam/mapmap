@@ -26,6 +26,7 @@
 
 MainWindow::MainWindow()
 {
+
   // Create model.
   if (Media::hasVideoSupport())
     std::cout << "Video support: yes" << std::endl;
@@ -73,6 +74,9 @@ MainWindow::MainWindow()
 
   // Start playing by default.
   play();
+
+  // after readSettings():
+  _preferences_dialog = new PreferencesDialog(this, this);
 }
 
 MainWindow::~MainWindow()
@@ -138,16 +142,19 @@ void MainWindow::handleMappingItemSelectionChanged()
   // Update canvases.
   updateCanvases();
 }
+void MainWindow::setMappingItemVisibility(uid mappingId, bool visible)
+{
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+  mapping->setVisible(visible);
+  // Update canvases.
+  updateCanvases();
+}
 
 void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
 {
   // Toggle visibility of mapping depending on checkbox of item.
   uid mappingId = getItemId(*item);
-  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
-  mapping->setVisible(item->checkState() == Qt::Checked);
-
-  // Update canvases.
-  updateCanvases();
+  setMappingItemVisibility(mappingId, item->checkState() == Qt::Checked);
 }
 
 void MainWindow::handleMappingIndexesMoved()
@@ -270,6 +277,67 @@ void MainWindow::closeEvent(QCloseEvent *event)
   videoTimer->start();
 }
 
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    bool eventKey = false;
+  if (event->type() == QEvent::KeyPress)
+  {
+    QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+    eventKey = true;
+    // Menubar shortcut
+    if (keyEvent->modifiers() == Qt::CTRL)
+    {
+        switch (keyEvent->key()) {
+        case Qt::Key_F:
+            outputWindow->setFullScreen(true);
+            break;
+        case Qt::Key_N:
+            newFile();
+            break;
+        case Qt::Key_O:
+            open();
+            break;
+        case Qt::Key_S:
+            save();
+            break;
+        case Qt::Key_Q:
+            close();
+            break;
+        case Qt::Key_Delete:
+            deleteItem();
+            break;
+        case Qt::Key_M:
+            addMesh();
+            break;
+        case Qt::Key_T:
+            addTriangle();
+            break;
+        case Qt::Key_E:
+            addEllipse();
+            break;
+        case Qt::Key_D:
+            outputWindow->setVisible(true);
+            break;
+        case Qt::Key_P:
+            if (_isPlaying) pause(); else play();
+            break;
+        case Qt::Key_R:
+            rewind();
+            break;
+        }
+    }
+    else if (keyEvent->key() == Qt::Key_Escape) outputWindow->setFullScreen(false);
+    eventKey = false;
+
+    return eventKey;
+  }
+  else
+  {
+    // standard event processing
+    return QObject::eventFilter(obj, event);
+  }
+}
+
 void MainWindow::newFile()
 {
   // Stop video playback to avoid lags. XXX Hack
@@ -306,6 +374,11 @@ void MainWindow::open()
   videoTimer->start();
 }
 
+void MainWindow::preferences()
+{
+  this->_preferences_dialog->show();
+}
+
 bool MainWindow::save()
 {
   // Popup save-as dialog if file has never been saved.
@@ -326,8 +399,7 @@ bool MainWindow::saveAs()
 
   // Popul file dialog to choose filename.
   QString fileName = QFileDialog::getSaveFileName(this,
-      tr("Save project"),
-      ".",
+      tr("Save project"), settings.value("defaultProjectDir").toString(),
       tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
 
   // Restart video playback. XXX Hack
@@ -401,6 +473,9 @@ void MainWindow::addMesh()
   if (getCurrentPaintId() == NULL_UID)
     return;
 
+  // Disable Test signal when add Mesh
+  outputWindow->getCanvas()->enableTestSignal(false);
+
   // Retrieve current paint (as texture).
   Paint::ptr paint = getMappingManager().getPaintById(getCurrentPaintId());
   Q_CHECK_PTR(paint);
@@ -434,6 +509,9 @@ void MainWindow::addTriangle()
   if (getCurrentPaintId() == NULL_UID)
     return;
 
+  // Disable Test signal when add Triangle
+  outputWindow->getCanvas()->enableTestSignal(false);
+
   // Retrieve current paint (as texture).
   Paint::ptr paint = getMappingManager().getPaintById(getCurrentPaintId());
   Q_CHECK_PTR(paint);
@@ -466,6 +544,9 @@ void MainWindow::addEllipse()
   // A paint must be selected to add a mapping.
   if (getCurrentPaintId() == NULL_UID)
     return;
+
+  // Disable Test signal when add Ellipse
+  outputWindow->getCanvas()->enableTestSignal(false);
 
   // Retrieve current paint (as texture).
   Paint::ptr paint = getMappingManager().getPaintById(getCurrentPaintId());
@@ -983,6 +1064,8 @@ void MainWindow::createLayout()
 
   outputWindow = new OutputGLWindow(this, this, sourceCanvas);
   outputWindow->setVisible(true);
+  outputWindow->installEventFilter(destinationCanvas);
+  outputWindow->installEventFilter(this);
 
   // Source changed -> change destination
   connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
@@ -1160,6 +1243,14 @@ void MainWindow::createActions()
   deleteAction->setIconVisibleInMenu(false);
   connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
 
+  // Preferences...
+  preferencesAction = new QAction(tr("&Preferences..."), this);
+  //preferencesAction->setIcon(QIcon(":/preferences"));
+  preferencesAction->setShortcut(QKeySequence::Preferences);
+  preferencesAction->setStatusTip(tr("Configure preferences..."));
+  //preferencesAction->setIconVisibleInMenu(false);
+  connect(preferencesAction, SIGNAL(triggered()), this, SLOT(preferences()));
+
   // Add quad/mesh.
   addMeshAction = new QAction(tr("Add Quad/&Mesh"), this);
   addMeshAction->setShortcut(tr("CTRL+M"));
@@ -1274,6 +1365,19 @@ void MainWindow::createActions()
   connect(stickyVertices, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableStickyVertices(bool)));
   connect(stickyVertices, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableStickyVertices(bool)));
   connect(stickyVertices, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableStickyVertices(bool)));
+
+
+  displayTestSignal = new QAction(tr("&Display test signal"), this);
+  // displayTestSignal->setShortcut(tr("Ctrl+T"));
+  displayTestSignal->setIcon(QIcon(":/control-points"));
+  displayTestSignal->setStatusTip(tr("Display test signal"));
+  displayTestSignal->setIconVisibleInMenu(false);
+  displayTestSignal->setCheckable(true);
+  displayTestSignal->setChecked(false);
+  // Manage show/hide of test signal
+  connect(displayTestSignal, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableTestSignal(bool)));
+  connect(displayTestSignal, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableTestSignal(bool)));
+  connect(displayTestSignal, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableTestSignal(bool)));
 }
 
 void MainWindow::startFullScreen()
@@ -1331,6 +1435,7 @@ void MainWindow::createMenus()
   //  editMenu->addAction(copyAction);
   //  editMenu->addAction(pasteAction);
   editMenu->addAction(deleteAction);
+  editMenu->addAction(preferencesAction);
 
   // View.
   viewMenu = menuBar->addMenu(tr("&View"));
@@ -1338,6 +1443,7 @@ void MainWindow::createMenus()
   viewMenu->addAction(outputWindowFullScreen);
   viewMenu->addAction(displayCanvasControls);
   viewMenu->addAction(stickyVertices);
+  viewMenu->addAction(displayTestSignal);
   //viewMenu->addAction(outputWindowHasCursor);
 
   // Run.
@@ -1401,6 +1507,7 @@ void MainWindow::createToolBars()
   mainToolBar->addAction(outputWindowFullScreen);
   mainToolBar->addAction(displayCanvasControls);
   mainToolBar->addAction(stickyVertices);
+  mainToolBar->addAction(displayTestSignal);
 
   runToolBar = addToolBar(tr("&Run"));
   runToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
@@ -1448,17 +1555,33 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
+  // FIXME: for each setting that is new since the first release in the major version number branch,
+  // make sure it exists before reading its value.
   QSettings settings("MapMap", "MapMap");
 
+  // settings present since 0.1.0:
   restoreGeometry(settings.value("geometry").toByteArray());
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
   paintSplitter->restoreState(settings.value("paintSplitter").toByteArray());
   mappingSplitter->restoreState(settings.value("mappingSplitter").toByteArray());
   canvasSplitter->restoreState(settings.value("canvasSplitter").toByteArray());
   outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
-  displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
-  outputWindowFullScreen->setChecked(settings.value("outputWindowFullScreen").toBool());
-  config_osc_receive_port = 12345; // settings.value("osc_receive_port", 12345).toInt();
+
+  // new in 0.1.2:
+  if (settings.contains("displayOutputWindow"))
+  {
+    displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
+  }
+  if (settings.contains("outputWindowFullScreen"))
+  {
+    outputWindowFullScreen->setChecked(settings.value("outputWindowFullScreen").toBool());
+  }
+  if (settings.contains("displayTestSignal"))
+  {
+    displayOutputWindow->setChecked(settings.value("displayTestSignal").toBool());
+  }
+  config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
+
   updateRecentFileActions();
   updateRecentVideoActions();
 }
@@ -1475,6 +1598,7 @@ void MainWindow::writeSettings()
   settings.setValue("outputWindow", outputWindow->saveGeometry());
   settings.setValue("displayOutputWindow", displayOutputWindow->isChecked());
   settings.setValue("outputWindowFullScreen", outputWindowFullScreen->isChecked());
+  settings.setValue("displayTestSignal", displayTestSignal->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
 }
 
@@ -1566,12 +1690,14 @@ void MainWindow::setCurrentFile(const QString &fileName)
   if (!curFile.isEmpty())
   {
     shownName = strippedName(curFile);
-	recentFiles = settings.value("recentFiles").toStringList();
+    recentFiles = settings.value("recentFiles").toStringList();
     recentFiles.removeAll(curFile);
     recentFiles.prepend(curFile);
-	while (recentFiles.size() > MaxRecentFiles)
-		recentFiles.removeLast();
-	settings.setValue("recentFiles", recentFiles);
+    while (recentFiles.size() > MaxRecentFiles)
+    {
+      recentFiles.removeLast();
+    }
+    settings.setValue("recentFiles", recentFiles);
     updateRecentFileActions();
   }
 
@@ -1593,35 +1719,34 @@ void MainWindow::setCurrentVideo(const QString &fileName)
 
 void MainWindow::updateRecentFileActions()
 {
-	recentFiles = settings.value("recentFiles").toStringList();
-    int numRecentFiles = qMin(recentFiles.size(), int(MaxRecentFiles));
+  recentFiles = settings.value("recentFiles").toStringList();
+  int numRecentFiles = qMin(recentFiles.size(), int(MaxRecentFiles));
 
-    for (int j = 0; j < numRecentFiles; ++j)
-    {
-		QString text = tr("&%1 %2")
-			.arg(j + 1)
-			.arg(strippedName(recentFiles[j]));
-		recentFileActions[j]->setText(text);
-		recentFileActions[j]->setData(recentFiles[j]);
-		recentFileActions[j]->setVisible(true);
-        clearRecentFileActions->setVisible(true);
-    }
-	
-	for (int i = numRecentFiles; i < MaxRecentFiles; ++i)
-         recentFileActions[i]->setVisible(false);
+  for (int j = 0; j < numRecentFiles; ++j)
+  {
+    QString text = tr("&%1 %2")
+      .arg(j + 1)
+      .arg(strippedName(recentFiles[j]));
+    recentFileActions[j]->setText(text);
+    recentFileActions[j]->setData(recentFiles[j]);
+    recentFileActions[j]->setVisible(true);
+    clearRecentFileActions->setVisible(true);
+  }
+  
+  for (int i = numRecentFiles; i < MaxRecentFiles; ++i)
+  {
+    recentFileActions[i]->setVisible(false);
+  }
 
-    if (numRecentFiles > 0)
-    {
-        separatorAction->setVisible(true);
-        clearRecentFileActions->setText(tr("Clear list"));
-        clearRecentFileActions->setEnabled(true);
-    }
-
-    else
-    {
-        clearRecentFileActions->setText(tr("No Document"));
-        clearRecentFileActions->setEnabled(false);
-    }
+  if (numRecentFiles > 0)
+  {
+    separatorAction->setVisible(true);
+    clearRecentFileActions->setText(tr("Clear list"));
+    clearRecentFileActions->setEnabled(true);
+  } else {
+    clearRecentFileActions->setText(tr("No Document"));
+    clearRecentFileActions->setEnabled(false);
+  }
 }
 
 void MainWindow::updateRecentVideoActions()
@@ -1641,6 +1766,13 @@ void MainWindow::updateRecentVideoActions()
 
     for (int j = numRecentVidoes; j < MaxRecentVideo; ++j)
         recentVideoActions[j]->setVisible(false);
+
+    if (numRecentVidoes <= 0)
+    {
+        QAction *noVideos = new QAction(tr("No Videos"), this);
+        noVideos->setEnabled(false);
+        recentVideoMenu->addAction(noVideos);
+    }
 }
 
 void MainWindow::clearRecentFileList()
@@ -2145,7 +2277,17 @@ void MainWindow::startOscReceiver()
 #endif
 }
 
-void MainWindow::setOscPort(QString portNumber)
+bool MainWindow::setOscPort(int portNumber)
+{
+  return this->setOscPort(QString::number(portNumber));
+}
+
+int MainWindow::getOscPort() const
+{
+  return config_osc_receive_port;
+}
+
+bool MainWindow::setOscPort(QString portNumber)
 {
   if (Util::isNumeric(portNumber))
   {
@@ -2153,7 +2295,7 @@ void MainWindow::setOscPort(QString portNumber)
     if (port <= 1023 || port > 65535)
     {
       std::cout << "OSC port is out of range: " << portNumber.toInt() << std::endl;
-      return;
+      return false;
     }
     config_osc_receive_port = port;
     startOscReceiver();
@@ -2161,7 +2303,9 @@ void MainWindow::setOscPort(QString portNumber)
   else
   {
     std::cout << "OSC port is not a number: " << portNumber.toInt() << std::endl;
+    return false;
   }
+  return true;
 }
 
 void MainWindow::pollOscInterface()

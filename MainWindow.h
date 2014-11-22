@@ -35,6 +35,7 @@
 #include "DestinationGLCanvas.h"
 
 #include "OutputGLWindow.h"
+#include "PreferencesDialog.h"
 
 #include "MappingManager.h"
 
@@ -65,6 +66,7 @@ public:
 protected:
   // Events ///////////////////////////////////////////////////////////////////////////////////////////////////
   void closeEvent(QCloseEvent *event);
+  bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
   void paintChanged();
@@ -76,6 +78,7 @@ private slots:
   // File menu.
   void newFile();
   void open();
+  void preferences();
   bool save();
   bool saveAs();
   void importVideo();
@@ -212,9 +215,9 @@ public:
   void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
   void clearWindow();
-
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
+  void setMappingItemVisibility(uid mappingId, bool visible);
 
 private:
   // Connects/disconnects project-specific widgets (paints and mappings).
@@ -263,6 +266,7 @@ private:
 //  QAction *copyAction;
 //  QAction *pasteAction;
   QAction *deleteAction;
+  QAction *preferencesAction;
   QAction *aboutAction;
   QAction *clearRecentFileActions;
 
@@ -278,6 +282,7 @@ private:
   //QAction *outputWindowHasCursor;
   QAction *outputWindowFullScreen;
   QAction *displayCanvasControls;
+  QAction *displayTestSignal;
   QAction *stickyVertices;
 
   enum { MaxRecentFiles = 10 };
@@ -345,12 +350,15 @@ private:
   QListWidgetItem* currentSelectedItem;
   QTimer *videoTimer;
 
+  PreferencesDialog* _preferences_dialog;
+
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
   MappingManager& getMappingManager() { return *mappingManager; }
   Mapper::ptr getMapperByMappingId(uint id) { return mappers[id]; }
   uid getCurrentPaintId() const { return currentPaintId; }
   uid getCurrentMappingId() const { return currentMappingId; }
+  OutputGLWindow* getOutputWindow() const { return outputWindow; }
   bool hasCurrentPaint() const { return _hasCurrentPaint; }
   bool hasCurrentMapping() const { return _hasCurrentMapping; }
   void setCurrentPaint(int uid);
@@ -359,7 +367,9 @@ public:
   void removeCurrentMapping();
 
   void startFullScreen();
-  void setOscPort(QString portNumber);
+  bool setOscPort(QString portNumber);
+  bool setOscPort(int portNumber);
+  int getOscPort() const;
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////
   static const int DEFAULT_WIDTH = 1600;

@@ -125,6 +125,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
         {
           _activeVertex = i;
           minDistance = dist;
+
           _mousePressedOnVertex = true;
           mousePressedOnSomething = true;
         }
@@ -219,7 +220,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
         shape->translate(event->x() - prevMousePosition.x(), event->y() - prevMousePosition.y());
         update();
         emit shapeChanged(getCurrentShape());
-      }  
+      }
       else
         _shapeFirstGrab = false;
     }
@@ -320,7 +321,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 //  emit quadChanged();
 }
 
-void MapperGLCanvas::paintEvent(QPaintEvent* /* event */)
+void MapperGLCanvas::paintEvent(QPaintEvent* )
 {
   makeCurrent();
 
@@ -340,6 +341,12 @@ void MapperGLCanvas::updateCanvas()
 void MapperGLCanvas::enableDisplayControls(bool display)
 {
   _displayControls = display;
+  updateCanvas();
+}
+
+void MapperGLCanvas::enableTestSignal(bool enable)
+{
+  _displayTestSignal = enable;
   updateCanvas();
 }
 

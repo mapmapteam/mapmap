@@ -21,6 +21,7 @@ HEADERS  = \
     OutputGLWindow.h \
     Paint.h \
     PaintGui.h \
+    PreferencesDialog.h \
     ProjectReader.h \
     ProjectWriter.h \
     Shape.h \
@@ -43,6 +44,7 @@ SOURCES  = \
     OutputGLWindow.cpp \
     Paint.cpp \
     PaintGui.cpp \
+    PreferencesDialog.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
     Shape.cpp \

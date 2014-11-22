@@ -67,6 +67,9 @@ public:
   /// Returns true iff we should display the controls.
   bool displayControls() const { return _displayControls; }
 
+  /// Returns true iff we should display the test signal
+  bool displayTestSignal() const { return _displayTestSignal; }
+
   /// Returns true iff we want vertices to stick to each other.
   bool stickyVertices() const { return _stickyVertices; }
 
@@ -75,6 +78,9 @@ public:
 
   /// Returns the currently active (ie. selected) vertex, or NO_VERTEX if none is currently active.
   int getActiveVertexIndex() const { return _activeVertex; }
+
+  /// Set the currently active vertex
+  void setActiveVertexIndex(int activeVertex) { _activeVertex = activeVertex; }
 
 protected:
   void initializeGL();
@@ -129,6 +135,9 @@ private:
   // True iff we are displaying the controls.
   bool _displayControls;
 
+  // True iff we are displaying the test signal (grid)
+  bool _displayTestSignal;
+
   // True iff we want vertices to stick to each other.
   bool _stickyVertices;
 
@@ -140,6 +149,7 @@ public slots:
   void updateCanvas();
   void enableDisplayControls(bool display);
   void enableStickyVertices(bool display);
+  void enableTestSignal(bool enable);
   void deselectVertices();
   void deselectAll();
 

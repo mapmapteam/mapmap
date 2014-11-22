@@ -2,6 +2,7 @@
  * OutputGLWindow.cpp
  *
  * (c) 2014 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2014 Alexandre Quessy -- alexandre(@)quessy(.)net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,38 +62,16 @@ void OutputGLWindow::closeEvent(QCloseEvent *event)
 {
   emit closed();
   event->accept();
+  this->parentWidget()->setFocus();
 }
-
-void OutputGLWindow::keyPressEvent(QKeyEvent *event)
-{
-  // Escape from full screen mode.
-  if (isFullScreen())
-  {
-    if (event->key() == Qt::Key_Escape)
-    {
-      setFullScreen(false);
-      emit fullScreenToggled(false);
-    }
-    else
-    {
-       setFullScreen(true);
-       emit fullScreenToggled(true);
-    }
-
-  }
-
-  else
-  {
-    QDialog::keyPressEvent(event);
-  }
-}
-
 
 void OutputGLWindow::setFullScreen(bool fullscreen)
 {
-  // Activate crosshair in fullscreen mode.
   setCursorVisible(!fullscreen);
-  canvas->setDisplayCrosshair(fullscreen);
+  emit fullScreenToggled(fullscreen);
+  // Activate crosshair in fullscreen mode.
+  // should be only drawn if the controls should be shown
+  canvas->setDisplayCrosshair(fullscreen && this->canvas->displayControls());
 
   // NOTE: The showFullScreen() method does not work well under Ubuntu Linux. The code below fixes the issue.
   // Notice that there might be problems with the fullscreen in other OS / window managers. If so, please add

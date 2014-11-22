@@ -42,8 +42,18 @@ public:
 
 private:
   virtual void doDraw(QPainter* painter);
+  void _drawTestSignal(QPainter* painter);
 
   bool _displayCrosshair;
+  QImage _svg_test_signal;
+  QBrush _brush_test_signal;
+
+protected:
+  // overriden from QGlWidget:
+  virtual void resizeGL(int width, int height);
+
+  // Event Filter
+  bool eventFilter(QObject *target, QEvent *event);
 };
 
 #endif /* DESTINATIONGLCANVAS_H_ */
