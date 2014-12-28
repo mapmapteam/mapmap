@@ -79,6 +79,9 @@ unix:!mac {
   desktopfile.files = mapmap.desktop
   desktopfile.path = /usr/share/applications
   INSTALLS += desktopfile
+  iconfile.files = resources/images/logo/mapmap.svg
+  iconfile.path = /usr/share/icons/hicolor/scalable/apps
+  INSTALLS += iconfile
 }
 
 # Mac OS X-specific:
