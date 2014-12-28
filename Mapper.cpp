@@ -21,24 +21,25 @@
 #include "Mapper.h"
 #include "MainWindow.h"
 
+
 bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event)
 {
-  if (watched == this)
+  VertexGraphicsItem* child = static_cast<VertexGraphicsItem*>(watched);
+  Q_ASSERT(child);
+
+  // Change vertex in model according to moved item.
+  if (event->type() == QEvent::GraphicsSceneMouseMove)
   {
-    _syncShape();
-  }
-  else {
-    VertexGraphicsItem* child = static_cast<VertexGraphicsItem*>(watched);
-    Q_ASSERT(child);
-    qreal offset = MM::VERTEX_SELECT_RADIUS / 2.0;
     int idx = childItems().indexOf(watched);
     Q_ASSERT(idx != -1);
     QPointF pos = child->pos();
-    qDebug() << "child(" << idx << ") position = " << watched->pos() << " map from " << mapFromItem(watched, watched->pos()) << endl;
     _shape->setVertex(idx, pos);
-//    child->setRect(pos.x()-offset, pos.y()-offset, MM::VERTEX_SELECT_RADIUS, MM::VERTEX_SELECT_RADIUS);
-    this->update();
   }
+
+  // Refresh this shape.
+  update();
+
+  // Returns false to allow the child item to process its event.
   return false;
 }
 
