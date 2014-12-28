@@ -1,9 +1,32 @@
 Release notes for MapMap
 ========================
 
-????-??-?? - MapMap 0.1.2
+2014-12-28 - MapMap 0.2.0
 -------------------------
-* ?
+* Add --file option.
+* Add --osc-port option.
+* Add --reset-settings option.
+* Add crosshair cursor in fullscreen mode.
+* Add logo title in about dialog.
+* Can change OSC port via the new preference dialog.
+* Control mapping visibility from OSC (ticket #43)
+* File chooser now remembers last used directory.
+* Port to Qt5.
+* Recent files and videos menu items.
+* Select a shape with a click.
+* Select individual vertex and move it with the arrow keys.
+* Speed rate for playback.
+* Test signal image.
+* Videos plays by default at startup.
+* Fix: Add missing MM.h
+* Fix: Check for a valid OSC port number.
+* Fix: Fix fullscreen on GNOME
+* Fix: Fix main splitter proportions
+* Fix: Fix memory leak with the GStreamer pipeline manager.
+* Fix: Hide cursor in output window.
+* Fix: Press escape to toggle fullscreen.
+* Fix: Save fullscreen setting.
+* Fix: Save visibility of mappings.
 
 2014-07-07 - MapMap 0.1.1
 -------------------------
