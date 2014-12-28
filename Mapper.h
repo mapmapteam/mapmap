@@ -77,6 +77,7 @@ public:
 protected:
   virtual void _createVertices();
   virtual void _syncShape();
+  virtual void _syncVertices();
 
   Mapping::ptr _mapping;
   MShape::ptr _shape;

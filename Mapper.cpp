@@ -37,23 +37,31 @@ ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
 
 bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event)
 {
-  VertexGraphicsItem* child = static_cast<VertexGraphicsItem*>(watched);
-  Q_ASSERT(child);
-
   // Change vertex in model according to moved item.
   if (event->type() == QEvent::GraphicsSceneMouseMove)
   {
+    QGraphicsSceneMoveEvent* moveEvent = static_cast<QGraphicsSceneMoveEvent*>(event);
+    Q_ASSERT(moveEvent);
+
     int idx = childItems().indexOf(watched);
     Q_ASSERT(idx != -1);
-    QPointF pos = child->pos();
+
+    QPointF pos = moveEvent->newPos();
     _shape->setVertex(idx, pos);
+
+    _syncVertices();
+
+    // Refresh this shape.
+    update();
+
+    // override default
+    return true;
   }
-
-  // Refresh this shape.
-  update();
-
-  // Returns false to allow the child item to process its event.
-  return false;
+  else
+  {
+    // Returns false to allow the child item to process its event.
+    return false;
+  }
 }
 
 void ShapeGraphicsItem::_createVertices()
@@ -82,6 +90,16 @@ void ShapeGraphicsItem::_syncShape()
   {
     QGraphicsItem* child = children.at(i);
     _shape->setVertex(i, mapFromItem(child, child->pos()));
+  }
+}
+
+void ShapeGraphicsItem::_syncVertices()
+{
+  for (int i=0; i<_shape->nVertices(); i++)
+  {
+    QPointF pos = _shape->getVertex(i);// - this->pos();
+    childItems().at(i)->setPos(pos);
+    childItems().at(i)->update();
   }
 }
 
