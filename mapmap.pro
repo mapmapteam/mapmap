@@ -73,6 +73,12 @@ unix:!mac {
     gl x11 glew
   QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
   QMAKE_CXXFLAGS += -DHAVE_OSC
+  mapmapfile.files = mapmap
+  mapmapfile.path = /usr/bin
+  INSTALLS += mapmapfile
+  desktopfile.files = mapmap.desktop
+  desktopfile.path = /usr/share/applications
+  INSTALLS += desktopfile
 }
 
 # Mac OS X-specific:
