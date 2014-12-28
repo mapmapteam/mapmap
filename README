@@ -2,24 +2,27 @@ MapMap
 ====== 
 MapMap is a free video mapping software.
 
-Projection mapping, also known as video mapping and spatial augmented reality,
-is a projection technology used to turn objects, often irregularly shaped, into
-a display surface for video projection. These objects may be complex industrial
-landscapes, such as buildings. By using specialized software, a two or three
-dimensional object is spatially mapped on the virtual program which mimics the
-real environment it is to be projected on. The software can interact with a
-projector to fit any desired image onto the surface of that object. This
-technique is used by artists and advertisers alike who can add extra dimensions,
-optical illusions, and notions of movement onto previously static objects. The
-video is commonly combined with, or triggered by, audio to create an
-audio-visual narrative.
+Projection mapping, also known as video mapping and spatial augmented
+reality, is a projection technology used to turn objects, often
+irregularly shaped, into a display surface for video projection.
+These objects may be complex industrial landscapes, such as buildings.
+By using specialized software, a two or three dimensional object is
+spatially mapped on the virtual program which mimics the real
+environment it is to be projected on. The software can interact with a
+projector to fit any desired image onto the surface of that object.
+This technique is used by artists and advertisers alike who can add
+extra dimensions, optical illusions, and notions of movement onto
+previously static objects. The video is commonly combined with, or
+triggered by, audio to create an audio-visual narrative.
 
 Ackowledgements
 ---------------
-This project was made possible by the support of the International Organization of La Francophonie.
+This project was made possible by the support of the International
+Organization of La Francophonie.
 http://www.francophonie.org/
 
-Ce projet a été rendu possible grâce au support de l'Organisation internationale de la Francophonie.
+Ce projet a été rendu possible grâce au support de l'Organisation
+internationale de la Francophonie.
 http://www.francophonie.org/
 
 Build and installation
@@ -31,11 +34,11 @@ To use this software on Mac OS X:
 
 Authors
 -------
-* Alexandre Quessy: release manager, developer, technical writer, project manager.
 * Sofian Audry: lead developer, user interface designer, project manager.
-* Vasilis Liaskovitis: developer.
+* Alexandre Quessy: release manager, developer, technical writer, project manager.
 * Mike Latona: user interface designer.
 * Dame Diongue: developer.
+* Vasilis Liaskovitis: developer.
 
 Contributors
 ------------
@@ -44,7 +47,9 @@ Contributors
 * Louis Desjardins: project manager.
 * Julien Keable: developer.
 * Sylvain Cormier: developer.
+* Marc Lavallée: help with packaging.
 
 More info
 ---------
 Get more info from http://mapmap.info
+
