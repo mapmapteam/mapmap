@@ -21,6 +21,19 @@
 #include "Mapper.h"
 #include "MainWindow.h"
 
+ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
+  : _mapping(mapping), _output(output)
+{
+  _shape = output ? _mapping->getShape() : _mapping->getInputShape();
+
+  setFlags(ItemIsMovable | ItemIsSelectable);
+
+  // Shape filters child (control point) events.
+  setFiltersChildEvents(true);
+
+  // Create control point graphics items.
+  _createVertices();
+}
 
 bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event)
 {
@@ -69,6 +82,190 @@ void ShapeGraphicsItem::_syncShape()
   {
     QGraphicsItem* child = children.at(i);
     _shape->setVertex(i, mapFromItem(child, child->pos()));
+  }
+}
+
+QPainterPath PolygonColorGraphicsItem::shape() const
+{
+  QPainterPath path;
+  Polygon* poly = static_cast<Polygon*>(_shape.get());
+  Q_ASSERT(poly);
+  path.addPolygon(poly->toPolygon());
+  return path;
+}
+
+QRectF PolygonColorGraphicsItem::boundingRect() const
+{
+  Polygon* poly = static_cast<Polygon*>(_shape.get());
+  Q_ASSERT(poly);
+  return poly->toPolygon().boundingRect();
+}
+
+QPainterPath EllipseColorGraphicsItem::shape() const
+{
+  QPainterPath path;
+  Ellipse* ellipse = static_cast<Ellipse*>(_shape.get());
+  Q_ASSERT(ellipse);
+  QTransform transform;
+  transform.rotate(ellipse->getRotation());
+  path.addEllipse(ellipse->getCenter(), ellipse->getHorizontalRadius(), ellipse->getVerticalRadius());
+  return transform.map(path);
+}
+
+QRectF EllipseColorGraphicsItem::boundingRect() const
+{
+  return shape().boundingRect();
+}
+
+
+void PolygonColorGraphicsItem::paint(QPainter *painter,
+                                     const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+  Q_UNUSED(widget);
+
+  // Setup pen and brush.
+  if (option->state & QStyle::State_Selected)
+    painter->setPen(MM::SHAPE_STROKE);
+  else
+    painter->setPen(Qt::NoPen);
+
+  Color* color = static_cast<Color*>(_mapping->getPaint().get());
+  Q_ASSERT(color);
+  painter->setBrush(color->getColor());
+
+  // Draw shape as polygon.
+  Polygon* poly = static_cast<Polygon*>(_shape.get());
+  Q_ASSERT(poly);
+  painter->drawPolygon(poly->toPolygon());
+}
+
+void EllipseColorGraphicsItem::paint(QPainter* painter,
+                                     const QStyleOptionGraphicsItem* option, QWidget* widget)
+{
+  Color* color = static_cast<Color*>(_mapping->getPaint().get());
+  Q_ASSERT(color);
+
+  // Setup pen and brush.
+  if (option->state & QStyle::State_Selected)
+    painter->setPen(MM::SHAPE_STROKE);
+  else
+    painter->setPen(Qt::NoPen);
+
+  painter->setBrush(color->getColor());
+
+  // Draw shape as ellipse.
+  Ellipse* ellipse = static_cast<Ellipse*>(_shape.get());
+  Q_ASSERT(ellipse);
+
+  qreal rotation = ellipse->getRotation();
+
+  painter->setBrush(color->getColor());
+  const QPointF& center = ellipse->getCenter();
+  painter->translate(center);
+  painter->rotate(rotation);
+  painter->drawEllipse(QPointF(0,0), ellipse->getHorizontalRadius(), ellipse->getVerticalRadius());
+}
+
+TextureGraphicsItem::TextureGraphicsItem(Mapping::ptr mapping, bool output)
+  : ShapeGraphicsItem(mapping, output)
+{
+  _textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+  Q_CHECK_PTR(_textureMapping);
+
+  _texture = std::tr1::static_pointer_cast<Texture>(_textureMapping->getPaint());
+  Q_CHECK_PTR(_texture);
+
+  _inputShape = std::tr1::static_pointer_cast<MShape>(_textureMapping->getInputShape());
+  Q_CHECK_PTR(_inputShape);
+}
+
+void TextureGraphicsItem::paint(QPainter *painter,
+                                const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+  Q_UNUSED(widget);
+
+  if (_output)
+  {
+    // Prepare drawing.
+    _preDraw(painter);
+
+    // Perform the actual mapping (done by subclasses).
+    _doDraw(painter, option->state & QStyle::State_Selected);
+
+    // End drawing.
+    _postDraw(painter);
+  }
+}
+
+void TextureGraphicsItem::_preDraw(QPainter* painter)
+{
+  painter->beginNativePainting();
+
+  // Only works for similar shapes.
+  // TODO:remettre
+  //Q_ASSERT( _inputShape->nVertices() == outputShape->nVertices());
+
+  // Project source texture and sent it to destination.
+  _texture->update();
+
+  glEnable (GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, _texture->getTextureId());
+
+  // Copy bits to texture iff necessary.
+  _texture->lockMutex();
+  if (_texture->bitsHaveChanged())
+  {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+      _texture->getWidth(), _texture->getHeight(), 0, GL_RGBA,
+      GL_UNSIGNED_BYTE, _texture->getBits());
+  }
+  _texture->unlockMutex();
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void TextureGraphicsItem::_postDraw(QPainter* painter)
+{
+  glDisable(GL_TEXTURE_2D);
+
+  painter->endNativePainting();
+}
+
+QPainterPath PolygonTextureGraphicsItem::shape() const
+{
+  QPainterPath path;
+  Polygon* poly = static_cast<Polygon*>(_shape.get());
+  Q_ASSERT(poly);
+  path.addPolygon(poly->toPolygon());
+  return path;
+}
+
+QRectF PolygonTextureGraphicsItem::boundingRect() const {
+  Polygon* poly = static_cast<Polygon*>(_shape.get());
+  Q_ASSERT(poly);
+  return poly->toPolygon().boundingRect();
+}
+
+
+void TriangleTextureGraphicsItem::_doDraw(QPainter* painter, bool selected)
+{
+  Q_UNUSED(painter);
+  Q_UNUSED(selected);
+  if (_output)
+  {
+    glBegin(GL_TRIANGLES);
+    {
+      for (int i=0; i<_inputShape->nVertices(); i++)
+      {
+        Util::setGlTexPoint(*_texture, _inputShape->getVertex(i), _shape->getVertex(i));
+      }
+    }
+    glEnd();
   }
 }
 
@@ -230,37 +427,6 @@ void MeshColorMapper::setValue(QtProperty* property, const QVariant& value)
     ColorMapper::setValue(property, value);
 }
 
-EllipseColorMapper::EllipseColorMapper(Mapping::ptr mapping)
-  : ColorMapper(mapping) {
-}
-
-void EllipseColorMapper::draw(QPainter* painter)
-{
-  painter->setPen(Qt::NoPen);
-  painter->setBrush(color->getColor());
-
-  std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(outputShape);
-  qreal rotation = outputEllipse->getRotation();
-
-  painter->save(); // save painter state
-
-  painter->resetTransform();
-  painter->setBrush(color->getColor());
-  const QPointF& center = outputEllipse->getCenter();
-  painter->translate(center);
-  painter->rotate(rotation);
-  painter->drawEllipse(QPointF(0,0), outputEllipse->getHorizontalRadius(), outputEllipse->getVerticalRadius());
-
-  painter->restore(); // restore saved painter state
-}
-
-void EllipseColorMapper::drawControls(QPainter* painter, const QList<int>* selectedVertices)
-{
-  std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(outputShape);
-  Util::drawControlsEllipse(painter, selectedVertices, *outputEllipse);
-}
-
-
 TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   : Mapper(mapping),
     _meshItem(NULL)
@@ -282,44 +448,32 @@ TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   _buildShapeProperty(_inputItem, textureMapping->getInputShape().get());
   _topItem->insertSubProperty(_inputItem, 0); // insert before output item
 }
-
-void TextureMapper::draw(QPainter* painter)
-{
-  // Prepare drawing.
-  _preDraw(painter);
-
-  // Perform the actual mapping (done by subclasses).
-  _doDraw(painter);
-
-  // End drawing.
-  _postDraw(painter);
-}
-
-void TextureMapper::drawInput(QPainter* painter)
-{
-  // Prepare drawing.
-  _preDraw(painter);
-
-  // FIXME: Does this draw the quad counterclockwise?
-  glBegin (GL_QUADS);
-  {
-    Util::correctGlTexCoord(0, 0);
-    glVertex3f (texture->getX(), texture->getY(), 0);
-
-    Util::correctGlTexCoord(1, 0);
-    glVertex3f (texture->getX()+texture->getWidth(), texture->getY(), 0);
-
-    Util::correctGlTexCoord(1, 1);
-    glVertex3f (texture->getX()+texture->getWidth(), texture->getY() + texture->getHeight(), 0);
-
-    Util::correctGlTexCoord(0, 1);
-    glVertex3f (texture->getX(), texture->getY() + texture->getHeight(), 0);
-  }
-  glEnd ();
-
-  // End drawing.
-  _postDraw(painter);
-}
+//
+//void TextureMapper::drawInput(QPainter* painter)
+//{
+//  // Prepare drawing.
+//  _preDraw(painter);
+//
+//  // FIXME: Does this draw the quad counterclockwise?
+//  glBegin (GL_QUADS);
+//  {
+//    Util::correctGlTexCoord(0, 0);
+//    glVertex3f (texture->getX(), texture->getY(), 0);
+//
+//    Util::correctGlTexCoord(1, 0);
+//    glVertex3f (texture->getX()+texture->getWidth(), texture->getY(), 0);
+//
+//    Util::correctGlTexCoord(1, 1);
+//    glVertex3f (texture->getX()+texture->getWidth(), texture->getY() + texture->getHeight(), 0);
+//
+//    Util::correctGlTexCoord(0, 1);
+//    glVertex3f (texture->getX(), texture->getY() + texture->getHeight(), 0);
+//  }
+//  glEnd ();
+//
+//  // End drawing.
+//  _postDraw(painter);
+//}
 
 void TextureMapper::updateShape(MShape* shape)
 {
@@ -348,56 +502,56 @@ void TextureMapper::updatePaint()
   texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
   Q_CHECK_PTR(texture);
 }
-
-void TextureMapper::_preDraw(QPainter* painter)
-{
-  painter->beginNativePainting();
-
-  // Only works for similar shapes.
-  Q_ASSERT( inputShape->nVertices() == outputShape->nVertices());
-
-  // Project source texture and sent it to destination.
-  texture->update();
-
-  glEnable (GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
-
-  // Copy bits to texture iff necessary.
-  texture->lockMutex();
-  if (texture->bitsHaveChanged())
-  {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-      texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
-      GL_UNSIGNED_BYTE, texture->getBits());
-  }
-  texture->unlockMutex();
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-}
-
-void TextureMapper::_postDraw(QPainter* painter)
-{
-  glDisable(GL_TEXTURE_2D);
-
-  painter->endNativePainting();
-}
-
-void PolygonTextureMapper::drawControls(QPainter* painter, const QList<int>* selectedVertices)
-{
-  std::tr1::shared_ptr<Polygon> outputPoly = std::tr1::static_pointer_cast<Polygon>(outputShape);
-  Util::drawControlsPolygon(painter, selectedVertices, *outputPoly);
-}
-
-void PolygonTextureMapper::drawInputControls(QPainter* painter, const QList<int>* selectedVertices)
-{
-  std::tr1::shared_ptr<Polygon> inputPoly = std::tr1::static_pointer_cast<Polygon>(inputShape);
-  Util::drawControlsPolygon(painter, selectedVertices, *inputPoly);
-}
+//
+//void TextureMapper::_preDraw(QPainter* painter)
+//{
+//  painter->beginNativePainting();
+//
+//  // Only works for similar shapes.
+//  Q_ASSERT( inputShape->nVertices() == outputShape->nVertices());
+//
+//  // Project source texture and sent it to destination.
+//  texture->update();
+//
+//  glEnable (GL_TEXTURE_2D);
+//  glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
+//
+//  // Copy bits to texture iff necessary.
+//  texture->lockMutex();
+//  if (texture->bitsHaveChanged())
+//  {
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+//      texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
+//      GL_UNSIGNED_BYTE, texture->getBits());
+//  }
+//  texture->unlockMutex();
+//
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//
+//  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+//}
+//
+//void TextureMapper::_postDraw(QPainter* painter)
+//{
+//  glDisable(GL_TEXTURE_2D);
+//
+//  painter->endNativePainting();
+//}
+//
+//void PolygonTextureMapper::drawControls(QPainter* painter, const QList<int>* selectedVertices)
+//{
+//  std::tr1::shared_ptr<Polygon> outputPoly = std::tr1::static_pointer_cast<Polygon>(outputShape);
+//  Util::drawControlsPolygon(painter, selectedVertices, *outputPoly);
+//}
+//
+//void PolygonTextureMapper::drawInputControls(QPainter* painter, const QList<int>* selectedVertices)
+//{
+//  std::tr1::shared_ptr<Polygon> inputPoly = std::tr1::static_pointer_cast<Polygon>(inputShape);
+//  Util::drawControlsPolygon(painter, selectedVertices, *inputPoly);
+//}
 
 TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   : PolygonTextureMapper(mapping)
@@ -405,19 +559,20 @@ TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping
   _graphicsItem = new TriangleTextureGraphicsItem(_mapping, true);
   _inputGraphicsItem = new TriangleTextureGraphicsItem(_mapping, false);
 }
-
-void TriangleTextureMapper::_doDraw(QPainter* painter)
-{
-  Q_UNUSED(painter);
-  glBegin(GL_TRIANGLES);
-  {
-    for (int i = 0; i < inputShape->nVertices(); i++)
-    {
-      Util::setGlTexPoint(*texture, inputShape->getVertex(i), outputShape->getVertex(i));
-    }
-  }
-  glEnd();
-}
+//
+//void TriangleTextureMapper::_doDraw(QPainter* painter)
+//{
+//  qDebug() << "Is this really used!" << endl;
+////  Q_UNUSED(painter);
+////  glBegin(GL_TRIANGLES);
+////  {
+////    for (int i = 0; i < inputShape->nVertices(); i++)
+////    {
+////      Util::setGlTexPoint(*texture, inputShape->getVertex(i), outputShape->getVertex(i));
+////    }
+////  }
+////  glEnd();
+//}
 
 MeshTextureMapper::MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   : PolygonTextureMapper(mapping)
@@ -576,4 +731,3 @@ void EllipseTextureMapper::_setPointOfEllipseAtAngle(QPointF& point, const QPoin
   point.setX( sin(angle + rotation) * distance + center.x() );
   point.setY( cos(angle + rotation) * distance + center.y() );
 }
-
