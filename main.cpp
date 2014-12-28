@@ -77,6 +77,9 @@ int main(int argc, char *argv[])
   QCommandLineOption oscPortOption(QStringList() << "p" << "osc-port", "Use OSC port number <osc-port>.", "osc-port", "");
   parser.addOption(oscPortOption);
 
+  // Positional argument: file
+  parser.addPositionalArgument("file", "Load project from that file.");
+
   parser.process(app);
   if (parser.isSet(versionOption) || parser.isSet(helpOption))
   {
@@ -86,7 +89,8 @@ int main(int argc, char *argv[])
   {
     Util::eraseSettings();
   }
-#endif
+
+#endif // USING_QT_5
 
   if (! QGLFormat::hasOpenGL())
     qFatal("This system has no OpenGL support.");
@@ -127,7 +131,22 @@ int main(int argc, char *argv[])
   //win.setLocale(QLocale("fr"));
 
 #if USING_QT_5
-  QString projectFileValue = parser.value("file");
+  // read positional argument:
+  const QStringList args = parser.positionalArguments();
+  QString projectFileValue = QString();
+
+  // there are two ways to specify the project file name.
+  // The 2nd overrides the first:
+
+  // read the file option value: (overrides the positional argument)
+  projectFileValue = parser.value("file");
+  // read the first positional argument:
+  if (! args.isEmpty())
+  {
+    projectFileValue = args.first();
+  }
+
+  // finally, load the project file.
   if (projectFileValue != "")
   {
     win.loadFile(projectFileValue);
