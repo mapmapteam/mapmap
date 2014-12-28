@@ -124,6 +124,7 @@ public:
     _shape = output ? _mapping->getShape() : _mapping->getInputShape();
 
     setFlags(ItemIsMovable | ItemIsSelectable);
+    setFiltersChildEvents(true);
 
     _createVertices();
   }
@@ -141,14 +142,18 @@ public:
 //  virtual void paint(QPainter *painter,
 //                     const QStyleOptionGraphicsItem *option, QWidget *widget);
 
+  virtual bool sceneEventFilter(QGraphicsItem * watched, QEvent * event);
+
 protected:
   virtual void _createVertices();
+  virtual void _syncShape();
 
   Mapping::ptr _mapping;
   MShape::ptr _shape;
   bool _output;
 };
 
+/// Graphics item for vertices / control points.
 class VertexGraphicsItem : public QGraphicsEllipseItem
 {
   Q_DECLARE_TR_FUNCTIONS(VertexGraphicsItem)
@@ -162,7 +167,9 @@ public:
   virtual void paint(QPainter *painter,
                      const QStyleOptionGraphicsItem *option, QWidget *widget)
   {
-    const QPointF& vertex = ((ShapeGraphicsItem*)parentItem())->getShape()->getVertex(_index);
+    Q_UNUSED(widget);
+//    const QPointF& vertex = ((ShapeGraphicsItem*)parentItem())->getShape()->getVertex(_index);
+    const QPointF vertex(0,0);
     Util::drawControlsVertex(painter, vertex, (option->state & QStyle::State_Selected));
   }
 
@@ -191,6 +198,8 @@ public:
   virtual void paint(QPainter *painter,
                      const QStyleOptionGraphicsItem *option, QWidget *widget)
   {
+    Q_UNUSED(widget);
+
     painter->setPen(Qt::NoPen);
     painter->setBrush(Qt::red);
     painter->setBrush(((Color*)_mapping->getPaint().get())->getColor());
@@ -199,11 +208,13 @@ public:
     Polygon* poly = (Polygon*)_shape.get();
     painter->drawPolygon(poly->toPolygon());
 
-    if (option->state & QStyle::State_Selected)
-    {
-      QList<int> dummySelectedVertices;
-      Util::drawControlsPolygon(painter, &dummySelectedVertices, *poly);
-    }
+//    if (option->state & QStyle::State_Selected)
+//    {
+//      // TODO: drawControlsPolygon()'s selected vertices should be optional
+//      // ie. disabled if NULL
+//      QList<int> dummySelectedVertices;
+//      Util::drawControlsPolygon(painter, &dummySelectedVertices, *poly);
+//    }
   }
 };
 
@@ -226,6 +237,8 @@ public:
   virtual void paint(QPainter *painter,
                      const QStyleOptionGraphicsItem *option, QWidget *widget)
   {
+    Q_UNUSED(widget);
+
     if (_output)
     {
       // Prepare drawing.
@@ -238,8 +251,8 @@ public:
       _postDraw(painter);
     }
 
-    if (option->state & QStyle::State_Selected)
-      _drawControls(painter);
+//    if (option->state & QStyle::State_Selected)
+//      _drawControls(painter);
   }
 
   virtual void _doDraw(QPainter* painter, bool selected) = 0;
@@ -283,7 +296,9 @@ public:
   }
 
   virtual void _drawControls(QPainter *painter)
-  {}
+  {
+    Q_UNUSED(painter);
+  }
 
 protected:
   std::tr1::shared_ptr<TextureMapping> _textureMapping;
@@ -297,12 +312,12 @@ public:
   PolygonTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : TextureGraphicsItem(mapping, output) {}
   virtual ~PolygonTextureGraphicsItem(){}
 
-  virtual void _drawControls(QPainter* painter)
-  {
-    std::tr1::shared_ptr<Polygon> outputPoly = std::tr1::static_pointer_cast<Polygon>(_shape);
-    QList<int> dummySelectedVertices;
-    Util::drawControlsPolygon(painter, &dummySelectedVertices, *outputPoly);
-  }
+//  virtual void _drawControls(QPainter* painter)
+//  {
+//    std::tr1::shared_ptr<Polygon> outputPoly = std::tr1::static_pointer_cast<Polygon>(_shape);
+//    QList<int> dummySelectedVertices;
+//    Util::drawControlsPolygon(painter, &dummySelectedVertices, *outputPoly);
+//  }
 };
 
 class TriangleTextureGraphicsItem : public PolygonTextureGraphicsItem
@@ -317,12 +332,16 @@ public:
 
   virtual QPainterPath shape() const {
     QPainterPath path;
-    path.addPolygon(((Polygon*)_shape.get())->toPolygon());
+    Polygon* poly = static_cast<Polygon*>(_shape.get());
+    Q_ASSERT(poly);
+    path.addPolygon(poly->toPolygon());
     return path;
   }
 
   virtual void _doDraw(QPainter* painter, bool selected)
   {
+    Q_UNUSED(painter);
+    Q_UNUSED(selected);
     if (_output)
     {
       glBegin(GL_TRIANGLES);

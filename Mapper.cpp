@@ -21,6 +21,27 @@
 #include "Mapper.h"
 #include "MainWindow.h"
 
+bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event)
+{
+  if (watched == this)
+  {
+    _syncShape();
+  }
+  else {
+    VertexGraphicsItem* child = static_cast<VertexGraphicsItem*>(watched);
+    Q_ASSERT(child);
+    qreal offset = MM::VERTEX_SELECT_RADIUS / 2.0;
+    int idx = childItems().indexOf(watched);
+    Q_ASSERT(idx != -1);
+    QPointF pos = child->pos();
+    qDebug() << "child(" << idx << ") position = " << watched->pos() << " map from " << mapFromItem(watched, watched->pos()) << endl;
+    _shape->setVertex(idx, pos);
+//    child->setRect(pos.x()-offset, pos.y()-offset, MM::VERTEX_SELECT_RADIUS, MM::VERTEX_SELECT_RADIUS);
+    this->update();
+  }
+  return false;
+}
+
 void ShapeGraphicsItem::_createVertices()
 {
   // rect offset
@@ -28,10 +49,25 @@ void ShapeGraphicsItem::_createVertices()
   for (int i=0; i<_shape->nVertices(); i++)
   {
     // XXX is this freed by parent?
+    QPointF pos = _shape->getVertex(i) - this->pos();
     VertexGraphicsItem* child = new VertexGraphicsItem(i);
-    QPointF pos = _shape->getVertex(i);
-    child->setRect(pos.x()-offset, pos.y()-offset, MM::VERTEX_SELECT_RADIUS, MM::VERTEX_SELECT_RADIUS);
+//    child->setPos( pos );
     child->setParentItem(this);
+    child->setPos( pos );
+    child->setRect( -MM::VERTEX_SELECT_RADIUS, -MM::VERTEX_SELECT_RADIUS, MM::VERTEX_SELECT_RADIUS*2, MM::VERTEX_SELECT_RADIUS*2);
+//    child->setRect(pos.x()-offset, pos.y()-offset, MM::VERTEX_SELECT_RADIUS, MM::VERTEX_SELECT_RADIUS);
+//    qDebug() << "Adding child at " << pos << " " << child->pos();
+//    qDebug() << ", after add " << child->pos() << endl;
+  }
+}
+
+void ShapeGraphicsItem::_syncShape()
+{
+  QList<QGraphicsItem*> children = childItems();
+  for (int i=0; i<_shape->nVertices(); i++)
+  {
+    QGraphicsItem* child = children.at(i);
+    _shape->setVertex(i, mapFromItem(child, child->pos()));
   }
 }
 
