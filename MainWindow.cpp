@@ -1978,9 +1978,9 @@ void MainWindow::clearWindow()
 
 void MainWindow::updateCanvases()
 {
-  sourceCanvas->update();
-  destinationCanvas->update();
-  outputWindow->getCanvas()->update();
+  sourceCanvas->updateCanvas();
+  destinationCanvas->updateCanvas();
+  outputWindow->getCanvas()->updateCanvas();
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)

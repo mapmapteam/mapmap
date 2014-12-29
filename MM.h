@@ -65,6 +65,11 @@ public:
 
   // Time.
   static const qreal FRAMES_PER_SECOND;
+
+  // Zoom.
+  static const qreal ZOOM_FACTOR;
+  static const qreal ZOOM_MIN;
+  static const qreal ZOOM_MAX;
 };
 
 #endif

@@ -30,7 +30,8 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
     _shapeGrabbed(false), // comment out?
     _shapeFirstGrab(false), // comment out?
     _displayControls(true),
-    _stickyVertices(true)
+    _stickyVertices(true),
+    _zoomLevel(0)
 {
   setDragMode(QGraphicsView::RubberBandDrag);
   setRenderHint(QPainter::Antialiasing, true);
@@ -357,6 +358,7 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
 void MapperGLCanvas::updateCanvas()
 {
   update();
+  scene()->update();
 }
 
 void MapperGLCanvas::enableDisplayControls(bool display)
@@ -406,4 +408,17 @@ void MapperGLCanvas::deselectAll()
   deselectVertices();
   _shapeGrabbed = false;
   _shapeFirstGrab = false;
+}
+
+void MapperGLCanvas::wheelEvent(QWheelEvent *event)
+{
+  _zoomLevel += (event->delta() / 120);
+  float zoomFactor = qMin(MM::ZOOM_MAX,
+                       qMax(MM::ZOOM_MIN,
+                         qPow(MM::ZOOM_FACTOR, _zoomLevel)));
+  QGraphicsView* view = scene()->views().first();
+  view->resetMatrix();
+  view->scale(zoomFactor, zoomFactor);
+  view->update();
+  event->accept();
 }

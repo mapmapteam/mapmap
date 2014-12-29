@@ -28,6 +28,7 @@
 
 #include <iostream>
 
+#include "MM.h"
 #include "UidAllocator.h"
 #include "Shape.h"
 
@@ -140,6 +141,8 @@ private:
   // True iff we want vertices to stick to each other.
   bool _stickyVertices;
 
+  int _zoomLevel;
+
 signals:
   void shapeChanged(MShape*);
   void imageChanged();
@@ -150,6 +153,8 @@ public slots:
   void enableStickyVertices(bool display);
   void deselectVertices();
   void deselectAll();
+
+  void wheelEvent(QWheelEvent * event);
 
 public:
   static const int NO_VERTEX = -1;
