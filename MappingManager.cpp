@@ -152,6 +152,7 @@ void MappingManager::reorderMappings(QVector<uid> mappingIds)
   // Both vector needs to have the same size.
   Q_ASSERT( mappingIds.size() == mappingVector.size() );
   mappingVector.clear();
+  int depth = 0;
   for (QVector<uid>::iterator it = mappingIds.begin(); it != mappingIds.end(); ++it)
   {
     // Uid should be a key of the mappingMap.
@@ -159,7 +160,11 @@ void MappingManager::reorderMappings(QVector<uid> mappingIds)
     // Makes sure the uids are not repeated.
     Q_ASSERT( !mappingVector.contains(mappingMap[*it]) );
     // Adds the mapping at the right place in the vector.
-    mappingVector.push_back( mappingMap[*it] );
+    Mapping::ptr mapping = mappingMap[*it];
+    mapping->setDepth(depth);
+    mappingVector.push_back( mapping );
+
+    depth++;
   }
 }
 

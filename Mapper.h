@@ -77,10 +77,15 @@ public:
   void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 //  virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
+  virtual void paint(QPainter *painter,
+                     const QStyleOptionGraphicsItem *option, QWidget *widget);
+
 protected:
   virtual void _createVertices();
   virtual void _syncShape();
   virtual void _syncVertices();
+
+  virtual void _doPaint(QPainter *painter, const QStyleOptionGraphicsItem *option) = 0;
 
   Mapping::ptr _mapping;
   MShape::ptr _shape;
@@ -99,7 +104,8 @@ public:
   virtual ~VertexGraphicsItem() {}
 
   virtual void paint(QPainter *painter,
-                     const QStyleOptionGraphicsItem *option, QWidget *widget)
+                     const QStyleOptionGraphicsItem *option,
+                     QWidget* widget)
   {
     Q_UNUSED(widget);
     Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected));
@@ -119,8 +125,9 @@ public:
   virtual QPainterPath shape() const;
   virtual QRectF boundingRect() const;
 
-  virtual void paint(QPainter *painter,
-                     const QStyleOptionGraphicsItem *option, QWidget *widget);
+protected:
+  virtual void _doPaint(QPainter *painter,
+                        const QStyleOptionGraphicsItem *option);
 };
 
 /// Graphics item for colored polygons (eg. quad, triangle).
@@ -133,8 +140,9 @@ public:
   virtual QPainterPath shape() const;
   virtual QRectF boundingRect() const;
 
-  virtual void paint(QPainter *painter,
-                     const QStyleOptionGraphicsItem *option, QWidget *widget);
+protected:
+  virtual void _doPaint(QPainter *painter,
+                        const QStyleOptionGraphicsItem *option);
 };
 
 /// Abstract class for texture graphics items.
@@ -145,8 +153,9 @@ public:
 
   virtual ~TextureGraphicsItem() {}
 
-  virtual void paint(QPainter *painter,
-                     const QStyleOptionGraphicsItem *option, QWidget *widget);
+protected:
+  virtual void _doPaint(QPainter *painter,
+                        const QStyleOptionGraphicsItem *option);
 
   virtual void _doDraw(QPainter* painter, bool selected) = 0;
   virtual void _doDrawControls(QPainter* painter) { Q_UNUSED(painter); }

@@ -57,6 +57,7 @@ private:
   bool _isSolo;
   bool _isVisible;
   float _opacity;
+  int _depth; // depth of the layer
 
 protected:
   /// Constructor.
@@ -102,8 +103,7 @@ public:
     Q_ASSERT(0.0f <= opacity && opacity <= 1.0f);
     _opacity = opacity;
   }
-  void setPaint(Paint::ptr p) { _paint = p; }
-  void removePaint() { if (_paint) delete _paint.get(); }
+  void setDepth(int depth) { _depth = depth; }
 
   void toggleLocked()  { _isLocked = !_isLocked; }
   void toggleSolo()    { _isSolo = !_isSolo; }
@@ -113,6 +113,10 @@ public:
   bool isSolo() const      { return _isSolo; }
   bool isVisible() const   { return _isVisible; }
   float getOpacity() const { return _opacity; }
+  int getDepth() const { return _depth; }
+
+  void setPaint(Paint::ptr p) { _paint = p; }
+  void removePaint() { if (_paint) delete _paint.get(); }
 };
 
 /**

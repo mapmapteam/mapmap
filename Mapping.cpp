@@ -36,6 +36,9 @@ Mapping::Mapping(Paint::ptr paint, MShape::ptr shape, uid id)
 
   // Assign id.
   _id = id;
+
+  // Default.
+  _depth = _id;
 }
 
 Mapping::~Mapping() {

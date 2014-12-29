@@ -74,6 +74,17 @@ void ShapeGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
   _syncShape();
 }
 
+void ShapeGraphicsItem::paint(QPainter *painter,
+                              const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+  // Sync depth of figure with that of mapping (for layered output).
+  setZValue(_mapping->getDepth());
+
+  // Paint if visible.
+  if (_mapping->isVisible())
+    _doPaint(painter, option);
+}
+
 //QVariant ShapeGraphicsItem::itemChange(GraphicsItemChange change, const QVariant &value)
 //{
 //  if (change == ItemPositionChange)
@@ -137,11 +148,9 @@ QRectF PolygonColorGraphicsItem::boundingRect() const
   return shape().boundingRect();
 }
 
-void PolygonColorGraphicsItem::paint(QPainter *painter,
-                                     const QStyleOptionGraphicsItem *option, QWidget *widget)
+void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
+                                        const QStyleOptionGraphicsItem *option)
 {
-  Q_UNUSED(widget);
-
   Color* color = static_cast<Color*>(_mapping->getPaint().get());
   Q_ASSERT(color);
 
@@ -177,8 +186,8 @@ QRectF EllipseColorGraphicsItem::boundingRect() const
   return shape().boundingRect();
 }
 
-void EllipseColorGraphicsItem::paint(QPainter* painter,
-                                     const QStyleOptionGraphicsItem* option, QWidget* widget)
+void EllipseColorGraphicsItem::_doPaint(QPainter* painter,
+                                        const QStyleOptionGraphicsItem* option)
 {
   Color* color = static_cast<Color*>(_mapping->getPaint().get());
   Q_ASSERT(color);
@@ -207,11 +216,9 @@ TextureGraphicsItem::TextureGraphicsItem(Mapping::ptr mapping, bool output)
   Q_CHECK_PTR(_inputShape);
 }
 
-void TextureGraphicsItem::paint(QPainter *painter,
-                                const QStyleOptionGraphicsItem *option, QWidget *widget)
+void TextureGraphicsItem::_doPaint(QPainter *painter,
+                                   const QStyleOptionGraphicsItem *option)
 {
-  Q_UNUSED(widget);
-
   bool selected = option->state & QStyle::State_Selected;
 
   // Prepare drawing.
@@ -278,7 +285,6 @@ QPainterPath PolygonTextureGraphicsItem::shape() const
 QRectF PolygonTextureGraphicsItem::boundingRect() const {
   return shape().boundingRect();
 }
-
 
 void TriangleTextureGraphicsItem::_doDraw(QPainter* painter, bool selected)
 {
