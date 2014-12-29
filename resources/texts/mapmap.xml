@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+   <mime-type type="application/mapmap">
+     <comment>MapMap file type</comment>
+     <magic priority="50">
+       <match value="search-string" type="string" offset="10:140"/>
+       <match type="string" value="#N " offset="0"/>
+     </magic>
+     <glob pattern="*.mmp"/>
+    <comment>Pure Data Document</comment>
+	<comment xml:lang="en">MapMap Document</comment>
+	<comment xml:lang="fr">Document MapMap</comment>
+   </mime-type>
+</mime-info>
