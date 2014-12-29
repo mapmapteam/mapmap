@@ -32,6 +32,10 @@ To build and install it, see the INSTALL file provided with the source code.
 To use this software on Mac OS X:
 * Install GStreamer using http://gstreamer.freedesktop.org/data/pkg/osx/1.2.4.1/gstreamer-1.0-1.2.4.1-universal.pkg : you should customize the installation and choose to install all components.
 
+To use this software on Gnu/Linux with window managers other than Unity, 
+make sure that this package is NOT installed: appmenu-qt5
+or else the menu will not show.
+
 Authors
 -------
 * Sofian Audry: lead developer, user interface designer, project manager.
