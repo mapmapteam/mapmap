@@ -427,54 +427,54 @@ void ColorMapper::updatePaint()
   Q_CHECK_PTR(color);
 }
 
-MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)
-  : ColorMapper(mapping) {
-  // Add mesh sub property.
-  Mesh* mesh = (Mesh*)mapping->getShape().get();
-  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
-  _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
-  _topItem->insertSubProperty(_meshItem, 0); // insert at the beginning
-}
-
-void MeshColorMapper::draw(QPainter* painter)
-{
-  painter->setPen(Qt::NoPen);
-  painter->setBrush(color->getColor());
-
-  std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
-  QVector<QVector<Quad> > outputQuads = outputMesh->getQuads2d();
-  for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
-  {
-    for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
-    {
-      Quad& outputQuad = outputQuads[x][y];
-      painter->drawPolygon(outputQuad.toPolygon());
-    }
-  }
-}
-
-void MeshColorMapper::drawControls(QPainter* painter, const QList<int>* selectedVertices)
-{
-  std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
-  Util::drawControlsMesh(painter, selectedVertices, *outputMesh);
-}
-
-void MeshColorMapper::setValue(QtProperty* property, const QVariant& value)
-{
-  if (property == _meshItem)
-  {
-    Mesh* outputMesh = static_cast<Mesh*>(_mapping->getShape().get());
-    QSize size = (static_cast<QtVariantProperty*>(property))->value().toSize();
-    if (outputMesh->nColumns() != size.width() || outputMesh->nRows() != size.height())
-    {
-      outputMesh->resize(size.width(), size.height());
-
-      emit valueChanged();
-    }
-  }
-  else
-    ColorMapper::setValue(property, value);
-}
+//MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)
+//  : ColorMapper(mapping) {
+//  // Add mesh sub property.
+//  Mesh* mesh = (Mesh*)mapping->getShape().get();
+//  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
+//  _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
+//  _topItem->insertSubProperty(_meshItem, 0); // insert at the beginning
+//}
+//
+//void MeshColorMapper::draw(QPainter* painter)
+//{
+//  painter->setPen(Qt::NoPen);
+//  painter->setBrush(color->getColor());
+//
+//  std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
+//  QVector<QVector<Quad> > outputQuads = outputMesh->getQuads2d();
+//  for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
+//  {
+//    for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
+//    {
+//      Quad& outputQuad = outputQuads[x][y];
+//      painter->drawPolygon(outputQuad.toPolygon());
+//    }
+//  }
+//}
+//
+//void MeshColorMapper::drawControls(QPainter* painter, const QList<int>* selectedVertices)
+//{
+//  std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
+//  Util::drawControlsMesh(painter, selectedVertices, *outputMesh);
+//}
+//
+//void MeshColorMapper::setValue(QtProperty* property, const QVariant& value)
+//{
+//  if (property == _meshItem)
+//  {
+//    Mesh* outputMesh = static_cast<Mesh*>(_mapping->getShape().get());
+//    QSize size = (static_cast<QtVariantProperty*>(property))->value().toSize();
+//    if (outputMesh->nColumns() != size.width() || outputMesh->nRows() != size.height())
+//    {
+//      outputMesh->resize(size.width(), size.height());
+//
+//      emit valueChanged();
+//    }
+//  }
+//  else
+//    ColorMapper::setValue(property, value);
+//}
 
 TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   : Mapper(mapping),

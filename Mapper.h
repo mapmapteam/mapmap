@@ -276,23 +276,23 @@ public:
   virtual ~PolygonColorMapper() {}
 };
 
-class MeshColorMapper : public ColorMapper
-{
-  Q_OBJECT
-
-public:
-  MeshColorMapper(Mapping::ptr mapping);
-  virtual ~MeshColorMapper() {}
-
-  virtual void draw(QPainter* painter);
-  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0);
-
-public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value);
-
-private:
-  QtVariantProperty* _meshItem;
-};
+//class MeshColorMapper : public ColorMapper
+//{
+//  Q_OBJECT
+//
+//public:
+//  MeshColorMapper(Mapping::ptr mapping);
+//  virtual ~MeshColorMapper() {}
+//
+//  virtual void draw(QPainter* painter);
+//  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0);
+//
+//public slots:
+//  virtual void setValue(QtProperty* property, const QVariant& value);
+//
+//private:
+//  QtVariantProperty* _meshItem;
+//};
 
 class EllipseColorMapper : public ColorMapper
 {
