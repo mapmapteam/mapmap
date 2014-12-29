@@ -214,14 +214,19 @@ void TextureGraphicsItem::paint(QPainter *painter,
 
   if (_output)
   {
+    bool selected = option->state & QStyle::State_Selected;
+
     // Prepare drawing.
     _preDraw(painter);
 
     // Perform the actual mapping (done by subclasses).
-    _doDraw(painter, option->state & QStyle::State_Selected);
+    _doDraw(painter, selected);
 
     // End drawing.
     _postDraw(painter);
+
+    if (selected)
+      _doDrawControls(painter);
   }
 }
 
@@ -270,13 +275,11 @@ QPainterPath PolygonTextureGraphicsItem::shape() const
   Polygon* poly = static_cast<Polygon*>(_shape.get());
   Q_ASSERT(poly);
   path.addPolygon(poly->toPolygon());
-  return path;
+  return mapFromScene(path);
 }
 
 QRectF PolygonTextureGraphicsItem::boundingRect() const {
-  Polygon* poly = static_cast<Polygon*>(_shape.get());
-  Q_ASSERT(poly);
-  return poly->toPolygon().boundingRect();
+  return shape().boundingRect();
 }
 
 
@@ -290,7 +293,7 @@ void TriangleTextureGraphicsItem::_doDraw(QPainter* painter, bool selected)
     {
       for (int i=0; i<_inputShape->nVertices(); i++)
       {
-        Util::setGlTexPoint(*_texture, _inputShape->getVertex(i), _shape->getVertex(i));
+        Util::setGlTexPoint(*_texture, _inputShape->getVertex(i), mapFromScene(_shape->getVertex(i)));
       }
     }
     glEnd();

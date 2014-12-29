@@ -149,6 +149,7 @@ public:
                      const QStyleOptionGraphicsItem *option, QWidget *widget);
 
   virtual void _doDraw(QPainter* painter, bool selected) = 0;
+  virtual void _doDrawControls(QPainter* painter) { Q_UNUSED(painter); }
   void _preDraw(QPainter* painter);
   void _postDraw(QPainter* painter);
 
@@ -177,6 +178,12 @@ public:
   virtual ~TriangleTextureGraphicsItem(){}
 
   virtual void _doDraw(QPainter* painter, bool selected);
+  virtual void _doDrawControls(QPainter* painter) {
+    painter->setPen(MM::SHAPE_STROKE);
+    Polygon* poly = static_cast<Polygon*>(_shape.get());
+    Q_ASSERT(poly);
+    painter->drawPolygon(mapFromScene(poly->toPolygon()));
+  }
 };
 
 /**
