@@ -70,8 +70,7 @@ if [[ $unamestr == "Darwin" ]]; then
     do_create_dmg
 elif [[ $unamestr == "Linux" ]]; then
     qmake
-    # -qt4
     make
-    lrelease resources/texts/mapmap_fr.ts
+    lrelease resources/texts/mapmap_*.ts
 fi
 
