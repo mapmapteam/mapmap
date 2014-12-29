@@ -54,7 +54,7 @@ SOURCES  = \
     main.cpp
 
 RESOURCES = mapmap.qrc
-TRANSLATIONS = mapmap_fr.ts mapmap_ar.ts
+TRANSLATIONS = resources/texts/mapmap_fr.ts
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
 include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
 
@@ -76,12 +76,26 @@ unix:!mac {
   mapmapfile.files = mapmap
   mapmapfile.path = /usr/bin
   INSTALLS += mapmapfile
-  desktopfile.files = mapmap.desktop
+  desktopfile.files = resources/texts/mapmap.desktop
   desktopfile.path = /usr/share/applications
   INSTALLS += desktopfile
   iconfile.files = resources/images/logo/mapmap.svg
   iconfile.path = /usr/share/icons/hicolor/scalable/apps
   INSTALLS += iconfile
+  mimetypesfile.files = resources/texts/mapmap.xml 
+  mimetypesfile.path = /usr/share/mime/packages
+  INSTALLS += mimetypesfile
+  updatemimetypes.path = /usr/share/mime/packages
+  updatemimetypes.commands = update-mime-database /usr/share/mime
+  INSTALLS += updatemimetypes
+  updatemimeappdefault.path = /usr/share/applications
+  updatemimeappdefault.commands='grep mapmap.desktop /usr/share/applications/defaults.list >/dev/null|| sudo echo "application/mapmap=mapmap.desktop;" >> /usr/share/applications/defaults.list'
+  INSTALLS += updatemimeappdefault
+  
+  # Add the docs target:
+  docs.depends = $(HEADERS) $(SOURCES)
+  docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
+  QMAKE_EXTRA_TARGETS += docs
 }
 
 # Mac OS X-specific:
