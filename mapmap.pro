@@ -1,6 +1,6 @@
 CONFIG  += qt debug
 TEMPLATE = app
-VERSION = 0.2.0
+VERSION = 0.2.1
 TARGET = mapmap
 QT += gui opengl xml widgets
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
