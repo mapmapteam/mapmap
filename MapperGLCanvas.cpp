@@ -412,10 +412,29 @@ void MapperGLCanvas::deselectAll()
 
 void MapperGLCanvas::wheelEvent(QWheelEvent *event)
 {
-  _zoomLevel += (event->delta() / 120);
-  float zoomFactor = qMin(MM::ZOOM_MAX,
-                       qMax(MM::ZOOM_MIN,
-                         qPow(MM::ZOOM_FACTOR, _zoomLevel)));
+  int deltaLevel = event->delta() / 120;
+  qreal zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+  if (deltaLevel > 0)
+  {
+    // First check if we're already at max.
+    while (deltaLevel && zoomFactor < MM::ZOOM_MAX) {
+      _zoomLevel++;
+      deltaLevel--;
+      zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+    }
+    zoomFactor = qMin(zoomFactor, MM::ZOOM_MAX);
+  }
+  else
+  {
+    // First check if we're already at min.
+    while (deltaLevel && zoomFactor > MM::ZOOM_MIN) {
+      _zoomLevel--;
+      deltaLevel++;
+      zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+    }
+    zoomFactor = qMax(zoomFactor, MM::ZOOM_MIN);
+  }
+
   QGraphicsView* view = scene()->views().first();
   view->resetMatrix();
   view->scale(zoomFactor, zoomFactor);
