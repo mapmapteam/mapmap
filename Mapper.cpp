@@ -41,18 +41,22 @@ bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event
   if (event->type() == QEvent::GraphicsSceneMouseMove)
   {
     QGraphicsSceneMoveEvent* moveEvent = static_cast<QGraphicsSceneMoveEvent*>(event);
-    Q_ASSERT(moveEvent);
+    QGraphicsSceneMouseEvent* mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
+ //   Q_ASSERT(moveEvent);
+    Q_ASSERT(mouseEvent);
 
     int idx = childItems().indexOf(watched);
     Q_ASSERT(idx != -1);
 
-    QPointF pos = moveEvent->newPos();
+//    QPointF pos = moveEvent->newPos();// + this->pos();
+    QPointF pos = mouseEvent->scenePos();
+ //   qDebug() << moveEvent->oldPos() << " " << pos << " " << childItems().at(idx)->pos() << endl;
     _shape->setVertex(idx, pos);
 
     _syncVertices();
 
     // Refresh this shape.
-    update();
+   // update();
 
     // override default
     return true;
@@ -64,14 +68,30 @@ bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event
   }
 }
 
+void ShapeGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+  QGraphicsItem::mouseMoveEvent(event);
+  _syncShape();
+}
+
+//QVariant ShapeGraphicsItem::itemChange(GraphicsItemChange change, const QVariant &value)
+//{
+//  if (change == ItemPositionChange)
+//  {
+//    qDebug() << "Item changed" << endl;
+//    return QPointF(pos().x(), value.toPointF().y());
+//  }
+//
+//  return QGraphicsItem::itemChange(change, value);
+//}
+
 void ShapeGraphicsItem::_createVertices()
 {
   // rect offset
-  qreal offset = MM::VERTEX_SELECT_RADIUS / 2.0;
   for (int i=0; i<_shape->nVertices(); i++)
   {
     // XXX is this freed by parent?
-    QPointF pos = _shape->getVertex(i) - this->pos();
+    QPointF pos = mapFromScene(_shape->getVertex(i));// - this->pos();
     VertexGraphicsItem* child = new VertexGraphicsItem(i);
 //    child->setPos( pos );
     child->setParentItem(this);
@@ -89,7 +109,7 @@ void ShapeGraphicsItem::_syncShape()
   for (int i=0; i<_shape->nVertices(); i++)
   {
     QGraphicsItem* child = children.at(i);
-    _shape->setVertex(i, mapFromItem(child, child->pos()));
+    _shape->setVertex(i, child->scenePos());
   }
 }
 
@@ -97,8 +117,8 @@ void ShapeGraphicsItem::_syncVertices()
 {
   for (int i=0; i<_shape->nVertices(); i++)
   {
-    QPointF pos = _shape->getVertex(i);// - this->pos();
-    childItems().at(i)->setPos(pos);
+    QPointF pos = _shape->getVertex(i) ;//- this->pos(); // this is in scene coordinates
+    childItems().at(i)->setPos(this->mapFromScene(pos));
     childItems().at(i)->update();
   }
 }
@@ -109,37 +129,21 @@ QPainterPath PolygonColorGraphicsItem::shape() const
   Polygon* poly = static_cast<Polygon*>(_shape.get());
   Q_ASSERT(poly);
   path.addPolygon(poly->toPolygon());
-  return path;
+  return mapFromScene(path);
 }
 
 QRectF PolygonColorGraphicsItem::boundingRect() const
 {
-  Polygon* poly = static_cast<Polygon*>(_shape.get());
-  Q_ASSERT(poly);
-  return poly->toPolygon().boundingRect();
-}
-
-QPainterPath EllipseColorGraphicsItem::shape() const
-{
-  QPainterPath path;
-  Ellipse* ellipse = static_cast<Ellipse*>(_shape.get());
-  Q_ASSERT(ellipse);
-  QTransform transform;
-  transform.rotate(ellipse->getRotation());
-  path.addEllipse(ellipse->getCenter(), ellipse->getHorizontalRadius(), ellipse->getVerticalRadius());
-  return transform.map(path);
-}
-
-QRectF EllipseColorGraphicsItem::boundingRect() const
-{
   return shape().boundingRect();
 }
-
 
 void PolygonColorGraphicsItem::paint(QPainter *painter,
                                      const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
   Q_UNUSED(widget);
+
+  Color* color = static_cast<Color*>(_mapping->getPaint().get());
+  Q_ASSERT(color);
 
   // Setup pen and brush.
   if (option->state & QStyle::State_Selected)
@@ -147,14 +151,30 @@ void PolygonColorGraphicsItem::paint(QPainter *painter,
   else
     painter->setPen(Qt::NoPen);
 
-  Color* color = static_cast<Color*>(_mapping->getPaint().get());
-  Q_ASSERT(color);
   painter->setBrush(color->getColor());
 
-  // Draw shape as polygon.
+  // TODO: polygon and ellipse are 99% similar (except for these 3 lines!). we should use that.
   Polygon* poly = static_cast<Polygon*>(_shape.get());
   Q_ASSERT(poly);
-  painter->drawPolygon(poly->toPolygon());
+  painter->drawPolygon(mapFromScene(poly->toPolygon()));
+}
+
+QPainterPath EllipseColorGraphicsItem::shape() const
+{
+  // Create path for ellipse.
+  QPainterPath path;
+  Ellipse* ellipse = static_cast<Ellipse*>(_shape.get());
+  Q_ASSERT(ellipse);
+  QTransform transform;
+  transform.translate(ellipse->getCenter().x(), ellipse->getCenter().y());
+  transform.rotate(ellipse->getRotation());
+  path.addEllipse(QPoint(0,0), ellipse->getHorizontalRadius(), ellipse->getVerticalRadius());
+  return mapFromScene(transform.map(path));
+}
+
+QRectF EllipseColorGraphicsItem::boundingRect() const
+{
+  return shape().boundingRect();
 }
 
 void EllipseColorGraphicsItem::paint(QPainter* painter,
@@ -170,18 +190,8 @@ void EllipseColorGraphicsItem::paint(QPainter* painter,
     painter->setPen(Qt::NoPen);
 
   painter->setBrush(color->getColor());
-
-  // Draw shape as ellipse.
-  Ellipse* ellipse = static_cast<Ellipse*>(_shape.get());
-  Q_ASSERT(ellipse);
-
-  qreal rotation = ellipse->getRotation();
-
-  painter->setBrush(color->getColor());
-  const QPointF& center = ellipse->getCenter();
-  painter->translate(center);
-  painter->rotate(rotation);
-  painter->drawEllipse(QPointF(0,0), ellipse->getHorizontalRadius(), ellipse->getVerticalRadius());
+  // Just draw the path.
+  painter->drawPath(shape());
 }
 
 TextureGraphicsItem::TextureGraphicsItem(Mapping::ptr mapping, bool output)
