@@ -212,22 +212,19 @@ void TextureGraphicsItem::paint(QPainter *painter,
 {
   Q_UNUSED(widget);
 
-  if (_output)
-  {
-    bool selected = option->state & QStyle::State_Selected;
+  bool selected = option->state & QStyle::State_Selected;
 
-    // Prepare drawing.
-    _preDraw(painter);
+  // Prepare drawing.
+  _preDraw(painter);
 
-    // Perform the actual mapping (done by subclasses).
-    _doDraw(painter, selected);
+  // Perform the actual mapping (done by subclasses).
+  _doDraw(painter, selected);
 
-    // End drawing.
-    _postDraw(painter);
+  // End drawing.
+  _postDraw(painter);
 
-    if (selected)
-      _doDrawControls(painter);
-  }
+//  if (selected)
+    _doDrawControls(painter);
 }
 
 void TextureGraphicsItem::_preDraw(QPainter* painter)
@@ -297,6 +294,27 @@ void TriangleTextureGraphicsItem::_doDraw(QPainter* painter, bool selected)
       }
     }
     glEnd();
+  }
+  else
+  {
+    // FIXME: Does this draw the quad counterclockwise?
+    glBegin (GL_QUADS);
+    {
+      QRectF rect = mapFromScene(_texture->getRect()).boundingRect();
+
+      Util::correctGlTexCoord(0, 0);
+      glVertex3f (rect.x(), rect.y(), 0);
+
+      Util::correctGlTexCoord(1, 0);
+      glVertex3f (rect.x() + rect.width(), rect.y(), 0);
+
+      Util::correctGlTexCoord(1, 1);
+      glVertex3f (rect.x()+rect.width(), rect.y()+rect.height(), 0);
+
+      Util::correctGlTexCoord(0, 1);
+      glVertex3f (rect.x(), rect.y()+rect.height(), 0);
+    }
+    glEnd ();
   }
 }
 

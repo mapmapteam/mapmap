@@ -152,6 +152,8 @@ public:
   }
   virtual GLfloat getX() const { return x; }
   virtual GLfloat getY() const { return y; }
+
+  virtual QRectF getRect() const { return QRectF(getX(), getY(), getWidth(), getHeight()); }
 };
 
 /**
