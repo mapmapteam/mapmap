@@ -141,6 +141,7 @@ private:
   // True iff we want vertices to stick to each other.
   bool _stickyVertices;
 
+  // The zoom level (in number of steps).
   int _zoomLevel;
 
 signals:
