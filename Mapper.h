@@ -47,6 +47,9 @@
 #include "qtbuttonpropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 
+#include "variantmanager.h"
+#include "variantfactory.h"
+
 /**
  * A way to draw on some kind of shape.
  * 
@@ -77,13 +80,17 @@ public:
   virtual void draw(QPainter* painter) = 0;
 
   /// Draws the output controls.
-  virtual void drawControls(QPainter* painter) = 0;
+  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0) = 0;
 
   /// Draws the input (source) (if applicable).
   virtual void drawInput(QPainter* painter)  { Q_UNUSED(painter); }
 
   /// Draws the input (source) controls (if applicable).
-  virtual void drawInputControls(QPainter* painter) { Q_UNUSED(painter); }
+  virtual void drawInputControls(QPainter* painter, const QList<int>* selectedVertices=0)
+  {
+    Q_UNUSED(painter);
+    Q_UNUSED(selectedVertices);
+  }
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
@@ -137,7 +144,7 @@ public:
   virtual ~PolygonColorMapper() {}
 
   virtual void draw(QPainter* painter);
-  virtual void drawControls(QPainter* painter);
+  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0);
 };
 
 class MeshColorMapper : public ColorMapper
@@ -149,7 +156,7 @@ public:
   virtual ~MeshColorMapper() {}
 
   virtual void draw(QPainter* painter);
-  virtual void drawControls(QPainter* painter);
+  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0);
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
@@ -167,7 +174,7 @@ public:
   virtual ~EllipseColorMapper() {}
 
   virtual void draw(QPainter* painter);
-  virtual void drawControls(QPainter* painter);
+  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0);
 };
 
 /**
@@ -188,8 +195,8 @@ public:
   virtual void draw(QPainter* painter);
   virtual void drawInput(QPainter* painter);
 
-  virtual void drawControls(QPainter* painter) = 0;
-  virtual void drawInputControls(QPainter* painter) = 0;
+  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0) = 0;
+  virtual void drawInputControls(QPainter* painter, const QList<int>* selectedVertices=0) = 0;
 
 public slots:
   virtual void updateShape(Shape* shape);
@@ -218,8 +225,8 @@ public:
   PolygonTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping) : TextureMapper(mapping) {}
   virtual ~PolygonTextureMapper() {}
 
-  virtual void drawControls(QPainter* painter);
-  virtual void drawInputControls(QPainter* painter);
+  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0);
+  virtual void drawInputControls(QPainter* painter, const QList<int>* selectedVertices=0);
 };
 
 class TriangleTextureMapper : public PolygonTextureMapper
@@ -242,8 +249,8 @@ public:
   MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
   virtual ~MeshTextureMapper() {}
 
-  virtual void drawControls(QPainter* painter);
-  virtual void drawInputControls(QPainter* painter);
+  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0);
+  virtual void drawInputControls(QPainter* painter, const QList<int>* selectedVertices=0);
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
@@ -262,8 +269,8 @@ public:
   EllipseTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
   virtual ~EllipseTextureMapper() {}
 
-  virtual void drawControls(QPainter* painter);
-  virtual void drawInputControls(QPainter* painter);
+  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0);
+  virtual void drawInputControls(QPainter* painter, const QList<int>* selectedVertices=0);
 
 protected:
   virtual void _doDraw(QPainter* painter);

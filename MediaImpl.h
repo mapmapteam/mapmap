@@ -25,17 +25,19 @@
 #ifndef VIDEO_IMPL_H_
 #define VIDEO_IMPL_H_
 
+#include <glib.h>
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
 #include <QtGlobal>
 #include <QtOpenGL>
+#include <QMutex>
+#include <QWaitCondition>
 #if __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
 #endif
 #include <tr1/memory>
-#include "AsyncQueue.h"
 
 /**
  * Private declaration of the video player.
@@ -45,151 +47,225 @@
 class MediaImpl
 {
 public:
-  MediaImpl(const QString uri);
+  /**
+   * Constructor.
+   * This media player works for both video files and shared memory sockets.
+   * If live is true, it's a shared memory socket.
+   */
+  MediaImpl(const QString uri, bool live);
   ~MediaImpl();
 
 //  void setUri(const QString uri);
+  /**
+   * Returns whether or not GStreamer video support is ok.
+   */
   static bool hasVideoSupport();
-  void build();
-  int getWidth() const;
-  int getHeight() const;
-  const uchar* getBits() const;
 
-  /// Returns true if the image has changed.
-  bool runVideo();
-//  void runAudio();
+  /**
+   * Sets up the player.
+   * Basically calls loadMovie().
+   */
+  void build();
+
+  /**
+   * Returns the width of the video image.
+   */
+  int getWidth() const;
+
+  /**
+   * Returns the height of the video image.
+   */
+  int getHeight() const;
+
+  /**
+   * Returns the path to the media file being played.
+   */
+  QString getUri() const;
+
+  /**
+   * When using the shared memory source, returns whether or not we
+   * are attached to a shared memory socket.
+   */
+  bool getAttached();
+
+  /**
+   * Returns the raw image of the last video frame.
+   * It is currently unused!
+   */
+  const uchar* getBits();
+
+  /// Returns true iff bits have changed since last call to getBits().
+  bool bitsHaveChanged() const { return _bitsChanged; }
+
+  /**
+   * Checks if the pipeline is ready.
+   *
+   * Returns whether or not the elements in the pipeline are connected,
+   * and if we are using shmsrc, if the shared memory socket is being read.
+   */
+  bool isReady() const { return _movieReady && _padHandlerData.videoIsConnected; }
+
+  bool videoIsConnected() const { return _padHandlerData.videoIsConnected; }
+
+  /**
+   * Performs regular updates (checks if movie is ready and checks messages).
+   */
+  void update();
+
+  // void runAudio();
+
+  /**
+   * Loads a new movie file.
+   * 
+   * Creates a new GStreamer pipeline, opens a movie or a shmsrc socket.
+   */
   bool loadMovie(QString filename);
 
   bool setPlayState(bool play);
+
+  /**
+   * Tells the MediaImpl that we are actually reading from a shmsrc.
+   * Called from the GStreamer callback of the shmsrc.
+   */
+  void setAttached(bool attach);
+
+  void setRate(double rate=1.0);
+  double getRate() const { return _rate; }
+
   void resetMovie();
 
 protected:
   void unloadMovie();
   void freeResources();
 
-  void internalPrePlay();
-  void internalPostPlay();
-
 private:
-  bool _videoPull();
+  /**
+   * Checks if we reached the end of the video file.
+   *
+   * Returns false if the pipeline is not ready yet.
+   */
   bool _eos() const;
-//  void _finish();
-//  void _init();
 
-  bool _preRun();
-  void _postRun();
-  void _setReady(bool ready);
+  // void _finish();
+  // void _init();
+
+//  bool _preRun();
+  void _checkMessages();
+  void _setMovieReady(bool ready);
+  bool _isMovieReady() const { return _movieReady; }
+  bool getPlayState() const { return _playState; };
   void _setFinished(bool finished);
+
+  // Sends the appropriate seek events to adjust to rate.
+  void _updateRate();
+
+  void _freeCurrentSample();
 
 public:
   // GStreamer callbacks.
 
   struct GstPadHandlerData {
-    GstElement* audioToConnect;
     GstElement* videoToConnect;
     GstElement* videoSink;
-    bool audioIsConnected;
     bool videoIsConnected;
+    int width;
+    int height;
 
     GstPadHandlerData() :
-      audioToConnect(NULL), videoToConnect(NULL), videoSink(NULL),
-      audioIsConnected(false), videoIsConnected(false)
+      videoToConnect(NULL), videoSink(NULL),
+      videoIsConnected(false),
+      width(-1), height(-1)
     {}
-
-    bool isConnected() const {
-      return (/*audioIsConnected && */videoIsConnected);
-    }
   };
-
-//  struct GstNewAudioBufferHandlerData {
-//    GstElement* audioSink;
-//    GstAdapter* audioBufferAdapter;
-//    GstNewAudioBufferHandlerData() : audioSink(NULL), audioBufferAdapter(NULL) {}
-//  };
 
   // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
   static GstFlowReturn gstNewSampleCallback(GstElement*, MediaImpl *p);
-  static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
-
-//  static void gstNewAudioBufferCallback(GstElement *sink, GstNewAudioBufferHandlerData *data);
+  //static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
 
   // GStreamer callback that plugs the audio/video pads into the proper elements when they
   // are made available by the source.
   static void gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data);
-  AsyncQueue<GstSample*> *get_queue_input_buf() {
-    return &this->queue_input_buf;
-  }
 
-  AsyncQueue<GstSample*> *get_queue_output_buf() {
-    return &this->queue_output_buf;
-  }
+  /// Locks mutex (default = no effect).
+  void lockMutex();
 
+  /// Unlocks mutex (default = no effect).
+  void unlockMutex();
 
 private:
-//  PlugOut<VideoRGBAType> *_VIDEO_OUT;
-//  PlugOut<SignalType> *_AUDIO_OUT;
-//  PlugOut<ValueType> *_FINISH_OUT;
-//  PlugIn<ValueType> *_RESET_IN;
-//  PlugIn<StringType> *_MOVIE_IN;
-//
-//  VideoRGBAType *_imageOut;
-
   //locals
-  QString _currentMovie;
 
-  // gstreamer
+  // gstreamer elements
   GstBus *_bus;
   GstElement *_pipeline;
-  GstElement *_source;
-  GstElement *_audioQueue;
-  GstElement *_audioConvert;
-  GstElement *_audioResample;
-  GstElement *_videoQueue;
-  GstElement *_videoConvert;
-  GstElement *_videoColorSpace;
-  GstElement *_audioSink;
-  GstElement *_videoSink;
-  GstSample  *_frame;
+  GstElement *_uridecodebin0;
+  GstElement *_shmsrc0;
+  GstElement *_gdpdepay0;
+  //GstElement *_audioQueue;
+  //GstElement *_audioConvert;
+  //GstElement *_audioResample;
+  GstElement *_queue0;
+  GstElement *_videoconvert0;
+  //GstElement *_audioSink;
+  GstElement *_appsink0;
 
-//  GstAdapter *_audioBufferAdapter;
+  /**
+   * Temporary contains the image data of the last frame.
+   */
+  GstSample  *_currentFrameSample;
+  GstBuffer  *_currentFrameBuffer;
+  GstMapInfo  _mapInfo;
+  bool       _bitsChanged;
+
+  /**
+   * shmsrc socket poller.
+   */
+  GSource *_pollSource;
 
   GstPadHandlerData _padHandlerData;
-//  GstNewAudioBufferHandlerData _newAudioBufferHandlerData;
 
+  // unused
   int _width;
+  // unused
   int _height;
+
+  /// Raw image data of the last video frame.
   uchar *_data;
 
+  /// Is seek enabled on the current pipeline?
   bool _seekEnabled;
 
-  int _audioNewBufferCounter;
+  /// Playback rate (negative ==> reverse).
+  double _rate;
 
+  /// Whether or not we are reading video from a shmsrc.
+  bool _isSharedMemorySource;
+
+  /// Whether or not we are attached to a shmsrc, if using a shmsrc.
+  bool _attached;
+
+  // unused
   bool _terminate;
-  bool _movieReady;
-  AsyncQueue<GstSample*> queue_input_buf;
-  AsyncQueue<GstSample*> queue_output_buf;
 
+  /// Is the movie (or rather pipeline) ready to play.
+  bool _movieReady;
+
+  /// Is the movie playing (as opposed to paused).
+  bool _playState;
+
+  /// Main mutex.
+  QMutex _mutex;
+
+  /// Main mutex locker (for the lockMutex() / unlockMutex() methods).
+  QMutexLocker* _mutexLocker;
 
 private:
+  /**
+   * Path of the movie file being played.
+   */
   QString _uri;
-};
 
-//! Fast converts 24-bits color to 32 bits (alpha is set to specified alpha value).
-// Based on: http://stackoverflow.com/questions/7069090/convert-rgb-to-rgba-in-c
-inline void convert24to32(unsigned char *dst, const unsigned char *src, size_t size, unsigned char alpha=0xff) {
-  Q_ASSERT(dst != NULL);
-  Q_ASSERT(src != NULL);
-  if (size==0) return;
-  uint32_t alphaMask = ((uint32_t)alpha) << 24;
-  // Copy by 4 byte blocks.
-  for (size_t i=size; --i; dst+=4, src+=3)
-  {
-    *(uint32_t*)(void*)dst = (*(const uint32_t*)(const void*)src) | alphaMask;
-  }
-  // Copy remaining bytes.
-  *dst++ = *src++;
-  *dst++ = *src++;
-  *dst++ = *src++;
-}
+  static const int MAX_SAMPLES_IN_BUFFER_QUEUES = 30;
+};
 
 #endif /* ifndef */

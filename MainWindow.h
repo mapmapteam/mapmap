@@ -35,6 +35,7 @@
 #include "DestinationGLCanvas.h"
 
 #include "OutputGLWindow.h"
+#include "PreferencesDialog.h"
 
 #include "MappingManager.h"
 
@@ -42,6 +43,8 @@
 #include "qtvariantproperty.h"
 #include "qttreepropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
+
+#include "PaintGui.h"
 
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
@@ -63,6 +66,7 @@ public:
 protected:
   // Events ///////////////////////////////////////////////////////////////////////////////////////////////////
   void closeEvent(QCloseEvent *event);
+  bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
   void paintChanged();
@@ -74,6 +78,7 @@ private slots:
   // File menu.
   void newFile();
   void open();
+  void preferences();
   bool save();
   bool saveAs();
   void importVideo();
@@ -81,16 +86,21 @@ private slots:
   void addColor();
   void about();
   void updateStatusBar();
+  void openRecentFile();
+  void clearRecentFileList();
+  void openRecentVideo();
   // Edit menu.
   void deleteItem();
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
-  void handleItemDoubleClicked(QListWidgetItem* item);
+//  void handleItemDoubleClicked(QListWidgetItem* item);
   void handleMappingItemSelectionChanged();
   void handleMappingItemChanged(QListWidgetItem* item);
   void handleMappingIndexesMoved();
   void handleItemSelected(QListWidgetItem* item);
+  void handlePaintChanged(Paint::ptr paint);
+
   void addMesh();
   void addTriangle();
   void addEllipse();
@@ -111,10 +121,10 @@ public slots:
   bool clearProject();
 
   /// Create or replace a media paint (or image).
-  uid createMediaPaint(uid paintId, QString uri, float x, float y, Paint::ptr oldPaint, bool isImage);
+  uid createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage, bool live=false, double rate=100.0);
 
   /// Create or replace a color paint.
-  uid createColorPaint(uid paintId, QColor color, Paint::ptr oldPaint);
+  uid createColorPaint(uid paintId, QColor color);
 
   /// Creates a textured mesh.
   uid createMeshTextureMapping(uid mappingId,
@@ -147,6 +157,15 @@ public slots:
                                 uid paintId,
                                 const QVector<QPointF> &dst);
 
+  /// Sets visibility of mapping.
+  void setMappingVisible(uid mappingId, bool visible);
+
+  /// Sets solo status of mapping.
+  void setMappingSolo(uid mappingId, bool solo);
+
+  /// Sets locked attribute of mapping.
+  void setMappingLocked(uid mappingId, bool locked);
+
   /// Deletes/removes a mapping.
   void deleteMapping(uid mappingId);
 
@@ -158,6 +177,7 @@ public slots:
 
 public:
   bool setTextureUri(int texture_id, const std::string &uri);
+  bool setTextureRate(int texture_id, double rate);
 
 private:
   // Internal methods. //////////////////////////////////////////////////////////////////////////////////////
@@ -169,6 +189,8 @@ private:
   void createContextMenu();
   void createToolBars();
   void createStatusBar();
+  void updateRecentFileActions();
+  void updateRecentVideoActions();
 
   // Settings.
   void readSettings();
@@ -184,16 +206,18 @@ public:
   bool loadFile(const QString &fileName);
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
-  bool importMediaFile(const QString &fileName, Paint::ptr oldPaint, bool isImage);
-  bool addColorPaint(const QColor& color, Paint::ptr oldPaint);
+  void setCurrentVideo(const QString &filename);
+  bool importMediaFile(const QString &fileName, bool isImage);
+  bool addColorPaint(const QColor& color);
   void addMappingItem(uid mappingId);
   void removeMappingItem(uid mappingId);
   void addPaintItem(uid paintId, const QIcon& icon, const QString& name);
+  void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
   void clearWindow();
-
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
+  void setMappingItemVisibility(uid mappingId, bool visible);
 
 private:
   // Connects/disconnects project-specific widgets (paints and mappings).
@@ -203,7 +227,11 @@ private:
   // Get/set id from list item.
   static uid getItemId(const QListWidgetItem& item);
   static void setItemId(QListWidgetItem& item, uid id);
+  static QListWidgetItem* getItemFromId(const QListWidget& list, uid id);
   static int getItemRowFromId(const QListWidget& list, uid id);
+  static QIcon createColorIcon(const QColor& color);
+  static QIcon createFileIcon(const QString& filename);
+  static QIcon createImageIcon(const QString& filename);
 
   // GUI elements. ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -217,6 +245,8 @@ private:
   QMenu *viewMenu;
   QMenu *runMenu;
   QMenu *helpMenu;
+  QMenu *recentFileMenu;
+  QMenu *recentVideoMenu;
 
   // Toolbar.
   QToolBar *mainToolBar;
@@ -236,7 +266,9 @@ private:
 //  QAction *copyAction;
 //  QAction *pasteAction;
   QAction *deleteAction;
+  QAction *preferencesAction;
   QAction *aboutAction;
+  QAction *clearRecentFileActions;
 
   QAction *addMeshAction;
   QAction *addTriangleAction;
@@ -247,27 +279,49 @@ private:
   QAction *rewindAction;
 
   QAction *displayOutputWindow;
+  //QAction *outputWindowHasCursor;
   QAction *outputWindowFullScreen;
   QAction *displayCanvasControls;
+  QAction *displayTestSignal;
+  QAction *stickyVertices;
+
+  enum { MaxRecentFiles = 10 };
+  enum { MaxRecentVideo = 5 };
+  QAction *recentFileActions[MaxRecentFiles];
+  QAction *recentVideoActions[MaxRecentVideo];
 
   // Widgets and layout.
+  QTabWidget* contentTab;
 
+  QSplitter* paintSplitter;
   QListWidget* paintList;
+  QStackedWidget* paintPropertyPanel;
+
+  QSplitter* mappingSplitter;
   QListWidget* mappingList;
-  QStackedWidget* propertyPanel;
+  QStackedWidget* mappingPropertyPanel;
 
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
   OutputGLWindow* outputWindow;
 
   QSplitter* mainSplitter;
-  QSplitter* resourceSplitter;
   QSplitter* canvasSplitter;
 
   // Internal variables. ///////////////////////////////////////////////////////////////////////////////////
 
+  // Recent files
+  QStringList recentFiles;
+  QStringList recentVideos;
+
   // Current filename.
   QString curFile;
+
+  // Current video name
+  QString curVideo;
+
+  // Settings
+  QSettings settings;
 
   // Model.
   MappingManager* mappingManager;
@@ -282,7 +336,8 @@ private:
   // View.
 
   // The view counterpart of Mappings.
-  QMap<uint, Mapper::ptr> mappers;
+  QMap<uid, Mapper::ptr> mappers;
+  QMap<uid, PaintGui::ptr> paintGuis;
 
   // Current selected paint/mapping.
   uid currentPaintId;
@@ -295,44 +350,36 @@ private:
   QListWidgetItem* currentSelectedItem;
   QTimer *videoTimer;
 
+  PreferencesDialog* _preferences_dialog;
+
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
   MappingManager& getMappingManager() { return *mappingManager; }
   Mapper::ptr getMapperByMappingId(uint id) { return mappers[id]; }
   uid getCurrentPaintId() const { return currentPaintId; }
   uid getCurrentMappingId() const { return currentMappingId; }
+  OutputGLWindow* getOutputWindow() const { return outputWindow; }
   bool hasCurrentPaint() const { return _hasCurrentPaint; }
   bool hasCurrentMapping() const { return _hasCurrentMapping; }
-  void setCurrentPaint(int uid)
-  {
-    currentPaintId = uid;
-    _hasCurrentPaint = true;
-  }
-  void setCurrentMapping(int uid)
-  {
-    currentMappingId = uid;
-    if (uid != NULL_UID)
-      propertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
-    _hasCurrentMapping = true;
-  }
-  void removeCurrentPaint() {
-    _hasCurrentPaint = false;
-    currentPaintId = NULL_UID;
-  }
-  void removeCurrentMapping() {
-    _hasCurrentMapping = false;
-    currentMappingId = NULL_UID;
-  }
+  void setCurrentPaint(int uid);
+  void setCurrentMapping(int uid);
+  void removeCurrentPaint();
+  void removeCurrentMapping();
 
+  void startFullScreen();
+  bool setOscPort(QString portNumber);
+  bool setOscPort(int portNumber);
+  int getOscPort() const;
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////
   static const int DEFAULT_WIDTH = 1600;
   static const int DEFAULT_HEIGHT = 800;
   static const int PAINT_LIST_ITEM_HEIGHT = 40;
   static const int SHAPE_LIST_ITEM_HEIGHT = 40;
-  static const int PAINT_LIST_MINIMUM_WIDTH = 100;
-  static const int MAPPING_LIST_MINIMUM_WIDTH  = 300;
-  static const int PROPERTY_PANEL_MINIMUM_WIDTH  = 400;
+  static const int PAINT_LIST_MINIMUM_HEIGHT = 320;
+  static const int MAPPING_LIST_MINIMUM_HEIGHT = 320;
+  static const int PAINT_PROPERTY_PANEL_MINIMUM_HEIGHT = 320;
+  static const int MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT = 320;
   static const int CANVAS_MINIMUM_WIDTH  = 480;
   static const int CANVAS_MINIMUM_HEIGHT = 270;
   static const int OUTPUT_WINDOW_MINIMUM_WIDTH = 480;

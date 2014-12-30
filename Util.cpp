@@ -19,7 +19,12 @@
  */
 
 #include "Util.h"
+#include <glib.h>
 #include <algorithm>
+#include <QFile>
+#include <QDir>
+#include <iostream>
+#include <QRegExp>
 
 namespace Util {
 
@@ -145,16 +150,10 @@ Ellipse* createEllipseForColor(int frameWidth, int frameHeight)
   );
 }
 
-void drawControlsVertices(QPainter* painter, const Shape& shape)
-{
-  for (int i=0; i<shape.nVertices(); i++)
-    drawControlsVertex(painter, shape.getVertex(i));
-}
-
-void drawControlsVertex(QPainter* painter, const QPointF& vertex, qreal radius, qreal strokeWidth)
+void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected, qreal radius, qreal strokeWidth)
 {
   // Init colors and stroke.
-  painter->setBrush(MM::VERTEX_BACKGROUND);
+  painter->setBrush(selected ? MM::VERTEX_SELECTED_BACKGROUND : MM::VERTEX_BACKGROUND);
   painter->setPen(QPen(MM::CONTROL_COLOR, strokeWidth));
 
   // Draw ellipse.
@@ -166,7 +165,17 @@ void drawControlsVertex(QPainter* painter, const QPointF& vertex, qreal radius, 
   painter->drawLine( vertex + QPointF(offset, -offset), vertex + QPointF(-offset, offset) );
 }
 
-void drawControlsEllipse(QPainter* painter, const Ellipse& ellipse)
+void drawControlsVertices(QPainter* painter, const QList<int>* selectedVertices, const Shape& shape)
+{
+  if (!selectedVertices)
+    for (int i=0; i<shape.nVertices(); i++)
+      drawControlsVertex(painter, shape.getVertex(i), false);
+  else
+    for (int i=0; i<shape.nVertices(); i++)
+      drawControlsVertex(painter, shape.getVertex(i), selectedVertices->contains(i));
+}
+
+void drawControlsEllipse(QPainter* painter, const QList<int>* selectedVertices, const Ellipse& ellipse)
 {
   // Init colors and stroke.
   painter->setPen(MM::SHAPE_STROKE);
@@ -186,10 +195,10 @@ void drawControlsEllipse(QPainter* painter, const Ellipse& ellipse)
   painter->restore(); // restore saved painter state
 
   // Draw control points.
-  drawControlsVertices(painter, ellipse);
+  drawControlsVertices(painter, selectedVertices, ellipse);
 }
 
-void drawControlsQuad(QPainter* painter, const Quad& quad)
+void drawControlsQuad(QPainter* painter, const QList<int>* selectedVertices, const Quad& quad)
 {
   // Init colors and stroke.
   painter->setPen(MM::SHAPE_STROKE);
@@ -198,10 +207,10 @@ void drawControlsQuad(QPainter* painter, const Quad& quad)
   painter->drawPolygon(quad.toPolygon());
 
   // Draw control points.
-  drawControlsVertices(painter, quad);
+  drawControlsVertices(painter, selectedVertices, quad);
 }
 
-void drawControlsMesh(QPainter* painter, const Mesh& mesh)
+void drawControlsMesh(QPainter* painter, const QList<int>* selectedVertices, const Mesh& mesh)
 {
   // Init colors and stroke.
   painter->setPen(MM::SHAPE_INNER_STROKE);
@@ -218,10 +227,10 @@ void drawControlsMesh(QPainter* painter, const Mesh& mesh)
   painter->drawPolygon(mesh.toPolygon());
 
   // Draw control points.
-  drawControlsVertices(painter, mesh);
+  drawControlsVertices(painter, selectedVertices, mesh);
 }
 
-void drawControlsPolygon(QPainter* painter, const Polygon& polygon)
+void drawControlsPolygon(QPainter* painter, const QList<int>* selectedVertices, const Polygon& polygon)
 {
   // Init colors and stroke.
    painter->setPen(MM::SHAPE_STROKE);
@@ -230,9 +239,54 @@ void drawControlsPolygon(QPainter* painter, const Polygon& polygon)
    painter->drawPolygon(polygon.toPolygon());
 
    // Draw control points.
-   drawControlsVertices(painter, polygon);
+   drawControlsVertices(painter, selectedVertices, polygon);
 }
 
+bool fileExists(const QString& filename)
+{
+  return QFile::exists(filename);
+  // gchar* filetestpath = (gchar*) filename.toUtf8().constData();
+  // if (FALSE == g_file_test(filetestpath, G_FILE_TEST_EXISTS))
+  // {
+  //     //std::cout << "File " << filetestpath << " does not exist" << std::endl;
+  //     return false;
+  // }
+  // return true;
+}
+
+bool eraseFile(const QString& filename)
+{
+  if (! fileExists(filename))
+  {
+    return false;
+  }
+  QFile file(filename);
+  file.close();
+  return file.remove();
+}
+
+bool eraseSettings()
+{
+  QString homePath = QDir::homePath();
+  QString settingsFilePath = QDir(homePath).filePath(".config/MapMap/MapMap.conf");
+  QFile settingsFile(settingsFilePath);
+  if (! settingsFile.exists())
+  {
+    return false;
+  }
+  else
+  {
+    std::cout << "Erase MapMap settings." << std::endl;
+    settingsFile.close();
+    return settingsFile.remove();
+  }
+}
+
+bool isNumeric(const QString& text)
+{
+  QRegExp re("\\d*"); // a digit (\d), zero or more times (*)
+  return (re.exactMatch(text));
+}
 
 } // end of namespace
 

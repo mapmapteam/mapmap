@@ -47,14 +47,20 @@ void SourceGLCanvas::doDraw(QPainter* painter)
   if (getMainWindow()->hasCurrentMapping())
   {
     uint mappingId = getMainWindow()->getCurrentMappingId();
-    Mapper::ptr mapper = getMainWindow()->getMapperByMappingId(mappingId);
+    const Mapper::ptr& mapper = getMainWindow()->getMapperByMappingId(mappingId);
     painter->save();
     mapper->drawInput(painter);
     painter->restore();
     if (displayControls())
     {
       painter->save();
-      mapper->drawInputControls(painter);
+      if (hasActiveVertex()) {
+        QList<int> selectedVertices;
+        selectedVertices.append(getActiveVertexIndex());
+        mapper->drawInputControls(painter, &selectedVertices);
+      }
+      else
+        mapper->drawInputControls(painter);
       painter->restore();
     }
   }

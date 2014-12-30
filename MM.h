@@ -29,7 +29,11 @@ class MM
 {
 public:
   // General.
+  static const QString APPLICATION_NAME;
   static const QString VERSION;
+  static const QString COPYRIGHT_OWNERS;
+  static const QString ORGANIZATION_NAME;
+  static const QString ORGANIZATION_DOMAIN;
   static const QString FILE_EXTENSION;
   static const QString VIDEO_FILES_FILTER;
   static const QString IMAGE_FILES_FILTER;
@@ -47,6 +51,7 @@ public:
 
   static const QColor CONTROL_COLOR;
   static const QBrush VERTEX_BACKGROUND;
+  static const QBrush VERTEX_SELECTED_BACKGROUND;
 
   static const qreal SHAPE_STROKE_WIDTH = 2;
   static const qreal SHAPE_INNER_STROKE_WIDTH = 0.5;
@@ -57,6 +62,9 @@ public:
   static const qreal VERTEX_STICK_RADIUS = 10;
   static const qreal VERTEX_SELECT_RADIUS = 10;
   static const qreal VERTEX_SELECT_STROKE_WIDTH = 1;
+
+  // Time.
+  static const float FRAMES_PER_SECOND = 29.97f;
 };
 
 #endif

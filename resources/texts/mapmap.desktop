@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Name=MapMap
+GenericName=Video Mapping editor
+GenericName[fr]=Éditeur pour le video mapping
+Comment=MapMap is a free/libre video projection mapping editor
+Comment[fr]=MapMap est un éditeur pour la projection video mapping
+TryExec=mapmap
+Exec=mapmap %f
+Terminal=false
+StartupNotify=true
+Type=Application
+Categories=Qt;AudioVideo;Video;
+Icon=/usr/share/icons/hicolor/scalable/apps/mapmap.svg

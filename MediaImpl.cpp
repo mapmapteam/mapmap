@@ -44,17 +44,61 @@ bool MediaImpl::hasVideoSupport()
 
 int MediaImpl::getWidth() const
 {
-  return _width;
+  Q_ASSERT(videoIsConnected());
+  return _padHandlerData.width;
 }
 
 int MediaImpl::getHeight() const
 {
-  return _height;
+  Q_ASSERT(videoIsConnected());
+  return _padHandlerData.height;
 }
 
-const uchar* MediaImpl::getBits() const
+const uchar* MediaImpl::getBits()
 {
-  return _data;
+  // Reset bits changed.
+  _bitsChanged = false;
+
+  // Return data.
+  if (_currentFrameSample == NULL)
+    return NULL;
+  else
+    return _data;
+}
+
+QString MediaImpl::getUri() const
+{
+  return _uri;
+}
+
+bool MediaImpl::getAttached()
+{
+  return _attached;
+}
+
+void MediaImpl::setAttached(bool attach)
+{
+  _attached = attach;
+}
+
+
+void MediaImpl::setRate(double rate)
+{
+  if (rate == 0)
+  {
+    qDebug() << "Cannot set rate to zero, ignoring rate " << rate << endl;
+    return;
+  }
+
+  // Only update rate if needed.
+  if (_rate != rate)
+  {
+    _rate = rate;
+
+    // Send seek events to activate rate.
+    if (_seekEnabled)
+      _updateRate();
+  }
 }
 
 void MediaImpl::build()
@@ -62,169 +106,121 @@ void MediaImpl::build()
   qDebug() << "Building video impl";
   if (!loadMovie(_uri))
   {
-    qDebug() << "Cannot load movie " << _currentMovie << ".";
+    qDebug() << "Cannot load movie " << _uri << ".";
   }
 }
 
 MediaImpl::~MediaImpl()
 {
+  // Free all resources.
   freeResources();
-  /* _data points to gstreamer-allocated data, we don't manage it ourselves */
-  //if (_data)
-  //  free(_data);
-}
 
-bool MediaImpl::_videoPull()
-{
-//  qDebug() << "video pull" << endl;
-
-  GstSample *sample = NULL;
-  GstStructure *structure = NULL;
-  GstCaps* caps = NULL;
-  GstBuffer *buffer = NULL;
-
-  // Retrieve the sample
-  sample = queue_input_buf.get();
-
-  if (sample == NULL)
-  {
-    // Either means we are not playing or we have reached EOS.
-    return false;
-  }
-  else
-  {
-    caps = gst_sample_get_caps(sample);
-    structure = gst_caps_get_structure(caps, 0);
-    buffer = gst_sample_get_buffer(sample);
-
-    int width  = 640;
-    int height = 480;
-    int bpp    = 32;
-    int depth  = 32;
-
-    gst_structure_get_int(structure, "width",  &width);
-    gst_structure_get_int(structure, "height", &height);
-    // TODO: use gst_video_info_from_caps if we want to support many different formats
-    // otherwise, since we set the caps ourselves, we can assume bpp is 32 and depth too.
-
-    _width = width;
-    _height = height;
-    int size = _width * _height;
-
-//    video->resize(width, height);
-
-//        qDebug() << gst_structure_to_string(capsStruct) << endl;
-//        qDebug() << width << "x" << height << "=" << width*height << "(" << width*height*4 << "," << width*height*3 << ")" << endl;
-//        qDebug() << "bpp: " << bpp << " depth: " << depth << endl;
-//        qDebug() << "Buffer size: " << GST_BUFFER_SIZE(buffer) << endl;
-
-    GstMapInfo map; 
-    if (gst_buffer_map(buffer, &map, GST_MAP_READ))
-    { 
-      // For debugging:
-      //gst_util_dump_mem(map.data, map.size)
-      _data = map.data;
-      gst_buffer_unmap(buffer, &map); 
-      if(this->_frame != NULL)
-        queue_output_buf.put(this->_frame);
-      _frame = sample;
-    } 
-
-    return true;
-  }
+  // Free mutex locker object.
+  delete _mutexLocker;
 }
 
 bool MediaImpl::_eos() const
 {
   if (_movieReady)
   {
-    Q_ASSERT( _videoSink );
-//    Q_ASSERT( _audioSink );
-    gboolean videoEos;
-//    gboolean audioEos;
-    g_object_get (G_OBJECT (_videoSink), "eos", &videoEos, NULL);
-//    g_object_get (G_OBJECT (_audioSink), "eos", &audioEos, NULL);
-    return (bool) (videoEos /*|| audioEos*/);
+    Q_ASSERT( _appsink0 );
+    if (_rate > 0)
+    {
+      gboolean videoEos;
+      g_object_get (G_OBJECT (_appsink0), "eos", &videoEos, NULL);
+      return (bool) (videoEos);
+    }
+    else
+    {
+      /* Obtain the current position, needed for the seek event */
+      gint64 position;
+      if (!gst_element_query_position (_pipeline, GST_FORMAT_TIME, &position)) {
+        g_printerr ("Unable to retrieve current position.\n");
+        return false;
+      }
+      return (position == 0);
+    }
   }
   else
     return false;
 }
 
-//void VideoImpl::_init()
-//{
-//  _audioHasNewBuffer = false;
-//  _videoHasNewBuffer = false;
-//
-//  _terminate = false;
-//  _seekEnabled = false;
-//
-//  _movieReady=true;
-//
-//  // Stop sleeping the video output.
-//  _VIDEO_OUT->sleeping(false);
-//  _AUDIO_OUT->sleeping(false);
-//}
-
-
 GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
 {
-  GstSample *sample;
-  sample = gst_app_sink_pull_sample(GST_APP_SINK(p->_videoSink));
-  //g_signal_emit_by_name (p->_videoSink, "pull-sample", &sample);
-  p->get_queue_input_buf()->put(sample);
-  if (p->get_queue_output_buf()->size() > 1) {
-    sample = p->get_queue_output_buf()->get();
-    gst_sample_unref(sample);
+  // Make it thread-safe.
+  p->lockMutex();
+
+  // Get next frame.
+  GstSample *sample = gst_app_sink_pull_sample(GST_APP_SINK(p->_appsink0));
+
+  // Unref last frame.
+  p->_freeCurrentSample();
+
+  // Set current frame.
+  p->_currentFrameSample = sample;
+
+  // For live sources, video dimensions have not been set, because
+  // gstPadAddedCallback is never called. Fix dimensions from first sample /
+  // caps we receive.
+  if (p->_isSharedMemorySource && ( p->_padHandlerData.width == -1 ||
+        p->_padHandlerData.height == -1)) {
+    GstCaps *caps = gst_sample_get_caps(sample);
+    GstStructure *structure;
+    structure = gst_caps_get_structure(caps, 0);
+    gst_structure_get_int(structure, "width",  &p->_padHandlerData.width);
+    gst_structure_get_int(structure, "height", &p->_padHandlerData.height);
+    // g_print("Size is %u x %u\n", _padHandlerData.width, _padHandlerData.height);
   }
+
+  // Try to retrieve data bits of frame.
+  GstMapInfo& map = p->_mapInfo;
+  GstBuffer *buffer = gst_sample_get_buffer( sample );
+  if (gst_buffer_map(buffer, &map, GST_MAP_READ))
+  {
+    p->_currentFrameBuffer = buffer;
+    // For debugging:
+    //gst_util_dump_mem(map.data, map.size)
+
+    // Retrieve data from map info.
+    p->_data = map.data;
+
+    // Bits have changed.
+    p->_bitsChanged = true;
+  }
+
+  p->unlockMutex();
+
   return GST_FLOW_OK;
 }
 
-MediaImpl::MediaImpl(const QString uri) :
-_currentMovie(""),
+MediaImpl::MediaImpl(const QString uri, bool live) :
 _bus(NULL),
 _pipeline(NULL),
-_source(NULL),
-//_audioQueue(NULL),
-//_audioConvert(NULL),
-//_audioResample(NULL),
-_videoQueue(NULL),
-_videoConvert(NULL),
-_videoColorSpace(NULL),
-_audioSink(NULL),
-_videoSink(NULL),
-_frame(NULL),
-_width(640),
-_height(480),
+_uridecodebin0(NULL),
+_queue0(NULL),
+_videoconvert0(NULL),
+//_audioSink(NULL),
+_appsink0(NULL),
+_currentFrameSample(NULL),
+_currentFrameBuffer(NULL),
+_bitsChanged(false),
+_width(640), // unused
+_height(480), // unused
 _data(NULL),
-//_audioBufferAdapter(NULL),
 _seekEnabled(false),
-//_audioNewBufferCounter(0),
+_rate(1.0),
+_isSharedMemorySource(live),
+_attached(false),
 _movieReady(false),
+_playState(false),
 _uri(uri)
 {
+  _pollSource = NULL;
   if (uri != "")
+  {
     loadMovie(uri);
-
-//  addPlug(_VIDEO_OUT = new PlugOut<VideoRGBAType>(this, "ImgOut", false));
-//  addPlug(_AUDIO_OUT = new PlugOut<SignalType>(this, "AudioOut", false));
-//
-//  addPlug(_FINISH_OUT = new PlugOut<ValueType>(this, "FinishOut", false));
-//
-//  QList<AbstractPlug*> atLeastOneOfThem;
-//  atLeastOneOfThem.push_back(_VIDEO_OUT);
-//  atLeastOneOfThem.push_back(_AUDIO_OUT);
-//  setPlugAtLeastOneNeeded(atLeastOneOfThem);
-//
-//  addPlug(_RESET_IN = new PlugIn<ValueType>(this, "Reset", false, new ValueType(0, 0, 1)));
-//  addPlug(_MOVIE_IN = new PlugIn<StringType>(this, "Movie", false));
-//
-//  //_settings.add(Property::FILENAME, SETTING_FILENAME)->valueStr("");
-//
-//  _VIDEO_OUT->sleeping(true);
-//  _AUDIO_OUT->sleeping(true);
-//
-//  // Crease audio buffer handler.
-//  _audioBufferAdapter = gst_adapter_new();
+  }
+  _mutexLocker = new QMutexLocker(&_mutex);
 }
 
 void MediaImpl::unloadMovie()
@@ -232,17 +228,13 @@ void MediaImpl::unloadMovie()
   // Free allocated resources.
   freeResources();
 
-  // Reset flags.
-//  _audioNewBufferCounter = 0;
-
+  // Reset variables.
   _terminate = false;
   _seekEnabled = false;
 
-  _setReady(false);
-
-  // Unsynch.
-  // NOTE: I commented this out, it was in Drone, most probably useless but who knows.
-  // unSynch(); // XXX: I'm not sure why we are doing this...
+  // Un-ready.
+  _setMovieReady(false);
+  setPlayState(false);
 }
 
 void MediaImpl::freeResources()
@@ -261,123 +253,206 @@ void MediaImpl::freeResources()
     _pipeline = NULL;
   }
 
-  _source = NULL;
-//  _audioQueue = NULL;
-//  _audioConvert = NULL;
-//  _audioResample = NULL;
-  _videoQueue = NULL;
-  _videoConvert = NULL;
-  _videoColorSpace = NULL;
-  _audioSink = NULL;
-  _videoSink = NULL;
-  _frame = NULL;
+  // Reset pipeline elements.
+  _uridecodebin0 = NULL;
+  _queue0 = NULL;
+  _videoconvert0 = NULL;
+  _appsink0 = NULL;
+
+  // Reset pad handler.
   _padHandlerData = GstPadHandlerData();
 
-  // Flush buffers in adapter.
-//  gst_adapter_clear(_audioBufferAdapter);
+  // Unref the shmsrc poller.
+  if (_pollSource)
+  {
+     g_source_unref(_pollSource);
+     _pollSource = NULL;
+  }
 
+  qDebug() << "Freeing remaining samples/buffers" << endl;
+
+  // Frees current sample and buffer.
+  _freeCurrentSample();
+
+  // Resets bits changed.
+  _bitsChanged = false;
 }
 
 void MediaImpl::resetMovie()
 {
-  // TODO: Check if we can still seek when we reach EOS. It seems like it's then impossible and we
-  // have to reload but it seems weird so we should check.
-  if (!_eos() && _seekEnabled)
+  // XXX: There used to be an issue that when we reached EOS (_eos() == true) we could not seek anymore.
+  if (_seekEnabled)
   {
     qDebug() << "Seeking at position 0.";
-    gst_element_seek_simple (_pipeline, GST_FORMAT_TIME,
-                             (GstSeekFlags) (GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT), 0);
-    this->_frame = NULL;
-    _setReady(true);
+    GstEvent* seek_event;
+
+    if (_rate > 0) {
+      seek_event = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
+          GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_NONE, 0);
+    } else {
+      seek_event = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
+          GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_END, 0);
+    }
+    /* Send the event */
+    gst_element_send_event (_appsink0, seek_event);
+//    gst_element_seek_simple (_pipeline, GST_FORMAT_TIME,
+//                             (GstSeekFlags) (GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT), 0);
+//    this->_currentFrameSample = NULL;
+    _setMovieReady(true);
   }
   else
   {
     // Just reload movie.
     qDebug() << "Reloading the movie" << _seekEnabled;
-    _currentMovie = "";
     loadMovie(_uri);
   }
 }
 
+gboolean 
+gstPollShmsrc (void *user_data)
+{
+  MediaImpl *p = (MediaImpl*) user_data;
+  if (g_file_test(p->getUri().toUtf8().constData(), G_FILE_TEST_EXISTS) &&
+    ! p->getAttached())
+  {
+    if (! p->setPlayState(true))
+    {
+      qDebug() << "tried to attach, but starting pipeline failed!" << endl;
+      return false;
+    }
+    //qDebug() << "attached, started pipeline!" << endl;
+    p->setAttached(true);
+  }
+  return true;
+}
+
 bool MediaImpl::loadMovie(QString filename)
 {
+  gchar* filetestpath = (gchar*) filename.toUtf8().constData();
+  if (FALSE == g_file_test(filetestpath, G_FILE_TEST_EXISTS))
+  {
+      std::cout << "File " << filetestpath << " does not exist" << std::endl;
+      return false;
+  }
   _uri = filename;
 
   qDebug() << "Opening movie: " << filename << ".";
-  this->_frame = NULL;
 
   // Free previously allocated structures
   unloadMovie();
 
-  //_firstFrameTime=_formatContext->start_time;
-
   // Initialize GStreamer.
-  gst_init (NULL, NULL);
-  GstElement *capsFilter = NULL;
-  GstElement *videoScale = NULL;
+  GstElement *capsfilter0 = NULL;
+  GstElement *videoscale0 = NULL;
 
   // Create the elements.
-  _source =          gst_element_factory_make ("uridecodebin", "source");
-
-//  _audioQueue =      gst_element_factory_make ("queue", "aqueue");
-//  _audioConvert =    gst_element_factory_make ("audioconvert", "aconvert");
-//  _audioResample =   gst_element_factory_make ("audioresample", "aresample");
-//  _audioSink =       gst_element_factory_make ("appsink", "asink");
-//
-  _videoQueue =      gst_element_factory_make ("queue", "vqueue");
-  _videoColorSpace = gst_element_factory_make ("videoconvert", "vcolorspace");
-  videoScale = gst_element_factory_make ("videoscale", "videoscale0");
-  capsFilter = gst_element_factory_make ("capsfilter", "capsfilter0");
-  _videoSink =       gst_element_factory_make ("appsink", "vsink");
+  if (_isSharedMemorySource)
+  {
+    _shmsrc0 = gst_element_factory_make ("shmsrc", "shmsrc0");
+    _gdpdepay0 = gst_element_factory_make ("gdpdepay", "gdpdepay0");
+    _pollSource = g_timeout_source_new (500);
+    g_source_set_callback (_pollSource, 
+        gstPollShmsrc, 
+        this, 
+        NULL);
+    g_source_attach (_pollSource, g_main_context_default());
+    g_source_unref (_pollSource);
+  }
+  else {
+    _uridecodebin0 = gst_element_factory_make ("uridecodebin", "uridecodebin0");
+  }
+  _queue0 = gst_element_factory_make ("queue", "queue0");
+  _videoconvert0 = gst_element_factory_make ("videoconvert", "videoconvert0");
+  videoscale0 = gst_element_factory_make ("videoscale", "videoscale0");
+  capsfilter0 = gst_element_factory_make ("capsfilter", "capsfilter0");
+  _appsink0 = gst_element_factory_make ("appsink", "appsink0");
 
   // Prepare handler data.
-//  _padHandlerData.audioToConnect   = _audioQueue;
-  _padHandlerData.videoToConnect   = _videoQueue;
-  _padHandlerData.videoSink        = _videoSink;
-  //_padHandlerData.audioIsConnected = false;
+  _padHandlerData.videoToConnect = _queue0;
+  _padHandlerData.videoSink = _appsink0;
   _padHandlerData.videoIsConnected = false;
-
-//  _newAudioBufferHandlerData.audioSink          = _audioSink;
-//  _newAudioBufferHandlerData.audioBufferAdapter = _audioBufferAdapter;
 
   // Create the empty pipeline.
   _pipeline = gst_pipeline_new ( "video-source-pipeline" );
 
-  if (!_pipeline || !_source ||
-//      !_audioQueue || !_audioConvert || !_audioResample || !_audioSink ||
-      !_videoQueue || !_videoColorSpace || ! videoScale || ! capsFilter || ! _videoSink)
+  if (!_pipeline ||
+      !_queue0 || !_videoconvert0 || ! videoscale0 || ! capsfilter0 || ! _appsink0)
   {
     g_printerr ("Not all elements could be created.\n");
+
+    if (! _pipeline) g_printerr("_pipeline");
+    if (! _queue0) g_printerr("_queue0");
+    if (! _videoconvert0) g_printerr("_videoconvert0");
+    if (! videoscale0) g_printerr("videoscale0");
+    if (! capsfilter0) g_printerr("capsfilter0");
+    if (! _appsink0) g_printerr("_appsink0");
+
     unloadMovie();
     return -1;
+  }
+  
+  if (_isSharedMemorySource)
+  {
+    if (! _shmsrc0 || ! _gdpdepay0)
+    {
+      g_printerr ("Not all elements could be created.\n");
+      if (! _shmsrc0) g_printerr("_shmsrc0");
+      if (! _gdpdepay0) g_printerr("_gdpdepay0");
+      unloadMovie();
+      return -1;
+    }
+  }
+  else
+  {
+    if (! _uridecodebin0)
+    {
+      g_printerr ("Not all elements could be created.\n");
+      if (! _uridecodebin0) g_printerr("_uridecodebin0");
+      unloadMovie();
+      return -1;
+    }
   }
 
   // Build the pipeline. Note that we are NOT linking the source at this
   // point. We will do it later.
-  gst_bin_add_many (GST_BIN (_pipeline), _source,
-//                    _audioQueue, _audioConvert, _audioResample, _audioSink,
-                    _videoQueue, _videoColorSpace, videoScale, capsFilter, _videoSink, NULL);
+  gst_bin_add_many (GST_BIN (_pipeline),
+    _isSharedMemorySource ? _shmsrc0 : _uridecodebin0, _queue0,
+    _videoconvert0, videoscale0, capsfilter0, _appsink0, NULL);
 
-//  if (!gst_element_link_many(_audioQueue, _audioConvert, _audioResample, _audioSink, NULL)) {
-//    g_printerr ("Audio elements could not be linked.\n");
-//    unloadMovie();
-//    return false;
-//  }
+  // special case for shmsrc
+  if (_isSharedMemorySource)
+  {
+    gst_bin_add (GST_BIN(_pipeline), _gdpdepay0);
+    if (! gst_element_link_many (_shmsrc0, _gdpdepay0, _queue0, NULL))
+    {
+      g_printerr ("Could not link shmsrc, deserializer and video queue.\n");
+    }
+  }
+  else
+  {
+    if (! gst_element_link (_uridecodebin0, _queue0)) 
+    {
+      g_printerr ("Could not link uridecodebin to video queue.\n");
+    }
+  }
 
-  if (!gst_element_link_many (_videoQueue, _videoColorSpace, capsFilter, videoScale, _videoSink, NULL)) {
-    g_printerr ("Video elements could not be linked.\n");
+  if (! gst_element_link_many (_queue0, _videoconvert0, capsfilter0, videoscale0, _appsink0, NULL))
+  {
+    g_printerr ("Could not link video queue, colorspace converter, caps filter, scaler and app sink.\n");
     unloadMovie();
     return false;
   }
 
   // Process URI.
+  QByteArray ba = filename.toLocal8Bit();
   gchar* uri = (gchar*) filename.toUtf8().constData();
-  if (!gst_uri_is_valid(uri))
+  if (! _isSharedMemorySource && ! gst_uri_is_valid(uri))
   {
     // Try to convert filename to URI.
     GError* error = NULL;
     uri = gst_filename_to_uri(uri, &error);
-    if (error) {
+    if (error)
+    {
       qDebug() << "Filename to URI error: " << error->message;
       g_error_free(error);
       gst_object_unref (uri);
@@ -386,12 +461,28 @@ bool MediaImpl::loadMovie(QString filename)
     }
   }
 
+  if (_isSharedMemorySource)
+  {
+    uri =  (gchar*) ba.data();
+  }
+
   // Set URI to be played.
   qDebug() << "URI for uridecodebin: " << uri;
   // FIXME: sometimes it's just the path to the directory that is given, not the file itself.
-  g_object_set (_source, "uri", uri, NULL);
+
   // Connect to the pad-added signal
-  g_signal_connect (_source, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
+  if (! _isSharedMemorySource)
+  {
+    g_object_set (_uridecodebin0, "uri", uri, NULL);
+    g_signal_connect (_uridecodebin0, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
+  }
+  else
+  {
+    //qDebug() << "LIVE mode" << uri;
+    g_object_set (_shmsrc0, "socket-path", uri, NULL);
+    g_object_set (_shmsrc0, "is-live", TRUE, NULL);
+    _padHandlerData.videoIsConnected = true;
+  }
 
   // Configure audio appsink.
   // TODO: change from mono to stereo
@@ -408,76 +499,57 @@ bool MediaImpl::loadMovie(QString filename)
 //  g_free (audioCapsText);
 
   // Configure video appsink.
-//  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw-rgb");
   GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA");
-  g_object_set (capsFilter, "caps", videoCaps, NULL);
-  g_object_set (_videoSink, "emit-signals", TRUE,
+  g_object_set (capsfilter0, "caps", videoCaps, NULL);
+  g_object_set (_appsink0, "emit-signals", TRUE,
                             "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
                             "drop", TRUE,         // ... other buffers are dropped
+                            "sync", TRUE,
                             NULL);
-  g_signal_connect (_videoSink, "new-sample", G_CALLBACK (MediaImpl::gstNewSampleCallback), this);
+  g_signal_connect (_appsink0, "new-sample", G_CALLBACK (MediaImpl::gstNewSampleCallback), this);
   gst_caps_unref (videoCaps);
 
   // Listen to the bus.
   _bus = gst_element_get_bus (_pipeline);
 
   // Start playing.
-  if (!setPlayState(true))
+  if (! _isSharedMemorySource && ! setPlayState(true))
+  {
     return false;
+  }
 
-  qDebug() << "Pipeline started.";
-
-  //_movieReady = true;
   return true;
 }
 
-bool MediaImpl::runVideo() {
-
-//  if (!_VIDEO_OUT->connected())
-//    return;
-
-  if (!_preRun())
-    return false;
-
-  bool bitsChanged = false;
-
-  if (queue_input_buf.size() > 0) {
-
-    // Pull video.
-    if (!_videoPull())
-    {
-      _setFinished(true);
-//      _FINISH_OUT->type()->setValue(1.0f);
-//      _VIDEO_OUT->sleeping(true);
-    }
-    else
-    {
-      bitsChanged = true;
-      //      _VIDEO_OUT->sleeping(false);
-    }
-
-    //std::cout << "VideoImpl::runVideo: read frame #" << _videoNewBufferCounter << std::endl;
+void MediaImpl::update()
+{
+  // Check for end-of-stream or terminate.
+  if (_eos() || _terminate)
+  {
+    _setFinished(true);
+    resetMovie();
   }
-  /* TODO: This causes the texture to be loaded always in Mapper.cpp . The
- * problem if this is not set is: When we have more than one shape, a
- * shape that has a new buffer coming in will overdraw the old buffer of the
- * shape on top. This implementation seems to be fast enough that
- * _videoNewBufferCounter is often 1 or 0. If bitsChanged is often switching
- * between true and false (as in the case described above), than the shape
- * textures will appear to be flickering/alternating. Maybe a better solution is
- * needed (in the GL layer or here?)*/
   else
-      bitsChanged = true;
+  {
+    _setFinished(false);
+  }
 
-  _postRun();
-
-  return bitsChanged;
+//  // Check if movie is ready and connected.
+//  if (!isReady())
+//  {
+//    _bitsChanged = false;
+//  }
+//
+  // Check gstreamer messages on bus.
+  _checkMessages();
 }
 
 bool MediaImpl::setPlayState(bool play)
 {
   if (_pipeline == NULL)
+  {
     return false;
+  }
 
   GstStateChangeReturn ret = gst_element_set_state (_pipeline, (play ? GST_STATE_PLAYING : GST_STATE_PAUSED));
   if (ret == GST_STATE_CHANGE_FAILURE)
@@ -488,82 +560,48 @@ bool MediaImpl::setPlayState(bool play)
   }
   else
   {
-    _setReady(play);
-
+    _playState = play;
     return true;
   }
 }
 
-//void VideoImpl::runAudio() {
-//
-//  if (!_AUDIO_OUT->connected())
-//    return;
-//
-//  if (!_preRun())
-//    return;
-//
-//  unsigned int blockByteSize = Engine::signalInfo().blockSize()*sizeof(Signal_T);
-//  if (gst_adapter_available(_audioBufferAdapter) >= blockByteSize )
+//bool MediaImpl::_preRun()
+//{
+//  // Check for end-of-stream or terminate.
+//  if (_eos() || _terminate)
 //  {
-//    // Copy block of data to audio output.
-//    gst_adapter_copy(_audioBufferAdapter, (guint8*)_AUDIO_OUT->type()->data(), 0, blockByteSize);
-//    gst_adapter_flush (_audioBufferAdapter, blockByteSize);
-//
-//    _AUDIO_OUT->sleeping(false);
+//    _setFinished(true);
+//    resetMovie();
 //  }
 //  else
 //  {
-//    _FINISH_OUT->type()->setValue(1.0f);
-//    _AUDIO_OUT->sleeping(true);
+//    _setFinished(false);
 //  }
-//
-//  _postRun();
+//  if (!_movieReady ||
+//      !_padHandlerData.videoIsConnected)
+//  {
+//    return false;
+//  }
+//  return true;
 //}
 
-bool MediaImpl::_preRun()
+void MediaImpl::_checkMessages()
 {
-  // Check for end-of-stream or terminate.
-  if (_eos() || _terminate)
-  {
-    _setFinished(true);
-    resetMovie();
-
-//    _FINISH_OUT->type()->setValue(1.0f);
-//    _VIDEO_OUT->sleeping(true);
-//    _AUDIO_OUT->sleeping(true);
-//
-//    if (_audioBufferAdapter != NULL)
-//      gst_adapter_clear(_audioBufferAdapter);
-  }
-  else
-    _setFinished(false);
-//    _FINISH_OUT->type()->setValue(0.0f);
-
-//  if (_RESET_IN->type()->boolValue())
-//    resetMovie();
-
-  if (!_movieReady ||
-      !_padHandlerData.isConnected())
-    return false;
-
-  return true;
-}
-
-void MediaImpl::_postRun()
-{
-  // Parse message.
   if (_bus != NULL)
   {
+    // Get message.
     GstMessage *msg = gst_bus_timed_pop_filtered(
                         _bus, 0,
-                        (GstMessageType) (GST_MESSAGE_STATE_CHANGED | GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
+                        (GstMessageType) (GST_MESSAGE_STATE_CHANGED | GST_MESSAGE_ERROR | GST_MESSAGE_EOS | GST_MESSAGE_ASYNC_DONE));
 
-    if (msg != NULL) {
+    if (msg != NULL)
+    {
       GError *err;
       gchar *debug_info;
 
-      switch (GST_MESSAGE_TYPE (msg)) {
-
+      switch (GST_MESSAGE_TYPE (msg))
+      {
+      // Error ////////////////////////////////////////////////
       case GST_MESSAGE_ERROR:
         gst_message_parse_error(msg, &err, &debug_info);
         g_printerr("Error received from element %s: %s\n",
@@ -573,14 +611,61 @@ void MediaImpl::_postRun()
         g_clear_error(&err);
         g_free(debug_info);
 
-        _terminate = true;
+        if (!_isSharedMemorySource)
+        {
+          _terminate = true;
+        }
+        else
+        {
+          _attached = false;
+          gst_element_set_state (_pipeline, GST_STATE_PAUSED);
+          gst_element_set_state (_pipeline, GST_STATE_NULL);
+          gst_element_set_state (_pipeline, GST_STATE_READY);
+        }
 //        _finish();
         break;
 
+      // End-of-stream ////////////////////////////////////////
       case GST_MESSAGE_EOS:
+        // Automatically loop back.
         g_print("End-Of-Stream reached.\n");
+        resetMovie();
 //        _terminate = true;
 //        _finish();
+        break;
+
+      // Pipeline has prerolled/ready to play ///////////////
+      case GST_MESSAGE_ASYNC_DONE:
+        if (!_isMovieReady())
+        {
+          // Check if seeking is allowed.
+          gint64 start, end;
+          GstQuery *query = gst_query_new_seeking (GST_FORMAT_TIME);
+          if (gst_element_query (_pipeline, query))
+          {
+            gst_query_parse_seeking (query, NULL, (gboolean*)&_seekEnabled, &start, &end);
+            if (_seekEnabled)
+            {
+              g_print ("Seeking is ENABLED from %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT "\n",
+                       GST_TIME_ARGS (start), GST_TIME_ARGS (end));
+
+            }
+            else
+            {
+              g_print ("Seeking is DISABLED for this stream.\n");
+            }
+          }
+          else
+          {
+            g_printerr ("Seeking query failed.");
+          }
+
+          gst_query_unref (query);
+
+          // Movie is ready!
+          _setMovieReady(true);
+        }
+
         break;
 
       case GST_MESSAGE_STATE_CHANGED:
@@ -591,38 +676,9 @@ void MediaImpl::_postRun()
           gst_message_parse_state_changed(msg, &oldState, &newState,
               &pendingState);
           g_print("Pipeline state for movie %s changed from %s to %s:\n",
-              _currentMovie.toUtf8().constData(),
+              _uri.toUtf8().constData(),
               gst_element_state_get_name(oldState),
               gst_element_state_get_name(newState));
-
-//          if (oldState == GST_STATE_PAUSED && newState == GST_STATE_READY)
-//            gst_adapter_clear(_audioBufferAdapter);
-
-          if (newState == GST_STATE_PLAYING)
-          {
-            // Check if seeking is allowed.
-            gint64 start, end;
-            GstQuery *query = gst_query_new_seeking (GST_FORMAT_TIME);
-            if (gst_element_query (_pipeline, query))
-            {
-              gst_query_parse_seeking (query, NULL, (gboolean*)&_seekEnabled, &start, &end);
-              if (_seekEnabled)
-              {
-                g_print ("Seeking is ENABLED from %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT "\n",
-                         GST_TIME_ARGS (start), GST_TIME_ARGS (end));
-              }
-              else
-              {
-                g_print ("Seeking is DISABLED for this stream.\n");
-              }
-            }
-            else
-            {
-              g_printerr ("Seeking query failed.");
-            }
-
-            gst_query_unref (query);
-          }
         }
         break;
 
@@ -636,36 +692,101 @@ void MediaImpl::_postRun()
   }
 }
 
-void MediaImpl::_setReady(bool ready)
+void MediaImpl::_setMovieReady(bool ready)
 {
   _movieReady = ready;
-//  _VIDEO_OUT->sleeping(!ready);
-//  _AUDIO_OUT->sleeping(!ready);
 }
 
-void MediaImpl::_setFinished(bool finished) {
-//  qDebug() << "Clip " << (finished ? "finished" : "not finished");
+void MediaImpl::_setFinished(bool finished)
+{
+  Q_UNUSED(finished);
+  //  qDebug() << "Clip " << (finished ? "finished" : "not finished");
 }
 
-void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data) {
+void  MediaImpl::_updateRate()
+{
+  if (_pipeline == NULL)
+  {
+    qDebug() << "Cannot set rate: no pipeline!" << endl;
+    return;
+  }
+
+  if (!_seekEnabled)
+  {
+    qDebug() << "Cannot set rate: seek not working" << endl;
+    return;
+  }
+
+  if (!_isMovieReady())
+  {
+    qDebug() << "Movie is not yet ready to play, cannot seek yet." << endl;
+  }
+
+  gint64 position;
+  GstEvent *seekEvent;
+
+  /* Obtain the current position, needed for the seek event */
+  if (!gst_element_query_position (_pipeline, GST_FORMAT_TIME, &position)) {
+    g_printerr ("Unable to retrieve current position.\n");
+    return;
+  }
+
+  /* Create the seek event */
+  if (_rate > 0) {
+    seekEvent = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
+        GST_SEEK_TYPE_SET, position, GST_SEEK_TYPE_NONE, 0);
+  } else {
+    seekEvent = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
+        GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position);
+  }
+
+  if (_appsink0 == NULL) {
+    /* If we have not done so, obtain the sink through which we will send the seek events */
+    g_object_get (_pipeline, "video-sink", &_appsink0, NULL);
+  }
+
+  /* Send the event */
+  gst_element_send_event (_appsink0, seekEvent);
+
+  g_print ("Current rate: %g\n", _rate);
+}
+
+void MediaImpl::_freeCurrentSample() {
+  if (_currentFrameBuffer != NULL)
+  {
+    gst_buffer_unmap(_currentFrameBuffer, &_mapInfo);
+  }
+
+  if (_currentFrameSample != NULL)
+  {
+    gst_sample_unref(_currentFrameSample);
+  }
+
+  _currentFrameSample = NULL;
+  _currentFrameBuffer = NULL;
+  _data = NULL;
+}
+
+/**
+ * FIXME: remove GOTO
+ */
+void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data)
+{
   g_print ("Received new pad '%s' from '%s':\n", GST_PAD_NAME (newPad), GST_ELEMENT_NAME (src));
-  bool isAudio = false;
   GstPad *sinkPad = NULL;
 
   // Check the new pad's type.
   GstCaps *newPadCaps = gst_pad_query_caps (newPad, NULL);
   GstStructure *newPadStruct = gst_caps_get_structure (newPadCaps, 0);
   const gchar *newPadType   = gst_structure_get_name (newPadStruct);
-  g_print("Structure is %s\n", gst_structure_to_string(newPadStruct));
-  if (g_str_has_prefix (newPadType, "audio/x-raw"))
-  {
-    sinkPad = gst_element_get_static_pad (data->audioToConnect, "sink");
-    isAudio = true;
-  }
-  else if (g_str_has_prefix (newPadType, "video/x-raw"))
+  gchar *newPadStructStr = gst_structure_to_string(newPadStruct);
+  g_print("Structure is %s\n", newPadStructStr);
+  g_free(newPadStructStr);
+  if (g_str_has_prefix (newPadType, "video/x-raw"))
   {
     sinkPad = gst_element_get_static_pad (data->videoToConnect, "sink");
-    isAudio = false;
+    gst_structure_get_int(newPadStruct, "width",  &data->width);
+    gst_structure_get_int(newPadStruct, "height", &data->height);
   }
   else
   {
@@ -693,78 +814,36 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
   }
 
   // Attempt the link
-  if (GST_PAD_LINK_FAILED (gst_pad_link (newPad, sinkPad))) {
+  if (GST_PAD_LINK_FAILED (gst_pad_link (newPad, sinkPad)))
+  {
     g_print ("  Type is '%s' but link failed.\n", newPadType);
     goto exit;
   } else {
+    data->videoIsConnected = true;
     g_print ("  Link succeeded (type '%s').\n", newPadType);
-    if (isAudio)
-    {
-      //data->audioIsConnected = true;
-    }
-    else
-    {
-      data->videoIsConnected = true;
-    }
   }
 
 exit:
   // Unreference the new pad's caps, if we got them.
   if (newPadCaps != NULL)
+  {
     gst_caps_unref (newPadCaps);
+  }
 
   // Unreference the sink pad.
   if (sinkPad != NULL)
+  {
     gst_object_unref (sinkPad);
+  }
 }
 
-//void VideoImpl::gstNewAudioBufferCallback(GstElement *sink, GstNewAudioBufferHandlerData *data) {
-//  GstBuffer *buffer = NULL;
-//
-//  // Retrieve the buffer.
-//  // TODO: we should pull ALL buffers and add them to the adapter
-//  g_signal_emit_by_name (data->audioSink, "pull-buffer", &buffer);
-//
-//  if (buffer)
-//  {
-//    ASSERT_WARNING_MESSAGE( ! GST_BUFFER_IS_DISCONT(buffer), "Discontinuity detected in audio buffer." );
-//
-////    int blockSize  = 2;
-////    int sampleRate = 1;
-////    int channels  = 0;
-////    int width = 0;
-////    GstCaps* caps = GST_BUFFER_CAPS(buffer);
-////    GstStructure *capsStruct = gst_caps_get_structure (caps, 0);
-////
-////    gst_structure_get_int(capsStruct, "rate",  &sampleRate);
-////    gst_structure_get_int(capsStruct, "channels", &channels);
-////    gst_structure_get_int(capsStruct, "width",  &width);
-//
-////    qDebug() << "rate = " << sampleRate << " channels = " << channels << " width = " << width << endl;
-////    unsigned int blockByteSize = Engine::signalInfo().blockSize() * sizeof(Signal_T);
-//
-////    qDebug() << "bufsize: "<< GST_BUFFER_SIZE(buffer) <<
-////                 " / adaptersize: " << gst_adapter_available(data->audioBufferAdapter) << endl;
-//
-//    // Add buffer to the adapter.
-//    gst_adapter_push(data->audioBufferAdapter, buffer);
-// //   qDebug() << " .. after push = : "<< gst_adapter_available(_audioBufferAdapter);
-//
-//    // NOTE: no need to unref the buffer here because the buffer was given away with the
-//    // call to gst_adapter_push()
-//    //gst_buffer_unref (buffer);
-//  }
-//}
-
-void MediaImpl::internalPrePlay()
+void MediaImpl::lockMutex()
 {
-  // Start/resume playback.
-  setPlayState(true);
+  _mutexLocker->relock();
 }
 
-void MediaImpl::internalPostPlay()
+void MediaImpl::unlockMutex()
 {
-  // Pause playback.
-  setPlayState(false);
+  _mutexLocker->unlock();
 }
 

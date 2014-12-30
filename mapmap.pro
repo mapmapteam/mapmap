@@ -1,12 +1,13 @@
 CONFIG  += qt debug
 TEMPLATE = app
-VERSION = 0.1.1
+VERSION = 0.2.0
 TARGET = mapmap
 QT += gui opengl xml widgets
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
 HEADERS  = \
     DestinationGLCanvas.h \
+    MM.h \
     MainApplication.h \
     MainWindow.h \
     Mapper.h \
@@ -19,6 +20,8 @@ HEADERS  = \
     OscReceiver.h \
     OutputGLWindow.h \
     Paint.h \
+    PaintGui.h \
+    PreferencesDialog.h \
     ProjectReader.h \
     ProjectWriter.h \
     Shape.h \
@@ -28,6 +31,7 @@ HEADERS  = \
 
 SOURCES  = \
     DestinationGLCanvas.cpp \
+    MM.cpp \
     MainApplication.cpp \
     MainWindow.cpp \
     Mapper.cpp \
@@ -38,8 +42,9 @@ SOURCES  = \
     OscInterface.cpp \
     OscReceiver.cpp \
     OutputGLWindow.cpp \
-    MM.cpp \
     Paint.cpp \
+    PaintGui.cpp \
+    PreferencesDialog.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
     Shape.cpp \
@@ -49,8 +54,9 @@ SOURCES  = \
     main.cpp
 
 RESOURCES = mapmap.qrc
-TRANSLATIONS = mapmap_fr.ts mapmap_ar.ts
+TRANSLATIONS = resources/texts/mapmap_fr.ts
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
+include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
 
 # Add the docs target:
 docs.depends = $(HEADERS) $(SOURCES)
@@ -67,6 +73,29 @@ unix:!mac {
     gl x11 glew
   QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
   QMAKE_CXXFLAGS += -DHAVE_OSC
+  mapmapfile.files = mapmap
+  mapmapfile.path = /usr/bin
+  INSTALLS += mapmapfile
+  desktopfile.files = resources/texts/mapmap.desktop
+  desktopfile.path = /usr/share/applications
+  INSTALLS += desktopfile
+  iconfile.files = resources/images/logo/mapmap.svg
+  iconfile.path = /usr/share/icons/hicolor/scalable/apps
+  INSTALLS += iconfile
+  mimetypesfile.files = resources/texts/mapmap.xml 
+  mimetypesfile.path = /usr/share/mime/packages
+  INSTALLS += mimetypesfile
+  updatemimetypes.path = /usr/share/mime/packages
+  updatemimetypes.commands = update-mime-database /usr/share/mime
+  INSTALLS += updatemimetypes
+  updatemimeappdefault.path = /usr/share/applications
+  updatemimeappdefault.commands='grep mapmap.desktop /usr/share/applications/defaults.list >/dev/null|| sudo echo "application/mapmap=mapmap.desktop;" >> /usr/share/applications/defaults.list'
+  INSTALLS += updatemimeappdefault
+  
+  # Add the docs target:
+  docs.depends = $(HEADERS) $(SOURCES)
+  docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
+  QMAKE_EXTRA_TARGETS += docs
 }
 
 # Mac OS X-specific:

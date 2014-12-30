@@ -51,12 +51,13 @@ bool Image::setUri(const QString &uri)
 
 /* Implementation of the Video class */
 
-Media::Media(const QString uri_, uid id):
+Media::Media(const QString uri_, bool live, double rate, uid id):
     Texture(id),
     uri(uri_),
     impl_(NULL)
 {
-  impl_ = new MediaImpl(uri_);
+  impl_ = new MediaImpl(uri_, live);
+  setRate(rate);
 }
 
 // vertigo
@@ -73,17 +74,18 @@ void Media::build()
 
 int Media::getWidth() const
 {
+  while (!this->impl_->videoIsConnected());
   return this->impl_->getWidth();
 }
 
 int Media::getHeight() const
 {
+  while (!this->impl_->videoIsConnected());
   return this->impl_->getHeight();
 }
 
 void Media::update() {
-  if (impl_->runVideo())
-    bitsChanged = true;
+  impl_->update();
 }
 
 void Media::play()
@@ -101,9 +103,32 @@ void Media::rewind()
   impl_->resetMovie();
 }
 
-const uchar* Media::_getBits() const
+void Media::lockMutex() {
+  impl_->lockMutex();
+}
+
+void Media::unlockMutex() {
+  impl_->unlockMutex();
+}
+
+const uchar* Media::getBits()
 {
   return this->impl_->getBits();
+}
+
+bool Media::bitsHaveChanged() const
+{
+  return this->impl_->bitsHaveChanged();
+}
+
+void Media::setRate(double rate)
+{
+  impl_->setRate(rate / 100.0);
+}
+
+double Media::getRate() const
+{
+  return impl_->getRate() * 100.0;
 }
 
 bool Media::hasVideoSupport()

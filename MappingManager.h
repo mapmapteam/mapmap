@@ -28,42 +28,76 @@
 #include "Mapping.h"
 
 /**
- * This is a container class for all the paints and mappings. It is on the model
- * side.
+ * This is a container class for all the paints and mappings ie. the main model object that allows
+ * CRUD over paints and mappings.
  */
 class MappingManager
 {
 public:
+  /// Constructor.
   MappingManager();
 
 private:
-  // Model.
+  // Model elements.
+  /// Container for all paints.
   QVector<Paint::ptr> paintVector;
+
+  /// Maps from uids to paints.
   QMap<uid, Paint::ptr> paintMap;
+
+  /// Container for all mappings (ordered from bottom layer to top layer).
   QVector<Mapping::ptr> mappingVector;
+
+  /// Maps from uids to mappings.
   QMap<uid, Mapping::ptr> mappingMap;
 
 public:
   /// Returns the list of mappings associated with given paint.
   QMap<uid, Mapping::ptr> getPaintMappings(const Paint::ptr paint) const;
+
+  /// Returns the list of mappings associated with given paint uid.
   QMap<uid, Mapping::ptr> getPaintMappingsById(uid paintId) const;
 
+  /// Adds a paint and returns its uid.
   uid addPaint(Paint::ptr paint);
+
+  /// Returns the uid of a paint.
+  uid getPaintId(Paint::ptr paint) const { return paintMap.key(paint); }
+
+  /// Removes a paint of given uid.
   bool removePaint(uid paintId);
+
+  /// DEPRECATED.
   bool replacePaintMappings(Paint::ptr oldpaint, Paint::ptr newpaint);
+
+  /// Returns the number of paints.
   int nPaints() const { return paintVector.size(); }
+
+  /// Returns the i-th paint in the vector. Good for iterating over all paints.
   Paint::ptr getPaint(int i) { return paintVector[i]; }
+
+  /// Returns paint with given uid.
   Paint::ptr getPaintById(uid id) { return paintMap[id]; }
 
-  uid addImage(const QString imagePath, int frameWidth, int frameHeight);
-
+  /// Adds a mapping and returns its uid.
   uid addMapping(Mapping::ptr mapping);
+
+  /// Removes a mapping of given uid.
   bool removeMapping(uid mappingId);
-//  bool removeMapping(Mapping::ptr mapping);
+
+  /// Returns the number of mappings.
   int nMappings() const { return mappingVector.size(); }
+
+  /**
+   * Returns the i-th mapping in the vector. Good for iterating over all mappings. Vector is
+   * ordered from bottom to top layer.
+   */
   Mapping::ptr getMapping(int i) { return mappingVector[i]; }
+
+  /// Returns mapping with given uid.
   Mapping::ptr getMappingById(uid id) { return mappingMap[id]; }
 
+  /// Reorders the mappings according to given list of uids. QVector needs to
   void reorderMappings(QVector<uid> mappingIds);
 
   QVector<Mapping::ptr> getVisibleMappings() const;

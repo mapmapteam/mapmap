@@ -92,12 +92,12 @@ void ProjectReader::parsePaint(const QDomElement& paint)
 
   if (paintAttrType == "media" || paintAttrType == "image")
   {
-    QString uri = paint.firstChildElement("uri").text();
-    QString x   = paint.firstChildElement("x").text();
-    QString y   = paint.firstChildElement("y").text();
+    QString uri  = paint.firstChildElement("uri").text();
+    QString x    = paint.firstChildElement("x").text();
+    QString y    = paint.firstChildElement("y").text();
+    QString rate = paint.firstChildElement("rate").text();
 
-    uid id = _window->createMediaPaint(paintAttrId.toInt(), uri, x.toFloat(), y.toFloat(),
-                  std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)), paintAttrType == "image");
+    uid id = _window->createMediaPaint(paintAttrId.toInt(), uri, x.toFloat(), y.toFloat(), paintAttrType == "image", false, rate.toDouble());
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create media with uri %1.").arg(uri));
   }
@@ -106,7 +106,7 @@ void ProjectReader::parsePaint(const QDomElement& paint)
     QString rgb = paint.firstChildElement("rgb").text();
     QColor color(rgb);
 
-    uid id = _window->createColorPaint(paintAttrId.toInt(), color, std::tr1::shared_ptr<Paint>(static_cast<Paint*>(0)));
+    uid id = _window->createColorPaint(paintAttrId.toInt(), color);
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create color with RGB hex code %1.").arg(rgb));
 
@@ -118,9 +118,14 @@ void ProjectReader::parsePaint(const QDomElement& paint)
 
 void ProjectReader::parseMapping(const QDomElement& mapping)
 {
+  uid id = NULL_UID;
   QString mappingAttrId      = mapping.attribute("id", QString::number(NULL_UID));
   QString mappingAttrPaintId = mapping.attribute("paint_id", QString::number(NULL_UID));
   QString mappingAttrType    = mapping.attribute("type", "");
+
+  bool isLocked = (mapping.attribute("locked", QString::number(1)) == "1");
+  bool isSolo = (mapping.attribute("solo", QString::number(1)) == "1");
+  bool isVisible = (mapping.attribute("visible", QString::number(1)) == "1");
 
   // Get destination shape.
   QDomElement dst = mapping.firstChildElement("destination");
@@ -136,7 +141,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     QVector<QPointF> srcPoints;
     _parseTriangle(src, srcPoints);
 
-    uid id = _window->createTriangleTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), srcPoints, dstPoints);
+    id = _window->createTriangleTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), srcPoints, dstPoints);
 
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create triangle texture mapping"));
@@ -153,7 +158,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     QVector<QPointF> srcPoints;
     _parseMesh(src, srcPoints, nColumns, nRows);
 
-    uid id = _window->createMeshTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), nColumns, nRows, srcPoints, dstPoints);
+    id = _window->createMeshTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), nColumns, nRows, srcPoints, dstPoints);
 
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create mesh texture mapping"));
@@ -169,7 +174,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     QVector<QPointF> srcPoints;
     _parseEllipse(src, srcPoints);
 
-    uid id = _window->createEllipseTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), srcPoints, dstPoints);
+    id = _window->createEllipseTextureMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), srcPoints, dstPoints);
 
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create ellipse texture mapping"));
@@ -179,7 +184,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     // Parse destination triangle.
     _parseTriangle(dst, dstPoints);
 
-    uid id = _window->createTriangleColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
+    id = _window->createTriangleColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
 
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create triangle color mapping"));
@@ -189,7 +194,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     // Parse destination quad.
     _parseQuad(dst, dstPoints);
 
-    uid id = _window->createQuadColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
+    id = _window->createQuadColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
 
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create quad color mapping"));
@@ -199,13 +204,21 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     // Parse destination ellipse.
     _parseEllipse(dst, dstPoints);
 
-    uid id = _window->createEllipseColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
+    id = _window->createEllipseColorMapping(mappingAttrId.toInt(), mappingAttrPaintId.toInt(), dstPoints);
 
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create ellipse color mapping"));
   }
   else
     _xml.raiseError(QObject::tr("Unsupported mapping type: %1.").arg(mappingAttrType));
+
+  // and then set some more attributes:
+  if (id != NULL_UID)
+  {
+    _window->setMappingVisible(id, isVisible);
+    _window->setMappingSolo   (id, isSolo);
+    _window->setMappingLocked (id, isLocked);
+  }
 }
 
 void ProjectReader::_parseStandardShape(const QString& type, const QDomElement& shape, QVector<QPointF>& points, int nVertices)
