@@ -70,7 +70,7 @@ unix:!mac {
   PKGCONFIG += \
     gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 \
     liblo \
-    gl x11 glew
+    gl x11
   QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
   QMAKE_CXXFLAGS += -DHAVE_OSC
   mapmapfile.files = mapmap
@@ -85,12 +85,16 @@ unix:!mac {
   mimetypesfile.files = resources/texts/mapmap.xml 
   mimetypesfile.path = /usr/share/mime/packages
   INSTALLS += mimetypesfile
-  updatemimetypes.path = /usr/share/mime/packages
-  updatemimetypes.commands = update-mime-database /usr/share/mime
-  INSTALLS += updatemimetypes
-  updatemimeappdefault.path = /usr/share/applications
-  updatemimeappdefault.commands='grep mapmap.desktop /usr/share/applications/defaults.list >/dev/null|| sudo echo "application/mapmap=mapmap.desktop;" >> /usr/share/applications/defaults.list'
-  INSTALLS += updatemimeappdefault
+
+# REQUIRES ROOT PRIVILEDGES: (does not comply to the standards of Debian)
+# -------------------------
+# updatemimetypes.path = /usr/share/mime/packages
+# updatemimetypes.commands = update-mime-database /usr/share/mime
+# INSTALLS += updatemimetypes
+# updatemimeappdefault.path = /usr/share/applications
+# updatemimeappdefault.commands='grep mapmap.desktop /usr/share/applications/defaults.list >/dev/null|| sudo echo "application/mapmap=mapmap.desktop;" >> /usr/share/applications/defaults.list'
+# INSTALLS += updatemimeappdefault
+# -------------------------
   
   # Add the docs target:
   docs.depends = $(HEADERS) $(SOURCES)
@@ -132,8 +136,7 @@ win32 {
     -lgthread-2.0 \
     -lgstinterfaces-0.10 \
     -lopengl32 \
-    -lglu32 \
-    -lglew32
+    -lglu32
   # Add console to the CONFIG to see debug messages printed in 
   # the console on Windows
   CONFIG += console
