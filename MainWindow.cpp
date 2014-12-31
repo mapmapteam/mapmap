@@ -462,7 +462,8 @@ void MainWindow::addColor()
   // it should rather be a member of this class, or so.
   static QColor color = QColor(0, 255, 0, 255);
   color = QColorDialog::getColor(color, this, tr("Select Color"),
-    QColorDialog::DontUseNativeDialog | QColorDialog::ShowAlphaChannel);
+    // QColorDialog::DontUseNativeDialog | 
+    QColorDialog::ShowAlphaChannel);
   if (color.isValid())
   {
     addColorPaint(color);
