@@ -458,10 +458,15 @@ void MainWindow::addColor()
   videoTimer->stop();
 
   // Pop-up color-choosing dialog to choose color paint.
-  QColor initialColor;
-  QColor color = QColorDialog::getColor(initialColor, this);
+  // FIXME: we use a static variable to store the last chosen color
+  // it should rather be a member of this class, or so.
+  static QColor color = QColor(0, 255, 0, 255);
+  color = QColorDialog::getColor(color, this, tr("Select Color"),
+    QColorDialog::DontUseNativeDialog | QColorDialog::ShowAlphaChannel);
   if (color.isValid())
+  {
     addColorPaint(color);
+  }
 
   // Restart video playback. XXX Hack
   videoTimer->start();
