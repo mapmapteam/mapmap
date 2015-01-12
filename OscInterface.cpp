@@ -233,6 +233,15 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
       main_window.setMappingItemVisibility(mappingId, visible ? true : false);
       main_window.setMappingVisible(mappingId, visible ? true : false);
   }
+  else if (path == "/mapmap/output/fullscreen" && typetags == "i")
+  {
+    int enable = command.at(2).toInt();
+    main_window.setOutputWindowFullScreen(enable == 1 ? true : false);
+  }
+  else if (path == "/mapmap/quit")
+  {
+    main_window.quitMapMap();
+  }
   else
   {
       std::cout << "Unhandled OSC message: ";

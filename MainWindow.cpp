@@ -319,14 +319,24 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             outputWindow->setVisible(true);
             break;
         case Qt::Key_P:
-            if (_isPlaying) pause(); else play();
+            if (_isPlaying)
+            {
+              pause();
+            }
+            else
+            {
+              play();
+            }
             break;
         case Qt::Key_R:
             rewind();
             break;
         }
     }
-    else if (keyEvent->key() == Qt::Key_Escape) outputWindow->setFullScreen(false);
+    else if (keyEvent->key() == Qt::Key_Escape)
+    {
+      outputWindow->setFullScreen(false);
+    }
     eventKey = false;
 
     return eventKey;
@@ -336,6 +346,14 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     // standard event processing
     return QObject::eventFilter(obj, event);
   }
+}
+
+void MainWindow::setOutputWindowFullScreen(bool enable)
+{
+  outputWindow->setFullScreen(false);
+  // setCheckState
+  outputWindowFullScreen->setChecked(enable);
+  displayCanvasControls->setChecked(enable);
 }
 
 void MainWindow::newFile()
@@ -2438,3 +2456,9 @@ bool MainWindow::setTextureRate(int texture_id, double rate)
   }
   return true;
 }
+
+void MainWindow::quitMapMap()
+{
+  close();
+}
+
