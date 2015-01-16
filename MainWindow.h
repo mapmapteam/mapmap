@@ -21,7 +21,7 @@
 #ifndef MAIN_WINDOW_H_
 #define MAIN_WINDOW_H_
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QTimer>
 #include <QVariant>
 #include <QMap>
@@ -262,6 +262,8 @@ private:
   QAction *saveAction;
   QAction *saveAsAction;
   QAction *exitAction;
+  QAction *undoAction;
+  QAction *redoAction;
 //  QAction *cutAction;
 //  QAction *copyAction;
 //  QAction *pasteAction;
@@ -269,6 +271,7 @@ private:
   QAction *preferencesAction;
   QAction *aboutAction;
   QAction *clearRecentFileActions;
+  QAction *emptyRecentVideos;
 
   QAction *addMeshAction;
   QAction *addTriangleAction;
@@ -351,6 +354,11 @@ private:
   QTimer *videoTimer;
 
   PreferencesDialog* _preferences_dialog;
+
+  // UndoStack
+  QUndoStack *undoStack;
+
+
 
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////

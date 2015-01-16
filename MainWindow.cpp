@@ -19,6 +19,7 @@
  */
 
 #include "MainWindow.h"
+#include "Commands.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
 #include <sstream>
@@ -26,6 +27,9 @@
 
 MainWindow::MainWindow()
 {
+
+  // UndoStack
+  undoStack = new QUndoStack(this);
 
   // Create model.
   if (Media::hasVideoSupport())
@@ -53,6 +57,8 @@ MainWindow::MainWindow()
   createContextMenu();
   createToolBars();
   createStatusBar();
+
+  // Update Recent files and video
   updateRecentFileActions();
   updateRecentVideoActions();
 
@@ -525,6 +531,9 @@ void MainWindow::addMesh()
   Mapping::ptr mapping(mappingPtr);
   uint mappingId = mappingManager->addMapping(mapping);
   addMappingItem(mappingId);
+
+  // Implement undoStack Commands
+  undoStack->push(new AddShapesCommand(this, mappingId));
 }
 
 void MainWindow::addTriangle()
@@ -561,6 +570,9 @@ void MainWindow::addTriangle()
   Mapping::ptr mapping(mappingPtr);
   uint mappingId = mappingManager->addMapping(mapping);
   addMappingItem(mappingId);
+
+  // Implement undoStack Commands
+  undoStack->push(new AddShapesCommand(this, mappingId));
 }
 
 void MainWindow::addEllipse()
@@ -597,6 +609,9 @@ void MainWindow::addEllipse()
   Mapping::ptr mapping(mappingPtr);
   uint mappingId = mappingManager->addMapping(mapping);
   addMappingItem(mappingId);
+
+  // Implement undoStack Commands
+  undoStack->push(new AddShapesCommand(this, mappingId));
 }
 
 void MainWindow::play()
@@ -1201,10 +1216,14 @@ void MainWindow::createActions()
       connect(recentVideoActions[i], SIGNAL(triggered()), this, SLOT(openRecentVideo()));
   }
 
-  // Clear action
+  // Clear recent video list action
   clearRecentFileActions = new QAction(this);
   clearRecentFileActions->setVisible(true);
   connect(clearRecentFileActions, SIGNAL(triggered()), this, SLOT(clearRecentFileList()));
+
+  // Empty list of recent video action
+  emptyRecentVideos = new QAction(tr("No Videos"), this);
+  emptyRecentVideos->setEnabled(false);
 
 
   // Import video.
@@ -1253,6 +1272,16 @@ void MainWindow::createActions()
 //  pasteAction->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
 //  connect(pasteAction, SIGNAL(triggered()), spreadsheet, SLOT(paste()));
 //
+
+  // Undo action
+  undoAction = undoStack->createUndoAction(editMenu, tr("&Undo"));
+  undoAction->setShortcut(QKeySequence::Undo);
+  undoAction->setIconVisibleInMenu(false);
+
+  //Redo action
+  redoAction = undoStack->createRedoAction(editMenu, tr("&Redo"));
+  redoAction->setShortcut(QKeySequence::Redo);
+  redoAction->setIconVisibleInMenu(false);
 
   // About.
   aboutAction = new QAction(tr("&About"), this);
@@ -1445,6 +1474,7 @@ void MainWindow::createMenus()
 
   // Recent import video
   recentVideoMenu = fileMenu->addMenu(tr("Recents video"));
+  recentVideoMenu->addAction(emptyRecentVideos);
   for (int i = 0; i < MaxRecentVideo; ++i)
       recentVideoMenu->addAction(recentVideoActions[i]);
 
@@ -1455,6 +1485,8 @@ void MainWindow::createMenus()
 
   // Edit.
   editMenu = menuBar->addMenu(tr("&Edit"));
+  editMenu->addAction(undoAction);
+  editMenu->addAction(redoAction);
   //  editMenu->addAction(cutAction);
   //  editMenu->addAction(copyAction);
   //  editMenu->addAction(pasteAction);
@@ -1504,7 +1536,7 @@ void MainWindow::createContextMenu()
 //  spreadsheet->addAction(cutAction);
 //  spreadsheet->addAction(copyAction);
 //  spreadsheet->addAction(pasteAction);
-//  spreadsheet->setContextMenuPolicy(Qt::ActionsContextMenu);
+  //  spreadsheet->setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
 void MainWindow::createToolBars()
@@ -1606,8 +1638,6 @@ void MainWindow::readSettings()
   }
   config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 
-  updateRecentFileActions();
-  updateRecentVideoActions();
 }
 
 void MainWindow::writeSettings()
@@ -1776,9 +1806,9 @@ void MainWindow::updateRecentFileActions()
 void MainWindow::updateRecentVideoActions()
 {
     recentVideos = settings.value("recentVideos").toStringList();
-    int numRecentVidoes = qMin(recentVideos.size(), int(MaxRecentVideo));
+    int numRecentVideos = qMin(recentVideos.size(), int(MaxRecentVideo));
 
-    for (int i = 0; i < numRecentVidoes; ++i)
+    for (int i = 0; i < numRecentVideos; ++i)
     {
         QString text = tr("&%1 %2")
                 .arg(i + 1)
@@ -1788,14 +1818,12 @@ void MainWindow::updateRecentVideoActions()
         recentVideoActions[i]->setVisible(true);
     }
 
-    for (int j = numRecentVidoes; j < MaxRecentVideo; ++j)
+    for (int j = numRecentVideos; j < MaxRecentVideo; ++j)
         recentVideoActions[j]->setVisible(false);
 
-    if (numRecentVidoes <= 0)
+    if (numRecentVideos >  0)
     {
-        QAction *noVideos = new QAction(tr("No Videos"), this);
-        noVideos->setEnabled(false);
-        recentVideoMenu->addAction(noVideos);
+        emptyRecentVideos->setVisible(false);
     }
 }
 

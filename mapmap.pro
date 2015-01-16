@@ -27,7 +27,8 @@ HEADERS  = \
     Shape.h \
     SourceGLCanvas.h \
     UidAllocator.h \
-    Util.h
+    Util.h \
+    Commands.h
 
 SOURCES  = \
     DestinationGLCanvas.cpp \
@@ -51,7 +52,8 @@ SOURCES  = \
     SourceGLCanvas.cpp \
     UidAllocator.cpp \
     Util.cpp \
-    main.cpp
+    main.cpp \
+    Commands.cpp
 
 RESOURCES = mapmap.qrc
 TRANSLATIONS = resources/texts/mapmap_*.ts
