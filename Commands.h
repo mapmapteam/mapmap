@@ -24,6 +24,7 @@
 
 #include <QUndoCommand>
 #include "MainWindow.h"
+#include "MapperGLCanvas.h"
 
 class AddShapesCommand : public QUndoCommand
 {
@@ -36,6 +37,24 @@ private:
   MainWindow *m_mainWindow;
   Mapping::ptr m_mappingPtr;
   uid m_mappingId;
+
+};
+
+class MoveVertexCommand : public QUndoCommand
+{
+public:
+  MoveVertexCommand(MapperGLCanvas *mapperGLCanvas, Shape *shape, int activeVertex, const QPointF &point, QUndoCommand *parent = 0);
+  void undo();
+  void redo();
+
+signals:
+  void shapeChanged(Shape*);
+
+private:
+  MapperGLCanvas *m_mapperGLCanvas;
+  Shape *m_shape;
+  int m_activeVertex;
+  QPointF newPosition, oldPosition;
 
 };
 

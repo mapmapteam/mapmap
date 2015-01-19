@@ -21,6 +21,7 @@
 #include "MapperGLCanvas.h"
 
 #include "MainWindow.h"
+#include "Commands.h"
 
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
   : QGLWidget(QGLFormat(QGL::SampleBuffers), parent, shareWidget),
@@ -202,10 +203,9 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       // Stick to vertices.
       if (stickyVertices())
         glueVertex(shape, &p);
-      shape->setVertex(_activeVertex, p);
 
-      update();
-      emit shapeChanged(getCurrentShape());
+      // Enable to Undo and Redo when mouse move the position of vertices
+      getMainWindow()->getUndoStack()->push(new MoveVertexCommand(this, shape, _activeVertex, p));
     }
   }
   else if (_shapeGrabbed)
@@ -268,9 +268,8 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
       break;
     }
     // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
-    shape->setVertex(_activeVertex, p);
-    update();
-    emit shapeChanged(getCurrentShape());
+    // Enable to Undo and Redo when arrow keys move the position of vertices
+    getMainWindow()->getUndoStack()->push(new MoveVertexCommand(this, shape, _activeVertex, p));
   }
 
   // Defer unhandled keys to parent.

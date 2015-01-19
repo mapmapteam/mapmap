@@ -374,6 +374,9 @@ public:
   void removeCurrentPaint();
   void removeCurrentMapping();
 
+  // Use the same undoStack for whole program
+  QUndoStack* getUndoStack() { return undoStack; }
+
   void startFullScreen();
   bool setOscPort(QString portNumber);
   bool setOscPort(int portNumber);
