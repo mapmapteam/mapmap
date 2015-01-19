@@ -48,3 +48,26 @@ void MoveVertexCommand::redo()
   m_mapperGLCanvas->update();
   emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
 }
+
+
+DeleteMappingCommand::DeleteMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent) :
+  QUndoCommand(parent)
+{
+  m_mainWindow = mainWindow;
+  m_mappingId = mappingId;
+}
+
+void DeleteMappingCommand::undo()
+{
+  if(m_mappingPtr != NULL)
+    {
+      uint currentId = m_mainWindow->getMappingManager().addMapping(m_mappingPtr);
+      m_mainWindow->addMappingItem(currentId);
+    }
+}
+
+void DeleteMappingCommand::redo()
+{
+  m_mappingPtr = m_mainWindow->getMappingManager().getMappingById(m_mappingId);
+  m_mainWindow->deleteMapping(m_mappingId);
+}

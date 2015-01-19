@@ -47,15 +47,30 @@ public:
   void undo();
   void redo();
 
-signals:
-  void shapeChanged(Shape*);
-
 private:
   MapperGLCanvas *m_mapperGLCanvas;
   Shape *m_shape;
   int m_activeVertex;
   QPointF newPosition, oldPosition;
 
+};
+
+class MoveShapesCommand : public QUndoCommand
+{
+
+};
+
+class DeleteMappingCommand : public QUndoCommand
+{
+public:
+  DeleteMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent = 0);
+  void undo();
+  void redo();
+
+private:
+  MainWindow *m_mainWindow;
+  Mapping::ptr m_mappingPtr;
+  uid m_mappingId;
 };
 
 #endif /* COMMANDS_H_ */

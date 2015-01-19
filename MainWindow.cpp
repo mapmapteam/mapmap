@@ -294,37 +294,37 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     if (keyEvent->modifiers() == Qt::CTRL)
     {
         switch (keyEvent->key()) {
-        case Qt::Key_F:
+          case Qt::Key_F:
             outputWindow->setFullScreen(true);
             break;
-        case Qt::Key_N:
+          case Qt::Key_N:
             newFile();
             break;
-        case Qt::Key_O:
+          case Qt::Key_O:
             open();
             break;
-        case Qt::Key_S:
+          case Qt::Key_S:
             save();
             break;
-        case Qt::Key_Q:
+          case Qt::Key_Q:
             close();
             break;
-        case Qt::Key_Delete:
+          case Qt::Key_Delete:
             deleteItem();
             break;
-        case Qt::Key_M:
+          case Qt::Key_M:
             addMesh();
             break;
-        case Qt::Key_T:
+          case Qt::Key_T:
             addTriangle();
             break;
-        case Qt::Key_E:
+          case Qt::Key_E:
             addEllipse();
             break;
-        case Qt::Key_D:
+          case Qt::Key_D:
             outputWindow->setVisible(true);
             break;
-        case Qt::Key_P:
+          case Qt::Key_P:
             if (_isPlaying)
             {
               pause();
@@ -334,10 +334,17 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
               play();
             }
             break;
-        case Qt::Key_R:
+          case Qt::Key_R:
             rewind();
             break;
+          case Qt::Key_Z:
+            undoStack->undo();
+            break;
         }
+    }
+    else if (keyEvent->matches(QKeySequence::Redo))
+    {
+      undoStack->redo();
     }
     else if (keyEvent->key() == Qt::Key_Escape)
     {
@@ -698,7 +705,7 @@ void MainWindow::deleteItem()
     if (isMappingTabSelected) //currentSelectedItem->listWidget() == mappingList)
     {
       // Delete mapping.
-      deleteMapping( getItemId(*mappingList->currentItem()) );
+      undoStack->push(new DeleteMappingCommand(this, getItemId(*mappingList->currentItem())));
       //currentSelectedItem = NULL;
     }
     else if (isPaintTabSelected) //currentSelectedItem->listWidget() == paintList)

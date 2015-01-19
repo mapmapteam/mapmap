@@ -264,6 +264,12 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
       p.rx()--;
       break;
     default:
+      if (event->matches(QKeySequence::Undo))
+        getMainWindow()->getUndoStack()->undo();
+
+      else if (event->matches(QKeySequence::Redo))
+        getMainWindow()->getUndoStack()->redo();
+
       handledKey = false;
       break;
     }
