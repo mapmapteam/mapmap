@@ -50,6 +50,33 @@ void MoveVertexCommand::redo()
 }
 
 
+MoveShapesCommand::MoveShapesCommand(MapperGLCanvas *mapperGLCanvas, Shape *shape, QMouseEvent *event, const QPointF &point, QUndoCommand *parent) :
+  QUndoCommand(parent)
+{
+  m_mapperGLCanvas = mapperGLCanvas;
+  m_shape = shape;
+  m_event = event;
+  newPosition = point;
+}
+
+void MoveShapesCommand::undo()
+{
+  m_shape->translate(oldPosition.x(), oldPosition.y());
+  m_mapperGLCanvas->update();
+  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
+}
+
+void MoveShapesCommand::redo()
+{
+  m_shape->translate(m_event->x() - newPosition.x(), m_event->y() - newPosition.y());
+  m_mapperGLCanvas->update();
+  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
+
+  oldPosition.setX(newPosition.x() - m_event->x());
+  oldPosition.setY(newPosition.y() - m_event->y());
+}
+
+
 DeleteMappingCommand::DeleteMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent) :
   QUndoCommand(parent)
 {

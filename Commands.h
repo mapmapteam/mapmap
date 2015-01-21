@@ -57,7 +57,16 @@ private:
 
 class MoveShapesCommand : public QUndoCommand
 {
+public:
+  MoveShapesCommand(MapperGLCanvas *mapperGLCanvas, Shape *shape, QMouseEvent *event, const QPointF &point, QUndoCommand *parent = 0);
+  void undo();
+  void redo();
 
+private:
+  MapperGLCanvas *m_mapperGLCanvas;
+  Shape *m_shape;
+  QMouseEvent *m_event;
+  QPointF newPosition, oldPosition;
 };
 
 class DeleteMappingCommand : public QUndoCommand
