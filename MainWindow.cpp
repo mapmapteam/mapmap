@@ -371,6 +371,7 @@ void MainWindow::newFile()
   {
     clearWindow();
     setCurrentFile("");
+    undoStack->clear();
   }
 
   // Restart video playback. XXX Hack
