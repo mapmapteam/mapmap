@@ -497,9 +497,6 @@ void MainWindow::addMesh()
   if (getCurrentPaintId() == NULL_UID)
     return;
 
-  // Disable Test signal when add Mesh
-  outputWindow->getCanvas()->enableTestSignal(false);
-
   // Retrieve current paint (as texture).
   Paint::ptr paint = getMappingManager().getPaintById(getCurrentPaintId());
   Q_CHECK_PTR(paint);
@@ -533,9 +530,6 @@ void MainWindow::addTriangle()
   if (getCurrentPaintId() == NULL_UID)
     return;
 
-  // Disable Test signal when add Triangle
-  outputWindow->getCanvas()->enableTestSignal(false);
-
   // Retrieve current paint (as texture).
   Paint::ptr paint = getMappingManager().getPaintById(getCurrentPaintId());
   Q_CHECK_PTR(paint);
@@ -568,9 +562,6 @@ void MainWindow::addEllipse()
   // A paint must be selected to add a mapping.
   if (getCurrentPaintId() == NULL_UID)
     return;
-
-  // Disable Test signal when add Ellipse
-  outputWindow->getCanvas()->enableTestSignal(false);
 
   // Retrieve current paint (as texture).
   Paint::ptr paint = getMappingManager().getPaintById(getCurrentPaintId());
@@ -2045,6 +2036,10 @@ void MainWindow::addMappingItem(uid mappingId)
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
   mappingList->insertItem(0, item);
   mappingList->setCurrentItem(item);
+
+  // Disable Test signal when add Shapes
+  outputWindow->getCanvas()->enableTestSignal(false);
+  destinationCanvas->enableTestSignal(false);
 
   // Window was modified.
   windowModified();
