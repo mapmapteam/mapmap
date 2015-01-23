@@ -43,7 +43,7 @@ private:
 class MoveVertexCommand : public QUndoCommand
 {
 public:
-  MoveVertexCommand(MapperGLCanvas *mapperGLCanvas, Shape *shape, int activeVertex, const QPointF &point, QUndoCommand *parent = 0);
+  MoveVertexCommand(MapperGLCanvas *mapperGLCanvas, int activeVertex, const QPointF &point, QUndoCommand *parent = 0);
   void undo();
   void redo();
 
@@ -51,14 +51,14 @@ private:
   MapperGLCanvas *m_mapperGLCanvas;
   Shape *m_shape;
   int m_activeVertex;
-  QPointF newPosition, oldPosition;
+  QPointF vertexPosition;
 
 };
 
 class MoveShapesCommand : public QUndoCommand
 {
 public:
-  MoveShapesCommand(MapperGLCanvas *mapperGLCanvas, Shape *shape, QMouseEvent *event, const QPointF &point, QUndoCommand *parent = 0);
+  MoveShapesCommand(MapperGLCanvas *mapperGLCanvas, QMouseEvent *event, const QPointF &point, QUndoCommand *parent = 0);
   void undo();
   void redo();
 

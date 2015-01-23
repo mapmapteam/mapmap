@@ -375,7 +375,7 @@ public:
   void removeCurrentMapping();
 
   // Use the same undoStack for whole program
-  QUndoStack* getUndoStack() { return undoStack; }
+  QUndoStack* getUndoStack() const { return undoStack; }
 
   void startFullScreen();
   bool setOscPort(QString portNumber);

@@ -24,37 +24,35 @@ void AddShapesCommand::redo()
 }
 
 
-MoveVertexCommand::MoveVertexCommand(MapperGLCanvas *mapperGLCanvas, Shape *shape, int activeVertex, const QPointF &point, QUndoCommand *parent) :
+MoveVertexCommand::MoveVertexCommand(MapperGLCanvas *mapperGLCanvas, int activeVertex, const QPointF &point, QUndoCommand *parent) :
   QUndoCommand(parent)
 {
   m_mapperGLCanvas = mapperGLCanvas;
-  m_shape = shape;
+  m_shape = m_mapperGLCanvas->getCurrentShape();
   m_activeVertex = activeVertex;
-  newPosition = point;
-
-  oldPosition = m_shape->getVertex(m_activeVertex);
+  vertexPosition = point;
 }
 
 void MoveVertexCommand::undo()
 {
-  m_shape->setVertex(m_activeVertex, oldPosition);
+  m_shape->setVertex(m_activeVertex, vertexPosition);
   m_mapperGLCanvas->update();
   emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
 }
 
 void MoveVertexCommand::redo()
 {
-  m_shape->setVertex(m_activeVertex, newPosition);
+  m_shape->setVertex(m_activeVertex, vertexPosition);
   m_mapperGLCanvas->update();
   emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
 }
 
 
-MoveShapesCommand::MoveShapesCommand(MapperGLCanvas *mapperGLCanvas, Shape *shape, QMouseEvent *event, const QPointF &point, QUndoCommand *parent) :
+MoveShapesCommand::MoveShapesCommand(MapperGLCanvas *mapperGLCanvas, QMouseEvent *event, const QPointF &point, QUndoCommand *parent) :
   QUndoCommand(parent)
 {
   m_mapperGLCanvas = mapperGLCanvas;
-  m_shape = shape;
+  m_shape = m_mapperGLCanvas->getCurrentShape();
   m_event = event;
   newPosition = point;
 }

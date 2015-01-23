@@ -208,7 +208,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
         glueVertex(shape, &p);
 
       // Enable to Undo and Redo when mouse move the position of vertices
-      undoStack->push(new MoveVertexCommand(this, shape, _activeVertex, p));
+      undoStack->push(new MoveVertexCommand(this, _activeVertex, p));
     }
   }
   else if (_shapeGrabbed)
@@ -220,7 +220,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
     {
       if (!_shapeFirstGrab)
       {
-        undoStack->push(new MoveShapesCommand(this, shape, event, prevMousePosition));
+        undoStack->push(new MoveShapesCommand(this, event, prevMousePosition));
       }
       else
         _shapeFirstGrab = false;
@@ -279,7 +279,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
     }
     // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
     // Enable to Undo and Redo when arrow keys move the position of vertices
-    undoStack->push(new MoveVertexCommand(this, shape, _activeVertex, p));
+    undoStack->push(new MoveVertexCommand(this, _activeVertex, p));
   }
 
   // Defer unhandled keys to parent.

@@ -27,10 +27,6 @@
 
 MainWindow::MainWindow()
 {
-
-  // UndoStack
-  undoStack = new QUndoStack(this);
-
   // Create model.
   if (Media::hasVideoSupport())
     std::cout << "Video support: yes" << std::endl;
@@ -57,10 +53,6 @@ MainWindow::MainWindow()
   createContextMenu();
   createToolBars();
   createStatusBar();
-
-  // Update Recent files and video
-  updateRecentFileActions();
-  updateRecentVideoActions();
 
   // Load settings.
   readSettings();
@@ -1175,6 +1167,9 @@ void MainWindow::createLayout()
 
 void MainWindow::createActions()
 {
+  // UndoStack
+  undoStack = new QUndoStack(this);
+
   // New.
   newAction = new QAction(tr("&New"), this);
   newAction->setIcon(QIcon(":/new"));
@@ -1645,6 +1640,9 @@ void MainWindow::readSettings()
   }
   config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 
+  // Update Recent files and video
+  updateRecentFileActions();
+  updateRecentVideoActions();
 }
 
 void MainWindow::writeSettings()
