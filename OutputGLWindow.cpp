@@ -3,6 +3,7 @@
  *
  * (c) 2014 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2014 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2014 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,7 +63,6 @@ void OutputGLWindow::closeEvent(QCloseEvent *event)
 {
   emit closed();
   event->accept();
-  this->parentWidget()->setFocus();
 }
 
 void OutputGLWindow::setFullScreen(bool fullscreen)
@@ -93,8 +93,9 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
 #ifdef Q_OS_UNIX
     // Special case for Unity.
     if (session == "ubuntu" || session == "gnome") {
-      setWindowState( windowState() | Qt::WindowFullScreen);
       setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
+      setWindowState( windowState() | Qt::WindowFullScreen );
+
       show();
     } else {
       showFullScreen();
@@ -108,14 +109,10 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
     // Restore geometry of window to what it was before full screen call.
     restoreGeometry(_geometry);
 
-    // Keep window to second screen
-    if (QApplication::desktop()->screenCount() > 1)
-      setGeometry(QApplication::desktop()->screenGeometry(1));
-
 #ifdef Q_OS_UNIX
     // Special case for Unity.
     if (session == "ubuntu" || session == "gnome") {
-      setWindowState( windowState() & ~Qt::WindowFullScreen);
+      setWindowState( windowState() & ~Qt::WindowFullScreen );
     } else {
       showNormal();
     }

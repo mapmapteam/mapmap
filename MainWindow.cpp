@@ -289,7 +289,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     {
         switch (keyEvent->key()) {
         case Qt::Key_F:
-            outputWindow->setFullScreen(true);
+            if (outputWindow->windowState() != Qt::WindowFullScreen)
+              outputWindow->setFullScreen(true);
             break;
         case Qt::Key_N:
             newFile();
@@ -336,6 +337,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     else if (keyEvent->key() == Qt::Key_Escape)
     {
       outputWindow->setFullScreen(false);
+      setWindowState( windowState() | Qt::WindowActive );
     }
     eventKey = false;
 
