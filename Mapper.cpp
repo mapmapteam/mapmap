@@ -20,6 +20,10 @@
 
 #include "Mapper.h"
 #include "MainWindow.h"
+#include <QtGui/qopengl.h>
+#include <QtGui/qopengles2ext.h>
+#include <QtGui/QOpenGLFunctions>
+
 
 Mapper::Mapper(Mapping::ptr mapping)
   : _mapping(mapping)
@@ -262,6 +266,7 @@ void TextureMapper::drawInput(QPainter* painter)
   _preDraw(painter);
 
   // FIXME: Does this draw the quad counterclockwise?
+#if 0
   glBegin (GL_QUADS);
   {
     Util::correctGlTexCoord(0, 0);
@@ -277,6 +282,7 @@ void TextureMapper::drawInput(QPainter* painter)
     glVertex3f (texture->getX(), texture->getY() + texture->getHeight(), 0);
   }
   glEnd ();
+#endif
 
   // End drawing.
   _postDraw(painter);
@@ -333,10 +339,12 @@ void TextureMapper::_preDraw(QPainter* painter)
   }
   texture->unlockMutex();
 
+#if 0
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+#endif
 
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
@@ -368,6 +376,7 @@ TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping
 void TriangleTextureMapper::_doDraw(QPainter* painter)
 {
   Q_UNUSED(painter);
+#if 0
   glBegin(GL_TRIANGLES);
   {
     for (int i = 0; i < inputShape->nVertices(); i++)
@@ -376,6 +385,7 @@ void TriangleTextureMapper::_doDraw(QPainter* painter)
     }
   }
   glEnd();
+#endif
 }
 
 MeshTextureMapper::MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
@@ -436,12 +446,14 @@ void MeshTextureMapper::_doDraw(QPainter* painter)
     {
       Quad& outputQuad = outputQuads[x][y];
       Quad& inputQuad  = inputQuads[x][y];
+#if 0
       glBegin(GL_QUADS);
       for (int i = 0; i < 4; i++)
       {
         Util::setGlTexPoint(*texture, inputQuad.getVertex(i), outputQuad.getVertex(i));
       }
       glEnd();
+#endif
     }
   }
 }
@@ -510,11 +522,13 @@ void EllipseTextureMapper::_doDraw(QPainter* painter)
     if (i > 0)
     {
       // Draw triangle.
+#if 0
       glBegin(GL_TRIANGLES);
       Util::setGlTexPoint(*texture, inputControlCenter, outputControlCenter);
       Util::setGlTexPoint(*texture, prevInputPoint, prevOutputPoint);
       Util::setGlTexPoint(*texture, currentInputPoint, currentOutputPoint);
       glEnd();
+#endif
     }
 
     // Save point for next iteration.

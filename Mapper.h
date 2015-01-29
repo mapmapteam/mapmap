@@ -24,11 +24,12 @@
 
 #include <QtGlobal>
 
-#if __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+// XXX OpenGL ES:
+#include <QtGui/qopengl.h>
+#include <QtGui/qopengles2ext.h>
+#include <QtGui/QOpenGLFunctions>
+#include <GLES/gl.h>
+//#include <QtGui/qopenglext.h>
 
 #include <tr1/memory>
 

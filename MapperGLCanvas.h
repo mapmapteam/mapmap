@@ -23,6 +23,7 @@
 #include <QGLWidget>
 #include <QKeyEvent>
 #include <QPaintEvent>
+#include <QtGui/QOpenGLFunctions>
 
 #include <iostream>
 

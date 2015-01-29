@@ -20,6 +20,8 @@
 
 #include "DestinationGLCanvas.h"
 #include "MainWindow.h"
+#include <QtGui/QOpenGLFunctions>
+#include <GLES/gl.h>
 
 DestinationGLCanvas::DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
 : MapperGLCanvas(mainWindow, parent, shareWidget),

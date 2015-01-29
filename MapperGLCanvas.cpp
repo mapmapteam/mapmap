@@ -48,10 +48,12 @@ void MapperGLCanvas::resizeGL(int width, int height)
   glViewport(0, 0, width, height);
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
+#if 0
   glOrtho (
     0.0f, (GLfloat) width, // left, right
     (GLfloat) height, 0.0f, // bottom, top
     -1.0, 1.0f);
+#endif
   glMatrixMode (GL_MODELVIEW);
   //qDebug() << "done resizing" << endl;
 }

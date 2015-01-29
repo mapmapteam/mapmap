@@ -30,7 +30,9 @@ namespace Util {
 
 void correctGlTexCoord(GLfloat x, GLfloat y)
 {
+#if 0
   glTexCoord2f (x, y);
+#endif
 }
 
 void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint)
@@ -40,10 +42,12 @@ void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPoi
     (inputPoint.x() - texture.getX()) / (GLfloat) texture.getWidth(),
     (inputPoint.y() - texture.getY()) / (GLfloat) texture.getHeight());
   // Add point in output.
+#if 0
   glVertex2f(
     outputPoint.x(),
     outputPoint.y()
   );
+#endif
 }
 
 /**

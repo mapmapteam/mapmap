@@ -32,11 +32,11 @@
 #include <QtOpenGL>
 #include <QMutex>
 #include <QWaitCondition>
-#if __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+
+// XXX OpenGL ES:
+#include <QtGui/qopengl.h>
+#include <QtGui/qopengles2ext.h>
+#include <QtGui/QOpenGLFunctions>
 #include <tr1/memory>
 
 /**
