@@ -2,10 +2,12 @@ CONFIG  += qt debug
 TEMPLATE = app
 VERSION = 0.2.1
 TARGET = mapmap
-QT += gui opengl xml widgets
+QT += gui opengl xml
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
 HEADERS  = \
+    Commands.h \
     DestinationGLCanvas.h \
     MM.h \
     MainApplication.h \
@@ -27,10 +29,10 @@ HEADERS  = \
     Shape.h \
     SourceGLCanvas.h \
     UidAllocator.h \
-    Util.h \
-    Commands.h
+    Util.h
 
 SOURCES  = \
+    Commands.cpp \
     DestinationGLCanvas.cpp \
     MM.cpp \
     MainApplication.cpp \
@@ -52,8 +54,7 @@ SOURCES  = \
     SourceGLCanvas.cpp \
     UidAllocator.cpp \
     Util.cpp \
-    main.cpp \
-    Commands.cpp
+    main.cpp
 
 RESOURCES = mapmap.qrc
 TRANSLATIONS = resources/texts/mapmap_*.ts

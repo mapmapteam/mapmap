@@ -21,7 +21,10 @@
 #ifndef MAIN_WINDOW_H_
 #define MAIN_WINDOW_H_
 
-#include <QtWidgets>
+#include <QtGui>
+#if QT_VERSION >= 0x050000
+  #include <QtWidgets>
+#endif
 #include <QTimer>
 #include <QVariant>
 #include <QMap>

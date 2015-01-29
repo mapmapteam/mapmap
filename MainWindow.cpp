@@ -1277,14 +1277,16 @@ void MainWindow::createActions()
 //
 
   // Undo action
-  undoAction = undoStack->createUndoAction(editMenu, tr("&Undo"));
+  undoAction = undoStack->createUndoAction(this, tr("&Undo"));
   undoAction->setShortcut(QKeySequence::Undo);
   undoAction->setIconVisibleInMenu(false);
+  undoAction->setShortcutContext(Qt::ApplicationShortcut);
 
   //Redo action
-  redoAction = undoStack->createRedoAction(editMenu, tr("&Redo"));
+  redoAction = undoStack->createRedoAction(this, tr("&Redo"));
   redoAction->setShortcut(QKeySequence::Redo);
   redoAction->setIconVisibleInMenu(false);
+  redoAction->setShortcutContext(Qt::ApplicationShortcut);
 
   // About.
   aboutAction = new QAction(tr("&About"), this);
