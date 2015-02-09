@@ -131,6 +131,16 @@ double Media::getRate() const
   return impl_->getRate() * 100.0;
 }
 
+void Media::setVolume(double rate)
+{
+  impl_->setVolume(rate / 100.0);
+}
+
+double Media::getVolume() const
+{
+  return impl_->getVolume() * 100.0;
+}
+
 bool Media::hasVideoSupport()
 {
   return MediaImpl::hasVideoSupport();

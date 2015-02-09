@@ -132,6 +132,9 @@ public:
   void setRate(double rate=1.0);
   double getRate() const { return _rate; }
 
+  void setVolume(double rate=0.0);
+  double getVolume() const { return _volume; }
+
   void resetMovie();
 
 protected:
@@ -171,6 +174,8 @@ public:
     int width;
     int height;
 
+    GstElement* audioToConnect;
+
     GstPadHandlerData() :
       videoToConnect(NULL), videoSink(NULL),
       videoIsConnected(false),
@@ -201,13 +206,14 @@ private:
   GstElement *_uridecodebin0;
   GstElement *_shmsrc0;
   GstElement *_gdpdepay0;
-  //GstElement *_audioQueue;
-  //GstElement *_audioConvert;
-  //GstElement *_audioResample;
   GstElement *_queue0;
   GstElement *_videoconvert0;
-  //GstElement *_audioSink;
   GstElement *_appsink0;
+  GstElement *_audioqueue0;
+  GstElement *_audioconvert0;
+  GstElement *_audioresample0;
+  GstElement *_audiovolume0;
+  GstElement *_audiosink0;
 
   /**
    * Temporary contains the image data of the last frame.
@@ -237,6 +243,8 @@ private:
 
   /// Playback rate (negative ==> reverse).
   double _rate;
+  /// Audio playback volume (0.0 ==> 1.0).
+  double _volume;
 
   /// Whether or not we are reading video from a shmsrc.
   bool _isSharedMemorySource;
