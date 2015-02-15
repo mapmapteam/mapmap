@@ -132,6 +132,7 @@ protected:
   std::tr1::shared_ptr<Media> media;
   QtVariantProperty* _mediaFileItem;
   QtVariantProperty* _mediaRateItem;
+  QtVariantProperty* _mediaVolumeItem;
 //  QtVariantProperty* _mediaReverseItem;
 };
 

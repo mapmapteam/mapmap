@@ -243,6 +243,11 @@ public:
   /// Returns playback rate.
   double getRate() const;
 
+  /// Sets audio playback volume (in %).
+  virtual void setVolume(double volume=0.0);
+
+  /// Returns audio playback volume.
+  double getVolume() const;
 
   /**
    * Checks whether or not video is supported on this platform.
