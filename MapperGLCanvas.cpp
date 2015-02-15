@@ -22,7 +22,7 @@
 
 #include "MainWindow.h"
 
-MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
+MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget, QGraphicsScene* scene)
   : QGraphicsView(parent),
     _mainWindow(mainWindow),
     _mousePressedOnVertex(false),
@@ -48,13 +48,13 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
 
   // Render with OpenGL.
   setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers), this, shareWidget));
+  setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
   // TODO: do we need to delete scene (or call new QGraphicsScene(this)?)
-//  _scene = new QGraphicsScene;
-  setScene(new QGraphicsScene);
+  setScene(scene ? scene : new QGraphicsScene);
 
   // Black background.
-  scene()->setBackgroundBrush(Qt::black);
+  this->scene()->setBackgroundBrush(Qt::black);
 }
 
 //void MapperGLCanvas::initializeGL()
@@ -395,7 +395,6 @@ void MapperGLCanvas::glueVertex(MShape *orig, QPointF *p)
     }
   }
 }
-
 
 void MapperGLCanvas::deselectVertices()
 {

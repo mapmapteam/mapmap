@@ -21,8 +21,8 @@
 #include "DestinationGLCanvas.h"
 #include "MainWindow.h"
 
-DestinationGLCanvas::DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
-: MapperGLCanvas(mainWindow, parent, shareWidget),
+DestinationGLCanvas::DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget* shareWidget, QGraphicsScene* scene)
+: MapperGLCanvas(mainWindow, parent, shareWidget, scene),
   _displayCrosshair(false)
 {
 }
@@ -33,6 +33,19 @@ MShape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
     return NULL;
   else
     return getMainWindow()->getMappingManager().getMappingById(mappingId)->getShape().get();
+}
+
+void DestinationGLCanvas::drawForeground(QPainter *painter , const QRectF &rect) {
+  if (_displayCrosshair)
+  {
+    QPointF cursorPosition = mapToScene(cursor().pos());// - rect.topLeft();//(QCursor::pos());///*this->mapFromGlobal(*/QCursor::pos()/*)*/;
+    if (rect.contains(cursorPosition))
+    {
+      painter->setPen(MM::CONTROL_COLOR);
+      painter->drawLine(cursorPosition.x(), rect.y(), cursorPosition.x(), rect.height());
+      painter->drawLine(rect.x(), cursorPosition.y(), rect.width(), cursorPosition.y());
+    }
+  }
 }
 
 //void DestinationGLCanvas::doDraw(QPainter* painter)

@@ -34,7 +34,8 @@ class OutputGLWindow : public QDialog
   Q_OBJECT
 
 public:
-  OutputGLWindow(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
+  OutputGLWindow(const DestinationGLCanvas* canvas_);
+  //OutputGLWindow(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
 
 public slots:
   void setFullScreen(bool fullScreen);

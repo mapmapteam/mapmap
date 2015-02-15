@@ -981,24 +981,34 @@ void MainWindow::createLayout()
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  outputWindow = new OutputGLWindow(this, this, (QGLWidget*)sourceCanvas->viewport());
+  outputWindow = new OutputGLWindow(destinationCanvas);
   outputWindow->setVisible(true);
 
   // Source changed -> change destination
-  connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
-          destinationCanvas, SLOT(updateCanvas()));
+//  connect(sourceCanvas,      SIGNAL(shapeChanged(MShape*)),
+//          destinationCanvas, SLOT(updateCanvas()));
+
+  connect(sourceCanvas->scene(), SIGNAL(changed(const QList<QRectF>&)),
+          destinationCanvas,     SLOT(updateCanvas()));
 
   // Source changed -> change output window
-  connect(sourceCanvas,              SIGNAL(shapeChanged(Shape*)),
+//  connect(sourceCanvas,              SIGNAL(shapeChanged(MShape*)),
+//          outputWindow->getCanvas(), SLOT(updateCanvas()));
+
+  connect(sourceCanvas->scene(),     SIGNAL(changed(const QList<QRectF>&)),
           outputWindow->getCanvas(), SLOT(updateCanvas()));
 
   // Destination changed -> change output window
-  connect(destinationCanvas,         SIGNAL(shapeChanged(Shape*)),
-          outputWindow->getCanvas(), SLOT(updateCanvas()));
+//  connect(destinationCanvas,         SIGNAL(shapeChanged(MShape*)),
+//          outputWindow->getCanvas(), SLOT(updateCanvas()));
+
+  connect(destinationCanvas->scene(), SIGNAL(changed(const QList<QRectF>&)),
+          outputWindow->getCanvas(),  SLOT(updateCanvas()));
 
   // Output changed -> change destinatioin
-  connect(outputWindow->getCanvas(), SIGNAL(shapeChanged(Shape*)),
-          destinationCanvas,         SLOT(updateCanvas()));
+  // XXX si je decommente cette ligne alors quand je clique sur ajouter media ca gele...
+//  connect(outputWindow->getCanvas()->scene(), SIGNAL(changed(const QList<QRectF>&)),
+//          destinationCanvas,                  SLOT(updateCanvas()));
 
   // Create layout.
   paintSplitter = new QSplitter(Qt::Vertical);
@@ -1868,11 +1878,11 @@ void MainWindow::addMappingItem(uid mappingId)
   connect(mapper.get(), SIGNAL(valueChanged()),
           this,         SLOT(updateCanvases()));
 
-  connect(sourceCanvas, SIGNAL(shapeChanged(Shape*)),
-          mapper.get(), SLOT(updateShape(Shape*)));
+  connect(sourceCanvas, SIGNAL(shapeChanged(MShape*)),
+          mapper.get(), SLOT(updateShape(MShape*)));
 
-  connect(destinationCanvas, SIGNAL(shapeChanged(Shape*)),
-          mapper.get(), SLOT(updateShape(Shape*)));
+  connect(destinationCanvas, SIGNAL(shapeChanged(MShape*)),
+          mapper.get(), SLOT(updateShape(MShape*)));
   
   connect(this, SIGNAL(paintChanged()),
           mapper.get(), SLOT(updatePaint()));
@@ -1895,6 +1905,8 @@ void MainWindow::addMappingItem(uid mappingId)
     sourceCanvas->scene()->addItem(mapper->getInputGraphicsItem());
   if (mapper->getGraphicsItem())
     destinationCanvas->scene()->addItem(mapper->getGraphicsItem());
+  if (mapper->getGraphicsItem())
+    outputWindow->getCanvas()->scene()->addItem(mapper->getGraphicsItem());
 
   // Window was modified.
   windowModified();

@@ -44,7 +44,7 @@ class MapperGLCanvas: public QGraphicsView
 
 public:
   /// Constructor.
-  MapperGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0);
+  MapperGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
   virtual ~MapperGLCanvas() {}
 
   /// Returns shape associated with mapping id.
@@ -66,8 +66,6 @@ public:
 
   /// Returns pointer to main window.
   MainWindow* getMainWindow() const { return _mainWindow; }
-
-//  QGLWidget* getViewport() const { return _viewport; }
 
   /// Returns true iff we should display the controls.
   bool displayControls() const { return _displayControls; }
@@ -117,7 +115,7 @@ private:
   MainWindow* _mainWindow;
 
 //  QGraphicsScene* _scene;
-
+//
 //  QGLWidget* _viewport;
 
   // Last point pressed.
