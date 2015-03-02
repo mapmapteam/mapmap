@@ -19,6 +19,7 @@
  */
 
 #include "MainWindow.h"
+#include "Commands.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
 #include <sstream>
@@ -26,7 +27,6 @@
 
 MainWindow::MainWindow()
 {
-
   // Create model.
   if (Media::hasVideoSupport())
     std::cout << "Video support: yes" << std::endl;
@@ -53,8 +53,6 @@ MainWindow::MainWindow()
   createContextMenu();
   createToolBars();
   createStatusBar();
-  updateRecentFileActions();
-  updateRecentVideoActions();
 
   // Load settings.
   readSettings();
@@ -288,38 +286,43 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     if (keyEvent->modifiers() == Qt::CTRL)
     {
         switch (keyEvent->key()) {
+<<<<<<< HEAD
         case Qt::Key_F:
             if (outputWindow->windowState() != Qt::WindowFullScreen)
               outputWindow->setFullScreen(true);
+=======
+          case Qt::Key_F:
+            outputWindow->setFullScreen(true);
+>>>>>>> feature-undo-commands
             break;
-        case Qt::Key_N:
+          case Qt::Key_N:
             newFile();
             break;
-        case Qt::Key_O:
+          case Qt::Key_O:
             open();
             break;
-        case Qt::Key_S:
+          case Qt::Key_S:
             save();
             break;
-        case Qt::Key_Q:
+          case Qt::Key_Q:
             close();
             break;
-        case Qt::Key_Delete:
+          case Qt::Key_Delete:
             deleteItem();
             break;
-        case Qt::Key_M:
+          case Qt::Key_M:
             addMesh();
             break;
-        case Qt::Key_T:
+          case Qt::Key_T:
             addTriangle();
             break;
-        case Qt::Key_E:
+          case Qt::Key_E:
             addEllipse();
             break;
-        case Qt::Key_D:
+          case Qt::Key_D:
             outputWindow->setVisible(true);
             break;
-        case Qt::Key_P:
+          case Qt::Key_P:
             if (_isPlaying)
             {
               pause();
@@ -329,10 +332,17 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
               play();
             }
             break;
-        case Qt::Key_R:
+          case Qt::Key_R:
             rewind();
             break;
+          case Qt::Key_Z:
+            undoStack->undo();
+            break;
         }
+    }
+    else if (keyEvent->matches(QKeySequence::Redo))
+    {
+      undoStack->redo();
     }
     else if (keyEvent->key() == Qt::Key_Escape)
     {
@@ -368,6 +378,7 @@ void MainWindow::newFile()
   {
     clearWindow();
     setCurrentFile("");
+    undoStack->clear();
   }
 
   // Restart video playback. XXX Hack
@@ -524,6 +535,9 @@ void MainWindow::addMesh()
   Mapping::ptr mapping(mappingPtr);
   uint mappingId = mappingManager->addMapping(mapping);
   addMappingItem(mappingId);
+
+  // Implement undoStack Commands
+  undoStack->push(new AddShapesCommand(this, mappingId));
 }
 
 void MainWindow::addTriangle()
@@ -557,6 +571,9 @@ void MainWindow::addTriangle()
   Mapping::ptr mapping(mappingPtr);
   uint mappingId = mappingManager->addMapping(mapping);
   addMappingItem(mappingId);
+
+  // Implement undoStack Commands
+  undoStack->push(new AddShapesCommand(this, mappingId));
 }
 
 void MainWindow::addEllipse()
@@ -590,6 +607,9 @@ void MainWindow::addEllipse()
   Mapping::ptr mapping(mappingPtr);
   uint mappingId = mappingManager->addMapping(mapping);
   addMappingItem(mappingId);
+
+  // Implement undoStack Commands
+  undoStack->push(new AddShapesCommand(this, mappingId));
 }
 
 void MainWindow::play()
@@ -676,7 +696,7 @@ void MainWindow::deleteItem()
     if (isMappingTabSelected) //currentSelectedItem->listWidget() == mappingList)
     {
       // Delete mapping.
-      deleteMapping( getItemId(*mappingList->currentItem()) );
+      undoStack->push(new DeleteMappingCommand(this, getItemId(*mappingList->currentItem())));
       //currentSelectedItem = NULL;
     }
     else if (isPaintTabSelected) //currentSelectedItem->listWidget() == paintList)
@@ -1146,6 +1166,9 @@ void MainWindow::createLayout()
 
 void MainWindow::createActions()
 {
+  // UndoStack
+  undoStack = new QUndoStack(this);
+
   // New.
   newAction = new QAction(tr("&New"), this);
   newAction->setIcon(QIcon(":/new"));
@@ -1194,10 +1217,14 @@ void MainWindow::createActions()
       connect(recentVideoActions[i], SIGNAL(triggered()), this, SLOT(openRecentVideo()));
   }
 
-  // Clear action
+  // Clear recent video list action
   clearRecentFileActions = new QAction(this);
   clearRecentFileActions->setVisible(true);
   connect(clearRecentFileActions, SIGNAL(triggered()), this, SLOT(clearRecentFileList()));
+
+  // Empty list of recent video action
+  emptyRecentVideos = new QAction(tr("No Videos"), this);
+  emptyRecentVideos->setEnabled(false);
 
 
   // Import video.
@@ -1246,6 +1273,18 @@ void MainWindow::createActions()
 //  pasteAction->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
 //  connect(pasteAction, SIGNAL(triggered()), spreadsheet, SLOT(paste()));
 //
+
+  // Undo action
+  undoAction = undoStack->createUndoAction(this, tr("&Undo"));
+  undoAction->setShortcut(QKeySequence::Undo);
+  undoAction->setIconVisibleInMenu(false);
+  undoAction->setShortcutContext(Qt::ApplicationShortcut);
+
+  //Redo action
+  redoAction = undoStack->createRedoAction(this, tr("&Redo"));
+  redoAction->setShortcut(QKeySequence::Redo);
+  redoAction->setIconVisibleInMenu(false);
+  redoAction->setShortcutContext(Qt::ApplicationShortcut);
 
   // About.
   aboutAction = new QAction(tr("&About"), this);
@@ -1438,6 +1477,7 @@ void MainWindow::createMenus()
 
   // Recent import video
   recentVideoMenu = fileMenu->addMenu(tr("Recents video"));
+  recentVideoMenu->addAction(emptyRecentVideos);
   for (int i = 0; i < MaxRecentVideo; ++i)
       recentVideoMenu->addAction(recentVideoActions[i]);
 
@@ -1448,6 +1488,8 @@ void MainWindow::createMenus()
 
   // Edit.
   editMenu = menuBar->addMenu(tr("&Edit"));
+  editMenu->addAction(undoAction);
+  editMenu->addAction(redoAction);
   //  editMenu->addAction(cutAction);
   //  editMenu->addAction(copyAction);
   //  editMenu->addAction(pasteAction);
@@ -1497,7 +1539,7 @@ void MainWindow::createContextMenu()
 //  spreadsheet->addAction(cutAction);
 //  spreadsheet->addAction(copyAction);
 //  spreadsheet->addAction(pasteAction);
-//  spreadsheet->setContextMenuPolicy(Qt::ActionsContextMenu);
+  //  spreadsheet->setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
 void MainWindow::createToolBars()
@@ -1599,6 +1641,7 @@ void MainWindow::readSettings()
   }
   config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 
+  // Update Recent files and video
   updateRecentFileActions();
   updateRecentVideoActions();
 }
@@ -1769,9 +1812,9 @@ void MainWindow::updateRecentFileActions()
 void MainWindow::updateRecentVideoActions()
 {
     recentVideos = settings.value("recentVideos").toStringList();
-    int numRecentVidoes = qMin(recentVideos.size(), int(MaxRecentVideo));
+    int numRecentVideos = qMin(recentVideos.size(), int(MaxRecentVideo));
 
-    for (int i = 0; i < numRecentVidoes; ++i)
+    for (int i = 0; i < numRecentVideos; ++i)
     {
         QString text = tr("&%1 %2")
                 .arg(i + 1)
@@ -1781,14 +1824,12 @@ void MainWindow::updateRecentVideoActions()
         recentVideoActions[i]->setVisible(true);
     }
 
-    for (int j = numRecentVidoes; j < MaxRecentVideo; ++j)
+    for (int j = numRecentVideos; j < MaxRecentVideo; ++j)
         recentVideoActions[j]->setVisible(false);
 
-    if (numRecentVidoes <= 0)
+    if (numRecentVideos >  0)
     {
-        QAction *noVideos = new QAction(tr("No Videos"), this);
-        noVideos->setEnabled(false);
-        recentVideoMenu->addAction(noVideos);
+        emptyRecentVideos->setVisible(false);
     }
 }
 

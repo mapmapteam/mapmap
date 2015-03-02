@@ -21,6 +21,7 @@
 #include "MapperGLCanvas.h"
 
 #include "MainWindow.h"
+#include "Commands.h"
 
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
   : QGLWidget(QGLFormat(QGL::SampleBuffers), parent, shareWidget),
@@ -188,6 +189,9 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
 
 void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 {
+  // Prepare to store commands
+  undoStack = getMainWindow()->getUndoStack();
+
   if (_mousePressedOnVertex)
   {
     // std::cout << "Move event " << std::endl;
@@ -202,10 +206,9 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       // Stick to vertices.
       if (stickyVertices())
         glueVertex(shape, &p);
-      shape->setVertex(_activeVertex, p);
 
-      update();
-      emit shapeChanged(getCurrentShape());
+      // Enable to Undo and Redo when mouse move the position of vertices
+      undoStack->push(new MoveVertexCommand(this, _activeVertex, p));
     }
   }
   else if (_shapeGrabbed)
@@ -217,9 +220,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
     {
       if (!_shapeFirstGrab)
       {
-        shape->translate(event->x() - prevMousePosition.x(), event->y() - prevMousePosition.y());
-        update();
-        emit shapeChanged(getCurrentShape());
+        undoStack->push(new MoveShapesCommand(this, event, prevMousePosition));
       }
       else
         _shapeFirstGrab = false;
@@ -232,6 +233,9 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 
 void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 {
+  // Prepare to store commands
+  undoStack = getMainWindow()->getUndoStack();
+
   // Checks if the key has been handled by this function or needs to be deferred to superclass.
   bool handledKey = false;
 
@@ -264,13 +268,18 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
       p.rx()--;
       break;
     default:
-      handledKey = false;
+      if (event->matches(QKeySequence::Undo))
+        undoStack->undo();
+
+      else if (event->matches(QKeySequence::Redo))
+        undoStack->redo();
+      else
+        handledKey = false;
       break;
     }
     // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
-    shape->setVertex(_activeVertex, p);
-    update();
-    emit shapeChanged(getCurrentShape());
+    // Enable to Undo and Redo when arrow keys move the position of vertices
+    undoStack->push(new MoveVertexCommand(this, _activeVertex, p));
   }
 
   // Defer unhandled keys to parent.

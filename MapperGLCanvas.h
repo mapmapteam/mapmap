@@ -23,6 +23,7 @@
 #include <QGLWidget>
 #include <QKeyEvent>
 #include <QPaintEvent>
+#include <QUndoStack>
 
 #include <iostream>
 
@@ -140,6 +141,9 @@ private:
 
   // True iff we want vertices to stick to each other.
   bool _stickyVertices;
+
+  // Pointer to MainWindow UndoStack
+  QUndoStack *undoStack;
 
 signals:
   void shapeChanged(Shape*);

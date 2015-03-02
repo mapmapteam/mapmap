@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <QTranslator>
-#include <QtGui>
 #include <QDebug>
 #if USING_QT_5
 #include <QCommandLineParser>

@@ -22,6 +22,9 @@
 #define MAIN_WINDOW_H_
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+  #include <QtWidgets>
+#endif
 #include <QTimer>
 #include <QVariant>
 #include <QMap>
@@ -262,6 +265,8 @@ private:
   QAction *saveAction;
   QAction *saveAsAction;
   QAction *exitAction;
+  QAction *undoAction;
+  QAction *redoAction;
 //  QAction *cutAction;
 //  QAction *copyAction;
 //  QAction *pasteAction;
@@ -269,6 +274,7 @@ private:
   QAction *preferencesAction;
   QAction *aboutAction;
   QAction *clearRecentFileActions;
+  QAction *emptyRecentVideos;
 
   QAction *addMeshAction;
   QAction *addTriangleAction;
@@ -352,6 +358,11 @@ private:
 
   PreferencesDialog* _preferences_dialog;
 
+  // UndoStack
+  QUndoStack *undoStack;
+
+
+
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
   MappingManager& getMappingManager() { return *mappingManager; }
@@ -365,6 +376,9 @@ public:
   void setCurrentMapping(int uid);
   void removeCurrentPaint();
   void removeCurrentMapping();
+
+  // Use the same undoStack for whole program
+  QUndoStack* getUndoStack() const { return undoStack; }
 
   void startFullScreen();
   bool setOscPort(QString portNumber);
