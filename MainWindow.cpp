@@ -286,14 +286,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     if (keyEvent->modifiers() == Qt::CTRL)
     {
         switch (keyEvent->key()) {
-<<<<<<< HEAD
         case Qt::Key_F:
             if (outputWindow->windowState() != Qt::WindowFullScreen)
               outputWindow->setFullScreen(true);
-=======
-          case Qt::Key_F:
-            outputWindow->setFullScreen(true);
->>>>>>> feature-undo-commands
             break;
           case Qt::Key_N:
             newFile();
