@@ -225,6 +225,20 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
       //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
       main_window.setTextureRate(paint_id, rate);
   }
+  else if (path == "/mapmap/paint/media/volume" && typetags == "if")
+  {
+      int paint_id = command.at(2).toInt();
+      float volume = command.at(3).toDouble();
+      //std::cout << "set /mapmap/paint/media/volume " << paint_id << " " << image_uri << std::endl;
+      main_window.setTextureVolume(paint_id, volume);
+  }
+  else if (path == "/mapmap/paint/media/played" && typetags == "ii")
+  {
+      int paint_id = command.at(2).toInt();
+      int played = command.at(3).toInt();
+      //std::cout << "set /mapmap/paint/media/played " << paint_id << " " << image_uri << std::endl;
+      main_window.setTexturePlayState(paint_id, played ? true : false);
+  }
   else if (path == "/mapmap/mapping/visible" && typetags == "ii")
   {
       int mappingId = command.at(2).toInt();

@@ -181,6 +181,8 @@ public slots:
 public:
   bool setTextureUri(int texture_id, const std::string &uri);
   bool setTextureRate(int texture_id, double rate);
+  bool setTextureVolume(int texture_id, double volume);
+  void setTexturePlayState(int texture_id, bool played);
 
 private:
   // Internal methods. //////////////////////////////////////////////////////////////////////////////////////

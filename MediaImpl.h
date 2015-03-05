@@ -156,7 +156,7 @@ private:
   void _checkMessages();
   void _setMovieReady(bool ready);
   bool _isMovieReady() const { return _movieReady; }
-  bool getPlayState() const { return _playState; };
+  bool getPlayState() const { return _playState; }
   void _setFinished(bool finished);
 
   // Sends the appropriate seek events to adjust to rate.
