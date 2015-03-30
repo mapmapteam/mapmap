@@ -71,8 +71,6 @@ bool MappingManager::removePaint(uid paintId)
     return true;
   }
 
-
-
   return false;
 }
 

@@ -52,7 +52,6 @@ MainWindow::MainWindow()
   createMenus();
   createContextMenu();
   createToolBars();
-  createStatusBar();
 
   // Load settings.
   readSettings();
@@ -669,13 +668,6 @@ void MainWindow::about()
   videoTimer->start();
 }
 
-void MainWindow::updateStatusBar()
-{
-  // Nothing to do for now.
-//  locationLabel->setText(spreadsheet->currentLocation());
-//  formulaLabel->setText(spreadsheet->currentFormula());
-}
-
 /**
  * Called when the user wants to delete an item.
  * 
@@ -704,7 +696,27 @@ void MainWindow::deleteItem()
     {
       qCritical() << "Selected item neither a mapping nor a paint." << endl;
     }
+    }
+}
+
+void MainWindow::cloneItem()
+{
+  if (currentSelectedItem)
+  {
+    cloneMappingItem(getItemId(*mappingList->currentItem()));
   }
+  else
+  {
+    qCritical() << "No selected mapping" << endl;
+    }
+}
+
+void MainWindow::renameItem()
+{
+  // Set current item editable and rename it
+  QListWidgetItem* item = mappingList->currentItem();
+  item->setFlags(item->flags() | Qt::ItemIsEditable);
+  mappingList->editItem(item);
 }
 
 void MainWindow::openRecentFile()
@@ -1025,7 +1037,68 @@ void MainWindow::deleteMapping(uid mappingId)
   if (Mapping::getUidAllocator().exists(mappingId))
   {
     removeMappingItem(mappingId);
+    }
+}
+
+void MainWindow::cloneMappingItem(uid mappingId)
+{
+  // Current Mapping
+  Mapping::ptr mappingPtr = mappingManager->getMappingById(mappingId);
+
+  // Get Mapping Paint and Shape
+  Paint::ptr paint = mappingPtr->getPaint();
+  Shape::ptr shape = mappingPtr->getShape();
+  // Temporary shared pointers
+  Shape::ptr shapePtr;
+  // Create new mapping
+  Mapping *mapping;
+
+  QString shapeType = shape->getType();
+
+  // Code below need to be improved it's feel like duplicated
+  if (paint->getType() == "color") // Color paint
+  {
+    if (shapeType == "quad")
+      shapePtr = Shape::ptr(new Quad(shape->getVertex(0), shape->getVertex(1),
+                                   shape->getVertex(2), shape->getVertex(3)));
+
+    if (shapeType == "triangle")
+      shapePtr = Shape::ptr(new Triangle(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2)));
+
+    if (shapeType == "ellipse")
+      shapePtr = Shape::ptr(new Ellipse(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2),
+                             shape->getVertex(3)));
+
+    mapping = new ColorMapping(paint, shapePtr);
   }
+  else // Or Texture Paint
+  {
+    Shape::ptr inputShape = mappingPtr->getInputShape();
+
+    if (shapeType == "mesh")
+      shapePtr = Shape::ptr(new Mesh(shape->getVertex(0), shape->getVertex(1),
+                                   shape->getVertex(3), shape->getVertex(2)));
+
+    if (shapeType == "triangle")
+      shapePtr = Shape::ptr(new Triangle(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2)));
+
+    if (shapeType == "ellipse")
+      shapePtr = Shape::ptr(new Ellipse(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2),
+                             shape->getVertex(3), shape->getVertex(4)));
+
+    mapping = new TextureMapping(paint, shapePtr, inputShape);
+  }
+
+  // Scaling of duplicated mapping
+  if (shapeType == "quad" || shapeType == "mesh")
+    shapePtr->translate(20, 20);
+  else
+    shapePtr->translate(0, 20);
+
+  // Create new duplicated mapping item
+  Mapping::ptr clonedMapping(mapping);
+  uint cloneId = mappingManager->addMapping(clonedMapping);
+  addMappingItem(cloneId);
 }
 
 /// Deletes/removes a paint and all associated mappigns.
@@ -1051,7 +1124,6 @@ void MainWindow::deletePaint(uid paintId, bool replace)
 void MainWindow::windowModified()
 {
   setWindowModified(true);
-  updateStatusBar();
 }
 
 void MainWindow::createLayout()
@@ -1250,25 +1322,6 @@ void MainWindow::createActions()
   exitAction->setIconVisibleInMenu(false);
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-//  cutAction = new QAction(tr("Cu&t"), this);
-//  cutAction->setIcon(QIcon(":/images/cut.png"));
-//  cutAction->setShortcut(QKeySequence::Cut);
-//  cutAction->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
-//  connect(cutAction, SIGNAL(triggered()), spreadsheet, SLOT(cut()));
-//
-//  copyAction = new QAction(tr("&Copy"), this);
-//  copyAction->setIcon(QIcon(":/images/copy.png"));
-//  copyAction->setShortcut(QKeySequence::Copy);
-//  copyAction->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
-//  connect(copyAction, SIGNAL(triggered()), spreadsheet, SLOT(copy()));
-//
-//  pasteAction = new QAction(tr("&Paste"), this);
-//  pasteAction->setIcon(QIcon(":/images/paste.png"));
-//  pasteAction->setShortcut(QKeySequence::Paste);
-//  pasteAction->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
-//  connect(pasteAction, SIGNAL(triggered()), spreadsheet, SLOT(paste()));
-//
-
   // Undo action
   undoAction = undoStack->createUndoAction(this, tr("&Undo"));
   undoAction->setShortcut(QKeySequence::Undo);
@@ -1287,12 +1340,26 @@ void MainWindow::createActions()
   aboutAction->setIconVisibleInMenu(false);
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
+  // Duplicate.
+  cloneAction = new QAction(tr("Duplicate"), this);
+  cloneAction->setShortcut(tr("CTRL+V"));
+  cloneAction->setStatusTip(tr("Duplicate item"));
+  cloneAction->setIconVisibleInMenu(false);
+  connect(cloneAction, SIGNAL(triggered()), this, SLOT(cloneItem()));
+
   // Delete.
   deleteAction = new QAction(tr("Delete"), this);
   deleteAction->setShortcut(tr("CTRL+DEL"));
   deleteAction->setStatusTip(tr("Delete item"));
   deleteAction->setIconVisibleInMenu(false);
   connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
+
+  // Rename.
+  renameAction = new QAction(tr("Rename"), this);
+  renameAction->setShortcut(Qt::Key_F2);
+  renameAction->setStatusTip(tr("Rename item"));
+  renameAction->setIconVisibleInMenu(false);
+  connect(renameAction, SIGNAL(triggered()), this, SLOT(renameItem()));
 
   // Preferences...
   preferencesAction = new QAction(tr("&Preferences..."), this);
@@ -1382,14 +1449,6 @@ void MainWindow::createActions()
   connect(outputWindow, SIGNAL(fullScreenToggled(bool)), outputWindowFullScreen, SLOT(setChecked(bool)));
   // Output window should be displayed for full screen option to be available.
   connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindowFullScreen, SLOT(setEnabled(bool)));
-
-
-  // outputWindowHasCursor = new QAction(tr("O&utput window has cursor"), this);
-  // outputWindowHasCursor->setStatusTip(tr("Show cursor in output window"));
-  // outputWindowHasCursor->setIconVisibleInMenu(false);
-  // outputWindowHasCursor->setCheckable(true);
-  // outputWindowHasCursor->setChecked(true);
-  // connect(outputWindowHasCursor, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
 
   // Toggle display of canvas controls.
   displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
@@ -1485,9 +1544,6 @@ void MainWindow::createMenus()
   editMenu = menuBar->addMenu(tr("&Edit"));
   editMenu->addAction(undoAction);
   editMenu->addAction(redoAction);
-  //  editMenu->addAction(cutAction);
-  //  editMenu->addAction(copyAction);
-  //  editMenu->addAction(pasteAction);
   editMenu->addAction(deleteAction);
   editMenu->addAction(preferencesAction);
 
@@ -1498,7 +1554,6 @@ void MainWindow::createMenus()
   viewMenu->addAction(displayCanvasControls);
   viewMenu->addAction(stickyVertices);
   viewMenu->addAction(displayTestSignal);
-  //viewMenu->addAction(outputWindowHasCursor);
 
   // Run.
   runMenu = menuBar->addMenu(tr("&Run"));
@@ -1506,35 +1561,32 @@ void MainWindow::createMenus()
   runMenu->addAction(pauseAction);
   runMenu->addAction(rewindAction);
 
-//  selectSubMenu = editMenu->addMenu(tr("&Select"));
-//  selectSubMenu->addAction(selectRowAction);
-//  selectSubMenu->addAction(selectColumnAction);
-//  selectSubMenu->addAction(selectAllAction);
-
-//  editMenu->addSeparator();
-//  editMenu->addAction(findAction);
-//  editMenu->addAction(goToCellAction);
-
-//  toolsMenu = menuBar()->addMenu(tr("&Tools"));
-//  toolsMenu->addAction(recalculateAction);
-//  toolsMenu->addAction(sortAction);
-//
-//  optionsMenu = menuBar()->addMenu(tr("&Options"));
-//  optionsMenu->addAction(showGridAction);
-//  optionsMenu->addAction(autoRecalcAction);
-
   // Help.
   helpMenu = menuBar->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAction);
 //  helpMenu->addAction(aboutQtAction);
+
 }
 
 void MainWindow::createContextMenu()
 {
-//  spreadsheet->addAction(cutAction);
-//  spreadsheet->addAction(copyAction);
-//  spreadsheet->addAction(pasteAction);
-  //  spreadsheet->setContextMenuPolicy(Qt::ActionsContextMenu);
+  // Context menu.
+  contextMenu = new QMenu();
+
+  // Add different Action
+  contextMenu->addAction(cloneAction);
+  contextMenu->addAction(deleteAction);
+  contextMenu->addAction(renameAction);
+
+  // Set context menu policy
+  mappingList->setContextMenuPolicy(Qt::CustomContextMenu);
+  destinationCanvas->setContextMenuPolicy(Qt::CustomContextMenu);
+  outputWindow->setContextMenuPolicy(Qt::CustomContextMenu);
+
+  // Context Menu Connexions
+  connect(mappingList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
+  connect(destinationCanvas, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
+  connect(outputWindow, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
 }
 
 void MainWindow::createToolBars()
@@ -1580,31 +1632,9 @@ void MainWindow::createToolBars()
   addToolBar(Qt::TopToolBarArea, runToolBar);
 
 //  editToolBar = addToolBar(tr("&Edit"));
-//  editToolBar->addAction(cutAction);
-//  editToolBar->addAction(copyAction);
-//  editToolBar->addAction(pasteAction);
+//  editToolBar->addAction(cloneAction);
+//  editToolBar->addAction(deleteAction);
 //  editToolBar->addSeparator();
-//  editToolBar->addAction(findAction);
-//  editToolBar->addAction(goToCellAction);
-}
-
-void MainWindow::createStatusBar()
-{
-//  locationLabel = new QLabel(" W999 ");
-//  locationLabel->setAlignment(Qt::AlignHCenter);
-//  locationLabel->setMinimumSize(locationLabel->sizeHint());
-//
-//  formulaLabel = new QLabel;
-//  formulaLabel->setIndent(3);
-//
-//  statusBar()->addWidget(locationLabel);
-//  statusBar()->addWidget(formulaLabel, 1);
-//
-//  connect(spreadsheet, SIGNAL(currentCellChanged(int, int, int, int)), this,
-//      SLOT(updateStatusBar()));
-//  connect(spreadsheet, SIGNAL(modified()), this, SLOT(spreadsheetModified()));
-
-  updateStatusBar();
 }
 
 void MainWindow::readSettings()
@@ -2164,6 +2194,14 @@ void MainWindow::updateCanvases()
   sourceCanvas->update();
   destinationCanvas->update();
   outputWindow->getCanvas()->update();
+}
+
+void MainWindow::showMappingContextMenu(const QPoint &point)
+{
+  QWidget *objectSender = dynamic_cast<QWidget*>(sender());
+
+  if (objectSender != NULL && mappingList->count() > 0)
+    contextMenu->exec(objectSender->mapToGlobal(point));
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)
