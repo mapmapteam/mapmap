@@ -85,6 +85,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   {
     // Save window geometry.
     _geometry = saveGeometry();
+    //qDebug() << "Saving Geometry " << _geometry.toHex() << endl;
 
     // Move window to second screen before fullscreening it.
     if (QApplication::desktop()->screenCount() > 1)
@@ -92,10 +93,10 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
 
 #ifdef Q_OS_UNIX
     // Special case for Unity.
-    if (session == "ubuntu" || session == "gnome") {
-      setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
-      setWindowState( windowState() | Qt::WindowFullScreen );
-
+    if (session == "ubuntu" || session == "gnome" || session == "default") {
+      setWindowFlags(Qt::Window);
+      setVisible(true);
+      setWindowState( windowState() ^ Qt::WindowFullScreen );
       show();
     } else {
       showFullScreen();
@@ -107,16 +108,19 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   else
   {
     // Restore geometry of window to what it was before full screen call.
-    restoreGeometry(_geometry);
+    //restoreGeometry(_geometry);
 
 #ifdef Q_OS_UNIX
     // Special case for Unity.
-    if (session == "ubuntu" || session == "gnome") {
-      setWindowState( windowState() & ~Qt::WindowFullScreen );
-    } else {
+    if (session == "ubuntu") {
       showNormal();
+    } else {
+      restoreGeometry(_geometry);
+      showNormal();
+      setWindowFlags( windowFlags() & ~Qt::Window );
     }
 #else
+    restoreGeometry(_geometry);
     showNormal();
 #endif
   }

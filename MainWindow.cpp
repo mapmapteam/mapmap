@@ -341,7 +341,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     else if (keyEvent->key() == Qt::Key_Escape)
     {
       outputWindow->setFullScreen(false);
-      setWindowState( windowState() | Qt::WindowActive );
     }
     eventKey = false;
 
