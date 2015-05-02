@@ -138,7 +138,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     return;
 
   // Select a shape with a click.
-  if (event->buttons() & Qt::LeftButton)
+  if (event->buttons() & Qt::LeftButton || Qt::RightButton) // Add Right click for context menu
   {
     Shape* orig = getCurrentShape();
     MappingManager manager = getMainWindow()->getMappingManager();
@@ -162,10 +162,13 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     }
 
     // Grab the shape.
-    if (orig && orig->includesPoint(_mousePressedPosition))
+    if (event->buttons() & Qt::LeftButton) // This preserve me from duplicate code above
     {
-      _shapeGrabbed = true;
-      _shapeFirstGrab = true;
+      if (orig && orig->includesPoint(_mousePressedPosition))
+      {
+        _shapeGrabbed = true;
+        _shapeFirstGrab = true;
+      }
     }
   }
 

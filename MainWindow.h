@@ -88,12 +88,13 @@ private slots:
   void importImage();
   void addColor();
   void about();
-  void updateStatusBar();
   void openRecentFile();
   void clearRecentFileList();
   void openRecentVideo();
   // Edit menu.
   void deleteItem();
+  void cloneItem();
+  void renameItem();
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
@@ -172,11 +173,17 @@ public slots:
   /// Deletes/removes a mapping.
   void deleteMapping(uid mappingId);
 
+  /// Clone/duplicate a mapping
+  void cloneMappingItem(uid mappingId);
+
   /// Deletes/removes a paint and all associated mappigns.
   void deletePaint(uid paintId, bool replace);
 
   /// Updates all canvases.
   void updateCanvases();
+
+  // Show Context Menu
+  void showMappingContextMenu(const QPoint &point);
 
 public:
   bool setTextureUri(int texture_id, const std::string &uri);
@@ -191,7 +198,6 @@ private:
   void createMenus();
   void createContextMenu();
   void createToolBars();
-  void createStatusBar();
   void updateRecentFileActions();
   void updateRecentVideoActions();
 
@@ -240,16 +246,13 @@ private:
 
   // Menu actions.
   QMenu *fileMenu;
-//  QMenu *editMenu;
-//  QMenu *selectSubMenu;
-//  QMenu *toolsMenu;
-//  QMenu *optionsMenu;
   QMenu *editMenu;
   QMenu *viewMenu;
   QMenu *runMenu;
   QMenu *helpMenu;
   QMenu *recentFileMenu;
   QMenu *recentVideoMenu;
+  QMenu *contextMenu;
 
   // Toolbar.
   QToolBar *mainToolBar;
@@ -267,10 +270,9 @@ private:
   QAction *exitAction;
   QAction *undoAction;
   QAction *redoAction;
-//  QAction *cutAction;
-//  QAction *copyAction;
-//  QAction *pasteAction;
+  QAction *cloneAction;
   QAction *deleteAction;
+  QAction *renameAction;
   QAction *preferencesAction;
   QAction *aboutAction;
   QAction *clearRecentFileActions;
