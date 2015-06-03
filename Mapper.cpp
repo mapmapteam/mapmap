@@ -320,6 +320,7 @@ void TextureMapper::_preDraw(QPainter* painter)
   // Project source texture and sent it to destination.
   texture->update();
 
+  glEnable (GL_BLEND);
   glEnable (GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
 
