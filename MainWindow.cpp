@@ -1988,6 +1988,14 @@ void MainWindow::clearWindow()
   clearProject();
 }
 
+MainWindow* MainWindow::instance() {
+  static MainWindow* inst = 0;
+  if (!inst) {
+    inst = new MainWindow;
+  }
+  return inst;
+}
+
 void MainWindow::updateCanvases()
 {
   sourceCanvas->updateCanvas();

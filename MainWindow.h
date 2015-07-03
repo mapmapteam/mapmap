@@ -213,6 +213,8 @@ public:
   void removePaintItem(uid paintId);
   void clearWindow();
 
+  static MainWindow* instance();
+
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
 
