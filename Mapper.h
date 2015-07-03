@@ -105,11 +105,7 @@ public:
 
   virtual void paint(QPainter *painter,
                      const QStyleOptionGraphicsItem *option,
-                     QWidget* widget)
-  {
-    Q_UNUSED(widget);
-    Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected));
-  }
+                     QWidget* widget);
 
 protected:
   int _index;
