@@ -35,6 +35,8 @@ ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
   _createVertices();
 }
 
+bool ShapeGraphicsItem::isMappingCurrent() const { return MainWindow::instance()->getCurrentMappingId() == _mapping->getId(); }
+
 bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event)
 {
   // Change vertex in model according to moved item.
@@ -70,19 +72,29 @@ bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event
 
 void ShapeGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
-  if (!_mapping->isVisible())
+  if (!isMappingVisible())
     return;
 
-  QGraphicsItem::mousePressEvent(event);
-  if (event->button() == Qt::LeftButton)
+  if (isOutput())
   {
-    MainWindow::instance()->setCurrentMapping(_mapping->getId());
+    QGraphicsItem::mousePressEvent(event);
+    if (event->button() == Qt::LeftButton)
+    {
+      MainWindow::instance()->setCurrentMapping(_mapping->getId());
+    }
+  }
+  else
+  {
+    if (isMappingCurrent())
+      QGraphicsItem::mousePressEvent(event);
+    else
+      event->ignore(); // prevent mousegrabbing on non-current mapping
   }
 }
 
 void ShapeGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-  if (!_mapping->isVisible())
+  if (!isMappingVisible())
     return;
 
   QGraphicsItem::mouseMoveEvent(event);
@@ -92,12 +104,20 @@ void ShapeGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 void ShapeGraphicsItem::paint(QPainter *painter,
                               const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-  // Sync depth of figure with that of mapping (for layered output).
-  setZValue(_mapping->getDepth());
+  if (isOutput())
+  {
+    // Sync depth of figure with that of mapping (for layered output).
+    setZValue(_mapping->getDepth());
 
-  // Paint if visible.
-  if (_mapping->isVisible())
-    _doPaint(painter, option);
+    // Paint if visible.
+    if (isMappingVisible())
+      _doPaint(painter, option);
+  }
+  else
+  {
+    if (isMappingVisible())
+      _doPaint(painter, option);
+  }
 }
 
 //QVariant ShapeGraphicsItem::itemChange(GraphicsItemChange change, const QVariant &value)
@@ -152,14 +172,28 @@ void ShapeGraphicsItem::_syncVertices()
 void VertexGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
   ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
-  if (!shapeParent->getMapping()->isVisible())
+  if (!shapeParent->isMappingVisible())
   {
     // Prevent mouse grabbing.
     event->ignore();
   }
   else
   {
-    QGraphicsItem::mousePressEvent(event);
+    if (shapeParent->isOutput())
+    {
+      QGraphicsItem::mousePressEvent(event);
+      if (event->button() == Qt::LeftButton)
+      {
+        MainWindow::instance()->setCurrentMapping(shapeParent->getMapping()->getId());
+      }
+    }
+    else
+    {
+      if (shapeParent->isMappingCurrent())
+        QGraphicsItem::mousePressEvent(event);
+      else
+        event->ignore(); // prevent mousegrabbing on non-current mapping
+    }
   }
 }
 
@@ -169,8 +203,8 @@ void VertexGraphicsItem::paint(QPainter *painter,
 {
   Q_UNUSED(widget);
   ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
-  if (shapeParent->getMapping()->isVisible() &&
-      shapeParent->getMapping()->getId() == MainWindow::instance()->getCurrentMappingId())
+  if (shapeParent->isMappingVisible() &&
+      shapeParent->isMappingCurrent())
     Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected));
 }
 
@@ -270,7 +304,7 @@ void TextureGraphicsItem::_doPaint(QPainter *painter,
   // End drawing.
   _postDraw(painter);
 
-  if (getMapping()->getId() == MainWindow::instance()->getCurrentMappingId())
+  if (isMappingCurrent())
     _doDrawControls(painter);
 }
 
@@ -343,24 +377,27 @@ void TriangleTextureGraphicsItem::_doDraw(QPainter* painter, bool selected)
   }
   else
   {
-    // FIXME: Does this draw the quad counterclockwise?
-    glBegin (GL_QUADS);
+    if (isMappingCurrent())
     {
-      QRectF rect = mapFromScene(_texture->getRect()).boundingRect();
+      // FIXME: Does this draw the quad counterclockwise?
+      glBegin (GL_QUADS);
+      {
+        QRectF rect = mapFromScene(_texture->getRect()).boundingRect();
 
-      Util::correctGlTexCoord(0, 0);
-      glVertex3f (rect.x(), rect.y(), 0);
+        Util::correctGlTexCoord(0, 0);
+        glVertex3f (rect.x(), rect.y(), 0);
 
-      Util::correctGlTexCoord(1, 0);
-      glVertex3f (rect.x() + rect.width(), rect.y(), 0);
+        Util::correctGlTexCoord(1, 0);
+        glVertex3f (rect.x() + rect.width(), rect.y(), 0);
 
-      Util::correctGlTexCoord(1, 1);
-      glVertex3f (rect.x()+rect.width(), rect.y()+rect.height(), 0);
+        Util::correctGlTexCoord(1, 1);
+        glVertex3f (rect.x()+rect.width(), rect.y()+rect.height(), 0);
 
-      Util::correctGlTexCoord(0, 1);
-      glVertex3f (rect.x(), rect.y()+rect.height(), 0);
+        Util::correctGlTexCoord(0, 1);
+        glVertex3f (rect.x(), rect.y()+rect.height(), 0);
+      }
+      glEnd ();
     }
-    glEnd ();
   }
 }
 

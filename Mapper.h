@@ -67,6 +67,9 @@ public:
 
   bool isOutput() const { return _output; }
 
+  bool isMappingCurrent() const;
+  bool isMappingVisible() const { return _mapping->isVisible(); }
+
   virtual QRectF boundingRect() const = 0;
 //  virtual QPainterPath shape() const;
 //  virtual void paint(QPainter *painter,
