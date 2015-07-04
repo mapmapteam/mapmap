@@ -984,26 +984,13 @@ void MainWindow::createLayout()
   outputWindow = new OutputGLWindow(destinationCanvas);
   outputWindow->setVisible(true);
 
-  // Source changed -> change destination
-//  connect(sourceCanvas,      SIGNAL(shapeChanged(MShape*)),
-//          destinationCanvas, SLOT(updateCanvas()));
-
+  // Source scene changed -> change destination.
   connect(sourceCanvas->scene(), SIGNAL(changed(const QList<QRectF>&)),
-          destinationCanvas,     SLOT(updateCanvas()));
+          destinationCanvas,     SLOT(update()));
 
-  // Source changed -> change output window
-//  connect(sourceCanvas,              SIGNAL(shapeChanged(MShape*)),
-//          outputWindow->getCanvas(), SLOT(updateCanvas()));
-
-  connect(sourceCanvas->scene(),     SIGNAL(changed(const QList<QRectF>&)),
-          outputWindow->getCanvas(), SLOT(updateCanvas()));
-
-  // Destination changed -> change output window
-//  connect(destinationCanvas,         SIGNAL(shapeChanged(MShape*)),
-//          outputWindow->getCanvas(), SLOT(updateCanvas()));
-
+  // Destination scene changed -> change output window.
   connect(destinationCanvas->scene(), SIGNAL(changed(const QList<QRectF>&)),
-          outputWindow->getCanvas(),  SLOT(updateCanvas()));
+          outputWindow->getCanvas(),  SLOT(update()));
 
   // Output changed -> change destinatioin
   // XXX si je decommente cette ligne alors quand je clique sur ajouter media ca gele...
