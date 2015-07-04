@@ -74,6 +74,7 @@ public:
 
   virtual bool sceneEventFilter(QGraphicsItem * watched, QEvent * event);
 
+  void mousePressEvent(QGraphicsSceneMouseEvent *event);
   void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 //  virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 

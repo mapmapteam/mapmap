@@ -68,6 +68,17 @@ bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event
   }
 }
 
+void ShapeGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
+{
+  QGraphicsItem::mousePressEvent(event);
+
+  // Change mapping to currently selected shape.
+  if (event->button() == Qt::LeftButton)
+  {
+    MainWindow::instance()->setCurrentMapping(_mapping->getId());
+  }
+}
+
 void ShapeGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
   QGraphicsItem::mouseMoveEvent(event);
