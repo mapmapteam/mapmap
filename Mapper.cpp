@@ -70,9 +70,10 @@ bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event
 
 void ShapeGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
-  QGraphicsItem::mousePressEvent(event);
+  if (!_mapping->isVisible())
+    return;
 
-  // Change mapping to currently selected shape.
+  QGraphicsItem::mousePressEvent(event);
   if (event->button() == Qt::LeftButton)
   {
     MainWindow::instance()->setCurrentMapping(_mapping->getId());
@@ -81,6 +82,9 @@ void ShapeGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
 void ShapeGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
+  if (!_mapping->isVisible())
+    return;
+
   QGraphicsItem::mouseMoveEvent(event);
   _syncShape();
 }
@@ -145,12 +149,28 @@ void ShapeGraphicsItem::_syncVertices()
   }
 }
 
+void VertexGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
+{
+  ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
+  if (!shapeParent->getMapping()->isVisible())
+  {
+    // Prevent mouse grabbing.
+    event->ignore();
+  }
+  else
+  {
+    QGraphicsItem::mousePressEvent(event);
+  }
+}
+
 void VertexGraphicsItem::paint(QPainter *painter,
     const QStyleOptionGraphicsItem *option,
     QWidget* widget)
 {
   Q_UNUSED(widget);
-  if (((ShapeGraphicsItem*)parentItem())->getMapping()->getId() == MainWindow::instance()->getCurrentMappingId())
+  ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
+  if (shapeParent->getMapping()->isVisible() &&
+      shapeParent->getMapping()->getId() == MainWindow::instance()->getCurrentMappingId())
     Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected));
 }
 

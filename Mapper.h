@@ -104,6 +104,9 @@ public:
   }
   virtual ~VertexGraphicsItem() {}
 
+  // Prevent mousegrabbing if mapping is invisible.
+  void mousePressEvent(QGraphicsSceneMouseEvent *event);
+
   virtual void paint(QPainter *painter,
                      const QStyleOptionGraphicsItem *option,
                      QWidget* widget);
