@@ -1892,8 +1892,6 @@ void MainWindow::addMappingItem(uid mappingId)
     sourceCanvas->scene()->addItem(mapper->getInputGraphicsItem());
   if (mapper->getGraphicsItem())
     destinationCanvas->scene()->addItem(mapper->getGraphicsItem());
-  if (mapper->getGraphicsItem())
-    outputWindow->getCanvas()->scene()->addItem(mapper->getGraphicsItem());
 
   // Window was modified.
   windowModified();
