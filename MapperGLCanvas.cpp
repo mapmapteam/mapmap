@@ -33,7 +33,9 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
     _stickyVertices(true),
     _zoomLevel(0)
 {
-  setDragMode(QGraphicsView::RubberBandDrag);
+  // For now clicking on the window doesn't do anything.
+  setDragMode(QGraphicsView::NoDrag);
+
   setRenderHint(QPainter::Antialiasing, true);
   setRenderHint(QPainter::TextAntialiasing, true);
 
