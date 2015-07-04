@@ -21,15 +21,6 @@
 #include "Mapper.h"
 #include "MainWindow.h"
 
-void VertexGraphicsItem::paint(QPainter *painter,
-    const QStyleOptionGraphicsItem *option,
-    QWidget* widget)
-{
-  Q_UNUSED(widget);
-  if (((ShapeGraphicsItem*)parentItem())->getMapping()->getId() == MainWindow::instance()->getCurrentMappingId())
-    Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected));
-}
-
 ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
   : _mapping(mapping), _output(output)
 {
@@ -141,6 +132,15 @@ void ShapeGraphicsItem::_syncVertices()
     childItems().at(i)->setPos(this->mapFromScene(pos));
     childItems().at(i)->update();
   }
+}
+
+void VertexGraphicsItem::paint(QPainter *painter,
+    const QStyleOptionGraphicsItem *option,
+    QWidget* widget)
+{
+  Q_UNUSED(widget);
+  if (((ShapeGraphicsItem*)parentItem())->getMapping()->getId() == MainWindow::instance()->getCurrentMappingId())
+    Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected));
 }
 
 QPainterPath PolygonColorGraphicsItem::shape() const
