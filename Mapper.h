@@ -84,6 +84,9 @@ public:
   virtual void paint(QPainter *painter,
                      const QStyleOptionGraphicsItem *option, QWidget *widget);
 
+public:
+  void resetVertices();
+
 protected:
   virtual void _createVertices();
   virtual void _syncShape();

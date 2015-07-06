@@ -131,6 +131,20 @@ void ShapeGraphicsItem::paint(QPainter *painter,
 //  return QGraphicsItem::itemChange(change, value);
 //}
 
+void ShapeGraphicsItem::resetVertices() {
+  // Clear vertices.
+  QList<QGraphicsItem*> allChildren = children();
+  for (QList<QGraphicsItem*>::iterator it = allChildren.begin(); it!=allChildren.end(); ++it)
+  {
+    (*it)->setParentItem(0);
+    scene()->removeItem(*it);
+    delete (*it);
+  }
+
+  // Re-create them.
+  _createVertices();
+}
+
 void ShapeGraphicsItem::_createVertices()
 {
   // rect offset
