@@ -313,13 +313,43 @@ void TextureGraphicsItem::_doPaint(QPainter *painter,
   _preDraw(painter);
 
   // Perform the actual mapping (done by subclasses).
-  _doDraw(painter, selected);
+  if (isOutput())
+    _doDrawOutput(painter, selected);
+  else
+    _doDrawInput(painter, selected);
 
   // End drawing.
   _postDraw(painter);
 
   if (isMappingCurrent())
     _doDrawControls(painter);
+}
+
+void TextureGraphicsItem::_doDrawInput(QPainter* painter, bool selected)
+{
+  Q_UNUSED(painter);
+  Q_UNUSED(selected);
+  if (isMappingCurrent())
+  {
+    // FIXME: Does this draw the quad counterclockwise?
+    glBegin (GL_QUADS);
+    {
+      QRectF rect = mapFromScene(_texture->getRect()).boundingRect();
+
+      Util::correctGlTexCoord(0, 0);
+      glVertex3f (rect.x(), rect.y(), 0);
+
+      Util::correctGlTexCoord(1, 0);
+      glVertex3f (rect.x() + rect.width(), rect.y(), 0);
+
+      Util::correctGlTexCoord(1, 1);
+      glVertex3f (rect.x()+rect.width(), rect.y()+rect.height(), 0);
+
+      Util::correctGlTexCoord(0, 1);
+      glVertex3f (rect.x(), rect.y()+rect.height(), 0);
+    }
+    glEnd ();
+  }
 }
 
 void TextureGraphicsItem::_preDraw(QPainter* painter)
@@ -374,11 +404,11 @@ QRectF PolygonTextureGraphicsItem::boundingRect() const {
   return shape().boundingRect();
 }
 
-void TriangleTextureGraphicsItem::_doDraw(QPainter* painter, bool selected)
+void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter, bool selected)
 {
   Q_UNUSED(painter);
   Q_UNUSED(selected);
-  if (_output)
+  if (isOutput())
   {
     glBegin(GL_TRIANGLES);
     {
@@ -389,7 +419,7 @@ void TriangleTextureGraphicsItem::_doDraw(QPainter* painter, bool selected)
     }
     glEnd();
   }
-  else
+}
   {
     if (isMappingCurrent())
     {

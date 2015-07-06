@@ -163,7 +163,8 @@ protected:
   virtual void _doPaint(QPainter *painter,
                         const QStyleOptionGraphicsItem *option);
 
-  virtual void _doDraw(QPainter* painter, bool selected) = 0;
+  virtual void _doDrawOutput(QPainter* painter, bool selected) = 0;
+  virtual void _doDrawInput(QPainter* painter, bool selected);
   virtual void _doDrawControls(QPainter* painter) { Q_UNUSED(painter); }
   void _preDraw(QPainter* painter);
   void _postDraw(QPainter* painter);
@@ -181,6 +182,12 @@ public:
   PolygonTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : TextureGraphicsItem(mapping, output) {}
   virtual ~PolygonTextureGraphicsItem(){}
 
+  virtual void _doDrawControls(QPainter* painter) {
+    painter->setPen(MM::SHAPE_STROKE);
+    Polygon* poly = static_cast<Polygon*>(_shape.get());
+    Q_ASSERT(poly);
+    painter->drawPolygon(mapFromScene(poly->toPolygon()));
+  }
   virtual QPainterPath shape() const;
   virtual QRectF boundingRect() const;
 };
@@ -192,13 +199,9 @@ public:
   TriangleTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : PolygonTextureGraphicsItem(mapping, output) {}
   virtual ~TriangleTextureGraphicsItem(){}
 
-  virtual void _doDraw(QPainter* painter, bool selected);
-  virtual void _doDrawControls(QPainter* painter) {
-    painter->setPen(MM::SHAPE_STROKE);
-    Polygon* poly = static_cast<Polygon*>(_shape.get());
-    Q_ASSERT(poly);
-    painter->drawPolygon(mapFromScene(poly->toPolygon()));
-  }
+  virtual void _doDrawOutput(QPainter* painter, bool selected);
+
+};
 };
 
 /**
