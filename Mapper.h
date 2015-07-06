@@ -88,8 +88,13 @@ public:
   void resetVertices();
 
 protected:
+  // Generates the VertexGraphicsItems that are defining the vertices of that shape.
   virtual void _createVertices();
+
+  // Sync MShape from current VertexGraphicsItems.
   virtual void _syncShape();
+
+  // Sync VertexGraphicsItems from MShape.
   virtual void _syncVertices();
 
   virtual void _doPaint(QPainter *painter, const QStyleOptionGraphicsItem *option) = 0;
