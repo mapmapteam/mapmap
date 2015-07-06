@@ -165,7 +165,7 @@ protected:
 
   virtual void _doDrawOutput(QPainter* painter, bool selected) = 0;
   virtual void _doDrawInput(QPainter* painter, bool selected);
-  virtual void _doDrawControls(QPainter* painter) { Q_UNUSED(painter); }
+  virtual void _doDrawControls(QPainter* painter);
   void _preDraw(QPainter* painter);
   void _postDraw(QPainter* painter);
 
@@ -182,12 +182,8 @@ public:
   PolygonTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : TextureGraphicsItem(mapping, output) {}
   virtual ~PolygonTextureGraphicsItem(){}
 
-  virtual void _doDrawControls(QPainter* painter) {
-    painter->setPen(MM::SHAPE_STROKE);
-    Polygon* poly = static_cast<Polygon*>(_shape.get());
-    Q_ASSERT(poly);
-    painter->drawPolygon(mapFromScene(poly->toPolygon()));
-  }
+  virtual void _doDrawControls(QPainter* painter);
+
   virtual QPainterPath shape() const;
   virtual QRectF boundingRect() const;
 };
@@ -212,6 +208,22 @@ public:
 
   virtual void _doDrawOutput(QPainter* painter, bool selected);
   virtual void _doDrawControls(QPainter* painter);
+};
+
+/// Graphics item for textured mesh.
+class EllipseTextureGraphicsItem : public TextureGraphicsItem
+{
+public:
+  EllipseTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : TextureGraphicsItem(mapping, output) {}
+  virtual ~EllipseTextureGraphicsItem(){}
+
+  virtual QPainterPath shape() const;
+  virtual QRectF boundingRect() const;
+
+  virtual void _doDrawOutput(QPainter* painter, bool selected);
+  virtual void _doDrawControls(QPainter* painter);
+
+  static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
 };
 
 /**
@@ -400,14 +412,8 @@ public:
   MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
   virtual ~MeshTextureMapper() {}
 
-  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0);
-  virtual void drawInputControls(QPainter* painter, const QList<int>* selectedVertices=0);
-
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
-
-protected:
-  virtual void _doDraw(QPainter* painter);
 
 private:
   QtVariantProperty* _meshItem;
@@ -420,11 +426,7 @@ public:
   EllipseTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
   virtual ~EllipseTextureMapper() {}
 
-  virtual void drawControls(QPainter* painter, const QList<int>* selectedVertices=0);
-  virtual void drawInputControls(QPainter* painter, const QList<int>* selectedVertices=0);
-
 protected:
-  virtual void _doDraw(QPainter* painter);
   static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
 };
 
