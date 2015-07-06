@@ -63,8 +63,8 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
     QLineF& seg = *it;
     QPointF p1 = seg.p1();
     QPointF p2 = seg.p2();
-    seg.setP1( p1 + (p1 - p2) * 0.2f);
-    seg.setP2( p2 + (p2 - p1) * 0.2f);
+    seg.setP1( p1 + (p1 - p2) * 0.35f);
+    seg.setP2( p2 + (p2 - p1) * 0.35f);
   }
 
   // For each adjunct segment.
