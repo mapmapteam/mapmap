@@ -202,6 +202,16 @@ public:
   virtual void _doDrawOutput(QPainter* painter, bool selected);
 
 };
+
+/// Graphics item for textured mesh.
+class MeshTextureGraphicsItem : public PolygonTextureGraphicsItem
+{
+public:
+  MeshTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : PolygonTextureGraphicsItem(mapping, output) {}
+  virtual ~MeshTextureGraphicsItem(){}
+
+  virtual void _doDrawOutput(QPainter* painter, bool selected);
+  virtual void _doDrawControls(QPainter* painter);
 };
 
 /**
@@ -230,10 +240,10 @@ public:
   /// Returns a pointer to the properties editor for that mapper.
   virtual QWidget* getPropertiesEditor();
 
-  virtual QGraphicsItem* getGraphicsItem() {
+  virtual ShapeGraphicsItem* getGraphicsItem() {
     return _graphicsItem;
   }
-  virtual QGraphicsItem* getInputGraphicsItem() {
+  virtual ShapeGraphicsItem* getInputGraphicsItem() {
     return _inputGraphicsItem;
   }
 
@@ -255,8 +265,8 @@ protected:
 
   std::map<QtProperty*, std::pair<MShape*, int> > _propertyToVertex;
 
-  QGraphicsItem* _graphicsItem;
-  QGraphicsItem* _inputGraphicsItem;
+  ShapeGraphicsItem* _graphicsItem;
+  ShapeGraphicsItem* _inputGraphicsItem;
 
   // FIXME: use typedefs, member of the class for type names that are too long to type:
   MShape::ptr outputShape;

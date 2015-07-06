@@ -171,6 +171,10 @@ void ShapeGraphicsItem::_syncShape()
     QGraphicsItem* child = children.at(i);
     _shape->setVertex(i, child->scenePos());
   }
+
+  // The shape object is the model: it contains the logic to make sure the vertices are ok.
+  // So here we need to re-sync the vertices (view side) according to the model.
+  _syncVertices();
 }
 
 void ShapeGraphicsItem::_syncVertices()
@@ -420,29 +424,53 @@ void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter, bool selected
     glEnd();
   }
 }
+
+void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter, bool selected)
+{
+  Q_UNUSED(painter);
+  Q_UNUSED(selected);
+  if (isOutput())
   {
-    if (isMappingCurrent())
+    std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(_shape);
+    std::tr1::shared_ptr<Mesh> inputMesh  = std::tr1::static_pointer_cast<Mesh>(_inputShape);
+    QVector<QVector<Quad> > outputQuads = outputMesh->getQuads2d();
+    QVector<QVector<Quad> > inputQuads  = inputMesh->getQuads2d();
+    for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
     {
-      // FIXME: Does this draw the quad counterclockwise?
-      glBegin (GL_QUADS);
+      for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
       {
-        QRectF rect = mapFromScene(_texture->getRect()).boundingRect();
-
-        Util::correctGlTexCoord(0, 0);
-        glVertex3f (rect.x(), rect.y(), 0);
-
-        Util::correctGlTexCoord(1, 0);
-        glVertex3f (rect.x() + rect.width(), rect.y(), 0);
-
-        Util::correctGlTexCoord(1, 1);
-        glVertex3f (rect.x()+rect.width(), rect.y()+rect.height(), 0);
-
-        Util::correctGlTexCoord(0, 1);
-        glVertex3f (rect.x(), rect.y()+rect.height(), 0);
+        Quad& outputQuad = outputQuads[x][y];
+        Quad& inputQuad  = inputQuads[x][y];
+        glBegin(GL_QUADS);
+        for (int i = 0; i < outputQuad.nVertices(); i++)
+        {
+          Util::setGlTexPoint(*_texture, inputQuad.getVertex(i), mapFromScene(outputQuad.getVertex(i)));
+        }
+        glEnd();
       }
-      glEnd ();
     }
   }
+
+}
+
+void MeshTextureGraphicsItem::_doDrawControls(QPainter* painter)
+{
+  Mesh* mesh = static_cast<Mesh*>(_shape.get());
+  Q_ASSERT(mesh);
+
+  // Init colors and stroke.
+  painter->setPen(MM::SHAPE_INNER_STROKE);
+
+  // Draw inner quads.
+  QVector<Quad> quads = mesh->getQuads();
+  for (QVector<Quad>::const_iterator it = quads.begin(); it != quads.end(); ++it)
+  {
+    painter->drawPolygon(mapFromScene(it->toPolygon()));
+  }
+
+  // Draw outer quad.
+  painter->setPen(MM::SHAPE_STROKE);
+  painter->drawPolygon(mapFromScene(mesh->toPolygon()));
 }
 
 Mapper::Mapper(Mapping::ptr mapping)
@@ -753,6 +781,9 @@ TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping
 MeshTextureMapper::MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   : PolygonTextureMapper(mapping)
 {
+  _graphicsItem = new MeshTextureGraphicsItem(_mapping, true);
+  _inputGraphicsItem = new MeshTextureGraphicsItem(_mapping, false);
+
   // Add mesh sub property.
   Mesh* mesh = (Mesh*)textureMapping->getShape().get();
   _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
@@ -775,6 +806,11 @@ void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
     {
       outputMesh->resize(size.width(), size.height());
       inputMesh->resize(size.width(), size.height());
+
+      _graphicsItem->resetVertices();
+      _inputGraphicsItem->resetVertices();
+
+      // TODO: here we need to create the graphicsitems
 
       emit valueChanged();
     }
