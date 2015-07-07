@@ -450,7 +450,7 @@ bool MediaImpl::loadMovie(QString filename)
   gst_bin_add_many (GST_BIN (_pipeline),
     _isSharedMemorySource ? _shmsrc0 : _uridecodebin0, _queue0,
     _videoconvert0, videoscale0, capsfilter0, _appsink0,
-    _audioqueue0, _audioconvert0, _audioresample0, _audiovolume0, _audiosink0,
+//    _audioqueue0, _audioconvert0, _audioresample0, _audiovolume0, _audiosink0,
     NULL);
 
   // special case for shmsrc
@@ -477,13 +477,13 @@ bool MediaImpl::loadMovie(QString filename)
     return false;
   }
 
-  if (! gst_element_link_many (_audioqueue0, _audioconvert0, _audioresample0,
-        _audiovolume0, _audiosink0, NULL))
-  {
-    g_printerr ("Could not link audio queue, converter, resampler and audio sink.\n");
-    unloadMovie();
-    return false;
-  }
+//  if (! gst_element_link_many (_audioqueue0, _audioconvert0, _audioresample0,
+//        _audiovolume0, _audiosink0, NULL))
+//  {
+//    g_printerr ("Could not link audio queue, converter, resampler and audio sink.\n");
+//    unloadMovie();
+//    return false;
+//  }
 
   // Process URI.
   QByteArray ba = filename.toLocal8Bit();
