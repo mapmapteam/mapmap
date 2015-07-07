@@ -150,7 +150,7 @@ private:
   QUndoStack *undoStack;
 
 signals:
-  void shapeChanged(Shape*);
+  void shapeChanged(MShape*);
   void imageChanged();
 
 public slots:
