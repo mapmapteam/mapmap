@@ -99,6 +99,9 @@ protected:
 
   virtual void _doPaint(QPainter *painter, const QStyleOptionGraphicsItem *option) = 0;
 
+  // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
+  void _glueVertex(QPointF* p);
+
   Mapping::ptr _mapping;
   MShape::ptr _shape;
   bool _output;

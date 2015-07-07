@@ -52,6 +52,10 @@ bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event
 
 //    QPointF pos = moveEvent->newPos();// + this->pos();
     QPointF pos = mouseEvent->scenePos();
+
+    // Sticky vertex.
+    _glueVertex(&pos);
+
  //   qDebug() << moveEvent->oldPos() << " " << pos << " " << childItems().at(idx)->pos() << endl;
     _shape->setVertex(idx, pos);
 
@@ -98,6 +102,8 @@ void ShapeGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     return;
 
   QGraphicsItem::mouseMoveEvent(event);
+
+  // Sync shape.
   _syncShape();
 }
 
@@ -168,8 +174,7 @@ void ShapeGraphicsItem::_syncShape()
   QList<QGraphicsItem*> children = childItems();
   for (int i=0; i<_shape->nVertices(); i++)
   {
-    QGraphicsItem* child = children.at(i);
-    _shape->setVertex(i, child->scenePos());
+    _shape->setVertex(i, children.at(i)->scenePos());
   }
 
   // The shape object is the model: it contains the logic to make sure the vertices are ok.
@@ -184,6 +189,28 @@ void ShapeGraphicsItem::_syncVertices()
     QPointF pos = _shape->getVertex(i) ;//- this->pos(); // this is in scene coordinates
     childItems().at(i)->setPos(this->mapFromScene(pos));
     childItems().at(i)->update();
+  }
+}
+
+void ShapeGraphicsItem::_glueVertex(QPointF* p)
+{
+  qDebug() << "Gluing vertex" << endl;
+  MappingManager manager = MainWindow::instance()->getMappingManager();
+  for (int i = 0; i < manager.nMappings(); i++)
+  {
+    MShape *shape = manager.getMapping(i)->getShape().get();
+    if (shape && shape != _shape.get())
+    {
+      for (int vertex = 0; vertex < shape->nVertices(); vertex++)
+      {
+        const QPointF& v = shape->getVertex(vertex);
+        if (distIsInside(v, *p, MM::VERTEX_STICK_RADIUS))
+        {
+          p->setX(v.x());
+          p->setY(v.y());
+        }
+      }
+    }
   }
 }
 

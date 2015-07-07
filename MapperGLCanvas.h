@@ -60,9 +60,6 @@ public:
    * close enough. The distance per coordinate is currently set in dist_stick
    * variable.
    */
-  // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
-  void glueVertex(MShape *, QPointF *);
-
   /// Returns pointer to main window.
   MainWindow* getMainWindow() const { return _mainWindow; }
 

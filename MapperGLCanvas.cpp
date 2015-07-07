@@ -334,29 +334,29 @@ void MapperGLCanvas::enableStickyVertices(bool value)
   _stickyVertices = value;
 }
 
-/* Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
- * close enough. The distance per coordinate is currently set in dist_stick
- * variable. Perhaps the sticky-sensitivity should be configurable through GUI */
-void MapperGLCanvas::glueVertex(MShape *orig, QPointF *p)
-{
-  MappingManager manager = getMainWindow()->getMappingManager();
-  for (int i = 0; i < manager.nMappings(); i++)
-  {
-    MShape *shape = getShapeFromMappingId(manager.getMapping(i)->getId());
-    if (shape && shape != orig)
-    {
-      for (int vertex = 0; vertex < shape->nVertices(); vertex++)
-      {
-        const QPointF& v = shape->getVertex(vertex);
-        if (distIsInside(v, *p, MM::VERTEX_STICK_RADIUS))
-        {
-          p->setX(v.x());
-          p->setY(v.y());
-        }
-      }
-    }
-  }
-}
+///* Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
+// * close enough. The distance per coordinate is currently set in dist_stick
+// * variable. Perhaps the sticky-sensitivity should be configurable through GUI */
+//void MapperGLCanvas::glueVertex(MShape *orig, QPointF *p)
+//{
+//  MappingManager manager = getMainWindow()->getMappingManager();
+//  for (int i = 0; i < manager.nMappings(); i++)
+//  {
+//    MShape *shape = getShapeFromMappingId(manager.getMapping(i)->getId());
+//    if (shape && shape != orig)
+//    {
+//      for (int vertex = 0; vertex < shape->nVertices(); vertex++)
+//      {
+//        const QPointF& v = shape->getVertex(vertex);
+//        if (distIsInside(v, *p, MM::VERTEX_STICK_RADIUS))
+//        {
+//          p->setX(v.x());
+//          p->setY(v.y());
+//        }
+//      }
+//    }
+//  }
+//}
 
 
 void MapperGLCanvas::deselectVertices()
