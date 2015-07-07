@@ -23,11 +23,11 @@
 
 #include "MainWindow.h"
 
-OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
+OutputGLWindow:: OutputGLWindow(const DestinationGLCanvas* canvas_)
 {
   resize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 
-  canvas = new DestinationGLCanvas(mainWindow, this, shareWidget);
+  canvas = new DestinationGLCanvas(canvas_->getMainWindow(), this, (const QGLWidget*)canvas_->viewport(), canvas_->scene());
   canvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   canvas->setMinimumSize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 
@@ -40,8 +40,27 @@ OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QG
   _geometry = saveGeometry();
 
   _pointerIsVisible = true;
-
 }
+
+//OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
+//{
+//  resize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
+//
+//  canvas = new DestinationGLCanvas(mainWindow, this, shareWidget);
+//  canvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//  canvas->setMinimumSize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
+//
+//  QLayout* layout = new QVBoxLayout;
+//  layout->setContentsMargins(0,0,0,0); // remove margin
+//  layout->addWidget(canvas);
+//  setLayout(layout);
+//
+//  // Save window geometry.
+//  _geometry = saveGeometry();
+//
+//  _pointerIsVisible = true;
+//
+//}
 
 void OutputGLWindow::setCursorVisible(bool visible)
 {
@@ -54,6 +73,7 @@ void OutputGLWindow::setCursorVisible(bool visible)
   }
   else
   {
+    this->setCursor(Qt::ArrowCursor);
     this->setCursor(Qt::BlankCursor);
     _pointerIsVisible = false;
   }

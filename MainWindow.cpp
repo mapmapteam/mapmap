@@ -52,6 +52,9 @@ MainWindow::MainWindow()
   createMenus();
   createContextMenu();
   createToolBars();
+  createStatusBar();
+  updateRecentFileActions();
+  updateRecentVideoActions();
 
   // Load settings.
   readSettings();
@@ -139,6 +142,7 @@ void MainWindow::handleMappingItemSelectionChanged()
   // Update canvases.
   updateCanvases();
 }
+
 void MainWindow::setMappingItemVisibility(uid mappingId, bool visible)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
@@ -511,7 +515,7 @@ void MainWindow::addMesh()
   Mapping* mappingPtr;
   if (paint->getType() == "color")
   {
-    Shape::ptr outputQuad = Shape::ptr(Util::createQuadForColor(sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputQuad = MShape::ptr(Util::createQuadForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputQuad);
   }
   else
@@ -519,8 +523,8 @@ void MainWindow::addMesh()
     std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
     Q_CHECK_PTR(texture);
 
-    Shape::ptr outputQuad = Shape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-    Shape::ptr  inputQuad = Shape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputQuad = MShape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr  inputQuad = MShape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, outputQuad, inputQuad);
   }
 
@@ -547,7 +551,7 @@ void MainWindow::addTriangle()
   Mapping* mappingPtr;
   if (paint->getType() == "color")
   {
-    Shape::ptr outputTriangle = Shape::ptr(Util::createTriangleForColor(sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputTriangle);
   }
   else
@@ -555,8 +559,8 @@ void MainWindow::addTriangle()
     std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
     Q_CHECK_PTR(texture);
 
-    Shape::ptr outputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-    Shape::ptr inputTriangle = Shape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr inputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, inputTriangle, outputTriangle);
   }
 
@@ -583,7 +587,7 @@ void MainWindow::addEllipse()
   Mapping* mappingPtr;
   if (paint->getType() == "color")
   {
-    Shape::ptr outputEllipse = Shape::ptr(Util::createEllipseForColor(sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputEllipse);
   }
   else
@@ -591,8 +595,8 @@ void MainWindow::addEllipse()
     std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
     Q_CHECK_PTR(texture);
 
-    Shape::ptr outputEllipse = Shape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-    Shape::ptr inputEllipse = Shape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr inputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, inputEllipse, outputEllipse);
   }
 
@@ -665,6 +669,13 @@ void MainWindow::about()
 
   // Restart video playback. XXX Hack
   videoTimer->start();
+}
+
+void MainWindow::updateStatusBar()
+{
+  // Nothing to do for now.
+//  locationLabel->setText(spreadsheet->currentLocation());
+//  formulaLabel->setText(spreadsheet->currentFormula());
 }
 
 /**
@@ -846,8 +857,8 @@ uid MainWindow::createMeshTextureMapping(uid mappingId,
     qDebug() << nVertices << " vs " << nColumns << "x" << nRows << " vs " << src.size() << " " << dst.size() << endl;
     Q_ASSERT(src.size() == nVertices && dst.size() == nVertices);
 
-    Shape::ptr inputMesh( new Mesh(src, nColumns, nRows));
-    Shape::ptr outputMesh(new Mesh(dst, nColumns, nRows));
+    MShape::ptr inputMesh( new Mesh(src, nColumns, nRows));
+    MShape::ptr outputMesh(new Mesh(dst, nColumns, nRows));
 
     // Add it to the manager.
     Mapping::ptr mapping(new TextureMapping(paint, outputMesh, inputMesh, mappingId));
@@ -876,8 +887,8 @@ uid MainWindow::createTriangleTextureMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(src.size() == 3 && dst.size() == 3);
 
-    Shape::ptr inputTriangle( new Triangle(src[0], src[1], src[2]));
-    Shape::ptr outputTriangle(new Triangle(dst[0], dst[1], dst[2]));
+    MShape::ptr inputTriangle( new Triangle(src[0], src[1], src[2]));
+    MShape::ptr outputTriangle(new Triangle(dst[0], dst[1], dst[2]));
 
     // Add it to the manager.
     Mapping::ptr mapping(new TextureMapping(paint, outputTriangle, inputTriangle, mappingId));
@@ -906,8 +917,8 @@ uid MainWindow::createEllipseTextureMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(src.size() == 5 && dst.size() == 5);
 
-    Shape::ptr inputEllipse( new Ellipse(src[0], src[1], src[2], src[3], src[4]));
-    Shape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3], dst[4]));
+    MShape::ptr inputEllipse( new Ellipse(src[0], src[1], src[2], src[3], src[4]));
+    MShape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3], dst[4]));
 
     // Add it to the manager.
     Mapping::ptr mapping(new TextureMapping(paint, outputEllipse, inputEllipse, mappingId));
@@ -936,7 +947,7 @@ uid MainWindow::createQuadColorMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(dst.size() == 4);
 
-    Shape::ptr outputQuad(new Quad(dst[0], dst[1], dst[2], dst[3]));
+    MShape::ptr outputQuad(new Quad(dst[0], dst[1], dst[2], dst[3]));
 
     // Add it to the manager.
     Mapping::ptr mapping(new ColorMapping(paint, outputQuad, mappingId));
@@ -965,7 +976,7 @@ uid MainWindow::createTriangleColorMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(dst.size() == 3);
 
-    Shape::ptr outputTriangle(new Triangle(dst[0], dst[1], dst[2]));
+    MShape::ptr outputTriangle(new Triangle(dst[0], dst[1], dst[2]));
 
     // Add it to the manager.
     Mapping::ptr mapping(new ColorMapping(paint, outputTriangle, mappingId));
@@ -994,7 +1005,7 @@ uid MainWindow::createEllipseColorMapping(uid mappingId,
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     Q_ASSERT(dst.size() == 4);
 
-    Shape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3]));
+    MShape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3]));
 
     // Add it to the manager.
     Mapping::ptr mapping(new ColorMapping(paint, outputEllipse, mappingId));
@@ -1046,9 +1057,9 @@ void MainWindow::cloneMappingItem(uid mappingId)
 
   // Get Mapping Paint and Shape
   Paint::ptr paint = mappingPtr->getPaint();
-  Shape::ptr shape = mappingPtr->getShape();
+  MShape::ptr shape = mappingPtr->getShape();
   // Temporary shared pointers
-  Shape::ptr shapePtr;
+  MShape::ptr shapePtr;
   // Create new mapping
   Mapping *mapping;
 
@@ -1058,31 +1069,31 @@ void MainWindow::cloneMappingItem(uid mappingId)
   if (paint->getType() == "color") // Color paint
   {
     if (shapeType == "quad")
-      shapePtr = Shape::ptr(new Quad(shape->getVertex(0), shape->getVertex(1),
+      shapePtr = MShape::ptr(new Quad(shape->getVertex(0), shape->getVertex(1),
                                    shape->getVertex(2), shape->getVertex(3)));
 
     if (shapeType == "triangle")
-      shapePtr = Shape::ptr(new Triangle(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2)));
+      shapePtr = MShape::ptr(new Triangle(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2)));
 
     if (shapeType == "ellipse")
-      shapePtr = Shape::ptr(new Ellipse(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2),
+      shapePtr = MShape::ptr(new Ellipse(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2),
                              shape->getVertex(3)));
 
     mapping = new ColorMapping(paint, shapePtr);
   }
   else // Or Texture Paint
   {
-    Shape::ptr inputShape = mappingPtr->getInputShape();
+    MShape::ptr inputShape = mappingPtr->getInputShape();
 
     if (shapeType == "mesh")
-      shapePtr = Shape::ptr(new Mesh(shape->getVertex(0), shape->getVertex(1),
+      shapePtr = MShape::ptr(new Mesh(shape->getVertex(0), shape->getVertex(1),
                                    shape->getVertex(3), shape->getVertex(2)));
 
     if (shapeType == "triangle")
-      shapePtr = Shape::ptr(new Triangle(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2)));
+      shapePtr = MShape::ptr(new Triangle(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2)));
 
     if (shapeType == "ellipse")
-      shapePtr = Shape::ptr(new Ellipse(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2),
+      shapePtr = MShape::ptr(new Ellipse(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2),
                              shape->getVertex(3), shape->getVertex(4)));
 
     mapping = new TextureMapping(paint, shapePtr, inputShape);
@@ -1123,6 +1134,7 @@ void MainWindow::deletePaint(uid paintId, bool replace)
 void MainWindow::windowModified()
 {
   setWindowModified(true);
+  updateStatusBar();
 }
 
 void MainWindow::createLayout()
@@ -1160,31 +1172,28 @@ void MainWindow::createLayout()
   sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  destinationCanvas = new DestinationGLCanvas(this, 0, sourceCanvas);
+  destinationCanvas = new DestinationGLCanvas(this, 0, (QGLWidget*)sourceCanvas->viewport());
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  outputWindow = new OutputGLWindow(this, this, sourceCanvas);
+  outputWindow = new OutputGLWindow(destinationCanvas);
   outputWindow->setVisible(true);
   outputWindow->installEventFilter(destinationCanvas);
   outputWindow->installEventFilter(this);
 
-  // Source changed -> change destination
-  connect(sourceCanvas,      SIGNAL(shapeChanged(Shape*)),
-          destinationCanvas, SLOT(updateCanvas()));
+  // Source scene changed -> change destination.
+  connect(sourceCanvas->scene(), SIGNAL(changed(const QList<QRectF>&)),
+          destinationCanvas,     SLOT(update()));
 
-  // Source changed -> change output window
-  connect(sourceCanvas,              SIGNAL(shapeChanged(Shape*)),
-          outputWindow->getCanvas(), SLOT(updateCanvas()));
-
-  // Destination changed -> change output window
-  connect(destinationCanvas,         SIGNAL(shapeChanged(Shape*)),
-          outputWindow->getCanvas(), SLOT(updateCanvas()));
+  // Destination scene changed -> change output window.
+  connect(destinationCanvas->scene(), SIGNAL(changed(const QList<QRectF>&)),
+          outputWindow->getCanvas(),  SLOT(update()));
 
   // Output changed -> change destinatioin
-  connect(outputWindow->getCanvas(), SIGNAL(shapeChanged(Shape*)),
-          destinationCanvas,         SLOT(updateCanvas()));
+  // XXX si je decommente cette ligne alors quand je clique sur ajouter media ca gele...
+//  connect(outputWindow->getCanvas()->scene(), SIGNAL(changed(const QList<QRectF>&)),
+//          destinationCanvas,                  SLOT(updateCanvas()));
 
   // Create layout.
   paintSplitter = new QSplitter(Qt::Vertical);
@@ -1634,6 +1643,27 @@ void MainWindow::createToolBars()
 //  editToolBar->addAction(cloneAction);
 //  editToolBar->addAction(deleteAction);
 //  editToolBar->addSeparator();
+//  editToolBar->addAction(findAction);
+//  editToolBar->addAction(goToCellAction);
+}
+
+void MainWindow::createStatusBar()
+{
+//  locationLabel = new QLabel(" W999 ");
+//  locationLabel->setAlignment(Qt::AlignHCenter);
+//  locationLabel->setMinimumSize(locationLabel->sizeHint());
+//
+//  formulaLabel = new QLabel;
+//  formulaLabel->setIndent(3);
+//
+//  statusBar()->addWidget(locationLabel);
+//  statusBar()->addWidget(formulaLabel, 1);
+//
+//  connect(spreadsheet, SIGNAL(currentCellChanged(int, int, int, int)), this,
+//      SLOT(updateStatusBar()));
+//  connect(spreadsheet, SIGNAL(modified()), this, SLOT(spreadsheetModified()));
+
+  updateStatusBar();
 }
 
 void MainWindow::readSettings()
@@ -2082,11 +2112,11 @@ void MainWindow::addMappingItem(uid mappingId)
   connect(mapper.get(), SIGNAL(valueChanged()),
           this,         SLOT(updateCanvases()));
 
-  connect(sourceCanvas, SIGNAL(shapeChanged(Shape*)),
-          mapper.get(), SLOT(updateShape(Shape*)));
+  connect(sourceCanvas, SIGNAL(shapeChanged(MShape*)),
+          mapper.get(), SLOT(updateShape(MShape*)));
 
-  connect(destinationCanvas, SIGNAL(shapeChanged(Shape*)),
-          mapper.get(), SLOT(updateShape(Shape*)));
+  connect(destinationCanvas, SIGNAL(shapeChanged(MShape*)),
+          mapper.get(), SLOT(updateShape(MShape*)));
   
   connect(this, SIGNAL(paintChanged()),
           mapper.get(), SLOT(updatePaint()));
@@ -2107,6 +2137,12 @@ void MainWindow::addMappingItem(uid mappingId)
   // Disable Test signal when add Shapes
   outputWindow->getCanvas()->enableTestSignal(false);
   destinationCanvas->enableTestSignal(false);
+
+  // Add items to scenes.
+  if (mapper->getInputGraphicsItem())
+    sourceCanvas->scene()->addItem(mapper->getInputGraphicsItem());
+  if (mapper->getGraphicsItem())
+    destinationCanvas->scene()->addItem(mapper->getGraphicsItem());
 
   // Window was modified.
   windowModified();
@@ -2188,11 +2224,19 @@ void MainWindow::clearWindow()
   clearProject();
 }
 
+MainWindow* MainWindow::instance() {
+  static MainWindow* inst = 0;
+  if (!inst) {
+    inst = new MainWindow;
+  }
+  return inst;
+}
+
 void MainWindow::updateCanvases()
 {
-  sourceCanvas->update();
-  destinationCanvas->update();
-  outputWindow->getCanvas()->update();
+  sourceCanvas->updateCanvas();
+  destinationCanvas->updateCanvas();
+  outputWindow->getCanvas()->updateCanvas();
 }
 
 void MainWindow::showMappingContextMenu(const QPoint &point)

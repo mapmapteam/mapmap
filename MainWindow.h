@@ -88,6 +88,7 @@ private slots:
   void importImage();
   void addColor();
   void about();
+  void updateStatusBar();
   void openRecentFile();
   void clearRecentFileList();
   void openRecentVideo();
@@ -198,6 +199,7 @@ private:
   void createMenus();
   void createContextMenu();
   void createToolBars();
+  void createStatusBar();
   void updateRecentFileActions();
   void updateRecentVideoActions();
 
@@ -224,6 +226,9 @@ public:
   void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
   void clearWindow();
+
+  static MainWindow* instance();
+
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
   void setMappingItemVisibility(uid mappingId, bool visible);

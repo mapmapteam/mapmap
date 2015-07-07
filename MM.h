@@ -53,18 +53,23 @@ public:
   static const QBrush VERTEX_BACKGROUND;
   static const QBrush VERTEX_SELECTED_BACKGROUND;
 
-  static const qreal SHAPE_STROKE_WIDTH = 2;
-  static const qreal SHAPE_INNER_STROKE_WIDTH = 0.5;
+  static const qreal SHAPE_STROKE_WIDTH;
+  static const qreal SHAPE_INNER_STROKE_WIDTH;
   static const QPen  SHAPE_STROKE;
   static const QPen  SHAPE_INNER_STROKE;
 
   // Control.
-  static const qreal VERTEX_STICK_RADIUS = 10;
-  static const qreal VERTEX_SELECT_RADIUS = 10;
-  static const qreal VERTEX_SELECT_STROKE_WIDTH = 1;
+  static const qreal VERTEX_STICK_RADIUS;
+  static const qreal VERTEX_SELECT_RADIUS;
+  static const qreal VERTEX_SELECT_STROKE_WIDTH;
 
   // Time.
-  static const float FRAMES_PER_SECOND = 29.97f;
+  static const qreal FRAMES_PER_SECOND;
+
+  // Zoom.
+  static const qreal ZOOM_FACTOR;
+  static const qreal ZOOM_MIN;
+  static const qreal ZOOM_MAX;
 };
 
 #endif

@@ -37,14 +37,14 @@ void MoveVertexCommand::undo()
 {
   m_shape->setVertex(m_activeVertex, vertexPosition);
   m_mapperGLCanvas->update();
-  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
+//  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
 }
 
 void MoveVertexCommand::redo()
 {
   m_shape->setVertex(m_activeVertex, vertexPosition);
   m_mapperGLCanvas->update();
-  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
+//  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
 }
 
 
@@ -61,14 +61,14 @@ void MoveShapesCommand::undo()
 {
   m_shape->translate(oldPosition.x(), oldPosition.y());
   m_mapperGLCanvas->update();
-  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
+//  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
 }
 
 void MoveShapesCommand::redo()
 {
   m_shape->translate(m_event->x() - newPosition.x(), m_event->y() - newPosition.y());
   m_mapperGLCanvas->update();
-  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
+//  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
 
   oldPosition.setX(newPosition.x() - m_event->x());
   oldPosition.setY(newPosition.y() - m_event->y());

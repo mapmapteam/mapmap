@@ -19,7 +19,7 @@
 
 #include "Shape.h"
 
-void Shape::translate(int x, int y)
+void MShape::translate(int x, int y)
 {
   for (QVector<QPointF>::iterator it = vertices.begin() ;
       it != vertices.end(); ++it)
@@ -63,8 +63,8 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
     QLineF& seg = *it;
     QPointF p1 = seg.p1();
     QPointF p2 = seg.p2();
-    seg.setP1( p1 + (p1 - p2) * 0.2f);
-    seg.setP2( p2 + (p2 - p1) * 0.2f);
+    seg.setP1( p1 + (p1 - p2) * 0.35f);
+    seg.setP2( p2 + (p2 - p1) * 0.35f);
   }
 
   // For each adjunct segment.
@@ -507,10 +507,10 @@ void Ellipse::setVertex(int i, const QPointF& v)
     transform *= fromUnitCircle();
 
     // Set vertices.
-    Shape::setVertex(1, transform.map( getVertex(1) ));
-    Shape::setVertex(3, transform.map( getVertex(3) ));
+    MShape::setVertex(1, transform.map( getVertex(1) ));
+    MShape::setVertex(3, transform.map( getVertex(3) ));
     if (hasCenterControl())
-      Shape::setVertex(4, transform.map( getVertex(4) ));
+      MShape::setVertex(4, transform.map( getVertex(4) ));
   }
 
   // If changed one of the two other points, just change the vertical axis.

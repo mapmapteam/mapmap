@@ -21,15 +21,15 @@
 #include "DestinationGLCanvas.h"
 #include "MainWindow.h"
 
-DestinationGLCanvas::DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget)
-: MapperGLCanvas(mainWindow, parent, shareWidget),
+DestinationGLCanvas::DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget* shareWidget, QGraphicsScene* scene)
+: MapperGLCanvas(mainWindow, parent, shareWidget, scene),
   _displayCrosshair(false),
   _svg_test_signal(":/test-signal"),
   _brush_test_signal(_svg_test_signal)
 {
 }
 
-Shape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
+MShape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
 {
   if (mappingId == NULL_UID)
     return NULL;
@@ -37,7 +37,7 @@ Shape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
     return getMainWindow()->getMappingManager().getMappingById(mappingId)->getShape().get();
 }
 
-void DestinationGLCanvas::doDraw(QPainter* painter)
+void DestinationGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 {
   if (this->displayTestSignal())
   {
@@ -49,51 +49,17 @@ void DestinationGLCanvas::doDraw(QPainter* painter)
     return;
   }
 
-  glPushMatrix();
-
-  // Draw the mappings.
-  QVector<Mapping::ptr> mappings = getMainWindow()->getMappingManager().getVisibleMappings();
-  for (QVector<Mapping::ptr>::const_iterator it = mappings.begin(); it != mappings.end(); ++it)
-  {
-    painter->save();
-    getMainWindow()->getMapperByMappingId((*it)->getId())->draw(painter);
-    painter->restore();
-  }
-
-  // Draw the controls of current mapping.
-  if (displayControls() &&
-      getMainWindow()->hasCurrentMapping() &&
-      getCurrentShape() != NULL)
-  {
-    painter->save();
-    const Mapper::ptr& mapper = getMainWindow()->getMapperByMappingId(getMainWindow()->getCurrentMappingId());
-    if (hasActiveVertex()) {
-      QList<int> selectedVertices;
-      selectedVertices.append(getActiveVertexIndex());
-      mapper->drawControls(painter, &selectedVertices);
-    }
-    else
-    {
-      mapper->drawControls(painter);
-    }
-    painter->restore();
-  }
-
-  glPopMatrix();
-
   // Display crosshair cursor.
   if (_displayCrosshair)
   {
-    const QPoint& cursorPosition = this->mapFromGlobal(QCursor::pos());
-    const QRect& geo = geometry();
-    if (geo.contains(cursorPosition))
+    QPointF cursorPosition = mapToScene(cursor().pos());// - rect.topLeft();//(QCursor::pos());///*this->mapFromGlobal(*/QCursor::pos()/*)*/;
+    if (rect.contains(cursorPosition))
     {
       painter->setPen(MM::CONTROL_COLOR);
-      painter->drawLine(cursorPosition.x(), 0, cursorPosition.x(), geo.height());
-      painter->drawLine(0, cursorPosition.y(), geo.width(), cursorPosition.y());
+      painter->drawLine(cursorPosition.x(), rect.y(), cursorPosition.x(), rect.height());
+      painter->drawLine(rect.x(), cursorPosition.y(), rect.width(), cursorPosition.y());
     }
   }
-
 }
 
 void DestinationGLCanvas::_drawTestSignal(QPainter* painter)

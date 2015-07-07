@@ -31,17 +31,19 @@ class DestinationGLCanvas: public MapperGLCanvas
   Q_OBJECT
 
 public:
-  DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
-//  virtual ~DestinationGLCanvas();
+  DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
+  virtual ~DestinationGLCanvas() {}
 
-  virtual Shape* getShapeFromMappingId(uid mappingId);
+  virtual MShape* getShapeFromMappingId(uid mappingId);
 
   void setDisplayCrosshair(bool displayCrosshair) {
     _displayCrosshair = displayCrosshair;
   }
 
+  // Draws foreground (displays crosshair if needed).
+  void drawForeground(QPainter *painter , const QRectF &rect);
+
 private:
-  virtual void doDraw(QPainter* painter);
   void _drawTestSignal(QPainter* painter);
 
   bool _displayCrosshair;

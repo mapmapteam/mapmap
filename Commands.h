@@ -49,7 +49,7 @@ public:
 
 private:
   MapperGLCanvas *m_mapperGLCanvas;
-  Shape *m_shape;
+  MShape *m_shape;
   int m_activeVertex;
   QPointF vertexPosition;
 
@@ -64,7 +64,7 @@ public:
 
 private:
   MapperGLCanvas *m_mapperGLCanvas;
-  Shape *m_shape;
+  MShape *m_shape;
   QMouseEvent *m_event;
   QPointF newPosition, oldPosition;
 };
