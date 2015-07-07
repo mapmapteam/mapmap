@@ -314,6 +314,7 @@ MShape* MapperGLCanvas::getCurrentShape() {
 void MapperGLCanvas::updateCanvas()
 {
   update();
+  scene()->update();
 }
 
 void MapperGLCanvas::enableDisplayControls(bool display)

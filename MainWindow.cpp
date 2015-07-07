@@ -2234,9 +2234,14 @@ MainWindow* MainWindow::instance() {
 
 void MainWindow::updateCanvases()
 {
-  sourceCanvas->updateCanvas();
-  destinationCanvas->updateCanvas();
-  outputWindow->getCanvas()->updateCanvas();
+  // Update scenes.
+  sourceCanvas->scene()->update();
+  destinationCanvas->scene()->update();
+
+  // Update canvases.
+  sourceCanvas->update();
+  destinationCanvas->update();
+  outputWindow->getCanvas()->update();
 }
 
 void MainWindow::showMappingContextMenu(const QPoint &point)
