@@ -110,19 +110,18 @@ void ShapeGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 void ShapeGraphicsItem::paint(QPainter *painter,
                               const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+  Q_UNUSED(widget);
+
+  // Sync depth of figure with that of mapping (for layered output).
   if (isOutput())
-  {
-    // Sync depth of figure with that of mapping (for layered output).
     setZValue(_mapping->getDepth());
 
-    // Paint if visible.
-    if (isMappingVisible())
-      _doPaint(painter, option);
-  }
-  else
+  // Paint if visible.
+  if (isMappingVisible())
   {
-    if (isMappingVisible())
-      _doPaint(painter, option);
+    _prePaint(painter, option);
+    _doPaint(painter, option);
+    _postPaint(painter, option);
   }
 }
 
@@ -252,22 +251,8 @@ void VertexGraphicsItem::paint(QPainter *painter,
     Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected));
 }
 
-QPainterPath PolygonColorGraphicsItem::shape() const
-{
-  QPainterPath path;
-  Polygon* poly = static_cast<Polygon*>(_shape.get());
-  Q_ASSERT(poly);
-  path.addPolygon(poly->toPolygon());
-  return mapFromScene(path);
-}
-
-QRectF PolygonColorGraphicsItem::boundingRect() const
-{
-  return shape().boundingRect();
-}
-
-void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
-                                        const QStyleOptionGraphicsItem *option)
+void ColorGraphicsItem::_prePaint(QPainter *painter,
+                                  const QStyleOptionGraphicsItem *option)
 {
   Color* color = static_cast<Color*>(_mapping->getPaint().get());
   Q_ASSERT(color);
@@ -278,9 +263,25 @@ void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
   else
     painter->setPen(Qt::NoPen);
 
-  painter->setBrush(color->getColor());
+  // Set brush.
+  QColor col = color->getColor();
+  col.setAlphaF(_mapping->getOpacity());
+  painter->setBrush(col);
+}
 
-  // TODO: polygon and ellipse are 99% similar (except for these 3 lines!). we should use that.
+QPainterPath PolygonColorGraphicsItem::shape() const
+{
+  QPainterPath path;
+  Polygon* poly = static_cast<Polygon*>(_shape.get());
+  Q_ASSERT(poly);
+  path.addPolygon(poly->toPolygon());
+  return mapFromScene(path);
+}
+
+void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
+                                        const QStyleOptionGraphicsItem *option)
+{
+  Q_UNUSED(option);
   Polygon* poly = static_cast<Polygon*>(_shape.get());
   Q_ASSERT(poly);
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
@@ -299,24 +300,10 @@ QPainterPath EllipseColorGraphicsItem::shape() const
   return mapFromScene(transform.map(path));
 }
 
-QRectF EllipseColorGraphicsItem::boundingRect() const
-{
-  return shape().boundingRect();
-}
-
 void EllipseColorGraphicsItem::_doPaint(QPainter* painter,
                                         const QStyleOptionGraphicsItem* option)
 {
-  Color* color = static_cast<Color*>(_mapping->getPaint().get());
-  Q_ASSERT(color);
-
-  // Setup pen and brush.
-  if (option->state & QStyle::State_Selected)
-    painter->setPen(MM::SHAPE_STROKE);
-  else
-    painter->setPen(Qt::NoPen);
-
-  painter->setBrush(color->getColor());
+  Q_UNUSED(option);
   // Just draw the path.
   painter->drawPath(shape());
 }
@@ -337,28 +324,17 @@ TextureGraphicsItem::TextureGraphicsItem(Mapping::ptr mapping, bool output)
 void TextureGraphicsItem::_doPaint(QPainter *painter,
                                    const QStyleOptionGraphicsItem *option)
 {
-  bool selected = option->state & QStyle::State_Selected;
-
-  // Prepare drawing.
-  _preDraw(painter);
-
+  Q_UNUSED(option);
   // Perform the actual mapping (done by subclasses).
   if (isOutput())
-    _doDrawOutput(painter, selected);
+    _doDrawOutput(painter);
   else
-    _doDrawInput(painter, selected);
-
-  // End drawing.
-  _postDraw(painter);
-
-  if (isMappingCurrent())
-    _doDrawControls(painter);
+    _doDrawInput(painter);
 }
 
-void TextureGraphicsItem::_doDrawInput(QPainter* painter, bool selected)
+void TextureGraphicsItem::_doDrawInput(QPainter* painter)
 {
   Q_UNUSED(painter);
-  Q_UNUSED(selected);
   if (isMappingCurrent())
   {
     // FIXME: Does this draw the quad counterclockwise?
@@ -388,8 +364,10 @@ void TextureGraphicsItem::_doDrawControls(QPainter* painter)
   painter->drawPath(shape());
 }
 
-void TextureGraphicsItem::_preDraw(QPainter* painter)
+void TextureGraphicsItem::_prePaint(QPainter* painter,
+                                    const QStyleOptionGraphicsItem *option)
 {
+  Q_UNUSED(option);
   painter->beginNativePainting();
 
   // Only works for similar shapes.
@@ -421,11 +399,17 @@ void TextureGraphicsItem::_preDraw(QPainter* painter)
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void TextureGraphicsItem::_postDraw(QPainter* painter)
+void TextureGraphicsItem::_postPaint(QPainter* painter,
+                                     const QStyleOptionGraphicsItem *option)
 {
+  Q_UNUSED(option);
+
   glDisable(GL_TEXTURE_2D);
 
   painter->endNativePainting();
+
+  if (isMappingCurrent())
+    _doDrawControls(painter);
 }
 
 QPainterPath PolygonTextureGraphicsItem::shape() const
@@ -441,10 +425,9 @@ QRectF PolygonTextureGraphicsItem::boundingRect() const {
   return shape().boundingRect();
 }
 
-void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter, bool selected)
+void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 {
   Q_UNUSED(painter);
-  Q_UNUSED(selected);
   if (isOutput())
   {
     glBegin(GL_TRIANGLES);
@@ -466,10 +449,9 @@ void PolygonTextureGraphicsItem::_doDrawControls(QPainter* painter)
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
 }
 
-void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter, bool selected)
+void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 {
   Q_UNUSED(painter);
-  Q_UNUSED(selected);
   if (isOutput())
   {
     std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(_shape);
@@ -532,7 +514,7 @@ QRectF EllipseTextureGraphicsItem::boundingRect() const
   return shape().boundingRect();
 }
 
-void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter, bool selected)
+void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 {
   Q_UNUSED(painter);
   // Get input and output ellipses.

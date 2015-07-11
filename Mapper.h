@@ -70,7 +70,7 @@ public:
   bool isMappingCurrent() const;
   bool isMappingVisible() const { return _mapping->isVisible(); }
 
-  virtual QRectF boundingRect() const = 0;
+  virtual QRectF boundingRect() const { return shape().boundingRect(); }
 //  virtual QPainterPath shape() const;
 //  virtual void paint(QPainter *painter,
 //                     const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -98,6 +98,12 @@ protected:
   virtual void _syncVertices();
 
   virtual void _doPaint(QPainter *painter, const QStyleOptionGraphicsItem *option) = 0;
+  virtual void _prePaint(QPainter *painter, const QStyleOptionGraphicsItem *option) {
+    Q_UNUSED(painter); Q_UNUSED(option);
+  }
+  virtual void _postPaint(QPainter *painter, const QStyleOptionGraphicsItem *option) {
+    Q_UNUSED(painter); Q_UNUSED(option);
+  }
 
   // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
   void _glueVertex(QPointF* p);
@@ -129,15 +135,25 @@ protected:
   int _index;
 };
 
-/// Graphics item for colored polygons (eg. quad, triangle).
-class PolygonColorGraphicsItem : public ShapeGraphicsItem
+class ColorGraphicsItem : public ShapeGraphicsItem
 {
 public:
-  PolygonColorGraphicsItem(Mapping::ptr mapping, bool output=true) : ShapeGraphicsItem(mapping, output) {}
+  ColorGraphicsItem(Mapping::ptr mapping, bool output=true) : ShapeGraphicsItem(mapping, output) {}
+  virtual ~ColorGraphicsItem() {}
+
+protected:
+  virtual void _prePaint(QPainter *painter,
+                        const QStyleOptionGraphicsItem *option);
+};
+
+/// Graphics item for colored polygons (eg. quad, triangle).
+class PolygonColorGraphicsItem : public ColorGraphicsItem
+{
+public:
+  PolygonColorGraphicsItem(Mapping::ptr mapping, bool output=true) : ColorGraphicsItem(mapping, output) {}
   virtual ~PolygonColorGraphicsItem() {}
 
   virtual QPainterPath shape() const;
-  virtual QRectF boundingRect() const;
 
 protected:
   virtual void _doPaint(QPainter *painter,
@@ -145,14 +161,13 @@ protected:
 };
 
 /// Graphics item for colored polygons (eg. quad, triangle).
-class EllipseColorGraphicsItem : public ShapeGraphicsItem
+class EllipseColorGraphicsItem : public ColorGraphicsItem
 {
 public:
-  EllipseColorGraphicsItem(Mapping::ptr mapping, bool output=true) : ShapeGraphicsItem(mapping, output) {}
+  EllipseColorGraphicsItem(Mapping::ptr mapping, bool output=true) : ColorGraphicsItem(mapping, output) {}
   virtual ~EllipseColorGraphicsItem() {}
 
   virtual QPainterPath shape() const;
-  virtual QRectF boundingRect() const;
 
 protected:
   virtual void _doPaint(QPainter *painter,
@@ -168,14 +183,13 @@ public:
   virtual ~TextureGraphicsItem() {}
 
 protected:
-  virtual void _doPaint(QPainter *painter,
-                        const QStyleOptionGraphicsItem *option);
+  virtual void _doPaint(QPainter *painter, const QStyleOptionGraphicsItem *option);
+  void _prePaint(QPainter* painter, const QStyleOptionGraphicsItem *option);
+  void _postPaint(QPainter* painter, const QStyleOptionGraphicsItem *option);
 
-  virtual void _doDrawOutput(QPainter* painter, bool selected) = 0;
-  virtual void _doDrawInput(QPainter* painter, bool selected);
+  virtual void _doDrawOutput(QPainter* painter) = 0;
+  virtual void _doDrawInput(QPainter* painter);
   virtual void _doDrawControls(QPainter* painter);
-  void _preDraw(QPainter* painter);
-  void _postDraw(QPainter* painter);
 
 protected:
   std::tr1::shared_ptr<TextureMapping> _textureMapping;
@@ -203,7 +217,7 @@ public:
   TriangleTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : PolygonTextureGraphicsItem(mapping, output) {}
   virtual ~TriangleTextureGraphicsItem(){}
 
-  virtual void _doDrawOutput(QPainter* painter, bool selected);
+  virtual void _doDrawOutput(QPainter* painter);
 
 };
 
@@ -214,7 +228,7 @@ public:
   MeshTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : PolygonTextureGraphicsItem(mapping, output) {}
   virtual ~MeshTextureGraphicsItem(){}
 
-  virtual void _doDrawOutput(QPainter* painter, bool selected);
+  virtual void _doDrawOutput(QPainter* painter);
   virtual void _doDrawControls(QPainter* painter);
 };
 
@@ -228,7 +242,7 @@ public:
   virtual QPainterPath shape() const;
   virtual QRectF boundingRect() const;
 
-  virtual void _doDrawOutput(QPainter* painter, bool selected);
+  virtual void _doDrawOutput(QPainter* painter);
   virtual void _doDrawControls(QPainter* painter);
 
   static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
