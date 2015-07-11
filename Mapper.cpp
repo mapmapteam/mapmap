@@ -54,7 +54,8 @@ bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event
     QPointF pos = mouseEvent->scenePos();
 
     // Sticky vertex.
-    _glueVertex(&pos);
+    if (MainWindow::instance()->stickyVertices())
+      _glueVertex(&pos);
 
  //   qDebug() << moveEvent->oldPos() << " " << pos << " " << childItems().at(idx)->pos() << endl;
     _shape->setVertex(idx, pos);
