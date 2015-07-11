@@ -30,8 +30,6 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
     _activeVertex(NO_VERTEX),
     _shapeGrabbed(false), // comment out?
     _shapeFirstGrab(false), // comment out?
-    _displayControls(true),
-    _stickyVertices(true),
     _zoomLevel(0)
 {
   // For now clicking on the window doesn't do anything.
@@ -315,23 +313,6 @@ void MapperGLCanvas::updateCanvas()
 {
   update();
   scene()->update();
-}
-
-void MapperGLCanvas::enableDisplayControls(bool display)
-{
-  _displayControls = display;
-  updateCanvas();
-}
-
-void MapperGLCanvas::enableTestSignal(bool enable)
-{
-  _displayTestSignal = enable;
-  updateCanvas();
-}
-
-void MapperGLCanvas::enableStickyVertices(bool value)
-{
-  _stickyVertices = value;
 }
 
 ///* Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are

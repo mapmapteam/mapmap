@@ -39,11 +39,11 @@ MShape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
 
 void DestinationGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 {
-  if (this->displayTestSignal())
+  if (getMainWindow()->displayTestSignal())
   {
     glPushMatrix();
     painter->save();
-    this->_drawTestSignal(painter);
+    _drawTestSignal(painter);
     painter->restore();
     glPopMatrix();
     return;

@@ -91,7 +91,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   emit fullScreenToggled(fullscreen);
   // Activate crosshair in fullscreen mode.
   // should be only drawn if the controls should be shown
-  canvas->setDisplayCrosshair(fullscreen && this->canvas->displayControls());
+  canvas->setDisplayCrosshair(fullscreen && canvas->getMainWindow()->displayControls());
 
   // NOTE: The showFullScreen() method does not work well under Ubuntu Linux. The code below fixes the issue.
   // Notice that there might be problems with the fullscreen in other OS / window managers. If so, please add

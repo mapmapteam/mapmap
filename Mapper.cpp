@@ -119,6 +119,7 @@ void ShapeGraphicsItem::paint(QPainter *painter,
   // Paint if visible.
   if (isMappingVisible())
   {
+    // Paint whatever needs to be painted.
     _prePaint(painter, option);
     _doPaint(painter, option);
     _postPaint(painter, option);
@@ -245,10 +246,13 @@ void VertexGraphicsItem::paint(QPainter *painter,
     QWidget* widget)
 {
   Q_UNUSED(widget);
-  ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
-  if (shapeParent->isMappingVisible() &&
-      shapeParent->isMappingCurrent())
-    Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected));
+  if (MainWindow::instance()->displayControls())
+  {
+    ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
+    if (shapeParent->isMappingVisible() &&
+        shapeParent->isMappingCurrent())
+      Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected));
+  }
 }
 
 void ColorGraphicsItem::_prePaint(QPainter *painter,
@@ -258,8 +262,9 @@ void ColorGraphicsItem::_prePaint(QPainter *painter,
   Q_ASSERT(color);
 
   // Setup pen and brush.
-  if (option->state & QStyle::State_Selected)
-    painter->setPen(MM::SHAPE_STROKE);
+  if (MainWindow::instance()->displayControls() &&
+      (option->state & QStyle::State_Selected))
+    painter->setPen(MM::SHAPE_STROKE); // if display controls then draw appropriate stroke around
   else
     painter->setPen(Qt::NoPen);
 
@@ -413,7 +418,7 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
 
   painter->endNativePainting();
 
-  if (isMappingCurrent())
+  if (MainWindow::instance()->displayControls() && isMappingCurrent())
     _doDrawControls(painter);
 }
 

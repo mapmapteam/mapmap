@@ -46,6 +46,11 @@ MainWindow::MainWindow()
   // Play state.
   _isPlaying = false;
 
+  // Editing toggles.
+  _displayControls = true;
+  _stickyVertices = true;
+  _displayTestSignal = false;
+
   // Create everything.
   createLayout();
   createActions();
@@ -361,8 +366,8 @@ void MainWindow::setOutputWindowFullScreen(bool enable)
 {
   outputWindow->setFullScreen(false);
   // setCheckState
-  outputWindowFullScreen->setChecked(enable);
-  displayCanvasControls->setChecked(enable);
+  outputWindowFullScreenAction->setChecked(enable);
+  displayControlsAction->setChecked(enable);
 }
 
 void MainWindow::newFile()
@@ -1431,81 +1436,74 @@ void MainWindow::createActions()
   connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
 
   // Toggle display of output window.
-  displayOutputWindow = new QAction(tr("&Display output window"), this);
-  displayOutputWindow->setShortcut(tr("Ctrl+D"));
-  displayOutputWindow->setIcon(QIcon(":/output-window"));
-  displayOutputWindow->setStatusTip(tr("Display output window"));
-  displayOutputWindow->setIconVisibleInMenu(false);
-  displayOutputWindow->setCheckable(true);
-  displayOutputWindow->setChecked(true);
+  displayOutputWindowAction = new QAction(tr("&Display output window"), this);
+  displayOutputWindowAction->setShortcut(tr("Ctrl+D"));
+  displayOutputWindowAction->setIcon(QIcon(":/output-window"));
+  displayOutputWindowAction->setStatusTip(tr("Display output window"));
+  displayOutputWindowAction->setIconVisibleInMenu(false);
+  displayOutputWindowAction->setCheckable(true);
+  displayOutputWindowAction->setChecked(true);
   // Manage show/hide of GL output window.
-  connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindow, SLOT(setVisible(bool)));
+  connect(displayOutputWindowAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setVisible(bool)));
   // When closing the GL output window, uncheck the action in menu.
-  connect(outputWindow, SIGNAL(closed()), displayOutputWindow, SLOT(toggle()));
+  connect(outputWindow, SIGNAL(closed()), displayOutputWindowAction, SLOT(toggle()));
 
   // Toggle display of output window.
-  outputWindowFullScreen = new QAction(tr("&Full screen"), this);
-  outputWindowFullScreen->setIcon(QIcon(":/fullscreen"));
-  outputWindowFullScreen->setShortcut(tr("Ctrl+F"));
-  outputWindowFullScreen->setStatusTip(tr("Full screen"));
-  outputWindowFullScreen->setIconVisibleInMenu(false);
-  outputWindowFullScreen->setCheckable(true);
-  outputWindowFullScreen->setChecked(false);
+  outputWindowFullScreenAction = new QAction(tr("&Full screen"), this);
+  outputWindowFullScreenAction->setIcon(QIcon(":/fullscreen"));
+  outputWindowFullScreenAction->setShortcut(tr("Ctrl+F"));
+  outputWindowFullScreenAction->setStatusTip(tr("Full screen"));
+  outputWindowFullScreenAction->setIconVisibleInMenu(false);
+  outputWindowFullScreenAction->setCheckable(true);
+  outputWindowFullScreenAction->setChecked(false);
   // Manage fullscreen mode for output window.
-  connect(outputWindowFullScreen, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
+  connect(outputWindowFullScreenAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
   // When fullscreen is toggled by the output window (eg. when pressing ESC), change the action checkbox.
-  connect(outputWindow, SIGNAL(fullScreenToggled(bool)), outputWindowFullScreen, SLOT(setChecked(bool)));
+  connect(outputWindow, SIGNAL(fullScreenToggled(bool)), outputWindowFullScreenAction, SLOT(setChecked(bool)));
   // Output window should be displayed for full screen option to be available.
-  connect(displayOutputWindow, SIGNAL(toggled(bool)), outputWindowFullScreen, SLOT(setEnabled(bool)));
+  connect(displayOutputWindowAction, SIGNAL(toggled(bool)), outputWindowFullScreenAction, SLOT(setEnabled(bool)));
 
   // Toggle display of canvas controls.
-  displayCanvasControls = new QAction(tr("&Display canvas controls"), this);
+  displayControlsAction = new QAction(tr("&Display canvas controls"), this);
   //  displayCanvasControls->setShortcut(tr("Ctrl+E"));
-  displayCanvasControls->setIcon(QIcon(":/control-points"));
-  displayCanvasControls->setStatusTip(tr("Display canvas controls"));
-  displayCanvasControls->setIconVisibleInMenu(false);
-  displayCanvasControls->setCheckable(true);
-  displayCanvasControls->setChecked(true);
+  displayControlsAction->setIcon(QIcon(":/control-points"));
+  displayControlsAction->setStatusTip(tr("Display canvas controls"));
+  displayControlsAction->setIconVisibleInMenu(false);
+  displayControlsAction->setCheckable(true);
+  displayControlsAction->setChecked(_displayControls);
   // Manage show/hide of canvas controls.
-  connect(displayCanvasControls, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableDisplayControls(bool)));
-  connect(displayCanvasControls, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableDisplayControls(bool)));
-  connect(displayCanvasControls, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableDisplayControls(bool)));
+  connect(displayControlsAction, SIGNAL(toggled(bool)), this, SLOT(enableDisplayControls(bool)));
 
   // Toggle sticky vertices
-  stickyVertices = new QAction(tr("&Sticky vertices"), this);
+  stickyVerticesAction = new QAction(tr("&Sticky vertices"), this);
   // stickyVertices->setShortcut(tr("Ctrl+E"));
-  stickyVertices->setIcon(QIcon(":/control-points"));
-  stickyVertices->setStatusTip(tr("Enable sticky vertices"));
-  stickyVertices->setIconVisibleInMenu(false);
-  stickyVertices->setCheckable(true);
-  stickyVertices->setChecked(true);
+  stickyVerticesAction->setIcon(QIcon(":/control-points"));
+  stickyVerticesAction->setStatusTip(tr("Enable sticky vertices"));
+  stickyVerticesAction->setIconVisibleInMenu(false);
+  stickyVerticesAction->setCheckable(true);
+  stickyVerticesAction->setChecked(_stickyVertices);
   // Manage sticky vertices
-  connect(stickyVertices, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableStickyVertices(bool)));
-  connect(stickyVertices, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableStickyVertices(bool)));
-  connect(stickyVertices, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableStickyVertices(bool)));
+  connect(stickyVerticesAction, SIGNAL(toggled(bool)), this, SLOT(enableStickyVertices(bool)));
 
-
-  displayTestSignal = new QAction(tr("&Display test signal"), this);
+  displayTestSignalAction = new QAction(tr("&Display test signal"), this);
   // displayTestSignal->setShortcut(tr("Ctrl+T"));
-  displayTestSignal->setIcon(QIcon(":/control-points"));
-  displayTestSignal->setStatusTip(tr("Display test signal"));
-  displayTestSignal->setIconVisibleInMenu(false);
-  displayTestSignal->setCheckable(true);
-  displayTestSignal->setChecked(false);
+  displayTestSignalAction->setIcon(QIcon(":/control-points"));
+  displayTestSignalAction->setStatusTip(tr("Display test signal"));
+  displayTestSignalAction->setIconVisibleInMenu(false);
+  displayTestSignalAction->setCheckable(true);
+  displayTestSignalAction->setChecked(_displayTestSignal);
   // Manage show/hide of test signal
-  connect(displayTestSignal, SIGNAL(toggled(bool)), sourceCanvas, SLOT(enableTestSignal(bool)));
-  connect(displayTestSignal, SIGNAL(toggled(bool)), destinationCanvas, SLOT(enableTestSignal(bool)));
-  connect(displayTestSignal, SIGNAL(toggled(bool)), outputWindow->getCanvas(), SLOT(enableTestSignal(bool)));
+  connect(displayTestSignalAction, SIGNAL(toggled(bool)), this, SLOT(enableTestSignal(bool)));
 }
 
 void MainWindow::startFullScreen()
 {
   // Remove canvas controls.
-  displayCanvasControls->setChecked(false);
+  displayControlsAction->setChecked(false);
   // Display output window.
-  displayOutputWindow->setChecked(true);
+  displayOutputWindowAction->setChecked(true);
   // Send fullscreen.
-  outputWindowFullScreen->setChecked(true);
+  outputWindowFullScreenAction->setChecked(true);
 }
 
 void MainWindow::createMenus()
@@ -1557,11 +1555,11 @@ void MainWindow::createMenus()
 
   // View.
   viewMenu = menuBar->addMenu(tr("&View"));
-  viewMenu->addAction(displayOutputWindow);
-  viewMenu->addAction(outputWindowFullScreen);
-  viewMenu->addAction(displayCanvasControls);
-  viewMenu->addAction(stickyVertices);
-  viewMenu->addAction(displayTestSignal);
+  viewMenu->addAction(displayOutputWindowAction);
+  viewMenu->addAction(outputWindowFullScreenAction);
+  viewMenu->addAction(displayControlsAction);
+  viewMenu->addAction(stickyVerticesAction);
+  viewMenu->addAction(displayTestSignalAction);
 
   // Run.
   runMenu = menuBar->addMenu(tr("&Run"));
@@ -1617,11 +1615,11 @@ void MainWindow::createToolBars()
 
   mainToolBar->addSeparator();
 
-  mainToolBar->addAction(displayOutputWindow);
-  mainToolBar->addAction(outputWindowFullScreen);
-  mainToolBar->addAction(displayCanvasControls);
-  mainToolBar->addAction(stickyVertices);
-  mainToolBar->addAction(displayTestSignal);
+  mainToolBar->addAction(displayOutputWindowAction);
+  mainToolBar->addAction(outputWindowFullScreenAction);
+  mainToolBar->addAction(displayControlsAction);
+  mainToolBar->addAction(stickyVerticesAction);
+  mainToolBar->addAction(displayTestSignalAction);
 
   runToolBar = addToolBar(tr("&Run"));
   runToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
@@ -1683,15 +1681,15 @@ void MainWindow::readSettings()
   // new in 0.1.2:
   if (settings.contains("displayOutputWindow"))
   {
-    displayOutputWindow->setChecked(settings.value("displayOutputWindow").toBool());
+    displayOutputWindowAction->setChecked(settings.value("displayOutputWindow").toBool());
   }
   if (settings.contains("outputWindowFullScreen"))
   {
-    outputWindowFullScreen->setChecked(settings.value("outputWindowFullScreen").toBool());
+    outputWindowFullScreenAction->setChecked(settings.value("outputWindowFullScreen").toBool());
   }
   if (settings.contains("displayTestSignal"))
   {
-    displayOutputWindow->setChecked(settings.value("displayTestSignal").toBool());
+    displayOutputWindowAction->setChecked(settings.value("displayTestSignal").toBool());
   }
   config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 
@@ -1710,9 +1708,9 @@ void MainWindow::writeSettings()
   settings.setValue("mappingSplitter", mappingSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
   settings.setValue("outputWindow", outputWindow->saveGeometry());
-  settings.setValue("displayOutputWindow", displayOutputWindow->isChecked());
-  settings.setValue("outputWindowFullScreen", outputWindowFullScreen->isChecked());
-  settings.setValue("displayTestSignal", displayTestSignal->isChecked());
+  settings.setValue("displayOutputWindow", displayOutputWindowAction->isChecked());
+  settings.setValue("outputWindowFullScreen", outputWindowFullScreenAction->isChecked());
+  settings.setValue("displayTestSignal", displayTestSignalAction->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
 }
 
@@ -2135,8 +2133,7 @@ void MainWindow::addMappingItem(uid mappingId)
   mappingList->setCurrentItem(item);
 
   // Disable Test signal when add Shapes
-  outputWindow->getCanvas()->enableTestSignal(false);
-  destinationCanvas->enableTestSignal(false);
+  enableTestSignal(false);
 
   // Add items to scenes.
   if (mapper->getInputGraphicsItem())
@@ -2242,6 +2239,24 @@ void MainWindow::updateCanvases()
   sourceCanvas->update();
   destinationCanvas->update();
   outputWindow->getCanvas()->update();
+}
+
+
+void MainWindow::enableDisplayControls(bool display)
+{
+  _displayControls = display;
+  updateCanvases();
+}
+
+void MainWindow::enableTestSignal(bool enable)
+{
+  _displayTestSignal = enable;
+  updateCanvases();
+}
+
+void MainWindow::enableStickyVertices(bool value)
+{
+  _stickyVertices = value;
 }
 
 void MainWindow::showMappingContextMenu(const QPoint &point)

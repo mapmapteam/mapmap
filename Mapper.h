@@ -98,12 +98,10 @@ protected:
   virtual void _syncVertices();
 
   virtual void _doPaint(QPainter *painter, const QStyleOptionGraphicsItem *option) = 0;
-  virtual void _prePaint(QPainter *painter, const QStyleOptionGraphicsItem *option) {
-    Q_UNUSED(painter); Q_UNUSED(option);
-  }
-  virtual void _postPaint(QPainter *painter, const QStyleOptionGraphicsItem *option) {
-    Q_UNUSED(painter); Q_UNUSED(option);
-  }
+  virtual void _prePaint(QPainter *painter, const QStyleOptionGraphicsItem *option)
+  { Q_UNUSED(painter); Q_UNUSED(option); }
+  virtual void _postPaint(QPainter *painter, const QStyleOptionGraphicsItem *option)
+  { Q_UNUSED(painter); Q_UNUSED(option); }
 
   // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
   void _glueVertex(QPointF* p);

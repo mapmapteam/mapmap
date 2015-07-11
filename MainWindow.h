@@ -183,6 +183,11 @@ public slots:
   /// Updates all canvases.
   void updateCanvases();
 
+  // Editing toggles.
+  void enableDisplayControls(bool display);
+  void enableStickyVertices(bool display);
+  void enableTestSignal(bool enable);
+
   // Show Context Menu
   void showMappingContextMenu(const QPoint &point);
 
@@ -291,12 +296,12 @@ private:
   QAction *pauseAction;
   QAction *rewindAction;
 
-  QAction *displayOutputWindow;
+  QAction *displayOutputWindowAction;
   //QAction *outputWindowHasCursor;
-  QAction *outputWindowFullScreen;
-  QAction *displayCanvasControls;
-  QAction *displayTestSignal;
-  QAction *stickyVertices;
+  QAction *outputWindowFullScreenAction;
+  QAction *displayControlsAction;
+  QAction *displayTestSignalAction;
+  QAction *stickyVerticesAction;
 
   enum { MaxRecentFiles = 10 };
   enum { MaxRecentVideo = 5 };
@@ -357,7 +362,18 @@ private:
   uid currentMappingId;
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
+
+  // True iff the play button is currently pressed.
   bool _isPlaying;
+
+  // True iff we are displaying the controls.
+  bool _displayControls;
+
+  // True iff we are displaying the test signal (grid)
+  bool _displayTestSignal;
+
+  // True iff we want vertices to stick to each other.
+  bool _stickyVertices;
 
   // Keeps track of the current selected item, wether it's a paint or mapping.
   QListWidgetItem* currentSelectedItem;
@@ -383,6 +399,15 @@ public:
   void setCurrentMapping(int uid);
   void removeCurrentPaint();
   void removeCurrentMapping();
+
+  /// Returns true iff we should display the controls.
+  bool displayControls() const { return _displayControls; }
+
+  /// Returns true iff we should display the test signal
+  bool displayTestSignal() const { return _displayTestSignal; }
+
+  /// Returns true iff we want vertices to stick to each other.
+  bool stickyVertices() const { return _stickyVertices; }
 
   // Use the same undoStack for whole program
   QUndoStack* getUndoStack() const { return undoStack; }
