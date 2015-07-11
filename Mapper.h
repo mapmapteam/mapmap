@@ -295,6 +295,7 @@ protected:
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
   QtProperty* _topItem;
+  QtVariantProperty* _opacityItem;
   QtProperty* _outputItem;
 
   std::map<QtProperty*, std::pair<MShape*, int> > _propertyToVertex;

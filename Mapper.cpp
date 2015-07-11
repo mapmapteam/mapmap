@@ -377,7 +377,14 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   // Project source texture and sent it to destination.
   _texture->update();
 
-  glEnable (GL_BLEND);
+  // Allow alpha blending.
+  if (isOutput())
+  {
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  }
+
+  // Get texture.
   glEnable (GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, _texture->getTextureId());
 
@@ -396,7 +403,8 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+  // Set texture color (apply opacity).
+  glColor4f(1.0f, 1.0f, 1.0f, isOutput() ? _mapping->getOpacity() : 1.0f);
 }
 
 void TextureGraphicsItem::_postPaint(QPainter* painter,
@@ -613,10 +621,18 @@ Mapper::Mapper(Mapping::ptr mapping)
   _variantFactory = new VariantFactory;
 
   _topItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
-                                          QObject::tr("Texture mapping"));
+                                          QObject::tr("Mapping"));
 
   _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
 
+
+  // Mapping basic properties.
+  _opacityItem = _variantManager->addProperty(QVariant::Double, QObject::tr("Opacity (%)"));
+  _opacityItem->setAttribute("minimum", 0.0);
+  _opacityItem->setAttribute("maximum", 100.0);
+  _opacityItem->setAttribute("decimals", 1);
+  _opacityItem->setValue(_mapping->getOpacity()*100.0);
+  _topItem->addSubProperty(_opacityItem);
 
   // Output shape.
   _outputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
@@ -648,16 +664,28 @@ QWidget* Mapper::getPropertiesEditor()
 
 void Mapper::setValue(QtProperty* property, const QVariant& value)
 {
-  std::map<QtProperty*, std::pair<MShape*, int> >::iterator it = _propertyToVertex.find(property);
-  if (it != _propertyToVertex.end())
+  if (property == _opacityItem)
   {
-    const QPointF& p = value.toPointF();
-    MShape* shape = it->second.first;
-    int    v     = it->second.second;
-    if (shape->getVertex(v) != p)
+    double opacity = qBound(value.toDouble() / 100.0, 0.0, 1.0);
+    if (opacity != _mapping->getOpacity())
     {
-      shape->setVertex(v, p);
+      _mapping->setOpacity(opacity);
       emit valueChanged();
+    }
+  }
+  else
+  {
+    std::map<QtProperty*, std::pair<MShape*, int> >::iterator it = _propertyToVertex.find(property);
+    if (it != _propertyToVertex.end())
+    {
+      const QPointF& p = value.toPointF();
+      MShape* shape = it->second.first;
+      int    v     = it->second.second;
+      if (shape->getVertex(v) != p)
+      {
+        shape->setVertex(v, p);
+        emit valueChanged();
+      }
     }
   }
 }
@@ -776,7 +804,7 @@ TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
                                             QObject::tr("Input shape"));
 
   _buildShapeProperty(_inputItem, textureMapping->getInputShape().get());
-  _topItem->insertSubProperty(_inputItem, 0); // insert before output item
+  _topItem->insertSubProperty(_inputItem, _opacityItem); // insert before output item
 }
 //
 //void TextureMapper::drawInput(QPainter* painter)
@@ -914,7 +942,7 @@ MeshTextureMapper::MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mappin
   Mesh* mesh = (Mesh*)textureMapping->getShape().get();
   _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
-  _topItem->insertSubProperty(_meshItem, 0); // insert at the beginning
+  _topItem->insertSubProperty(_meshItem, _opacityItem); // insert at the beginning
 }
 
 void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
