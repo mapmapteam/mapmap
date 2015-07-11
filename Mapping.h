@@ -99,7 +99,7 @@ public:
   void setLocked(bool locked)    { _isLocked = locked; }
   void setSolo(bool solo)        { _isSolo = solo; }
   void setVisible(bool visible)  { _isVisible = visible; }
-  void setOpacity(float opacity) {
+  void setRawOpacity(float opacity) {
     Q_ASSERT(0.0f <= opacity && opacity <= 1.0f);
     _opacity = opacity;
   }
@@ -112,8 +112,10 @@ public:
   bool isLocked() const    { return _isLocked; }
   bool isSolo() const      { return _isSolo; }
   bool isVisible() const   { return _isVisible; }
-  float getOpacity() const { return _opacity; }
+  float getRawOpacity() const { return _opacity; }
   int getDepth() const { return _depth; }
+
+  float getOpacity() const { return _opacity * _paint->getOpacity(); }
 
   void setPaint(Paint::ptr p) { _paint = p; }
   void removePaint() { if (_paint) delete _paint.get(); }

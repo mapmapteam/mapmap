@@ -86,10 +86,17 @@ public:
   QString getName() const { return _name; }
   uid getId() const { return _id; }
 
+  float getOpacity() const { return _opacity; }
+  void setOpacity(float opacity) {
+    Q_ASSERT(0.0f <= opacity && opacity <= 1.0f);
+    _opacity = opacity;
+  }
+
   virtual QString getType() const = 0;
 
 private:
   QString _name;
+  float _opacity;
 };
 
 class Color : public Paint

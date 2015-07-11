@@ -25,6 +25,7 @@
 UidAllocator Paint::allocator;
 
 Paint::Paint(uid id)
+  : _opacity(1.0f)
 {
   if (id == NULL_UID)
     id = allocator.allocate();

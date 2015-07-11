@@ -378,11 +378,8 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   _texture->update();
 
   // Allow alpha blending.
-  if (isOutput())
-  {
-    glEnable (GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  }
+  glEnable (GL_BLEND);
+  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // Get texture.
   glEnable (GL_TEXTURE_2D);
@@ -404,7 +401,7 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // Set texture color (apply opacity).
-  glColor4f(1.0f, 1.0f, 1.0f, isOutput() ? _mapping->getOpacity() : 1.0f);
+  glColor4f(1.0f, 1.0f, 1.0f, isOutput() ? _mapping->getOpacity() : _mapping->getPaint()->getOpacity());
 }
 
 void TextureGraphicsItem::_postPaint(QPainter* painter,
@@ -631,7 +628,7 @@ Mapper::Mapper(Mapping::ptr mapping)
   _opacityItem->setAttribute("minimum", 0.0);
   _opacityItem->setAttribute("maximum", 100.0);
   _opacityItem->setAttribute("decimals", 1);
-  _opacityItem->setValue(_mapping->getOpacity()*100.0);
+  _opacityItem->setValue(_mapping->getRawOpacity()*100.0);
   _topItem->addSubProperty(_opacityItem);
 
   // Output shape.
@@ -667,9 +664,9 @@ void Mapper::setValue(QtProperty* property, const QVariant& value)
   if (property == _opacityItem)
   {
     double opacity = qBound(value.toDouble() / 100.0, 0.0, 1.0);
-    if (opacity != _mapping->getOpacity())
+    if (opacity != _mapping->getRawOpacity())
     {
-      _mapping->setOpacity(opacity);
+      _mapping->setRawOpacity(opacity);
       emit valueChanged();
     }
   }
