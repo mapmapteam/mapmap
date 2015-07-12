@@ -628,6 +628,7 @@ Mapper::Mapper(Mapping::ptr mapping)
 
   _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
 
+  _propertyBrowser->addProperty(_topItem);
 
   // Mapping basic properties.
   _opacityItem = _variantManager->addProperty(QVariant::Double, QObject::tr("Opacity (%)"));
@@ -644,11 +645,11 @@ Mapper::Mapper(Mapping::ptr mapping)
   _buildShapeProperty(_outputItem, mapping->getShape().get());
   _topItem->addSubProperty(_outputItem);
 
+  // Collapse output shape.
+  _propertyBrowser->setExpanded(_propertyBrowser->items(_outputItem).at(0), false);
+
   connect(_variantManager, SIGNAL(valueChanged(QtProperty*, const QVariant&)),
           this,            SLOT(setValue(QtProperty*, const QVariant&)));
-
-  _propertyBrowser->addProperty(_topItem);
-
   //qDebug() << "Creating mapper" << endl;
 }
 
@@ -805,9 +806,11 @@ TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
   // Input shape.
   _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
                                             QObject::tr("Input shape"));
-
   _buildShapeProperty(_inputItem, textureMapping->getInputShape().get());
-  _topItem->insertSubProperty(_inputItem, _opacityItem); // insert before output item
+  _topItem->insertSubProperty(_inputItem, _opacityItem); // insert
+
+  // Collapse input shape.
+  _propertyBrowser->setExpanded(_propertyBrowser->items(_inputItem).at(0), false);
 }
 //
 //void TextureMapper::drawInput(QPainter* painter)

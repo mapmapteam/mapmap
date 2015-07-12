@@ -289,9 +289,11 @@ signals:
 
 protected:
   Mapping::ptr _mapping;
-  QtAbstractPropertyBrowser* _propertyBrowser;
+
+  QtTreePropertyBrowser* _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
+
   QtProperty* _topItem;
   QtVariantProperty* _opacityItem;
   QtProperty* _outputItem;
