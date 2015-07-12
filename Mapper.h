@@ -228,6 +228,11 @@ public:
 
   virtual void _doDrawOutput(QPainter* painter);
   virtual void _doDrawControls(QPainter* painter);
+
+private:
+  // Draws quad recursively using the technique described in Oliveira, M. "Correcting Texture Mapping Errors Introduced by Graphics Hardware"
+  void _drawQuad(const Texture& texture, const Quad& inputQuad, const Quad& outputQuad, float outputArea, float inputThreshold = 0.0001f, float outputThreshold = 0.001f);
+  QList<Quad> _split(const Quad& quad);
 };
 
 /// Graphics item for textured mesh.
