@@ -473,14 +473,9 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
     {
       for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
       {
-        Quad& outputQuad = outputQuads[x][y];
-        Quad& inputQuad  = inputQuads[x][y];
-        glBegin(GL_QUADS);
-        for (int i = 0; i < outputQuad.nVertices(); i++)
-        {
-          Util::setGlTexPoint(*_texture, inputQuad.getVertex(i), mapFromScene(outputQuad.getVertex(i)));
-        }
-        glEnd();
+        QSizeF size = mapFromScene(outputQuads[x][y].toPolygon()).boundingRect().size();
+        float area = size.width() * size.height();
+        _drawQuad(*_texture, inputQuads[x][y], outputQuads[x][y], area);
       }
     }
   }
@@ -506,6 +501,80 @@ void MeshTextureGraphicsItem::_doDrawControls(QPainter* painter)
   painter->setPen(MM::SHAPE_STROKE);
   painter->drawPolygon(mapFromScene(mesh->toPolygon()));
 }
+
+void MeshTextureGraphicsItem::_drawQuad(const Texture& texture, const Quad& inputQuad, const Quad& outputQuad, float outputArea, float inputThreshod, float outputThreshold)
+{
+  QPointF oa = mapFromScene(outputQuad.getVertex(0));
+  QPointF ob = mapFromScene(outputQuad.getVertex(1));
+  QPointF oc = mapFromScene(outputQuad.getVertex(2));
+  QPointF od = mapFromScene(outputQuad.getVertex(3));
+
+  QPointF ia = inputQuad.getVertex(0);
+  QPointF ib = inputQuad.getVertex(1);
+  QPointF ic = inputQuad.getVertex(2);
+  QPointF id = inputQuad.getVertex(3);
+
+  // compute the dot products for the polygon
+  float outputV1dotV2 = QPointF::dotProduct(oa-ob, oc-ob);
+  float outputV3dotV4 = QPointF::dotProduct(oc-od, oa-od);
+  float outputV1dotV4 = QPointF::dotProduct(oa-ob, oa-od);
+  float outputV2dotV3 = QPointF::dotProduct(oc-ob, oc-od);
+
+  // compute the dot products for the texture
+  float inputV1dotV2  = QPointF::dotProduct(ia-ib, ic-ib);
+  float inputV3dotV4  = QPointF::dotProduct(ic-id, ia-id);
+  float inputV1dotV4  = QPointF::dotProduct(ia-ib, ia-id);
+  float inputV2dotV3  = QPointF::dotProduct(ic-ib, ic-id);
+
+  // Stopping criterion.
+  if (outputArea < 200 ||
+      (fabs(outputV1dotV2 - outputV3dotV4) < outputThreshold &&
+       fabs(outputV1dotV4 - outputV2dotV3) < outputThreshold &&
+       fabs(inputV1dotV2  - inputV3dotV4)  < inputThreshod &&
+       fabs(inputV1dotV4  - inputV2dotV3)  < inputThreshod))
+  {
+    glBegin(GL_QUADS);
+    for (int i = 0; i < outputQuad.nVertices(); i++)
+    {
+      Util::setGlTexPoint(texture, inputQuad.getVertex(i), mapFromScene(outputQuad.getVertex(i)));
+    }
+    glEnd();
+  }
+  else // subdivide
+  {
+    QList<Quad> inputSubQuads  = _split(inputQuad);
+    QList<Quad> outputSubQuads = _split(outputQuad);
+    for (int i = 0; i < inputSubQuads.size(); i++)
+    {
+      _drawQuad(texture, inputSubQuads[i], outputSubQuads[i], outputArea*0.25, inputThreshod, outputThreshold);
+    }
+  }
+}
+
+QList<Quad> MeshTextureGraphicsItem::_split(const Quad& quad)
+{
+  QList<Quad> quads;
+
+  QPointF a = quad.getVertex(0);
+  QPointF b = quad.getVertex(1);
+  QPointF c = quad.getVertex(2);
+  QPointF d = quad.getVertex(3);
+
+  QPointF ab = (a + b) * 0.5f;
+  QPointF bc = (b + c) * 0.5f;
+  QPointF cd = (c + d) * 0.5f;
+  QPointF ad = (a + d) * 0.5f;
+
+  QPointF abcd = (ab + cd) * 0.5f;
+
+  quads.append(Quad(a, ab, abcd, ad));
+  quads.append(Quad(ab, b, bc, abcd));
+  quads.append(Quad(abcd, bc, c, cd));
+  quads.append(Quad(ad, abcd, cd, d));
+
+  return quads;
+}
+
 
 QPainterPath EllipseTextureGraphicsItem::shape() const
 {
