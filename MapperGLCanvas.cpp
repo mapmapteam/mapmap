@@ -391,6 +391,24 @@ void MapperGLCanvas::wheelEvent(QWheelEvent *event)
   event->accept();
 }
 
+void MapperGLCanvas::mouseMoveEvent(QMouseEvent *event)
+{
+  static QPoint lastPos;
+
+  // Click-and-drag translate view.
+  if (event->buttons() & Qt::MiddleButton)
+  {
+    QPoint pos = event->pos();
+    QPointF diff = mapToScene(pos) - mapToScene(lastPos);
+    QGraphicsView* view = scene()->views().first();
+    view->translate(diff.x(), diff.y());
+    view->update();
+    lastPos = pos;
+  }
+
+  QGraphicsView::mouseMoveEvent(event);
+}
+
 bool MapperGLCanvas::eventFilter(QObject *target, QEvent *event)
 {
   if (event->type() == QEvent::KeyPress)

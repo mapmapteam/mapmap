@@ -142,6 +142,7 @@ public slots:
   void deselectAll();
 
   void wheelEvent(QWheelEvent *event);
+  void mouseMoveEvent(QMouseEvent *event);
 
   // Event Filter
   bool eventFilter(QObject *target, QEvent *event);
