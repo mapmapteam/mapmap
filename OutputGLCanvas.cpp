@@ -27,6 +27,9 @@ OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
   _svg_test_signal(":/test-signal"),
   _brush_test_signal(_svg_test_signal)
 {
+  // Disable scrollbars.
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
 void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
