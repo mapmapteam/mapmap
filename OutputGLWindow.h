@@ -24,7 +24,7 @@
 #include <QDialog>
 #include <QtGlobal>
 #include <QTimer>
-#include "DestinationGLCanvas.h"
+#include "OutputGLCanvas.h"
 
 // TODO: add SLOT for mySetVisible
 // TODO: Maybe improve support for Ubuntu: http://stackoverflow.com/questions/12645880/fullscreen-for-qdialog-from-within-mainwindow-only-working-sometimes
@@ -53,7 +53,7 @@ public:
   void setCursorVisible(bool visible);
 
 private:
-  DestinationGLCanvas* canvas;
+  OutputGLCanvas* canvas;
   QByteArray _geometry;
 
   bool _pointerIsVisible;

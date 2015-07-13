@@ -20,6 +20,7 @@ HEADERS  = \
     MediaImpl.h \
     OscInterface.h \
     OscReceiver.h \
+    OutputGLCanvas.h \
     OutputGLWindow.h \
     Paint.h \
     PaintGui.h \
@@ -44,6 +45,7 @@ SOURCES  = \
     MediaImpl.cpp \
     OscInterface.cpp \
     OscReceiver.cpp \
+    OutputGLCanvas.cpp \
     OutputGLWindow.cpp \
     Paint.cpp \
     PaintGui.cpp \

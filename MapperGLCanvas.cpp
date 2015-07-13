@@ -390,3 +390,19 @@ void MapperGLCanvas::wheelEvent(QWheelEvent *event)
   // Accept wheel scrolling event.
   event->accept();
 }
+
+bool MapperGLCanvas::eventFilter(QObject *target, QEvent *event)
+{
+  if (event->type() == QEvent::KeyPress)
+  {
+    QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+    setActiveVertexIndex(getMainWindow()->getOutputWindow()->getCanvas()->getActiveVertexIndex());
+    MapperGLCanvas::keyPressEvent(keyEvent);
+    return true;
+  }
+  else
+  {
+    return QObject::eventFilter(target, event);
+  }
+}
+

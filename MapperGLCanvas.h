@@ -141,7 +141,10 @@ public slots:
   void deselectVertices();
   void deselectAll();
 
-  void wheelEvent(QWheelEvent * event);
+  void wheelEvent(QWheelEvent *event);
+
+  // Event Filter
+  bool eventFilter(QObject *target, QEvent *event);
 
 public:
   static const int NO_VERTEX = -1;

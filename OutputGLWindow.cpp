@@ -27,7 +27,7 @@ OutputGLWindow:: OutputGLWindow(const DestinationGLCanvas* canvas_)
 {
   resize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 
-  canvas = new DestinationGLCanvas(canvas_->getMainWindow(), this, (const QGLWidget*)canvas_->viewport(), canvas_->scene());
+  canvas = new OutputGLCanvas(canvas_->getMainWindow(), this, (const QGLWidget*)canvas_->viewport(), canvas_->scene());
   canvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   canvas->setMinimumSize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 
