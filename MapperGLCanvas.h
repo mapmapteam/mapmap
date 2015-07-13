@@ -27,6 +27,8 @@
 #include <QPaintEvent>
 #include <QUndoStack>
 
+#include <QtMath>
+
 #include <iostream>
 
 #include "MM.h"
@@ -71,6 +73,8 @@ public:
 
   /// Set the currently active vertex
   void setActiveVertexIndex(int activeVertex) { _activeVertex = activeVertex; }
+
+  qreal getZoomFactor() const { return qBound(qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MIN, MM::ZOOM_MAX); }
 
 protected:
 //  void initializeGL();

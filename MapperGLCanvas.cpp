@@ -378,9 +378,15 @@ void MapperGLCanvas::wheelEvent(QWheelEvent *event)
     zoomFactor = qMax(zoomFactor, MM::ZOOM_MIN);
   }
 
+  // Re-bound zoom (for consistency).
+  zoomFactor = getZoomFactor();
+
+  // Apply zoom to view.
   QGraphicsView* view = scene()->views().first();
   view->resetMatrix();
   view->scale(zoomFactor, zoomFactor);
   view->update();
+
+  // Accept wheel scrolling event.
   event->accept();
 }

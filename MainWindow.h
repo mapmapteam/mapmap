@@ -400,6 +400,9 @@ public:
   void removeCurrentPaint();
   void removeCurrentMapping();
 
+  MapperGLCanvas* getSourceCanvas() const { return sourceCanvas; }
+  MapperGLCanvas* getDestinationCanvas() const { return destinationCanvas; }
+
   /// Returns true iff we should display the controls.
   bool displayControls() const { return _displayControls; }
 

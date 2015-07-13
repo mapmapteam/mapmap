@@ -38,6 +38,7 @@
 #include "Shape.h"
 #include "Paint.h"
 #include "Mapping.h"
+#include "MapperGLCanvas.h"
 
 #include "Util.h"
 
@@ -66,6 +67,7 @@ public:
   Mapping::ptr getMapping() const { return _mapping; }
 
   bool isOutput() const { return _output; }
+  MapperGLCanvas* getCanvas() const;
 
   bool isMappingCurrent() const;
   bool isMappingVisible() const { return _mapping->isVisible(); }
@@ -103,8 +105,14 @@ protected:
   virtual void _postPaint(QPainter *painter, const QStyleOptionGraphicsItem *option)
   { Q_UNUSED(painter); Q_UNUSED(option); }
 
+  virtual void _doPaintControls(QPainter *painter, const QStyleOptionGraphicsItem *option);
+
   // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
   void _glueVertex(QPointF* p);
+
+  // Utility function: returns a stroke with rescaled width such that the stroke appears
+  // invariant to the zoom level (to be used in _doPaintControls() method).
+  QPen _getRescaledShapeStroke(bool innerStroke=false);
 
   Mapping::ptr _mapping;
   MShape::ptr _shape;
@@ -156,6 +164,7 @@ public:
 protected:
   virtual void _doPaint(QPainter *painter,
                         const QStyleOptionGraphicsItem *option);
+  void _doPaintControls(QPainter* painter, const QStyleOptionGraphicsItem *option);
 };
 
 /// Graphics item for colored polygons (eg. quad, triangle).
@@ -187,7 +196,6 @@ protected:
 
   virtual void _doDrawOutput(QPainter* painter) = 0;
   virtual void _doDrawInput(QPainter* painter);
-  virtual void _doDrawControls(QPainter* painter);
 
 protected:
   std::tr1::shared_ptr<TextureMapping> _textureMapping;
@@ -202,7 +210,7 @@ public:
   PolygonTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : TextureGraphicsItem(mapping, output) {}
   virtual ~PolygonTextureGraphicsItem(){}
 
-  virtual void _doDrawControls(QPainter* painter);
+  virtual void _doPaintControls(QPainter* painter, const QStyleOptionGraphicsItem *option);
 
   virtual QPainterPath shape() const;
   virtual QRectF boundingRect() const;
@@ -226,8 +234,8 @@ public:
   MeshTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : PolygonTextureGraphicsItem(mapping, output) {}
   virtual ~MeshTextureGraphicsItem(){}
 
+  virtual void _doPaintControls(QPainter* painter, const QStyleOptionGraphicsItem *option);
   virtual void _doDrawOutput(QPainter* painter);
-  virtual void _doDrawControls(QPainter* painter);
 
 private:
   // Draws quad recursively using the technique described in Oliveira, M. "Correcting Texture Mapping Errors Introduced by Graphics Hardware"
@@ -246,7 +254,6 @@ public:
   virtual QRectF boundingRect() const;
 
   virtual void _doDrawOutput(QPainter* painter);
-  virtual void _doDrawControls(QPainter* painter);
 
   static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
 };

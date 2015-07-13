@@ -35,6 +35,12 @@ ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
   _createVertices();
 }
 
+MapperGLCanvas* ShapeGraphicsItem::getCanvas() const
+{
+  MainWindow* win = MainWindow::instance();
+  return isOutput() ? win->getDestinationCanvas() : win->getSourceCanvas();
+}
+
 bool ShapeGraphicsItem::isMappingCurrent() const { return MainWindow::instance()->getCurrentMappingId() == _mapping->getId(); }
 
 bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event)
@@ -124,8 +130,22 @@ void ShapeGraphicsItem::paint(QPainter *painter,
     _prePaint(painter, option);
     _doPaint(painter, option);
     _postPaint(painter, option);
+
+    if (MainWindow::instance()->displayControls() && isMappingCurrent())
+    {
+      _doPaintControls(painter, option);
+    }
   }
 }
+
+void ShapeGraphicsItem::_doPaintControls(QPainter *painter, const QStyleOptionGraphicsItem *option)
+{
+  Q_UNUSED(option);
+  painter->setPen(_getRescaledShapeStroke());
+  painter->setBrush(Qt::NoBrush);
+  painter->drawPath(shape());
+}
+
 
 //QVariant ShapeGraphicsItem::itemChange(GraphicsItemChange change, const QVariant &value)
 //{
@@ -214,6 +234,11 @@ void ShapeGraphicsItem::_glueVertex(QPointF* p)
   }
 }
 
+QPen ShapeGraphicsItem::_getRescaledShapeStroke(bool innerStroke)
+{
+  return QPen(QBrush(MM::CONTROL_COLOR), (innerStroke ? MM::SHAPE_INNER_STROKE_WIDTH : MM::SHAPE_STROKE_WIDTH) / getCanvas()->getZoomFactor());
+}
+
 void VertexGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
   ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
@@ -250,9 +275,15 @@ void VertexGraphicsItem::paint(QPainter *painter,
   if (MainWindow::instance()->displayControls())
   {
     ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
+    if (shapeParent->isOutput())
     if (shapeParent->isMappingVisible() &&
         shapeParent->isMappingCurrent())
-      Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected));
+    {
+      qreal zoomFactor = 1.0 / shapeParent->getCanvas()->getZoomFactor();
+      resetMatrix();
+      scale(zoomFactor, zoomFactor);
+      Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected), MM::VERTEX_SELECT_RADIUS);
+    }
   }
 }
 
@@ -262,12 +293,7 @@ void ColorGraphicsItem::_prePaint(QPainter *painter,
   Color* color = static_cast<Color*>(_mapping->getPaint().get());
   Q_ASSERT(color);
 
-  // Setup pen and brush.
-  if (MainWindow::instance()->displayControls() &&
-      (option->state & QStyle::State_Selected))
-    painter->setPen(MM::SHAPE_STROKE); // if display controls then draw appropriate stroke around
-  else
-    painter->setPen(Qt::NoPen);
+  painter->setPen(Qt::NoPen);
 
   // Set brush.
   QColor col = color->getColor();
@@ -288,6 +314,15 @@ void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
                                         const QStyleOptionGraphicsItem *option)
 {
   Q_UNUSED(option);
+  Polygon* poly = static_cast<Polygon*>(_shape.get());
+  Q_ASSERT(poly);
+  painter->drawPolygon(mapFromScene(poly->toPolygon()));
+}
+
+void PolygonColorGraphicsItem::_doPaintControls(QPainter* painter, const QStyleOptionGraphicsItem *option)
+{
+  Q_UNUSED(option);
+  painter->setPen(_getRescaledShapeStroke());
   Polygon* poly = static_cast<Polygon*>(_shape.get());
   Q_ASSERT(poly);
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
@@ -364,12 +399,6 @@ void TextureGraphicsItem::_doDrawInput(QPainter* painter)
   }
 }
 
-void TextureGraphicsItem::_doDrawControls(QPainter* painter)
-{
-  painter->setPen(MM::SHAPE_STROKE);
-  painter->drawPath(shape());
-}
-
 void TextureGraphicsItem::_prePaint(QPainter* painter,
                                     const QStyleOptionGraphicsItem *option)
 {
@@ -418,9 +447,6 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
   glDisable(GL_TEXTURE_2D);
 
   painter->endNativePainting();
-
-  if (MainWindow::instance()->displayControls() && isMappingCurrent())
-    _doDrawControls(painter);
 }
 
 QPainterPath PolygonTextureGraphicsItem::shape() const
@@ -452,9 +478,10 @@ void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   }
 }
 
-void PolygonTextureGraphicsItem::_doDrawControls(QPainter* painter)
+void PolygonTextureGraphicsItem::_doPaintControls(QPainter* painter, const QStyleOptionGraphicsItem *option)
 {
-  painter->setPen(MM::SHAPE_STROKE);
+  Q_UNUSED(option);
+  painter->setPen(_getRescaledShapeStroke());
   Polygon* poly = static_cast<Polygon*>(_shape.get());
   Q_ASSERT(poly);
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
@@ -482,13 +509,15 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 
 }
 
-void MeshTextureGraphicsItem::_doDrawControls(QPainter* painter)
+void MeshTextureGraphicsItem::_doPaintControls(QPainter* painter, const QStyleOptionGraphicsItem *option)
 {
+  Q_UNUSED(option);
+
   Mesh* mesh = static_cast<Mesh*>(_shape.get());
   Q_ASSERT(mesh);
 
   // Init colors and stroke.
-  painter->setPen(MM::SHAPE_INNER_STROKE);
+  painter->setPen(_getRescaledShapeStroke(true));
 
   // Draw inner quads.
   QVector<Quad> quads = mesh->getQuads();
@@ -498,7 +527,7 @@ void MeshTextureGraphicsItem::_doDrawControls(QPainter* painter)
   }
 
   // Draw outer quad.
-  painter->setPen(MM::SHAPE_STROKE);
+  painter->setPen(_getRescaledShapeStroke());
   painter->drawPolygon(mapFromScene(mesh->toPolygon()));
 }
 
@@ -665,18 +694,6 @@ void EllipseTextureGraphicsItem::_setPointOfEllipseAtAngle(QPointF& point, const
   rotation = 2*M_PI-rotation; // rotation needs to be inverted (CW <-> CCW)
   point.setX( sin(angle + rotation) * distance + center.x() );
   point.setY( cos(angle + rotation) * distance + center.y() );
-}
-
-void EllipseTextureGraphicsItem::_doDrawControls(QPainter* painter)
-{
-  painter->setPen(MM::SHAPE_STROKE);
-  painter->setBrush(Qt::NoBrush);
-
-  // Just draw the path.
-  painter->drawPath(shape());
-
-//  std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(_shape);
-//  Util::drawControlsEllipse(painter, selectedVertices, *outputEllipse);
 }
 
 Mapper::Mapper(Mapping::ptr mapping)
