@@ -275,7 +275,6 @@ void VertexGraphicsItem::paint(QPainter *painter,
   if (MainWindow::instance()->displayControls())
   {
     ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
-    if (shapeParent->isOutput())
     if (shapeParent->isMappingVisible() &&
         shapeParent->isMappingCurrent())
     {
