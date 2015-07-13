@@ -50,6 +50,6 @@ const qreal MM::FRAMES_PER_SECOND = 29.97f;
 
 // Zoom.
 const qreal MM::ZOOM_FACTOR = 1.4f;
-const qreal MM::ZOOM_MIN    = 0.25f;
-const qreal MM::ZOOM_MAX    = 3.0f;
+const qreal MM::ZOOM_MIN    = 0.1f;
+const qreal MM::ZOOM_MAX    = 5.0f;
 
