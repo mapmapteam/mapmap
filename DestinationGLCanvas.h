@@ -35,6 +35,7 @@ public:
   virtual ~DestinationGLCanvas() {}
 
   virtual MShape* getShapeFromMappingId(uid mappingId);
+  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId);
 };
 
 #endif /* DESTINATIONGLCANVAS_H_ */

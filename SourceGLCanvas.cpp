@@ -40,6 +40,18 @@ MShape* SourceGLCanvas::getShapeFromMappingId(uid mappingId)
     return mapping->getInputShape().get();
   }
 }
+
+ShapeGraphicsItem* SourceGLCanvas::getShapeGraphicsItemFromMappingId(uid mappingId)
+{
+  if (mappingId == NULL_UID)
+    return NULL;
+
+  else
+  {
+    return MainWindow::instance()->getMapperByMappingId(mappingId)->getInputGraphicsItem();
+  }
+}
+
 //
 
 //void SourceGLCanvas::doDraw(QPainter* painter)

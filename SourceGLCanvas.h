@@ -36,6 +36,7 @@ public:
   virtual ~SourceGLCanvas() {}
 
   virtual MShape* getShapeFromMappingId(uid mappingId);
+  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId);
 
 private:
 //  virtual void doDraw(QPainter* painter);

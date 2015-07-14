@@ -41,28 +41,30 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     _drawTestSignal(painter);
     painter->restore();
     glPopMatrix();
-    return;
   }
-
-  // Display crosshair cursor.
-  if (_displayCrosshair)
+  else
   {
-    QPointF cursorPosition = mapToScene(cursor().pos());// - rect.topLeft();//(QCursor::pos());///*this->mapFromGlobal(*/QCursor::pos()/*)*/;
-    if (rect.contains(cursorPosition))
+    MapperGLCanvas::drawForeground(painter, rect);
+
+    // Display crosshair cursor.
+    if (_displayCrosshair)
     {
-      painter->setPen(MM::CONTROL_COLOR);
-      painter->drawLine(cursorPosition.x(), rect.y(), cursorPosition.x(), rect.height());
-      painter->drawLine(rect.x(), cursorPosition.y(), rect.width(), cursorPosition.y());
+      QPointF cursorPosition = mapToScene(cursor().pos());// - rect.topLeft();//(QCursor::pos());///*this->mapFromGlobal(*/QCursor::pos()/*)*/;
+      if (rect.contains(cursorPosition))
+      {
+        painter->setPen(MM::CONTROL_COLOR);
+        painter->drawLine(cursorPosition.x(), rect.y(), cursorPosition.x(), rect.height());
+        painter->drawLine(rect.x(), cursorPosition.y(), rect.width(), cursorPosition.y());
+      }
     }
   }
+
 }
 
 void OutputGLCanvas::_drawTestSignal(QPainter* painter)
 {
   const QRect& geo = geometry();
   painter->setPen(MM::CONTROL_COLOR);
-  int height = geo.height();
-  int width = geo.width();
   int rect_size = 10;
   QColor color_0(191, 191, 191);
   QColor color_1(128, 128, 128);
@@ -71,9 +73,10 @@ void OutputGLCanvas::_drawTestSignal(QPainter* painter)
 
   painter->setPen(Qt::NoPen);
 
-  for (int x = 0; x < width; x += rect_size)
+  // Draw checkerboard pattern.
+  for (int x = geo.x(); x < geo.width(); x += rect_size)
   {
-    for (int y = 0; y < height; y += rect_size)
+    for (int y = geo.y(); y < geo.height(); y += rect_size)
     {
       if (((x + y) % 20) == 0)
       {
@@ -85,6 +88,7 @@ void OutputGLCanvas::_drawTestSignal(QPainter* painter)
     }
   }
 
+  // Draw the actual brush.
   painter->fillRect(geo, this->_brush_test_signal);
 }
 

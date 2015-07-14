@@ -35,7 +35,10 @@
 #include "UidAllocator.h"
 #include "Shape.h"
 
+#include "Mapper.h"
+
 class MainWindow;
+class ShapeGraphicsItem;
 
 /**
  * Mother class for OpenGL canvases that allow the display and controls of shapes and vertices.
@@ -52,10 +55,16 @@ public:
 
   /// Returns shape associated with mapping id.
   virtual MShape* getShapeFromMappingId(uid mappingId) = 0;
+  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId) = 0;
 
   MShape* getCurrentShape();
+  ShapeGraphicsItem* getCurrentShapeGraphicsItem();
+
 //  QSize sizeHint() const;
 //  QSize minimumSizeHint() const;
+
+  // Draws foreground (displays crosshair if needed).
+  void drawForeground(QPainter *painter , const QRectF &rect);
 
   /**
    * Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
@@ -111,8 +120,11 @@ private:
   // Pointer to main window.
   MainWindow* _mainWindow;
 
-  // Last point pressed.
+  // Last point pressed (in mouse/window coordinates).
   QPoint _mousePressedPosition;
+
+  // Start position of last object grabbed (in scene coordinates).
+  QPointF _grabbedObjectStartPosition;
 
   // Mouse currently pressed inside a vertex.
   bool _mousePressedOnVertex;
@@ -142,10 +154,16 @@ public slots:
   void deselectAll();
 
   void wheelEvent(QWheelEvent *event);
+  void mousePressEvent(QMouseEvent *event);
+  void mouseReleaseEvent(QMouseEvent *event);
   void mouseMoveEvent(QMouseEvent *event);
 
   // Event Filter
   bool eventFilter(QObject *target, QEvent *event);
+
+protected:
+  // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
+  void _glueVertex(QPointF* p);
 
 public:
   static const int NO_VERTEX = -1;

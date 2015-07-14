@@ -21,18 +21,83 @@
 #include "Mapper.h"
 #include "MainWindow.h"
 
+ShapeControlPainter::ShapeControlPainter(ShapeGraphicsItem* shapeItem)
+  : _shapeItem(shapeItem)
+{}
+
+MShape::ptr ShapeControlPainter::getShape() const { return _shapeItem->getShape(); }
+
+void ShapeControlPainter::paint(QPainter *painter, const QList<int>& selectedVertices)
+{
+  _paintShape(painter);
+  _paintVertices(painter);
+}
+
+void ShapeControlPainter::_paintVertices(QPainter *painter, const QList<int>& selectedVertices)
+{
+  qreal zoomFactor = _shapeItem->getCanvas()->getZoomFactor();
+  qreal selectRadius = MM::VERTEX_SELECT_RADIUS / zoomFactor;
+  qreal strokeWidth  = MM::VERTEX_SELECT_STROKE_WIDTH / zoomFactor;
+
+  for (int i=0; i<getShape()->nVertices(); i++)
+    Util::drawControlsVertex(painter, getShape()->getVertex(i), selectedVertices.contains(i), selectRadius, strokeWidth);
+}
+
+void PolygonControlPainter::_paintShape(QPainter *painter)
+{
+  Polygon* poly = static_cast<Polygon*>(getShape().get());
+  Q_ASSERT(poly);
+
+  // Init colors and stroke.
+  painter->setPen(_shapeItem->_getRescaledShapeStroke());
+
+  // Draw inner quads.
+  painter->drawPolygon(poly->toPolygon());
+}
+
+
+void EllipseControlPainter::_paintShape(QPainter *painter)
+{
+  Ellipse* ellipse = static_cast<Ellipse*>(getShape().get());
+  Q_ASSERT(ellipse);
+
+  // Init colors and stroke.
+  painter->setPen(_shapeItem->_getRescaledShapeStroke());
+  painter->setBrush(Qt::NoBrush);
+
+  // Draw ellipse contour.
+  QPainterPath path;
+  QTransform transform;
+  transform.translate(ellipse->getCenter().x(), ellipse->getCenter().y());
+  transform.rotate(ellipse->getRotation());
+  path.addEllipse(QPoint(0,0), ellipse->getHorizontalRadius(), ellipse->getVerticalRadius());
+  painter->drawPath(transform.map(path));
+}
+
+void MeshControlPainter::_paintShape(QPainter *painter)
+{
+  Mesh* mesh = static_cast<Mesh*>(getShape().get());
+  Q_ASSERT(mesh);
+
+  // Init colors and stroke.
+  painter->setPen(_shapeItem->_getRescaledShapeStroke(true));
+
+  // Draw inner quads.
+  QVector<Quad> quads = mesh->getQuads();
+  for (QVector<Quad>::const_iterator it = quads.begin(); it != quads.end(); ++it)
+  {
+    painter->drawPolygon(it->toPolygon());
+  }
+
+  // Draw outer quad.
+  painter->setPen(_shapeItem->_getRescaledShapeStroke());
+  painter->drawPolygon(_shapeItem->mapFromScene(mesh->toPolygon()));
+}
+
 ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
   : _mapping(mapping), _output(output)
 {
   _shape = output ? _mapping->getShape() : _mapping->getInputShape();
-
-  setFlags(ItemIsMovable | ItemIsSelectable);
-
-  // Shape filters child (control point) events.
-  setFiltersChildEvents(true);
-
-  // Create control point graphics items.
-  _createVertices();
 }
 
 MapperGLCanvas* ShapeGraphicsItem::getCanvas() const
@@ -45,40 +110,39 @@ bool ShapeGraphicsItem::isMappingCurrent() const { return MainWindow::instance()
 
 bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event)
 {
-  // Change vertex in model according to moved item.
-  if (event->type() == QEvent::GraphicsSceneMouseMove)
-  {
-    QGraphicsSceneMoveEvent* moveEvent = static_cast<QGraphicsSceneMoveEvent*>(event);
-    QGraphicsSceneMouseEvent* mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
- //   Q_ASSERT(moveEvent);
-    Q_ASSERT(mouseEvent);
-
-    int idx = childItems().indexOf(watched);
-    Q_ASSERT(idx != -1);
-
-//    QPointF pos = moveEvent->newPos();// + this->pos();
-    QPointF pos = mouseEvent->scenePos();
-
-    // Sticky vertex.
-    if (MainWindow::instance()->stickyVertices())
-      _glueVertex(&pos);
-
- //   qDebug() << moveEvent->oldPos() << " " << pos << " " << childItems().at(idx)->pos() << endl;
-    _shape->setVertex(idx, pos);
-
-    _syncVertices();
-
-    // Refresh this shape.
-   // update();
-
-    // override default
-    return true;
-  }
-  else
-  {
-    // Returns false to allow the child item to process its event.
-    return false;
-  }
+  return true;
+//  // Change vertex in model according to moved item.
+//  if (event->type() == QEvent::GraphicsSceneMouseMove)
+//  {
+//    QGraphicsSceneMoveEvent* moveEvent = static_cast<QGraphicsSceneMoveEvent*>(event);
+//    QGraphicsSceneMouseEvent* mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
+// //   Q_ASSERT(moveEvent);
+//    Q_ASSERT(mouseEvent);
+//
+//    int idx = childItems().indexOf(watched);
+//    Q_ASSERT(idx != -1);
+//
+////    QPointF pos = moveEvent->newPos();// + this->pos();
+//    QPointF pos = mouseEvent->scenePos();
+//
+//    // Sticky vertex.
+//    if (MainWindow::instance()->stickyVertices())
+//      _glueVertex(&pos);
+//
+// //   qDebug() << moveEvent->oldPos() << " " << pos << " " << childItems().at(idx)->pos() << endl;
+//    _shape->setVertex(idx, pos);
+//
+//    // Refresh this shape.
+//   // update();
+//
+//    // override default
+//    return true;
+//  }
+//  else
+//  {
+//    // Returns false to allow the child item to process its event.
+//    return false;
+//  }
 }
 
 void ShapeGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
@@ -109,9 +173,6 @@ void ShapeGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     return;
 
   QGraphicsItem::mouseMoveEvent(event);
-
-  // Sync shape.
-  _syncShape();
 }
 
 void ShapeGraphicsItem::paint(QPainter *painter,
@@ -130,20 +191,19 @@ void ShapeGraphicsItem::paint(QPainter *painter,
     _prePaint(painter, option);
     _doPaint(painter, option);
     _postPaint(painter, option);
-
-    if (MainWindow::instance()->displayControls() && isMappingCurrent())
-    {
-      _doPaintControls(painter, option);
-    }
   }
 }
 
 void ShapeGraphicsItem::_doPaintControls(QPainter *painter, const QStyleOptionGraphicsItem *option)
 {
-  Q_UNUSED(option);
-  painter->setPen(_getRescaledShapeStroke());
-  painter->setBrush(Qt::NoBrush);
-  painter->drawPath(shape());
+//  Q_UNUSED(option);
+//  _controlPainter->paint(painter, )
+//  Util::drawControls
+//  painter->setPen(_getRescaledShapeStroke());
+//  painter->setBrush(Qt::NoBrush);
+//  painter->drawPath(shape());
+//  Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected), MM::VERTEX_SELECT_RADIUS);
+//  }
 }
 
 
@@ -158,133 +218,58 @@ void ShapeGraphicsItem::_doPaintControls(QPainter *painter, const QStyleOptionGr
 //  return QGraphicsItem::itemChange(change, value);
 //}
 
-void ShapeGraphicsItem::resetVertices() {
-  // Clear vertices.
-  QList<QGraphicsItem*> allChildren = children();
-  for (QList<QGraphicsItem*>::iterator it = allChildren.begin(); it!=allChildren.end(); ++it)
-  {
-    (*it)->setParentItem(0);
-    scene()->removeItem(*it);
-    delete (*it);
-  }
-
-  // Re-create them.
-  _createVertices();
-}
-
-void ShapeGraphicsItem::_createVertices()
-{
-  // rect offset
-  for (int i=0; i<_shape->nVertices(); i++)
-  {
-    // XXX is this freed by parent?
-    QPointF pos = mapFromScene(_shape->getVertex(i));// - this->pos();
-    VertexGraphicsItem* child = new VertexGraphicsItem(i);
-//    child->setPos( pos );
-    child->setParentItem(this);
-    child->setPos( pos );
-    child->setRect( -MM::VERTEX_SELECT_RADIUS, -MM::VERTEX_SELECT_RADIUS, MM::VERTEX_SELECT_RADIUS*2, MM::VERTEX_SELECT_RADIUS*2);
-//    child->setRect(pos.x()-offset, pos.y()-offset, MM::VERTEX_SELECT_RADIUS, MM::VERTEX_SELECT_RADIUS);
-//    qDebug() << "Adding child at " << pos << " " << child->pos();
-//    qDebug() << ", after add " << child->pos() << endl;
-  }
-}
-
-void ShapeGraphicsItem::_syncShape()
-{
-  QList<QGraphicsItem*> children = childItems();
-  for (int i=0; i<_shape->nVertices(); i++)
-  {
-    _shape->setVertex(i, children.at(i)->scenePos());
-  }
-
-  // The shape object is the model: it contains the logic to make sure the vertices are ok.
-  // So here we need to re-sync the vertices (view side) according to the model.
-  _syncVertices();
-}
-
-void ShapeGraphicsItem::_syncVertices()
-{
-  for (int i=0; i<_shape->nVertices(); i++)
-  {
-    QPointF pos = _shape->getVertex(i) ;//- this->pos(); // this is in scene coordinates
-    childItems().at(i)->setPos(this->mapFromScene(pos));
-    childItems().at(i)->update();
-  }
-}
-
-void ShapeGraphicsItem::_glueVertex(QPointF* p)
-{
-  MappingManager manager = MainWindow::instance()->getMappingManager();
-  for (int i = 0; i < manager.nMappings(); i++)
-  {
-    MShape *shape = manager.getMapping(i)->getShape().get();
-    if (shape && shape != _shape.get())
-    {
-      for (int vertex = 0; vertex < shape->nVertices(); vertex++)
-      {
-        const QPointF& v = shape->getVertex(vertex);
-        if (distIsInside(v, *p, MM::VERTEX_STICK_RADIUS))
-        {
-          p->setX(v.x());
-          p->setY(v.y());
-        }
-      }
-    }
-  }
-}
 
 QPen ShapeGraphicsItem::_getRescaledShapeStroke(bool innerStroke)
 {
   return QPen(QBrush(MM::CONTROL_COLOR), (innerStroke ? MM::SHAPE_INNER_STROKE_WIDTH : MM::SHAPE_STROKE_WIDTH) / getCanvas()->getZoomFactor());
 }
 
-void VertexGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
-{
-  ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
-  if (!shapeParent->isMappingVisible())
-  {
-    // Prevent mouse grabbing.
-    event->ignore();
-  }
-  else
-  {
-    if (shapeParent->isOutput())
-    {
-      QGraphicsItem::mousePressEvent(event);
-      if (event->button() == Qt::LeftButton)
-      {
-        MainWindow::instance()->setCurrentMapping(shapeParent->getMapping()->getId());
-      }
-    }
-    else
-    {
-      if (shapeParent->isMappingCurrent())
-        QGraphicsItem::mousePressEvent(event);
-      else
-        event->ignore(); // prevent mousegrabbing on non-current mapping
-    }
-  }
-}
-
-void VertexGraphicsItem::paint(QPainter *painter,
-    const QStyleOptionGraphicsItem *option,
-    QWidget* widget)
-{
-  Q_UNUSED(widget);
-  if (MainWindow::instance()->displayControls())
-  {
-    ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
-    if (shapeParent->isMappingVisible() &&
-        shapeParent->isMappingCurrent())
-    {
-      qreal zoomFactor = 1.0 / shapeParent->getCanvas()->getZoomFactor();
-      resetMatrix();
-      scale(zoomFactor, zoomFactor);
-      Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected), MM::VERTEX_SELECT_RADIUS);
-    }
-  }
-}
+//void VertexGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
+//{
+//  ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
+//  if (!shapeParent->isMappingVisible())
+//  {
+//    // Prevent mouse grabbing.
+//    event->ignore();
+//  }
+//  else
+//  {
+//    if (shapeParent->isOutput())
+//    {
+//      QGraphicsItem::mousePressEvent(event);
+//      if (event->button() == Qt::LeftButton)
+//      {
+//        MainWindow::instance()->setCurrentMapping(shapeParent->getMapping()->getId());
+//      }
+//    }
+//    else
+//    {
+//      if (shapeParent->isMappingCurrent())
+//        QGraphicsItem::mousePressEvent(event);
+//      else
+//        event->ignore(); // prevent mousegrabbing on non-current mapping
+//    }
+//  }
+//}
+//
+//void VertexGraphicsItem::paint(QPainter *painter,
+//    const QStyleOptionGraphicsItem *option,
+//    QWidget* widget)
+//{
+//  Q_UNUSED(widget);
+////  if (MainWindow::instance()->displayControls())
+////  {
+////    ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
+////    if (shapeParent->isMappingVisible() &&
+////        shapeParent->isMappingCurrent())
+////    {
+////      qreal zoomFactor = 1.0 / shapeParent->getCanvas()->getZoomFactor();
+////      resetMatrix();
+////      scale(zoomFactor, zoomFactor);
+////      Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected), MM::VERTEX_SELECT_RADIUS);
+////    }
+////  }
+//}
 
 void ColorGraphicsItem::_prePaint(QPainter *painter,
                                   const QStyleOptionGraphicsItem *option)
@@ -1052,8 +1037,8 @@ void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
       outputMesh->resize(size.width(), size.height());
       inputMesh->resize(size.width(), size.height());
 
-      _graphicsItem->resetVertices();
-      _inputGraphicsItem->resetVertices();
+//      _graphicsItem->resetVertices();
+//      _inputGraphicsItem->resetVertices();
 
       // TODO: here we need to create the graphicsitems
 

@@ -34,3 +34,13 @@ MShape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
     return getMainWindow()->getMappingManager().getMappingById(mappingId)->getShape().get();
 }
 
+ShapeGraphicsItem* DestinationGLCanvas::getShapeGraphicsItemFromMappingId(uid mappingId)
+{
+  if (mappingId == NULL_UID)
+    return NULL;
+
+  else
+  {
+    return MainWindow::instance()->getMapperByMappingId(mappingId)->getGraphicsItem();
+  }
+}

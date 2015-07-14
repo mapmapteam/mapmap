@@ -51,20 +51,76 @@
 #include "variantmanager.h"
 #include "variantfactory.h"
 
-class VertexGraphicsItem;
+class MapperGLCanvas;
+
+class ShapeGraphicsItem;
+
+class ShapeControlPainter
+{
+public:
+  typedef std::tr1::shared_ptr<ShapeControlPainter> ptr;
+
+  ShapeControlPainter(ShapeGraphicsItem* shapeItem);
+  virtual ~ShapeControlPainter() {}
+
+  MShape::ptr getShape() const;
+
+  virtual void paint(QPainter *painter, const QList<int>& selectedVertices = QList<int>());
+
+protected:
+  virtual void _paintShape(QPainter *painter) = 0;
+  virtual void _paintVertices(QPainter *painter, const QList<int>& selectedVertices = QList<int>());
+
+  ShapeGraphicsItem* _shapeItem;
+};
+
+class PolygonControlPainter : public ShapeControlPainter
+{
+public:
+  PolygonControlPainter(ShapeGraphicsItem* shapeItem) : ShapeControlPainter(shapeItem) {}
+  virtual ~PolygonControlPainter() {}
+
+protected:
+  virtual void _paintShape(QPainter *painter);
+};
+
+class EllipseControlPainter : public ShapeControlPainter
+{
+public:
+  EllipseControlPainter(ShapeGraphicsItem* shapeItem) : ShapeControlPainter(shapeItem) {}
+  virtual ~EllipseControlPainter() {}
+
+protected:
+  virtual void _paintShape(QPainter *painter);
+};
+
+class MeshControlPainter : public ShapeControlPainter
+{
+public:
+  MeshControlPainter(ShapeGraphicsItem* shapeItem) : ShapeControlPainter(shapeItem) {}
+  virtual ~MeshControlPainter() {}
+
+protected:
+  virtual void _paintShape(QPainter *painter);
+};
 
 class ShapeGraphicsItem : public QGraphicsItem
 {
   Q_DECLARE_TR_FUNCTIONS(ShapeGraphicsItem)
 
-public:
+protected:
   ShapeGraphicsItem(Mapping::ptr mapping, bool output=true);
+public:
   virtual ~ShapeGraphicsItem() {}
+
+public:
 
   // TODO: dangereux: confusion possible entre shape() et getShape()...
   MShape::ptr getShape() const { return _shape; }
 
   Mapping::ptr getMapping() const { return _mapping; }
+
+  ShapeControlPainter::ptr getControlPainter() { return _controlPainter; }
 
   bool isOutput() const { return _output; }
   MapperGLCanvas* getCanvas() const;
@@ -86,65 +142,32 @@ public:
   virtual void paint(QPainter *painter,
                      const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-public:
-  void resetVertices();
-
 protected:
-  // Generates the VertexGraphicsItems that are defining the vertices of that shape.
-  virtual void _createVertices();
-
-  // Sync MShape from current VertexGraphicsItems.
-  virtual void _syncShape();
-
-  // Sync VertexGraphicsItems from MShape.
-  virtual void _syncVertices();
-
   virtual void _doPaint(QPainter *painter, const QStyleOptionGraphicsItem *option) = 0;
   virtual void _prePaint(QPainter *painter, const QStyleOptionGraphicsItem *option)
   { Q_UNUSED(painter); Q_UNUSED(option); }
   virtual void _postPaint(QPainter *painter, const QStyleOptionGraphicsItem *option)
   { Q_UNUSED(painter); Q_UNUSED(option); }
 
+public:
   virtual void _doPaintControls(QPainter *painter, const QStyleOptionGraphicsItem *option);
-
-  // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
-  void _glueVertex(QPointF* p);
 
   // Utility function: returns a stroke with rescaled width such that the stroke appears
   // invariant to the zoom level (to be used in _doPaintControls() method).
   QPen _getRescaledShapeStroke(bool innerStroke=false);
-
+protected:
   Mapping::ptr _mapping;
   MShape::ptr _shape;
+  ShapeControlPainter::ptr  _controlPainter;
   bool _output;
-};
-
-/// Graphics item for vertices / control points.
-class VertexGraphicsItem : public QGraphicsEllipseItem
-{
-  Q_DECLARE_TR_FUNCTIONS(VertexGraphicsItem)
-
-public:
-  VertexGraphicsItem(int index) : _index(index) {
-    setFlags(ItemIsMovable | ItemIsSelectable);
-  }
-  virtual ~VertexGraphicsItem() {}
-
-  // Prevent mousegrabbing if mapping is invisible.
-  void mousePressEvent(QGraphicsSceneMouseEvent *event);
-
-  virtual void paint(QPainter *painter,
-                     const QStyleOptionGraphicsItem *option,
-                     QWidget* widget);
-
-protected:
-  int _index;
 };
 
 class ColorGraphicsItem : public ShapeGraphicsItem
 {
+protected:
+  ColorGraphicsItem(Mapping::ptr mapping, bool output=true)
+    : ShapeGraphicsItem(mapping, output) {}
 public:
-  ColorGraphicsItem(Mapping::ptr mapping, bool output=true) : ShapeGraphicsItem(mapping, output) {}
   virtual ~ColorGraphicsItem() {}
 
 protected:
@@ -156,7 +179,10 @@ protected:
 class PolygonColorGraphicsItem : public ColorGraphicsItem
 {
 public:
-  PolygonColorGraphicsItem(Mapping::ptr mapping, bool output=true) : ColorGraphicsItem(mapping, output) {}
+  PolygonColorGraphicsItem(Mapping::ptr mapping, bool output=true)
+    : ColorGraphicsItem(mapping, output) {
+    _controlPainter.reset(new PolygonControlPainter(this));
+  }
   virtual ~PolygonColorGraphicsItem() {}
 
   virtual QPainterPath shape() const;
@@ -164,6 +190,7 @@ public:
 protected:
   virtual void _doPaint(QPainter *painter,
                         const QStyleOptionGraphicsItem *option);
+public:
   void _doPaintControls(QPainter* painter, const QStyleOptionGraphicsItem *option);
 };
 
@@ -171,7 +198,10 @@ protected:
 class EllipseColorGraphicsItem : public ColorGraphicsItem
 {
 public:
-  EllipseColorGraphicsItem(Mapping::ptr mapping, bool output=true) : ColorGraphicsItem(mapping, output) {}
+  EllipseColorGraphicsItem(Mapping::ptr mapping, bool output=true)
+    : ColorGraphicsItem(mapping, output) {
+      _controlPainter.reset(new EllipseControlPainter(this));
+    }
   virtual ~EllipseColorGraphicsItem() {}
 
   virtual QPainterPath shape() const;
@@ -207,9 +237,12 @@ protected:
 class PolygonTextureGraphicsItem : public TextureGraphicsItem
 {
 public:
-  PolygonTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : TextureGraphicsItem(mapping, output) {}
+  PolygonTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : TextureGraphicsItem(mapping, output) {
+    _controlPainter.reset(new PolygonControlPainter(this));
+  }
   virtual ~PolygonTextureGraphicsItem(){}
 
+public:
   virtual void _doPaintControls(QPainter* painter, const QStyleOptionGraphicsItem *option);
 
   virtual QPainterPath shape() const;
@@ -231,7 +264,9 @@ public:
 class MeshTextureGraphicsItem : public PolygonTextureGraphicsItem
 {
 public:
-  MeshTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : PolygonTextureGraphicsItem(mapping, output) {}
+  MeshTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : PolygonTextureGraphicsItem(mapping, output) {
+    _controlPainter.reset(new MeshControlPainter(this));
+  }
   virtual ~MeshTextureGraphicsItem(){}
 
   virtual void _doPaintControls(QPainter* painter, const QStyleOptionGraphicsItem *option);
@@ -247,7 +282,9 @@ private:
 class EllipseTextureGraphicsItem : public TextureGraphicsItem
 {
 public:
-  EllipseTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : TextureGraphicsItem(mapping, output) {}
+  EllipseTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : TextureGraphicsItem(mapping, output) {
+    _controlPainter.reset(new EllipseControlPainter(this));
+  }
   virtual ~EllipseTextureGraphicsItem(){}
 
   virtual QPainterPath shape() const;

@@ -58,145 +58,199 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
   this->scene()->setBackgroundBrush(Qt::black);
 }
 
-MShape* MapperGLCanvas::getCurrentShape() {
+MShape* MapperGLCanvas::getCurrentShape()
+{
   return getShapeFromMappingId(MainWindow::instance()->getCurrentMappingId());
 }
 
+ShapeGraphicsItem* MapperGLCanvas::getCurrentShapeGraphicsItem()
+{
+  return getShapeGraphicsItemFromMappingId(MainWindow::instance()->getCurrentMappingId());
+}
+
+// Draws foreground (displays crosshair if needed).
+void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
+{
+  if (_mainWindow->displayControls())
+  {
+    uid mid = _mainWindow->getCurrentMappingId();
+    if (mid != NULL_UID)
+    {
+      ShapeGraphicsItem* item = getCurrentShapeGraphicsItem();
+      if (item)
+        item->getControlPainter()->paint(painter);
+    }
+  }
+}
+
 //
-//void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
-//{
-//  int i;
-//  int dist;
-//  int minDistance;
-//
-//  bool mousePressedOnSomething = false;
-//
-//  _mousePressedPosition = event->pos();
-//
-//  // Note: we compare with the square value for fastest computation of the distance
-//  minDistance = MM::VERTEX_SELECT_RADIUS * MM::VERTEX_SELECT_RADIUS;
-//
-//  // Drag the closest vertex
-//  if (event->buttons() & Qt::LeftButton)
+void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
+{
+  int i;
+  int dist;
+  int minDistance;
+
+  bool mousePressedOnSomething = false;
+
+  _mousePressedPosition = event->pos();
+  QPointF pos = mapToScene(event->pos());
+
+  // Note: we compare with the square value for fastest computation of the distance
+  minDistance = MM::VERTEX_SELECT_RADIUS * MM::VERTEX_SELECT_RADIUS;
+
+  // Drag the closest vertex.
+  if (event->buttons() & Qt::LeftButton)
+  {
+    MShape* shape = getCurrentShape();
+    if (shape)
+    {
+      // find the ID of the nearest vertex: (from the selected shape)
+      for (i = 0; i < shape->nVertices(); i++)
+      {
+        dist = distSq(pos, shape->getVertex(i)); // squared distance
+        if (dist < minDistance)
+        {
+          _activeVertex = i;
+          minDistance = dist;
+
+          _mousePressedOnVertex = true;
+          mousePressedOnSomething = true;
+
+          _grabbedObjectStartPosition = shape->getVertex(i);
+        }
+      }
+    }
+  }
+
+  if (mousePressedOnSomething)
+    return;
+
+  // Select a shape with a click.
+  if (event->buttons() & Qt::LeftButton || Qt::RightButton) // Add Right click for context menu
+  {
+    MShape* selectedShape = getCurrentShape();
+    MappingManager manager = getMainWindow()->getMappingManager();
+    QVector<Mapping::ptr> mappings = manager.getVisibleMappings();
+    for (QVector<Mapping::ptr>::const_iterator it = mappings.end() - 1; it >= mappings.begin(); --it)
+    {
+      MShape *shape = getShapeFromMappingId((*it)->getId());
+      // Mouse pressed on a shape.
+      if (shape && shape->includesPoint(pos))
+      {
+        mousePressedOnSomething = true;
+        // Deselect vertices.
+        deselectVertices();
+        // Change mapping.
+        if (shape != selectedShape)
+        {
+          getMainWindow()->setCurrentMapping((*it)->getId());
+
+          // Reset orig.
+          selectedShape = getCurrentShape();
+        }
+        break;
+      }
+    }
+
+    // Grab the shape.
+    if (event->buttons() & Qt::LeftButton) // This preserve me from duplicate code above
+    {
+      if (selectedShape && selectedShape->includesPoint(pos))
+      {
+        _shapeGrabbed = true;
+        _shapeFirstGrab = true;
+
+        _grabbedObjectStartPosition = pos;
+      }
+    }
+  }
+
+  if (mousePressedOnSomething)
+    return;
+
+  // Deactivate.
+  deselectAll();
+}
+
+void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
+{
+  Q_UNUSED(event);
+//  // Click on vertex ==> select the vertex.
+//  if ((event->buttons() & Qt::LeftButton) && _mousePressedOnVertex)
 //  {
-//    Shape* shape = getCurrentShape();
-//    if (shape)
-//    {
-//      // find the ID of the nearest vertex: (from the selected shape)
-//      for (i = 0; i < shape->nVertices(); i++)
-//      {
-//        dist = distSq(_mousePressedPosition, shape->getVertex(i)); // squared distance
-//        if (dist < minDistance)
-//        {
-//          _activeVertex = i;
-//          minDistance = dist;
-//
-//          _mousePressedOnVertex = true;
-//          mousePressedOnSomething = true;
-//        }
-//      }
-//    }
 //  }
-//
-//  if (mousePressedOnSomething)
-//    return;
-//
-//  // Select a shape with a click.
-//  if (event->buttons() & Qt::LeftButton || Qt::RightButton) // Add Right click for context menu
-//  {
-//    Shape* orig = getCurrentShape();
-//    MappingManager manager = getMainWindow()->getMappingManager();
-//    QVector<Mapping::ptr> mappings = manager.getVisibleMappings();
-//    for (QVector<Mapping::ptr>::const_iterator it = mappings.end() - 1; it >= mappings.begin(); --it)
-//    {
-//      Shape *shape = getShapeFromMappingId((*it)->getId());
-//      // Mouse pressed on a shape.
-//      if (shape && shape->includesPoint(_mousePressedPosition))
-//      {
-//        mousePressedOnSomething = true;
-//        // Deselect vertices.
-//        deselectVertices();
-//        // Change mapping.
-//        if (shape != orig)
-//        {
-//          getMainWindow()->setCurrentMapping((*it)->getId());
-//        }
-//        break;
-//      }
-//    }
-//
-//    // Grab the shape.
-//    if (event->buttons() & Qt::LeftButton) // This preserve me from duplicate code above
-//    {
-//      if (orig && orig->includesPoint(_mousePressedPosition))
-//      {
-//        _shapeGrabbed = true;
-//        _shapeFirstGrab = true;
-//      }
-//    }
-//  }
-//
-//  if (mousePressedOnSomething)
-//    return;
-//
-//  // Deactivate.
-//  deselectAll();
-//}
-//
-//void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
-//{
-//  Q_UNUSED(event);
-////  // Click on vertex ==> select the vertex.
-////  if ((event->buttons() & Qt::LeftButton) && _mousePressedOnVertex)
-////  {
-////  }
-//  _mousePressedOnVertex = false;
-//  _shapeGrabbed = false;
-//}
-//
-//void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
-//{
-//  // Prepare to store commands
-//  undoStack = getMainWindow()->getUndoStack();
-//
-//  if (_mousePressedOnVertex)
-//  {
-//    // std::cout << "Move event " << std::endl;
-//    Shape* shape = getCurrentShape();
-//    if (shape && _activeVertex != NO_VERTEX)
-//    {
+  if (_mousePressedOnVertex)
+  {
+  }
+  else if (_shapeGrabbed)
+  {
+
+  }
+  _mousePressedOnVertex = false;
+  _shapeGrabbed = false;
+}
+
+void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
+{
+  static QPoint lastMousePos;
+
+  QPointF pos = mapToScene(event->pos());
+
+  // Prepare to store commands
+  undoStack = getMainWindow()->getUndoStack();
+
+  // Vertex grab.
+  if (_mousePressedOnVertex)
+  {
+    // std::cout << "Move event " << std::endl;
+    MShape* shape = getCurrentShape();
+    if (shape && _activeVertex != NO_VERTEX)
+    {
 //      QPointF p = shape->getVertex(_activeVertex);
 //      // Set point to mouse coordinates.
-//      p.setX(event->x());
-//      p.setY(event->y());
-//
-//      // Stick to vertices.
-//      if (stickyVertices())
-//        glueVertex(shape, &p);
-//
-//      // Enable to Undo and Redo when mouse move the position of vertices
-//      undoStack->push(new MoveVertexCommand(this, _activeVertex, p));
-//    }
-//  }
-//  else if (_shapeGrabbed)
-//  {
-//    // std::cout << "Move event " << std::endl;
-//    Shape* shape = getCurrentShape();
-//    static QPointF prevMousePosition(0,0); // point that keeps track of last position of the mouse
-//    if (shape)
-//    {
-//      if (!_shapeFirstGrab)
-//      {
-//        undoStack->push(new MoveShapesCommand(this, event, prevMousePosition));
-//      }
-//      else
-//        _shapeFirstGrab = false;
-//    }
-//    // Update previous mouse position.
-//    prevMousePosition.setX( event->x() );
-//    prevMousePosition.setY( event->y() );
-//  }
-//}
+//      p.setX(pos.x());
+//      p.setY(pos.y());
+
+      QPointF p = pos;
+
+      // Stick to vertices.
+      if (_mainWindow->stickyVertices())
+        _glueVertex(&p);
+
+      shape->setVertex(_activeVertex, p);
+    }
+  }
+
+  // Shape grab.
+  else if (_shapeGrabbed)
+  {
+    // std::cout << "Move event " << std::endl;
+    MShape* shape = getCurrentShape();
+    if (shape)
+    {
+      if (_shapeFirstGrab)
+      {
+        lastMousePos = _mousePressedPosition;
+        _shapeFirstGrab = false;
+      }
+    }
+
+    QPointF diff = pos - mapToScene(lastMousePos);
+    shape->translate(diff.x(), diff.y());
+  }
+
+  // Window translation action
+  else if (event->buttons() & Qt::MiddleButton)
+  {
+    QPointF diff = pos - mapToScene(lastMousePos);
+    QGraphicsView* view = scene()->views().first();
+    view->translate(diff.x(), diff.y());
+    view->update();
+  }
+
+  lastMousePos = event->pos();
+}
+
 //
 //void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 //{
@@ -391,24 +445,6 @@ void MapperGLCanvas::wheelEvent(QWheelEvent *event)
   event->accept();
 }
 
-void MapperGLCanvas::mouseMoveEvent(QMouseEvent *event)
-{
-  static QPoint lastPos;
-
-  // Click-and-drag translate view.
-  if (event->buttons() & Qt::MiddleButton)
-  {
-    QPoint pos = event->pos();
-    QPointF diff = mapToScene(pos) - mapToScene(lastPos);
-    QGraphicsView* view = scene()->views().first();
-    view->translate(diff.x(), diff.y());
-    view->update();
-    lastPos = pos;
-  }
-
-  QGraphicsView::mouseMoveEvent(event);
-}
-
 bool MapperGLCanvas::eventFilter(QObject *target, QEvent *event)
 {
   if (event->type() == QEvent::KeyPress)
@@ -424,3 +460,24 @@ bool MapperGLCanvas::eventFilter(QObject *target, QEvent *event)
   }
 }
 
+
+void MapperGLCanvas::_glueVertex(QPointF* p)
+{
+  MappingManager manager = MainWindow::instance()->getMappingManager();
+  for (int i = 0; i < manager.nMappings(); i++)
+  {
+    MShape *shape = manager.getMapping(i)->getShape().get();
+    if (shape && shape != getCurrentShape())
+    {
+      for (int vertex = 0; vertex < shape->nVertices(); vertex++)
+      {
+        const QPointF& v = shape->getVertex(vertex);
+        if (distIsInside(v, *p, MM::VERTEX_STICK_RADIUS))
+        {
+          p->setX(v.x());
+          p->setY(v.y());
+        }
+      }
+    }
+  }
+}
