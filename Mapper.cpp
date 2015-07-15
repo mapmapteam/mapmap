@@ -108,73 +108,6 @@ MapperGLCanvas* ShapeGraphicsItem::getCanvas() const
 
 bool ShapeGraphicsItem::isMappingCurrent() const { return MainWindow::instance()->getCurrentMappingId() == _mapping->getId(); }
 
-bool ShapeGraphicsItem::sceneEventFilter(QGraphicsItem * watched, QEvent * event)
-{
-  return true;
-//  // Change vertex in model according to moved item.
-//  if (event->type() == QEvent::GraphicsSceneMouseMove)
-//  {
-//    QGraphicsSceneMoveEvent* moveEvent = static_cast<QGraphicsSceneMoveEvent*>(event);
-//    QGraphicsSceneMouseEvent* mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
-// //   Q_ASSERT(moveEvent);
-//    Q_ASSERT(mouseEvent);
-//
-//    int idx = childItems().indexOf(watched);
-//    Q_ASSERT(idx != -1);
-//
-////    QPointF pos = moveEvent->newPos();// + this->pos();
-//    QPointF pos = mouseEvent->scenePos();
-//
-//    // Sticky vertex.
-//    if (MainWindow::instance()->stickyVertices())
-//      _glueVertex(&pos);
-//
-// //   qDebug() << moveEvent->oldPos() << " " << pos << " " << childItems().at(idx)->pos() << endl;
-//    _shape->setVertex(idx, pos);
-//
-//    // Refresh this shape.
-//   // update();
-//
-//    // override default
-//    return true;
-//  }
-//  else
-//  {
-//    // Returns false to allow the child item to process its event.
-//    return false;
-//  }
-}
-
-void ShapeGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
-{
-  if (!isMappingVisible())
-    return;
-
-  if (isOutput())
-  {
-    QGraphicsItem::mousePressEvent(event);
-    if (event->button() == Qt::LeftButton)
-    {
-      MainWindow::instance()->setCurrentMapping(_mapping->getId());
-    }
-  }
-  else
-  {
-    if (isMappingCurrent())
-      QGraphicsItem::mousePressEvent(event);
-    else
-      event->ignore(); // prevent mousegrabbing on non-current mapping
-  }
-}
-
-void ShapeGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-  if (!isMappingVisible())
-    return;
-
-  QGraphicsItem::mouseMoveEvent(event);
-}
-
 void ShapeGraphicsItem::paint(QPainter *painter,
                               const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
@@ -1018,6 +951,7 @@ MeshTextureMapper::MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mappin
   Mesh* mesh = (Mesh*)textureMapping->getShape().get();
   _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
+  _meshItem->setAttribute("minimum", QSize(2,2));
   _topItem->insertSubProperty(_meshItem, _opacityItem); // insert at the beginning
 }
 
