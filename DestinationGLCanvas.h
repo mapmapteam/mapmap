@@ -34,8 +34,9 @@ public:
   DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
   virtual ~DestinationGLCanvas() {}
 
-  virtual MShape* getShapeFromMappingId(uid mappingId);
-  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId);
+  virtual bool isOutput() const { return true; }
+  virtual MShape* getShapeFromMappingId(uid mappingId) const;
+  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId) const;
 };
 
 #endif /* DESTINATIONGLCANVAS_H_ */

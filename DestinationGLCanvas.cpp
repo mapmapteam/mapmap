@@ -26,7 +26,7 @@ DestinationGLCanvas::DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent
 {
 }
 
-MShape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
+MShape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId) const
 {
   if (mappingId == NULL_UID)
     return NULL;
@@ -34,7 +34,7 @@ MShape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId)
     return getMainWindow()->getMappingManager().getMappingById(mappingId)->getShape().get();
 }
 
-ShapeGraphicsItem* DestinationGLCanvas::getShapeGraphicsItemFromMappingId(uid mappingId)
+ShapeGraphicsItem* DestinationGLCanvas::getShapeGraphicsItemFromMappingId(uid mappingId) const
 {
   if (mappingId == NULL_UID)
     return NULL;

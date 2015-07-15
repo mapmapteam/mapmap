@@ -37,6 +37,8 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
 
   setRenderHint(QPainter::Antialiasing, true);
   setRenderHint(QPainter::TextAntialiasing, true);
+  setResizeAnchor(AnchorViewCenter);
+  setInteractive(true);
 
   //setFrameStyle(Sunken | StyledPanel);
   // TODO: check this
@@ -71,6 +73,7 @@ ShapeGraphicsItem* MapperGLCanvas::getCurrentShapeGraphicsItem()
 // Draws foreground (displays crosshair if needed).
 void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 {
+  Q_UNUSED(rect);
   if (_mainWindow->displayControls())
   {
     uid mid = _mainWindow->getCurrentMappingId();
@@ -86,28 +89,25 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 //
 void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
 {
-  int i;
-  int dist;
-  int minDistance;
-
   bool mousePressedOnSomething = false;
 
   _mousePressedPosition = event->pos();
   QPointF pos = mapToScene(event->pos());
 
-  // Note: we compare with the square value for fastest computation of the distance
-  minDistance = MM::VERTEX_SELECT_RADIUS * MM::VERTEX_SELECT_RADIUS;
 
-  // Drag the closest vertex.
-  if (event->buttons() & Qt::LeftButton)
+  // Check for vertex selection first.
+  else if (event->buttons() & Qt::LeftButton)
   {
     MShape* shape = getCurrentShape();
     if (shape)
     {
-      // find the ID of the nearest vertex: (from the selected shape)
-      for (i = 0; i < shape->nVertices(); i++)
+      // Note: we compare with the square value for fastest computation of the distance
+      int minDistance = sq(MM::VERTEX_SELECT_RADIUS);
+
+      // Find the ID of the nearest vertex (from currently selected shape)
+      for (int i = 0; i < shape->nVertices(); i++)
       {
-        dist = distSq(pos, shape->getVertex(i)); // squared distance
+        int dist = distSq(_mousePressedPosition, mapFromScene(shape->getVertex(i))); // squared distance
         if (dist < minDistance)
         {
           _activeVertex = i;
@@ -125,29 +125,36 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   if (mousePressedOnSomething)
     return;
 
-  // Select a shape with a click.
-  if (event->buttons() & Qt::LeftButton || Qt::RightButton) // Add Right click for context menu
+  // Check for shape selection.
+  if (event->buttons() & (Qt::LeftButton | Qt::RightButton)) // Add Right click for context menu
   {
     MShape* selectedShape = getCurrentShape();
+
+    // Possibility of changing shape in output by clicking on it.
     MappingManager manager = getMainWindow()->getMappingManager();
     QVector<Mapping::ptr> mappings = manager.getVisibleMappings();
     for (QVector<Mapping::ptr>::const_iterator it = mappings.end() - 1; it >= mappings.begin(); --it)
     {
       MShape *shape = getShapeFromMappingId((*it)->getId());
-      // Mouse pressed on a shape.
+
+      // Check if mouse was pressed on that shape.
       if (shape && shape->includesPoint(pos))
       {
         mousePressedOnSomething = true;
+
         // Deselect vertices.
         deselectVertices();
-        // Change mapping.
-        if (shape != selectedShape)
+
+        // Change mapping (only available in destination).
+        if (isOutput() && shape != selectedShape)
         {
+          // Change current mapping.
           getMainWindow()->setCurrentMapping((*it)->getId());
 
-          // Reset orig.
+          // Reset selected shape to new one.
           selectedShape = getCurrentShape();
         }
+
         break;
       }
     }
@@ -242,10 +249,10 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
   // Window translation action
   else if (event->buttons() & Qt::MiddleButton)
   {
-    QPointF diff = pos - mapToScene(lastMousePos);
+    QPointF diff = event->pos() - lastMousePos;
     QGraphicsView* view = scene()->views().first();
     view->translate(diff.x(), diff.y());
-    view->update();
+//    view->update();
   }
 
   lastMousePos = event->pos();

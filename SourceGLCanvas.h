@@ -35,8 +35,9 @@ public:
   SourceGLCanvas(MainWindow* mainWindow, QWidget* parent = 0);
   virtual ~SourceGLCanvas() {}
 
-  virtual MShape* getShapeFromMappingId(uid mappingId);
-  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId);
+  virtual bool isOutput() const { return false; }
+  virtual MShape* getShapeFromMappingId(uid mappingId) const;
+  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId) const;
 
 private:
 //  virtual void doDraw(QPainter* painter);

@@ -54,8 +54,9 @@ public:
   virtual ~MapperGLCanvas() {}
 
   /// Returns shape associated with mapping id.
-  virtual MShape* getShapeFromMappingId(uid mappingId) = 0;
-  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId) = 0;
+  virtual bool isOutput() const = 0;
+  virtual MShape* getShapeFromMappingId(uid mappingId) const = 0;
+  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId) const = 0;
 
   MShape* getCurrentShape();
   ShapeGraphicsItem* getCurrentShapeGraphicsItem();

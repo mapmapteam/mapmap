@@ -388,8 +388,8 @@ private:
 
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
-  MappingManager& getMappingManager() { return *mappingManager; }
-  Mapper::ptr getMapperByMappingId(uint id) { return mappers[id]; }
+  MappingManager& getMappingManager() const { return *mappingManager; }
+  Mapper::ptr getMapperByMappingId(uint id) const { return mappers[id]; }
   uid getCurrentPaintId() const { return currentPaintId; }
   uid getCurrentMappingId() const { return currentMappingId; }
   OutputGLWindow* getOutputWindow() const { return outputWindow; }
