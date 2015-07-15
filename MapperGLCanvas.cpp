@@ -35,8 +35,9 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
   // For now clicking on the window doesn't do anything.
   setDragMode(QGraphicsView::NoDrag);
 
-  setRenderHint(QPainter::Antialiasing, true);
-  setRenderHint(QPainter::TextAntialiasing, true);
+  setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing |
+                 QPainter::HighQualityAntialiasing | QPainter::SmoothPixmapTransform);
+
   setResizeAnchor(AnchorViewCenter);
   setInteractive(true);
 
