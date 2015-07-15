@@ -95,6 +95,19 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   _mousePressedPosition = event->pos();
   QPointF pos = mapToScene(event->pos());
 
+  // Drag the scene with middle button.
+  if (event->buttons() & Qt::MiddleButton)
+  {
+    // NOTE: This is a trick code to implement scroll hand drag using the middle button.
+    QMouseEvent releaseEvent(QEvent::MouseButtonRelease, event->pos(), event->globalPos(), Qt::LeftButton, 0, event->modifiers());
+    QGraphicsView::mouseReleaseEvent(&releaseEvent);
+    setDragMode(QGraphicsView::ScrollHandDrag);
+
+    // We need to pretend it is actually the left button that was pressed!
+    QMouseEvent fakeEvent(event->type(), event->pos(), event->globalPos(),
+                          Qt::LeftButton, event->buttons() | Qt::LeftButton, event->modifiers());
+    QGraphicsView::mousePressEvent(&fakeEvent);
+  }
 
   // Check for vertex selection first.
   else if (event->buttons() & Qt::LeftButton)
@@ -183,6 +196,16 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
 void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
 {
   Q_UNUSED(event);
+
+  // Wrap-up dragging the scene with middle button.
+  if (event->buttons() & Qt::MiddleButton)
+  {
+    QMouseEvent fakeEvent(event->type(), event->pos(), event->globalPos(),
+        Qt::LeftButton, event->buttons() & ~Qt::LeftButton, event->modifiers());
+    QGraphicsView::mouseReleaseEvent(&fakeEvent);
+    setDragMode(QGraphicsView::NoDrag);
+    setCursor(Qt::ArrowCursor);
+  }
 //  // Click on vertex ==> select the vertex.
 //  if ((event->buttons() & Qt::LeftButton) && _mousePressedOnVertex)
 //  {
