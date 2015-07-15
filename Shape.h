@@ -215,9 +215,10 @@ public:
   void addColumn();
   void addRow();
 
-  void resize(int nColumns_, int nRows_);
+  void removeColumn(int columnId);
+  void removeRow(int rowId);
 
-//  void removeColumn(int columnId);
+  void resize(int nColumns_, int nRows_);
 
   QVector<Quad> getQuads() const;
   QVector<QVector<Quad> > getQuads2d() const;
@@ -227,6 +228,7 @@ public:
 
   int nHorizontalQuads() const { return _nColumns-1; }
   int nVerticalQuads() const { return _nRows-1; }
+
 
 protected:
   int _nColumns;

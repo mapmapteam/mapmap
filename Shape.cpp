@@ -250,7 +250,7 @@ void Mesh::addColumn()
   resizeVertices2d(newVertices2d, nColumns()+1, nRows());
 
   // Left displacement of points already there.
-  float leftMoveProp = 1.0f/(nColumns()-1) - 1.0f/nColumns();
+  qreal leftMoveProp = 1.0f/(nColumns()-1) - 1.0f/nColumns();
 
   // Add a point at each row.
   int k = nVertices();
@@ -264,7 +264,7 @@ void Mesh::addColumn()
     // First pass: move middle points.
     for (int x=1; x<nColumns()-1; x++)
     {
-      QPointF p = getVertex( _vertices2d[x][y] );
+      QPointF p = getVertex2d(x, y);
       p -= diff * x * leftMoveProp;
       _rawSetVertex( _vertices2d[x][y], p );
     }
@@ -303,21 +303,21 @@ void Mesh::addRow()
   resizeVertices2d(newVertices2d, nColumns(), nRows()+1);
 
   // Top displacement of points already there.
-  float topMoveProp = 1.0f/(nRows()-1) - 1.0f/nRows();
+  qreal topMoveProp = 1.0f/(nRows()-1) - 1.0f/nRows();
 
   // Add a point at each row.
   int k = nVertices();
   for (int x=0; x<nColumns(); x++)
   {
     // Get left and right vertices.
-    QPointF top    = getVertex( _vertices2d[x][0] );
-    QPointF bottom = getVertex( _vertices2d[x][nRows()-1] );
+    QPointF top    = getVertex2d(x, 0);
+    QPointF bottom = getVertex2d(x, nRows()-1);
     QPointF diff   = bottom - top;
 
     // First pass: move middle points.
     for (int y=1; y<nRows()-1; y++)
     {
-      QPointF p = getVertex( _vertices2d[x][y] );
+      QPointF p = getVertex2d(x, y);
       p -= diff * y * topMoveProp;
       _rawSetVertex( _vertices2d[x][y], p );
     }
@@ -349,68 +349,145 @@ void Mesh::addRow()
   _reorderVertices();
 }
 
-void Mesh::resize(int nColumns_, int nRows_)
+void Mesh::removeColumn(int columnId)
 {
-  Q_ASSERT(nColumns_ >= nColumns() && nRows_ >= nRows());
-  while (nColumns_ != nColumns())
-    addColumn();
-  while (nRows_ != nRows())
-    addRow();
+  // Cannot remove first and last columns
+  Q_ASSERT(columnId >= 1 && columnId < nColumns()-1);
+
+  // Temporary containers that will be used to rebuild new vertex space.
+  IndexVector2d newVertices2d;
+  resizeVertices2d(newVertices2d, nColumns()-1, nRows());
+
+  QVector<QPointF> newVertices(vertices.size()-nRows());
+
+  // Right displacement of points already there.
+  qreal rightMoveProp = 1.0f/(nColumns()-2) - 1.0f/(nColumns()-1);
+
+  // Process all rows.
+  int k = 0;
+  for (int y=0; y<nRows(); y++)
+  {
+    // Get left and right vertices.
+    QPointF left  = getVertex2d( 0,            y );
+    QPointF right = getVertex2d( nColumns()-1, y );
+    QPointF diff  = right - left;
+
+    // Move all columns.
+    for (int x=0; x<nColumns(); x++)
+    {
+      // Ignore points from target column.
+      if (x == columnId)
+        continue;
+
+      // Get current vertex.
+      QPointF p = getVertex2d( x, y );
+
+      // The x value of this point in the new space.
+      int newX = x < columnId ? x : x-1;
+
+      // Move middle points.
+      if (x > 0 && x < nColumns()-1)
+      {
+        p += (x < columnId ? +1 : -1) * diff * newX * rightMoveProp;
+      }
+
+      // Assign new containers.
+      newVertices[k]         = p;
+      newVertices2d[newX][y] = k;
+      k++;
+    }
+  }
+
+  // Copy new mapping.
+  vertices    = newVertices;
+  _vertices2d = newVertices2d;
+
+  // Increment number of columns.
+  _nColumns--;
 }
 
-//  void removeColumn(int columnId)
-//  {
-//    // Cannot remove first and last columns
-//    Q_ASSERT(columnId >= 1 && columnId < nColumns()-1);
-//
-//    std::vector< std::vector<int> > newVertices2d;
-//    resizeVertices2d(newVertices2d, nColumns()-1, nRows());
-//
-//    // Right displacement of points already there.
-//    float rightMoveProp = 1.0f/(nColumns()-2) - 1.0f/(nColumns()-1);
-//
-//    // Remove a point at each row.
-//    int k = nVertices();
-//    for (int y=0; y<nRows(); y++)
-//    {
-//      // Get left and right vertices.
-//      QPointF left  = getVertex( _vertices2d[0]           [y] ).toQPointF();
-//      QPointF right = getVertex( _vertices2d[nColumns()-1][y] ).toQPointF();
-//      QPointF diff = right - left;
-//
-//      // First pass: move middle points.
-//      for (int x=1; x<nColumns()-1; x++)
-//      {
-//        QPointF p = getVertex( _vertices2d[x][y] ).toQPointF();
-//        p -= diff * x * leftMoveProp;
-//        setVertex( _vertices2d[x][y], p );
-//      }
-//
-//      // Create and add new point.
-//      QPointF newPoint = right - diff * 1.0f/nColumns();
-//      vertices.push_back(newPoint);
-//
-//      // Assign new vertices 2d.
-//      for (int x=0; x<nColumns()-1; x++)
-//        newVertices2d[x][y] = _vertices2d[x][y];
-//
-//      // The new point.
-//      newVertices2d[nColumns()-1][y] = k;
-//
-//      // The rightmost point.
-//      newVertices2d[nColumns()][y]   = _vertices2d[nColumns()-1][y];
-//
-//      k++;
-//    }
-//
-//    // Copy new mapping.
-//    _vertices2d = newVertices2d;
-//
-//    // Increment number of columns.
-//    _nColumns++;
-//
-//  }
+void Mesh::removeRow(int rowId)
+{
+  // Cannot remove first and last columns
+  Q_ASSERT(rowId >= 1 && rowId < nRows()-1);
 
+  // Temporary containers that will be used to rebuild new vertex space.
+  IndexVector2d newVertices2d;
+  resizeVertices2d(newVertices2d, nColumns(), nRows()-1);
+
+  QVector<QPointF> newVertices(vertices.size()-nColumns());
+
+  // Bottom displacement of points already there.
+  qreal bottomMoveProp = 1.0f/(nRows()-2) - 1.0f/(nRows()-1);
+
+  // Process all columns.
+  int k = 0;
+  for (int x=0; x<nColumns(); x++)
+  {
+    // Get top and bottom vertices.
+    QPointF top    = getVertex2d(x, 0);
+    QPointF bottom = getVertex2d(x, nRows()-1);
+    QPointF diff   = bottom - top;
+
+    // Move all rows.
+    for (int y=0; y<nRows(); y++)
+    {
+      // Ignore points from target row.
+      if (y == rowId)
+        continue;
+
+      // Get current vertex.
+      QPointF p = getVertex2d( x, y );
+
+      // The y value of this point in the new space.
+      int newY = y < rowId ? y : y-1;
+
+      // Move middle points.
+      if (y > 0 && y < nRows()-1)
+      {
+        p += (y < rowId ? +1 : -1) * diff * newY * bottomMoveProp;
+      }
+
+      // Assign new containers.
+      newVertices[k]         = p;
+      newVertices2d[x][newY] = k;
+      k++;
+    }
+  }
+
+  // Copy new mapping.
+  vertices    = newVertices;
+  _vertices2d = newVertices2d;
+
+  // Increment number of columns.
+  _nRows--;
+}
+
+
+void Mesh::resize(int nColumns_, int nRows_)
+{
+  // Brutal: if asked to reduce columns or rows, just delete and redo.
+  if (nColumns_ < nColumns())
+  {
+    while (nColumns_ != nColumns())
+      removeColumn(nColumns()-2);
+  }
+  if (nRows_ < nRows())
+  {
+    while (nRows_ != nRows())
+      removeRow(nRows()-2);
+  }
+  if (nColumns_ > nColumns())
+  {
+    while (nColumns_ != nColumns())
+      addColumn();
+  }
+  if (nRows_ > nRows())
+  {
+    while (nRows_ != nRows())
+      addRow();
+  }
+}
 QVector<Quad> Mesh::getQuads() const
 {
   QVector<Quad> quads;
