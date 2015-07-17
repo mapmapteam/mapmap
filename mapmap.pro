@@ -1,11 +1,13 @@
 CONFIG  += qt debug
 TEMPLATE = app
-VERSION = 0.2.0
+VERSION = 0.3.0
 TARGET = mapmap
-QT += gui opengl xml widgets
+QT += gui opengl xml
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
 HEADERS  = \
+    Commands.h \
     DestinationGLCanvas.h \
     MM.h \
     MainApplication.h \
@@ -18,6 +20,7 @@ HEADERS  = \
     MediaImpl.h \
     OscInterface.h \
     OscReceiver.h \
+    OutputGLCanvas.h \
     OutputGLWindow.h \
     Paint.h \
     PaintGui.h \
@@ -30,6 +33,7 @@ HEADERS  = \
     Util.h
 
 SOURCES  = \
+    Commands.cpp \
     DestinationGLCanvas.cpp \
     MM.cpp \
     MainApplication.cpp \
@@ -41,6 +45,7 @@ SOURCES  = \
     MediaImpl.cpp \
     OscInterface.cpp \
     OscReceiver.cpp \
+    OutputGLCanvas.cpp \
     OutputGLWindow.cpp \
     Paint.cpp \
     PaintGui.cpp \
@@ -54,7 +59,7 @@ SOURCES  = \
     main.cpp
 
 RESOURCES = mapmap.qrc
-TRANSLATIONS = resources/texts/mapmap_fr.ts
+TRANSLATIONS = resources/texts/mapmap_*.ts
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
 include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
 
@@ -70,7 +75,7 @@ unix:!mac {
   PKGCONFIG += \
     gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 \
     liblo \
-    gl x11 glew
+    gl x11
   QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
   QMAKE_CXXFLAGS += -DHAVE_OSC
   mapmapfile.files = mapmap
@@ -85,12 +90,16 @@ unix:!mac {
   mimetypesfile.files = resources/texts/mapmap.xml 
   mimetypesfile.path = /usr/share/mime/packages
   INSTALLS += mimetypesfile
-  updatemimetypes.path = /usr/share/mime/packages
-  updatemimetypes.commands = update-mime-database /usr/share/mime
-  INSTALLS += updatemimetypes
-  updatemimeappdefault.path = /usr/share/applications
-  updatemimeappdefault.commands='grep mapmap.desktop /usr/share/applications/defaults.list >/dev/null|| sudo echo "application/mapmap=mapmap.desktop;" >> /usr/share/applications/defaults.list'
-  INSTALLS += updatemimeappdefault
+
+# REQUIRES ROOT PRIVILEDGES: (does not comply to the standards of Debian)
+# -------------------------
+# updatemimetypes.path = /usr/share/mime/packages
+# updatemimetypes.commands = update-mime-database /usr/share/mime
+# INSTALLS += updatemimetypes
+# updatemimeappdefault.path = /usr/share/applications
+# updatemimeappdefault.commands='grep mapmap.desktop /usr/share/applications/defaults.list >/dev/null|| sudo echo "application/mapmap=mapmap.desktop;" >> /usr/share/applications/defaults.list'
+# INSTALLS += updatemimeappdefault
+# -------------------------
   
   # Add the docs target:
   docs.depends = $(HEADERS) $(SOURCES)
@@ -132,8 +141,7 @@ win32 {
     -lgthread-2.0 \
     -lgstinterfaces-0.10 \
     -lopengl32 \
-    -lglu32 \
-    -lglew32
+    -lglu32
   # Add console to the CONFIG to see debug messages printed in 
   # the console on Windows
   CONFIG += console

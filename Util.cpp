@@ -165,7 +165,7 @@ void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected,
   painter->drawLine( vertex + QPointF(offset, -offset), vertex + QPointF(-offset, offset) );
 }
 
-void drawControlsVertices(QPainter* painter, const QList<int>* selectedVertices, const Shape& shape)
+void drawControlsVertices(QPainter* painter, const QList<int>* selectedVertices, const MShape& shape)
 {
   if (!selectedVertices)
     for (int i=0; i<shape.nVertices(); i++)
@@ -239,7 +239,7 @@ void drawControlsPolygon(QPainter* painter, const QList<int>* selectedVertices, 
    painter->drawPolygon(polygon.toPolygon());
 
    // Draw control points.
-   drawControlsVertices(painter, selectedVertices, polygon);
+   //drawControlsVertices(painter, selectedVertices, polygon);
 }
 
 bool fileExists(const QString& filename)

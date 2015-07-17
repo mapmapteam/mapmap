@@ -21,57 +21,59 @@
 #define MAPPERGLCANVAS_H_
 
 #include <QGLWidget>
+#include <QGraphicsView>
+#include <QGraphicsScene>
 #include <QKeyEvent>
 #include <QPaintEvent>
+#include <QUndoStack>
+
+#include <QtMath>
 
 #include <iostream>
 
+#include "MM.h"
 #include "UidAllocator.h"
 #include "Shape.h"
 
+#include "Mapper.h"
+
 class MainWindow;
+class ShapeGraphicsItem;
 
 /**
  * Mother class for OpenGL canvases that allow the display and controls of shapes and vertices.
  * Provides common functionality to both main sublasses: SourceGLCanvas and DestinationGLCanvas.
  */
-class MapperGLCanvas: public QGLWidget
+class MapperGLCanvas: public QGraphicsView
 {
   Q_OBJECT
 
 public:
   /// Constructor.
-  MapperGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0);
+  MapperGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
   virtual ~MapperGLCanvas() {}
 
   /// Returns shape associated with mapping id.
-  virtual Shape* getShapeFromMappingId(uid mappingId) = 0;
+  virtual bool isOutput() const = 0;
+  virtual MShape* getShapeFromMappingId(uid mappingId) const = 0;
+  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId) const = 0;
+
+  MShape* getCurrentShape();
+  ShapeGraphicsItem* getCurrentShapeGraphicsItem();
 
 //  QSize sizeHint() const;
 //  QSize minimumSizeHint() const;
 
-  /// Returns current shape.
-  Shape* getCurrentShape();
+  // Draws foreground (displays crosshair if needed).
+  void drawForeground(QPainter *painter , const QRectF &rect);
 
   /**
    * Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
    * close enough. The distance per coordinate is currently set in dist_stick
    * variable.
    */
-  // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
-  void glueVertex(Shape *, QPointF *);
-
   /// Returns pointer to main window.
   MainWindow* getMainWindow() const { return _mainWindow; }
-
-  /// Returns true iff we should display the controls.
-  bool displayControls() const { return _displayControls; }
-
-  /// Returns true iff we should display the test signal
-  bool displayTestSignal() const { return _displayTestSignal; }
-
-  /// Returns true iff we want vertices to stick to each other.
-  bool stickyVertices() const { return _stickyVertices; }
 
   /// Returns true iff one of the vertices is currently active.
   bool hasActiveVertex() const { return _activeVertex != NO_VERTEX; }
@@ -82,43 +84,48 @@ public:
   /// Set the currently active vertex
   void setActiveVertexIndex(int activeVertex) { _activeVertex = activeVertex; }
 
-protected:
-  void initializeGL();
-  void resizeGL(int width, int height);
-  void paintGL();
-
-  void keyPressEvent(QKeyEvent* event);
-  void mousePressEvent(QMouseEvent* event);
-  void mouseMoveEvent(QMouseEvent* event);
-  void mouseReleaseEvent(QMouseEvent* event);
-  void paintEvent(QPaintEvent* event);
+  qreal getZoomFactor() const { return qBound(qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MIN, MM::ZOOM_MAX); }
 
 protected:
-  /**
-   * Draws the shapes and controls over the canvas. This method calls:
-   * <code>
-   * enterDraw(painter);
-   * doDraw(painter);
-   * exitDraw(painter);
-   * </code>
-   */
-  void draw(QPainter* painter);
+//  void initializeGL();
+//  void resizeGL(int width, int height);
+//  void paintGL();
+//
+//  void keyPressEvent(QKeyEvent* event);
+//  void mousePressEvent(QMouseEvent* event);
+//  void mouseMoveEvent(QMouseEvent* event);
+//  void mouseReleaseEvent(QMouseEvent* event);
+//  void paintEvent(QPaintEvent* event);
 
-  /// Performs initalizations before drawing.
-  void enterDraw(QPainter* painter);
-
-  /// Performs the drawing (implemented by subclasses).
-  virtual void doDraw(QPainter* painter) = 0;
-
-  /// Performs last drawing actions before exiting draw(QPainter*).
-  void exitDraw(QPainter* painter);
+protected:
+//  /**
+//   * Draws the shapes and controls over the canvas. This method calls:
+//   * <code>
+//   * enterDraw(painter);
+//   * doDraw(painter);
+//   * exitDraw(painter);
+//   * </code>
+//   */
+//  void draw(QPainter* painter);
+//
+//  /// Performs initalizations before drawing.
+//  void enterDraw(QPainter* painter);
+//
+//  /// Performs the drawing (implemented by subclasses).
+//  virtual void doDraw(QPainter* painter) = 0;
+//
+//  /// Performs last drawing actions before exiting draw(QPainter*).
+//  void exitDraw(QPainter* painter);
 
 private:
   // Pointer to main window.
   MainWindow* _mainWindow;
 
-  // Last point pressed.
+  // Last point pressed (in mouse/window coordinates).
   QPoint _mousePressedPosition;
+
+  // Start position of last object grabbed (in scene coordinates).
+  QPointF _grabbedObjectStartPosition;
 
   // Mouse currently pressed inside a vertex.
   bool _mousePressedOnVertex;
@@ -132,26 +139,32 @@ private:
   // True iff current shape is grabbed (first step).
   bool _shapeFirstGrab;
 
-  // True iff we are displaying the controls.
-  bool _displayControls;
+  // The zoom level (in number of steps).
+  int _zoomLevel;
 
-  // True iff we are displaying the test signal (grid)
-  bool _displayTestSignal;
-
-  // True iff we want vertices to stick to each other.
-  bool _stickyVertices;
+  // Pointer to MainWindow UndoStack
+  QUndoStack *undoStack;
 
 signals:
-  void shapeChanged(Shape*);
+  void shapeChanged(MShape*);
   void imageChanged();
 
 public slots:
   void updateCanvas();
-  void enableDisplayControls(bool display);
-  void enableStickyVertices(bool display);
-  void enableTestSignal(bool enable);
   void deselectVertices();
   void deselectAll();
+
+  void wheelEvent(QWheelEvent *event);
+  void mousePressEvent(QMouseEvent *event);
+  void mouseReleaseEvent(QMouseEvent *event);
+  void mouseMoveEvent(QMouseEvent *event);
+
+  // Event Filter
+  bool eventFilter(QObject *target, QEvent *event);
+
+protected:
+  // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
+  void _glueVertex(QPointF* p);
 
 public:
   static const int NO_VERTEX = -1;

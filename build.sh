@@ -3,6 +3,8 @@
 # On Mac, install it from http://qt-project.org/downloads
 # set -o verbose
 
+qtversion=5.4
+
 do_create_dmg() {
     if [ -f DMGVERSION.txt ]
     then
@@ -29,7 +31,7 @@ do_create_dmg() {
 
 do_fix_qt_plugins_in_app() {
     appdir=./MapMap.app
-    qtdir=~/Qt/5.3/clang_64
+    qtdir=~/Qt/${qtversion}/clang_64
     # install libqcocoa library
     mkdir -p $appdir/Contents/PlugIns/platforms
     cp $qtdir/plugins/platforms/libqcocoa.dylib $appdir/Contents/PlugIns/platforms
@@ -51,8 +53,8 @@ if [[ $unamestr == "Darwin" ]]; then
     #export QMAKE_CFLAGS_PPC_64
     export QMAKESPEC=macx-g++
     #export QMAKESPEC=macx-xcode
-    PATH=$PATH:~/Qt5.3/5.3/clang_64/bin
-    qmake5=~/Qt/5.3/clang_64/bin/qmake
+    PATH=$PATH:~/Qt${qtversion}/${qtversion}/clang_64/bin
+    qmake5=~/Qt/${qtversion}/clang_64/bin/qmake
     # $qmake5 -spec macx-llvm
 
     # XXX
@@ -70,8 +72,7 @@ if [[ $unamestr == "Darwin" ]]; then
     do_create_dmg
 elif [[ $unamestr == "Linux" ]]; then
     qmake
-    # -qt4
     make
-    lrelease resources/texts/mapmap_fr.ts
+    lrelease resources/texts/mapmap_*.ts
 fi
 

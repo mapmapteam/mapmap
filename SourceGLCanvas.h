@@ -33,12 +33,14 @@ class SourceGLCanvas: public MapperGLCanvas
 
 public:
   SourceGLCanvas(MainWindow* mainWindow, QWidget* parent = 0);
-//  virtual ~SourceGLCanvas() {}
+  virtual ~SourceGLCanvas() {}
 
-  virtual Shape* getShapeFromMappingId(uid mappingId);
+  virtual bool isOutput() const { return false; }
+  virtual MShape* getShapeFromMappingId(uid mappingId) const;
+  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId) const;
 
 private:
-  virtual void doDraw(QPainter* painter);
+//  virtual void doDraw(QPainter* painter);
 };
 
 

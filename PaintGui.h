@@ -61,10 +61,7 @@ public:
   virtual QWidget* getPropertiesEditor();
 
 public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value) {
-    Q_UNUSED(property);
-    Q_UNUSED(value);
-  }
+  virtual void setValue(QtProperty* property, const QVariant& value);
 
 signals:
   void valueChanged(Paint::ptr);
@@ -75,6 +72,7 @@ protected:
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
   QtProperty* _topItem;
+  QtVariantProperty* _opacityItem;
 };
 
 class ColorGui : public PaintGui {
@@ -132,6 +130,7 @@ protected:
   std::tr1::shared_ptr<Media> media;
   QtVariantProperty* _mediaFileItem;
   QtVariantProperty* _mediaRateItem;
+  QtVariantProperty* _mediaVolumeItem;
 //  QtVariantProperty* _mediaReverseItem;
 };
 

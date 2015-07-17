@@ -42,16 +42,16 @@
 /**
  * Shape represented by a series of control points.
  */
-class Shape
+class MShape
 {
 public:
-  typedef std::tr1::shared_ptr<Shape> ptr;
+  typedef std::tr1::shared_ptr<MShape> ptr;
 
-  Shape() {}
-  Shape(QVector<QPointF> vertices_) :
+  MShape() {}
+  MShape(QVector<QPointF> vertices_) :
     vertices(vertices_)
   {}
-  virtual ~Shape() {}
+  virtual ~MShape() {}
 
   virtual void build() {}
 
@@ -105,10 +105,10 @@ protected:
 /**
  * This class represents a simple polygon (ie. the control points are vertices).
  */
-class Polygon : public Shape {
+class Polygon : public MShape {
 public:
   Polygon() {}
-  Polygon(QVector<QPointF> vertices_) : Shape(vertices_) {}
+  Polygon(QVector<QPointF> vertices_) : MShape(vertices_) {}
   virtual ~Polygon() {}
 
   virtual QPolygonF toPolygon() const;
@@ -215,9 +215,10 @@ public:
   void addColumn();
   void addRow();
 
-  void resize(int nColumns_, int nRows_);
+  void removeColumn(int columnId);
+  void removeRow(int rowId);
 
-//  void removeColumn(int columnId);
+  void resize(int nColumns_, int nRows_);
 
   QVector<Quad> getQuads() const;
   QVector<QVector<Quad> > getQuads2d() const;
@@ -227,6 +228,7 @@ public:
 
   int nHorizontalQuads() const { return _nColumns-1; }
   int nVerticalQuads() const { return _nRows-1; }
+
 
 protected:
   int _nColumns;
@@ -246,7 +248,7 @@ protected:
   void _reorderVertices();
 };
 
-class Ellipse : public Shape {
+class Ellipse : public MShape {
 public:
   Ellipse() {}
   Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4, QPointF p5)
@@ -284,13 +286,13 @@ public:
 
     QVector2D vFromCenter = QVector2D(getVertex(1)) - center;
     const QVector2D& projection = QVector2D::dotProduct( vFromCenter, vAxisNormalized ) * vAxisNormalized;
-    Shape::setVertex(1, (center + projection).toPointF());
-    Shape::setVertex(3, (center - projection).toPointF());
+    MShape::setVertex(1, (center + projection).toPointF());
+    MShape::setVertex(3, (center - projection).toPointF());
 
     if (hasCenterControl())
     {
       // Clip control point.
-      Shape::setVertex(4, clipInside(getVertex(4)));
+      MShape::setVertex(4, clipInside(getVertex(4)));
     }
   }
 

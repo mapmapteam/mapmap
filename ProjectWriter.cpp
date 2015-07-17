@@ -117,7 +117,7 @@ void ProjectWriter::writeItem(Paint *item)
     qDebug() << "Unknown type, cannot save: " << item->getType() << endl;
 }
 
-void ProjectWriter::writeShapeVertices(Shape *shape)
+void ProjectWriter::writeShapeVertices(MShape *shape)
 {
   if (shape->getType() == "mesh") {
     Mesh* mesh = (Mesh*) shape;
@@ -150,7 +150,7 @@ void ProjectWriter::writeItem(Mapping *item)
   _xml.writeAttribute("solo", QString::number((int) item->isSolo() ? 1 : 0));
   _xml.writeAttribute("visible", QString::number((int) item->isVisible() ? 1 : 0));
 
-  Shape *shape = item->getShape().get();
+  MShape *shape = item->getShape().get();
   _xml.writeStartElement("destination");
   _xml.writeAttribute("shape", shape->getType());
   writeShapeVertices(shape);

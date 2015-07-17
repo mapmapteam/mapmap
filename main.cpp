@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <QTranslator>
-#include <QtGui>
 #include <QDebug>
 #if USING_QT_5
 #include <QCommandLineParser>
@@ -117,7 +116,7 @@ int main(int argc, char *argv[])
   I::sleep(1);
 
   // Create window.
-  MainWindow win;
+  MainWindow* win = MainWindow::instance();
 
   QFontDatabase db;
   Q_ASSERT( QFontDatabase::addApplicationFont(":/base-font") != -1);
@@ -149,34 +148,37 @@ int main(int argc, char *argv[])
   // finally, load the project file.
   if (projectFileValue != "")
   {
-    win.loadFile(projectFileValue);
+    win->loadFile(projectFileValue);
   }
 
   QString oscPortNumberValue = parser.value("osc-port");
   if (oscPortNumberValue != "")
   {
-    win.setOscPort(oscPortNumberValue);
+    win->setOscPort(oscPortNumberValue);
   }
 #endif
 
   // Terminate splash.
   splash.showMessage("  " + QObject::tr("Done."),
                      Qt::AlignLeft | Qt::AlignTop, MM::WHITE);
-  splash.finish(&win);
+  splash.finish(win);
   splash.raise();
 
   // Launch program.
-  win.show();
+  win->show();
 
 #if USING_QT_5
   if (parser.isSet(fullscreenOption))
   {
     qDebug() << "TODO: Running in fullscreen mode";
-    win.startFullScreen();
+    win->startFullScreen();
   }
 #endif
 
   // Start app.
-  return app.exec();
+  int result = app.exec();
+
+  delete win;
+  return result;
 }
 

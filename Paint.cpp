@@ -25,6 +25,7 @@
 UidAllocator Paint::allocator;
 
 Paint::Paint(uid id)
+  : _opacity(1.0f)
 {
   if (id == NULL_UID)
     id = allocator.allocate();
@@ -129,6 +130,16 @@ void Media::setRate(double rate)
 double Media::getRate() const
 {
   return impl_->getRate() * 100.0;
+}
+
+void Media::setVolume(double rate)
+{
+  impl_->setVolume(rate / 100.0);
+}
+
+double Media::getVolume() const
+{
+  return impl_->getVolume() * 100.0;
 }
 
 bool Media::hasVideoSupport()

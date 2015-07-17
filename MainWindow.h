@@ -22,6 +22,9 @@
 #define MAIN_WINDOW_H_
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+  #include <QtWidgets>
+#endif
 #include <QTimer>
 #include <QVariant>
 #include <QMap>
@@ -91,6 +94,8 @@ private slots:
   void openRecentVideo();
   // Edit menu.
   void deleteItem();
+  void cloneItem();
+  void renameItem();
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
@@ -169,11 +174,22 @@ public slots:
   /// Deletes/removes a mapping.
   void deleteMapping(uid mappingId);
 
+  /// Clone/duplicate a mapping
+  void cloneMappingItem(uid mappingId);
+
   /// Deletes/removes a paint and all associated mappigns.
   void deletePaint(uid paintId, bool replace);
 
   /// Updates all canvases.
   void updateCanvases();
+
+  // Editing toggles.
+  void enableDisplayControls(bool display);
+  void enableStickyVertices(bool display);
+  void enableTestSignal(bool enable);
+
+  // Show Context Menu
+  void showMappingContextMenu(const QPoint &point);
 
 public:
   bool setTextureUri(int texture_id, const std::string &uri);
@@ -215,6 +231,9 @@ public:
   void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
   void clearWindow();
+
+  static MainWindow* instance();
+
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
   void setMappingItemVisibility(uid mappingId, bool visible);
@@ -237,16 +256,13 @@ private:
 
   // Menu actions.
   QMenu *fileMenu;
-//  QMenu *editMenu;
-//  QMenu *selectSubMenu;
-//  QMenu *toolsMenu;
-//  QMenu *optionsMenu;
   QMenu *editMenu;
   QMenu *viewMenu;
   QMenu *runMenu;
   QMenu *helpMenu;
   QMenu *recentFileMenu;
   QMenu *recentVideoMenu;
+  QMenu *contextMenu;
 
   // Toolbar.
   QToolBar *mainToolBar;
@@ -262,13 +278,15 @@ private:
   QAction *saveAction;
   QAction *saveAsAction;
   QAction *exitAction;
-//  QAction *cutAction;
-//  QAction *copyAction;
-//  QAction *pasteAction;
+  QAction *undoAction;
+  QAction *redoAction;
+  QAction *cloneAction;
   QAction *deleteAction;
+  QAction *renameAction;
   QAction *preferencesAction;
   QAction *aboutAction;
   QAction *clearRecentFileActions;
+  QAction *emptyRecentVideos;
 
   QAction *addMeshAction;
   QAction *addTriangleAction;
@@ -278,12 +296,12 @@ private:
   QAction *pauseAction;
   QAction *rewindAction;
 
-  QAction *displayOutputWindow;
+  QAction *displayOutputWindowAction;
   //QAction *outputWindowHasCursor;
-  QAction *outputWindowFullScreen;
-  QAction *displayCanvasControls;
-  QAction *displayTestSignal;
-  QAction *stickyVertices;
+  QAction *outputWindowFullScreenAction;
+  QAction *displayControlsAction;
+  QAction *displayTestSignalAction;
+  QAction *stickyVerticesAction;
 
   enum { MaxRecentFiles = 10 };
   enum { MaxRecentVideo = 5 };
@@ -344,7 +362,18 @@ private:
   uid currentMappingId;
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
+
+  // True iff the play button is currently pressed.
   bool _isPlaying;
+
+  // True iff we are displaying the controls.
+  bool _displayControls;
+
+  // True iff we are displaying the test signal (grid)
+  bool _displayTestSignal;
+
+  // True iff we want vertices to stick to each other.
+  bool _stickyVertices;
 
   // Keeps track of the current selected item, wether it's a paint or mapping.
   QListWidgetItem* currentSelectedItem;
@@ -352,10 +381,15 @@ private:
 
   PreferencesDialog* _preferences_dialog;
 
+  // UndoStack
+  QUndoStack *undoStack;
+
+
+
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
-  MappingManager& getMappingManager() { return *mappingManager; }
-  Mapper::ptr getMapperByMappingId(uint id) { return mappers[id]; }
+  MappingManager& getMappingManager() const { return *mappingManager; }
+  Mapper::ptr getMapperByMappingId(uint id) const { return mappers[id]; }
   uid getCurrentPaintId() const { return currentPaintId; }
   uid getCurrentMappingId() const { return currentMappingId; }
   OutputGLWindow* getOutputWindow() const { return outputWindow; }
@@ -366,10 +400,27 @@ public:
   void removeCurrentPaint();
   void removeCurrentMapping();
 
+  MapperGLCanvas* getSourceCanvas() const { return sourceCanvas; }
+  MapperGLCanvas* getDestinationCanvas() const { return destinationCanvas; }
+
+  /// Returns true iff we should display the controls.
+  bool displayControls() const { return _displayControls; }
+
+  /// Returns true iff we should display the test signal
+  bool displayTestSignal() const { return _displayTestSignal; }
+
+  /// Returns true iff we want vertices to stick to each other.
+  bool stickyVertices() const { return _stickyVertices; }
+
+  // Use the same undoStack for whole program
+  QUndoStack* getUndoStack() const { return undoStack; }
+
   void startFullScreen();
   bool setOscPort(QString portNumber);
   bool setOscPort(int portNumber);
   int getOscPort() const;
+  void setOutputWindowFullScreen(bool enable);
+  void quitMapMap();
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////
   static const int DEFAULT_WIDTH = 1600;

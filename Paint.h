@@ -86,10 +86,17 @@ public:
   QString getName() const { return _name; }
   uid getId() const { return _id; }
 
+  float getOpacity() const { return _opacity; }
+  void setOpacity(float opacity) {
+    Q_ASSERT(0.0f <= opacity && opacity <= 1.0f);
+    _opacity = opacity;
+  }
+
   virtual QString getType() const = 0;
 
 private:
   QString _name;
+  float _opacity;
 };
 
 class Color : public Paint
@@ -152,6 +159,8 @@ public:
   }
   virtual GLfloat getX() const { return x; }
   virtual GLfloat getY() const { return y; }
+
+  virtual QRectF getRect() const { return QRectF(getX(), getY(), getWidth(), getHeight()); }
 };
 
 /**
@@ -243,6 +252,11 @@ public:
   /// Returns playback rate.
   double getRate() const;
 
+  /// Sets audio playback volume (in %).
+  virtual void setVolume(double volume=0.0);
+
+  /// Returns audio playback volume.
+  double getVolume() const;
 
   /**
    * Checks whether or not video is supported on this platform.

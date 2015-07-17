@@ -31,29 +31,12 @@ class DestinationGLCanvas: public MapperGLCanvas
   Q_OBJECT
 
 public:
-  DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
-//  virtual ~DestinationGLCanvas();
+  DestinationGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
+  virtual ~DestinationGLCanvas() {}
 
-  virtual Shape* getShapeFromMappingId(uid mappingId);
-
-  void setDisplayCrosshair(bool displayCrosshair) {
-    _displayCrosshair = displayCrosshair;
-  }
-
-private:
-  virtual void doDraw(QPainter* painter);
-  void _drawTestSignal(QPainter* painter);
-
-  bool _displayCrosshair;
-  QImage _svg_test_signal;
-  QBrush _brush_test_signal;
-
-protected:
-  // overriden from QGlWidget:
-  virtual void resizeGL(int width, int height);
-
-  // Event Filter
-  bool eventFilter(QObject *target, QEvent *event);
+  virtual bool isOutput() const { return true; }
+  virtual MShape* getShapeFromMappingId(uid mappingId) const;
+  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId) const;
 };
 
 #endif /* DESTINATIONGLCANVAS_H_ */

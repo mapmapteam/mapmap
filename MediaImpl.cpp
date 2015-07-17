@@ -101,6 +101,18 @@ void MediaImpl::setRate(double rate)
   }
 }
 
+void MediaImpl::setVolume(double volume)
+{
+  // Only update volume if needed.
+  if (_volume != volume)
+  {
+    _volume = volume;
+
+    // Set volume element property.
+    g_object_set (_audiovolume0, "volume", _volume, NULL);
+  }
+}
+
 void MediaImpl::build()
 {
   qDebug() << "Building video impl";
@@ -193,14 +205,19 @@ GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
   return GST_FLOW_OK;
 }
 
+
 MediaImpl::MediaImpl(const QString uri, bool live) :
 _bus(NULL),
 _pipeline(NULL),
 _uridecodebin0(NULL),
 _queue0(NULL),
 _videoconvert0(NULL),
-//_audioSink(NULL),
 _appsink0(NULL),
+_audioqueue0(NULL),
+_audioconvert0(NULL),
+_audioresample0(NULL),
+_audiovolume0(NULL),
+_audiosink0(NULL),
 _currentFrameSample(NULL),
 _currentFrameBuffer(NULL),
 _bitsChanged(false),
@@ -372,11 +389,21 @@ bool MediaImpl::loadMovie(QString filename)
   _padHandlerData.videoSink = _appsink0;
   _padHandlerData.videoIsConnected = false;
 
+  _audioqueue0 = gst_element_factory_make ("queue", "audioqueue0");
+  _audioconvert0 = gst_element_factory_make ("audioconvert", "audioconvert0");
+  _audioresample0 = gst_element_factory_make ("audioresample", "audioresample0");
+  _audiovolume0 = gst_element_factory_make ("volume", "audiovolume0");
+  _audiosink0 = gst_element_factory_make ("autoaudiosink", "audiosink0");
+
+  _padHandlerData.audioToConnect = _audioqueue0;
+
   // Create the empty pipeline.
   _pipeline = gst_pipeline_new ( "video-source-pipeline" );
 
   if (!_pipeline ||
-      !_queue0 || !_videoconvert0 || ! videoscale0 || ! capsfilter0 || ! _appsink0)
+      !_queue0 || !_videoconvert0 || ! videoscale0 || ! capsfilter0 ||
+      !_appsink0 || !_audioqueue0 || !_audioconvert0 || !_audioresample0 ||
+      !_audiovolume0 || !_audiosink0)
   {
     g_printerr ("Not all elements could be created.\n");
 
@@ -386,6 +413,11 @@ bool MediaImpl::loadMovie(QString filename)
     if (! videoscale0) g_printerr("videoscale0");
     if (! capsfilter0) g_printerr("capsfilter0");
     if (! _appsink0) g_printerr("_appsink0");
+    if (! _audioqueue0) g_printerr("_audioqueue0");
+    if (! _audioconvert0) g_printerr("_audioconvert0");
+    if (! _audioresample0) g_printerr("_audioresample0");
+    if (! _audiovolume0) g_printerr("_audiovolume0");
+    if (! _audiosink0) g_printerr("_audiosink0");
 
     unloadMovie();
     return -1;
@@ -417,7 +449,9 @@ bool MediaImpl::loadMovie(QString filename)
   // point. We will do it later.
   gst_bin_add_many (GST_BIN (_pipeline),
     _isSharedMemorySource ? _shmsrc0 : _uridecodebin0, _queue0,
-    _videoconvert0, videoscale0, capsfilter0, _appsink0, NULL);
+    _videoconvert0, videoscale0, capsfilter0, _appsink0,
+//    _audioqueue0, _audioconvert0, _audioresample0, _audiovolume0, _audiosink0,
+    NULL);
 
   // special case for shmsrc
   if (_isSharedMemorySource)
@@ -442,6 +476,14 @@ bool MediaImpl::loadMovie(QString filename)
     unloadMovie();
     return false;
   }
+
+//  if (! gst_element_link_many (_audioqueue0, _audioconvert0, _audioresample0,
+//        _audiovolume0, _audiosink0, NULL))
+//  {
+//    g_printerr ("Could not link audio queue, converter, resampler and audio sink.\n");
+//    unloadMovie();
+//    return false;
+//  }
 
   // Process URI.
   QByteArray ba = filename.toLocal8Bit();
@@ -498,6 +540,7 @@ bool MediaImpl::loadMovie(QString filename)
 //  gst_caps_unref (audioCaps);
 //  g_free (audioCapsText);
 
+
   // Configure video appsink.
   GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA");
   g_object_set (capsfilter0, "caps", videoCaps, NULL);
@@ -508,6 +551,9 @@ bool MediaImpl::loadMovie(QString filename)
                             NULL);
   g_signal_connect (_appsink0, "new-sample", G_CALLBACK (MediaImpl::gstNewSampleCallback), this);
   gst_caps_unref (videoCaps);
+
+  g_object_set (_audiovolume0, "mute", false, NULL);
+  g_object_set (_audiovolume0, "volume", 0.0, NULL);
 
   // Listen to the bus.
   _bus = gst_element_get_bus (_pipeline);
@@ -788,8 +834,11 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
     gst_structure_get_int(newPadStruct, "width",  &data->width);
     gst_structure_get_int(newPadStruct, "height", &data->height);
   }
-  else
+  else if (g_str_has_prefix (newPadType, "audio/x-raw"))
   {
+    sinkPad = gst_element_get_static_pad (data->audioToConnect, "sink");
+  }
+  else {
     g_print ("  It has type '%s' which is not raw audio/video. Ignoring.\n", newPadType);
     goto exit;
   }

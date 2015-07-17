@@ -28,7 +28,7 @@ SourceGLCanvas::SourceGLCanvas(MainWindow* mainWindow, QWidget* parent)
 {
 }
 
-Shape* SourceGLCanvas::getShapeFromMappingId(uid mappingId)
+MShape* SourceGLCanvas::getShapeFromMappingId(uid mappingId) const
 {
   if (mappingId == NULL_UID)
     return NULL;
@@ -41,28 +41,40 @@ Shape* SourceGLCanvas::getShapeFromMappingId(uid mappingId)
   }
 }
 
-
-void SourceGLCanvas::doDraw(QPainter* painter)
+ShapeGraphicsItem* SourceGLCanvas::getShapeGraphicsItemFromMappingId(uid mappingId) const
 {
-  if (getMainWindow()->hasCurrentMapping())
+  if (mappingId == NULL_UID)
+    return NULL;
+
+  else
   {
-    uint mappingId = getMainWindow()->getCurrentMappingId();
-    const Mapper::ptr& mapper = getMainWindow()->getMapperByMappingId(mappingId);
-    painter->save();
-    mapper->drawInput(painter);
-    painter->restore();
-    if (displayControls())
-    {
-      painter->save();
-      if (hasActiveVertex()) {
-        QList<int> selectedVertices;
-        selectedVertices.append(getActiveVertexIndex());
-        mapper->drawInputControls(painter, &selectedVertices);
-      }
-      else
-        mapper->drawInputControls(painter);
-      painter->restore();
-    }
+    return MainWindow::instance()->getMapperByMappingId(mappingId)->getInputGraphicsItem();
   }
 }
+
+//
+
+//void SourceGLCanvas::doDraw(QPainter* painter)
+//{
+//  if (getMainWindow()->hasCurrentMapping())
+//  {
+//    uint mappingId = getMainWindow()->getCurrentMappingId();
+//    const Mapper::ptr& mapper = getMainWindow()->getMapperByMappingId(mappingId);
+//    painter->save();
+//    mapper->drawInput(painter);
+//    painter->restore();
+//    if (displayControls())
+//    {
+//      painter->save();
+//      if (hasActiveVertex()) {
+//        QList<int> selectedVertices;
+//        selectedVertices.append(getActiveVertexIndex());
+//        mapper->drawInputControls(painter, &selectedVertices);
+//      }
+//      else
+//        mapper->drawInputControls(painter);
+//      painter->restore();
+//    }
+//  }
+//}
 

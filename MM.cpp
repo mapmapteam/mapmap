@@ -20,7 +20,7 @@
 #include "MM.h"
 
 const QString MM::APPLICATION_NAME = "MapMap";
-const QString MM::VERSION = "0.2.0";
+const QString MM::VERSION = "0.3.0";
 const QString MM::COPYRIGHT_OWNERS = "Sofian Audry, Alexandre Quessy, Mike Latona, Vasilis Liaskovitis, Dame Diongue";
 const QString MM::ORGANIZATION_NAME = "MapMap";
 const QString MM::ORGANIZATION_DOMAIN = "mapmap.info";
@@ -35,6 +35,21 @@ const QColor MM::DARK_GRAY("#272a36");
 const QColor MM::CONTROL_COLOR(WHITE);
 const QBrush MM::VERTEX_BACKGROUND(QColor(CONTROL_COLOR.red(), CONTROL_COLOR.green(), CONTROL_COLOR.blue(), 63));
 const QBrush MM::VERTEX_SELECTED_BACKGROUND(QColor(CONTROL_COLOR.red(), CONTROL_COLOR.green(), CONTROL_COLOR.blue(), 127));
+
+const qreal MM::SHAPE_STROKE_WIDTH = 1.5;
+const qreal MM::SHAPE_INNER_STROKE_WIDTH = 0.5;
 const QPen MM::SHAPE_STROKE(QBrush(CONTROL_COLOR), SHAPE_STROKE_WIDTH);
 const QPen MM::SHAPE_INNER_STROKE(QBrush(CONTROL_COLOR), SHAPE_INNER_STROKE_WIDTH);
+
+const qreal MM::VERTEX_STICK_RADIUS = 10;
+const qreal MM::VERTEX_SELECT_RADIUS = 10;
+const qreal MM::VERTEX_SELECT_STROKE_WIDTH = 1;
+
+// Time.
+const qreal MM::FRAMES_PER_SECOND = 29.97f;
+
+// Zoom.
+const qreal MM::ZOOM_FACTOR = 1.4f;
+const qreal MM::ZOOM_MIN    = 0.1f;
+const qreal MM::ZOOM_MAX    = 5.0f;
 

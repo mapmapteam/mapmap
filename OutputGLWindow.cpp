@@ -3,6 +3,7 @@
  *
  * (c) 2014 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2014 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2014 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +23,11 @@
 
 #include "MainWindow.h"
 
-OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
+OutputGLWindow:: OutputGLWindow(const DestinationGLCanvas* canvas_)
 {
   resize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 
-  canvas = new DestinationGLCanvas(mainWindow, this, shareWidget);
+  canvas = new OutputGLCanvas(canvas_->getMainWindow(), this, (const QGLWidget*)canvas_->viewport(), canvas_->scene());
   canvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   canvas->setMinimumSize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 
@@ -39,8 +40,27 @@ OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QG
   _geometry = saveGeometry();
 
   _pointerIsVisible = true;
-
 }
+
+//OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
+//{
+//  resize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
+//
+//  canvas = new DestinationGLCanvas(mainWindow, this, shareWidget);
+//  canvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//  canvas->setMinimumSize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
+//
+//  QLayout* layout = new QVBoxLayout;
+//  layout->setContentsMargins(0,0,0,0); // remove margin
+//  layout->addWidget(canvas);
+//  setLayout(layout);
+//
+//  // Save window geometry.
+//  _geometry = saveGeometry();
+//
+//  _pointerIsVisible = true;
+//
+//}
 
 void OutputGLWindow::setCursorVisible(bool visible)
 {
@@ -53,6 +73,7 @@ void OutputGLWindow::setCursorVisible(bool visible)
   }
   else
   {
+    this->setCursor(Qt::ArrowCursor);
     this->setCursor(Qt::BlankCursor);
     _pointerIsVisible = false;
   }
@@ -62,7 +83,6 @@ void OutputGLWindow::closeEvent(QCloseEvent *event)
 {
   emit closed();
   event->accept();
-  this->parentWidget()->setFocus();
 }
 
 void OutputGLWindow::setFullScreen(bool fullscreen)
@@ -71,7 +91,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   emit fullScreenToggled(fullscreen);
   // Activate crosshair in fullscreen mode.
   // should be only drawn if the controls should be shown
-  canvas->setDisplayCrosshair(fullscreen && this->canvas->displayControls());
+  canvas->setDisplayCrosshair(fullscreen && canvas->getMainWindow()->displayControls());
 
   // NOTE: The showFullScreen() method does not work well under Ubuntu Linux. The code below fixes the issue.
   // Notice that there might be problems with the fullscreen in other OS / window managers. If so, please add
@@ -85,6 +105,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   {
     // Save window geometry.
     _geometry = saveGeometry();
+    //qDebug() << "Saving Geometry " << _geometry.toHex() << endl;
 
     // Move window to second screen before fullscreening it.
     if (QApplication::desktop()->screenCount() > 1)
@@ -92,9 +113,10 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
 
 #ifdef Q_OS_UNIX
     // Special case for Unity.
-    if (session == "ubuntu" || session == "gnome") {
-      setWindowState( windowState() | Qt::WindowFullScreen | Qt::WindowMaximized);
-      setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
+    if (session == "ubuntu" || session == "gnome" || session == "default") {
+      setWindowFlags(Qt::Window);
+      setVisible(true);
+      setWindowState( windowState() ^ Qt::WindowFullScreen );
       show();
     } else {
       showFullScreen();
@@ -106,20 +128,19 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   else
   {
     // Restore geometry of window to what it was before full screen call.
-    restoreGeometry(_geometry);
-
-    // Keep window to second screen
-    if (QApplication::desktop()->screenCount() > 1)
-      setGeometry(QApplication::desktop()->screenGeometry(1));
+    //restoreGeometry(_geometry);
 
 #ifdef Q_OS_UNIX
     // Special case for Unity.
-    if (session == "ubuntu" || session == "gnome") {
-      setWindowState( windowState() & ~Qt::WindowFullScreen);
-    } else {
+    if (session == "ubuntu") {
       showNormal();
+    } else {
+      restoreGeometry(_geometry);
+      showNormal();
+      setWindowFlags( windowFlags() & ~Qt::Window );
     }
 #else
+    restoreGeometry(_geometry);
     showNormal();
 #endif
   }
