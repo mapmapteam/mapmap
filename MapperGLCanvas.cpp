@@ -80,9 +80,15 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     uid mid = _mainWindow->getCurrentMappingId();
     if (mid != NULL_UID)
     {
+      // Use current shape graphics item to draw controls.
       ShapeGraphicsItem* item = getCurrentShapeGraphicsItem();
       if (item)
-        item->getControlPainter()->paint(painter);
+      {
+        QList<int> selected;
+        if (hasActiveVertex())
+          selected.push_back(getActiveVertexIndex());
+        item->getControlPainter()->paint(painter, selected);
+      }
     }
   }
 }

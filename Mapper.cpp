@@ -30,7 +30,7 @@ MShape::ptr ShapeControlPainter::getShape() const { return _shapeItem->getShape(
 void ShapeControlPainter::paint(QPainter *painter, const QList<int>& selectedVertices)
 {
   _paintShape(painter);
-  _paintVertices(painter);
+  _paintVertices(painter, selectedVertices);
 }
 
 void ShapeControlPainter::_paintVertices(QPainter *painter, const QList<int>& selectedVertices)
