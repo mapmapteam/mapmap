@@ -283,105 +283,106 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
   lastMousePos = event->pos();
 }
 
-//
-//void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
-//{
-//  // Prepare to store commands
-//  undoStack = getMainWindow()->getUndoStack();
-//
-//  // Checks if the key has been handled by this function or needs to be deferred to superclass.
-//  bool handledKey = false;
-//
-//  // Active vertex selected.
-//  if (hasActiveVertex())
-//  {
-//    Shape* shape = getCurrentShape();
-//    QPointF p = shape->getVertex(_activeVertex);
-//    handledKey = true;
-//    switch (event->key()) {
-//    // TODO: key tab should switch to next vertex: not working because somehow caught at a higher level
-//    // to switch between frames of the layout
-////    case Qt::Key_Tab:
-////      if (shape)
-////        _activeVertex = (_activeVertex + 1) % shape->nVertices();
-////        p = shape->getVertex(_activeVertex); // reset to new vertex
-////        qDebug() << "New active vertex : " << _activeVertex << endl;
-////      break;
-//    // Handle pixel-wise adjustments of vertex.
-//    case Qt::Key_Up:
-//      p.ry()--;
+
+void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
+{
+  // Prepare to store commands.
+  undoStack = getMainWindow()->getUndoStack();
+
+  // Checks if the key has been handled by this function or needs to be deferred to superclass.
+  bool handledKey = false;
+
+  // Active vertex selected.
+  if (hasActiveVertex())
+  {
+    MShape* shape = getCurrentShape();
+    QPointF p = shape->getVertex(_activeVertex);
+    handledKey = true;
+
+    switch (event->key()) {
+    // TODO: key tab should switch to next vertex: not working because somehow caught at a higher level
+    // to switch between frames of the layout
+//    case Qt::Key_Tab:
+//      if (shape)
+//        _activeVertex = (_activeVertex + 1) % shape->nVertices();
+//        p = shape->getVertex(_activeVertex); // reset to new vertex
+//        qDebug() << "New active vertex : " << _activeVertex << endl;
 //      break;
-//    case Qt::Key_Down:
-//      p.ry()++;
-//      break;
-//    case Qt::Key_Right:
-//      p.rx()++;
-//      break;
-//    case Qt::Key_Left:
-//      p.rx()--;
-//      break;
-//    default:
-//      if (event->matches(QKeySequence::Undo))
-//        undoStack->undo();
-//
-//      else if (event->matches(QKeySequence::Redo))
-//        undoStack->redo();
-//      else
-//        handledKey = false;
-//      break;
+    // Handle pixel-wise adjustments of vertex.
+    case Qt::Key_Up:
+      p.ry()--;
+      break;
+    case Qt::Key_Down:
+      p.ry()++;
+      break;
+    case Qt::Key_Right:
+      p.rx()++;
+      break;
+    case Qt::Key_Left:
+      p.rx()--;
+      break;
+    default:
+      if (event->matches(QKeySequence::Undo))
+        undoStack->undo();
+
+      else if (event->matches(QKeySequence::Redo))
+        undoStack->redo();
+      else
+        handledKey = false;
+      break;
+    }
+    // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
+    // Enable to Undo and Redo when arrow keys move the position of vertices
+    undoStack->push(new MoveVertexCommand(this, _activeVertex, p));
+  }
+
+  // Defer unhandled keys to parent.
+  if (!handledKey)
+  {
+    QWidget::keyPressEvent(event);
+  }
+
+//  std::cout << "Key pressed" << std::endl;
+//  int xMove = 0;
+//  int yMove = 0;
+//  switch (event->key()) {
+//  case Qt::Key_Tab:
+//    if (event->modifiers() & Qt::ControlModifier)
+//      switchImage( (Common::getCurrentSourceId() + 1) % Common::nImages());
+//    else
+//    {
+//      Quad& quad = getQuad();
+//      _active_vertex = (_active_vertex + 1 ) % 4;
 //    }
-//    // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
-//    // Enable to Undo and Redo when arrow keys move the position of vertices
-//    undoStack->push(new MoveVertexCommand(this, _activeVertex, p));
-//  }
-//
-//  // Defer unhandled keys to parent.
-//  if (!handledKey)
-//  {
+//    break;
+//  case Qt::Key_Up:
+//    yMove = -1;
+//    break;
+//  case Qt::Key_Down:
+//    yMove = +1;
+//    break;
+//  case Qt::Key_Left:
+//    xMove = -1;
+//    break;
+//  case Qt::Key_Right:
+//    xMove = +1;
+//    break;
+//  default:
+//    std::cerr << "Unhandled key" << std::endl;
 //    QWidget::keyPressEvent(event);
+//    break;
 //  }
 //
-////  std::cout << "Key pressed" << std::endl;
-////  int xMove = 0;
-////  int yMove = 0;
-////  switch (event->key()) {
-////  case Qt::Key_Tab:
-////    if (event->modifiers() & Qt::ControlModifier)
-////      switchImage( (Common::getCurrentSourceId() + 1) % Common::nImages());
-////    else
-////    {
-////      Quad& quad = getQuad();
-////      _active_vertex = (_active_vertex + 1 ) % 4;
-////    }
-////    break;
-////  case Qt::Key_Up:
-////    yMove = -1;
-////    break;
-////  case Qt::Key_Down:
-////    yMove = +1;
-////    break;
-////  case Qt::Key_Left:
-////    xMove = -1;
-////    break;
-////  case Qt::Key_Right:
-////    xMove = +1;
-////    break;
-////  default:
-////    std::cerr << "Unhandled key" << std::endl;
-////    QWidget::keyPressEvent(event);
-////    break;
-////  }
-////
-////  Quad& quad = getQuad();
-////  Point *p = quad.getVertex(_active_vertex);
-////  p->x += xMove;
-////  p->y += yMove;
-////  quad.setVertex(_active_vertex, p);
-////
-////  update();
-////
-////  emit quadChanged();
-//}
+//  Quad& quad = getQuad();
+//  Point *p = quad.getVertex(_active_vertex);
+//  p->x += xMove;
+//  p->y += yMove;
+//  quad.setVertex(_active_vertex, p);
+//
+//  update();
+//
+//  emit quadChanged();
+}
 //
 //void MapperGLCanvas::paintEvent(QPaintEvent* )
 //{
