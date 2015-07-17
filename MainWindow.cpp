@@ -2116,9 +2116,6 @@ void MainWindow::addMappingItem(uid mappingId)
   connect(destinationCanvas, SIGNAL(shapeChanged(MShape*)),
           mapper.data(),     SLOT(updateShape(MShape*)));
   
-  connect(this,          SIGNAL(paintChanged()),
-          mapper.data(), SLOT(updatePaint()));
-
   // Switch to mapping tab.
   contentTab->setCurrentWidget(mappingSplitter);
 

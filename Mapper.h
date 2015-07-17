@@ -325,7 +325,6 @@ public:
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
   virtual void updateShape(MShape* shape) { Q_UNUSED(shape); }
-  virtual void updatePaint();
 
 signals:
   void valueChanged();

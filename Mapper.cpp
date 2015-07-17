@@ -692,11 +692,6 @@ void Mapper::setValue(QtProperty* property, const QVariant& value)
   }
 }
 
-void Mapper::updatePaint()
-{
-  _mapping->getPaint()->update();
-}
-
 void Mapper::_buildShapeProperty(QtProperty* shapeItem, MShape* shape)
 {
   for (int i=0; i<shape->nVertices(); i++)
