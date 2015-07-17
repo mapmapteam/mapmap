@@ -22,7 +22,7 @@
 #define MAPPING_H_
 
 #include <QtGlobal>
-#include <tr1/memory>
+
 #include "Shape.h"
 #include "Paint.h"
 #include "UidAllocator.h"
@@ -64,7 +64,7 @@ protected:
   Mapping(Paint::ptr paint, MShape::ptr shape, uid id=NULL_UID);
 
 public:
-  typedef std::tr1::shared_ptr<Mapping> ptr;
+  typedef QSharedPointer<Mapping> ptr;
 
   virtual ~Mapping();
 
@@ -118,7 +118,6 @@ public:
   float getOpacity() const { return _opacity * _paint->getOpacity(); }
 
   void setPaint(Paint::ptr p) { _paint = p; }
-  void removePaint() { if (_paint) delete _paint.get(); }
 };
 
 /**

@@ -233,7 +233,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   uid paintId = mappingManager->getPaintId(paint);
 
   if (paint->getType() == "media") {
-    std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(paint);
+    QSharedPointer<Media> media = qSharedPointerCast<Media>(paint);
     Q_CHECK_PTR(media);
     updatePaintItem(paintId, createFileIcon(media->getUri()), strippedName(media->getUri()));
 //    QString fileName = QFileDialog::getOpenFileName(this,
@@ -243,7 +243,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
 //      importMediaFile(fileName, paint, false);
   }
   if (paint->getType() == "image") {
-    std::tr1::shared_ptr<Image> image = std::tr1::static_pointer_cast<Image>(paint);
+    QSharedPointer<Image> image = qSharedPointerCast<Image>(paint);
     Q_CHECK_PTR(image);
     updatePaintItem(paintId, createImageIcon(image->getUri()), strippedName(image->getUri()));
 //    QString fileName = QFileDialog::getOpenFileName(this,
@@ -254,7 +254,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   }
   else if (paint->getType() == "color") {
     // Pop-up color-choosing dialog to choose color paint.
-    std::tr1::shared_ptr<Color> color = std::tr1::static_pointer_cast<Color>(paint);
+    QSharedPointer<Color> color = qSharedPointerCast<Color>(paint);
     Q_CHECK_PTR(color);
     updatePaintItem(paintId, createColorIcon(color->getColor()), strippedName(color->getColor().name()));
   }
@@ -525,11 +525,11 @@ void MainWindow::addMesh()
   }
   else
   {
-    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
+    QSharedPointer<Texture> texture = qSharedPointerCast<Texture>(paint);
     Q_CHECK_PTR(texture);
 
-    MShape::ptr outputQuad = MShape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-    MShape::ptr  inputQuad = MShape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputQuad = MShape::ptr(Util::createMeshForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr  inputQuad = MShape::ptr(Util::createMeshForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, outputQuad, inputQuad);
   }
 
@@ -561,11 +561,11 @@ void MainWindow::addTriangle()
   }
   else
   {
-    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
+    QSharedPointer<Texture> texture = qSharedPointerCast<Texture>(paint);
     Q_CHECK_PTR(texture);
 
-    MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-    MShape::ptr inputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr inputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, inputTriangle, outputTriangle);
   }
 
@@ -597,11 +597,11 @@ void MainWindow::addEllipse()
   }
   else
   {
-    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
+    QSharedPointer<Texture> texture = qSharedPointerCast<Texture>(paint);
     Q_CHECK_PTR(texture);
 
-    MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-    MShape::ptr inputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr inputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, inputEllipse, outputEllipse);
   }
 
@@ -1925,7 +1925,7 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
   uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, isImage, live);
 
   // Initialize position (center).
-  std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(mappingManager->getPaintById(mediaId));
+  QSharedPointer<Media> media = qSharedPointerCast<Media>(mappingManager->getPaintById(mediaId));
   Q_CHECK_PTR(media);
 
   if (_isPlaying)
@@ -1961,7 +1961,7 @@ bool MainWindow::addColorPaint(const QColor& color)
   uint colorId = createColorPaint(NULL_UID, color);
 
   // Initialize position (center).
-  std::tr1::shared_ptr<Color> colorPaint = std::tr1::static_pointer_cast<Color>(mappingManager->getPaintById(colorId));
+  QSharedPointer<Color> colorPaint = qSharedPointerCast<Color>(mappingManager->getPaintById(colorId));
   Q_CHECK_PTR(colorPaint);
 
   // Does not do anything...
@@ -2005,8 +2005,8 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
 //  connect(paintGui.get(), SIGNAL(valueChanged()),
 //          this,           SLOT(updateCanvases()));
 
-  connect(paintGui.get(), SIGNAL(valueChanged(Paint::ptr)),
-          this,           SLOT(handlePaintChanged(Paint::ptr)));
+  connect(paintGui.data(), SIGNAL(valueChanged(Paint::ptr)),
+          this,            SLOT(handlePaintChanged(Paint::ptr)));
 
   // Add paint item to paintList widget.
   QListWidgetItem* item = new QListWidgetItem(icon, name);
@@ -2051,10 +2051,10 @@ void MainWindow::addMappingItem(uid mappingId)
 
   // Add mapper.
   // XXX hardcoded for textures
-  std::tr1::shared_ptr<TextureMapping> textureMapping;
+  QSharedPointer<TextureMapping> textureMapping;
   if (paintType == "media" || paintType == "image")
   {
-    textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+    textureMapping = qSharedPointerCast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);
   }
 
@@ -2107,17 +2107,17 @@ void MainWindow::addMappingItem(uid mappingId)
   mappingPropertyPanel->setEnabled(true);
 
   // When mapper value is changed, update canvases.
-  connect(mapper.get(), SIGNAL(valueChanged()),
-          this,         SLOT(updateCanvases()));
+  connect(mapper.data(), SIGNAL(valueChanged()),
+          this,          SLOT(updateCanvases()));
 
-  connect(sourceCanvas, SIGNAL(shapeChanged(MShape*)),
-          mapper.get(), SLOT(updateShape(MShape*)));
+  connect(sourceCanvas,  SIGNAL(shapeChanged(MShape*)),
+          mapper.data(), SLOT(updateShape(MShape*)));
 
   connect(destinationCanvas, SIGNAL(shapeChanged(MShape*)),
-          mapper.get(), SLOT(updateShape(MShape*)));
+          mapper.data(),     SLOT(updateShape(MShape*)));
   
-  connect(this, SIGNAL(paintChanged()),
-          mapper.get(), SLOT(updatePaint()));
+  connect(this,          SIGNAL(paintChanged()),
+          mapper.data(), SLOT(updatePaint()));
 
   // Switch to mapping tab.
   contentTab->setCurrentWidget(mappingSplitter);
@@ -2535,7 +2535,7 @@ bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
 
     bool success = false;
     Paint::ptr paint = this->mappingManager->getPaintById(texture_id);
-    if (paint.get() == NULL)
+    if (paint.isNull())
     {
         std::cout << "No such texture paint id " << texture_id << std::endl;
         success = false;
@@ -2544,14 +2544,14 @@ bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
     {
         if (paint->getType() == "media")
         {
-          Media *media = (Media *) paint.get(); // FIXME: use sharedptr cast
+          Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
           videoTimer->stop();
           success = media->setUri(QString(uri.c_str()));
           videoTimer->start();
         }
         else if (paint->getType() == "image")
         {
-          Image *media = (Image*) paint.get(); // FIXME: use sharedptr cast
+          Image *media = (Image*) paint.data(); // FIXME: use sharedptr cast
           videoTimer->stop();
           success = media->setUri(QString(uri.c_str()));
           videoTimer->start();
@@ -2568,7 +2568,7 @@ bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
 bool MainWindow::setTextureRate(int texture_id, double rate)
 {
   Paint::ptr paint = this->mappingManager->getPaintById(texture_id);
-  if (paint.get() == NULL)
+  if (paint.isNull())
   {
       std::cout << "No such texture paint id " << texture_id << std::endl;
       return false;
@@ -2577,7 +2577,7 @@ bool MainWindow::setTextureRate(int texture_id, double rate)
   {
       if (paint->getType() == "media")
       {
-        Media *media = (Media *) paint.get(); // FIXME: use sharedptr cast
+        Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
         videoTimer->stop();
         media->setRate(rate);
         videoTimer->start();

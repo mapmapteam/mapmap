@@ -31,7 +31,7 @@ MShape* DestinationGLCanvas::getShapeFromMappingId(uid mappingId) const
   if (mappingId == NULL_UID)
     return NULL;
   else
-    return getMainWindow()->getMappingManager().getMappingById(mappingId)->getShape().get();
+    return getMainWindow()->getMappingManager().getMappingById(mappingId)->getShape().data();
 }
 
 ShapeGraphicsItem* DestinationGLCanvas::getShapeGraphicsItemFromMappingId(uid mappingId) const

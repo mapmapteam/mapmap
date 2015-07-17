@@ -37,12 +37,12 @@ bool ProjectWriter::writeFile(QIODevice *device)
 
   _xml.writeStartElement("paints");
   for (int i = 0; i < _manager->nPaints(); i++)
-    writeItem(_manager->getPaint(i).get());
+    writeItem(_manager->getPaint(i).data());
   _xml.writeEndElement();
 
   _xml.writeStartElement("mappings");
   for (int i = 0; i < _manager->nMappings(); i++)
-    writeItem(_manager->getMapping(i).get());
+    writeItem(_manager->getMapping(i).data());
   _xml.writeEndElement();
 
   _xml.writeEndElement();
@@ -150,7 +150,7 @@ void ProjectWriter::writeItem(Mapping *item)
   _xml.writeAttribute("solo", QString::number((int) item->isSolo() ? 1 : 0));
   _xml.writeAttribute("visible", QString::number((int) item->isVisible() ? 1 : 0));
 
-  MShape *shape = item->getShape().get();
+  MShape *shape = item->getShape().data();
   _xml.writeStartElement("destination");
   _xml.writeAttribute("shape", shape->getType());
   writeShapeVertices(shape);
@@ -159,7 +159,7 @@ void ProjectWriter::writeItem(Mapping *item)
   if (item->getType().endsWith("_texture"))
   {
     TextureMapping *tex = (TextureMapping *) item;
-    shape = tex->getInputShape().get();
+    shape = tex->getInputShape().data();
 
     _xml.writeStartElement("source");
     _xml.writeAttribute("shape", shape->getType());

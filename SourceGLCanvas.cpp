@@ -37,7 +37,7 @@ MShape* SourceGLCanvas::getShapeFromMappingId(uid mappingId) const
   {
     Mapping::ptr mapping = getMainWindow()->getMappingManager().getMappingById(mappingId);
     Q_CHECK_PTR(mapping);
-    return mapping->getInputShape().get();
+    return mapping->getInputShape().data();
   }
 }
 

@@ -24,10 +24,10 @@
 #define OSC_INTERFACE_H_
 #ifdef HAVE_OSC
 
-#include <tr1/memory>
+#include <QVariant>
+
 #include "concurrentqueue.h"
 #include "OscReceiver.h"
-#include <QVariant>
 
 class MainWindow; // forward decl
 
@@ -37,7 +37,7 @@ class MainWindow; // forward decl
 class OscInterface 
 {
   public:
-    typedef std::tr1::shared_ptr<OscInterface> ptr;
+    typedef QSharedPointer<OscInterface> ptr;
     OscInterface(
       //MainWindow* owner, 
       const std::string &listen_port);

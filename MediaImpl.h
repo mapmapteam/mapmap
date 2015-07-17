@@ -37,7 +37,6 @@
 #else
 #include <GL/gl.h>
 #endif
-#include <tr1/memory>
 
 /**
  * Private declaration of the video player.

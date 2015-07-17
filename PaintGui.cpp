@@ -73,7 +73,7 @@ void PaintGui::setValue(QtProperty* property, const QVariant& value)
 ColorGui::ColorGui(Paint::ptr paint)
   : PaintGui(paint)
 {
-  color = std::tr1::static_pointer_cast<Color>(paint);
+  color = qSharedPointerCast<Color>(paint);
   Q_CHECK_PTR(color);
 
   _colorItem = _variantManager->addProperty(QVariant::Color,
@@ -99,7 +99,7 @@ TextureGui::TextureGui(Paint::ptr paint) : PaintGui(paint) {
 ImageGui::ImageGui(Paint::ptr paint)
   : TextureGui(paint)
 {
-  image = std::tr1::static_pointer_cast<Image>(paint);
+  image = qSharedPointerCast<Image>(paint);
   Q_CHECK_PTR(image);
 
 _imageFileItem = _variantManager->addProperty(VariantManager::filePathTypeId(),
@@ -123,7 +123,7 @@ void ImageGui::setValue(QtProperty* property, const QVariant& value) {
 MediaGui::MediaGui(Paint::ptr paint)
 : TextureGui(paint)
 {
-  media = std::tr1::static_pointer_cast<Media>(paint);
+  media = qSharedPointerCast<Media>(paint);
   Q_CHECK_PTR(media);
 
   _mediaFileItem = _variantManager->addProperty(VariantManager::filePathTypeId(),

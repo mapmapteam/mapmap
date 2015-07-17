@@ -30,8 +30,6 @@
 #include <GL/gl.h>
 #endif
 
-#include <tr1/memory>
-
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -58,7 +56,7 @@ class ShapeGraphicsItem;
 class ShapeControlPainter
 {
 public:
-  typedef std::tr1::shared_ptr<ShapeControlPainter> ptr;
+  typedef QSharedPointer<ShapeControlPainter> ptr;
 
   ShapeControlPainter(ShapeGraphicsItem* shapeItem);
   virtual ~ShapeControlPainter() {}
@@ -224,9 +222,9 @@ protected:
   virtual void _doDrawInput(QPainter* painter);
 
 protected:
-  std::tr1::shared_ptr<TextureMapping> _textureMapping;
-  std::tr1::shared_ptr<Texture> _texture;
-  std::tr1::shared_ptr<MShape> _inputShape;
+  QSharedPointer<TextureMapping> _textureMapping;
+  QSharedPointer<Texture> _texture;
+  QSharedPointer<MShape> _inputShape;
 };
 
 /// Graphics item for textured polygons (eg. triangles).
@@ -306,11 +304,13 @@ class Mapper : public QObject
   Q_OBJECT
 
 public:
-  typedef std::tr1::shared_ptr<Mapper> ptr;
+  typedef QSharedPointer<Mapper> ptr;
 
 protected:
   /// Constructor. A mapper applies to a mapping.
   Mapper(Mapping::ptr mapping);
+
+public:
   virtual ~Mapper();
 
 public:
@@ -327,7 +327,7 @@ public:
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
   virtual void updateShape(MShape* shape) { Q_UNUSED(shape); }
-  virtual void updatePaint() {}
+  virtual void updatePaint();
 
 signals:
   void valueChanged();
@@ -362,15 +362,12 @@ class ColorMapper : public Mapper
 {
   Q_OBJECT
 
-public slots:
-  virtual void updatePaint();
-
 protected:
   ColorMapper(Mapping::ptr mapping);
   virtual ~ColorMapper() {}
 
 protected:
-  std::tr1::shared_ptr<Color> color;
+  QSharedPointer<Color> color;
 };
 
 class PolygonColorMapper : public ColorMapper
@@ -422,7 +419,7 @@ class TextureMapper : public Mapper
   Q_OBJECT
 
 public:
-  TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  TextureMapper(QSharedPointer<TextureMapping> mapping);
   virtual ~TextureMapper() {}
 
 //  /**
@@ -437,7 +434,6 @@ public:
 
 public slots:
   virtual void updateShape(MShape* shape);
-  virtual void updatePaint();
 
 //protected:
 //  virtual void _doDraw(QPainter* painter) = 0;
@@ -449,9 +445,9 @@ protected:
   QtVariantProperty* _meshItem;
 
   // FIXME: use typedefs, member of the class for type names that are too long to type:
-  std::tr1::shared_ptr<TextureMapping> textureMapping;
-  std::tr1::shared_ptr<Texture> texture;
-  std::tr1::shared_ptr<MShape> inputShape;
+  QWeakPointer<TextureMapping> textureMapping;
+  QWeakPointer<Texture> texture;
+  QWeakPointer<MShape> inputShape;
 };
 
 class PolygonTextureMapper : public TextureMapper
@@ -459,7 +455,7 @@ class PolygonTextureMapper : public TextureMapper
   Q_OBJECT
 
 public:
-  PolygonTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping) : TextureMapper(mapping) {}
+  PolygonTextureMapper(QSharedPointer<TextureMapping> mapping) : TextureMapper(mapping) {}
   virtual ~PolygonTextureMapper() {}
 };
 
@@ -468,7 +464,7 @@ class TriangleTextureMapper : public PolygonTextureMapper
   Q_OBJECT
 
 public:
-  TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  TriangleTextureMapper(QSharedPointer<TextureMapping> mapping);
   virtual ~TriangleTextureMapper() {}
 };
 
@@ -477,7 +473,7 @@ class MeshTextureMapper : public PolygonTextureMapper
   Q_OBJECT
 
 public:
-  MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  MeshTextureMapper(QSharedPointer<TextureMapping> mapping);
   virtual ~MeshTextureMapper() {}
 
 public slots:
@@ -491,7 +487,7 @@ class EllipseTextureMapper : public PolygonTextureMapper {
   Q_OBJECT
 
 public:
-  EllipseTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  EllipseTextureMapper(QSharedPointer<TextureMapping> mapping);
   virtual ~EllipseTextureMapper() {}
 
 protected:

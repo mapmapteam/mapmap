@@ -20,7 +20,6 @@
 #ifndef SHAPE_H_
 #define SHAPE_H_
 
-#include <tr1/memory>
 #include <iostream>
 #include <cmath>
 
@@ -45,7 +44,7 @@
 class MShape
 {
 public:
-  typedef std::tr1::shared_ptr<MShape> ptr;
+  typedef QSharedPointer<MShape> ptr;
 
   MShape() {}
   MShape(QVector<QPointF> vertices_) :

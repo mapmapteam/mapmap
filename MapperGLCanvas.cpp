@@ -497,7 +497,7 @@ void MapperGLCanvas::_glueVertex(QPointF* p)
   MappingManager manager = MainWindow::instance()->getMappingManager();
   for (int i = 0; i < manager.nMappings(); i++)
   {
-    MShape *shape = manager.getMapping(i)->getShape().get();
+    MShape *shape = manager.getMapping(i)->getShape().data();
     if (shape && shape != getCurrentShape())
     {
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)
