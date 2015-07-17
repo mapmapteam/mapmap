@@ -417,7 +417,6 @@ public:
   bool setOscPort(int portNumber);
   int getOscPort() const;
   void setOutputWindowFullScreen(bool enable);
-  void quitMapMap();
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////
   static const int DEFAULT_WIDTH = 1600;

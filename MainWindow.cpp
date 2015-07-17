@@ -2588,8 +2588,3 @@ bool MainWindow::setTextureRate(int texture_id, double rate)
   return true;
 }
 
-void MainWindow::quitMapMap()
-{
-  close();
-}
-
