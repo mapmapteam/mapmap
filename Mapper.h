@@ -114,9 +114,9 @@ public:
 public:
 
   // TODO: dangereux: confusion possible entre shape() et getShape()...
-  MShape::ptr getShape() const { return _shape; }
+  MShape::ptr getShape() const { return _shape.toStrongRef(); }
 
-  Mapping::ptr getMapping() const { return _mapping; }
+  Mapping::ptr getMapping() const { return _mapping.toStrongRef(); }
 
   ShapeControlPainter::ptr getControlPainter() { return _controlPainter; }
 
@@ -124,7 +124,7 @@ public:
   MapperGLCanvas* getCanvas() const;
 
   bool isMappingCurrent() const;
-  bool isMappingVisible() const { return _mapping->isVisible(); }
+  bool isMappingVisible() const { return getMapping()->isVisible(); }
 
   virtual QRectF boundingRect() const { return shape().boundingRect(); }
 //  virtual QPainterPath shape() const;
@@ -150,8 +150,8 @@ public:
   // invariant to the zoom level (to be used in _doPaintControls() method).
   QPen _getRescaledShapeStroke(bool innerStroke=false);
 protected:
-  Mapping::ptr _mapping;
-  MShape::ptr _shape;
+  QWeakPointer<Mapping> _mapping;
+  QWeakPointer<MShape> _shape;
   ShapeControlPainter::ptr  _controlPainter;
   bool _output;
 };
@@ -222,9 +222,9 @@ protected:
   virtual void _doDrawInput(QPainter* painter);
 
 protected:
-  QSharedPointer<TextureMapping> _textureMapping;
-  QSharedPointer<Texture> _texture;
-  QSharedPointer<MShape> _inputShape;
+  QWeakPointer<TextureMapping> _textureMapping;
+  QWeakPointer<Texture> _texture;
+  QWeakPointer<MShape> _inputShape;
 };
 
 /// Graphics item for textured polygons (eg. triangles).

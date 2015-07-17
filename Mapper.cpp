@@ -97,7 +97,7 @@ void MeshControlPainter::_paintShape(QPainter *painter)
 ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
   : _mapping(mapping), _output(output)
 {
-  _shape = output ? _mapping->getShape() : _mapping->getInputShape();
+  _shape = output ? getMapping()->getShape() : getMapping()->getInputShape();
 }
 
 MapperGLCanvas* ShapeGraphicsItem::getCanvas() const
@@ -106,7 +106,9 @@ MapperGLCanvas* ShapeGraphicsItem::getCanvas() const
   return isOutput() ? win->getDestinationCanvas() : win->getSourceCanvas();
 }
 
-bool ShapeGraphicsItem::isMappingCurrent() const { return MainWindow::instance()->getCurrentMappingId() == _mapping->getId(); }
+bool ShapeGraphicsItem::isMappingCurrent() const {
+  return MainWindow::instance()->getCurrentMappingId() == getMapping()->getId();
+}
 
 void ShapeGraphicsItem::paint(QPainter *painter,
                               const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -115,7 +117,7 @@ void ShapeGraphicsItem::paint(QPainter *painter,
 
   // Sync depth of figure with that of mapping (for layered output).
   if (isOutput())
-    setZValue(_mapping->getDepth());
+    setZValue(getMapping()->getDepth());
 
   // Paint if visible.
   if (isMappingVisible())
@@ -207,14 +209,14 @@ QPen ShapeGraphicsItem::_getRescaledShapeStroke(bool innerStroke)
 void ColorGraphicsItem::_prePaint(QPainter *painter,
                                   const QStyleOptionGraphicsItem *option)
 {
-  Color* color = static_cast<Color*>(_mapping->getPaint().data());
+  Color* color = static_cast<Color*>(getMapping()->getPaint().data());
   Q_ASSERT(color);
 
   painter->setPen(Qt::NoPen);
 
   // Set brush.
   QColor col = color->getColor();
-  col.setAlphaF(_mapping->getOpacity());
+  col.setAlphaF(getMapping()->getOpacity());
   painter->setBrush(col);
 }
 
@@ -272,10 +274,10 @@ TextureGraphicsItem::TextureGraphicsItem(Mapping::ptr mapping, bool output)
   _textureMapping = qSharedPointerCast<TextureMapping>(mapping);
   Q_CHECK_PTR(_textureMapping);
 
-  _texture = qSharedPointerCast<Texture>(_textureMapping->getPaint());
+  _texture = qSharedPointerCast<Texture>(_textureMapping.toStrongRef()->getPaint());
   Q_CHECK_PTR(_texture);
 
-  _inputShape = qSharedPointerCast<MShape>(_textureMapping->getInputShape());
+  _inputShape = qSharedPointerCast<MShape>(_textureMapping.toStrongRef()->getInputShape());
   Q_CHECK_PTR(_inputShape);
 }
 
@@ -298,7 +300,7 @@ void TextureGraphicsItem::_doDrawInput(QPainter* painter)
     // FIXME: Does this draw the quad counterclockwise?
     glBegin (GL_QUADS);
     {
-      QRectF rect = mapFromScene(_texture->getRect()).boundingRect();
+      QRectF rect = mapFromScene(_texture.toStrongRef()->getRect()).boundingRect();
 
       Util::correctGlTexCoord(0, 0);
       glVertex3f (rect.x(), rect.y(), 0);
@@ -322,12 +324,14 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   Q_UNUSED(option);
   painter->beginNativePainting();
 
+  QSharedPointer<Texture> texture = _texture.toStrongRef();
+
   // Only works for similar shapes.
   // TODO:remettre
   //Q_ASSERT( _inputShape->nVertices() == outputShape->nVertices());
 
   // Project source texture and sent it to destination.
-  _texture->update();
+  texture->update();
 
   // Allow alpha blending.
   glEnable (GL_BLEND);
@@ -335,17 +339,17 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
 
   // Get texture.
   glEnable (GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, _texture->getTextureId());
+  glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
 
   // Copy bits to texture iff necessary.
-  _texture->lockMutex();
-  if (_texture->bitsHaveChanged())
+  texture->lockMutex();
+  if (texture->bitsHaveChanged())
   {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-      _texture->getWidth(), _texture->getHeight(), 0, GL_RGBA,
-      GL_UNSIGNED_BYTE, _texture->getBits());
+        texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
+      GL_UNSIGNED_BYTE, texture->getBits());
   }
-  _texture->unlockMutex();
+  texture->unlockMutex();
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -353,7 +357,8 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // Set texture color (apply opacity).
-  glColor4f(1.0f, 1.0f, 1.0f, isOutput() ? _mapping->getOpacity() : _mapping->getPaint()->getOpacity());
+  glColor4f(1.0f, 1.0f, 1.0f,
+            isOutput() ? getMapping()->getOpacity() : getMapping()->getPaint()->getOpacity());
 }
 
 void TextureGraphicsItem::_postPaint(QPainter* painter,
@@ -384,11 +389,12 @@ void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   Q_UNUSED(painter);
   if (isOutput())
   {
+    MShape::ptr inputShape = _inputShape.toStrongRef();
     glBegin(GL_TRIANGLES);
     {
-      for (int i=0; i<_inputShape->nVertices(); i++)
+      for (int i=0; i<inputShape->nVertices(); i++)
       {
-        Util::setGlTexPoint(*_texture, _inputShape->getVertex(i), mapFromScene(_shape->getVertex(i)));
+        Util::setGlTexPoint(*_texture.toStrongRef(), inputShape->getVertex(i), mapFromScene(getShape()->getVertex(i)));
       }
     }
     glEnd();
@@ -419,7 +425,7 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
       {
         QSizeF size = mapFromScene(outputQuads[x][y].toPolygon()).boundingRect().size();
         float area = size.width() * size.height();
-        _drawQuad(*_texture, inputQuads[x][y], outputQuads[x][y], area);
+        _drawQuad(*_texture.toStrongRef(), inputQuads[x][y], outputQuads[x][y], area);
       }
     }
   }
@@ -546,6 +552,7 @@ void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   // Get input and output ellipses.
   QSharedPointer<Ellipse> inputEllipse  = qSharedPointerCast<Ellipse>(_inputShape);
   QSharedPointer<Ellipse> outputEllipse = qSharedPointerCast<Ellipse>(_shape);
+  QSharedPointer<Texture> texture = _texture.toStrongRef();
 
   // Start / end angle.
   //const float startAngle = 0;
@@ -588,9 +595,9 @@ void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
     {
       // Draw triangle.
       glBegin(GL_TRIANGLES);
-      Util::setGlTexPoint(*_texture, inputControlCenter, outputControlCenter);
-      Util::setGlTexPoint(*_texture, prevInputPoint,     prevOutputPoint);
-      Util::setGlTexPoint(*_texture, currentInputPoint,  currentOutputPoint);
+      Util::setGlTexPoint(*texture, inputControlCenter, outputControlCenter);
+      Util::setGlTexPoint(*texture, prevInputPoint,     prevOutputPoint);
+      Util::setGlTexPoint(*texture, currentInputPoint,  currentOutputPoint);
       glEnd();
     }
 
