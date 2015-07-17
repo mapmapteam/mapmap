@@ -242,9 +242,6 @@ _uri(uri)
 
 void MediaImpl::unloadMovie()
 {
-  // Free allocated resources.
-  freeResources();
-
   // Reset variables.
   _terminate = false;
   _seekEnabled = false;
@@ -252,6 +249,9 @@ void MediaImpl::unloadMovie()
   // Un-ready.
   _setMovieReady(false);
   setPlayState(false);
+
+  // Free allocated resources.
+  freeResources();
 }
 
 void MediaImpl::freeResources()
