@@ -1182,7 +1182,7 @@ void MainWindow::createLayout()
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  outputWindow = new OutputGLWindow(destinationCanvas);
+  outputWindow = new OutputGLWindow(this, destinationCanvas);
   outputWindow->setVisible(true);
   outputWindow->installEventFilter(destinationCanvas);
   outputWindow->installEventFilter(this);

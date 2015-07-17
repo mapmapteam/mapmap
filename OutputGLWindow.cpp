@@ -23,7 +23,7 @@
 
 #include "MainWindow.h"
 
-OutputGLWindow:: OutputGLWindow(const DestinationGLCanvas* canvas_)
+OutputGLWindow:: OutputGLWindow(QWidget* parent, const DestinationGLCanvas* canvas_) : QDialog(parent)
 {
   resize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 

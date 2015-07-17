@@ -34,7 +34,7 @@ class OutputGLWindow : public QDialog
   Q_OBJECT
 
 public:
-  OutputGLWindow(const DestinationGLCanvas* canvas_);
+  OutputGLWindow(QWidget* parent, const DestinationGLCanvas* canvas_);
   //OutputGLWindow(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
 
 public slots:
