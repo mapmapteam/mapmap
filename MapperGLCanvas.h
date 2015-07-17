@@ -125,10 +125,10 @@ private:
   QPoint _mousePressedPosition;
 
   // Start position of last object grabbed (in scene coordinates).
-  QPointF _grabbedObjectStartPosition;
+  QPointF _grabbedObjectStartScenePosition;
 
   // Mouse currently pressed inside a vertex.
-  bool _mousePressedOnVertex;
+  bool _vertexGrabbed;
 
   // Index of currently active vertex.
   int _activeVertex;

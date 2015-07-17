@@ -26,7 +26,7 @@
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget, QGraphicsScene* scene)
   : QGraphicsView(parent),
     _mainWindow(mainWindow),
-    _mousePressedOnVertex(false),
+    _vertexGrabbed(false),
     _activeVertex(NO_VERTEX),
     _shapeGrabbed(false), // comment out?
     _shapeFirstGrab(false), // comment out?
@@ -127,10 +127,10 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
           _activeVertex = i;
           minDistance = dist;
 
-          _mousePressedOnVertex = true;
+          _vertexGrabbed = true;
           mousePressedOnSomething = true;
 
-          _grabbedObjectStartPosition = shape->getVertex(i);
+          _grabbedObjectStartScenePosition = shape->getVertex(i);
         }
       }
     }
@@ -181,7 +181,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
         _shapeGrabbed = true;
         _shapeFirstGrab = true;
 
-        _grabbedObjectStartPosition = pos;
+        _grabbedObjectStartScenePosition = pos;
       }
     }
   }
@@ -210,14 +210,14 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
 //  if ((event->buttons() & Qt::LeftButton) && _mousePressedOnVertex)
 //  {
 //  }
-  if (_mousePressedOnVertex)
+  if (_vertexGrabbed)
   {
   }
   else if (_shapeGrabbed)
   {
 
   }
-  _mousePressedOnVertex = false;
+  _vertexGrabbed = false;
   _shapeGrabbed = false;
 }
 
@@ -225,24 +225,24 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 {
   static QPoint lastMousePos;
 
-  QPointF pos = mapToScene(event->pos());
+  QPointF scenePos = mapToScene(event->pos());
 
   // Prepare to store commands
   undoStack = getMainWindow()->getUndoStack();
 
   // Vertex grab.
-  if (_mousePressedOnVertex)
+  if (_vertexGrabbed)
   {
     // std::cout << "Move event " << std::endl;
     MShape* shape = getCurrentShape();
-    if (shape && _activeVertex != NO_VERTEX)
+    if (shape && hasActiveVertex())
     {
 //      QPointF p = shape->getVertex(_activeVertex);
 //      // Set point to mouse coordinates.
 //      p.setX(pos.x());
 //      p.setY(pos.y());
 
-      QPointF p = pos;
+      QPointF p = scenePos;
 
       // Stick to vertices.
       if (_mainWindow->stickyVertices())
@@ -266,7 +266,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       }
     }
 
-    QPointF diff = pos - mapToScene(lastMousePos);
+    QPointF diff = scenePos - mapToScene(lastMousePos);
     shape->translate(diff.x(), diff.y());
   }
 
@@ -279,6 +279,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 //    view->update();
   }
 
+  // Reset last mouse position.
   lastMousePos = event->pos();
 }
 
@@ -428,7 +429,7 @@ void MapperGLCanvas::updateCanvas()
 void MapperGLCanvas::deselectVertices()
 {
   _activeVertex = NO_VERTEX;
-  _mousePressedOnVertex = false;
+  _vertexGrabbed = false;
 }
 
 void MapperGLCanvas::deselectAll()
