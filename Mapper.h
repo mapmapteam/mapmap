@@ -105,6 +105,8 @@ protected:
 class ShapeGraphicsItem : public QGraphicsItem
 {
   Q_DECLARE_TR_FUNCTIONS(ShapeGraphicsItem)
+public:
+  typedef QSharedPointer<ShapeGraphicsItem> ptr;
 
 protected:
   ShapeGraphicsItem(Mapping::ptr mapping, bool output=true);
@@ -311,18 +313,14 @@ protected:
   Mapper(Mapping::ptr mapping);
 
 public:
-  virtual ~Mapper();
+  virtual ~Mapper() {}
 
 public:
   /// Returns a pointer to the properties editor for that mapper.
-  virtual QWidget* getPropertiesEditor();
+  virtual QWidget* getPropertiesEditor() { return _propertyBrowser.data(); }
 
-  virtual ShapeGraphicsItem* getGraphicsItem() {
-    return _graphicsItem;
-  }
-  virtual ShapeGraphicsItem* getInputGraphicsItem() {
-    return _inputGraphicsItem;
-  }
+  virtual ShapeGraphicsItem::ptr getGraphicsItem() const { return _graphicsItem; }
+  virtual ShapeGraphicsItem::ptr getInputGraphicsItem() { return _inputGraphicsItem; }
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
@@ -335,7 +333,7 @@ signals:
 protected:
   Mapping::ptr _mapping;
 
-  QtTreePropertyBrowser* _propertyBrowser;
+  QSharedPointer<QtTreePropertyBrowser> _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
 
@@ -345,8 +343,8 @@ protected:
 
   std::map<QtProperty*, std::pair<MShape*, int> > _propertyToVertex;
 
-  ShapeGraphicsItem* _graphicsItem;
-  ShapeGraphicsItem* _inputGraphicsItem;
+  ShapeGraphicsItem::ptr _graphicsItem;
+  ShapeGraphicsItem::ptr _inputGraphicsItem;
 
   // FIXME: use typedefs, member of the class for type names that are too long to type:
   MShape::ptr outputShape;
@@ -376,7 +374,7 @@ class PolygonColorMapper : public ColorMapper
 
 public:
   PolygonColorMapper(Mapping::ptr mapping) : ColorMapper(mapping) {
-    _graphicsItem = new PolygonColorGraphicsItem(mapping, true);
+    _graphicsItem.reset(new PolygonColorGraphicsItem(mapping, true));
   }
   virtual ~PolygonColorMapper() {}
 };
@@ -405,7 +403,7 @@ class EllipseColorMapper : public ColorMapper
 
 public:
   EllipseColorMapper(Mapping::ptr mapping) : ColorMapper(mapping) {
-    _graphicsItem = new EllipseColorGraphicsItem(mapping, true);
+    _graphicsItem.reset(new EllipseColorGraphicsItem(mapping, true));
   }
 
   virtual ~EllipseColorMapper() {}

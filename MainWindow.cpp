@@ -2137,9 +2137,9 @@ void MainWindow::addMappingItem(uid mappingId)
 
   // Add items to scenes.
   if (mapper->getInputGraphicsItem())
-    sourceCanvas->scene()->addItem(mapper->getInputGraphicsItem());
+    sourceCanvas->scene()->addItem(mapper->getInputGraphicsItem().data());
   if (mapper->getGraphicsItem())
-    destinationCanvas->scene()->addItem(mapper->getGraphicsItem());
+    destinationCanvas->scene()->addItem(mapper->getGraphicsItem().data());
 
   // Window was modified.
   windowModified();

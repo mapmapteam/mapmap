@@ -629,7 +629,7 @@ Mapper::Mapper(Mapping::ptr mapping)
   Q_CHECK_PTR(outputShape);
 
   // Create editor.
-  _propertyBrowser = new QtTreePropertyBrowser;
+  _propertyBrowser.reset(new QtTreePropertyBrowser);
   _variantManager = new VariantManager;
   _variantFactory = new VariantFactory;
 
@@ -663,18 +663,6 @@ Mapper::Mapper(Mapping::ptr mapping)
   //qDebug() << "Creating mapper" << endl;
 }
 
-Mapper::~Mapper()
-{
-  if (_propertyBrowser)
-    delete _propertyBrowser;
-  if (_graphicsItem)
-    delete _graphicsItem;
-}
-
-QWidget* Mapper::getPropertiesEditor()
-{
-  return _propertyBrowser;
-}
 
 void Mapper::setValue(QtProperty* property, const QVariant& value)
 {
@@ -922,8 +910,8 @@ void TextureMapper::updateShape(MShape* shape)
 TriangleTextureMapper::TriangleTextureMapper(QSharedPointer<TextureMapping> mapping)
   : PolygonTextureMapper(mapping)
 {
-  _graphicsItem = new TriangleTextureGraphicsItem(_mapping, true);
-  _inputGraphicsItem = new TriangleTextureGraphicsItem(_mapping, false);
+  _graphicsItem.reset(new TriangleTextureGraphicsItem(_mapping, true));
+  _inputGraphicsItem.reset(new TriangleTextureGraphicsItem(_mapping, false));
 }
 //
 //void TriangleTextureMapper::_doDraw(QPainter* painter)
@@ -943,8 +931,8 @@ TriangleTextureMapper::TriangleTextureMapper(QSharedPointer<TextureMapping> mapp
 MeshTextureMapper::MeshTextureMapper(QSharedPointer<TextureMapping> mapping)
   : PolygonTextureMapper(mapping)
 {
-  _graphicsItem = new MeshTextureGraphicsItem(_mapping, true);
-  _inputGraphicsItem = new MeshTextureGraphicsItem(_mapping, false);
+  _graphicsItem.reset(new MeshTextureGraphicsItem(_mapping, true));
+  _inputGraphicsItem.reset(new MeshTextureGraphicsItem(_mapping, false));
 
   // Add mesh sub property.
   QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_mapping->getShape());
@@ -982,7 +970,7 @@ void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
 EllipseTextureMapper::EllipseTextureMapper(QSharedPointer<TextureMapping> mapping)
 : PolygonTextureMapper(mapping)
 {
-  _graphicsItem = new EllipseTextureGraphicsItem(_mapping, true);
-  _inputGraphicsItem = new EllipseTextureGraphicsItem(_mapping, false);
+  _graphicsItem.reset(new EllipseTextureGraphicsItem(_mapping, true));
+  _inputGraphicsItem.reset(new EllipseTextureGraphicsItem(_mapping, false));
 }
 

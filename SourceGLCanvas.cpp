@@ -48,7 +48,7 @@ ShapeGraphicsItem* SourceGLCanvas::getShapeGraphicsItemFromMappingId(uid mapping
 
   else
   {
-    return MainWindow::instance()->getMapperByMappingId(mappingId)->getInputGraphicsItem();
+    return MainWindow::instance()->getMapperByMappingId(mappingId)->getInputGraphicsItem().data();
   }
 }
 
