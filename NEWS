@@ -1,9 +1,12 @@
 Release notes for MapMap
 ========================
 
-2015-??-?? - MapMap 0.2.1
+2015-07-17 - MapMap 0.3.0
 -------------------------
-* ?
+* Add zoom and scroll 
+* Use native color dialog 
+* Select mapping when a shape is clicked 
+* Fix perspective-correct textures
 
 2014-12-28 - MapMap 0.2.0
 -------------------------

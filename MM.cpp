@@ -20,7 +20,7 @@
 #include "MM.h"
 
 const QString MM::APPLICATION_NAME = "MapMap";
-const QString MM::VERSION = "0.2.1";
+const QString MM::VERSION = "0.3.0";
 const QString MM::COPYRIGHT_OWNERS = "Sofian Audry, Alexandre Quessy, Mike Latona, Vasilis Liaskovitis, Dame Diongue";
 const QString MM::ORGANIZATION_NAME = "MapMap";
 const QString MM::ORGANIZATION_DOMAIN = "mapmap.info";

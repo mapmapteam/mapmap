@@ -1,6 +1,6 @@
 CONFIG  += qt debug
 TEMPLATE = app
-VERSION = 0.2.1
+VERSION = 0.3.0
 TARGET = mapmap
 QT += gui opengl xml
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
