@@ -4,6 +4,7 @@
 AddShapesCommand::AddShapesCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent):
   QUndoCommand(parent)
 {
+  setText(QObject::tr("Add mapping"));
   m_mainWindow = mainWindow;
   m_mappingId = mappingId;
 }
@@ -78,6 +79,7 @@ bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
 MoveShapesCommand::MoveShapesCommand(MapperGLCanvas *mapperGLCanvas, QMouseEvent *event, const QPointF &point, QUndoCommand *parent) :
   QUndoCommand(parent)
 {
+  setText(QObject::tr("Move shape"));
   m_mapperGLCanvas = mapperGLCanvas;
   m_shape = m_mapperGLCanvas->getCurrentShape().data();
   m_event = event;
@@ -105,6 +107,7 @@ void MoveShapesCommand::redo()
 DeleteMappingCommand::DeleteMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent) :
   QUndoCommand(parent)
 {
+  setText(QObject::tr("Delete mapping"));
   m_mainWindow = mainWindow;
   m_mappingId = mappingId;
 }
