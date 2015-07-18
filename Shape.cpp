@@ -19,6 +19,18 @@
 
 #include "Shape.h"
 
+void MShape::copyFrom(const MShape& shape)
+{
+  // Just copy vertices.
+  vertices = shape.vertices;
+}
+
+MShape* MShape::clone() const {
+  MShape* copyShape = _create();
+  copyShape->copyFrom(*this);
+  return copyShape;
+}
+
 void MShape::translate(int x, int y)
 {
   for (QVector<QPointF>::iterator it = vertices.begin() ;

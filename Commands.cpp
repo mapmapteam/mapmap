@@ -24,27 +24,54 @@ void AddShapesCommand::redo()
 }
 
 
-MoveVertexCommand::MoveVertexCommand(MapperGLCanvas *mapperGLCanvas, int activeVertex, const QPointF &point, QUndoCommand *parent) :
+MoveVertexCommand::MoveVertexCommand(MapperGLCanvas* canvas, int activeVertex, const QPointF &point, MoveVertexOption option, QUndoCommand *parent) :
   QUndoCommand(parent)
 {
-  m_mapperGLCanvas = mapperGLCanvas;
-  m_shape = m_mapperGLCanvas->getCurrentShape();
-  m_activeVertex = activeVertex;
-  vertexPosition = point;
+  setText(QObject::tr("Move vertex"));
+  _canvas = canvas;
+  _shape = canvas->getCurrentShape();
+  _movedVertex = activeVertex;
+  _vertexPosition = point;
+  _option = option;
+  _originalShape.reset(_shape.toStrongRef()->clone());
 }
+
+int MoveVertexCommand::id() const { return (_option == KEY_MOVE ? CMD_KEY_MOVE_VERTEX : CMD_MOUSE_MOVE_VERTEX); }
 
 void MoveVertexCommand::undo()
 {
-  m_shape->setVertex(m_activeVertex, vertexPosition);
-  m_mapperGLCanvas->update();
+  _shape.toStrongRef()->copyFrom(*_originalShape);
+  _canvas->update();
 //  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
 }
 
 void MoveVertexCommand::redo()
 {
-  m_shape->setVertex(m_activeVertex, vertexPosition);
-  m_mapperGLCanvas->update();
+  _shape.toStrongRef()->setVertex(_movedVertex, _vertexPosition);
+  _canvas->update();
 //  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
+}
+
+bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
+{
+  if (other->id() != id()) // make sure other is also an AppendText command
+    return false;
+
+  const MoveVertexCommand* cmd = static_cast<const MoveVertexCommand*>(other);
+
+  // Don't merge a new move with a dropped vertex move (ie. each drag'n'drop is considered
+  // as a single separate command).
+  if (_option == MOUSE_RELEASE && cmd->_option == MOUSE_MOVE)
+    return false;
+
+  if (cmd->_canvas != _canvas ||
+      cmd->_shape != _shape ||
+      cmd->_movedVertex != _movedVertex)
+    return false;
+
+  _vertexPosition = cmd->_vertexPosition;
+  _option = cmd->_option;
+  return true;
 }
 
 
@@ -52,7 +79,7 @@ MoveShapesCommand::MoveShapesCommand(MapperGLCanvas *mapperGLCanvas, QMouseEvent
   QUndoCommand(parent)
 {
   m_mapperGLCanvas = mapperGLCanvas;
-  m_shape = m_mapperGLCanvas->getCurrentShape();
+  m_shape = m_mapperGLCanvas->getCurrentShape().data();
   m_event = event;
   newPosition = point;
 }

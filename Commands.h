@@ -26,6 +26,11 @@
 #include "MainWindow.h"
 #include "MapperGLCanvas.h"
 
+enum CommandId {
+  CMD_KEY_MOVE_VERTEX,
+  CMD_MOUSE_MOVE_VERTEX,
+};
+
 class AddShapesCommand : public QUndoCommand
 {
 public:
@@ -43,16 +48,30 @@ private:
 class MoveVertexCommand : public QUndoCommand
 {
 public:
-  MoveVertexCommand(MapperGLCanvas *mapperGLCanvas, int activeVertex, const QPointF &point, QUndoCommand *parent = 0);
+  enum MoveVertexOption {
+    KEY_MOVE,
+    MOUSE_MOVE,
+    MOUSE_RELEASE
+  };
+  MoveVertexCommand(MapperGLCanvas* canvas, int activeVertex, const QPointF &point, MoveVertexOption option, QUndoCommand *parent = 0);
+
+  int id() const;
   void undo();
   void redo();
+  bool mergeWith(const QUndoCommand* other);
 
-private:
-  MapperGLCanvas *m_mapperGLCanvas;
-  MShape *m_shape;
-  int m_activeVertex;
-  QPointF vertexPosition;
+protected:
+  // Information pertaining to the moving of vertex.
+  MapperGLCanvas* _canvas;
+  QWeakPointer<MShape> _shape;
+  int _movedVertex;
+  QPointF _vertexPosition;
 
+  // Did we use keys to move that vertex?
+  int _option;
+
+  // Clone of the original shape used for undoing purposes.
+  MShape::ptr _originalShape;
 };
 
 class MoveShapesCommand : public QUndoCommand
