@@ -316,7 +316,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   if (hasActiveVertex())
   {
     MShape::ptr shape = getCurrentShape();
-    QPointF p = shape->getVertex(_activeVertex);
+    QPoint pos = mapFromScene(shape->getVertex(_activeVertex));
     handledKey = true;
 
     switch (event->key()) {
@@ -330,16 +330,16 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 //      break;
     // Handle pixel-wise adjustments of vertex.
     case Qt::Key_Up:
-      p.ry()--;
+      pos.ry()--;
       break;
     case Qt::Key_Down:
-      p.ry()++;
+      pos.ry()++;
       break;
     case Qt::Key_Right:
-      p.rx()++;
+      pos.rx()++;
       break;
     case Qt::Key_Left:
-      p.rx()--;
+      pos.rx()--;
       break;
     default:
       if (event->matches(QKeySequence::Undo))
@@ -351,9 +351,13 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
         handledKey = false;
       break;
     }
+
+    // Remap window position to scene.
+    QPointF scenePos = mapToScene(pos);
+
     // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
     // Enable to Undo and Redo when arrow keys move the position of vertices
-    undoStack->push(new MoveVertexCommand(this, _activeVertex, p, MoveVertexCommand::KEY_MOVE));
+    undoStack->push(new MoveVertexCommand(this, _activeVertex, scenePos, MoveVertexCommand::KEY_MOVE));
   }
 
   // Defer unhandled keys to parent.
