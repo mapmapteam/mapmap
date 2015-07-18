@@ -51,6 +51,9 @@ MainWindow::MainWindow()
   _stickyVertices = true;
   _displayTestSignal = false;
 
+  // UndoStack
+  undoStack = new QUndoStack(this);
+
   // Create everything.
   createLayout();
   createActions();
@@ -1171,6 +1174,9 @@ void MainWindow::createLayout()
   mappingPropertyPanel->setDisabled(true);
   mappingPropertyPanel->setMinimumHeight(MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT);
 
+  // Create undo view.
+  undoView = new QUndoView(getUndoStack(), this);
+
   // Create canvases.
   sourceCanvas = new SourceGLCanvas(this);
   sourceCanvas->setFocusPolicy(Qt::ClickFocus);
@@ -1213,6 +1219,7 @@ void MainWindow::createLayout()
   contentTab = new QTabWidget;
   contentTab->addTab(paintSplitter, QIcon(":/add-video"), tr("Paints"));
   contentTab->addTab(mappingSplitter, QIcon(":/add-mesh"), tr("Mappings"));
+  contentTab->addTab(undoView, tr("Undo stack"));
 
   canvasSplitter = new QSplitter(Qt::Vertical);
   canvasSplitter->addWidget(sourceCanvas);
@@ -1246,9 +1253,6 @@ void MainWindow::createLayout()
 
 void MainWindow::createActions()
 {
-  // UndoStack
-  undoStack = new QUndoStack(this);
-
   // New.
   newAction = new QAction(tr("&New"), this);
   newAction->setIcon(QIcon(":/new"));

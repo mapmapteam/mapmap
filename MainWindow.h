@@ -316,6 +316,8 @@ private:
   QListWidget* mappingList;
   QStackedWidget* mappingPropertyPanel;
 
+  QUndoView* undoView;
+
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
   OutputGLWindow* outputWindow;
