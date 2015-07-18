@@ -47,7 +47,6 @@ class ShapeGraphicsItem;
 class MapperGLCanvas: public QGraphicsView
 {
   Q_OBJECT
-
 public:
   /// Constructor.
   MapperGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
@@ -55,11 +54,11 @@ public:
 
   /// Returns shape associated with mapping id.
   virtual bool isOutput() const = 0;
-  virtual MShape* getShapeFromMappingId(uid mappingId) const = 0;
-  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId) const = 0;
+  virtual MShape::ptr getShapeFromMappingId(uid mappingId) const = 0;
+  virtual QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMappingId(uid mappingId) const = 0;
 
-  MShape* getCurrentShape();
-  ShapeGraphicsItem* getCurrentShapeGraphicsItem();
+  MShape::ptr getCurrentShape();
+  QSharedPointer<ShapeGraphicsItem> getCurrentShapeGraphicsItem();
 
 //  QSize sizeHint() const;
 //  QSize minimumSizeHint() const;
