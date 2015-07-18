@@ -692,6 +692,14 @@ void Mapper::setValue(QtProperty* property, const QVariant& value)
   }
 }
 
+void Mapper::updateShape(MShape* shape)
+{
+  if (shape == _mapping->getShape().data())
+  {
+    _updateShapeProperty(_outputItem, shape);
+  }
+}
+
 void Mapper::_buildShapeProperty(QtProperty* shapeItem, MShape* shape)
 {
   for (int i=0; i<shape->nVertices(); i++)
@@ -730,6 +738,7 @@ ColorMapper::ColorMapper(Mapping::ptr mapping)
   color = qSharedPointerCast<Color>(_mapping->getPaint());
   Q_CHECK_PTR(color);
 }
+
 
 //MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)
 //  : ColorMapper(mapping) {

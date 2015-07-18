@@ -43,14 +43,14 @@ void MoveVertexCommand::undo()
 {
   _shape.toStrongRef()->copyFrom(*_originalShape);
   _canvas->update();
-//  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
+  _canvas->currentShapeWasChanged();
 }
 
 void MoveVertexCommand::redo()
 {
   _shape.toStrongRef()->setVertex(_movedVertex, _vertexPosition);
   _canvas->update();
-//  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
+  _canvas->currentShapeWasChanged();
 }
 
 bool MoveVertexCommand::mergeWith(const QUndoCommand* other)

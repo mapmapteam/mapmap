@@ -85,6 +85,9 @@ public:
 
   qreal getZoomFactor() const { return qBound(qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MIN, MM::ZOOM_MAX); }
 
+  /// This function needs to be called after a shape inside the canvas has been changed for appropriate signals to be activated.
+  void currentShapeWasChanged();
+
 protected:
 //  void initializeGL();
 //  void resizeGL(int width, int height);

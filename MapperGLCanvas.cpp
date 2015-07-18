@@ -93,6 +93,12 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
   }
 }
 
+void MapperGLCanvas::currentShapeWasChanged()
+{
+  emit shapeChanged(getCurrentShape().data());
+}
+
+
 //
 void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
 {
