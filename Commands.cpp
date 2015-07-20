@@ -25,49 +25,79 @@ void AddShapesCommand::redo()
 }
 
 
-MoveVertexCommand::MoveVertexCommand(MapperGLCanvas* canvas, int activeVertex, const QPointF &point, MoveVertexOption option, QUndoCommand *parent) :
-  QUndoCommand(parent)
-{
-  setText(QObject::tr("Move vertex"));
-  _canvas = canvas;
+TransformShapeCommand::TransformShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, QUndoCommand* parent)
+  : QUndoCommand(parent),
+    _canvas(canvas), _option(option) {
+  // Copy shape.
   _shape = canvas->getCurrentShape();
-  _movedVertex = activeVertex;
-  _vertexPosition = point;
   _option = option;
+
+  // Clone shape before applying transform.
   _originalShape.reset(_shape.toStrongRef()->clone());
 }
 
-int MoveVertexCommand::id() const { return (_option == KEY_MOVE ? CMD_KEY_MOVE_VERTEX : CMD_MOUSE_MOVE_VERTEX); }
-
-void MoveVertexCommand::undo()
-{
+void TransformShapeCommand::undo() {
+  // Copy back shape.
   _shape.toStrongRef()->copyFrom(*_originalShape);
-  _canvas->update();
+
+  // Update everything.
   _canvas->currentShapeWasChanged();
+  _canvas->update();
 }
 
-void MoveVertexCommand::redo()
-{
-  _shape.toStrongRef()->setVertex(_movedVertex, _vertexPosition);
-  _canvas->update();
+void TransformShapeCommand::redo() {
+  // Call transformation.
+  _doTransform(_shape);
+
+  // Update everything.
   _canvas->currentShapeWasChanged();
+  _canvas->update();
+}
+
+bool TransformShapeCommand::mergeWith(const QUndoCommand* other) {
+  // Make sure other is of the same type (id).
+  if (other->id() != id())
+    return false;
+
+  const TransformShapeCommand* cmd = static_cast<const TransformShapeCommand*>(other);
+
+  // Don't merge a new transform with a dropped tranform move (ie. each drag'n'drop is considered
+  // as a single separate command).
+  if (_option == RELEASE && cmd->_option == FREE)
+    return false;
+
+  // Don't merge transforms
+  if (cmd->_canvas != _canvas ||
+      cmd->_shape != _shape)
+    return false;
+
+  return true;
+}
+
+MoveVertexCommand::MoveVertexCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, QUndoCommand *parent)
+  : TransformShapeCommand(canvas, option, parent),
+    _movedVertex(activeVertex),
+    _vertexPosition(point)
+{
+  setText(QObject::tr("Move vertex"));
+}
+
+int MoveVertexCommand::id() const { return (_option == STEP ? CMD_KEY_MOVE_VERTEX : CMD_MOUSE_MOVE_VERTEX); }
+
+void MoveVertexCommand::_doTransform(MShape::ptr shape)
+{
+  shape->setVertex(_movedVertex, _vertexPosition);
 }
 
 bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
 {
-  if (other->id() != id()) // make sure other is also an AppendText command
+  if (!TransformShapeCommand::mergeWith(other))
     return false;
 
   const MoveVertexCommand* cmd = static_cast<const MoveVertexCommand*>(other);
 
-  // Don't merge a new move with a dropped vertex move (ie. each drag'n'drop is considered
-  // as a single separate command).
-  if (_option == MOUSE_RELEASE && cmd->_option == MOUSE_MOVE)
-    return false;
-
-  if (cmd->_canvas != _canvas ||
-      cmd->_shape != _shape ||
-      cmd->_movedVertex != _movedVertex)
+  // Needs to be the same vertex.
+  if (cmd->_movedVertex != _movedVertex)
     return false;
 
   _vertexPosition = cmd->_vertexPosition;

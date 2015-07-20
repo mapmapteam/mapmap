@@ -45,27 +45,27 @@ private:
 
 };
 
-class MoveVertexCommand : public QUndoCommand
+class TransformShapeCommand : public QUndoCommand
 {
 public:
-  enum MoveVertexOption {
-    KEY_MOVE,
-    MOUSE_MOVE,
-    MOUSE_RELEASE
+  enum TransformShapeOption {
+    STEP,
+    FREE,
+    RELEASE,
   };
-  MoveVertexCommand(MapperGLCanvas* canvas, int activeVertex, const QPointF &point, MoveVertexOption option, QUndoCommand *parent = 0);
+  TransformShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, QUndoCommand *parent = 0);
 
-  int id() const;
-  void undo();
-  void redo();
-  bool mergeWith(const QUndoCommand* other);
+  virtual void undo();
+  virtual void redo();
+  virtual bool mergeWith(const QUndoCommand* other);
 
 protected:
-  // Information pertaining to the moving of vertex.
+  // Perform the actual transformation on the shape.
+  virtual void _doTransform(MShape::ptr shape) = 0;
+
+  // Information pertaining to the shape context.
   MapperGLCanvas* _canvas;
   QWeakPointer<MShape> _shape;
-  int _movedVertex;
-  QPointF _vertexPosition;
 
   // Did we use keys to move that vertex?
   int _option;
@@ -74,12 +74,23 @@ protected:
   MShape::ptr _originalShape;
 };
 
-class MoveShapesCommand : public QUndoCommand
+class MoveVertexCommand : public TransformShapeCommand
 {
 public:
-  MoveShapesCommand(MapperGLCanvas *mapperGLCanvas, QMouseEvent *event, const QPointF &point, QUndoCommand *parent = 0);
-  void undo();
-  void redo();
+  MoveVertexCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, QUndoCommand *parent = 0);
+
+  int id() const;
+  bool mergeWith(const QUndoCommand* other);
+
+protected:
+  // Perform the actual transformation on the shape.
+  virtual void _doTransform(MShape::ptr shape);
+
+  // Information pertaining to the moving of vertex.
+  int _movedVertex;
+  QPointF _vertexPosition;
+};
+
 
 private:
   MapperGLCanvas *m_mapperGLCanvas;

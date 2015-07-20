@@ -231,7 +231,7 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
     if (_mainWindow->stickyVertices())
       _glueVertex(&p);
 
-    undoStack->push(new MoveVertexCommand(this, _activeVertex, p, MoveVertexCommand::MOUSE_RELEASE));
+    undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::RELEASE, _activeVertex, p));
   }
   else if (_shapeGrabbed)
   {
@@ -268,7 +268,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       if (_mainWindow->stickyVertices())
         _glueVertex(&p);
 
-      undoStack->push(new MoveVertexCommand(this, _activeVertex, p, MoveVertexCommand::MOUSE_MOVE));
+      undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::FREE, _activeVertex, p));
     }
   }
 
@@ -357,7 +357,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 
     // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
     // Enable to Undo and Redo when arrow keys move the position of vertices
-    undoStack->push(new MoveVertexCommand(this, _activeVertex, scenePos, MoveVertexCommand::KEY_MOVE));
+    undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::STEP, _activeVertex, scenePos));
   }
 
   // Defer unhandled keys to parent.
