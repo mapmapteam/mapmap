@@ -33,8 +33,9 @@ MShape* MShape::clone() const {
 
 void MShape::translate(const QPointF& offset)
 {
-  for (int i=0; i<nVertices(); i++)
-    setVertex(i, getVertex(i) + offset);
+  // We can feel free to translate every vertex without check by default.
+  for (QVector<QPointF>::iterator it = vertices.begin(); it != vertices.end(); ++it)
+    *it += offset;
 }
 
 void Polygon::setVertex(int i, const QPointF& v)
