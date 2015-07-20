@@ -31,14 +31,10 @@ MShape* MShape::clone() const {
   return copyShape;
 }
 
-void MShape::translate(int x, int y)
+void MShape::translate(const QPointF& offset)
 {
-  for (QVector<QPointF>::iterator it = vertices.begin() ;
-      it != vertices.end(); ++it)
-  {
-    it->setX(it->x() + x);
-    it->setY(it->y() + y);
-  }
+  for (int i=0; i<nVertices(); i++)
+    setVertex(i, getVertex(i) + offset);
 }
 
 void Polygon::setVertex(int i, const QPointF& v)

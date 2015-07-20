@@ -106,31 +106,32 @@ bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
 }
 
 
-MoveShapesCommand::MoveShapesCommand(MapperGLCanvas *mapperGLCanvas, QMouseEvent *event, const QPointF &point, QUndoCommand *parent) :
-  QUndoCommand(parent)
+TranslateShapeCommand::TranslateShapeCommand(MapperGLCanvas *canvas, TransformShapeOption option, const QPointF &translation, QUndoCommand *parent)
+  : TransformShapeCommand(canvas, option, parent),
+    _translation(translation)
 {
   setText(QObject::tr("Move shape"));
-  m_mapperGLCanvas = mapperGLCanvas;
-  m_shape = m_mapperGLCanvas->getCurrentShape().data();
-  m_event = event;
-  newPosition = point;
 }
 
-void MoveShapesCommand::undo()
+int TranslateShapeCommand::id() const { return (_option == STEP ? CMD_KEY_TRANSLATE_SHAPE : CMD_MOUSE_TRANSLATE_SHAPE); }
+
+bool TranslateShapeCommand::mergeWith(const QUndoCommand* other)
 {
-  m_shape->translate(oldPosition.x(), oldPosition.y());
-  m_mapperGLCanvas->update();
-//  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
+  if (!TransformShapeCommand::mergeWith(other))
+    return false;
+
+  const TranslateShapeCommand* cmd = static_cast<const TranslateShapeCommand*>(other);
+
+  // Update translation.
+  _translation += cmd->_translation;
+  _option = cmd->_option;
+  return true;
 }
 
-void MoveShapesCommand::redo()
+void TranslateShapeCommand::_doTransform(MShape::ptr shape)
 {
-  m_shape->translate(m_event->x() - newPosition.x(), m_event->y() - newPosition.y());
-  m_mapperGLCanvas->update();
-//  emit m_mapperGLCanvas->shapeChanged(m_mapperGLCanvas->getCurrentShape());
-
-  oldPosition.setX(newPosition.x() - m_event->x());
-  oldPosition.setY(newPosition.y() - m_event->y());
+  // Apply translation.
+  shape->translate(_translation);
 }
 
 
@@ -156,3 +157,4 @@ void DeleteMappingCommand::redo()
   m_mappingPtr = m_mainWindow->getMappingManager().getMappingById(m_mappingId);
   m_mainWindow->deleteMapping(m_mappingId);
 }
+

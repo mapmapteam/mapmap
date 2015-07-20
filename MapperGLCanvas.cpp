@@ -235,7 +235,7 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
   }
   else if (_shapeGrabbed)
   {
-
+    undoStack->push(new TranslateShapeCommand(this, TransformShapeCommand::RELEASE, QPointF()));
   }
   _vertexGrabbed = false;
   _shapeGrabbed = false;
@@ -287,7 +287,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
     }
 
     QPointF diff = scenePos - mapToScene(lastMousePos);
-    shape->translate(diff.x(), diff.y());
+    undoStack->push(new TranslateShapeCommand(this, TransformShapeCommand::FREE, diff));
   }
 
   // Window translation action

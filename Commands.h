@@ -29,6 +29,8 @@
 enum CommandId {
   CMD_KEY_MOVE_VERTEX,
   CMD_MOUSE_MOVE_VERTEX,
+  CMD_KEY_TRANSLATE_SHAPE,
+  CMD_MOUSE_TRANSLATE_SHAPE,
 };
 
 class AddShapesCommand : public QUndoCommand
@@ -91,12 +93,20 @@ protected:
   QPointF _vertexPosition;
 };
 
+class TranslateShapeCommand : public TransformShapeCommand
+{
+public:
+  TranslateShapeCommand(MapperGLCanvas *canvas, TransformShapeOption option, const QPointF &translation, QUndoCommand *parent = 0);
+
+  int id() const;
+  bool mergeWith(const QUndoCommand* other);
+
+protected:
+  // Perform the actual transformation on the shape.
+  virtual void _doTransform(MShape::ptr shape);
 
 private:
-  MapperGLCanvas *m_mapperGLCanvas;
-  MShape *m_shape;
-  QMouseEvent *m_event;
-  QPointF newPosition, oldPosition;
+  QPointF _translation;
 };
 
 class DeleteMappingCommand : public QUndoCommand

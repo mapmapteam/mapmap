@@ -84,7 +84,7 @@ public:
   virtual bool includesPoint(const QPointF& p) = 0;
 
   /// Translate all vertices of shape by the vector (x,y).
-  virtual void translate(int x, int y);
+  virtual void translate(const QPointF& offset);
 
   virtual void copyFrom(const MShape& shape);
 

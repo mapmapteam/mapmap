@@ -1109,9 +1109,9 @@ void MainWindow::cloneMappingItem(uid mappingId)
 
   // Scaling of duplicated mapping
   if (shapeType == "quad" || shapeType == "mesh")
-    shapePtr->translate(20, 20);
+    shapePtr->translate(QPointF(20, 20));
   else
-    shapePtr->translate(0, 20);
+    shapePtr->translate(QPointF(0, 20));
 
   // Create new duplicated mapping item
   Mapping::ptr clonedMapping(mapping);
