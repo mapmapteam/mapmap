@@ -3,10 +3,11 @@ Release notes for MapMap
 
 2015-07-17 - MapMap 0.3.0
 -------------------------
-* Add zoom and scroll 
-* Use native color dialog 
-* Select mapping when a shape is clicked 
-* Fix perspective-correct textures
+* Add zoom and scroll/drag in editor windows
+* Add transparency support for both paint and mapping
+* Use native color dialog
+* Undo/redo move and add actions
+* Fix perspective-correct textures in quads
 
 2014-12-28 - MapMap 0.2.0
 -------------------------
