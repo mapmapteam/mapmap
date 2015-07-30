@@ -411,8 +411,11 @@ void Mesh::removeColumn(int columnId)
   vertices    = newVertices;
   _vertices2d = newVertices2d;
 
-  // Increment number of columns.
+  // Decrement number of columns.
   _nColumns--;
+
+  // Reorder.
+  _reorderVertices();
 }
 
 void Mesh::removeRow(int rowId)
@@ -468,8 +471,11 @@ void Mesh::removeRow(int rowId)
   vertices    = newVertices;
   _vertices2d = newVertices2d;
 
-  // Increment number of columns.
+  // Decrement number of rows.
   _nRows--;
+
+  // Reorder.
+  _reorderVertices();
 }
 
 
