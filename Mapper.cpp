@@ -951,7 +951,7 @@ void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
   if (property == _meshItem)
   {
     QSharedPointer<Mesh> outputMesh = qSharedPointerCast<Mesh>(_mapping->getShape());
-    QSharedPointer<Mesh> inputMesh  = qSharedPointerCast<Mesh>(textureMapping.toStrongRef()->getShape());
+    QSharedPointer<Mesh> inputMesh  = qSharedPointerCast<Mesh>(textureMapping.toStrongRef()->getInputShape());
     QSize size = (static_cast<QtVariantProperty*>(property))->value().toSize();
     if (outputMesh->nColumns() != size.width() || outputMesh->nRows() != size.height() ||
         inputMesh->nColumns() != size.width() || inputMesh->nRows() != size.height())
