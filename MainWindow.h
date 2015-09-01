@@ -91,8 +91,11 @@ private slots:
   void openRecentVideo();
   // Edit menu.
   void deleteItem();
+  // Context menu.
   void cloneItem();
-  void renameItem();
+  void renameMappingItem();
+  void deletePaintItem();
+  void renamePaintItem();
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
@@ -185,8 +188,10 @@ public slots:
   void enableStickyVertices(bool display);
   void enableTestSignal(bool enable);
 
-  // Show Context Menu
+  // Show Mapping Context Menu
   void showMappingContextMenu(const QPoint &point);
+  // Show Paint Context Menu
+  void showPaintContextMenu(const QPoint &point);
 
 public:
   bool setTextureUri(int texture_id, const std::string &uri);
@@ -199,7 +204,8 @@ private:
   void createLayout();
   void createActions();
   void createMenus();
-  void createContextMenu();
+  void createMappingContextMenu();
+  void createPaintContextMenu();
   void createToolBars();
   void createStatusBar();
   void updateRecentFileActions();
@@ -259,7 +265,8 @@ private:
   QMenu *helpMenu;
   QMenu *recentFileMenu;
   QMenu *recentVideoMenu;
-  QMenu *contextMenu;
+  QMenu *mappingContextMenu;
+  QMenu *paintContextMenu;
 
   // Toolbar.
   QToolBar *mainToolBar;
@@ -278,8 +285,10 @@ private:
   QAction *undoAction;
   QAction *redoAction;
   QAction *cloneAction;
-  QAction *deleteAction;
-  QAction *renameAction;
+  QAction *deleteMappingAction;
+  QAction *renameMappingAction;
+  QAction *deletePaintAction;
+  QAction *renamePaintAction;
   QAction *preferencesAction;
   QAction *aboutAction;
   QAction *clearRecentFileActions;

@@ -58,7 +58,8 @@ MainWindow::MainWindow()
   createLayout();
   createActions();
   createMenus();
-  createContextMenu();
+  createMappingContextMenu();
+  createPaintContextMenu();
   createToolBars();
   createStatusBar();
   updateRecentFileActions();
@@ -736,12 +737,34 @@ void MainWindow::cloneItem()
     }
 }
 
-void MainWindow::renameItem()
+void MainWindow::renameMappingItem()
 {
   // Set current item editable and rename it
   QListWidgetItem* item = mappingList->currentItem();
   item->setFlags(item->flags() | Qt::ItemIsEditable);
   mappingList->editItem(item);
+  contentTab->setCurrentWidget(mappingSplitter);
+}
+
+void MainWindow::deletePaintItem()
+{
+  if(currentSelectedItem)
+  {
+    deletePaint(getItemId(*paintList->currentItem()), false);
+  }
+  else
+  {
+    qCritical() << "No selected paint" << endl;
+  }
+}
+
+void MainWindow::renamePaintItem()
+{
+  // Set current item editable and rename it
+  QListWidgetItem* item = paintList->currentItem();
+  item->setFlags(item->flags() | Qt::ItemIsEditable);
+  paintList->editItem(item);
+  contentTab->setCurrentWidget(paintSplitter);
 }
 
 void MainWindow::openRecentFile()
@@ -1375,19 +1398,33 @@ void MainWindow::createActions()
   cloneAction->setIconVisibleInMenu(false);
   connect(cloneAction, SIGNAL(triggered()), this, SLOT(cloneItem()));
 
-  // Delete.
-  deleteAction = new QAction(tr("Delete"), this);
-  deleteAction->setShortcut(tr("CTRL+DEL"));
-  deleteAction->setStatusTip(tr("Delete item"));
-  deleteAction->setIconVisibleInMenu(false);
-  connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
+  // Delete mapping.
+  deleteMappingAction = new QAction(tr("Delete"), this);
+  deleteMappingAction->setShortcut(tr("CTRL+DEL"));
+  deleteMappingAction->setStatusTip(tr("Delete item"));
+  deleteMappingAction->setIconVisibleInMenu(false);
+  connect(deleteMappingAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
 
-  // Rename.
-  renameAction = new QAction(tr("Rename"), this);
-  renameAction->setShortcut(Qt::Key_F2);
-  renameAction->setStatusTip(tr("Rename item"));
-  renameAction->setIconVisibleInMenu(false);
-  connect(renameAction, SIGNAL(triggered()), this, SLOT(renameItem()));
+  // Rename mapping.
+  renameMappingAction = new QAction(tr("Rename"), this);
+  renameMappingAction->setShortcut(Qt::Key_F2);
+  renameMappingAction->setStatusTip(tr("Rename item"));
+  renameMappingAction->setIconVisibleInMenu(false);
+  connect(renameMappingAction, SIGNAL(triggered()), this, SLOT(renameMappingItem()));
+
+  // Delete paint.
+  deletePaintAction = new QAction(tr("Delete"), this);
+  //deletePaintAction->setShortcut(tr("CTRL+DEL"));
+  deletePaintAction->setStatusTip(tr("Delete item"));
+  deletePaintAction->setIconVisibleInMenu(false);
+  connect(deletePaintAction, SIGNAL(triggered()), this, SLOT(deletePaintItem()));
+
+  // Rename paint.
+  renamePaintAction = new QAction(tr("Rename"), this);
+  //renamePaintAction->setShortcut(Qt::Key_F2);
+  renamePaintAction->setStatusTip(tr("Rename item"));
+  renamePaintAction->setIconVisibleInMenu(false);
+  connect(renamePaintAction, SIGNAL(triggered()), this, SLOT(renamePaintItem()));
 
   // Preferences...
   preferencesAction = new QAction(tr("&Preferences..."), this);
@@ -1565,7 +1602,7 @@ void MainWindow::createMenus()
   editMenu = menuBar->addMenu(tr("&Edit"));
   editMenu->addAction(undoAction);
   editMenu->addAction(redoAction);
-  editMenu->addAction(deleteAction);
+  editMenu->addAction(deleteMappingAction);
   editMenu->addAction(preferencesAction);
 
   // View.
@@ -1589,15 +1626,15 @@ void MainWindow::createMenus()
 
 }
 
-void MainWindow::createContextMenu()
+void MainWindow::createMappingContextMenu()
 {
   // Context menu.
-  contextMenu = new QMenu();
+  mappingContextMenu = new QMenu();
 
   // Add different Action
-  contextMenu->addAction(cloneAction);
-  contextMenu->addAction(deleteAction);
-  contextMenu->addAction(renameAction);
+  mappingContextMenu->addAction(cloneAction);
+  mappingContextMenu->addAction(deleteMappingAction);
+  mappingContextMenu->addAction(renameMappingAction);
 
   // Set context menu policy
   mappingList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1608,6 +1645,24 @@ void MainWindow::createContextMenu()
   connect(mappingList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
   connect(destinationCanvas, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
   connect(outputWindow, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
+}
+
+void MainWindow::createPaintContextMenu()
+{
+  // Paint Context Menu
+  paintContextMenu = new QMenu();
+
+  // Add Actions
+  paintContextMenu->addAction(deletePaintAction);
+  paintContextMenu->addAction(renamePaintAction);
+
+  // Define Context policy
+  paintList->setContextMenuPolicy(Qt::CustomContextMenu);
+  sourceCanvas->setContextMenuPolicy(Qt::CustomContextMenu);
+
+  // Connexions
+  connect(paintList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPaintContextMenu(const QPoint&)));
+  connect(sourceCanvas, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPaintContextMenu(const QPoint&)));
 }
 
 void MainWindow::createToolBars()
@@ -2276,7 +2331,15 @@ void MainWindow::showMappingContextMenu(const QPoint &point)
   QWidget *objectSender = dynamic_cast<QWidget*>(sender());
 
   if (objectSender != NULL && mappingList->count() > 0)
-    contextMenu->exec(objectSender->mapToGlobal(point));
+    mappingContextMenu->exec(objectSender->mapToGlobal(point));
+}
+
+void MainWindow::showPaintContextMenu(const QPoint &point)
+{
+  QWidget *objectSender = dynamic_cast<QWidget*>(sender());
+
+  if (objectSender != NULL && paintList->count() > 0)
+    paintContextMenu->exec(objectSender->mapToGlobal(point));
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)
