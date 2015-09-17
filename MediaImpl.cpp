@@ -462,13 +462,7 @@ bool MediaImpl::loadMovie(QString filename)
       g_printerr ("Could not link shmsrc, deserializer and video queue.\n");
     }
   }
-  else
-  {
-    if (! gst_element_link (_uridecodebin0, _queue0)) 
-    {
-      g_printerr ("Could not link uridecodebin to video queue.\n");
-    }
-  }
+  // link uridecodebin -> queue will be performed by callback
 
   if (! gst_element_link_many (_queue0, _videoconvert0, capsfilter0, videoscale0, _appsink0, NULL))
   {
