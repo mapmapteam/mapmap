@@ -509,8 +509,8 @@ bool MediaImpl::loadMovie(QString filename)
   // Connect to the pad-added signal
   if (! _isSharedMemorySource)
   {
-    g_object_set (_uridecodebin0, "uri", uri, NULL);
     g_signal_connect (_uridecodebin0, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
+    g_object_set (_uridecodebin0, "uri", uri, NULL);
   }
   else
   {
