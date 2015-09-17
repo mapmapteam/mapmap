@@ -76,7 +76,7 @@ unix:!mac {
   PKGCONFIG += \
     gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 \
     liblo \
-    gl x11
+    gl x11 
   QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
   QMAKE_CXXFLAGS += -DHAVE_OSC
   mapmapfile.files = mapmap
