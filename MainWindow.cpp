@@ -58,7 +58,8 @@ MainWindow::MainWindow()
   createLayout();
   createActions();
   createMenus();
-  createContextMenu();
+  createMappingContextMenu();
+  createPaintContextMenu();
   createToolBars();
   createStatusBar();
   updateRecentFileActions();
@@ -299,7 +300,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         switch (keyEvent->key()) {
         case Qt::Key_F:
             if (outputWindow->windowState() != Qt::WindowFullScreen)
+            {
               outputWindow->setFullScreen(true);
+              outputWindowFullScreenAction->setChecked(true);
+              outputWindowFullScreenAction->setEnabled(true);
+            }
             break;
           case Qt::Key_N:
             newFile();
@@ -325,18 +330,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
           case Qt::Key_E:
             addEllipse();
             break;
-          case Qt::Key_D:
+          case Qt::Key_W:
             outputWindow->setVisible(true);
-            break;
-          case Qt::Key_P:
-            if (_isPlaying)
-            {
-              pause();
-            }
-            else
-            {
-              play();
-            }
             break;
           case Qt::Key_R:
             rewind();
@@ -353,6 +348,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     else if (keyEvent->key() == Qt::Key_Escape)
     {
       outputWindow->setFullScreen(false);
+      outputWindowFullScreenAction->setChecked(false);
+      outputWindowFullScreenAction->setEnabled(false);
+    }
+    else if (keyEvent->key() == Qt::Key_Space)
+    {
+      if (_isPlaying)
+      {
+        pause();
+      }
+      else
+      {
+        play();
+      }
     }
     eventKey = false;
 
@@ -729,12 +737,34 @@ void MainWindow::cloneItem()
     }
 }
 
-void MainWindow::renameItem()
+void MainWindow::renameMappingItem()
 {
   // Set current item editable and rename it
   QListWidgetItem* item = mappingList->currentItem();
   item->setFlags(item->flags() | Qt::ItemIsEditable);
   mappingList->editItem(item);
+  contentTab->setCurrentWidget(mappingSplitter);
+}
+
+void MainWindow::deletePaintItem()
+{
+  if(currentSelectedItem)
+  {
+    deletePaint(getItemId(*paintList->currentItem()), false);
+  }
+  else
+  {
+    qCritical() << "No selected paint" << endl;
+  }
+}
+
+void MainWindow::renamePaintItem()
+{
+  // Set current item editable and rename it
+  QListWidgetItem* item = paintList->currentItem();
+  item->setFlags(item->flags() | Qt::ItemIsEditable);
+  paintList->editItem(item);
+  contentTab->setCurrentWidget(paintSplitter);
 }
 
 void MainWindow::openRecentFile()
@@ -1280,6 +1310,7 @@ void MainWindow::createActions()
   // Save as.
   saveAsAction = new QAction(tr("Save &As..."), this);
   saveAsAction->setIcon(QIcon(":/save-as"));
+  saveAsAction->setShortcut(tr("Ctrl+Shift+S"));
   saveAsAction->setStatusTip(tr("Save the project as..."));
   saveAsAction->setIconVisibleInMenu(false);
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
@@ -1307,26 +1338,29 @@ void MainWindow::createActions()
   connect(clearRecentFileActions, SIGNAL(triggered()), this, SLOT(clearRecentFileList()));
 
   // Empty list of recent video action
-  emptyRecentVideos = new QAction(tr("No Videos"), this);
+  emptyRecentVideos = new QAction(tr("No Recents Videos"), this);
   emptyRecentVideos->setEnabled(false);
 
 
   // Import video.
-  importVideoAction = new QAction(tr("&Import media source file..."), this);
+  importVideoAction = new QAction(tr("&Import Video File..."), this);
+  importVideoAction->setShortcut(tr("Ctrl+I"));
   importVideoAction->setIcon(QIcon(":/add-video"));
-  importVideoAction->setStatusTip(tr("Import a media source file..."));
+  importVideoAction->setStatusTip(tr("Import a video source file..."));
   importVideoAction->setIconVisibleInMenu(false);
   connect(importVideoAction, SIGNAL(triggered()), this, SLOT(importVideo()));
 
   // Import imiage.
-  importImageAction = new QAction(tr("&Import media source file..."), this);
+  importImageAction = new QAction(tr("&Import Image File..."), this);
+  importImageAction->setShortcut(tr("Ctrl+Shift+I"));
   importImageAction->setIcon(QIcon(":/add-image"));
-  importImageAction->setStatusTip(tr("Import a media source file..."));
+  importImageAction->setStatusTip(tr("Import a image source file..."));
   importImageAction->setIconVisibleInMenu(false);
   connect(importImageAction, SIGNAL(triggered()), this, SLOT(importImage()));
 
   // Add color.
-  addColorAction = new QAction(tr("Add &Color paint..."), this);
+  addColorAction = new QAction(tr("Add &Color Paint..."), this);
+  addColorAction->setShortcut(tr("Ctrl+A"));
   addColorAction->setIcon(QIcon(":/add-color"));
   addColorAction->setStatusTip(tr("Add a color paint..."));
   addColorAction->setIconVisibleInMenu(false);
@@ -1359,29 +1393,43 @@ void MainWindow::createActions()
 
   // Duplicate.
   cloneAction = new QAction(tr("Duplicate"), this);
-  cloneAction->setShortcut(tr("CTRL+V"));
+  cloneAction->setShortcut(tr("Ctrl+D"));
   cloneAction->setStatusTip(tr("Duplicate item"));
   cloneAction->setIconVisibleInMenu(false);
   connect(cloneAction, SIGNAL(triggered()), this, SLOT(cloneItem()));
 
-  // Delete.
-  deleteAction = new QAction(tr("Delete"), this);
-  deleteAction->setShortcut(tr("CTRL+DEL"));
-  deleteAction->setStatusTip(tr("Delete item"));
-  deleteAction->setIconVisibleInMenu(false);
-  connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
+  // Delete mapping.
+  deleteMappingAction = new QAction(tr("Delete"), this);
+  deleteMappingAction->setShortcut(tr("CTRL+DEL"));
+  deleteMappingAction->setStatusTip(tr("Delete item"));
+  deleteMappingAction->setIconVisibleInMenu(false);
+  connect(deleteMappingAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
 
-  // Rename.
-  renameAction = new QAction(tr("Rename"), this);
-  renameAction->setShortcut(Qt::Key_F2);
-  renameAction->setStatusTip(tr("Rename item"));
-  renameAction->setIconVisibleInMenu(false);
-  connect(renameAction, SIGNAL(triggered()), this, SLOT(renameItem()));
+  // Rename mapping.
+  renameMappingAction = new QAction(tr("Rename"), this);
+  renameMappingAction->setShortcut(Qt::Key_F2);
+  renameMappingAction->setStatusTip(tr("Rename item"));
+  renameMappingAction->setIconVisibleInMenu(false);
+  connect(renameMappingAction, SIGNAL(triggered()), this, SLOT(renameMappingItem()));
+
+  // Delete paint.
+  deletePaintAction = new QAction(tr("Delete"), this);
+  //deletePaintAction->setShortcut(tr("CTRL+DEL"));
+  deletePaintAction->setStatusTip(tr("Delete item"));
+  deletePaintAction->setIconVisibleInMenu(false);
+  connect(deletePaintAction, SIGNAL(triggered()), this, SLOT(deletePaintItem()));
+
+  // Rename paint.
+  renamePaintAction = new QAction(tr("Rename"), this);
+  //renamePaintAction->setShortcut(Qt::Key_F2);
+  renamePaintAction->setStatusTip(tr("Rename item"));
+  renamePaintAction->setIconVisibleInMenu(false);
+  connect(renamePaintAction, SIGNAL(triggered()), this, SLOT(renamePaintItem()));
 
   // Preferences...
   preferencesAction = new QAction(tr("&Preferences..."), this);
   //preferencesAction->setIcon(QIcon(":/preferences"));
-  preferencesAction->setShortcut(QKeySequence::Preferences);
+  preferencesAction->setShortcut(tr("CTRL+,"));
   preferencesAction->setStatusTip(tr("Configure preferences..."));
   //preferencesAction->setIconVisibleInMenu(false);
   connect(preferencesAction, SIGNAL(triggered()), this, SLOT(preferences()));
@@ -1415,7 +1463,7 @@ void MainWindow::createActions()
 
   // Play.
   playAction = new QAction(tr("Play"), this);
-  playAction->setShortcut(tr("CTRL+P"));
+  playAction->setShortcut(Qt::Key_Space);
   playAction->setIcon(QIcon(":/play"));
   playAction->setStatusTip(tr("Play"));
   playAction->setIconVisibleInMenu(false);
@@ -1424,7 +1472,7 @@ void MainWindow::createActions()
 
   // Pause.
   pauseAction = new QAction(tr("Pause"), this);
-  pauseAction->setShortcut(tr("CTRL+P"));
+  pauseAction->setShortcut(Qt::Key_Space);
   pauseAction->setIcon(QIcon(":/pause"));
   pauseAction->setStatusTip(tr("Pause"));
   pauseAction->setIconVisibleInMenu(false);
@@ -1440,8 +1488,8 @@ void MainWindow::createActions()
   connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
 
   // Toggle display of output window.
-  displayOutputWindowAction = new QAction(tr("&Display output window"), this);
-  displayOutputWindowAction->setShortcut(tr("Ctrl+D"));
+  displayOutputWindowAction = new QAction(tr("&Display Output Window"), this);
+  displayOutputWindowAction->setShortcut(tr("Ctrl+W"));
   displayOutputWindowAction->setIcon(QIcon(":/output-window"));
   displayOutputWindowAction->setStatusTip(tr("Display output window"));
   displayOutputWindowAction->setIconVisibleInMenu(false);
@@ -1453,7 +1501,7 @@ void MainWindow::createActions()
   connect(outputWindow, SIGNAL(closed()), displayOutputWindowAction, SLOT(toggle()));
 
   // Toggle display of output window.
-  outputWindowFullScreenAction = new QAction(tr("&Full screen"), this);
+  outputWindowFullScreenAction = new QAction(tr("&Fullscreen"), this);
   outputWindowFullScreenAction->setIcon(QIcon(":/fullscreen"));
   outputWindowFullScreenAction->setShortcut(tr("Ctrl+F"));
   outputWindowFullScreenAction->setStatusTip(tr("Full screen"));
@@ -1468,8 +1516,8 @@ void MainWindow::createActions()
   connect(displayOutputWindowAction, SIGNAL(toggled(bool)), outputWindowFullScreenAction, SLOT(setEnabled(bool)));
 
   // Toggle display of canvas controls.
-  displayControlsAction = new QAction(tr("&Display canvas controls"), this);
-  //  displayCanvasControls->setShortcut(tr("Ctrl+E"));
+  displayControlsAction = new QAction(tr("&Display Canvas Controls"), this);
+  displayControlsAction->setShortcut(tr("Alt+D"));
   displayControlsAction->setIcon(QIcon(":/control-points"));
   displayControlsAction->setStatusTip(tr("Display canvas controls"));
   displayControlsAction->setIconVisibleInMenu(false);
@@ -1479,8 +1527,8 @@ void MainWindow::createActions()
   connect(displayControlsAction, SIGNAL(toggled(bool)), this, SLOT(enableDisplayControls(bool)));
 
   // Toggle sticky vertices
-  stickyVerticesAction = new QAction(tr("&Sticky vertices"), this);
-  // stickyVertices->setShortcut(tr("Ctrl+E"));
+  stickyVerticesAction = new QAction(tr("&Sticky Vertices"), this);
+  stickyVerticesAction->setShortcut(tr("Alt+S"));
   stickyVerticesAction->setIcon(QIcon(":/control-points"));
   stickyVerticesAction->setStatusTip(tr("Enable sticky vertices"));
   stickyVerticesAction->setIconVisibleInMenu(false);
@@ -1489,8 +1537,8 @@ void MainWindow::createActions()
   // Manage sticky vertices
   connect(stickyVerticesAction, SIGNAL(toggled(bool)), this, SLOT(enableStickyVertices(bool)));
 
-  displayTestSignalAction = new QAction(tr("&Display test signal"), this);
-  // displayTestSignal->setShortcut(tr("Ctrl+T"));
+  displayTestSignalAction = new QAction(tr("&Display Test Signal"), this);
+  displayTestSignalAction->setShortcut(tr("Alt+T"));
   displayTestSignalAction->setIcon(QIcon(":/control-points"));
   displayTestSignalAction->setStatusTip(tr("Display test signal"));
   displayTestSignalAction->setIconVisibleInMenu(false);
@@ -1534,13 +1582,13 @@ void MainWindow::createMenus()
 
   // Recent file separator
   separatorAction = fileMenu->addSeparator();
-  recentFileMenu = fileMenu->addMenu(tr("Recents projects"));
+  recentFileMenu = fileMenu->addMenu(tr("Open Recents Projects"));
   for (int i = 0; i < MaxRecentFiles; ++i)
       recentFileMenu->addAction(recentFileActions[i]);
   recentFileMenu->addAction(clearRecentFileActions);
 
   // Recent import video
-  recentVideoMenu = fileMenu->addMenu(tr("Recents video"));
+  recentVideoMenu = fileMenu->addMenu(tr("Open Recents Videos"));
   recentVideoMenu->addAction(emptyRecentVideos);
   for (int i = 0; i < MaxRecentVideo; ++i)
       recentVideoMenu->addAction(recentVideoActions[i]);
@@ -1554,7 +1602,7 @@ void MainWindow::createMenus()
   editMenu = menuBar->addMenu(tr("&Edit"));
   editMenu->addAction(undoAction);
   editMenu->addAction(redoAction);
-  editMenu->addAction(deleteAction);
+  editMenu->addAction(deleteMappingAction);
   editMenu->addAction(preferencesAction);
 
   // View.
@@ -1578,15 +1626,15 @@ void MainWindow::createMenus()
 
 }
 
-void MainWindow::createContextMenu()
+void MainWindow::createMappingContextMenu()
 {
   // Context menu.
-  contextMenu = new QMenu();
+  mappingContextMenu = new QMenu();
 
   // Add different Action
-  contextMenu->addAction(cloneAction);
-  contextMenu->addAction(deleteAction);
-  contextMenu->addAction(renameAction);
+  mappingContextMenu->addAction(cloneAction);
+  mappingContextMenu->addAction(deleteMappingAction);
+  mappingContextMenu->addAction(renameMappingAction);
 
   // Set context menu policy
   mappingList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1597,6 +1645,24 @@ void MainWindow::createContextMenu()
   connect(mappingList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
   connect(destinationCanvas, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
   connect(outputWindow, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
+}
+
+void MainWindow::createPaintContextMenu()
+{
+  // Paint Context Menu
+  paintContextMenu = new QMenu();
+
+  // Add Actions
+  paintContextMenu->addAction(deletePaintAction);
+  paintContextMenu->addAction(renamePaintAction);
+
+  // Define Context policy
+  paintList->setContextMenuPolicy(Qt::CustomContextMenu);
+  sourceCanvas->setContextMenuPolicy(Qt::CustomContextMenu);
+
+  // Connexions
+  connect(paintList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPaintContextMenu(const QPoint&)));
+  connect(sourceCanvas, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPaintContextMenu(const QPoint&)));
 }
 
 void MainWindow::createToolBars()
@@ -1857,10 +1923,10 @@ void MainWindow::updateRecentFileActions()
   if (numRecentFiles > 0)
   {
     separatorAction->setVisible(true);
-    clearRecentFileActions->setText(tr("Clear list"));
+    clearRecentFileActions->setText(tr("Clear List"));
     clearRecentFileActions->setEnabled(true);
   } else {
-    clearRecentFileActions->setText(tr("No Document"));
+    clearRecentFileActions->setText(tr("No Recents Projects"));
     clearRecentFileActions->setEnabled(false);
   }
 }
@@ -2265,7 +2331,15 @@ void MainWindow::showMappingContextMenu(const QPoint &point)
   QWidget *objectSender = dynamic_cast<QWidget*>(sender());
 
   if (objectSender != NULL && mappingList->count() > 0)
-    contextMenu->exec(objectSender->mapToGlobal(point));
+    mappingContextMenu->exec(objectSender->mapToGlobal(point));
+}
+
+void MainWindow::showPaintContextMenu(const QPoint &point)
+{
+  QWidget *objectSender = dynamic_cast<QWidget*>(sender());
+
+  if (objectSender != NULL && paintList->count() > 0)
+    paintContextMenu->exec(objectSender->mapToGlobal(point));
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)
