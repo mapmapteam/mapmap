@@ -74,3 +74,10 @@ XML file version number
 * generally, we should follow the MapMap version, when new changes are introduced. (no need to increment it otherwise)
 * we will need to implement some fancy XML file version number checking in the future.
 
+Qt resources system
+-------------------
+* The mapmap.pro file is where the packaging is done
+* The mapmap.qrc file is where we specify which resources are packaged with the app.
+* Images are set there. They are then available as a path-like alias such as ":/fullscreen"
+* See http://doc.qt.io/qt-5/resources.html
+
