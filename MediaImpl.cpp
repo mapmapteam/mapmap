@@ -481,12 +481,14 @@ bool MediaImpl::loadMovie(QString filename)
 
   // Process URI.
   QByteArray ba = filename.toLocal8Bit();
-  gchar* uri = (gchar*) filename.toUtf8().constData();
+  gchar *filename_tmp = g_strdup((gchar*) filename.toUtf8().constData());
+  gchar* uri = NULL; //  (gchar*) filename.toUtf8().constData();
   if (! _isSharedMemorySource && ! gst_uri_is_valid(uri))
   {
     // Try to convert filename to URI.
     GError* error = NULL;
-    uri = gst_filename_to_uri(uri, &error);
+    qDebug() << "Calling gst_filename_to_uri : " << uri;
+    uri = gst_filename_to_uri(filename_tmp, &error);
     if (error)
     {
       qDebug() << "Filename to URI error: " << error->message;
@@ -496,6 +498,7 @@ bool MediaImpl::loadMovie(QString filename)
       return false;
     }
   }
+  g_free(filename_tmp);
 
   if (_isSharedMemorySource)
   {
@@ -519,6 +522,7 @@ bool MediaImpl::loadMovie(QString filename)
     g_object_set (_shmsrc0, "is-live", TRUE, NULL);
     _padHandlerData.videoIsConnected = true;
   }
+  g_free(uri);
 
   // Configure audio appsink.
   // TODO: change from mono to stereo
