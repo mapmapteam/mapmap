@@ -92,7 +92,10 @@ int main(int argc, char *argv[])
 #endif // USING_QT_5
 
   if (! QGLFormat::hasOpenGL())
+  {
     qFatal("This system has no OpenGL support.");
+    return 1;
+  }
 
   // Create splash screen.
   QPixmap pixmap(":/mapmap-splash");
@@ -106,11 +109,6 @@ int main(int argc, char *argv[])
 
   bool FORCE_FRENCH_LANG = false;
   // set_language_to_french(app);
-  if (FORCE_FRENCH_LANG) // XXX FIXME this if seems wrong
-  {
-    std::cerr << "This system has no OpenGL support" << std::endl;
-    return 1;
-  }
 
   // Let splash for at least one second.
   I::sleep(1);
@@ -123,7 +121,7 @@ int main(int argc, char *argv[])
   app.setFont(QFont(":/base-font", 10, QFont::Bold));
 
   // Load stylesheet.
-  QFile stylesheet("mapmap.qss");
+  QFile stylesheet(":/stylesheet");
   stylesheet.open(QFile::ReadOnly);
   app.setStyleSheet(QLatin1String(stylesheet.readAll()));
 
