@@ -1,6 +1,10 @@
 Release notes for MapMap
 ========================
 
+xxxx-xx-xx - MapMap 0.3.1
+-------------------------
+* Fixed #138: splash screen does not show when installed
+
 2015-07-17 - MapMap 0.3.0
 -------------------------
 * Add zoom and scroll/drag in editor windows
