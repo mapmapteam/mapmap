@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     qFatal("This system has no OpenGL support.");
 
   // Create splash screen.
-  QPixmap pixmap("splash.png");
+  QPixmap pixmap(":/mapmap-splash");
   QSplashScreen splash(pixmap);
 
   // Show splash.

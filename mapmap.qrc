@@ -39,6 +39,7 @@
 
     <file alias="mapmap-title">resources/images/logo/logomapmap.png</file>
     <file alias="mapmap-logo">resources/images/logo/logo_m_big_mapmap.png</file>
+    <file alias="mapmap-splash">resources/images/logo/splash.png</file>
 
     <file alias="logo-title">resources/fonts/HelveticaNeueLTPro-Bd.otf</file>
 
