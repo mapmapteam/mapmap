@@ -126,6 +126,9 @@ mac {
   # For OSC support:
   # CONFIG += link_pkgconfig
   # PKGCONFIG += lo
+  LIBS += -L/usr/local/lib -llo
+  INCLUDEPATH += /usr/local/include
+  QMAKE_CXXFLAGS += -DHAVE_OSC
 }
 
 # Windows-specific:
