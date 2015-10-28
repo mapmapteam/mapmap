@@ -122,6 +122,10 @@ mac {
   # This tells qmake not to put the executable inside a bundle.
   # just for reference. Do not uncomment.
   # CONFIG-=app_bundle
+
+  # For OSC support:
+  # CONFIG += link_pkgconfig
+  # PKGCONFIG += lo
 }
 
 # Windows-specific:
