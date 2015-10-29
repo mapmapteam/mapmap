@@ -18,9 +18,9 @@
 static void set_env_vars_if_needed()
 {
 #ifdef __MACOSX_CORE__
-  std::cout << "OS X detected. Set environment for GStreamer-SDK support." << std::endl;
+  std::cout << "OS X detected. Set environment for GStreamer support." << std::endl;
   if (0 == setenv("GST_PLUGIN_PATH", "/Library/Frameworks/GStreamer.framework/Libraries", 1))
-      std::cout << " * GST_PLUGIN_PATH=Library/Frameworks/GStreamer.framework/Libraries" << std::endl;
+      std::cout << " * GST_PLUGIN_PATH=/Library/Frameworks/GStreamer.framework/Libraries" << std::endl;
   if (0 == setenv("GST_DEBUG", "2", 1))
       std::cout << " * GST_DEBUG=2" << std::endl;
   //setenv("LANG", "C", 1);
