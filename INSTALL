@@ -57,7 +57,6 @@ Then, do this::
 
 Build on Mac OS X
 -----------------
-
 * Install the Apple Developer Tools. You need to register with a credit card in the Apple Store in order to download it.
 * Install Qt5. You can get it from http://qt-project.org/downloads and choose the default location.
 * Install liblo (compile from the tar.gz - it should install it to /usr/local)
@@ -74,6 +73,9 @@ Do this::
   ./build.sh
 
 It will create a .app and a .dmg.
+
+DMGVERSION.txt should be created automatically with "1" as its contents. Update to "2", and so on, if needed.
+
 
 Use on OS X
 -----------

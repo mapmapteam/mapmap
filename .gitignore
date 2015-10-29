@@ -40,3 +40,4 @@ Info.plist
 *.xcodeproj/
 *.pro.user*
 *.app
+DMGVERSION.txt
