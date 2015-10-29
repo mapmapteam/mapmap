@@ -86,3 +86,7 @@ http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64.p
 
 MapMap should then work.
 
+If the appearance of the window of the OSC port number in the preferences seem corrupted, you might want to reset MapMap's preferences::
+
+  rm -f ~/Library/Preferences/info.mapmap.MapMap.plist
+
