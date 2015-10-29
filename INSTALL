@@ -65,7 +65,22 @@ Build on Mac OS X
 http://gstreamer.freedesktop.org/data/pkg/osx/1.2.4.1/gstreamer-1.0-devel-1.2.4.1-universal.pkg
 http://gstreamer.freedesktop.org/data/pkg/osx/1.2.4.1/gstreamer-1.0-1.2.4.1-universal.pkg
 
+http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64-packages.dmg
+http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64.pkg
+http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-devel-1.6.0-x86_64.pkg
+
 Do this::
 
   ./build.sh
+
+It will create a .app and a .dmg.
+
+Use on OS X
+-----------
+Users can simply the following two packages:
+
+http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64-packages.dmg
+http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64.pkg
+
+MapMap should then work.
 
