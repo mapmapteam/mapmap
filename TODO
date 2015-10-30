@@ -92,3 +92,59 @@ You should make sure to block all incoming messages on that port if you don't wa
 /mapmap/output/size ,ii <width> <height>
 /mapmap/output/position ,ii <x> <y>
 
+
+Roadmap (to do)
+---------------
+* Change default OSC port. (currently 12345)
+* Allow to change the default OSC port via the GUI.
+* Reorder layers.
+* MIDI support.
+* Art-Net support.
+* Make output window fullscreen.
+* Port to Microsoft Windows 8.
+* Port to iOS.
+* Port to Android.
+* Support multiple output windows.
+* Chroma-key effect.
+* Luma-key effect.
+* More control via OSC.
+* Live video capture. (camera)
+* Syphon support on Apple OS X.
+* Shared memory support on all operating systems.
+* Transition between video clips.
+* Anti-aliasing.
+* Multiple cues for video files playback in a project.
+* Multiple layouts in a project.
+* Reorder mappings.
+* Sample OSC clients: Python, bash, Pure Data, Processing.
+* Allow to start the software with no GUI.
+* Support OSC via TCP.
+* Implement a JSON REST interface.
+* Bézier curves.
+* Pause and resume media files.
+* Support RTSP URI.
+* Support audio.
+
+
+
+
+
+
+Fiche technique
+===========
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
