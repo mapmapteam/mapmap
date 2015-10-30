@@ -10,6 +10,7 @@ Release notes for MapMap
 * Fix #138: splash screen does not show when installed
 * Fix #139: Stylesheet is not applied when the app is installed on Linux
 * Fix #135: Video playback is broken
+* Fix #103: OSC not working on OS X
 
 2015-07-17 - MapMap 0.3.0
 -------------------------
