@@ -26,6 +26,13 @@
 #include "MainWindow.h"
 #include "MapperGLCanvas.h"
 
+enum CommandId {
+  CMD_KEY_MOVE_VERTEX,
+  CMD_MOUSE_MOVE_VERTEX,
+  CMD_KEY_TRANSLATE_SHAPE,
+  CMD_MOUSE_TRANSLATE_SHAPE,
+};
+
 class AddShapesCommand : public QUndoCommand
 {
 public:
@@ -40,33 +47,66 @@ private:
 
 };
 
-class MoveVertexCommand : public QUndoCommand
+class TransformShapeCommand : public QUndoCommand
 {
 public:
-  MoveVertexCommand(MapperGLCanvas *mapperGLCanvas, int activeVertex, const QPointF &point, QUndoCommand *parent = 0);
-  void undo();
-  void redo();
+  enum TransformShapeOption {
+    STEP,
+    FREE,
+    RELEASE,
+  };
+  TransformShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, QUndoCommand *parent = 0);
 
-private:
-  MapperGLCanvas *m_mapperGLCanvas;
-  MShape *m_shape;
-  int m_activeVertex;
-  QPointF vertexPosition;
+  virtual void undo();
+  virtual void redo();
+  virtual bool mergeWith(const QUndoCommand* other);
 
+protected:
+  // Perform the actual transformation on the shape.
+  virtual void _doTransform(MShape::ptr shape) = 0;
+
+  // Information pertaining to the shape context.
+  MapperGLCanvas* _canvas;
+  QWeakPointer<MShape> _shape;
+
+  // Did we use keys to move that vertex?
+  int _option;
+
+  // Clone of the original shape used for undoing purposes.
+  MShape::ptr _originalShape;
 };
 
-class MoveShapesCommand : public QUndoCommand
+class MoveVertexCommand : public TransformShapeCommand
 {
 public:
-  MoveShapesCommand(MapperGLCanvas *mapperGLCanvas, QMouseEvent *event, const QPointF &point, QUndoCommand *parent = 0);
-  void undo();
-  void redo();
+  MoveVertexCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, QUndoCommand *parent = 0);
+
+  int id() const;
+  bool mergeWith(const QUndoCommand* other);
+
+protected:
+  // Perform the actual transformation on the shape.
+  virtual void _doTransform(MShape::ptr shape);
+
+  // Information pertaining to the moving of vertex.
+  int _movedVertex;
+  QPointF _vertexPosition;
+};
+
+class TranslateShapeCommand : public TransformShapeCommand
+{
+public:
+  TranslateShapeCommand(MapperGLCanvas *canvas, TransformShapeOption option, const QPointF &translation, QUndoCommand *parent = 0);
+
+  int id() const;
+  bool mergeWith(const QUndoCommand* other);
+
+protected:
+  // Perform the actual transformation on the shape.
+  virtual void _doTransform(MShape::ptr shape);
 
 private:
-  MapperGLCanvas *m_mapperGLCanvas;
-  MShape *m_shape;
-  QMouseEvent *m_event;
-  QPointF newPosition, oldPosition;
+  QPointF _translation;
 };
 
 class DeleteMappingCommand : public QUndoCommand

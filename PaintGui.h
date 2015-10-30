@@ -29,8 +29,6 @@
 #include <GL/gl.h>
 #endif
 
-#include <tr1/memory>
-
 #include "MM.h"
 
 #include "Paint.h"
@@ -48,7 +46,7 @@ class PaintGui : public QObject {
   Q_OBJECT
 
 public:
-  typedef std::tr1::shared_ptr<PaintGui> ptr;
+  typedef QSharedPointer<PaintGui> ptr;
 
 public:
   // TODO: should be protected
@@ -86,7 +84,7 @@ public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
 
 protected:
-  std::tr1::shared_ptr<Color> color;
+  QSharedPointer<Color> color;
   QtVariantProperty* _colorItem;
 };
 
@@ -112,7 +110,7 @@ public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
 
 protected:
-  std::tr1::shared_ptr<Image> image;
+  QSharedPointer<Image> image;
   QtVariantProperty* _imageFileItem;
 };
 
@@ -127,7 +125,7 @@ public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
 
 protected:
-  std::tr1::shared_ptr<Media> media;
+  QSharedPointer<Media> media;
   QtVariantProperty* _mediaFileItem;
   QtVariantProperty* _mediaRateItem;
   QtVariantProperty* _mediaVolumeItem;

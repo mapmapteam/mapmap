@@ -20,7 +20,6 @@
 #ifndef SHAPE_H_
 #define SHAPE_H_
 
-#include <tr1/memory>
 #include <iostream>
 #include <cmath>
 
@@ -45,7 +44,7 @@
 class MShape
 {
 public:
-  typedef std::tr1::shared_ptr<MShape> ptr;
+  typedef QSharedPointer<MShape> ptr;
 
   MShape() {}
   MShape(QVector<QPointF> vertices_) :
@@ -85,7 +84,11 @@ public:
   virtual bool includesPoint(const QPointF& p) = 0;
 
   /// Translate all vertices of shape by the vector (x,y).
-  virtual void translate(int x, int y);
+  virtual void translate(const QPointF& offset);
+
+  virtual void copyFrom(const MShape& shape);
+
+  virtual MShape* clone() const;
 
 protected:
   QVector<QPointF> vertices;
@@ -100,6 +103,8 @@ protected:
     vertices[i] = v;
   }
 
+  /// Returns a new MShape (using default constructor).
+  virtual MShape* _create() const = 0;
 };
 
 /**
@@ -148,6 +153,10 @@ public:
   virtual ~Quad() {}
 
   virtual QString getType() const { return "quad"; }
+
+protected:
+  /// Returns a new MShape (using default constructor).
+  virtual MShape* _create() const { return new Quad(); }
 };
 
 /**
@@ -165,6 +174,10 @@ public:
   }
   virtual ~Triangle() {}
   virtual QString getType() const { return "triangle"; }
+
+protected:
+  /// Returns a new MShape (using default constructor).
+  virtual MShape* _create() const { return new Triangle(); }
 };
 
 class Mesh : public Quad
@@ -246,6 +259,9 @@ protected:
    * 8----9---10----11
    */
   void _reorderVertices();
+
+  /// Returns a new MShape (using default constructor).
+  virtual MShape* _create() const { return new Mesh(); }
 };
 
 class Ellipse : public MShape {
@@ -378,6 +394,10 @@ public:
 
   // Override the parent, checking to make sure the vertices are displaced correctly.
   virtual void setVertex(int i, const QPointF& v);
+
+protected:
+  /// Returns a new MShape (using default constructor).
+  virtual MShape* _create() const { return new Ellipse(); }
 
 //protected:
 //  virtual void _vertexChanged(int i, Point* p=NULL) {

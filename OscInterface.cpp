@@ -240,7 +240,7 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
   }
   else if (path == "/mapmap/quit")
   {
-    main_window.quitMapMap();
+    main_window.close();
   }
   else
   {

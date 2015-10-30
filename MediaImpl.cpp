@@ -242,9 +242,6 @@ _uri(uri)
 
 void MediaImpl::unloadMovie()
 {
-  // Free allocated resources.
-  freeResources();
-
   // Reset variables.
   _terminate = false;
   _seekEnabled = false;
@@ -252,6 +249,9 @@ void MediaImpl::unloadMovie()
   // Un-ready.
   _setMovieReady(false);
   setPlayState(false);
+
+  // Free allocated resources.
+  freeResources();
 }
 
 void MediaImpl::freeResources()
@@ -462,13 +462,7 @@ bool MediaImpl::loadMovie(QString filename)
       g_printerr ("Could not link shmsrc, deserializer and video queue.\n");
     }
   }
-  else
-  {
-    if (! gst_element_link (_uridecodebin0, _queue0)) 
-    {
-      g_printerr ("Could not link uridecodebin to video queue.\n");
-    }
-  }
+  // link uridecodebin -> queue will be performed by callback
 
   if (! gst_element_link_many (_queue0, _videoconvert0, capsfilter0, videoscale0, _appsink0, NULL))
   {
@@ -487,12 +481,14 @@ bool MediaImpl::loadMovie(QString filename)
 
   // Process URI.
   QByteArray ba = filename.toLocal8Bit();
-  gchar* uri = (gchar*) filename.toUtf8().constData();
+  gchar *filename_tmp = g_strdup((gchar*) filename.toUtf8().constData());
+  gchar* uri = NULL; //  (gchar*) filename.toUtf8().constData();
   if (! _isSharedMemorySource && ! gst_uri_is_valid(uri))
   {
     // Try to convert filename to URI.
     GError* error = NULL;
-    uri = gst_filename_to_uri(uri, &error);
+    qDebug() << "Calling gst_filename_to_uri : " << uri;
+    uri = gst_filename_to_uri(filename_tmp, &error);
     if (error)
     {
       qDebug() << "Filename to URI error: " << error->message;
@@ -502,6 +498,7 @@ bool MediaImpl::loadMovie(QString filename)
       return false;
     }
   }
+  g_free(filename_tmp);
 
   if (_isSharedMemorySource)
   {
@@ -515,8 +512,8 @@ bool MediaImpl::loadMovie(QString filename)
   // Connect to the pad-added signal
   if (! _isSharedMemorySource)
   {
-    g_object_set (_uridecodebin0, "uri", uri, NULL);
     g_signal_connect (_uridecodebin0, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
+    g_object_set (_uridecodebin0, "uri", uri, NULL);
   }
   else
   {
@@ -525,6 +522,7 @@ bool MediaImpl::loadMovie(QString filename)
     g_object_set (_shmsrc0, "is-live", TRUE, NULL);
     _padHandlerData.videoIsConnected = true;
   }
+  g_free(uri);
 
   // Configure audio appsink.
   // TODO: change from mono to stereo

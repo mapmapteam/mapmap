@@ -39,12 +39,15 @@
 
     <file alias="mapmap-title">resources/images/logo/logomapmap.png</file>
     <file alias="mapmap-logo">resources/images/logo/logo_m_big_mapmap.png</file>
+    <file alias="mapmap-splash">resources/images/logo/splash.png</file>
 
     <file alias="logo-title">resources/fonts/HelveticaNeueLTPro-Bd.otf</file>
 
     <file alias="base-font">resources/fonts/HelveticaNeueLTPro-Bd.otf</file>
 
     <file alias="test-signal">resources/images/test-signal/test-signal.svg</file>
+
+    <file alias="stylesheet">resources/qss/mapmap.qss</file>
 </qresource>
 </RCC>
 

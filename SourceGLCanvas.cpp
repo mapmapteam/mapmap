@@ -28,23 +28,23 @@ SourceGLCanvas::SourceGLCanvas(MainWindow* mainWindow, QWidget* parent)
 {
 }
 
-MShape* SourceGLCanvas::getShapeFromMappingId(uid mappingId) const
+MShape::ptr SourceGLCanvas::getShapeFromMappingId(uid mappingId) const
 {
   if (mappingId == NULL_UID)
-    return NULL;
+    return MShape::ptr();
 
   else
   {
     Mapping::ptr mapping = getMainWindow()->getMappingManager().getMappingById(mappingId);
     Q_CHECK_PTR(mapping);
-    return mapping->getInputShape().get();
+    return mapping->getInputShape();
   }
 }
 
-ShapeGraphicsItem* SourceGLCanvas::getShapeGraphicsItemFromMappingId(uid mappingId) const
+QSharedPointer<ShapeGraphicsItem> SourceGLCanvas::getShapeGraphicsItemFromMappingId(uid mappingId) const
 {
   if (mappingId == NULL_UID)
-    return NULL;
+    return QSharedPointer<ShapeGraphicsItem>();
 
   else
   {

@@ -51,11 +51,15 @@ MainWindow::MainWindow()
   _stickyVertices = true;
   _displayTestSignal = false;
 
+  // UndoStack
+  undoStack = new QUndoStack(this);
+
   // Create everything.
   createLayout();
   createActions();
   createMenus();
-  createContextMenu();
+  createMappingContextMenu();
+  createPaintContextMenu();
   createToolBars();
   createStatusBar();
   updateRecentFileActions();
@@ -233,7 +237,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   uid paintId = mappingManager->getPaintId(paint);
 
   if (paint->getType() == "media") {
-    std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(paint);
+    QSharedPointer<Media> media = qSharedPointerCast<Media>(paint);
     Q_CHECK_PTR(media);
     updatePaintItem(paintId, createFileIcon(media->getUri()), strippedName(media->getUri()));
 //    QString fileName = QFileDialog::getOpenFileName(this,
@@ -243,7 +247,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
 //      importMediaFile(fileName, paint, false);
   }
   if (paint->getType() == "image") {
-    std::tr1::shared_ptr<Image> image = std::tr1::static_pointer_cast<Image>(paint);
+    QSharedPointer<Image> image = qSharedPointerCast<Image>(paint);
     Q_CHECK_PTR(image);
     updatePaintItem(paintId, createImageIcon(image->getUri()), strippedName(image->getUri()));
 //    QString fileName = QFileDialog::getOpenFileName(this,
@@ -254,7 +258,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   }
   else if (paint->getType() == "color") {
     // Pop-up color-choosing dialog to choose color paint.
-    std::tr1::shared_ptr<Color> color = std::tr1::static_pointer_cast<Color>(paint);
+    QSharedPointer<Color> color = qSharedPointerCast<Color>(paint);
     Q_CHECK_PTR(color);
     updatePaintItem(paintId, createColorIcon(color->getColor()), strippedName(color->getColor().name()));
   }
@@ -296,7 +300,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         switch (keyEvent->key()) {
         case Qt::Key_F:
             if (outputWindow->windowState() != Qt::WindowFullScreen)
+            {
               outputWindow->setFullScreen(true);
+              outputWindowFullScreenAction->setChecked(true);
+              outputWindowFullScreenAction->setEnabled(true);
+            }
             break;
           case Qt::Key_N:
             newFile();
@@ -322,18 +330,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
           case Qt::Key_E:
             addEllipse();
             break;
-          case Qt::Key_D:
+          case Qt::Key_W:
             outputWindow->setVisible(true);
-            break;
-          case Qt::Key_P:
-            if (_isPlaying)
-            {
-              pause();
-            }
-            else
-            {
-              play();
-            }
             break;
           case Qt::Key_R:
             rewind();
@@ -350,6 +348,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     else if (keyEvent->key() == Qt::Key_Escape)
     {
       outputWindow->setFullScreen(false);
+      outputWindowFullScreenAction->setChecked(false);
+      outputWindowFullScreenAction->setEnabled(false);
+    }
+    else if (keyEvent->key() == Qt::Key_Space)
+    {
+      if (_isPlaying)
+      {
+        pause();
+      }
+      else
+      {
+        play();
+      }
     }
     eventKey = false;
 
@@ -525,11 +536,11 @@ void MainWindow::addMesh()
   }
   else
   {
-    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
+    QSharedPointer<Texture> texture = qSharedPointerCast<Texture>(paint);
     Q_CHECK_PTR(texture);
 
-    MShape::ptr outputQuad = MShape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-    MShape::ptr  inputQuad = MShape::ptr(Util::createMeshForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputQuad = MShape::ptr(Util::createMeshForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr  inputQuad = MShape::ptr(Util::createMeshForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, outputQuad, inputQuad);
   }
 
@@ -561,11 +572,11 @@ void MainWindow::addTriangle()
   }
   else
   {
-    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
+    QSharedPointer<Texture> texture = qSharedPointerCast<Texture>(paint);
     Q_CHECK_PTR(texture);
 
-    MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-    MShape::ptr inputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr inputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, inputTriangle, outputTriangle);
   }
 
@@ -597,11 +608,11 @@ void MainWindow::addEllipse()
   }
   else
   {
-    std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(paint);
+    QSharedPointer<Texture> texture = qSharedPointerCast<Texture>(paint);
     Q_CHECK_PTR(texture);
 
-    MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
-    MShape::ptr inputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.get(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr inputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new TextureMapping(paint, inputEllipse, outputEllipse);
   }
 
@@ -726,12 +737,34 @@ void MainWindow::cloneItem()
     }
 }
 
-void MainWindow::renameItem()
+void MainWindow::renameMappingItem()
 {
   // Set current item editable and rename it
   QListWidgetItem* item = mappingList->currentItem();
   item->setFlags(item->flags() | Qt::ItemIsEditable);
   mappingList->editItem(item);
+  contentTab->setCurrentWidget(mappingSplitter);
+}
+
+void MainWindow::deletePaintItem()
+{
+  if(currentSelectedItem)
+  {
+    deletePaint(getItemId(*paintList->currentItem()), false);
+  }
+  else
+  {
+    qCritical() << "No selected paint" << endl;
+  }
+}
+
+void MainWindow::renamePaintItem()
+{
+  // Set current item editable and rename it
+  QListWidgetItem* item = paintList->currentItem();
+  item->setFlags(item->flags() | Qt::ItemIsEditable);
+  paintList->editItem(item);
+  contentTab->setCurrentWidget(paintSplitter);
 }
 
 void MainWindow::openRecentFile()
@@ -1106,9 +1139,9 @@ void MainWindow::cloneMappingItem(uid mappingId)
 
   // Scaling of duplicated mapping
   if (shapeType == "quad" || shapeType == "mesh")
-    shapePtr->translate(20, 20);
+    shapePtr->translate(QPointF(20, 20));
   else
-    shapePtr->translate(0, 20);
+    shapePtr->translate(QPointF(0, 20));
 
   // Create new duplicated mapping item
   Mapping::ptr clonedMapping(mapping);
@@ -1171,6 +1204,9 @@ void MainWindow::createLayout()
   mappingPropertyPanel->setDisabled(true);
   mappingPropertyPanel->setMinimumHeight(MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT);
 
+  // Create undo view.
+  undoView = new QUndoView(getUndoStack(), this);
+
   // Create canvases.
   sourceCanvas = new SourceGLCanvas(this);
   sourceCanvas->setFocusPolicy(Qt::ClickFocus);
@@ -1182,7 +1218,7 @@ void MainWindow::createLayout()
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  outputWindow = new OutputGLWindow(destinationCanvas);
+  outputWindow = new OutputGLWindow(this, destinationCanvas);
   outputWindow->setVisible(true);
   outputWindow->installEventFilter(destinationCanvas);
   outputWindow->installEventFilter(this);
@@ -1213,6 +1249,7 @@ void MainWindow::createLayout()
   contentTab = new QTabWidget;
   contentTab->addTab(paintSplitter, QIcon(":/add-video"), tr("Paints"));
   contentTab->addTab(mappingSplitter, QIcon(":/add-mesh"), tr("Mappings"));
+  contentTab->addTab(undoView, tr("Undo stack"));
 
   canvasSplitter = new QSplitter(Qt::Vertical);
   canvasSplitter->addWidget(sourceCanvas);
@@ -1246,9 +1283,6 @@ void MainWindow::createLayout()
 
 void MainWindow::createActions()
 {
-  // UndoStack
-  undoStack = new QUndoStack(this);
-
   // New.
   newAction = new QAction(tr("&New"), this);
   newAction->setIcon(QIcon(":/new"));
@@ -1276,6 +1310,7 @@ void MainWindow::createActions()
   // Save as.
   saveAsAction = new QAction(tr("Save &As..."), this);
   saveAsAction->setIcon(QIcon(":/save-as"));
+  saveAsAction->setShortcut(tr("Ctrl+Shift+S"));
   saveAsAction->setStatusTip(tr("Save the project as..."));
   saveAsAction->setIconVisibleInMenu(false);
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
@@ -1303,26 +1338,29 @@ void MainWindow::createActions()
   connect(clearRecentFileActions, SIGNAL(triggered()), this, SLOT(clearRecentFileList()));
 
   // Empty list of recent video action
-  emptyRecentVideos = new QAction(tr("No Videos"), this);
+  emptyRecentVideos = new QAction(tr("No Recents Videos"), this);
   emptyRecentVideos->setEnabled(false);
 
 
   // Import video.
-  importVideoAction = new QAction(tr("&Import media source file..."), this);
+  importVideoAction = new QAction(tr("&Import Video File..."), this);
+  importVideoAction->setShortcut(tr("Ctrl+I"));
   importVideoAction->setIcon(QIcon(":/add-video"));
-  importVideoAction->setStatusTip(tr("Import a media source file..."));
+  importVideoAction->setStatusTip(tr("Import a video source file..."));
   importVideoAction->setIconVisibleInMenu(false);
   connect(importVideoAction, SIGNAL(triggered()), this, SLOT(importVideo()));
 
   // Import imiage.
-  importImageAction = new QAction(tr("&Import media source file..."), this);
+  importImageAction = new QAction(tr("&Import Image File..."), this);
+  importImageAction->setShortcut(tr("Ctrl+Shift+I"));
   importImageAction->setIcon(QIcon(":/add-image"));
-  importImageAction->setStatusTip(tr("Import a media source file..."));
+  importImageAction->setStatusTip(tr("Import a image source file..."));
   importImageAction->setIconVisibleInMenu(false);
   connect(importImageAction, SIGNAL(triggered()), this, SLOT(importImage()));
 
   // Add color.
-  addColorAction = new QAction(tr("Add &Color paint..."), this);
+  addColorAction = new QAction(tr("Add &Color Paint..."), this);
+  addColorAction->setShortcut(tr("Ctrl+A"));
   addColorAction->setIcon(QIcon(":/add-color"));
   addColorAction->setStatusTip(tr("Add a color paint..."));
   addColorAction->setIconVisibleInMenu(false);
@@ -1355,29 +1393,43 @@ void MainWindow::createActions()
 
   // Duplicate.
   cloneAction = new QAction(tr("Duplicate"), this);
-  cloneAction->setShortcut(tr("CTRL+V"));
+  cloneAction->setShortcut(tr("Ctrl+D"));
   cloneAction->setStatusTip(tr("Duplicate item"));
   cloneAction->setIconVisibleInMenu(false);
   connect(cloneAction, SIGNAL(triggered()), this, SLOT(cloneItem()));
 
-  // Delete.
-  deleteAction = new QAction(tr("Delete"), this);
-  deleteAction->setShortcut(tr("CTRL+DEL"));
-  deleteAction->setStatusTip(tr("Delete item"));
-  deleteAction->setIconVisibleInMenu(false);
-  connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
+  // Delete mapping.
+  deleteMappingAction = new QAction(tr("Delete"), this);
+  deleteMappingAction->setShortcut(tr("CTRL+DEL"));
+  deleteMappingAction->setStatusTip(tr("Delete item"));
+  deleteMappingAction->setIconVisibleInMenu(false);
+  connect(deleteMappingAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
 
-  // Rename.
-  renameAction = new QAction(tr("Rename"), this);
-  renameAction->setShortcut(Qt::Key_F2);
-  renameAction->setStatusTip(tr("Rename item"));
-  renameAction->setIconVisibleInMenu(false);
-  connect(renameAction, SIGNAL(triggered()), this, SLOT(renameItem()));
+  // Rename mapping.
+  renameMappingAction = new QAction(tr("Rename"), this);
+  renameMappingAction->setShortcut(Qt::Key_F2);
+  renameMappingAction->setStatusTip(tr("Rename item"));
+  renameMappingAction->setIconVisibleInMenu(false);
+  connect(renameMappingAction, SIGNAL(triggered()), this, SLOT(renameMappingItem()));
+
+  // Delete paint.
+  deletePaintAction = new QAction(tr("Delete"), this);
+  //deletePaintAction->setShortcut(tr("CTRL+DEL"));
+  deletePaintAction->setStatusTip(tr("Delete item"));
+  deletePaintAction->setIconVisibleInMenu(false);
+  connect(deletePaintAction, SIGNAL(triggered()), this, SLOT(deletePaintItem()));
+
+  // Rename paint.
+  renamePaintAction = new QAction(tr("Rename"), this);
+  //renamePaintAction->setShortcut(Qt::Key_F2);
+  renamePaintAction->setStatusTip(tr("Rename item"));
+  renamePaintAction->setIconVisibleInMenu(false);
+  connect(renamePaintAction, SIGNAL(triggered()), this, SLOT(renamePaintItem()));
 
   // Preferences...
   preferencesAction = new QAction(tr("&Preferences..."), this);
   //preferencesAction->setIcon(QIcon(":/preferences"));
-  preferencesAction->setShortcut(QKeySequence::Preferences);
+  preferencesAction->setShortcut(tr("CTRL+,"));
   preferencesAction->setStatusTip(tr("Configure preferences..."));
   //preferencesAction->setIconVisibleInMenu(false);
   connect(preferencesAction, SIGNAL(triggered()), this, SLOT(preferences()));
@@ -1411,7 +1463,7 @@ void MainWindow::createActions()
 
   // Play.
   playAction = new QAction(tr("Play"), this);
-  playAction->setShortcut(tr("CTRL+P"));
+  playAction->setShortcut(Qt::Key_Space);
   playAction->setIcon(QIcon(":/play"));
   playAction->setStatusTip(tr("Play"));
   playAction->setIconVisibleInMenu(false);
@@ -1420,7 +1472,7 @@ void MainWindow::createActions()
 
   // Pause.
   pauseAction = new QAction(tr("Pause"), this);
-  pauseAction->setShortcut(tr("CTRL+P"));
+  pauseAction->setShortcut(Qt::Key_Space);
   pauseAction->setIcon(QIcon(":/pause"));
   pauseAction->setStatusTip(tr("Pause"));
   pauseAction->setIconVisibleInMenu(false);
@@ -1436,8 +1488,8 @@ void MainWindow::createActions()
   connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
 
   // Toggle display of output window.
-  displayOutputWindowAction = new QAction(tr("&Display output window"), this);
-  displayOutputWindowAction->setShortcut(tr("Ctrl+D"));
+  displayOutputWindowAction = new QAction(tr("&Display Output Window"), this);
+  displayOutputWindowAction->setShortcut(tr("Ctrl+W"));
   displayOutputWindowAction->setIcon(QIcon(":/output-window"));
   displayOutputWindowAction->setStatusTip(tr("Display output window"));
   displayOutputWindowAction->setIconVisibleInMenu(false);
@@ -1449,7 +1501,7 @@ void MainWindow::createActions()
   connect(outputWindow, SIGNAL(closed()), displayOutputWindowAction, SLOT(toggle()));
 
   // Toggle display of output window.
-  outputWindowFullScreenAction = new QAction(tr("&Full screen"), this);
+  outputWindowFullScreenAction = new QAction(tr("&Fullscreen"), this);
   outputWindowFullScreenAction->setIcon(QIcon(":/fullscreen"));
   outputWindowFullScreenAction->setShortcut(tr("Ctrl+F"));
   outputWindowFullScreenAction->setStatusTip(tr("Full screen"));
@@ -1464,8 +1516,8 @@ void MainWindow::createActions()
   connect(displayOutputWindowAction, SIGNAL(toggled(bool)), outputWindowFullScreenAction, SLOT(setEnabled(bool)));
 
   // Toggle display of canvas controls.
-  displayControlsAction = new QAction(tr("&Display canvas controls"), this);
-  //  displayCanvasControls->setShortcut(tr("Ctrl+E"));
+  displayControlsAction = new QAction(tr("&Display Canvas Controls"), this);
+  displayControlsAction->setShortcut(tr("Alt+D"));
   displayControlsAction->setIcon(QIcon(":/control-points"));
   displayControlsAction->setStatusTip(tr("Display canvas controls"));
   displayControlsAction->setIconVisibleInMenu(false);
@@ -1475,8 +1527,8 @@ void MainWindow::createActions()
   connect(displayControlsAction, SIGNAL(toggled(bool)), this, SLOT(enableDisplayControls(bool)));
 
   // Toggle sticky vertices
-  stickyVerticesAction = new QAction(tr("&Sticky vertices"), this);
-  // stickyVertices->setShortcut(tr("Ctrl+E"));
+  stickyVerticesAction = new QAction(tr("&Sticky Vertices"), this);
+  stickyVerticesAction->setShortcut(tr("Alt+S"));
   stickyVerticesAction->setIcon(QIcon(":/control-points"));
   stickyVerticesAction->setStatusTip(tr("Enable sticky vertices"));
   stickyVerticesAction->setIconVisibleInMenu(false);
@@ -1485,8 +1537,8 @@ void MainWindow::createActions()
   // Manage sticky vertices
   connect(stickyVerticesAction, SIGNAL(toggled(bool)), this, SLOT(enableStickyVertices(bool)));
 
-  displayTestSignalAction = new QAction(tr("&Display test signal"), this);
-  // displayTestSignal->setShortcut(tr("Ctrl+T"));
+  displayTestSignalAction = new QAction(tr("&Display Test Signal"), this);
+  displayTestSignalAction->setShortcut(tr("Alt+T"));
   displayTestSignalAction->setIcon(QIcon(":/control-points"));
   displayTestSignalAction->setStatusTip(tr("Display test signal"));
   displayTestSignalAction->setIconVisibleInMenu(false);
@@ -1530,13 +1582,13 @@ void MainWindow::createMenus()
 
   // Recent file separator
   separatorAction = fileMenu->addSeparator();
-  recentFileMenu = fileMenu->addMenu(tr("Recents projects"));
+  recentFileMenu = fileMenu->addMenu(tr("Open Recents Projects"));
   for (int i = 0; i < MaxRecentFiles; ++i)
       recentFileMenu->addAction(recentFileActions[i]);
   recentFileMenu->addAction(clearRecentFileActions);
 
   // Recent import video
-  recentVideoMenu = fileMenu->addMenu(tr("Recents video"));
+  recentVideoMenu = fileMenu->addMenu(tr("Open Recents Videos"));
   recentVideoMenu->addAction(emptyRecentVideos);
   for (int i = 0; i < MaxRecentVideo; ++i)
       recentVideoMenu->addAction(recentVideoActions[i]);
@@ -1550,7 +1602,7 @@ void MainWindow::createMenus()
   editMenu = menuBar->addMenu(tr("&Edit"));
   editMenu->addAction(undoAction);
   editMenu->addAction(redoAction);
-  editMenu->addAction(deleteAction);
+  editMenu->addAction(deleteMappingAction);
   editMenu->addAction(preferencesAction);
 
   // View.
@@ -1574,15 +1626,15 @@ void MainWindow::createMenus()
 
 }
 
-void MainWindow::createContextMenu()
+void MainWindow::createMappingContextMenu()
 {
   // Context menu.
-  contextMenu = new QMenu();
+  mappingContextMenu = new QMenu();
 
   // Add different Action
-  contextMenu->addAction(cloneAction);
-  contextMenu->addAction(deleteAction);
-  contextMenu->addAction(renameAction);
+  mappingContextMenu->addAction(cloneAction);
+  mappingContextMenu->addAction(deleteMappingAction);
+  mappingContextMenu->addAction(renameMappingAction);
 
   // Set context menu policy
   mappingList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1593,6 +1645,24 @@ void MainWindow::createContextMenu()
   connect(mappingList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
   connect(destinationCanvas, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
   connect(outputWindow, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
+}
+
+void MainWindow::createPaintContextMenu()
+{
+  // Paint Context Menu
+  paintContextMenu = new QMenu();
+
+  // Add Actions
+  paintContextMenu->addAction(deletePaintAction);
+  paintContextMenu->addAction(renamePaintAction);
+
+  // Define Context policy
+  paintList->setContextMenuPolicy(Qt::CustomContextMenu);
+  sourceCanvas->setContextMenuPolicy(Qt::CustomContextMenu);
+
+  // Connexions
+  connect(paintList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPaintContextMenu(const QPoint&)));
+  connect(sourceCanvas, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPaintContextMenu(const QPoint&)));
 }
 
 void MainWindow::createToolBars()
@@ -1853,10 +1923,10 @@ void MainWindow::updateRecentFileActions()
   if (numRecentFiles > 0)
   {
     separatorAction->setVisible(true);
-    clearRecentFileActions->setText(tr("Clear list"));
+    clearRecentFileActions->setText(tr("Clear List"));
     clearRecentFileActions->setEnabled(true);
   } else {
-    clearRecentFileActions->setText(tr("No Document"));
+    clearRecentFileActions->setText(tr("No Recents Projects"));
     clearRecentFileActions->setEnabled(false);
   }
 }
@@ -1925,7 +1995,7 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
   uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, isImage, live);
 
   // Initialize position (center).
-  std::tr1::shared_ptr<Media> media = std::tr1::static_pointer_cast<Media>(mappingManager->getPaintById(mediaId));
+  QSharedPointer<Media> media = qSharedPointerCast<Media>(mappingManager->getPaintById(mediaId));
   Q_CHECK_PTR(media);
 
   if (_isPlaying)
@@ -1961,7 +2031,7 @@ bool MainWindow::addColorPaint(const QColor& color)
   uint colorId = createColorPaint(NULL_UID, color);
 
   // Initialize position (center).
-  std::tr1::shared_ptr<Color> colorPaint = std::tr1::static_pointer_cast<Color>(mappingManager->getPaintById(colorId));
+  QSharedPointer<Color> colorPaint = qSharedPointerCast<Color>(mappingManager->getPaintById(colorId));
   Q_CHECK_PTR(colorPaint);
 
   // Does not do anything...
@@ -2005,8 +2075,8 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
 //  connect(paintGui.get(), SIGNAL(valueChanged()),
 //          this,           SLOT(updateCanvases()));
 
-  connect(paintGui.get(), SIGNAL(valueChanged(Paint::ptr)),
-          this,           SLOT(handlePaintChanged(Paint::ptr)));
+  connect(paintGui.data(), SIGNAL(valueChanged(Paint::ptr)),
+          this,            SLOT(handlePaintChanged(Paint::ptr)));
 
   // Add paint item to paintList widget.
   QListWidgetItem* item = new QListWidgetItem(icon, name);
@@ -2051,10 +2121,10 @@ void MainWindow::addMappingItem(uid mappingId)
 
   // Add mapper.
   // XXX hardcoded for textures
-  std::tr1::shared_ptr<TextureMapping> textureMapping;
+  QSharedPointer<TextureMapping> textureMapping;
   if (paintType == "media" || paintType == "image")
   {
-    textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+    textureMapping = qSharedPointerCast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);
   }
 
@@ -2107,18 +2177,15 @@ void MainWindow::addMappingItem(uid mappingId)
   mappingPropertyPanel->setEnabled(true);
 
   // When mapper value is changed, update canvases.
-  connect(mapper.get(), SIGNAL(valueChanged()),
-          this,         SLOT(updateCanvases()));
+  connect(mapper.data(), SIGNAL(valueChanged()),
+          this,          SLOT(updateCanvases()));
 
-  connect(sourceCanvas, SIGNAL(shapeChanged(MShape*)),
-          mapper.get(), SLOT(updateShape(MShape*)));
+  connect(sourceCanvas,  SIGNAL(shapeChanged(MShape*)),
+          mapper.data(), SLOT(updateShape(MShape*)));
 
   connect(destinationCanvas, SIGNAL(shapeChanged(MShape*)),
-          mapper.get(), SLOT(updateShape(MShape*)));
+          mapper.data(),     SLOT(updateShape(MShape*)));
   
-  connect(this, SIGNAL(paintChanged()),
-          mapper.get(), SLOT(updatePaint()));
-
   // Switch to mapping tab.
   contentTab->setCurrentWidget(mappingSplitter);
 
@@ -2137,9 +2204,9 @@ void MainWindow::addMappingItem(uid mappingId)
 
   // Add items to scenes.
   if (mapper->getInputGraphicsItem())
-    sourceCanvas->scene()->addItem(mapper->getInputGraphicsItem());
+    sourceCanvas->scene()->addItem(mapper->getInputGraphicsItem().data());
   if (mapper->getGraphicsItem())
-    destinationCanvas->scene()->addItem(mapper->getGraphicsItem());
+    destinationCanvas->scene()->addItem(mapper->getGraphicsItem().data());
 
   // Window was modified.
   windowModified();
@@ -2264,7 +2331,15 @@ void MainWindow::showMappingContextMenu(const QPoint &point)
   QWidget *objectSender = dynamic_cast<QWidget*>(sender());
 
   if (objectSender != NULL && mappingList->count() > 0)
-    contextMenu->exec(objectSender->mapToGlobal(point));
+    mappingContextMenu->exec(objectSender->mapToGlobal(point));
+}
+
+void MainWindow::showPaintContextMenu(const QPoint &point)
+{
+  QWidget *objectSender = dynamic_cast<QWidget*>(sender());
+
+  if (objectSender != NULL && paintList->count() > 0)
+    paintContextMenu->exec(objectSender->mapToGlobal(point));
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)
@@ -2535,7 +2610,7 @@ bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
 
     bool success = false;
     Paint::ptr paint = this->mappingManager->getPaintById(texture_id);
-    if (paint.get() == NULL)
+    if (paint.isNull())
     {
         std::cout << "No such texture paint id " << texture_id << std::endl;
         success = false;
@@ -2544,14 +2619,14 @@ bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
     {
         if (paint->getType() == "media")
         {
-          Media *media = (Media *) paint.get(); // FIXME: use sharedptr cast
+          Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
           videoTimer->stop();
           success = media->setUri(QString(uri.c_str()));
           videoTimer->start();
         }
         else if (paint->getType() == "image")
         {
-          Image *media = (Image*) paint.get(); // FIXME: use sharedptr cast
+          Image *media = (Image*) paint.data(); // FIXME: use sharedptr cast
           videoTimer->stop();
           success = media->setUri(QString(uri.c_str()));
           videoTimer->start();
@@ -2568,7 +2643,7 @@ bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
 bool MainWindow::setTextureRate(int texture_id, double rate)
 {
   Paint::ptr paint = this->mappingManager->getPaintById(texture_id);
-  if (paint.get() == NULL)
+  if (paint.isNull())
   {
       std::cout << "No such texture paint id " << texture_id << std::endl;
       return false;
@@ -2577,7 +2652,7 @@ bool MainWindow::setTextureRate(int texture_id, double rate)
   {
       if (paint->getType() == "media")
       {
-        Media *media = (Media *) paint.get(); // FIXME: use sharedptr cast
+        Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
         videoTimer->stop();
         media->setRate(rate);
         videoTimer->start();
@@ -2589,10 +2664,5 @@ bool MainWindow::setTextureRate(int texture_id, double rate)
       }
   }
   return true;
-}
-
-void MainWindow::quitMapMap()
-{
-  close();
 }
 

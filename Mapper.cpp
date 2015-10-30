@@ -30,7 +30,7 @@ MShape::ptr ShapeControlPainter::getShape() const { return _shapeItem->getShape(
 void ShapeControlPainter::paint(QPainter *painter, const QList<int>& selectedVertices)
 {
   _paintShape(painter);
-  _paintVertices(painter);
+  _paintVertices(painter, selectedVertices);
 }
 
 void ShapeControlPainter::_paintVertices(QPainter *painter, const QList<int>& selectedVertices)
@@ -45,7 +45,7 @@ void ShapeControlPainter::_paintVertices(QPainter *painter, const QList<int>& se
 
 void PolygonControlPainter::_paintShape(QPainter *painter)
 {
-  Polygon* poly = static_cast<Polygon*>(getShape().get());
+  Polygon* poly = static_cast<Polygon*>(getShape().data());
   Q_ASSERT(poly);
 
   // Init colors and stroke.
@@ -58,7 +58,7 @@ void PolygonControlPainter::_paintShape(QPainter *painter)
 
 void EllipseControlPainter::_paintShape(QPainter *painter)
 {
-  Ellipse* ellipse = static_cast<Ellipse*>(getShape().get());
+  Ellipse* ellipse = static_cast<Ellipse*>(getShape().data());
   Q_ASSERT(ellipse);
 
   // Init colors and stroke.
@@ -76,7 +76,7 @@ void EllipseControlPainter::_paintShape(QPainter *painter)
 
 void MeshControlPainter::_paintShape(QPainter *painter)
 {
-  Mesh* mesh = static_cast<Mesh*>(getShape().get());
+  Mesh* mesh = static_cast<Mesh*>(getShape().data());
   Q_ASSERT(mesh);
 
   // Init colors and stroke.
@@ -97,7 +97,7 @@ void MeshControlPainter::_paintShape(QPainter *painter)
 ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
   : _mapping(mapping), _output(output)
 {
-  _shape = output ? _mapping->getShape() : _mapping->getInputShape();
+  _shape = output ? getMapping()->getShape() : getMapping()->getInputShape();
 }
 
 MapperGLCanvas* ShapeGraphicsItem::getCanvas() const
@@ -106,7 +106,9 @@ MapperGLCanvas* ShapeGraphicsItem::getCanvas() const
   return isOutput() ? win->getDestinationCanvas() : win->getSourceCanvas();
 }
 
-bool ShapeGraphicsItem::isMappingCurrent() const { return MainWindow::instance()->getCurrentMappingId() == _mapping->getId(); }
+bool ShapeGraphicsItem::isMappingCurrent() const {
+  return MainWindow::instance()->getCurrentMappingId() == getMapping()->getId();
+}
 
 void ShapeGraphicsItem::paint(QPainter *painter,
                               const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -115,7 +117,7 @@ void ShapeGraphicsItem::paint(QPainter *painter,
 
   // Sync depth of figure with that of mapping (for layered output).
   if (isOutput())
-    setZValue(_mapping->getDepth());
+    setZValue(getMapping()->getDepth());
 
   // Paint if visible.
   if (isMappingVisible())
@@ -207,21 +209,21 @@ QPen ShapeGraphicsItem::_getRescaledShapeStroke(bool innerStroke)
 void ColorGraphicsItem::_prePaint(QPainter *painter,
                                   const QStyleOptionGraphicsItem *option)
 {
-  Color* color = static_cast<Color*>(_mapping->getPaint().get());
+  Color* color = static_cast<Color*>(getMapping()->getPaint().data());
   Q_ASSERT(color);
 
   painter->setPen(Qt::NoPen);
 
   // Set brush.
   QColor col = color->getColor();
-  col.setAlphaF(_mapping->getOpacity());
+  col.setAlphaF(getMapping()->getOpacity());
   painter->setBrush(col);
 }
 
 QPainterPath PolygonColorGraphicsItem::shape() const
 {
   QPainterPath path;
-  Polygon* poly = static_cast<Polygon*>(_shape.get());
+  Polygon* poly = static_cast<Polygon*>(_shape.data());
   Q_ASSERT(poly);
   path.addPolygon(poly->toPolygon());
   return mapFromScene(path);
@@ -231,7 +233,7 @@ void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
                                         const QStyleOptionGraphicsItem *option)
 {
   Q_UNUSED(option);
-  Polygon* poly = static_cast<Polygon*>(_shape.get());
+  Polygon* poly = static_cast<Polygon*>(_shape.data());
   Q_ASSERT(poly);
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
 }
@@ -240,7 +242,7 @@ void PolygonColorGraphicsItem::_doPaintControls(QPainter* painter, const QStyleO
 {
   Q_UNUSED(option);
   painter->setPen(_getRescaledShapeStroke());
-  Polygon* poly = static_cast<Polygon*>(_shape.get());
+  Polygon* poly = static_cast<Polygon*>(_shape.data());
   Q_ASSERT(poly);
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
 }
@@ -249,7 +251,7 @@ QPainterPath EllipseColorGraphicsItem::shape() const
 {
   // Create path for ellipse.
   QPainterPath path;
-  Ellipse* ellipse = static_cast<Ellipse*>(_shape.get());
+  Ellipse* ellipse = static_cast<Ellipse*>(_shape.data());
   Q_ASSERT(ellipse);
   QTransform transform;
   transform.translate(ellipse->getCenter().x(), ellipse->getCenter().y());
@@ -269,13 +271,13 @@ void EllipseColorGraphicsItem::_doPaint(QPainter* painter,
 TextureGraphicsItem::TextureGraphicsItem(Mapping::ptr mapping, bool output)
   : ShapeGraphicsItem(mapping, output)
 {
-  _textureMapping = std::tr1::static_pointer_cast<TextureMapping>(mapping);
+  _textureMapping = qSharedPointerCast<TextureMapping>(mapping);
   Q_CHECK_PTR(_textureMapping);
 
-  _texture = std::tr1::static_pointer_cast<Texture>(_textureMapping->getPaint());
+  _texture = qSharedPointerCast<Texture>(_textureMapping.toStrongRef()->getPaint());
   Q_CHECK_PTR(_texture);
 
-  _inputShape = std::tr1::static_pointer_cast<MShape>(_textureMapping->getInputShape());
+  _inputShape = qSharedPointerCast<MShape>(_textureMapping.toStrongRef()->getInputShape());
   Q_CHECK_PTR(_inputShape);
 }
 
@@ -298,7 +300,7 @@ void TextureGraphicsItem::_doDrawInput(QPainter* painter)
     // FIXME: Does this draw the quad counterclockwise?
     glBegin (GL_QUADS);
     {
-      QRectF rect = mapFromScene(_texture->getRect()).boundingRect();
+      QRectF rect = mapFromScene(_texture.toStrongRef()->getRect()).boundingRect();
 
       Util::correctGlTexCoord(0, 0);
       glVertex3f (rect.x(), rect.y(), 0);
@@ -322,12 +324,14 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   Q_UNUSED(option);
   painter->beginNativePainting();
 
+  QSharedPointer<Texture> texture = _texture.toStrongRef();
+
   // Only works for similar shapes.
   // TODO:remettre
   //Q_ASSERT( _inputShape->nVertices() == outputShape->nVertices());
 
   // Project source texture and sent it to destination.
-  _texture->update();
+  texture->update();
 
   // Allow alpha blending.
   glEnable (GL_BLEND);
@@ -335,17 +339,17 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
 
   // Get texture.
   glEnable (GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, _texture->getTextureId());
+  glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
 
   // Copy bits to texture iff necessary.
-  _texture->lockMutex();
-  if (_texture->bitsHaveChanged())
+  texture->lockMutex();
+  if (texture->bitsHaveChanged())
   {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-      _texture->getWidth(), _texture->getHeight(), 0, GL_RGBA,
-      GL_UNSIGNED_BYTE, _texture->getBits());
+        texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
+      GL_UNSIGNED_BYTE, texture->getBits());
   }
-  _texture->unlockMutex();
+  texture->unlockMutex();
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -353,7 +357,8 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // Set texture color (apply opacity).
-  glColor4f(1.0f, 1.0f, 1.0f, isOutput() ? _mapping->getOpacity() : _mapping->getPaint()->getOpacity());
+  glColor4f(1.0f, 1.0f, 1.0f,
+            isOutput() ? getMapping()->getOpacity() : getMapping()->getPaint()->getOpacity());
 }
 
 void TextureGraphicsItem::_postPaint(QPainter* painter,
@@ -369,7 +374,7 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
 QPainterPath PolygonTextureGraphicsItem::shape() const
 {
   QPainterPath path;
-  Polygon* poly = static_cast<Polygon*>(_shape.get());
+  Polygon* poly = static_cast<Polygon*>(_shape.data());
   Q_ASSERT(poly);
   path.addPolygon(poly->toPolygon());
   return mapFromScene(path);
@@ -384,11 +389,12 @@ void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   Q_UNUSED(painter);
   if (isOutput())
   {
+    MShape::ptr inputShape = _inputShape.toStrongRef();
     glBegin(GL_TRIANGLES);
     {
-      for (int i=0; i<_inputShape->nVertices(); i++)
+      for (int i=0; i<inputShape->nVertices(); i++)
       {
-        Util::setGlTexPoint(*_texture, _inputShape->getVertex(i), mapFromScene(_shape->getVertex(i)));
+        Util::setGlTexPoint(*_texture.toStrongRef(), inputShape->getVertex(i), mapFromScene(getShape()->getVertex(i)));
       }
     }
     glEnd();
@@ -399,7 +405,7 @@ void PolygonTextureGraphicsItem::_doPaintControls(QPainter* painter, const QStyl
 {
   Q_UNUSED(option);
   painter->setPen(_getRescaledShapeStroke());
-  Polygon* poly = static_cast<Polygon*>(_shape.get());
+  Polygon* poly = static_cast<Polygon*>(_shape.data());
   Q_ASSERT(poly);
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
 }
@@ -409,8 +415,8 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   Q_UNUSED(painter);
   if (isOutput())
   {
-    std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(_shape);
-    std::tr1::shared_ptr<Mesh> inputMesh  = std::tr1::static_pointer_cast<Mesh>(_inputShape);
+    QSharedPointer<Mesh> outputMesh = qSharedPointerCast<Mesh>(_shape);
+    QSharedPointer<Mesh> inputMesh  = qSharedPointerCast<Mesh>(_inputShape);
     QVector<QVector<Quad> > outputQuads = outputMesh->getQuads2d();
     QVector<QVector<Quad> > inputQuads  = inputMesh->getQuads2d();
     for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
@@ -419,7 +425,7 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
       {
         QSizeF size = mapFromScene(outputQuads[x][y].toPolygon()).boundingRect().size();
         float area = size.width() * size.height();
-        _drawQuad(*_texture, inputQuads[x][y], outputQuads[x][y], area);
+        _drawQuad(*_texture.toStrongRef(), inputQuads[x][y], outputQuads[x][y], area);
       }
     }
   }
@@ -430,7 +436,7 @@ void MeshTextureGraphicsItem::_doPaintControls(QPainter* painter, const QStyleOp
 {
   Q_UNUSED(option);
 
-  Mesh* mesh = static_cast<Mesh*>(_shape.get());
+  Mesh* mesh = static_cast<Mesh*>(_shape.data());
   Q_ASSERT(mesh);
 
   // Init colors and stroke.
@@ -526,7 +532,7 @@ QPainterPath EllipseTextureGraphicsItem::shape() const
 {
   // Create path for ellipse.
   QPainterPath path;
-  Ellipse* ellipse = static_cast<Ellipse*>(_shape.get());
+  Ellipse* ellipse = static_cast<Ellipse*>(_shape.data());
   Q_ASSERT(ellipse);
   QTransform transform;
   transform.translate(ellipse->getCenter().x(), ellipse->getCenter().y());
@@ -544,8 +550,9 @@ void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 {
   Q_UNUSED(painter);
   // Get input and output ellipses.
-  std::tr1::shared_ptr<Ellipse> inputEllipse  = std::tr1::static_pointer_cast<Ellipse>(_inputShape);
-  std::tr1::shared_ptr<Ellipse> outputEllipse = std::tr1::static_pointer_cast<Ellipse>(_shape);
+  QSharedPointer<Ellipse> inputEllipse  = qSharedPointerCast<Ellipse>(_inputShape);
+  QSharedPointer<Ellipse> outputEllipse = qSharedPointerCast<Ellipse>(_shape);
+  QSharedPointer<Texture> texture = _texture.toStrongRef();
 
   // Start / end angle.
   //const float startAngle = 0;
@@ -588,9 +595,9 @@ void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
     {
       // Draw triangle.
       glBegin(GL_TRIANGLES);
-      Util::setGlTexPoint(*_texture, inputControlCenter, outputControlCenter);
-      Util::setGlTexPoint(*_texture, prevInputPoint,     prevOutputPoint);
-      Util::setGlTexPoint(*_texture, currentInputPoint,  currentOutputPoint);
+      Util::setGlTexPoint(*texture, inputControlCenter, outputControlCenter);
+      Util::setGlTexPoint(*texture, prevInputPoint,     prevOutputPoint);
+      Util::setGlTexPoint(*texture, currentInputPoint,  currentOutputPoint);
       glEnd();
     }
 
@@ -622,7 +629,7 @@ Mapper::Mapper(Mapping::ptr mapping)
   Q_CHECK_PTR(outputShape);
 
   // Create editor.
-  _propertyBrowser = new QtTreePropertyBrowser;
+  _propertyBrowser.reset(new QtTreePropertyBrowser);
   _variantManager = new VariantManager;
   _variantFactory = new VariantFactory;
 
@@ -645,7 +652,7 @@ Mapper::Mapper(Mapping::ptr mapping)
   _outputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
                                              QObject::tr("Output shape"));
 
-  _buildShapeProperty(_outputItem, mapping->getShape().get());
+  _buildShapeProperty(_outputItem, mapping->getShape().data());
   _topItem->addSubProperty(_outputItem);
 
   // Collapse output shape.
@@ -656,18 +663,6 @@ Mapper::Mapper(Mapping::ptr mapping)
   //qDebug() << "Creating mapper" << endl;
 }
 
-Mapper::~Mapper()
-{
-  if (_propertyBrowser)
-    delete _propertyBrowser;
-  if (_graphicsItem)
-    delete _graphicsItem;
-}
-
-QWidget* Mapper::getPropertiesEditor()
-{
-  return _propertyBrowser;
-}
 
 void Mapper::setValue(QtProperty* property, const QVariant& value)
 {
@@ -694,6 +689,14 @@ void Mapper::setValue(QtProperty* property, const QVariant& value)
         emit valueChanged();
       }
     }
+  }
+}
+
+void Mapper::updateShape(MShape* shape)
+{
+  if (shape == _mapping->getShape().data())
+  {
+    _updateShapeProperty(_outputItem, shape);
   }
 }
 
@@ -732,16 +735,10 @@ void Mapper::_updateShapeProperty(QtProperty* shapeItem, MShape* shape)
 ColorMapper::ColorMapper(Mapping::ptr mapping)
   : Mapper(mapping)
 {
-  color = std::tr1::static_pointer_cast<Color>(_mapping->getPaint());
+  color = qSharedPointerCast<Color>(_mapping->getPaint());
   Q_CHECK_PTR(color);
 }
 
-void ColorMapper::updatePaint()
-{
-  color.reset();
-  color = std::tr1::static_pointer_cast<Color>(_mapping->getPaint());
-  Q_CHECK_PTR(color);
-}
 
 //MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)
 //  : ColorMapper(mapping) {
@@ -757,7 +754,7 @@ void ColorMapper::updatePaint()
 //  painter->setPen(Qt::NoPen);
 //  painter->setBrush(color->getColor());
 //
-//  std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
+//  QSharedPointer<Mesh> outputMesh = qSharedPointerCast<Mesh>(outputShape);
 //  QVector<QVector<Quad> > outputQuads = outputMesh->getQuads2d();
 //  for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
 //  {
@@ -771,7 +768,7 @@ void ColorMapper::updatePaint()
 //
 //void MeshColorMapper::drawControls(QPainter* painter, const QList<int>* selectedVertices)
 //{
-//  std::tr1::shared_ptr<Mesh> outputMesh = std::tr1::static_pointer_cast<Mesh>(outputShape);
+//  QSharedPointer<Mesh> outputMesh = qSharedPointerCast<Mesh>(outputShape);
 //  Util::drawControlsMesh(painter, selectedVertices, *outputMesh);
 //}
 //
@@ -792,24 +789,24 @@ void ColorMapper::updatePaint()
 //    ColorMapper::setValue(property, value);
 //}
 
-TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
+TextureMapper::TextureMapper(QSharedPointer<TextureMapping> mapping)
   : Mapper(mapping),
     _meshItem(NULL)
 {
   // Assign members pointers.
-  textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
+  textureMapping = qSharedPointerCast<TextureMapping>(_mapping);
   Q_CHECK_PTR(textureMapping);
 
-  texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+  texture = qSharedPointerCast<Texture>(_mapping->getPaint());
   Q_CHECK_PTR(texture);
 
-  inputShape = std::tr1::static_pointer_cast<MShape>(textureMapping->getInputShape());
+  inputShape = textureMapping.toStrongRef()->getInputShape();
   Q_CHECK_PTR(inputShape);
 
   // Input shape.
   _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
                                             QObject::tr("Input shape"));
-  _buildShapeProperty(_inputItem, textureMapping->getInputShape().get());
+  _buildShapeProperty(_inputItem, inputShape.data());
   _topItem->insertSubProperty(_inputItem, _opacityItem); // insert
 
   // Collapse input shape.
@@ -844,14 +841,14 @@ TextureMapper::TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
 
 void TextureMapper::updateShape(MShape* shape)
 {
-  std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
+  QSharedPointer<TextureMapping> textureMapping = qSharedPointerCast<TextureMapping>(_mapping);
   Q_CHECK_PTR(textureMapping);
 
-  std::tr1::shared_ptr<Texture> texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
+  QSharedPointer<Texture> texture = qSharedPointerCast<Texture>(textureMapping->getPaint());
   Q_CHECK_PTR(texture);
 
-  MShape* inputShape  = textureMapping->getInputShape().get();
-  MShape* outputShape = textureMapping->getShape().get();
+  MShape* inputShape  = textureMapping->getInputShape().data();
+  MShape* outputShape = textureMapping->getShape().data();
   if (shape == inputShape)
   {
     _updateShapeProperty(_inputItem, inputShape);
@@ -863,12 +860,6 @@ void TextureMapper::updateShape(MShape* shape)
 
 }
 
-void TextureMapper::updatePaint()
-{
-  texture.reset();
-  texture = std::tr1::static_pointer_cast<Texture>(textureMapping->getPaint());
-  Q_CHECK_PTR(texture);
-}
 //
 //void TextureMapper::_preDraw(QPainter* painter)
 //{
@@ -910,21 +901,21 @@ void TextureMapper::updatePaint()
 //
 //void PolygonTextureMapper::drawControls(QPainter* painter, const QList<int>* selectedVertices)
 //{
-//  std::tr1::shared_ptr<Polygon> outputPoly = std::tr1::static_pointer_cast<Polygon>(outputShape);
+//  QSharedPointer<Polygon> outputPoly = qSharedPointerCast<Polygon>(outputShape);
 //  Util::drawControlsPolygon(painter, selectedVertices, *outputPoly);
 //}
 //
 //void PolygonTextureMapper::drawInputControls(QPainter* painter, const QList<int>* selectedVertices)
 //{
-//  std::tr1::shared_ptr<Polygon> inputPoly = std::tr1::static_pointer_cast<Polygon>(inputShape);
+//  QSharedPointer<Polygon> inputPoly = qSharedPointerCast<Polygon>(inputShape);
 //  Util::drawControlsPolygon(painter, selectedVertices, *inputPoly);
 //}
 
-TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
+TriangleTextureMapper::TriangleTextureMapper(QSharedPointer<TextureMapping> mapping)
   : PolygonTextureMapper(mapping)
 {
-  _graphicsItem = new TriangleTextureGraphicsItem(_mapping, true);
-  _inputGraphicsItem = new TriangleTextureGraphicsItem(_mapping, false);
+  _graphicsItem.reset(new TriangleTextureGraphicsItem(_mapping, true));
+  _inputGraphicsItem.reset(new TriangleTextureGraphicsItem(_mapping, false));
 }
 //
 //void TriangleTextureMapper::_doDraw(QPainter* painter)
@@ -941,14 +932,14 @@ TriangleTextureMapper::TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping
 ////  glEnd();
 //}
 
-MeshTextureMapper::MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
+MeshTextureMapper::MeshTextureMapper(QSharedPointer<TextureMapping> mapping)
   : PolygonTextureMapper(mapping)
 {
-  _graphicsItem = new MeshTextureGraphicsItem(_mapping, true);
-  _inputGraphicsItem = new MeshTextureGraphicsItem(_mapping, false);
+  _graphicsItem.reset(new MeshTextureGraphicsItem(_mapping, true));
+  _inputGraphicsItem.reset(new MeshTextureGraphicsItem(_mapping, false));
 
   // Add mesh sub property.
-  Mesh* mesh = (Mesh*)textureMapping->getShape().get();
+  QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_mapping->getShape());
   _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
   _meshItem->setAttribute("minimum", QSize(2,2));
@@ -959,11 +950,8 @@ void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
 {
   if (property == _meshItem)
   {
-    std::tr1::shared_ptr<TextureMapping> textureMapping = std::tr1::static_pointer_cast<TextureMapping>(_mapping);
-    Q_CHECK_PTR(textureMapping);
-
-    Mesh* outputMesh = static_cast<Mesh*>(textureMapping->getShape().get());
-    Mesh* inputMesh = static_cast<Mesh*>(textureMapping->getInputShape().get());
+    QSharedPointer<Mesh> outputMesh = qSharedPointerCast<Mesh>(_mapping->getShape());
+    QSharedPointer<Mesh> inputMesh  = qSharedPointerCast<Mesh>(textureMapping.toStrongRef()->getInputShape());
     QSize size = (static_cast<QtVariantProperty*>(property))->value().toSize();
     if (outputMesh->nColumns() != size.width() || outputMesh->nRows() != size.height() ||
         inputMesh->nColumns() != size.width() || inputMesh->nRows() != size.height())
@@ -983,10 +971,10 @@ void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
     TextureMapper::setValue(property, value);
 }
 
-EllipseTextureMapper::EllipseTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping)
+EllipseTextureMapper::EllipseTextureMapper(QSharedPointer<TextureMapping> mapping)
 : PolygonTextureMapper(mapping)
 {
-  _graphicsItem = new EllipseTextureGraphicsItem(_mapping, true);
-  _inputGraphicsItem = new EllipseTextureGraphicsItem(_mapping, false);
+  _graphicsItem.reset(new EllipseTextureGraphicsItem(_mapping, true));
+  _inputGraphicsItem.reset(new EllipseTextureGraphicsItem(_mapping, false));
 }
 

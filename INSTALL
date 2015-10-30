@@ -19,7 +19,6 @@ Install basic development tools fot Qt projects, plus liblo for OSC support::
 
   sudo apt-get install -y \
       liblo-dev \
-      libglew-dev \
       qttools5-dev-tools \
       qt5-default
 
@@ -58,14 +57,36 @@ Then, do this::
 
 Build on Mac OS X
 -----------------
-
 * Install the Apple Developer Tools. You need to register with a credit card in the Apple Store in order to download it.
 * Install Qt5. You can get it from http://qt-project.org/downloads and choose the default location.
+* Install liblo (compile from the tar.gz - it should install it to /usr/local)
 * Install the GStreamer framework. You need the runtime and devel packages to be installed:
 http://gstreamer.freedesktop.org/data/pkg/osx/1.2.4.1/gstreamer-1.0-devel-1.2.4.1-universal.pkg
 http://gstreamer.freedesktop.org/data/pkg/osx/1.2.4.1/gstreamer-1.0-1.2.4.1-universal.pkg
 
+http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64-packages.dmg
+http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64.pkg
+http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-devel-1.6.0-x86_64.pkg
+
 Do this::
 
   ./build.sh
+
+It will create a .app and a .dmg.
+
+DMGVERSION.txt should be created automatically with "1" as its contents. Update to "2", and so on, if needed.
+
+
+Use on OS X
+-----------
+Users can simply the following two packages:
+
+http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64-packages.dmg
+http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64.pkg
+
+MapMap should then work.
+
+If the appearance of the window of the OSC port number in the preferences seem corrupted, you might want to reset MapMap's preferences::
+
+  rm -f ~/Library/Preferences/info.mapmap.MapMap.plist
 

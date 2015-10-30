@@ -19,14 +19,23 @@
 
 #include "Shape.h"
 
-void MShape::translate(int x, int y)
+void MShape::copyFrom(const MShape& shape)
 {
-  for (QVector<QPointF>::iterator it = vertices.begin() ;
-      it != vertices.end(); ++it)
-  {
-    it->setX(it->x() + x);
-    it->setY(it->y() + y);
-  }
+  // Just copy vertices.
+  vertices = shape.vertices;
+}
+
+MShape* MShape::clone() const {
+  MShape* copyShape = _create();
+  copyShape->copyFrom(*this);
+  return copyShape;
+}
+
+void MShape::translate(const QPointF& offset)
+{
+  // We can feel free to translate every vertex without check by default.
+  for (QVector<QPointF>::iterator it = vertices.begin(); it != vertices.end(); ++it)
+    *it += offset;
 }
 
 void Polygon::setVertex(int i, const QPointF& v)
@@ -402,8 +411,11 @@ void Mesh::removeColumn(int columnId)
   vertices    = newVertices;
   _vertices2d = newVertices2d;
 
-  // Increment number of columns.
+  // Decrement number of columns.
   _nColumns--;
+
+  // Reorder.
+  _reorderVertices();
 }
 
 void Mesh::removeRow(int rowId)
@@ -459,8 +471,11 @@ void Mesh::removeRow(int rowId)
   vertices    = newVertices;
   _vertices2d = newVertices2d;
 
-  // Increment number of columns.
+  // Decrement number of rows.
   _nRows--;
+
+  // Reorder.
+  _reorderVertices();
 }
 
 

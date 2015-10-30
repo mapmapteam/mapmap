@@ -26,7 +26,7 @@
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget, QGraphicsScene* scene)
   : QGraphicsView(parent),
     _mainWindow(mainWindow),
-    _mousePressedOnVertex(false),
+    _vertexGrabbed(false),
     _activeVertex(NO_VERTEX),
     _shapeGrabbed(false), // comment out?
     _shapeFirstGrab(false), // comment out?
@@ -61,12 +61,12 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
   this->scene()->setBackgroundBrush(Qt::black);
 }
 
-MShape* MapperGLCanvas::getCurrentShape()
+MShape::ptr MapperGLCanvas::getCurrentShape()
 {
   return getShapeFromMappingId(MainWindow::instance()->getCurrentMappingId());
 }
 
-ShapeGraphicsItem* MapperGLCanvas::getCurrentShapeGraphicsItem()
+QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getCurrentShapeGraphicsItem()
 {
   return getShapeGraphicsItemFromMappingId(MainWindow::instance()->getCurrentMappingId());
 }
@@ -80,12 +80,24 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     uid mid = _mainWindow->getCurrentMappingId();
     if (mid != NULL_UID)
     {
-      ShapeGraphicsItem* item = getCurrentShapeGraphicsItem();
+      // Use current shape graphics item to draw controls.
+      ShapeGraphicsItem::ptr item = getCurrentShapeGraphicsItem();
       if (item)
-        item->getControlPainter()->paint(painter);
+      {
+        QList<int> selected;
+        if (hasActiveVertex())
+          selected.push_back(getActiveVertexIndex());
+        item->getControlPainter()->paint(painter, selected);
+      }
     }
   }
 }
+
+void MapperGLCanvas::currentShapeWasChanged()
+{
+  emit shapeChanged(getCurrentShape().data());
+}
+
 
 //
 void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
@@ -112,7 +124,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   // Check for vertex selection first.
   else if (event->buttons() & Qt::LeftButton)
   {
-    MShape* shape = getCurrentShape();
+    MShape::ptr shape = getCurrentShape();
     if (shape)
     {
       // Note: we compare with the square value for fastest computation of the distance
@@ -127,10 +139,10 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
           _activeVertex = i;
           minDistance = dist;
 
-          _mousePressedOnVertex = true;
+          _vertexGrabbed = true;
           mousePressedOnSomething = true;
 
-          _grabbedObjectStartPosition = shape->getVertex(i);
+          _grabbedObjectStartScenePosition = shape->getVertex(i);
         }
       }
     }
@@ -142,14 +154,14 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   // Check for shape selection.
   if (event->buttons() & (Qt::LeftButton | Qt::RightButton)) // Add Right click for context menu
   {
-    MShape* selectedShape = getCurrentShape();
+    MShape::ptr selectedShape = getCurrentShape();
 
     // Possibility of changing shape in output by clicking on it.
     MappingManager manager = getMainWindow()->getMappingManager();
     QVector<Mapping::ptr> mappings = manager.getVisibleMappings();
     for (QVector<Mapping::ptr>::const_iterator it = mappings.end() - 1; it >= mappings.begin(); --it)
     {
-      MShape *shape = getShapeFromMappingId((*it)->getId());
+      MShape::ptr shape = getShapeFromMappingId((*it)->getId());
 
       // Check if mouse was pressed on that shape.
       if (shape && shape->includesPoint(pos))
@@ -181,7 +193,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
         _shapeGrabbed = true;
         _shapeFirstGrab = true;
 
-        _grabbedObjectStartPosition = pos;
+        _grabbedObjectStartScenePosition = pos;
       }
     }
   }
@@ -210,14 +222,22 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
 //  if ((event->buttons() & Qt::LeftButton) && _mousePressedOnVertex)
 //  {
 //  }
-  if (_mousePressedOnVertex)
+  if (_vertexGrabbed)
   {
+    // TODO : code repetition here!!!
+    QPointF p = mapToScene(event->pos());
+
+    // Stick to vertices.
+    if (_mainWindow->stickyVertices())
+      _glueVertex(&p);
+
+    undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::RELEASE, _activeVertex, p));
   }
   else if (_shapeGrabbed)
   {
-
+    undoStack->push(new TranslateShapeCommand(this, TransformShapeCommand::RELEASE, QPointF()));
   }
-  _mousePressedOnVertex = false;
+  _vertexGrabbed = false;
   _shapeGrabbed = false;
 }
 
@@ -225,30 +245,30 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 {
   static QPoint lastMousePos;
 
-  QPointF pos = mapToScene(event->pos());
+  QPointF scenePos = mapToScene(event->pos());
 
   // Prepare to store commands
   undoStack = getMainWindow()->getUndoStack();
 
   // Vertex grab.
-  if (_mousePressedOnVertex)
+  if (_vertexGrabbed)
   {
     // std::cout << "Move event " << std::endl;
-    MShape* shape = getCurrentShape();
-    if (shape && _activeVertex != NO_VERTEX)
+    MShape::ptr shape = getCurrentShape();
+    if (shape && hasActiveVertex())
     {
 //      QPointF p = shape->getVertex(_activeVertex);
 //      // Set point to mouse coordinates.
 //      p.setX(pos.x());
 //      p.setY(pos.y());
 
-      QPointF p = pos;
+      QPointF p = scenePos;
 
       // Stick to vertices.
       if (_mainWindow->stickyVertices())
         _glueVertex(&p);
 
-      shape->setVertex(_activeVertex, p);
+      undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::FREE, _activeVertex, p));
     }
   }
 
@@ -256,7 +276,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
   else if (_shapeGrabbed)
   {
     // std::cout << "Move event " << std::endl;
-    MShape* shape = getCurrentShape();
+    MShape::ptr shape = getCurrentShape();
     if (shape)
     {
       if (_shapeFirstGrab)
@@ -266,8 +286,8 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       }
     }
 
-    QPointF diff = pos - mapToScene(lastMousePos);
-    shape->translate(diff.x(), diff.y());
+    QPointF diff = scenePos - mapToScene(lastMousePos);
+    undoStack->push(new TranslateShapeCommand(this, TransformShapeCommand::FREE, diff));
   }
 
   // Window translation action
@@ -279,108 +299,114 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 //    view->update();
   }
 
+  // Reset last mouse position.
   lastMousePos = event->pos();
 }
 
-//
-//void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
-//{
-//  // Prepare to store commands
-//  undoStack = getMainWindow()->getUndoStack();
-//
-//  // Checks if the key has been handled by this function or needs to be deferred to superclass.
-//  bool handledKey = false;
-//
-//  // Active vertex selected.
-//  if (hasActiveVertex())
-//  {
-//    Shape* shape = getCurrentShape();
-//    QPointF p = shape->getVertex(_activeVertex);
-//    handledKey = true;
-//    switch (event->key()) {
-//    // TODO: key tab should switch to next vertex: not working because somehow caught at a higher level
-//    // to switch between frames of the layout
-////    case Qt::Key_Tab:
-////      if (shape)
-////        _activeVertex = (_activeVertex + 1) % shape->nVertices();
-////        p = shape->getVertex(_activeVertex); // reset to new vertex
-////        qDebug() << "New active vertex : " << _activeVertex << endl;
-////      break;
-//    // Handle pixel-wise adjustments of vertex.
-//    case Qt::Key_Up:
-//      p.ry()--;
+
+void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
+{
+  // Prepare to store commands.
+  undoStack = getMainWindow()->getUndoStack();
+
+  // Checks if the key has been handled by this function or needs to be deferred to superclass.
+  bool handledKey = false;
+
+  // Active vertex selected.
+  if (hasActiveVertex())
+  {
+    MShape::ptr shape = getCurrentShape();
+    QPoint pos = mapFromScene(shape->getVertex(_activeVertex));
+    handledKey = true;
+
+    switch (event->key()) {
+    // TODO: key tab should switch to next vertex: not working because somehow caught at a higher level
+    // to switch between frames of the layout
+//    case Qt::Key_Tab:
+//      if (shape)
+//        _activeVertex = (_activeVertex + 1) % shape->nVertices();
+//        p = shape->getVertex(_activeVertex); // reset to new vertex
+//        qDebug() << "New active vertex : " << _activeVertex << endl;
 //      break;
-//    case Qt::Key_Down:
-//      p.ry()++;
-//      break;
-//    case Qt::Key_Right:
-//      p.rx()++;
-//      break;
-//    case Qt::Key_Left:
-//      p.rx()--;
-//      break;
-//    default:
-//      if (event->matches(QKeySequence::Undo))
-//        undoStack->undo();
-//
-//      else if (event->matches(QKeySequence::Redo))
-//        undoStack->redo();
-//      else
-//        handledKey = false;
-//      break;
+    // Handle pixel-wise adjustments of vertex.
+    case Qt::Key_Up:
+      pos.ry()--;
+      break;
+    case Qt::Key_Down:
+      pos.ry()++;
+      break;
+    case Qt::Key_Right:
+      pos.rx()++;
+      break;
+    case Qt::Key_Left:
+      pos.rx()--;
+      break;
+    default:
+      if (event->matches(QKeySequence::Undo))
+        undoStack->undo();
+
+      else if (event->matches(QKeySequence::Redo))
+        undoStack->redo();
+      else
+        handledKey = false;
+      break;
+    }
+
+    // Remap window position to scene.
+    QPointF scenePos = mapToScene(pos);
+
+    // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
+    // Enable to Undo and Redo when arrow keys move the position of vertices
+    undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::STEP, _activeVertex, scenePos));
+  }
+
+  // Defer unhandled keys to parent.
+  if (!handledKey)
+  {
+    QWidget::keyPressEvent(event);
+  }
+
+//  std::cout << "Key pressed" << std::endl;
+//  int xMove = 0;
+//  int yMove = 0;
+//  switch (event->key()) {
+//  case Qt::Key_Tab:
+//    if (event->modifiers() & Qt::ControlModifier)
+//      switchImage( (Common::getCurrentSourceId() + 1) % Common::nImages());
+//    else
+//    {
+//      Quad& quad = getQuad();
+//      _active_vertex = (_active_vertex + 1 ) % 4;
 //    }
-//    // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
-//    // Enable to Undo and Redo when arrow keys move the position of vertices
-//    undoStack->push(new MoveVertexCommand(this, _activeVertex, p));
-//  }
-//
-//  // Defer unhandled keys to parent.
-//  if (!handledKey)
-//  {
+//    break;
+//  case Qt::Key_Up:
+//    yMove = -1;
+//    break;
+//  case Qt::Key_Down:
+//    yMove = +1;
+//    break;
+//  case Qt::Key_Left:
+//    xMove = -1;
+//    break;
+//  case Qt::Key_Right:
+//    xMove = +1;
+//    break;
+//  default:
+//    std::cerr << "Unhandled key" << std::endl;
 //    QWidget::keyPressEvent(event);
+//    break;
 //  }
 //
-////  std::cout << "Key pressed" << std::endl;
-////  int xMove = 0;
-////  int yMove = 0;
-////  switch (event->key()) {
-////  case Qt::Key_Tab:
-////    if (event->modifiers() & Qt::ControlModifier)
-////      switchImage( (Common::getCurrentSourceId() + 1) % Common::nImages());
-////    else
-////    {
-////      Quad& quad = getQuad();
-////      _active_vertex = (_active_vertex + 1 ) % 4;
-////    }
-////    break;
-////  case Qt::Key_Up:
-////    yMove = -1;
-////    break;
-////  case Qt::Key_Down:
-////    yMove = +1;
-////    break;
-////  case Qt::Key_Left:
-////    xMove = -1;
-////    break;
-////  case Qt::Key_Right:
-////    xMove = +1;
-////    break;
-////  default:
-////    std::cerr << "Unhandled key" << std::endl;
-////    QWidget::keyPressEvent(event);
-////    break;
-////  }
-////
-////  Quad& quad = getQuad();
-////  Point *p = quad.getVertex(_active_vertex);
-////  p->x += xMove;
-////  p->y += yMove;
-////  quad.setVertex(_active_vertex, p);
-////
-////  update();
-////
-////  emit quadChanged();
-//}
+//  Quad& quad = getQuad();
+//  Point *p = quad.getVertex(_active_vertex);
+//  p->x += xMove;
+//  p->y += yMove;
+//  quad.setVertex(_active_vertex, p);
+//
+//  update();
+//
+//  emit quadChanged();
+}
 //
 //void MapperGLCanvas::paintEvent(QPaintEvent* )
 //{
@@ -428,7 +454,7 @@ void MapperGLCanvas::updateCanvas()
 void MapperGLCanvas::deselectVertices()
 {
   _activeVertex = NO_VERTEX;
-  _mousePressedOnVertex = false;
+  _vertexGrabbed = false;
 }
 
 void MapperGLCanvas::deselectAll()
@@ -497,7 +523,7 @@ void MapperGLCanvas::_glueVertex(QPointF* p)
   MappingManager manager = MainWindow::instance()->getMappingManager();
   for (int i = 0; i < manager.nMappings(); i++)
   {
-    MShape *shape = manager.getMapping(i)->getShape().get();
+    MShape *shape = manager.getMapping(i)->getShape().data();
     if (shape && shape != getCurrentShape())
     {
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)

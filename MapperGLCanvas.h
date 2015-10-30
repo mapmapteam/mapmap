@@ -47,7 +47,6 @@ class ShapeGraphicsItem;
 class MapperGLCanvas: public QGraphicsView
 {
   Q_OBJECT
-
 public:
   /// Constructor.
   MapperGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
@@ -55,11 +54,11 @@ public:
 
   /// Returns shape associated with mapping id.
   virtual bool isOutput() const = 0;
-  virtual MShape* getShapeFromMappingId(uid mappingId) const = 0;
-  virtual ShapeGraphicsItem* getShapeGraphicsItemFromMappingId(uid mappingId) const = 0;
+  virtual MShape::ptr getShapeFromMappingId(uid mappingId) const = 0;
+  virtual QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMappingId(uid mappingId) const = 0;
 
-  MShape* getCurrentShape();
-  ShapeGraphicsItem* getCurrentShapeGraphicsItem();
+  MShape::ptr getCurrentShape();
+  QSharedPointer<ShapeGraphicsItem> getCurrentShapeGraphicsItem();
 
 //  QSize sizeHint() const;
 //  QSize minimumSizeHint() const;
@@ -85,6 +84,9 @@ public:
   void setActiveVertexIndex(int activeVertex) { _activeVertex = activeVertex; }
 
   qreal getZoomFactor() const { return qBound(qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MIN, MM::ZOOM_MAX); }
+
+  /// This function needs to be called after a shape inside the canvas has been changed for appropriate signals to be activated.
+  void currentShapeWasChanged();
 
 protected:
 //  void initializeGL();
@@ -125,10 +127,10 @@ private:
   QPoint _mousePressedPosition;
 
   // Start position of last object grabbed (in scene coordinates).
-  QPointF _grabbedObjectStartPosition;
+  QPointF _grabbedObjectStartScenePosition;
 
   // Mouse currently pressed inside a vertex.
-  bool _mousePressedOnVertex;
+  bool _vertexGrabbed;
 
   // Index of currently active vertex.
   int _activeVertex;
@@ -158,6 +160,7 @@ public slots:
   void mousePressEvent(QMouseEvent *event);
   void mouseReleaseEvent(QMouseEvent *event);
   void mouseMoveEvent(QMouseEvent *event);
+  void keyPressEvent(QKeyEvent* event);
 
   // Event Filter
   bool eventFilter(QObject *target, QEvent *event);

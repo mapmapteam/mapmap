@@ -1,6 +1,6 @@
 CONFIG  += qt debug
 TEMPLATE = app
-VERSION = 0.3.0
+VERSION = 0.3.1
 TARGET = mapmap
 QT += gui opengl xml
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -72,10 +72,11 @@ QMAKE_EXTRA_TARGETS += docs
 unix:!mac {
   DEFINES += UNIX
   CONFIG += link_pkgconfig
+  INCLUDE_PATH += 
   PKGCONFIG += \
     gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 \
     liblo \
-    gl x11
+    gl x11 
   QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
   QMAKE_CXXFLAGS += -DHAVE_OSC
   mapmapfile.files = mapmap
@@ -121,6 +122,14 @@ mac {
   # This tells qmake not to put the executable inside a bundle.
   # just for reference. Do not uncomment.
   # CONFIG-=app_bundle
+
+  # For OSC support: (if pkg-config was installed)
+  # CONFIG += link_pkgconfig
+  # PKGCONFIG += lo
+
+  LIBS += -L/usr/local/lib -llo
+  INCLUDEPATH += /usr/local/include
+  QMAKE_CXXFLAGS += -DHAVE_OSC
 }
 
 # Windows-specific:

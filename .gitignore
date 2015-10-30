@@ -18,7 +18,7 @@
 *.tar
 *.rar
 *.qm
-Makefile
+Makefile*
 prototypes/sdl/run
 prototypes/wx-01-simple/run
 prototypes/wx-03-polyline/run
@@ -38,5 +38,6 @@ html/
 .qmake.stash
 Info.plist
 *.xcodeproj/
-*.pro.user
+*.pro.user*
 *.app
+DMGVERSION.txt

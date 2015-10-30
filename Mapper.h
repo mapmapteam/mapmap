@@ -30,8 +30,6 @@
 #include <GL/gl.h>
 #endif
 
-#include <tr1/memory>
-
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -58,7 +56,7 @@ class ShapeGraphicsItem;
 class ShapeControlPainter
 {
 public:
-  typedef std::tr1::shared_ptr<ShapeControlPainter> ptr;
+  typedef QSharedPointer<ShapeControlPainter> ptr;
 
   ShapeControlPainter(ShapeGraphicsItem* shapeItem);
   virtual ~ShapeControlPainter() {}
@@ -107,6 +105,8 @@ protected:
 class ShapeGraphicsItem : public QGraphicsItem
 {
   Q_DECLARE_TR_FUNCTIONS(ShapeGraphicsItem)
+public:
+  typedef QSharedPointer<ShapeGraphicsItem> ptr;
 
 protected:
   ShapeGraphicsItem(Mapping::ptr mapping, bool output=true);
@@ -116,9 +116,9 @@ public:
 public:
 
   // TODO: dangereux: confusion possible entre shape() et getShape()...
-  MShape::ptr getShape() const { return _shape; }
+  MShape::ptr getShape() const { return _shape.toStrongRef(); }
 
-  Mapping::ptr getMapping() const { return _mapping; }
+  Mapping::ptr getMapping() const { return _mapping.toStrongRef(); }
 
   ShapeControlPainter::ptr getControlPainter() { return _controlPainter; }
 
@@ -126,7 +126,7 @@ public:
   MapperGLCanvas* getCanvas() const;
 
   bool isMappingCurrent() const;
-  bool isMappingVisible() const { return _mapping->isVisible(); }
+  bool isMappingVisible() const { return getMapping()->isVisible(); }
 
   virtual QRectF boundingRect() const { return shape().boundingRect(); }
 //  virtual QPainterPath shape() const;
@@ -152,8 +152,8 @@ public:
   // invariant to the zoom level (to be used in _doPaintControls() method).
   QPen _getRescaledShapeStroke(bool innerStroke=false);
 protected:
-  Mapping::ptr _mapping;
-  MShape::ptr _shape;
+  QWeakPointer<Mapping> _mapping;
+  QWeakPointer<MShape> _shape;
   ShapeControlPainter::ptr  _controlPainter;
   bool _output;
 };
@@ -224,9 +224,9 @@ protected:
   virtual void _doDrawInput(QPainter* painter);
 
 protected:
-  std::tr1::shared_ptr<TextureMapping> _textureMapping;
-  std::tr1::shared_ptr<Texture> _texture;
-  std::tr1::shared_ptr<MShape> _inputShape;
+  QWeakPointer<TextureMapping> _textureMapping;
+  QWeakPointer<Texture> _texture;
+  QWeakPointer<MShape> _inputShape;
 };
 
 /// Graphics item for textured polygons (eg. triangles).
@@ -306,28 +306,25 @@ class Mapper : public QObject
   Q_OBJECT
 
 public:
-  typedef std::tr1::shared_ptr<Mapper> ptr;
+  typedef QSharedPointer<Mapper> ptr;
 
 protected:
   /// Constructor. A mapper applies to a mapping.
   Mapper(Mapping::ptr mapping);
-  virtual ~Mapper();
+
+public:
+  virtual ~Mapper() {}
 
 public:
   /// Returns a pointer to the properties editor for that mapper.
-  virtual QWidget* getPropertiesEditor();
+  virtual QWidget* getPropertiesEditor() { return _propertyBrowser.data(); }
 
-  virtual ShapeGraphicsItem* getGraphicsItem() {
-    return _graphicsItem;
-  }
-  virtual ShapeGraphicsItem* getInputGraphicsItem() {
-    return _inputGraphicsItem;
-  }
+  virtual ShapeGraphicsItem::ptr getGraphicsItem() const { return _graphicsItem; }
+  virtual ShapeGraphicsItem::ptr getInputGraphicsItem() { return _inputGraphicsItem; }
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
-  virtual void updateShape(MShape* shape) { Q_UNUSED(shape); }
-  virtual void updatePaint() {}
+  virtual void updateShape(MShape* shape);
 
 signals:
   void valueChanged();
@@ -335,7 +332,7 @@ signals:
 protected:
   Mapping::ptr _mapping;
 
-  QtTreePropertyBrowser* _propertyBrowser;
+  QSharedPointer<QtTreePropertyBrowser> _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
 
@@ -345,8 +342,8 @@ protected:
 
   std::map<QtProperty*, std::pair<MShape*, int> > _propertyToVertex;
 
-  ShapeGraphicsItem* _graphicsItem;
-  ShapeGraphicsItem* _inputGraphicsItem;
+  ShapeGraphicsItem::ptr _graphicsItem;
+  ShapeGraphicsItem::ptr _inputGraphicsItem;
 
   // FIXME: use typedefs, member of the class for type names that are too long to type:
   MShape::ptr outputShape;
@@ -362,15 +359,12 @@ class ColorMapper : public Mapper
 {
   Q_OBJECT
 
-public slots:
-  virtual void updatePaint();
-
 protected:
   ColorMapper(Mapping::ptr mapping);
   virtual ~ColorMapper() {}
 
 protected:
-  std::tr1::shared_ptr<Color> color;
+  QSharedPointer<Color> color;
 };
 
 class PolygonColorMapper : public ColorMapper
@@ -379,7 +373,7 @@ class PolygonColorMapper : public ColorMapper
 
 public:
   PolygonColorMapper(Mapping::ptr mapping) : ColorMapper(mapping) {
-    _graphicsItem = new PolygonColorGraphicsItem(mapping, true);
+    _graphicsItem.reset(new PolygonColorGraphicsItem(mapping, true));
   }
   virtual ~PolygonColorMapper() {}
 };
@@ -408,7 +402,7 @@ class EllipseColorMapper : public ColorMapper
 
 public:
   EllipseColorMapper(Mapping::ptr mapping) : ColorMapper(mapping) {
-    _graphicsItem = new EllipseColorGraphicsItem(mapping, true);
+    _graphicsItem.reset(new EllipseColorGraphicsItem(mapping, true));
   }
 
   virtual ~EllipseColorMapper() {}
@@ -422,7 +416,7 @@ class TextureMapper : public Mapper
   Q_OBJECT
 
 public:
-  TextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  TextureMapper(QSharedPointer<TextureMapping> mapping);
   virtual ~TextureMapper() {}
 
 //  /**
@@ -437,7 +431,6 @@ public:
 
 public slots:
   virtual void updateShape(MShape* shape);
-  virtual void updatePaint();
 
 //protected:
 //  virtual void _doDraw(QPainter* painter) = 0;
@@ -449,9 +442,9 @@ protected:
   QtVariantProperty* _meshItem;
 
   // FIXME: use typedefs, member of the class for type names that are too long to type:
-  std::tr1::shared_ptr<TextureMapping> textureMapping;
-  std::tr1::shared_ptr<Texture> texture;
-  std::tr1::shared_ptr<MShape> inputShape;
+  QWeakPointer<TextureMapping> textureMapping;
+  QWeakPointer<Texture> texture;
+  QWeakPointer<MShape> inputShape;
 };
 
 class PolygonTextureMapper : public TextureMapper
@@ -459,7 +452,7 @@ class PolygonTextureMapper : public TextureMapper
   Q_OBJECT
 
 public:
-  PolygonTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping) : TextureMapper(mapping) {}
+  PolygonTextureMapper(QSharedPointer<TextureMapping> mapping) : TextureMapper(mapping) {}
   virtual ~PolygonTextureMapper() {}
 };
 
@@ -468,7 +461,7 @@ class TriangleTextureMapper : public PolygonTextureMapper
   Q_OBJECT
 
 public:
-  TriangleTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  TriangleTextureMapper(QSharedPointer<TextureMapping> mapping);
   virtual ~TriangleTextureMapper() {}
 };
 
@@ -477,7 +470,7 @@ class MeshTextureMapper : public PolygonTextureMapper
   Q_OBJECT
 
 public:
-  MeshTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  MeshTextureMapper(QSharedPointer<TextureMapping> mapping);
   virtual ~MeshTextureMapper() {}
 
 public slots:
@@ -491,7 +484,7 @@ class EllipseTextureMapper : public PolygonTextureMapper {
   Q_OBJECT
 
 public:
-  EllipseTextureMapper(std::tr1::shared_ptr<TextureMapping> mapping);
+  EllipseTextureMapper(QSharedPointer<TextureMapping> mapping);
   virtual ~EllipseTextureMapper() {}
 
 protected:

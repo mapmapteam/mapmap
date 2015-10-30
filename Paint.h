@@ -34,8 +34,6 @@
 #include <GL/gl.h>
 #endif
 
-#include <tr1/memory>
-
 #include "UidAllocator.h"
 
 /**
@@ -56,7 +54,7 @@ protected:
   Paint(uid id=NULL_UID);
 
 public:
-  typedef std::tr1::shared_ptr<Paint> ptr;
+  typedef QSharedPointer<Paint> ptr;
 
   virtual ~Paint();
 
