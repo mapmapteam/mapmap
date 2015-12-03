@@ -49,7 +49,7 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     // Display crosshair cursor.
     if (_displayCrosshair)
     {
-      QPointF cursorPosition = mapToScene(cursor().pos());// - rect.topLeft();//(QCursor::pos());///*this->mapFromGlobal(*/QCursor::pos()/*)*/;
+      QPointF cursorPosition = mapToScene(mapFromGlobal(cursor().pos()));// - rect.topLeft();//(QCursor::pos());///*this->mapFromGlobal(*/QCursor::pos()/*)*/;
       if (rect.contains(cursorPosition))
       {
         painter->setPen(MM::CONTROL_COLOR);
