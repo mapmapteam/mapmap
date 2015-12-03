@@ -49,7 +49,7 @@ void PolygonControlPainter::_paintShape(QPainter *painter)
   Q_ASSERT(poly);
 
   // Init colors and stroke.
-  painter->setPen(_shapeItem->_getRescaledShapeStroke());
+  painter->setPen(_shapeItem->getRescaledShapeStroke());
 
   // Draw inner quads.
   painter->drawPolygon(poly->toPolygon());
@@ -62,7 +62,7 @@ void EllipseControlPainter::_paintShape(QPainter *painter)
   Q_ASSERT(ellipse);
 
   // Init colors and stroke.
-  painter->setPen(_shapeItem->_getRescaledShapeStroke());
+  painter->setPen(_shapeItem->getRescaledShapeStroke());
   painter->setBrush(Qt::NoBrush);
 
   // Draw ellipse contour.
@@ -80,7 +80,7 @@ void MeshControlPainter::_paintShape(QPainter *painter)
   Q_ASSERT(mesh);
 
   // Init colors and stroke.
-  painter->setPen(_shapeItem->_getRescaledShapeStroke(true));
+  painter->setPen(_shapeItem->getRescaledShapeStroke(true));
 
   // Draw inner quads.
   QVector<Quad> quads = mesh->getQuads();
@@ -90,7 +90,7 @@ void MeshControlPainter::_paintShape(QPainter *painter)
   }
 
   // Draw outer quad.
-  painter->setPen(_shapeItem->_getRescaledShapeStroke());
+  painter->setPen(_shapeItem->getRescaledShapeStroke());
   painter->drawPolygon(_shapeItem->mapFromScene(mesh->toPolygon()));
 }
 
@@ -129,32 +129,7 @@ void ShapeGraphicsItem::paint(QPainter *painter,
   }
 }
 
-void ShapeGraphicsItem::_doPaintControls(QPainter *painter, const QStyleOptionGraphicsItem *option)
-{
-//  Q_UNUSED(option);
-//  _controlPainter->paint(painter, )
-//  Util::drawControls
-//  painter->setPen(_getRescaledShapeStroke());
-//  painter->setBrush(Qt::NoBrush);
-//  painter->drawPath(shape());
-//  Util::drawControlsVertex(painter, QPointF(0,0), (option->state & QStyle::State_Selected), MM::VERTEX_SELECT_RADIUS);
-//  }
-}
-
-
-//QVariant ShapeGraphicsItem::itemChange(GraphicsItemChange change, const QVariant &value)
-//{
-//  if (change == ItemPositionChange)
-//  {
-//    qDebug() << "Item changed" << endl;
-//    return QPointF(pos().x(), value.toPointF().y());
-//  }
-//
-//  return QGraphicsItem::itemChange(change, value);
-//}
-
-
-QPen ShapeGraphicsItem::_getRescaledShapeStroke(bool innerStroke)
+QPen ShapeGraphicsItem::getRescaledShapeStroke(bool innerStroke)
 {
   return QPen(QBrush(MM::CONTROL_COLOR), (innerStroke ? MM::SHAPE_INNER_STROKE_WIDTH : MM::SHAPE_STROKE_WIDTH) / getCanvas()->getZoomFactor());
 }
@@ -220,6 +195,11 @@ void ColorGraphicsItem::_prePaint(QPainter *painter,
   painter->setBrush(col);
 }
 
+PolygonColorGraphicsItem::PolygonColorGraphicsItem(Mapping::ptr mapping, bool output)
+  : ColorGraphicsItem(mapping, output) {
+  _controlPainter.reset(new PolygonControlPainter(this));
+}
+
 QPainterPath PolygonColorGraphicsItem::shape() const
 {
   QPainterPath path;
@@ -238,14 +218,10 @@ void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
 }
 
-void PolygonColorGraphicsItem::_doPaintControls(QPainter* painter, const QStyleOptionGraphicsItem *option)
-{
-  Q_UNUSED(option);
-  painter->setPen(_getRescaledShapeStroke());
-  Polygon* poly = static_cast<Polygon*>(_shape.data());
-  Q_ASSERT(poly);
-  painter->drawPolygon(mapFromScene(poly->toPolygon()));
-}
+EllipseColorGraphicsItem::EllipseColorGraphicsItem(Mapping::ptr mapping, bool output)
+  : ColorGraphicsItem(mapping, output) {
+    _controlPainter.reset(new EllipseControlPainter(this));
+  }
 
 QPainterPath EllipseColorGraphicsItem::shape() const
 {
@@ -401,13 +377,8 @@ void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   }
 }
 
-void PolygonTextureGraphicsItem::_doPaintControls(QPainter* painter, const QStyleOptionGraphicsItem *option)
-{
-  Q_UNUSED(option);
-  painter->setPen(_getRescaledShapeStroke());
-  Polygon* poly = static_cast<Polygon*>(_shape.data());
-  Q_ASSERT(poly);
-  painter->drawPolygon(mapFromScene(poly->toPolygon()));
+PolygonTextureGraphicsItem::PolygonTextureGraphicsItem(Mapping::ptr mapping, bool output) : TextureGraphicsItem(mapping, output) {
+  _controlPainter.reset(new PolygonControlPainter(this));
 }
 
 void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
@@ -432,27 +403,10 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 
 }
 
-void MeshTextureGraphicsItem::_doPaintControls(QPainter* painter, const QStyleOptionGraphicsItem *option)
-{
-  Q_UNUSED(option);
-
-  Mesh* mesh = static_cast<Mesh*>(_shape.data());
-  Q_ASSERT(mesh);
-
-  // Init colors and stroke.
-  painter->setPen(_getRescaledShapeStroke(true));
-
-  // Draw inner quads.
-  QVector<Quad> quads = mesh->getQuads();
-  for (QVector<Quad>::const_iterator it = quads.begin(); it != quads.end(); ++it)
-  {
-    painter->drawPolygon(mapFromScene(it->toPolygon()));
-  }
-
-  // Draw outer quad.
-  painter->setPen(_getRescaledShapeStroke());
-  painter->drawPolygon(mapFromScene(mesh->toPolygon()));
+MeshTextureGraphicsItem::MeshTextureGraphicsItem(Mapping::ptr mapping, bool output) : PolygonTextureGraphicsItem(mapping, output) {
+  _controlPainter.reset(new MeshControlPainter(this));
 }
+
 
 void MeshTextureGraphicsItem::_drawQuad(const Texture& texture, const Quad& inputQuad, const Quad& outputQuad, float outputArea, float inputThreshod, float outputThreshold)
 {
@@ -527,6 +481,9 @@ QList<Quad> MeshTextureGraphicsItem::_split(const Quad& quad)
   return quads;
 }
 
+EllipseTextureGraphicsItem::EllipseTextureGraphicsItem(Mapping::ptr mapping, bool output) : TextureGraphicsItem(mapping, output) {
+  _controlPainter.reset(new EllipseControlPainter(this));
+}
 
 QPainterPath EllipseTextureGraphicsItem::shape() const
 {

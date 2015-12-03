@@ -29,6 +29,11 @@
 // TODO: add SLOT for mySetVisible
 // TODO: Maybe improve support for Ubuntu: http://stackoverflow.com/questions/12645880/fullscreen-for-qdialog-from-within-mainwindow-only-working-sometimes
 
+/**
+ * This class acts as the pop-up window containing a copy of the destination canvas (see OutputGLCanvas)
+ * and that can be put to fullscreen. Aside from the fullscreen functionality, it adds the possibility of
+ * removing the cursor and displaying a cross-hair.
+ */
 class OutputGLWindow : public QDialog
 {
   Q_OBJECT

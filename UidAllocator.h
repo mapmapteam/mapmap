@@ -19,7 +19,8 @@
  */
 
 /**
- * The UidAllocator class.
+ * The UidAllocator class. Allocates unique IDs that can be used to uniquely identify
+ * elements from collections of objects.
  */
 
 #ifndef __UID_ALLOCATOR_H__

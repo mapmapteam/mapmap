@@ -5,59 +5,47 @@
 
 bool OscReceiver::server_is_ok_ = true;
 
-OscReceiver::OscReceiver(const std::string &port) :
-    port_(port),
-    server_(0)
-{
-    server_ = lo_server_thread_new(port_.c_str(), error);
-    server_is_ok_ = (server_ != NULL);
+OscReceiver::OscReceiver(const std::string &port) : port_(port), server_(0) {
+  server_ = lo_server_thread_new(port_.c_str(), error);
+  server_is_ok_ = (server_ != NULL);
 // #ifdef CONFIG_DEBUG
 //     /* add method that will match any path and args */
 //     lo_server_thread_add_method(server_, NULL, NULL, genericHandler, this);
 // #endif
 }
 
-OscReceiver::~OscReceiver()
-{
+OscReceiver::~OscReceiver() {
 //    std::cout << "Freeing OSC server thread\n";
-    lo_server_thread_free(server_);
+  lo_server_thread_free(server_);
 }
 
-void OscReceiver::addHandler(const char *path, const char *types, lo_method_handler handler, void *userData)
-{
-    if (server_is_ok_)
-        lo_server_thread_add_method(server_, path, types, handler, userData);
-    else
-        std::cout << "Could not add OSC handler " << path << std::endl;
+void OscReceiver::addHandler(const char *path, const char *types,
+                             lo_method_handler handler, void *userData) {
+  if (server_is_ok_)
+    lo_server_thread_add_method(server_, path, types, handler, userData);
+  else
+    std::cout << "Could not add OSC handler " << path << std::endl;
 }
 
-void OscReceiver::listen()
-{
-    if (server_is_ok_)
-    {
-        int lo_fd = lo_server_get_socket_fd(server_);
-        if (lo_fd == 0)
-        {
-            std::cout << "OSC port " << port_ << " is already in use." << std::endl;
-        }
-        else
-        {
-            std::cout << "Listening on port " << port_ << std::endl;
-            lo_server_thread_start(server_);
-        }
+void OscReceiver::listen() {
+  if (server_is_ok_) {
+    int lo_fd = lo_server_get_socket_fd(server_);
+    if (lo_fd == 0) {
+      std::cout << "OSC port " << port_ << " is already in use." << std::endl;
+    } else {
+      std::cout << "Listening on port " << port_ << std::endl;
+      lo_server_thread_start(server_);
     }
-    else
-    {
-        std::cout << "Could not start OSC receiver. Maybe that ";
-        std::cout << "OSC port " << port_ << " is already in use." << std::endl;
-    }
+  }
+  else {
+    std::cout << "Could not start OSC receiver. Maybe that ";
+    std::cout << "OSC port " << port_ << " is already in use." << std::endl;
+  }
 }
 
-void OscReceiver::error(int num, const char *msg, const char *path)
-{
-    std::cerr << "liblo server error " << num << " in path " << path 
-        << ": " << msg << std::endl;
-    OscReceiver::server_is_ok_ = false;
+void OscReceiver::error(int num, const char *msg, const char *path) {
+  std::cerr << "liblo server error " << num << " in path " << path << ": " << msg << std::endl;
+  OscReceiver::server_is_ok_ = false;
 }
 
 // #ifdef CONFIG_DEBUG
@@ -82,10 +70,8 @@ void OscReceiver::error(int num, const char *msg, const char *path)
 // } 
 // #endif // CONFIG_DEBUG
 
-std::string OscReceiver::toString() const
-{
-    return "port:" + port_;
+std::string OscReceiver::toString() const {
+  return "port:" + port_;
 }
 
 #endif // HAVE_OSC
-

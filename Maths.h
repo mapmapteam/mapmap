@@ -1,6 +1,8 @@
 /*
  * Math.h
  *
+ * Contains a set of math utility functions to be used accross MapMap.
+ *
  * (c) 2014 Sofian Audry -- info(@)sofianaudry(.)com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #ifndef MATH_H_
 #define MATH_H_

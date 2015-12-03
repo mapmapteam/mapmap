@@ -25,6 +25,10 @@
 #include <QPen>
 #include <QBrush>
 
+/**
+ * This class is a placeholder for predefined static variables that can be used
+ * accross the software.
+ */
 class MM
 {
 public:

@@ -22,16 +22,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VIDEO_IMPL_H_
-#define VIDEO_IMPL_H_
+#ifndef MEDIA_IMPL_H_
+#define MEDIA_IMPL_H_
 
-#include <glib.h>
+// GStreamer includes.
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
+
+// Other includes.
 #include <QtGlobal>
 #include <QtOpenGL>
 #include <QMutex>
 #include <QWaitCondition>
+
+#include <glib.h>
 #if __APPLE__
 #include <OpenGL/gl.h>
 #else
@@ -40,8 +44,8 @@
 
 /**
  * Private declaration of the video player.
- * This is done this way so that GStreamer header don't need to be 
- * included in the whole project. (just in this file)
+ * This is to prevent the GStreamer header to be included in the whole project.
+ * (it just needs to be included in this file).
  */
 class MediaImpl
 {
