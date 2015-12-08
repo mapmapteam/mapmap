@@ -235,6 +235,10 @@ public:
   void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
   void clearWindow();
+  // Check if the file exists
+  bool fileExists(const QString file);
+  // Locate the file not found
+  QString locateMediaFile(const QString& uri, bool isImage);
 
   static MainWindow* instance();
 

@@ -832,6 +832,10 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
 
   else
   {
+    // Check if file exists before
+    if (! fileExists(uri))
+        uri = locateMediaFile(uri, isImage);
+
     Texture* tex = 0;
     if (isImage)
       tex = new Image(uri, paintId);
@@ -2286,6 +2290,48 @@ void MainWindow::removePaintItem(uid paintId)
 void MainWindow::clearWindow()
 {
   clearProject();
+}
+
+bool MainWindow::fileExists(const QString file)
+{
+  QFileInfo checkFile(file);
+
+  if (checkFile.exists() && checkFile.isFile())
+    return true;
+
+  return false;
+}
+
+QString MainWindow::locateMediaFile(const QString &uri, bool isImage)
+{
+  // Get more info about url
+  QFileInfo file(uri);
+  // The name of the file
+  QString filename = file.fileName();
+  // The directory name
+  QString directory = file.absolutePath();
+  // Handle the case where it is video or image
+  QString mediaFilter = isImage ? MM::IMAGE_FILES_FILTER : MM::VIDEO_FILES_FILTER;
+  QString mediaType = isImage ? "Images" : "Videos";
+  // New linked uri
+  QString url;
+
+  // Show a warning and offer to locate the file
+  QMessageBox::warning(this,
+    tr("Cannot load movie"),
+    tr("Unable to use the file « %1 » \n"
+    "The original file is not found. Will you locate?")
+    .arg(filename));
+
+  // Set the new uri
+  url = QFileDialog::getOpenFileName(this,
+    tr("Locate file"),
+    directory,
+    tr("%1 files (%2)")
+    .arg(mediaType)
+    .arg(mediaFilter));
+
+  return url;
 }
 
 MainWindow* MainWindow::instance() {
