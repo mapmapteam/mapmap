@@ -54,6 +54,10 @@ QListView::item:selected {
   background: #272a36;
 }
 
+QGraphicsView {
+  border-style: none;
+}
+
 /*
  QListView::item:selected:!active {
      background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
