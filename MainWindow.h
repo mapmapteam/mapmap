@@ -91,9 +91,11 @@ private slots:
   void openRecentVideo();
   // Edit menu.
   void deleteItem();
-  // Context menu.
+  // Context menu for mappings.
   void cloneItem();
+  void deleteMappingItem();
   void renameMappingItem();
+  // Context menu for paints
   void deletePaintItem();
   void renamePaintItem();
 

@@ -734,7 +734,19 @@ void MainWindow::cloneItem()
   else
   {
     qCritical() << "No selected mapping" << endl;
-    }
+  }
+}
+
+void MainWindow::deleteMappingItem()
+{
+  if (currentSelectedItem)
+  {
+    deleteMapping(getItemId(*mappingList->currentItem()));
+  }
+  else
+  {
+    qCritical() << "No selected mapping" << endl;
+  }
 }
 
 void MainWindow::renameMappingItem()
@@ -1421,7 +1433,7 @@ void MainWindow::createActions()
   //deletePaintAction->setShortcut(tr("CTRL+DEL"));
   deletePaintAction->setStatusTip(tr("Delete item"));
   deletePaintAction->setIconVisibleInMenu(false);
-  connect(deletePaintAction, SIGNAL(triggered()), this, SLOT(deletePaintItem()));
+  connect(deletePaintAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
 
   // Rename paint.
   renamePaintAction = new QAction(tr("Rename"), this);
@@ -2325,7 +2337,7 @@ QString MainWindow::locateMediaFile(const QString &uri, bool isImage)
 
   // Set the new uri
   url = QFileDialog::getOpenFileName(this,
-    tr("Locate file"),
+    tr("Locate file « %1 »").arg(filename),
     directory,
     tr("%1 files (%2)")
     .arg(mediaType)
