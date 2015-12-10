@@ -42,6 +42,12 @@
 #include "variantmanager.h"
 #include "variantfactory.h"
 
+/**
+ * The view components corresponding to a Paint (which is the model) in the interface.
+ * Mainly manages the property browser for the Paint.
+ *
+ * In other words the PaintGui is to Paint what Mapper is to Mapping.
+ */
 class PaintGui : public QObject {
   Q_OBJECT
 
