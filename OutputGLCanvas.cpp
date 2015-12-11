@@ -37,6 +37,7 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
   if (getMainWindow()->displayTestSignal())
   {
     glPushMatrix();
+    painter->translate(rect.x(), rect.y());
     painter->save();
     _drawTestSignal(painter);
     painter->restore();
