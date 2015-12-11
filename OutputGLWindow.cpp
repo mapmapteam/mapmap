@@ -113,7 +113,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
 
 #ifdef Q_OS_UNIX
     // Special case for Unity.
-    if (session == "ubuntu" || session == "gnome" || session == "default") {
+    if (session == "ubuntu" || session == "cinnamon" || session == "default") {
       setWindowFlags(Qt::Window);
       setVisible(true);
       setWindowState( windowState() ^ Qt::WindowFullScreen );
