@@ -1,5 +1,5 @@
 /*
- * Mapper.cpp
+ * MappingGui.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Mapper.h"
+#include "MappingGui.h"
 #include "MainWindow.h"
 
 ShapeControlPainter::ShapeControlPainter(ShapeGraphicsItem* shapeItem)
@@ -577,7 +577,7 @@ void EllipseTextureGraphicsItem::_setPointOfEllipseAtAngle(QPointF& point, const
   point.setY( cos(angle + rotation) * distance + center.y() );
 }
 
-Mapper::Mapper(Mapping::ptr mapping)
+MappingGui::MappingGui(Mapping::ptr mapping)
   : _mapping(mapping),
     _graphicsItem(NULL),
     _inputGraphicsItem(NULL)
@@ -621,7 +621,7 @@ Mapper::Mapper(Mapping::ptr mapping)
 }
 
 
-void Mapper::setValue(QtProperty* property, const QVariant& value)
+void MappingGui::setValue(QtProperty* property, const QVariant& value)
 {
   if (property == _opacityItem)
   {
@@ -649,7 +649,7 @@ void Mapper::setValue(QtProperty* property, const QVariant& value)
   }
 }
 
-void Mapper::updateShape(MShape* shape)
+void MappingGui::updateShape(MShape* shape)
 {
   if (shape == _mapping->getShape().data())
   {
@@ -657,7 +657,7 @@ void Mapper::updateShape(MShape* shape)
   }
 }
 
-void Mapper::_buildShapeProperty(QtProperty* shapeItem, MShape* shape)
+void MappingGui::_buildShapeProperty(QtProperty* shapeItem, MShape* shape)
 {
   for (int i=0; i<shape->nVertices(); i++)
   {
@@ -674,7 +674,7 @@ void Mapper::_buildShapeProperty(QtProperty* shapeItem, MShape* shape)
 
 }
 
-void Mapper::_updateShapeProperty(QtProperty* shapeItem, MShape* shape)
+void MappingGui::_updateShapeProperty(QtProperty* shapeItem, MShape* shape)
 {
   QList<QtProperty*> pointItems = shapeItem->subProperties();
   for (int i=0; i<shape->nVertices(); i++)
@@ -689,16 +689,16 @@ void Mapper::_updateShapeProperty(QtProperty* shapeItem, MShape* shape)
   }
 }
 
-ColorMapper::ColorMapper(Mapping::ptr mapping)
-  : Mapper(mapping)
+ColorMappingGui::ColorMappingGui(Mapping::ptr mapping)
+  : MappingGui(mapping)
 {
   color = qSharedPointerCast<Color>(_mapping->getPaint());
   Q_CHECK_PTR(color);
 }
 
 
-//MeshColorMapper::MeshColorMapper(Mapping::ptr mapping)
-//  : ColorMapper(mapping) {
+//MeshColorMappingGui::MeshColorMappingGui(Mapping::ptr mapping)
+//  : ColorMappingGui(mapping) {
 //  // Add mesh sub property.
 //  Mesh* mesh = (Mesh*)mapping->getShape().get();
 //  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
@@ -706,7 +706,7 @@ ColorMapper::ColorMapper(Mapping::ptr mapping)
 //  _topItem->insertSubProperty(_meshItem, 0); // insert at the beginning
 //}
 //
-//void MeshColorMapper::draw(QPainter* painter)
+//void MeshColorMappingGui::draw(QPainter* painter)
 //{
 //  painter->setPen(Qt::NoPen);
 //  painter->setBrush(color->getColor());
@@ -723,13 +723,13 @@ ColorMapper::ColorMapper(Mapping::ptr mapping)
 //  }
 //}
 //
-//void MeshColorMapper::drawControls(QPainter* painter, const QList<int>* selectedVertices)
+//void MeshColorMappingGui::drawControls(QPainter* painter, const QList<int>* selectedVertices)
 //{
 //  QSharedPointer<Mesh> outputMesh = qSharedPointerCast<Mesh>(outputShape);
 //  Util::drawControlsMesh(painter, selectedVertices, *outputMesh);
 //}
 //
-//void MeshColorMapper::setValue(QtProperty* property, const QVariant& value)
+//void MeshColorMappingGui::setValue(QtProperty* property, const QVariant& value)
 //{
 //  if (property == _meshItem)
 //  {
@@ -743,11 +743,11 @@ ColorMapper::ColorMapper(Mapping::ptr mapping)
 //    }
 //  }
 //  else
-//    ColorMapper::setValue(property, value);
+//    ColorMappingGui::setValue(property, value);
 //}
 
-TextureMapper::TextureMapper(QSharedPointer<TextureMapping> mapping)
-  : Mapper(mapping),
+TextureMappingGui::TextureMappingGui(QSharedPointer<TextureMapping> mapping)
+  : MappingGui(mapping),
     _meshItem(NULL)
 {
   // Assign members pointers.
@@ -770,7 +770,7 @@ TextureMapper::TextureMapper(QSharedPointer<TextureMapping> mapping)
   _propertyBrowser->setExpanded(_propertyBrowser->items(_inputItem).at(0), false);
 }
 //
-//void TextureMapper::drawInput(QPainter* painter)
+//void TextureMappingGui::drawInput(QPainter* painter)
 //{
 //  // Prepare drawing.
 //  _preDraw(painter);
@@ -796,7 +796,7 @@ TextureMapper::TextureMapper(QSharedPointer<TextureMapping> mapping)
 //  _postDraw(painter);
 //}
 
-void TextureMapper::updateShape(MShape* shape)
+void TextureMappingGui::updateShape(MShape* shape)
 {
   QSharedPointer<TextureMapping> textureMapping = qSharedPointerCast<TextureMapping>(_mapping);
   Q_CHECK_PTR(textureMapping);
@@ -818,7 +818,7 @@ void TextureMapper::updateShape(MShape* shape)
 }
 
 //
-//void TextureMapper::_preDraw(QPainter* painter)
+//void TextureMappingGui::_preDraw(QPainter* painter)
 //{
 //  painter->beginNativePainting();
 //
@@ -849,33 +849,33 @@ void TextureMapper::updateShape(MShape* shape)
 //  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 //}
 //
-//void TextureMapper::_postDraw(QPainter* painter)
+//void TextureMappingGui::_postDraw(QPainter* painter)
 //{
 //  glDisable(GL_TEXTURE_2D);
 //
 //  painter->endNativePainting();
 //}
 //
-//void PolygonTextureMapper::drawControls(QPainter* painter, const QList<int>* selectedVertices)
+//void PolygonTextureMappingGui::drawControls(QPainter* painter, const QList<int>* selectedVertices)
 //{
 //  QSharedPointer<Polygon> outputPoly = qSharedPointerCast<Polygon>(outputShape);
 //  Util::drawControlsPolygon(painter, selectedVertices, *outputPoly);
 //}
 //
-//void PolygonTextureMapper::drawInputControls(QPainter* painter, const QList<int>* selectedVertices)
+//void PolygonTextureMappingGui::drawInputControls(QPainter* painter, const QList<int>* selectedVertices)
 //{
 //  QSharedPointer<Polygon> inputPoly = qSharedPointerCast<Polygon>(inputShape);
 //  Util::drawControlsPolygon(painter, selectedVertices, *inputPoly);
 //}
 
-TriangleTextureMapper::TriangleTextureMapper(QSharedPointer<TextureMapping> mapping)
-  : PolygonTextureMapper(mapping)
+TriangleTextureMappingGui::TriangleTextureMappingGui(QSharedPointer<TextureMapping> mapping)
+  : PolygonTextureMappingGui(mapping)
 {
   _graphicsItem.reset(new TriangleTextureGraphicsItem(_mapping, true));
   _inputGraphicsItem.reset(new TriangleTextureGraphicsItem(_mapping, false));
 }
 //
-//void TriangleTextureMapper::_doDraw(QPainter* painter)
+//void TriangleTextureMappingGui::_doDraw(QPainter* painter)
 //{
 //  qDebug() << "Is this really used!" << endl;
 ////  Q_UNUSED(painter);
@@ -889,8 +889,8 @@ TriangleTextureMapper::TriangleTextureMapper(QSharedPointer<TextureMapping> mapp
 ////  glEnd();
 //}
 
-MeshTextureMapper::MeshTextureMapper(QSharedPointer<TextureMapping> mapping)
-  : PolygonTextureMapper(mapping)
+MeshTextureMappingGui::MeshTextureMappingGui(QSharedPointer<TextureMapping> mapping)
+  : PolygonTextureMappingGui(mapping)
 {
   _graphicsItem.reset(new MeshTextureGraphicsItem(_mapping, true));
   _inputGraphicsItem.reset(new MeshTextureGraphicsItem(_mapping, false));
@@ -903,7 +903,7 @@ MeshTextureMapper::MeshTextureMapper(QSharedPointer<TextureMapping> mapping)
   _topItem->insertSubProperty(_meshItem, _opacityItem); // insert at the beginning
 }
 
-void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
+void MeshTextureMappingGui::setValue(QtProperty* property, const QVariant& value)
 {
   if (property == _meshItem)
   {
@@ -925,11 +925,11 @@ void MeshTextureMapper::setValue(QtProperty* property, const QVariant& value)
     }
   }
   else
-    TextureMapper::setValue(property, value);
+    TextureMappingGui::setValue(property, value);
 }
 
-EllipseTextureMapper::EllipseTextureMapper(QSharedPointer<TextureMapping> mapping)
-: PolygonTextureMapper(mapping)
+EllipseTextureMappingGui::EllipseTextureMappingGui(QSharedPointer<TextureMapping> mapping)
+: PolygonTextureMappingGui(mapping)
 {
   _graphicsItem.reset(new EllipseTextureGraphicsItem(_mapping, true));
   _inputGraphicsItem.reset(new EllipseTextureGraphicsItem(_mapping, false));

@@ -48,7 +48,7 @@ QSharedPointer<ShapeGraphicsItem> SourceGLCanvas::getShapeGraphicsItemFromMappin
 
   else
   {
-    return MainWindow::instance()->getMapperByMappingId(mappingId)->getInputGraphicsItem();
+    return MainWindow::instance()->getMappingGuiByMappingId(mappingId)->getInputGraphicsItem();
   }
 }
 
@@ -59,7 +59,7 @@ QSharedPointer<ShapeGraphicsItem> SourceGLCanvas::getShapeGraphicsItemFromMappin
 //  if (getMainWindow()->hasCurrentMapping())
 //  {
 //    uint mappingId = getMainWindow()->getCurrentMappingId();
-//    const Mapper::ptr& mapper = getMainWindow()->getMapperByMappingId(mappingId);
+//    const MappingGui::ptr& mapper = getMainWindow()->getMappingGuiByMappingId(mappingId);
 //    painter->save();
 //    mapper->drawInput(painter);
 //    painter->restore();

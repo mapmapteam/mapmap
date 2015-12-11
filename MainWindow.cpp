@@ -2144,7 +2144,7 @@ void MainWindow::addMappingItem(uid mappingId)
     Q_CHECK_PTR(textureMapping);
   }
 
-  Mapper::ptr mapper;
+  MappingGui::ptr mapper;
 
   // XXX Branching on nVertices() is crap
 
@@ -2156,9 +2156,9 @@ void MainWindow::addMappingItem(uid mappingId)
     icon = QIcon(":/shape-triangle");
 
     if (paintType == "color")
-      mapper = Mapper::ptr(new PolygonColorMapper(mapping));
+      mapper = MappingGui::ptr(new PolygonColorMappingGui(mapping));
     else
-      mapper = Mapper::ptr(new TriangleTextureMapper(textureMapping));
+      mapper = MappingGui::ptr(new TriangleTextureMappingGui(textureMapping));
   }
   // Mesh
   else if (shapeType == "mesh" || shapeType == "quad")
@@ -2166,18 +2166,18 @@ void MainWindow::addMappingItem(uid mappingId)
     label = QString(shapeType == "mesh" ? "Mesh %1" : "Quad %1").arg(mappingId);
     icon = QIcon(":/shape-mesh");
     if (paintType == "color")
-      mapper = Mapper::ptr(new PolygonColorMapper(mapping));
+      mapper = MappingGui::ptr(new PolygonColorMappingGui(mapping));
     else
-      mapper = Mapper::ptr(new MeshTextureMapper(textureMapping));
+      mapper = MappingGui::ptr(new MeshTextureMappingGui(textureMapping));
   }
   else if (shapeType == "ellipse")
   {
     label = QString("Ellipse %1").arg(mappingId);
     icon = QIcon(":/shape-ellipse");
     if (paintType == "color")
-      mapper = Mapper::ptr(new EllipseColorMapper(mapping));
+      mapper = MappingGui::ptr(new EllipseColorMappingGui(mapping));
     else
-      mapper = Mapper::ptr(new EllipseTextureMapper(textureMapping));
+      mapper = MappingGui::ptr(new EllipseTextureMappingGui(textureMapping));
   }
   else
   {

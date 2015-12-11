@@ -369,7 +369,7 @@ private:
   // View.
 
   // The view counterpart of Mappings.
-  QMap<uid, Mapper::ptr> mappers;
+  QMap<uid, MappingGui::ptr> mappers;
   QMap<uid, PaintGui::ptr> paintGuis;
 
   // Current selected paint/mapping.
@@ -404,7 +404,7 @@ private:
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
   MappingManager& getMappingManager() const { return *mappingManager; }
-  Mapper::ptr getMapperByMappingId(uint id) const { return mappers[id]; }
+  MappingGui::ptr getMappingGuiByMappingId(uint id) const { return mappers[id]; }
   uid getCurrentPaintId() const { return currentPaintId; }
   uid getCurrentMappingId() const { return currentMappingId; }
   OutputGLWindow* getOutputWindow() const { return outputWindow; }

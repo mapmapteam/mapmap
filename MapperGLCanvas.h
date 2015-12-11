@@ -35,7 +35,7 @@
 #include "UidAllocator.h"
 #include "Shape.h"
 
-#include "Mapper.h"
+#include "MappingGui.h"
 
 class MainWindow;
 class ShapeGraphicsItem;

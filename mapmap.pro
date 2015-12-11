@@ -12,7 +12,7 @@ HEADERS  = \
     MM.h \
     MainApplication.h \
     MainWindow.h \
-    Mapper.h \
+    MappingGui.h \
     MapperGLCanvas.h \
     Mapping.h \
     MappingManager.h \
@@ -38,7 +38,7 @@ SOURCES  = \
     MM.cpp \
     MainApplication.cpp \
     MainWindow.cpp \
-    Mapper.cpp \
+    MappingGui.cpp \
     MapperGLCanvas.cpp \
     Mapping.cpp \
     MappingManager.cpp \

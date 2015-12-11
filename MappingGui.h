@@ -1,5 +1,5 @@
 /*
- * Mapper.h
+ * MappingGui.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -19,8 +19,8 @@
  */
 
 
-#ifndef MAPPER_H_
-#define MAPPER_H_
+#ifndef MAPPING_GUI_
+#define MAPPING_GUI_
 
 #include <QtGlobal>
 
@@ -304,19 +304,19 @@ protected:
  * This is the "view" side of the Mapping class (model). It contains the graphic items for
  * both input and output as well as the properties editor.
  */
-class Mapper : public QObject
+class MappingGui : public QObject
 {
   Q_OBJECT
 
 public:
-  typedef QSharedPointer<Mapper> ptr;
+  typedef QSharedPointer<MappingGui> ptr;
 
 protected:
   /// Constructor. A mapper applies to a mapping.
-  Mapper(Mapping::ptr mapping);
+  MappingGui(Mapping::ptr mapping);
 
 public:
-  virtual ~Mapper() {}
+  virtual ~MappingGui() {}
 
 public:
   /// Returns a pointer to the properties editor for that mapper.
@@ -359,49 +359,49 @@ protected:
 };
 
 /// Parent class for color -> color mappings.
-class ColorMapper : public Mapper
+class ColorMappingGui : public MappingGui
 {
   Q_OBJECT
 
 protected:
-  ColorMapper(Mapping::ptr mapping);
-  virtual ~ColorMapper() {}
+  ColorMappingGui(Mapping::ptr mapping);
+  virtual ~ColorMappingGui() {}
 
 protected:
   QSharedPointer<Color> color;
 };
 
-class PolygonColorMapper : public ColorMapper
+class PolygonColorMappingGui : public ColorMappingGui
 {
   Q_OBJECT
 
 public:
-  PolygonColorMapper(Mapping::ptr mapping) : ColorMapper(mapping) {
+  PolygonColorMappingGui(Mapping::ptr mapping) : ColorMappingGui(mapping) {
     _graphicsItem.reset(new PolygonColorGraphicsItem(mapping, true));
   }
-  virtual ~PolygonColorMapper() {}
+  virtual ~PolygonColorMappingGui() {}
 };
 
-class EllipseColorMapper : public ColorMapper
+class EllipseColorMappingGui : public ColorMappingGui
 {
   Q_OBJECT
 
 public:
-  EllipseColorMapper(Mapping::ptr mapping) : ColorMapper(mapping) {
+  EllipseColorMappingGui(Mapping::ptr mapping) : ColorMappingGui(mapping) {
     _graphicsItem.reset(new EllipseColorGraphicsItem(mapping, true));
   }
 
-  virtual ~EllipseColorMapper() {}
+  virtual ~EllipseColorMappingGui() {}
 };
 
 /// Parent class for texture -> texture mapping.
-class TextureMapper : public Mapper
+class TextureMappingGui : public MappingGui
 {
   Q_OBJECT
 
 public:
-  TextureMapper(QSharedPointer<TextureMapping> mapping);
-  virtual ~TextureMapper() {}
+  TextureMappingGui(QSharedPointer<TextureMapping> mapping);
+  virtual ~TextureMappingGui() {}
 
 public slots:
   virtual void updateShape(MShape* shape);
@@ -416,31 +416,31 @@ protected:
   QWeakPointer<MShape> inputShape;
 };
 
-class PolygonTextureMapper : public TextureMapper
+class PolygonTextureMappingGui : public TextureMappingGui
 {
   Q_OBJECT
 
 public:
-  PolygonTextureMapper(QSharedPointer<TextureMapping> mapping) : TextureMapper(mapping) {}
-  virtual ~PolygonTextureMapper() {}
+  PolygonTextureMappingGui(QSharedPointer<TextureMapping> mapping) : TextureMappingGui(mapping) {}
+  virtual ~PolygonTextureMappingGui() {}
 };
 
-class TriangleTextureMapper : public PolygonTextureMapper
+class TriangleTextureMappingGui : public PolygonTextureMappingGui
 {
   Q_OBJECT
 
 public:
-  TriangleTextureMapper(QSharedPointer<TextureMapping> mapping);
-  virtual ~TriangleTextureMapper() {}
+  TriangleTextureMappingGui(QSharedPointer<TextureMapping> mapping);
+  virtual ~TriangleTextureMappingGui() {}
 };
 
-class MeshTextureMapper : public PolygonTextureMapper
+class MeshTextureMappingGui : public PolygonTextureMappingGui
 {
   Q_OBJECT
 
 public:
-  MeshTextureMapper(QSharedPointer<TextureMapping> mapping);
-  virtual ~MeshTextureMapper() {}
+  MeshTextureMappingGui(QSharedPointer<TextureMapping> mapping);
+  virtual ~MeshTextureMappingGui() {}
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
@@ -449,12 +449,12 @@ private:
   QtVariantProperty* _meshItem;
 };
 
-class EllipseTextureMapper : public PolygonTextureMapper {
+class EllipseTextureMappingGui : public PolygonTextureMappingGui {
   Q_OBJECT
 
 public:
-  EllipseTextureMapper(QSharedPointer<TextureMapping> mapping);
-  virtual ~EllipseTextureMapper() {}
+  EllipseTextureMappingGui(QSharedPointer<TextureMapping> mapping);
+  virtual ~EllipseTextureMappingGui() {}
 
 protected:
   static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
