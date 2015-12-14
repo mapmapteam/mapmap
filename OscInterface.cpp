@@ -181,7 +181,6 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
     int mappingId = command.at(2).toInt();
     int visible = command.at(3).toInt();
     //std::cout << "Visibility of MappingId " << mappingId << " set to " << visible << std::endl;
-    main_window.setMappingItemVisibility(mappingId, visible ? true : false);
     main_window.setMappingVisible(mappingId, visible ? true : false);
   } else if (path == "/mapmap/output/fullscreen" && typetags == "i") {
     int enable = command.at(2).toInt();

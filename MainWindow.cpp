@@ -152,19 +152,11 @@ void MainWindow::handleMappingItemSelectionChanged()
   updateCanvases();
 }
 
-void MainWindow::setMappingItemVisibility(uid mappingId, bool visible)
-{
-  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
-  mapping->setVisible(visible);
-  // Update canvases.
-  updateCanvases();
-}
-
 void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
 {
   // Toggle visibility of mapping depending on checkbox of item.
   uid mappingId = getItemId(*item);
-  setMappingItemVisibility(mappingId, item->checkState() == Qt::Checked);
+  setMappingVisible(mappingId, item->checkState() == Qt::Checked);
 }
 
 void MainWindow::handleMappingIndexesMoved()
@@ -1076,11 +1068,23 @@ uid MainWindow::createEllipseColorMapping(uid mappingId,
 
 void MainWindow::setMappingVisible(uid mappingId, bool visible)
 {
-  QListWidgetItem* item = getItemFromId(*mappingList, mappingId);
-  Q_ASSERT( item );
-  item->setCheckState(visible ? Qt::Checked : Qt::Unchecked );
+  // Set mapping visibility
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
 
-  updateCanvases();
+  if (mapping.isNull())
+  {
+    qDebug() << "No such mapping id" << endl;
+  }
+  else
+  {
+    mapping->setVisible(visible);
+    // Change list item check state
+    QListWidgetItem* item = getItemFromId(*mappingList, mappingId);
+    Q_ASSERT( item );
+    item->setCheckState(visible ? Qt::Checked : Qt::Unchecked );
+    // Update canvases.
+    updateCanvases();
+  }
 }
 
 void MainWindow::setMappingSolo(uid mappingId, bool solo)
