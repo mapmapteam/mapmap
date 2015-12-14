@@ -437,14 +437,14 @@ public:
   void setOutputWindowFullScreen(bool enable);
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////
-  static const int DEFAULT_WIDTH = 1600;
-  static const int DEFAULT_HEIGHT = 800;
+  static const int DEFAULT_WIDTH = 1360;
+  static const int DEFAULT_HEIGHT = 768;
   static const int PAINT_LIST_ITEM_HEIGHT = 40;
   static const int SHAPE_LIST_ITEM_HEIGHT = 40;
-  static const int PAINT_LIST_MINIMUM_HEIGHT = 320;
-  static const int MAPPING_LIST_MINIMUM_HEIGHT = 320;
-  static const int PAINT_PROPERTY_PANEL_MINIMUM_HEIGHT = 320;
-  static const int MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT = 320;
+  static const int PAINT_LIST_MINIMUM_HEIGHT = 290;
+  static const int MAPPING_LIST_MINIMUM_HEIGHT = 290;
+  static const int PAINT_PROPERTY_PANEL_MINIMUM_HEIGHT = 290;
+  static const int MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT = 290;
   static const int CANVAS_MINIMUM_WIDTH  = 480;
   static const int CANVAS_MINIMUM_HEIGHT = 270;
   static const int OUTPUT_WINDOW_MINIMUM_WIDTH = 480;
