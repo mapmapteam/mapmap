@@ -2440,6 +2440,9 @@ void MainWindow::connectProjectWidgets()
 
   connect(mappingList->model(), SIGNAL(rowsMoved(const QModelIndex&, int, int, const QModelIndex &, int)),
           this,                 SLOT(handleMappingIndexesMoved()));
+
+    connect(mappingList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+            this,      SLOT(renameMappingItem()));
 }
 
 void MainWindow::disconnectProjectWidgets()
