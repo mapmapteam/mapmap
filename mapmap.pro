@@ -28,6 +28,8 @@ HEADERS  = \
     ProjectReader.h \
     ProjectWriter.h \
     Shape.h \
+    ShapeControlPainter.h \
+    ShapeGraphicsItem.h \
     SourceGLCanvas.h \
     UidAllocator.h \
     Util.h
@@ -53,6 +55,8 @@ SOURCES  = \
     ProjectReader.cpp \
     ProjectWriter.cpp \
     Shape.cpp \
+    ShapeControlPainter.cpp \
+    ShapeGraphicsItem.cpp \
     SourceGLCanvas.cpp \
     UidAllocator.cpp \
     Util.cpp \

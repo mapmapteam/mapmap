@@ -36,7 +36,11 @@
 #include "Shape.h"
 #include "Paint.h"
 #include "Mapping.h"
+
 #include "MapperGLCanvas.h"
+
+#include "ShapeGraphicsItem.h"
+#include "ShapeControlPainter.h"
 
 #include "Util.h"
 
@@ -52,253 +56,6 @@
 class MapperGLCanvas;
 class ShapeGraphicsItem;
 class ShapeControlPainter;
-
-/**
- * Represents a shape as part of a scene graph in one of the GL canvas.
- * A ShapeGraphicsItem contains a Mapping and is identified as either an
- * input (source) or an output (destination).
- */
-class ShapeGraphicsItem : public QGraphicsItem
-{
-  Q_DECLARE_TR_FUNCTIONS(ShapeGraphicsItem)
-public:
-  typedef QSharedPointer<ShapeGraphicsItem> ptr;
-
-protected:
-  ShapeGraphicsItem(Mapping::ptr mapping, bool output=true);
-public:
-  virtual ~ShapeGraphicsItem() {}
-
-public:
-  /// Returns the MShape (depends on mapping and whether this is an input or output).
-  MShape::ptr getShape() const { return _shape.toStrongRef(); }
-
-  /// Returns the mapping.
-  Mapping::ptr getMapping() const { return _mapping.toStrongRef(); }
-
-  /// Returns the control painter (see below).
-  QSharedPointer<ShapeControlPainter> getControlPainter() { return _controlPainter; }
-
-  /// Return whether the item is in the destination/output (true) or source/input (false).
-  bool isOutput() const { return _output; }
-
-  /// Returns pointer to GL canvas.
-  MapperGLCanvas* getCanvas() const;
-
-  /// Returns whether the mapping this shape is associated with is currently selected.
-  bool isMappingCurrent() const;
-
-  /// Returns whether the mapping this shape is associated should be visible.
-  bool isMappingVisible() const { return getMapping()->isVisible(); }
-
-  /// Returns the bounding rectangle of this item.
-  virtual QRectF boundingRect() const { return shape().boundingRect(); }
-//  virtual QPainterPath shape() const;
-//  virtual void paint(QPainter *painter,
-//                     const QStyleOptionGraphicsItem *option, QWidget *widget);
-
-//  virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
-
-  /// Built-in function: paints the shape.
-  virtual void paint(QPainter *painter,
-                     const QStyleOptionGraphicsItem *option, QWidget *widget);
-
-protected:
-  /// Main paint function that needs to be overriden (called by paint()).
-  virtual void _doPaint(QPainter *painter, const QStyleOptionGraphicsItem *option) = 0;
-
-  /// Can be overriden to perform operations *before* _doPaint() is called.
-  virtual void _prePaint(QPainter *painter, const QStyleOptionGraphicsItem *option)
-  { Q_UNUSED(painter); Q_UNUSED(option); }
-
-  /// Can be overriden to perform operations *after* _doPaint() is called.
-  virtual void _postPaint(QPainter *painter, const QStyleOptionGraphicsItem *option)
-  { Q_UNUSED(painter); Q_UNUSED(option); }
-
-public:
-  /**
-   *  Utility function: returns a stroke with rescaled width such that the stroke appears
-   *  invariant to the zoom level (to be used in paint functions).
-   */
-  QPen getRescaledShapeStroke(bool innerStroke=false);
-
-protected:
-  QWeakPointer<Mapping> _mapping;
-  QWeakPointer<MShape> _shape;
-  QSharedPointer<ShapeControlPainter>  _controlPainter;
-  bool _output;
-};
-
-class ColorGraphicsItem : public ShapeGraphicsItem
-{
-protected:
-  ColorGraphicsItem(Mapping::ptr mapping, bool output=true)
-    : ShapeGraphicsItem(mapping, output) {}
-public:
-  virtual ~ColorGraphicsItem() {}
-
-protected:
-  virtual void _prePaint(QPainter *painter,
-                        const QStyleOptionGraphicsItem *option);
-};
-
-/// Graphics item for colored polygons (eg. quad, triangle).
-class PolygonColorGraphicsItem : public ColorGraphicsItem
-{
-public:
-  PolygonColorGraphicsItem(Mapping::ptr mapping, bool output=true);
-  virtual ~PolygonColorGraphicsItem() {}
-
-  virtual QPainterPath shape() const;
-
-protected:
-  virtual void _doPaint(QPainter *painter,
-                        const QStyleOptionGraphicsItem *option);
-};
-
-/// Graphics item for colored polygons (eg. quad, triangle).
-class EllipseColorGraphicsItem : public ColorGraphicsItem
-{
-public:
-  EllipseColorGraphicsItem(Mapping::ptr mapping, bool output=true);
-  virtual ~EllipseColorGraphicsItem() {}
-
-  virtual QPainterPath shape() const;
-
-protected:
-  virtual void _doPaint(QPainter *painter,
-                        const QStyleOptionGraphicsItem *option);
-};
-
-/// Abstract class for texture graphics items.
-class TextureGraphicsItem : public ShapeGraphicsItem
-{
-public:
-  TextureGraphicsItem(Mapping::ptr mapping, bool output=true);
-
-  virtual ~TextureGraphicsItem() {}
-
-protected:
-  virtual void _doPaint(QPainter *painter, const QStyleOptionGraphicsItem *option);
-  void _prePaint(QPainter* painter, const QStyleOptionGraphicsItem *option);
-  void _postPaint(QPainter* painter, const QStyleOptionGraphicsItem *option);
-
-  virtual void _doDrawOutput(QPainter* painter) = 0;
-  virtual void _doDrawInput(QPainter* painter);
-
-protected:
-  QWeakPointer<TextureMapping> _textureMapping;
-  QWeakPointer<Texture> _texture;
-  QWeakPointer<MShape> _inputShape;
-};
-
-/// Graphics item for textured polygons (eg. triangles).
-class PolygonTextureGraphicsItem : public TextureGraphicsItem
-{
-public:
-  PolygonTextureGraphicsItem(Mapping::ptr mapping, bool output=true);
-  virtual ~PolygonTextureGraphicsItem(){}
-
-public:
-  virtual QPainterPath shape() const;
-  virtual QRectF boundingRect() const;
-};
-
-/// Graphics item for textured triangles.
-class TriangleTextureGraphicsItem : public PolygonTextureGraphicsItem
-{
-public:
-  TriangleTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : PolygonTextureGraphicsItem(mapping, output) {}
-  virtual ~TriangleTextureGraphicsItem(){}
-
-  virtual void _doDrawOutput(QPainter* painter);
-
-};
-
-/// Graphics item for textured mesh.
-class MeshTextureGraphicsItem : public PolygonTextureGraphicsItem
-{
-public:
-  MeshTextureGraphicsItem(Mapping::ptr mapping, bool output=true);
-  virtual ~MeshTextureGraphicsItem(){}
-
-  virtual void _doDrawOutput(QPainter* painter);
-
-private:
-  // Draws quad recursively using the technique described in Oliveira, M. "Correcting Texture Mapping Errors Introduced by Graphics Hardware"
-  void _drawQuad(const Texture& texture, const Quad& inputQuad, const Quad& outputQuad, float outputArea, float inputThreshold = 0.0001f, float outputThreshold = 0.001f);
-  QList<Quad> _split(const Quad& quad);
-};
-
-/// Graphics item for textured mesh.
-class EllipseTextureGraphicsItem : public TextureGraphicsItem
-{
-public:
-  EllipseTextureGraphicsItem(Mapping::ptr mapping, bool output=true);
-  virtual ~EllipseTextureGraphicsItem(){}
-
-  virtual QPainterPath shape() const;
-  virtual QRectF boundingRect() const;
-
-  virtual void _doDrawOutput(QPainter* painter);
-
-  static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
-};
-
-/**
- * An object responsible to paint control points for a specific ShapeGraphicsItem.
- */
-class ShapeControlPainter
-{
-public:
-  typedef QSharedPointer<ShapeControlPainter> ptr;
-
-  ShapeControlPainter(ShapeGraphicsItem* shapeItem);
-  virtual ~ShapeControlPainter() {}
-
-  MShape::ptr getShape() const;
-
-  virtual void paint(QPainter *painter, const QList<int>& selectedVertices = QList<int>());
-
-protected:
-  virtual void _paintShape(QPainter *painter) = 0;
-  virtual void _paintVertices(QPainter *painter, const QList<int>& selectedVertices = QList<int>());
-
-  ShapeGraphicsItem* _shapeItem;
-};
-
-/// Control painter for polygons.
-class PolygonControlPainter : public ShapeControlPainter
-{
-public:
-  PolygonControlPainter(ShapeGraphicsItem* shapeItem) : ShapeControlPainter(shapeItem) {}
-  virtual ~PolygonControlPainter() {}
-
-protected:
-  virtual void _paintShape(QPainter *painter);
-};
-
-/// Control painter for ellipses.
-class EllipseControlPainter : public ShapeControlPainter
-{
-public:
-  EllipseControlPainter(ShapeGraphicsItem* shapeItem) : ShapeControlPainter(shapeItem) {}
-  virtual ~EllipseControlPainter() {}
-
-protected:
-  virtual void _paintShape(QPainter *painter);
-};
-
-/// Control painter for meshes.
-class MeshControlPainter : public ShapeControlPainter
-{
-public:
-  MeshControlPainter(ShapeGraphicsItem* shapeItem) : ShapeControlPainter(shapeItem) {}
-  virtual ~MeshControlPainter() {}
-
-protected:
-  virtual void _paintShape(QPainter *painter);
-};
 
 /**
  * This is the "view" side of the Mapping class (model). It contains the graphic items for
@@ -323,10 +80,10 @@ public:
   virtual QWidget* getPropertiesEditor() { return _propertyBrowser.data(); }
 
   /// Returns the output/destination ShapeGraphicsItem.
-  virtual ShapeGraphicsItem::ptr getGraphicsItem() const { return _graphicsItem; }
+  virtual QSharedPointer<ShapeGraphicsItem> getGraphicsItem() const { return _graphicsItem; }
 
   /// Returns the input/source ShapeGraphicsItem.
-  virtual ShapeGraphicsItem::ptr getInputGraphicsItem() { return _inputGraphicsItem; }
+  virtual QSharedPointer<ShapeGraphicsItem> getInputGraphicsItem() { return _inputGraphicsItem; }
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
@@ -348,8 +105,8 @@ protected:
 
   std::map<QtProperty*, std::pair<MShape*, int> > _propertyToVertex;
 
-  ShapeGraphicsItem::ptr _graphicsItem;
-  ShapeGraphicsItem::ptr _inputGraphicsItem;
+  QSharedPointer<ShapeGraphicsItem> _graphicsItem;
+  QSharedPointer<ShapeGraphicsItem> _inputGraphicsItem;
 
   // FIXME: use typedefs, member of the class for type names that are too long to type:
   MShape::ptr outputShape;
@@ -376,9 +133,7 @@ class PolygonColorMappingGui : public ColorMappingGui
   Q_OBJECT
 
 public:
-  PolygonColorMappingGui(Mapping::ptr mapping) : ColorMappingGui(mapping) {
-    _graphicsItem.reset(new PolygonColorGraphicsItem(mapping, true));
-  }
+  PolygonColorMappingGui(Mapping::ptr mapping);
   virtual ~PolygonColorMappingGui() {}
 };
 
@@ -387,10 +142,7 @@ class EllipseColorMappingGui : public ColorMappingGui
   Q_OBJECT
 
 public:
-  EllipseColorMappingGui(Mapping::ptr mapping) : ColorMappingGui(mapping) {
-    _graphicsItem.reset(new EllipseColorGraphicsItem(mapping, true));
-  }
-
+  EllipseColorMappingGui(Mapping::ptr mapping);
   virtual ~EllipseColorMappingGui() {}
 };
 
