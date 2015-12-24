@@ -24,7 +24,7 @@
 #include "MapperGLCanvas.h"
 #include "MappingManager.h"
 
-#include "Mapper.h"
+#include "MappingGui.h"
 
 class DestinationGLCanvas: public MapperGLCanvas
 {

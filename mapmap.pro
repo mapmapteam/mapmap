@@ -12,7 +12,7 @@ HEADERS  = \
     MM.h \
     MainApplication.h \
     MainWindow.h \
-    Mapper.h \
+    MappingGui.h \
     MapperGLCanvas.h \
     Mapping.h \
     MappingManager.h \
@@ -28,6 +28,8 @@ HEADERS  = \
     ProjectReader.h \
     ProjectWriter.h \
     Shape.h \
+    ShapeControlPainter.h \
+    ShapeGraphicsItem.h \
     SourceGLCanvas.h \
     UidAllocator.h \
     Util.h
@@ -38,7 +40,7 @@ SOURCES  = \
     MM.cpp \
     MainApplication.cpp \
     MainWindow.cpp \
-    Mapper.cpp \
+    MappingGui.cpp \
     MapperGLCanvas.cpp \
     Mapping.cpp \
     MappingManager.cpp \
@@ -53,6 +55,8 @@ SOURCES  = \
     ProjectReader.cpp \
     ProjectWriter.cpp \
     Shape.cpp \
+    ShapeControlPainter.cpp \
+    ShapeGraphicsItem.cpp \
     SourceGLCanvas.cpp \
     UidAllocator.cpp \
     Util.cpp \

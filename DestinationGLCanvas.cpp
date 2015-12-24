@@ -40,6 +40,6 @@ QSharedPointer<ShapeGraphicsItem> DestinationGLCanvas::getShapeGraphicsItemFromM
     return QSharedPointer<ShapeGraphicsItem>();
   else
   {
-    return MainWindow::instance()->getMapperByMappingId(mappingId)->getGraphicsItem();
+    return MainWindow::instance()->getMappingGuiByMappingId(mappingId)->getGraphicsItem();
   }
 }

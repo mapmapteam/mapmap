@@ -1,8 +1,7 @@
 /*
- * Mapper.h
+ * ShapeGraphicsItem.h
  *
- * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
- * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2015 Sofian Audry -- info(@)sofianaudry(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef MAPPER_H_
-#define MAPPER_H_
+#ifndef SHAPE_GRAPHICS_ITEM_H_
+#define SHAPE_GRAPHICS_ITEM_H_
 
 #include <QtGlobal>
 
@@ -38,19 +36,7 @@
 #include "Mapping.h"
 #include "MapperGLCanvas.h"
 
-#include "Util.h"
-
-#include "qtpropertymanager.h"
-#include "qtvariantproperty.h"
-#include "qttreepropertybrowser.h"
-#include "qtbuttonpropertybrowser.h"
-#include "qtgroupboxpropertybrowser.h"
-
-#include "variantmanager.h"
-#include "variantfactory.h"
-
 class MapperGLCanvas;
-class ShapeGraphicsItem;
 class ShapeControlPainter;
 
 /**
@@ -245,220 +231,4 @@ public:
   static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
 };
 
-/**
- * An object responsible to paint control points for a specific ShapeGraphicsItem.
- */
-class ShapeControlPainter
-{
-public:
-  typedef QSharedPointer<ShapeControlPainter> ptr;
-
-  ShapeControlPainter(ShapeGraphicsItem* shapeItem);
-  virtual ~ShapeControlPainter() {}
-
-  MShape::ptr getShape() const;
-
-  virtual void paint(QPainter *painter, const QList<int>& selectedVertices = QList<int>());
-
-protected:
-  virtual void _paintShape(QPainter *painter) = 0;
-  virtual void _paintVertices(QPainter *painter, const QList<int>& selectedVertices = QList<int>());
-
-  ShapeGraphicsItem* _shapeItem;
-};
-
-/// Control painter for polygons.
-class PolygonControlPainter : public ShapeControlPainter
-{
-public:
-  PolygonControlPainter(ShapeGraphicsItem* shapeItem) : ShapeControlPainter(shapeItem) {}
-  virtual ~PolygonControlPainter() {}
-
-protected:
-  virtual void _paintShape(QPainter *painter);
-};
-
-/// Control painter for ellipses.
-class EllipseControlPainter : public ShapeControlPainter
-{
-public:
-  EllipseControlPainter(ShapeGraphicsItem* shapeItem) : ShapeControlPainter(shapeItem) {}
-  virtual ~EllipseControlPainter() {}
-
-protected:
-  virtual void _paintShape(QPainter *painter);
-};
-
-/// Control painter for meshes.
-class MeshControlPainter : public ShapeControlPainter
-{
-public:
-  MeshControlPainter(ShapeGraphicsItem* shapeItem) : ShapeControlPainter(shapeItem) {}
-  virtual ~MeshControlPainter() {}
-
-protected:
-  virtual void _paintShape(QPainter *painter);
-};
-
-/**
- * This is the "view" side of the Mapping class (model). It contains the graphic items for
- * both input and output as well as the properties editor.
- */
-class Mapper : public QObject
-{
-  Q_OBJECT
-
-public:
-  typedef QSharedPointer<Mapper> ptr;
-
-protected:
-  /// Constructor. A mapper applies to a mapping.
-  Mapper(Mapping::ptr mapping);
-
-public:
-  virtual ~Mapper() {}
-
-public:
-  /// Returns a pointer to the properties editor for that mapper.
-  virtual QWidget* getPropertiesEditor() { return _propertyBrowser.data(); }
-
-  /// Returns the output/destination ShapeGraphicsItem.
-  virtual ShapeGraphicsItem::ptr getGraphicsItem() const { return _graphicsItem; }
-
-  /// Returns the input/source ShapeGraphicsItem.
-  virtual ShapeGraphicsItem::ptr getInputGraphicsItem() { return _inputGraphicsItem; }
-
-public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value);
-  virtual void updateShape(MShape* shape);
-
-signals:
-  void valueChanged();
-
-protected:
-  Mapping::ptr _mapping;
-
-  QSharedPointer<QtTreePropertyBrowser> _propertyBrowser;
-  QtVariantEditorFactory* _variantFactory;
-  QtVariantPropertyManager* _variantManager;
-
-  QtProperty* _topItem;
-  QtVariantProperty* _opacityItem;
-  QtProperty* _outputItem;
-
-  std::map<QtProperty*, std::pair<MShape*, int> > _propertyToVertex;
-
-  ShapeGraphicsItem::ptr _graphicsItem;
-  ShapeGraphicsItem::ptr _inputGraphicsItem;
-
-  // FIXME: use typedefs, member of the class for type names that are too long to type:
-  MShape::ptr outputShape;
-
-  virtual void _buildShapeProperty(QtProperty* shapeItem, MShape* shape);
-  virtual void _updateShapeProperty(QtProperty* shapeItem, MShape* shape);
-};
-
-/// Parent class for color -> color mappings.
-class ColorMapper : public Mapper
-{
-  Q_OBJECT
-
-protected:
-  ColorMapper(Mapping::ptr mapping);
-  virtual ~ColorMapper() {}
-
-protected:
-  QSharedPointer<Color> color;
-};
-
-class PolygonColorMapper : public ColorMapper
-{
-  Q_OBJECT
-
-public:
-  PolygonColorMapper(Mapping::ptr mapping) : ColorMapper(mapping) {
-    _graphicsItem.reset(new PolygonColorGraphicsItem(mapping, true));
-  }
-  virtual ~PolygonColorMapper() {}
-};
-
-class EllipseColorMapper : public ColorMapper
-{
-  Q_OBJECT
-
-public:
-  EllipseColorMapper(Mapping::ptr mapping) : ColorMapper(mapping) {
-    _graphicsItem.reset(new EllipseColorGraphicsItem(mapping, true));
-  }
-
-  virtual ~EllipseColorMapper() {}
-};
-
-/// Parent class for texture -> texture mapping.
-class TextureMapper : public Mapper
-{
-  Q_OBJECT
-
-public:
-  TextureMapper(QSharedPointer<TextureMapping> mapping);
-  virtual ~TextureMapper() {}
-
-public slots:
-  virtual void updateShape(MShape* shape);
-
-protected:
-  QtProperty* _inputItem;
-  QtVariantProperty* _meshItem;
-
-  // FIXME: use typedefs, member of the class for type names that are too long to type:
-  QWeakPointer<TextureMapping> textureMapping;
-  QWeakPointer<Texture> texture;
-  QWeakPointer<MShape> inputShape;
-};
-
-class PolygonTextureMapper : public TextureMapper
-{
-  Q_OBJECT
-
-public:
-  PolygonTextureMapper(QSharedPointer<TextureMapping> mapping) : TextureMapper(mapping) {}
-  virtual ~PolygonTextureMapper() {}
-};
-
-class TriangleTextureMapper : public PolygonTextureMapper
-{
-  Q_OBJECT
-
-public:
-  TriangleTextureMapper(QSharedPointer<TextureMapping> mapping);
-  virtual ~TriangleTextureMapper() {}
-};
-
-class MeshTextureMapper : public PolygonTextureMapper
-{
-  Q_OBJECT
-
-public:
-  MeshTextureMapper(QSharedPointer<TextureMapping> mapping);
-  virtual ~MeshTextureMapper() {}
-
-public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value);
-
-private:
-  QtVariantProperty* _meshItem;
-};
-
-class EllipseTextureMapper : public PolygonTextureMapper {
-  Q_OBJECT
-
-public:
-  EllipseTextureMapper(QSharedPointer<TextureMapping> mapping);
-  virtual ~EllipseTextureMapper() {}
-
-protected:
-  static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
-};
-
-
-#endif /* MAPPER_H_ */
+#endif

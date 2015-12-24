@@ -40,7 +40,7 @@
  * A Paint is a style that can be applied when drawing potentially any shape.
  * 
  * Defines the way to draw any shape.
- * There must be a Mapper that implements this paint for every shape 
+ * There must be a MappingGui that implements this paint for every shape 
  * so that this shape might be drawn with it.
  */
 class Paint
@@ -113,7 +113,7 @@ public:
 };
 
 /**
- * Paint that uses an OpenGL texture to paint on potentially any Mapper.
+ * Paint that uses an OpenGL texture to paint on potentially any MappingGui.
  * 
  * This video texture is actually an OpenGL texture.
  */
