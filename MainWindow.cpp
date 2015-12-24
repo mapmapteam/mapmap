@@ -2734,7 +2734,7 @@ bool MainWindow::setTextureRate(int texture_id, double rate)
 bool MainWindow::setTextureVolume(int texture_id, double volume)
 {
   Paint::ptr paint = this->mappingManager->getPaintById(texture_id);
-  if (paint.get() == NULL)
+  if (paint.isNull())
   {
     std::cout << "No such texture paint id " << texture_id << std::endl;
     return false;
@@ -2743,7 +2743,7 @@ bool MainWindow::setTextureVolume(int texture_id, double volume)
   {
     if (paint->getType() == "media")
     {
-        Media *media = (Media *) paint.get(); // FIXME: use sharedptr cast
+        Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
         videoTimer->stop();
         media->setVolume(volume);
         videoTimer->start();
@@ -2760,7 +2760,7 @@ bool MainWindow::setTextureVolume(int texture_id, double volume)
 void MainWindow::setTexturePlayState(int texture_id, bool played)
 {
   Paint::ptr paint = this->mappingManager->getPaintById(texture_id);
-  if (paint.get() == NULL)
+  if (paint.isNull())
   {
     std::cout << "No such texture paint id " << texture_id << std::endl;
   }
@@ -2787,9 +2787,4 @@ void MainWindow::setTexturePlayState(int texture_id, bool played)
       std::cout << "Paint id " << texture_id << " is not a media texture." << std::endl;
     }
   }
-}
-
-void MainWindow::quitMapMap()
-{
-  close();
 }
