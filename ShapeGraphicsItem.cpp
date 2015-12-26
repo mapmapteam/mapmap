@@ -309,6 +309,12 @@ PolygonTextureGraphicsItem::PolygonTextureGraphicsItem(Mapping::ptr mapping, boo
   _controlPainter.reset(new PolygonControlPainter(this));
 }
 
+MeshTextureGraphicsItem::MeshTextureGraphicsItem(Mapping::ptr mapping, bool output) : PolygonTextureGraphicsItem(mapping, output) {
+  _controlPainter.reset(new MeshControlPainter(this));
+  _nHorizontalQuads = _nVerticalQuads = -1;
+}
+
+
 void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 {
   Q_UNUSED(painter);
@@ -318,25 +324,59 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
     QSharedPointer<Mesh> inputMesh  = qSharedPointerCast<Mesh>(_inputShape);
     QVector<QVector<Quad> > outputQuads = outputMesh->getQuads2d();
     QVector<QVector<Quad> > inputQuads  = inputMesh->getQuads2d();
+
+    // Check if we increased or decreased number of columns/rows in mesh.
+    bool dirty = false;
+    if (_nHorizontalQuads != outputMesh->nHorizontalQuads() ||
+        _nVerticalQuads != outputMesh->nVerticalQuads())
+    {
+      dirty = true;
+      _cachedQuadItems.resize(_nHorizontalQuads = outputMesh->nHorizontalQuads());
+      for (int i=0; i<_nHorizontalQuads; i++)
+        _cachedQuadItems[i].resize(_nVerticalQuads = outputMesh->nVerticalQuads());
+    }
+
+    // Go through the mesh quad by quad.
     for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
     {
       for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
       {
-        QSizeF size = mapFromScene(outputQuads[x][y].toPolygon()).boundingRect().size();
-        float area = size.width() * size.height();
-        _drawQuad(*_texture.toStrongRef(), inputQuads[x][y], outputQuads[x][y], area);
+        Quad& inputQuad  = inputQuads[x][y];
+        Quad& outputQuad = outputQuads[x][y];
+
+        // Verify if item needs recomputing.
+        CacheQuadItem& item = _cachedQuadItems[x][y];
+        if (dirty ||
+            item.parent.input.toPolygon()  != inputQuad.toPolygon() ||
+            item.parent.output.toPolygon() != outputQuad.toPolygon()) {
+
+          item.parent.input  = inputQuad;
+          item.parent.output = outputQuad;
+          item.subQuads.clear();
+
+          QSizeF size = mapFromScene(outputQuad.toPolygon()).boundingRect().size();
+          float area = size.width() * size.height();
+
+          // Rebuild cache quad item.
+          _buildCacheQuadItem(item, inputQuad, outputQuad, area);
+        }
+
+        // Draw all the cached items.
+        foreach (CacheQuadMapping m, item.subQuads)
+        {
+          glBegin(GL_QUADS);
+          for (int i = 0; i < outputQuad.nVertices(); i++)
+          {
+            Util::setGlTexPoint(*_texture.toStrongRef(), m.input.getVertex(i), mapFromScene(m.output.getVertex(i)));
+          }
+          glEnd();
+        }
       }
     }
   }
-
 }
 
-MeshTextureGraphicsItem::MeshTextureGraphicsItem(Mapping::ptr mapping, bool output) : PolygonTextureGraphicsItem(mapping, output) {
-  _controlPainter.reset(new MeshControlPainter(this));
-}
-
-
-void MeshTextureGraphicsItem::_drawQuad(const Texture& texture, const Quad& inputQuad, const Quad& outputQuad, float outputArea, float inputThreshod, float outputThreshold)
+void MeshTextureGraphicsItem::_buildCacheQuadItem(CacheQuadItem& item, const Quad& inputQuad, const Quad& outputQuad, float outputArea, float inputThreshod, float outputThreshold)
 {
   QPointF oa = mapFromScene(outputQuad.getVertex(0));
   QPointF ob = mapFromScene(outputQuad.getVertex(1));
@@ -361,18 +401,13 @@ void MeshTextureGraphicsItem::_drawQuad(const Texture& texture, const Quad& inpu
   float inputV2dotV3  = QPointF::dotProduct(ic-ib, ic-id);
 
   // Stopping criterion.
-  if (outputArea < 200 ||
+  if (outputArea < MM::MESH_SUBDIVISION_MIN_AREA ||
       (fabs(outputV1dotV2 - outputV3dotV4) < outputThreshold &&
        fabs(outputV1dotV4 - outputV2dotV3) < outputThreshold &&
        fabs(inputV1dotV2  - inputV3dotV4)  < inputThreshod &&
        fabs(inputV1dotV4  - inputV2dotV3)  < inputThreshod))
   {
-    glBegin(GL_QUADS);
-    for (int i = 0; i < outputQuad.nVertices(); i++)
-    {
-      Util::setGlTexPoint(texture, inputQuad.getVertex(i), mapFromScene(outputQuad.getVertex(i)));
-    }
-    glEnd();
+    item.subQuads.append( { inputQuad, outputQuad } );
   }
   else // subdivide
   {
@@ -380,7 +415,7 @@ void MeshTextureGraphicsItem::_drawQuad(const Texture& texture, const Quad& inpu
     QList<Quad> outputSubQuads = _split(outputQuad);
     for (int i = 0; i < inputSubQuads.size(); i++)
     {
-      _drawQuad(texture, inputSubQuads[i], outputSubQuads[i], outputArea*0.25, inputThreshod, outputThreshold);
+      _buildCacheQuadItem(item, inputSubQuads[i], outputSubQuads[i], outputArea*0.25, inputThreshod, outputThreshold);
     }
   }
 }

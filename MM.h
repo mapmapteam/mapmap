@@ -74,6 +74,9 @@ public:
   static const qreal ZOOM_FACTOR;
   static const qreal ZOOM_MIN;
   static const qreal ZOOM_MAX;
+
+  // Misc.
+  static const int MESH_SUBDIVISION_MIN_AREA = 400;
 };
 
 #endif

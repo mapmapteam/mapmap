@@ -201,9 +201,22 @@ public:
 
 };
 
-/// Graphics item for textured mesh.
+/**
+ * Graphics item for textured mesh.
+ * The drawing technique recursively subdivides the quad to approximate projective mapping and thus
+ * avoiding artifacts on the diagonals. Subdivided structure is cached to increase performance.
+ * Source: Oliveira, M. "Correcting Texture Mapping Errors Introduced by Graphics Hardware"
+ */
 class MeshTextureGraphicsItem : public PolygonTextureGraphicsItem
 {
+  struct CacheQuadMapping {
+    Quad input;
+    Quad output;
+  };
+  struct CacheQuadItem {
+    CacheQuadMapping parent;
+    QList<CacheQuadMapping> subQuads;
+  };
 public:
   MeshTextureGraphicsItem(Mapping::ptr mapping, bool output=true);
   virtual ~MeshTextureGraphicsItem(){}
@@ -212,8 +225,12 @@ public:
 
 private:
   // Draws quad recursively using the technique described in Oliveira, M. "Correcting Texture Mapping Errors Introduced by Graphics Hardware"
-  void _drawQuad(const Texture& texture, const Quad& inputQuad, const Quad& outputQuad, float outputArea, float inputThreshold = 0.0001f, float outputThreshold = 0.001f);
+  void _buildCacheQuadItem(CacheQuadItem& item, const Quad& inputQuad, const Quad& outputQuad, float outputArea, float inputThreshold = 0.0001f, float outputThreshold = 0.001f);
   QList<Quad> _split(const Quad& quad);
+
+  QVector<QVector<CacheQuadItem> > _cachedQuadItems;
+  int _nHorizontalQuads;
+  int _nVerticalQuads;
 };
 
 /// Graphics item for textured mesh.
