@@ -167,27 +167,52 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
   std::string typetags = command.at(1).toString().toStdString();
 
   // Handle all OSC messages here
-  if (path == "/mapmap/paint/media/load" && typetags == "is") {
-    int paint_id = command.at(2).toInt();
-    std::string image_uri = command.at(3).toString().toStdString();
-    //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
-    main_window.setTextureUri(paint_id, image_uri);
-  } else if (path == "/mapmap/paint/media/rate" && typetags == "if") {
-    int paint_id = command.at(2).toInt();
-    float rate = command.at(3).toDouble();
-    //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
-    main_window.setTextureRate(paint_id, rate);
-  } else if (path == "/mapmap/mapping/visible" && typetags == "ii") {
-    int mappingId = command.at(2).toInt();
-    int visible = command.at(3).toInt();
-    //std::cout << "Visibility of MappingId " << mappingId << " set to " << visible << std::endl;
-    main_window.setMappingVisible(mappingId, visible ? true : false);
-  } else if (path == "/mapmap/output/fullscreen" && typetags == "i") {
+  if (path == "/mapmap/paint/media/load" && typetags == "is")
+  {
+      int paint_id = command.at(2).toInt();
+      std::string image_uri = command.at(3).toString().toStdString();
+      //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
+      main_window.setTextureUri(paint_id, image_uri);
+  }
+  else if (path == "/mapmap/paint/media/rate" && typetags == "if")
+  {
+      int paint_id = command.at(2).toInt();
+      float rate = command.at(3).toDouble();
+      //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
+      main_window.setTextureRate(paint_id, rate);
+  }
+  else if (path == "/mapmap/paint/media/volume" && typetags == "if")
+  {
+      int paint_id = command.at(2).toInt();
+      float volume = command.at(3).toDouble();
+      //std::cout << "set /mapmap/paint/media/volume " << paint_id << " " << image_uri << std::endl;
+      main_window.setTextureVolume(paint_id, volume);
+  }
+  else if (path == "/mapmap/paint/media/played" && typetags == "ii")
+  {
+      int paint_id = command.at(2).toInt();
+      int played = command.at(3).toInt();
+      //std::cout << "set /mapmap/paint/media/played " << paint_id << " " << image_uri << std::endl;
+      main_window.setTexturePlayState(paint_id, played ? true : false);
+  }
+  else if (path == "/mapmap/mapping/visible" && typetags == "ii")
+  {
+      int mappingId = command.at(2).toInt();
+      int visible = command.at(3).toInt();
+      //std::cout << "Visibility of MappingId " << mappingId << " set to " << visible << std::endl;
+      main_window.setMappingVisible(mappingId, visible ? true : false);
+  }
+  else if (path == "/mapmap/output/fullscreen" && typetags == "i")
+  {
     int enable = command.at(2).toInt();
     main_window.setOutputWindowFullScreen(enable == 1 ? true : false);
-  } else if (path == "/mapmap/quit") {
+  }
+  else if (path == "/mapmap/quit")
+  {
     main_window.close();
-  } else {
+  }
+  else
+  {
     std::cout << "Unhandled OSC message: ";
     printCommand(command);
   }
