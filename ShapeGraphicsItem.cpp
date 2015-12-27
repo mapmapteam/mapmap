@@ -312,8 +312,8 @@ PolygonTextureGraphicsItem::PolygonTextureGraphicsItem(Mapping::ptr mapping, boo
 MeshTextureGraphicsItem::MeshTextureGraphicsItem(Mapping::ptr mapping, bool output) : PolygonTextureGraphicsItem(mapping, output) {
   _controlPainter.reset(new MeshControlPainter(this));
   _nHorizontalQuads = _nVerticalQuads = -1;
+  _wasGrabbing = false;
 }
-
 
 void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 {
@@ -326,15 +326,28 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
     QVector<QVector<Quad> > inputQuads  = inputMesh->getQuads2d();
 
     // Check if we increased or decreased number of columns/rows in mesh.
-    bool dirty = false;
+    bool forceRebuild = false;
     if (_nHorizontalQuads != outputMesh->nHorizontalQuads() ||
         _nVerticalQuads != outputMesh->nVerticalQuads())
     {
-      dirty = true;
+      forceRebuild = true;
       _cachedQuadItems.resize(_nHorizontalQuads = outputMesh->nHorizontalQuads());
       for (int i=0; i<_nHorizontalQuads; i++)
         _cachedQuadItems[i].resize(_nVerticalQuads = outputMesh->nVerticalQuads());
     }
+
+    // Keep track of whether we are currently grabbing the shape or a vertex so as to
+    // reduce resolution when editing (to prevent lags).
+    bool grabbing = (getCanvas()->shapeGrabbed() || getCanvas()->vertexGrabbed());
+
+    // Max depth is adjusted to draw less quads during click & drag.
+    int maxDepth = (grabbing ? 4 : -1);
+
+    // Force rebuild on shape/vertex release.
+    if (_wasGrabbing && !grabbing) {
+      forceRebuild = true;
+    }
+    _wasGrabbing = grabbing;
 
     // Go through the mesh quad by quad.
     for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
@@ -346,19 +359,22 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 
         // Verify if item needs recomputing.
         CacheQuadItem& item = _cachedQuadItems[x][y];
-        if (dirty ||
+        if (forceRebuild ||
             item.parent.input.toPolygon()  != inputQuad.toPolygon() ||
             item.parent.output.toPolygon() != outputQuad.toPolygon()) {
 
+          // Copy input and output quads for verification purposes.
           item.parent.input  = inputQuad;
           item.parent.output = outputQuad;
+
+          // Recompute sub quads.
           item.subQuads.clear();
 
           QSizeF size = mapFromScene(outputQuad.toPolygon()).boundingRect().size();
           float area = size.width() * size.height();
 
           // Rebuild cache quad item.
-          _buildCacheQuadItem(item, inputQuad, outputQuad, area);
+          _buildCacheQuadItem(item, inputQuad, outputQuad, area, 0.0001f, 0.001f, MM::MESH_SUBDIVISION_MIN_AREA, maxDepth);
         }
 
         // Draw all the cached items.
@@ -376,38 +392,55 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   }
 }
 
-void MeshTextureGraphicsItem::_buildCacheQuadItem(CacheQuadItem& item, const Quad& inputQuad, const Quad& outputQuad, float outputArea, float inputThreshod, float outputThreshold)
+void MeshTextureGraphicsItem::_buildCacheQuadItem(CacheQuadItem& item, const Quad& inputQuad, const Quad& outputQuad, float outputArea, float inputThreshod, float outputThreshold, int minArea, int maxDepth)
 {
-  QPointF oa = mapFromScene(outputQuad.getVertex(0));
-  QPointF ob = mapFromScene(outputQuad.getVertex(1));
-  QPointF oc = mapFromScene(outputQuad.getVertex(2));
-  QPointF od = mapFromScene(outputQuad.getVertex(3));
+  bool stop = false;
+  if (maxDepth == 0 || outputArea < minArea)
+    stop = true;
+  else {
+    QPointF oa = mapFromScene(outputQuad.getVertex(0));
+    QPointF ob = mapFromScene(outputQuad.getVertex(1));
+    QPointF oc = mapFromScene(outputQuad.getVertex(2));
+    QPointF od = mapFromScene(outputQuad.getVertex(3));
 
-  QPointF ia = inputQuad.getVertex(0);
-  QPointF ib = inputQuad.getVertex(1);
-  QPointF ic = inputQuad.getVertex(2);
-  QPointF id = inputQuad.getVertex(3);
+    QPointF ia = inputQuad.getVertex(0);
+    QPointF ib = inputQuad.getVertex(1);
+    QPointF ic = inputQuad.getVertex(2);
+    QPointF id = inputQuad.getVertex(3);
 
-  // compute the dot products for the polygon
-  float outputV1dotV2 = QPointF::dotProduct(oa-ob, oc-ob);
-  float outputV3dotV4 = QPointF::dotProduct(oc-od, oa-od);
-  float outputV1dotV4 = QPointF::dotProduct(oa-ob, oa-od);
-  float outputV2dotV3 = QPointF::dotProduct(oc-ob, oc-od);
+    QPointF outputV1 = oa-ob;
+    QPointF outputV2 = oc-ob;
+    QPointF outputV3 = oc-od;
+    QPointF outputV4 = oa-od;
 
-  // compute the dot products for the texture
-  float inputV1dotV2  = QPointF::dotProduct(ia-ib, ic-ib);
-  float inputV3dotV4  = QPointF::dotProduct(ic-id, ia-id);
-  float inputV1dotV4  = QPointF::dotProduct(ia-ib, ia-id);
-  float inputV2dotV3  = QPointF::dotProduct(ic-ib, ic-id);
+    QPointF inputV1 = ia-ib;
+    QPointF inputV2 = ic-ib;
+    QPointF inputV3 = ic-id;
+    QPointF inputV4 = ia-id;
 
-  // Stopping criterion.
-  if (outputArea < MM::MESH_SUBDIVISION_MIN_AREA ||
-      (fabs(outputV1dotV2 - outputV3dotV4) < outputThreshold &&
-       fabs(outputV1dotV4 - outputV2dotV3) < outputThreshold &&
-       fabs(inputV1dotV2  - inputV3dotV4)  < inputThreshod &&
-       fabs(inputV1dotV4  - inputV2dotV3)  < inputThreshod))
+    // compute the dot products for the polygon
+    float outputV1dotV2 = QPointF::dotProduct(outputV1, outputV2);
+    float outputV3dotV4 = QPointF::dotProduct(outputV3, outputV4);
+    float outputV1dotV4 = QPointF::dotProduct(outputV1, outputV4);
+    float outputV2dotV3 = QPointF::dotProduct(outputV2, outputV3);
+
+    // compute the dot products for the texture
+    float inputV1dotV2  = QPointF::dotProduct(inputV1, inputV2);
+    float inputV3dotV4  = QPointF::dotProduct(inputV3, inputV4);
+    float inputV1dotV4  = QPointF::dotProduct(inputV1, inputV4);
+    float inputV2dotV3  = QPointF::dotProduct(inputV2, inputV3);
+
+    // Stopping criterion.
+    stop = (fabs(outputV1dotV2 - outputV3dotV4) < outputThreshold &&
+            fabs(outputV1dotV4 - outputV2dotV3) < outputThreshold &&
+            fabs(inputV1dotV2  - inputV3dotV4)  < inputThreshod &&
+            fabs(inputV1dotV4  - inputV2dotV3)  < inputThreshod);
+  }
+
+  //
+  if (stop)
   {
-    item.subQuads.append( { inputQuad, outputQuad } );
+    item.subQuads.append( (CacheQuadMapping){ inputQuad, outputQuad } );
   }
   else // subdivide
   {
@@ -415,7 +448,7 @@ void MeshTextureGraphicsItem::_buildCacheQuadItem(CacheQuadItem& item, const Qua
     QList<Quad> outputSubQuads = _split(outputQuad);
     for (int i = 0; i < inputSubQuads.size(); i++)
     {
-      _buildCacheQuadItem(item, inputSubQuads[i], outputSubQuads[i], outputArea*0.25, inputThreshod, outputThreshold);
+      _buildCacheQuadItem(item, inputSubQuads[i], outputSubQuads[i], outputArea*0.25, inputThreshod, outputThreshold, minArea, (maxDepth == -1 ? -1 : maxDepth - 1));
     }
   }
 }

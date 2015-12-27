@@ -225,12 +225,15 @@ public:
 
 private:
   // Draws quad recursively using the technique described in Oliveira, M. "Correcting Texture Mapping Errors Introduced by Graphics Hardware"
-  void _buildCacheQuadItem(CacheQuadItem& item, const Quad& inputQuad, const Quad& outputQuad, float outputArea, float inputThreshold = 0.0001f, float outputThreshold = 0.001f);
+  void _buildCacheQuadItem(CacheQuadItem& item, const Quad& inputQuad, const Quad& outputQuad,
+                           float outputArea, float inputThreshold = 0.0001f, float outputThreshold = 0.001f,
+                           int minArea=MM::MESH_SUBDIVISION_MIN_AREA, int maxDepth=-1);
   QList<Quad> _split(const Quad& quad);
 
   QVector<QVector<CacheQuadItem> > _cachedQuadItems;
   int _nHorizontalQuads;
   int _nVerticalQuads;
+  bool _wasGrabbing;
 };
 
 /// Graphics item for textured mesh.
