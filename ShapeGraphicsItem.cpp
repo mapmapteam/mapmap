@@ -338,7 +338,8 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 
     // Keep track of whether we are currently grabbing the shape or a vertex so as to
     // reduce resolution when editing (to prevent lags).
-    bool grabbing = (getCanvas()->shapeGrabbed() || getCanvas()->vertexGrabbed());
+    bool grabbing = (isMappingCurrent() &&
+                     (getCanvas()->shapeGrabbed() || getCanvas()->vertexGrabbed()));
 
     // Max depth is adjusted to draw less quads during click & drag.
     int maxDepth = (grabbing ? 4 : -1);
