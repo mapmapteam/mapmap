@@ -89,7 +89,7 @@ private slots:
   void openRecentFile();
   void clearRecentFileList();
   void openRecentVideo();
-  void quitMapMap();
+  //void quitMapMap();
   // Edit menu.
   void deleteItem();
   // Context menu for mappings.
