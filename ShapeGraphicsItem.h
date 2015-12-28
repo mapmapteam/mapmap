@@ -209,10 +209,13 @@ public:
  */
 class MeshTextureGraphicsItem : public PolygonTextureGraphicsItem
 {
+  // Internal use (cache). A structure consisting of the input and output quads of mapping.
   struct CacheQuadMapping {
     Quad input;
     Quad output;
   };
+
+  // Internal use (cache). Contains a parent mapping and all its sub-mappings.
   struct CacheQuadItem {
     CacheQuadMapping parent;
     QList<CacheQuadMapping> subQuads;
@@ -224,15 +227,23 @@ public:
   virtual void _doDrawOutput(QPainter* painter);
 
 private:
-  // Draws quad recursively using the technique described in Oliveira, M. "Correcting Texture Mapping Errors Introduced by Graphics Hardware"
+  /**
+   * Builds cache item recursively using the technique described in
+   * Oliveira, M. "Correcting Texture Mapping Errors Introduced by Graphics Hardware"
+   */
   void _buildCacheQuadItem(CacheQuadItem& item, const Quad& inputQuad, const Quad& outputQuad,
                            float outputArea, float inputThreshold = 0.0001f, float outputThreshold = 0.001f,
                            int minArea=MM::MESH_SUBDIVISION_MIN_AREA, int maxDepth=-1);
+
+  // Help function that returns four equal-size sub-quads from a quad.
   QList<Quad> _split(const Quad& quad);
 
+  // Contains the current cache.
   QVector<QVector<CacheQuadItem> > _cachedQuadItems;
   int _nHorizontalQuads;
   int _nVerticalQuads;
+
+  // True iff shape was being grabbed last time _buildCacheQuadItem() was called.
   bool _wasGrabbing;
 };
 
