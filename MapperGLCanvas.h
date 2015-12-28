@@ -83,6 +83,9 @@ public:
   /// Set the currently active vertex
   void setActiveVertexIndex(int activeVertex) { _activeVertex = activeVertex; }
 
+  bool shapeGrabbed() const { return _shapeGrabbed; }
+  bool vertexGrabbed() const { return _vertexGrabbed; }
+
   qreal getZoomFactor() const { return qBound(qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MIN, MM::ZOOM_MAX); }
 
   /// This function needs to be called after a shape inside the canvas has been changed for appropriate signals to be activated.
