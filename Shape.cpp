@@ -563,6 +563,40 @@ void Mesh::_reorderVertices()
   vertices = newVertices;
 }
 
+void Ellipse::sanitize()
+{
+  // Get horizontal axis rotated 90 degrees CW
+  QVector2D hAxis = getHorizontalAxis();
+  const QVector2D center(getCenter());
+  QVector2D hAxisRotated(hAxis.y(), -hAxis.x());
+
+  // Project vertex 1 onto it.
+  QVector2D vAxisNormalized = hAxisRotated.normalized();
+
+  QVector2D vFromCenter = QVector2D(getVertex(1)) - center;
+  const QVector2D& projection = QVector2D::dotProduct( vFromCenter, vAxisNormalized ) * vAxisNormalized;
+  MShape::setVertex(1, (center + projection).toPointF());
+  MShape::setVertex(3, (center - projection).toPointF());
+
+  if (hasCenterControl())
+  {
+    // Clip control point.
+    MShape::setVertex(4, clipInside(getVertex(4)));
+  }
+}
+
+QPointF Ellipse::clipInside(const QPointF& v) const
+{
+  // Map point as vector on a unit circle.
+  QVector2D vector(toUnitCircle().map(v));
+
+  // Clip control point.
+  return (vector.length() <= 1 ?
+                             v :
+                             fromUnitCircle().map(vector.normalized().toPointF()));
+
+}
+
 QTransform Ellipse::toUnitCircle() const
 {
   const QPointF& center = getCenter();
