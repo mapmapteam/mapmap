@@ -478,6 +478,42 @@ QList<Quad> MeshTextureGraphicsItem::_split(const Quad& quad)
   return quads;
 }
 
+EllipseTextureGraphicsItem::DrawingData::DrawingData(const QSharedPointer<Ellipse>& ellipse)
+{
+  // Gather basic definitions.
+  center           = ellipse->getCenter();
+  controlCenter    = ellipse->getVertex(4);
+  horizontalRadius = ellipse->getHorizontalRadius();
+  verticalRadius   = ellipse->getVerticalRadius();
+  rotation         = ellipse->getRotationRadians();
+
+  // Compute quarter angles.
+  const QPointF& unitControlCenter  = ellipse->toUnitCircle().map(controlCenter);
+  float inputAngle1 = asin(unitControlCenter.y());
+  float inputAngle2 = acos(unitControlCenter.x());
+  quarterAngles[0] = inputAngle1;
+  quarterAngles[1] = inputAngle2;
+  quarterAngles[2] = M_PI   - inputAngle1;
+  quarterAngles[3] = 2*M_PI - inputAngle2;
+}
+
+float EllipseTextureGraphicsItem::DrawingData::getSpanInQuarter(int quarter) const
+{
+  float angleSpan = quarterAngles[(quarter+1)%N_QUARTERS] - quarterAngles[quarter];
+  while (angleSpan < 0) angleSpan += 2*M_PI;
+  return angleSpan;
+}
+
+void EllipseTextureGraphicsItem::DrawingData::setPointOfEllipseAtAngle(QPointF& point, float circularAngle)
+{
+  float xCirc = cos(circularAngle) * horizontalRadius; // this looks really weird...
+  float yCirc = sin(circularAngle) * verticalRadius;
+  float distance = sqrt( xCirc*xCirc + yCirc*yCirc );
+  float angle    = atan2( yCirc, xCirc );
+  point.setX( cos(angle + rotation) * distance + center.x() );
+  point.setY( sin(angle + rotation) * distance + center.y() );
+}
+
 EllipseTextureGraphicsItem::EllipseTextureGraphicsItem(Mapping::ptr mapping, bool output) : TextureGraphicsItem(mapping, output) {
   _controlPainter.reset(new EllipseControlPainter(this));
 }
@@ -508,68 +544,55 @@ void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   QSharedPointer<Ellipse> outputEllipse = qSharedPointerCast<Ellipse>(_shape);
   QSharedPointer<Texture> texture = _texture.toStrongRef();
 
-  // Start / end angle.
-  //const float startAngle = 0;
-  //const float endAngle   = 2*M_PI;
+  // Data for calculating drawing.
+  DrawingData inputData(inputEllipse);
+  DrawingData outputData(outputEllipse);
 
-  //
-  //float angle;
+  // Points that contain the triangle positions on the border of the ellipse.
   QPointF currentInputPoint;
   QPointF prevInputPoint(0, 0);
   QPointF currentOutputPoint;
   QPointF prevOutputPoint(0, 0);
 
-  // Input ellipse parameters.
-  const QPointF& inputCenter         = inputEllipse->getCenter();
-  const QPointF& inputControlCenter  = inputEllipse->getVertex(4);
-  float    inputHorizRadius          = inputEllipse->getHorizontalRadius();
-  float    inputVertRadius           = inputEllipse->getVerticalRadius();
-  float    inputRotation             = inputEllipse->getRotationRadians();
-
-  // Output ellipse parameters.
-  const QPointF& outputCenter        = mapFromScene(outputEllipse->getCenter());
-  const QPointF& outputControlCenter = mapFromScene(outputEllipse->getVertex(4));
-  float    outputHorizRadius         = outputEllipse->getHorizontalRadius();
-  float    outputVertRadius          = outputEllipse->getVerticalRadius();
-  float    outputRotation            = outputEllipse->getRotationRadians();
-
-  // Variation in angle at each step of the loop.
-  const int N_TRIANGLES = 100;
-  const float ANGLE_STEP = 2*M_PI/N_TRIANGLES;
-
-  float circleAngle = 0;
-  for (int i=0; i<=N_TRIANGLES; i++, circleAngle += ANGLE_STEP)
+  // Draw each quarter of the ellipse.
+  for (int i=0; i<N_QUARTERS; i++)
   {
-    // Set next (current) points.
-    _setPointOfEllipseAtAngle(currentInputPoint, inputCenter, inputHorizRadius, inputVertRadius, inputRotation, circleAngle);
-    _setPointOfEllipseAtAngle(currentOutputPoint, outputCenter, outputHorizRadius, outputVertRadius, outputRotation, circleAngle);
+    // Total angle range of current quarter.
+    float inputAngleSpanInQuarter  = inputData.getSpanInQuarter(i);
+    float outputAngleSpanInQuarter = outputData.getSpanInQuarter(i);
 
-    // We don't draw the first point.
-    if (i > 0)
+    // N. triangles (computed according to output).
+    int nTrianglesInQuarter  = ceil(outputAngleSpanInQuarter / (2*M_PI) * MM::ELLIPSE_N_TRIANGLES);
+
+    // Angle per triangle.
+    float inputAnglePerTriangle  = inputAngleSpanInQuarter / nTrianglesInQuarter;
+    float outputAnglePerTriangle = outputAngleSpanInQuarter / nTrianglesInQuarter;
+
+    float inputAngle  = inputData.quarterAngles[i];
+    float outputAngle = outputData.quarterAngles[i];
+    for (int j=0; j<=nTrianglesInQuarter; j++, inputAngle += inputAnglePerTriangle, outputAngle += outputAnglePerTriangle)
     {
-      // Draw triangle.
-      glBegin(GL_TRIANGLES);
-      Util::setGlTexPoint(*texture, inputControlCenter, outputControlCenter);
-      Util::setGlTexPoint(*texture, prevInputPoint,     prevOutputPoint);
-      Util::setGlTexPoint(*texture, currentInputPoint,  currentOutputPoint);
-      glEnd();
+      // Set next (current) points.
+      inputData.setPointOfEllipseAtAngle(currentInputPoint, inputAngle);
+      outputData.setPointOfEllipseAtAngle(currentOutputPoint, outputAngle);
+
+      if (j > 0) // We don't draw the first triangle.
+      {
+        // Draw triangle.
+        glBegin(GL_TRIANGLES);
+        Util::setGlTexPoint(*texture, inputData.controlCenter, outputData.controlCenter);
+        Util::setGlTexPoint(*texture, prevInputPoint,     prevOutputPoint);
+        Util::setGlTexPoint(*texture, currentInputPoint,  currentOutputPoint);
+        glEnd();
+      }
+
+      // Save point for next iteration.
+      prevInputPoint.setX(currentInputPoint.x());
+      prevInputPoint.setY(currentInputPoint.y());
+      prevOutputPoint.setX(currentOutputPoint.x());
+      prevOutputPoint.setY(currentOutputPoint.y());
     }
 
-    // Save point for next iteration.
-    prevInputPoint.setX(currentInputPoint.x());
-    prevInputPoint.setY(currentInputPoint.y());
-    prevOutputPoint.setX(currentOutputPoint.x());
-    prevOutputPoint.setY(currentOutputPoint.y());
   }
 }
 
-void EllipseTextureGraphicsItem::_setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle)
-{
-  float xCirc = sin(circularAngle) * hRadius;
-  float yCirc = cos(circularAngle) * vRadius;
-  float distance = sqrt( xCirc*xCirc + yCirc*yCirc );
-  float angle    = atan2( xCirc, yCirc );
-  rotation = 2*M_PI-rotation; // rotation needs to be inverted (CW <-> CCW)
-  point.setX( sin(angle + rotation) * distance + center.x() );
-  point.setY( cos(angle + rotation) * distance + center.y() );
-}

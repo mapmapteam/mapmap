@@ -250,6 +250,22 @@ private:
 /// Graphics item for textured mesh.
 class EllipseTextureGraphicsItem : public TextureGraphicsItem
 {
+  static const int N_QUARTERS = 4;
+
+  class DrawingData {
+  public:
+    QPointF center;
+    QPointF controlCenter;
+    float   horizontalRadius;
+    float   verticalRadius;
+    float   rotation;
+    float   quarterAngles[N_QUARTERS];
+
+    DrawingData(const QSharedPointer<Ellipse>& ellipse);
+    float getSpanInQuarter(int quarter) const;
+    void setPointOfEllipseAtAngle(QPointF& point, float circularAngle);
+  };
+
 public:
   EllipseTextureGraphicsItem(Mapping::ptr mapping, bool output=true);
   virtual ~EllipseTextureGraphicsItem(){}
