@@ -2743,11 +2743,7 @@ bool MainWindow::setTextureVolume(int texture_id, double volume)
   {
     if (paint->getType() == "media")
     {
-<<<<<<< HEAD
-        Media *media = (Media *) paint.data(); // FIXME: use sharedptr cast
-=======
         Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
->>>>>>> 61528b3... Fix merge bugs
         videoTimer->stop();
         media->setVolume(volume);
         videoTimer->start();
@@ -2791,4 +2787,9 @@ void MainWindow::setTexturePlayState(int texture_id, bool played)
       std::cout << "Paint id " << texture_id << " is not a media texture." << std::endl;
     }
   }
+}
+
+void MainWindow::quitMapMap()
+{
+  close();
 }
