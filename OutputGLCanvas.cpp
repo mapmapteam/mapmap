@@ -89,8 +89,14 @@ void OutputGLCanvas::_drawTestSignal(QPainter* painter)
     }
   }
 
+  // Create responsive image
+  QImage test_signal = _svg_test_signal.scaled(geo.height(), geo.height(), Qt::KeepAspectRatio);
+  // Set new brush
+  this->_brush_test_signal = QBrush(test_signal);
+  // Center the brush
+  painter->translate((geo.width() - test_signal.width()) / 2, (geo.height() - test_signal.height()) / 2);
   // Draw the actual brush.
-  painter->fillRect(geo, this->_brush_test_signal);
+  painter->fillRect(0, 0, test_signal.width(), test_signal.height(), this->_brush_test_signal);
 }
 
 void OutputGLCanvas::resizeGL(int width, int height)
