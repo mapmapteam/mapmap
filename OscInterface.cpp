@@ -207,6 +207,18 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
     int enable = command.at(2).toInt();
     main_window.setOutputWindowFullScreen(enable == 1 ? true : false);
   }
+  else if (path == "/mapmap/mapping/rename" && typetags == "is")
+  {
+    int mappingId = command.at(2).toInt();
+    QString mappingName = command.at(3).toString();
+    main_window.renameMappingItem(mappingId, mappingName);
+  }
+  else if (path == "/mapmap/paint/media/rename" && typetags == "is")
+  {
+    int paintId = command.at(2).toInt();
+    QString paintName = command.at(3).toString();
+    main_window.renamePaintItem(paintId, paintName);
+  }
   else if (path == "/mapmap/quit")
   {
     main_window.close();

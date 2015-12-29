@@ -239,6 +239,8 @@ public:
   void addPaintItem(uid paintId, const QIcon& icon, const QString& name);
   void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
+  void renameMappingItem(uid mappingId, QString name);
+  void renamePaintItem(uid paintId, QString name);
   void clearWindow();
   // Check if the file exists
   bool fileExists(const QString file);
@@ -249,7 +251,6 @@ public:
 
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
-  void setMappingItemVisibility(uid mappingId, bool visible);
 
 private:
   // Connects/disconnects project-specific widgets (paints and mappings).

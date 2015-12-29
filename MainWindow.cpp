@@ -750,6 +750,13 @@ void MainWindow::renameMappingItem()
   contentTab->setCurrentWidget(mappingSplitter);
 }
 
+void MainWindow::renameMappingItem(uid mappingId, QString name)
+{
+  if (mappingList->count() > 0) {
+    mappingList->item(mappingId)->setText(name);
+  }
+}
+
 void MainWindow::deletePaintItem()
 {
   if(currentSelectedItem)
@@ -769,6 +776,13 @@ void MainWindow::renamePaintItem()
   item->setFlags(item->flags() | Qt::ItemIsEditable);
   paintList->editItem(item);
   contentTab->setCurrentWidget(paintSplitter);
+}
+
+void MainWindow::renamePaintItem(uid paintId, QString name)
+{
+  if (paintList->count() > 0) {
+    paintList->item(paintId)->setText(name);
+  }
 }
 
 void MainWindow::openRecentFile()
@@ -1423,7 +1437,7 @@ void MainWindow::createActions()
   deleteMappingAction->setShortcut(tr("CTRL+DEL"));
   deleteMappingAction->setStatusTip(tr("Delete item"));
   deleteMappingAction->setIconVisibleInMenu(false);
-  connect(deleteMappingAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
+  connect(deleteMappingAction, SIGNAL(triggered()), this, SLOT(deleteMappingItem()));
 
   // Rename mapping.
   renameMappingAction = new QAction(tr("Rename"), this);
@@ -1437,7 +1451,7 @@ void MainWindow::createActions()
   //deletePaintAction->setShortcut(tr("CTRL+DEL"));
   deletePaintAction->setStatusTip(tr("Delete item"));
   deletePaintAction->setIconVisibleInMenu(false);
-  connect(deletePaintAction, SIGNAL(triggered()), this, SLOT(deleteItem()));
+  connect(deletePaintAction, SIGNAL(triggered()), this, SLOT(deletePaintItem()));
 
   // Rename paint.
   renamePaintAction = new QAction(tr("Rename"), this);
