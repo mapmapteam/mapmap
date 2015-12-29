@@ -41,3 +41,4 @@ Info.plist
 *.pro.user*
 *.app
 DMGVERSION.txt
+*.db

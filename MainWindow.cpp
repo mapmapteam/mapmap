@@ -2440,9 +2440,12 @@ void MainWindow::connectProjectWidgets()
 
   connect(mappingList->model(), SIGNAL(rowsMoved(const QModelIndex&, int, int, const QModelIndex &, int)),
           this,                 SLOT(handleMappingIndexesMoved()));
-
+    // Rename mapping with double click
     connect(mappingList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
             this,      SLOT(renameMappingItem()));
+    // Rename Paint with double click
+    connect(paintList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+            this,      SLOT(renamePaintItem()));
 }
 
 void MainWindow::disconnectProjectWidgets()
