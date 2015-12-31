@@ -50,6 +50,7 @@ MainWindow::MainWindow()
   _displayControls = true;
   _stickyVertices = true;
   _displayTestSignal = false;
+  _displayUndoStack = false;
 
   // UndoStack
   undoStack = new QUndoStack(this);
@@ -1283,7 +1284,6 @@ void MainWindow::createLayout()
   contentTab = new QTabWidget;
   contentTab->addTab(paintSplitter, QIcon(":/add-video"), tr("Paints"));
   contentTab->addTab(mappingSplitter, QIcon(":/add-mesh"), tr("Mappings"));
-  contentTab->addTab(undoView, tr("Undo stack"));
 
   canvasSplitter = new QSplitter(Qt::Vertical);
   canvasSplitter->addWidget(sourceCanvas);
@@ -1580,6 +1580,14 @@ void MainWindow::createActions()
   displayTestSignalAction->setChecked(_displayTestSignal);
   // Manage show/hide of test signal
   connect(displayTestSignalAction, SIGNAL(toggled(bool)), this, SLOT(enableTestSignal(bool)));
+
+  // Toggle display of Undo Stack
+  displayUndoStackAction = new QAction(tr("Display &Undo Stack"), this);
+  displayUndoStackAction->setShortcut(tr("Ctrl+U"));
+  displayUndoStackAction->setCheckable(true);
+  displayUndoStackAction->setChecked(_displayUndoStack);
+  // Manage show/hide of Undo Stack
+  connect(displayUndoStackAction, SIGNAL(toggled(bool)), this, SLOT(displayUndoStack(bool)));
 }
 
 void MainWindow::startFullScreen()
@@ -1646,6 +1654,8 @@ void MainWindow::createMenus()
   viewMenu->addAction(displayControlsAction);
   viewMenu->addAction(stickyVerticesAction);
   viewMenu->addAction(displayTestSignalAction);
+  viewMenu->addSeparator();
+  viewMenu->addAction(displayUndoStackAction);
 
   // Run.
   runMenu = menuBar->addMenu(tr("&Run"));
@@ -1800,6 +1810,10 @@ void MainWindow::readSettings()
   // Update Recent files and video
   updateRecentFileActions();
   updateRecentVideoActions();
+
+  // new in 0.3.2
+  if (settings.contains("displayUndoStack"))
+    displayUndoStackAction->setChecked(settings.value("displayUndoStack").toBool());
 }
 
 void MainWindow::writeSettings()
@@ -1816,6 +1830,7 @@ void MainWindow::writeSettings()
   settings.setValue("outputWindowFullScreen", outputWindowFullScreenAction->isChecked());
   settings.setValue("displayTestSignal", displayTestSignalAction->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
+  settings.setValue("displayUndoStack", displayUndoStackAction->isChecked());
 }
 
 bool MainWindow::okToContinue()
@@ -2395,6 +2410,17 @@ void MainWindow::enableTestSignal(bool enable)
 {
   _displayTestSignal = enable;
   updateCanvases();
+}
+
+void MainWindow::displayUndoStack(bool display)
+{
+  _displayUndoStack = display;
+
+  if (display) {
+    contentTab->addTab(undoView, tr("Undo stack"));
+  } else {
+    contentTab->removeTab(contentTab->indexOf(undoView));
+  }
 }
 
 void MainWindow::enableStickyVertices(bool value)

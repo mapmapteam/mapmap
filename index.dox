@@ -1,10 +1,13 @@
-/*! \mainpage MapMap is a free video mapping software.
+/*! \mainpage MapMap is a free/open source video mapping software.
  *
  * \section intro_sec Introduction
  * 
- * With MapMap, you can paint shapes in the space.
+ * We want to build a free and open source complete video mapping creation pipeline for artists and small teams.
  * 
- * Authors and contributors: Sofian Audry, Alexandre Quessy, Sylvain Cormier, Mike Latona, Christian Ambaud, Maxime Damecourt.
+ * Authors: Sofian Audry, Alexandre Quessy, Mike Latona, Vasilis Liaskovitis, Dame Diongue.
+ *
+ * Contributors: Marc Lavallée, Guillaume Arseneault, Maxime Damecour, Christian Ambaud,
+ * Louis Desjardins, Julien Keable, Sylvain Cormier. 
  * 
  * \section map_sec About video mapping
  * 
@@ -21,8 +24,9 @@
  * audio-visual narrative.
  *
  * \section install_sec Installation
- * 
- * qt4-default
- * qt4-qmake
+ *
+ * liblo-dev
+ * qttools5-dev-tools
+ * qt5-default
  * ./build.sh
  */

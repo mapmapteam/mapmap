@@ -191,6 +191,7 @@ public slots:
   void enableDisplayControls(bool display);
   void enableStickyVertices(bool display);
   void enableTestSignal(bool enable);
+  void displayUndoStack(bool display);
 
   // Show Mapping Context Menu
   void showMappingContextMenu(const QPoint &point);
@@ -319,6 +320,7 @@ private:
   QAction *displayControlsAction;
   QAction *displayTestSignalAction;
   QAction *stickyVerticesAction;
+  QAction *displayUndoStackAction;
 
   enum { MaxRecentFiles = 10 };
   enum { MaxRecentVideo = 5 };
@@ -393,6 +395,8 @@ private:
 
   // True iff we want vertices to stick to each other.
   bool _stickyVertices;
+
+  bool _displayUndoStack;
 
   // Keeps track of the current selected item, wether it's a paint or mapping.
   QListWidgetItem* currentSelectedItem;
