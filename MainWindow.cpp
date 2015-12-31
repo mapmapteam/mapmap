@@ -1673,7 +1673,7 @@ void MainWindow::createMenus()
 void MainWindow::createMappingContextMenu()
 {
   // Context menu.
-  mappingContextMenu = new QMenu();
+  mappingContextMenu = new QMenu(this);
 
   // Add different Action
   mappingContextMenu->addAction(cloneAction);
@@ -1694,7 +1694,7 @@ void MainWindow::createMappingContextMenu()
 void MainWindow::createPaintContextMenu()
 {
   // Paint Context Menu
-  paintContextMenu = new QMenu();
+  paintContextMenu = new QMenu(this);
 
   // Add Actions
   paintContextMenu->addAction(deletePaintAction);
