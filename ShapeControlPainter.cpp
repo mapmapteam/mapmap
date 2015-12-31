@@ -27,15 +27,15 @@ ShapeControlPainter::ShapeControlPainter(ShapeGraphicsItem* shapeItem)
 
 MShape::ptr ShapeControlPainter::getShape() const { return _shapeItem->getShape(); }
 
-void ShapeControlPainter::paint(QPainter *painter, const QList<int>& selectedVertices)
+void ShapeControlPainter::paint(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices)
 {
-  _paintShape(painter);
-  _paintVertices(painter, selectedVertices);
+  _paintShape(painter, canvas);
+  _paintVertices(painter, canvas, selectedVertices);
 }
 
-void ShapeControlPainter::_paintVertices(QPainter *painter, const QList<int>& selectedVertices)
+void ShapeControlPainter::_paintVertices(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices)
 {
-  qreal zoomFactor = _shapeItem->getCanvas()->getZoomFactor();
+  qreal zoomFactor = canvas->getZoomFactor();
   qreal selectRadius = MM::VERTEX_SELECT_RADIUS / zoomFactor;
   qreal strokeWidth  = MM::VERTEX_SELECT_STROKE_WIDTH / zoomFactor;
 
@@ -43,26 +43,31 @@ void ShapeControlPainter::_paintVertices(QPainter *painter, const QList<int>& se
     Util::drawControlsVertex(painter, getShape()->getVertex(i), selectedVertices.contains(i), selectRadius, strokeWidth);
 }
 
-void PolygonControlPainter::_paintShape(QPainter *painter)
+QPen ShapeControlPainter::_getRescaledShapeStroke(MapperGLCanvas* canvas, bool innerStroke)
+{
+  return QPen(QBrush(MM::CONTROL_COLOR), (innerStroke ? MM::SHAPE_INNER_STROKE_WIDTH : MM::SHAPE_STROKE_WIDTH) / canvas->getZoomFactor());
+}
+
+void PolygonControlPainter::_paintShape(QPainter *painter, MapperGLCanvas* canvas)
 {
   Polygon* poly = static_cast<Polygon*>(getShape().data());
   Q_ASSERT(poly);
 
   // Init colors and stroke.
-  painter->setPen(_shapeItem->getRescaledShapeStroke());
+  painter->setPen(_getRescaledShapeStroke(canvas));
 
   // Draw inner quads.
   painter->drawPolygon(poly->toPolygon());
 }
 
 
-void EllipseControlPainter::_paintShape(QPainter *painter)
+void EllipseControlPainter::_paintShape(QPainter *painter, MapperGLCanvas* canvas)
 {
   Ellipse* ellipse = static_cast<Ellipse*>(getShape().data());
   Q_ASSERT(ellipse);
 
   // Init colors and stroke.
-  painter->setPen(_shapeItem->getRescaledShapeStroke());
+  painter->setPen(_getRescaledShapeStroke(canvas));
   painter->setBrush(Qt::NoBrush);
 
   // Draw ellipse contour.
@@ -74,13 +79,13 @@ void EllipseControlPainter::_paintShape(QPainter *painter)
   painter->drawPath(transform.map(path));
 }
 
-void MeshControlPainter::_paintShape(QPainter *painter)
+void MeshControlPainter::_paintShape(QPainter *painter, MapperGLCanvas* canvas)
 {
   Mesh* mesh = static_cast<Mesh*>(getShape().data());
   Q_ASSERT(mesh);
 
   // Init colors and stroke.
-  painter->setPen(_shapeItem->getRescaledShapeStroke(true));
+  painter->setPen(_getRescaledShapeStroke(canvas, true));
 
   // Draw inner quads.
   QVector<Quad> quads = mesh->getQuads();
@@ -90,7 +95,7 @@ void MeshControlPainter::_paintShape(QPainter *painter)
   }
 
   // Draw outer quad.
-  painter->setPen(_shapeItem->getRescaledShapeStroke());
+  painter->setPen(_getRescaledShapeStroke(canvas));
   painter->drawPolygon(_shapeItem->mapFromScene(mesh->toPolygon()));
 }
 

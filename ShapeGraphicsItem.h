@@ -101,13 +101,6 @@ protected:
   virtual void _postPaint(QPainter *painter, const QStyleOptionGraphicsItem *option)
   { Q_UNUSED(painter); Q_UNUSED(option); }
 
-public:
-  /**
-   *  Utility function: returns a stroke with rescaled width such that the stroke appears
-   *  invariant to the zoom level (to be used in paint functions).
-   */
-  QPen getRescaledShapeStroke(bool innerStroke=false);
-
 protected:
   QWeakPointer<Mapping> _mapping;
   QWeakPointer<MShape> _shape;

@@ -24,9 +24,11 @@
 #include <QtGlobal>
 
 #include "MM.h"
+#include "MapperGLCanvas.h"
 #include "ShapeGraphicsItem.h"
 
 class ShapeGraphicsItem;
+class MapperGLCanvas;
 
 /**
  * An object responsible to paint control points for a specific ShapeGraphicsItem.
@@ -41,11 +43,13 @@ public:
 
   MShape::ptr getShape() const;
 
-  virtual void paint(QPainter *painter, const QList<int>& selectedVertices = QList<int>());
+  virtual void paint(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices = QList<int>());
 
 protected:
-  virtual void _paintShape(QPainter *painter) = 0;
-  virtual void _paintVertices(QPainter *painter, const QList<int>& selectedVertices = QList<int>());
+  virtual void _paintShape(QPainter *painter, MapperGLCanvas* canvas) = 0;
+  virtual void _paintVertices(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices = QList<int>());
+
+  QPen _getRescaledShapeStroke(MapperGLCanvas* canvas, bool innerStroke=false);
 
   ShapeGraphicsItem* _shapeItem;
 };
@@ -58,7 +62,7 @@ public:
   virtual ~PolygonControlPainter() {}
 
 protected:
-  virtual void _paintShape(QPainter *painter);
+  virtual void _paintShape(QPainter *painter, MapperGLCanvas* canvas);
 };
 
 /// Control painter for ellipses.
@@ -69,7 +73,7 @@ public:
   virtual ~EllipseControlPainter() {}
 
 protected:
-  virtual void _paintShape(QPainter *painter);
+  virtual void _paintShape(QPainter *painter, MapperGLCanvas* canvas);
 };
 
 /// Control painter for meshes.
@@ -80,7 +84,7 @@ public:
   virtual ~MeshControlPainter() {}
 
 protected:
-  virtual void _paintShape(QPainter *painter);
+  virtual void _paintShape(QPainter *painter, MapperGLCanvas* canvas);
 };
 
 #endif
