@@ -77,6 +77,8 @@ public:
 
   // Misc.
   static const int MESH_SUBDIVISION_MIN_AREA = 400;
+  static const int MESH_SUBDIVISION_MAX_DEPTH_EDITING = 4;
+  static const int MESH_SUBDIVISION_MAX_DEPTH         = (-1);
   static const int ELLIPSE_N_TRIANGLES = 100; // n triangles used to draw an ellipse
 };
 

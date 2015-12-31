@@ -342,7 +342,7 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
                      (getCanvas()->shapeGrabbed() || getCanvas()->vertexGrabbed()));
 
     // Max depth is adjusted to draw less quads during click & drag.
-    int maxDepth = (grabbing ? 4 : -1);
+    int maxDepth = (grabbing ? MM::MESH_SUBDIVISION_MAX_DEPTH_EDITING : MM::MESH_SUBDIVISION_MAX_DEPTH);
 
     // Force rebuild on shape/vertex release.
     if (_wasGrabbing && !grabbing) {
