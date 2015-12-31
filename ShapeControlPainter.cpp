@@ -43,7 +43,7 @@ void ShapeControlPainter::_paintVertices(QPainter *painter, MapperGLCanvas* canv
     Util::drawControlsVertex(painter, getShape()->getVertex(i), selectedVertices.contains(i), selectRadius, strokeWidth);
 }
 
-QPen ShapeControlPainter::_getRescaledShapeStroke(MapperGLCanvas* canvas, bool innerStroke)
+QPen ShapeControlPainter::getRescaledShapeStroke(MapperGLCanvas* canvas, bool innerStroke)
 {
   return QPen(QBrush(MM::CONTROL_COLOR), (innerStroke ? MM::SHAPE_INNER_STROKE_WIDTH : MM::SHAPE_STROKE_WIDTH) / canvas->getZoomFactor());
 }
@@ -54,7 +54,7 @@ void PolygonControlPainter::_paintShape(QPainter *painter, MapperGLCanvas* canva
   Q_ASSERT(poly);
 
   // Init colors and stroke.
-  painter->setPen(_getRescaledShapeStroke(canvas));
+  painter->setPen(getRescaledShapeStroke(canvas));
 
   // Draw inner quads.
   painter->drawPolygon(poly->toPolygon());
@@ -67,7 +67,7 @@ void EllipseControlPainter::_paintShape(QPainter *painter, MapperGLCanvas* canva
   Q_ASSERT(ellipse);
 
   // Init colors and stroke.
-  painter->setPen(_getRescaledShapeStroke(canvas));
+  painter->setPen(getRescaledShapeStroke(canvas));
   painter->setBrush(Qt::NoBrush);
 
   // Draw ellipse contour.
@@ -85,7 +85,7 @@ void MeshControlPainter::_paintShape(QPainter *painter, MapperGLCanvas* canvas)
   Q_ASSERT(mesh);
 
   // Init colors and stroke.
-  painter->setPen(_getRescaledShapeStroke(canvas, true));
+  painter->setPen(getRescaledShapeStroke(canvas, true));
 
   // Draw inner quads.
   QVector<Quad> quads = mesh->getQuads();
@@ -95,7 +95,7 @@ void MeshControlPainter::_paintShape(QPainter *painter, MapperGLCanvas* canvas)
   }
 
   // Draw outer quad.
-  painter->setPen(_getRescaledShapeStroke(canvas));
+  painter->setPen(getRescaledShapeStroke(canvas));
   painter->drawPolygon(_shapeItem->mapFromScene(mesh->toPolygon()));
 }
 

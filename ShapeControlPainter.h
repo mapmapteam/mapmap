@@ -49,7 +49,7 @@ protected:
   virtual void _paintShape(QPainter *painter, MapperGLCanvas* canvas) = 0;
   virtual void _paintVertices(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices = QList<int>());
 
-  QPen _getRescaledShapeStroke(MapperGLCanvas* canvas, bool innerStroke=false);
+  QPen getRescaledShapeStroke(MapperGLCanvas* canvas, bool innerStroke=false);
 
   ShapeGraphicsItem* _shapeItem;
 };
