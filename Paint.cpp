@@ -24,30 +24,20 @@
 
 UidAllocator Paint::allocator;
 
-Paint::Paint(uid id)
-  : _opacity(1.0f)
+Paint::Paint(uid id) : Element(id, &allocator)
 {
-  if (id == NULL_UID)
-    id = allocator.allocate();
-  else
-  {
-    Q_ASSERT(!allocator.exists(id));
-    allocator.reserve(id);
-  }
-  // Assign id.
-  _id = id;
 }
 
 Paint::~Paint()
 {
-  allocator.free(_id);
+  allocator.free(getId());
 }
 
 bool Image::setUri(const QString &uri)
 {
   this->uri = uri;
   build();
-  return true;
+  return !image.isNull();
 }
 
 /* Implementation of the Video class */

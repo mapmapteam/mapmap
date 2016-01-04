@@ -1,8 +1,7 @@
 /*
- * Mapping.cpp
+ * Element.cpp
  *
- * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
- * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2016 Sofian Audry -- info(@)sofianaudry(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,20 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Mapping.h"
+#include "Element.h"
 
-UidAllocator Mapping::allocator;
-
-Mapping::Mapping(Paint::ptr paint, MShape::ptr shape, uid id)
-  : Element(id, &allocator),
-    _paint(paint), _shape(shape),
-    _isSolo(false), _isVisible(true)
+Element::Element(uid id, UidAllocator* allocator) : _name(""), _isLocked(false), _opacity(1.0f), _allocator(allocator)
 {
-  // Default.
-  _depth = getId();
+  if (id == NULL_UID)
+    id = allocator->allocate();
+  else
+  {
+    Q_ASSERT(!allocator->exists(id));
+    allocator->reserve(id);
+  }
+  // Assign id.
+  _id = id;
+  // Reset name.
+  unsetName();
 }
 
-Mapping::~Mapping() {
-  allocator.free(getId());
+Element::~Element() {
+  _allocator->free(_id);
 }
 

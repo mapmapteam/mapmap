@@ -24,6 +24,7 @@
 
 #include <QtGlobal>
 #include <QtOpenGL>
+
 #include <string>
 #include <QColor>
 #include <QMutex>
@@ -34,7 +35,7 @@
 #include <GL/gl.h>
 #endif
 
-#include "UidAllocator.h"
+#include "Element.h"
 
 /**
  * A Paint is a style that can be applied when drawing potentially any shape.
@@ -43,8 +44,10 @@
  * There must be a MappingGui that implements this paint for every shape 
  * so that this shape might be drawn with it.
  */
-class Paint
+class Paint : public Element
 {
+  Q_OBJECT
+
 private:
   static UidAllocator allocator;
 
@@ -59,8 +62,6 @@ public:
   virtual ~Paint();
 
   static const UidAllocator& getUidAllocator() { return allocator; }
-
-  virtual void build() {}
 
   /// This method should be called at each call of draw().
   virtual void update() {}
@@ -80,25 +81,15 @@ public:
   /// Unlocks mutex (default = no effect).
   virtual void unlockMutex() {}
 
-  void setName(const QString& name) { _name = name; }
-  QString getName() const { return _name; }
-  uid getId() const { return _id; }
-
-  float getOpacity() const { return _opacity; }
-  void setOpacity(float opacity) {
-    Q_ASSERT(0.0f <= opacity && opacity <= 1.0f);
-    _opacity = opacity;
-  }
-
   virtual QString getType() const = 0;
-
-private:
-  QString _name;
-  float _opacity;
 };
 
 class Color : public Paint
 {
+  Q_OBJECT
+
+  Q_PROPERTY(QColor color READ getColor WRITE setColor)
+
 protected:
   QColor color;
 
@@ -107,7 +98,7 @@ public:
   Color(const QColor& color_, uid id=NULL_UID) : Paint(id), color(color_) {}
 
   QColor getColor() const { return color; }
-  virtual void setColor(const QColor& color_) { color = color_; }
+  void setColor(const QColor& color_) { color = color_; }
 
   virtual QString getType() const { return "color"; }
 };
@@ -119,6 +110,11 @@ public:
  */
 class Texture : public Paint
 {
+  Q_OBJECT
+
+  Q_PROPERTY(GLfloat x READ getX WRITE setX)
+  Q_PROPERTY(GLfloat y READ getY WRITE setY)
+
 protected:
   GLuint textureId;
   GLfloat x;
@@ -151,12 +147,21 @@ public:
   /// Returns true iff bits have changed since last call to getBits().
   virtual bool bitsHaveChanged() const = 0;
 
-  virtual void setPosition(GLfloat xPos, GLfloat yPos) {
-    x = xPos;
-    y = yPos;
-  }
   virtual GLfloat getX() const { return x; }
   virtual GLfloat getY() const { return y; }
+
+  virtual void setX(GLfloat xPos) {
+      x = xPos;
+    }
+
+  virtual void setY(GLfloat yPos) {
+      y = yPos;
+    }
+
+  virtual void setPosition(GLfloat xPos, GLfloat yPos) {
+    setX(xPos);
+    setY(yPos);
+  }
 
   virtual QRectF getRect() const { return QRectF(getX(), getY(), getWidth(), getHeight()); }
 };
@@ -166,6 +171,10 @@ public:
  */
 class Image : public Texture
 {
+  Q_OBJECT
+
+  Q_PROPERTY(QString uri READ getUri WRITE setUri)
+
 protected:
   QString uri;
   QImage image;
@@ -207,6 +216,13 @@ class MediaImpl; // forward declaration
  */
 class Media : public Texture
 {
+  Q_OBJECT
+
+  Q_PROPERTY(QString uri READ getUri WRITE setUri)
+
+  Q_PROPERTY(double volume READ getVolume WRITE setVolume)
+  Q_PROPERTY(double rate READ getRate WRITE setRate)
+
 protected:
   QString uri;
 public:

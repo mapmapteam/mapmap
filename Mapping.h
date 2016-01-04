@@ -25,6 +25,9 @@
 
 #include "Shape.h"
 #include "Paint.h"
+
+#include "Element.h"
+
 #include "UidAllocator.h"
 
 /**
@@ -39,8 +42,20 @@
  * can thus change their opacity level, toggle their visibility, set
  * them in "solo" mode and lock them.
  */
-class Mapping
+class Mapping : public Element
 {
+  Q_OBJECT
+
+  Q_PROPERTY(bool solo    READ isSolo    WRITE setSolo)
+  Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
+  Q_PROPERTY(int  depth   READ getDepth  WRITE setDepth)
+
+  Q_PROPERTY(MShape::ptr shape READ getShape)
+  Q_PROPERTY(MShape::ptr inputShape READ getInputShape)
+
+  Q_PROPERTY(bool hasInputShape READ hasInputShape STORED false)
+  Q_PROPERTY(Paint::ptr paint READ getPaint WRITE setPaint)
+
 protected:
   /// The input Paint instance.
   Paint::ptr _paint;
@@ -51,12 +66,8 @@ protected:
 private:
   static UidAllocator allocator;
 
-  uid _id;
-
-  bool _isLocked;
   bool _isSolo;
   bool _isVisible;
-  float _opacity;
   int _depth; // depth of the layer
 
 protected:
@@ -94,28 +105,18 @@ public:
   /// Returns the input (source) shape (if this mapping has one) or a null pointer if not.
   virtual MShape::ptr getInputShape() const { return MShape::ptr(); }
 
-  uid getId() const { return _id; }
-
-  void setLocked(bool locked)    { _isLocked = locked; }
   void setSolo(bool solo)        { _isSolo = solo; }
   void setVisible(bool visible)  { _isVisible = visible; }
-  void setRawOpacity(float opacity) {
-    Q_ASSERT(0.0f <= opacity && opacity <= 1.0f);
-    _opacity = opacity;
-  }
   void setDepth(int depth) { _depth = depth; }
 
-  void toggleLocked()  { _isLocked = !_isLocked; }
   void toggleSolo()    { _isSolo = !_isSolo; }
   void toggleVisible() { _isVisible = !_isVisible; }
 
-  bool isLocked() const    { return _isLocked; }
   bool isSolo() const      { return _isSolo; }
   bool isVisible() const   { return _isVisible; }
-  float getRawOpacity() const { return _opacity; }
   int getDepth() const { return _depth; }
 
-  float getOpacity() const { return _opacity * _paint->getOpacity(); }
+  float getComputedOpacity() const { return getOpacity() * _paint->getOpacity(); }
 
   void setPaint(Paint::ptr p) { _paint = p; }
 };

@@ -9,6 +9,7 @@ DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 HEADERS  = \
     Commands.h \
     DestinationGLCanvas.h \
+    Element.h \
     MM.h \
     MainApplication.h \
     MainWindow.h \
@@ -37,6 +38,7 @@ HEADERS  = \
 SOURCES  = \
     Commands.cpp \
     DestinationGLCanvas.cpp \
+    Element.cpp \
     MM.cpp \
     MainApplication.cpp \
     MainWindow.cpp \

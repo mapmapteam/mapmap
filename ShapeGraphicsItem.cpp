@@ -114,7 +114,7 @@ void ColorGraphicsItem::_prePaint(QPainter *painter,
 
   // Set brush.
   QColor col = color->getColor();
-  col.setAlphaF(getMapping()->getOpacity());
+  col.setAlphaF(getMapping()->getComputedOpacity());
   painter->setBrush(col);
 }
 
@@ -257,7 +257,7 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
 
   // Set texture color (apply opacity).
   glColor4f(1.0f, 1.0f, 1.0f,
-            isOutput() ? getMapping()->getOpacity() : getMapping()->getPaint()->getOpacity());
+            isOutput() ? getMapping()->getComputedOpacity() : getMapping()->getPaint()->getOpacity());
 }
 
 void TextureGraphicsItem::_postPaint(QPainter* painter,
