@@ -59,6 +59,9 @@ private:
   float _opacity;
   int _depth; // depth of the layer
 
+  // Mapping name
+  QString _name;
+
 protected:
   /// Constructor.
   Mapping(Paint::ptr paint, MShape::ptr shape, uid id=NULL_UID);
@@ -118,6 +121,10 @@ public:
   float getOpacity() const { return _opacity * _paint->getOpacity(); }
 
   void setPaint(Paint::ptr p) { _paint = p; }
+  // Set mapping name
+  void setName(const QString& name) { _name = name; }
+  // Get mapping name
+  QString getName() const { return _name; }
 };
 
 /**

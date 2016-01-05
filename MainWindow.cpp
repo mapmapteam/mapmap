@@ -718,11 +718,11 @@ void MainWindow::deleteItem()
     }
 }
 
-void MainWindow::cloneItem()
+void MainWindow::duplicateMappingItem()
 {
   if (currentSelectedItem)
   {
-    cloneMappingItem(getItemId(*mappingList->currentItem()));
+    duplicateMapping(getItemId(*mappingList->currentItem()));
   }
   else
   {
@@ -747,15 +747,25 @@ void MainWindow::renameMappingItem()
   // Set current item editable and rename it
   QListWidgetItem* item = mappingList->currentItem();
   item->setFlags(item->flags() | Qt::ItemIsEditable);
+  // Used by context menu
   mappingList->editItem(item);
+  // Switch to mapping tab.
   contentTab->setCurrentWidget(mappingSplitter);
 }
 
-void MainWindow::renameMappingItem(uid mappingId, QString name)
+void MainWindow::renameMapping(uid mappingId, QString name)
 {
-  if (mappingList->count() > 0) {
-    mappingList->item(mappingId)->setText(name);
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+  if (!mapping.isNull()) {
+    getItemFromId(*mappingList, mappingId)->setText(name);
+    mapping->setName(name);
   }
+}
+
+void MainWindow::mappingListEditEnd(QWidget *editor)
+{
+  QString name = reinterpret_cast<QLineEdit*>(editor)->text();
+  renameMapping(getItemId(*mappingList->currentItem()), name);
 }
 
 void MainWindow::deletePaintItem()
@@ -775,15 +785,25 @@ void MainWindow::renamePaintItem()
   // Set current item editable and rename it
   QListWidgetItem* item = paintList->currentItem();
   item->setFlags(item->flags() | Qt::ItemIsEditable);
+  // Used by context menu
   paintList->editItem(item);
+  // Switch to paint tab
   contentTab->setCurrentWidget(paintSplitter);
 }
 
-void MainWindow::renamePaintItem(uid paintId, QString name)
+void MainWindow::renamePaint(uid paintId, QString name)
 {
-  if (paintList->count() > 0) {
-    paintList->item(paintId)->setText(name);
+  Paint::ptr paint = mappingManager->getPaintById(paintId);
+  if (!paint.isNull()) {
+    getItemFromId(*paintList, paintId)->setText(name);
+    paint->setName(name);
   }
+}
+
+void MainWindow::paintListEditEnd(QWidget *editor)
+{
+  QString name = reinterpret_cast<QLineEdit*>(editor)->text();
+  renamePaint(getItemId(*paintList->currentItem()), name);
 }
 
 void MainWindow::openRecentFile()
@@ -1123,7 +1143,7 @@ void MainWindow::deleteMapping(uid mappingId)
     }
 }
 
-void MainWindow::cloneMappingItem(uid mappingId)
+void MainWindow::duplicateMapping(uid mappingId)
 {
   // Current Mapping
   Mapping::ptr mappingPtr = mappingManager->getMappingById(mappingId);
@@ -1430,7 +1450,7 @@ void MainWindow::createActions()
   cloneAction->setShortcut(tr("Ctrl+D"));
   cloneAction->setStatusTip(tr("Duplicate item"));
   cloneAction->setIconVisibleInMenu(false);
-  connect(cloneAction, SIGNAL(triggered()), this, SLOT(cloneItem()));
+  connect(cloneAction, SIGNAL(triggered()), this, SLOT(duplicateMappingItem()));
 
   // Delete mapping.
   deleteMappingAction = new QAction(tr("Delete"), this);
@@ -2462,6 +2482,12 @@ void MainWindow::connectProjectWidgets()
 
   connect(paintList, SIGNAL(itemActivated(QListWidgetItem*)),
           this,      SLOT(handleItemSelected(QListWidgetItem*)));
+  // Rename Paint with double click
+  connect(paintList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+          this,      SLOT(renamePaintItem()));
+  // When finish to edit mapping item
+  connect(paintList->itemDelegate(), SIGNAL(commitData(QWidget*)),
+          this, SLOT(paintListEditEnd(QWidget*)));
 
   connect(mappingList, SIGNAL(itemSelectionChanged()),
           this,        SLOT(handleMappingItemSelectionChanged()));
@@ -2483,9 +2509,9 @@ void MainWindow::connectProjectWidgets()
     // Rename mapping with double click
     connect(mappingList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
             this,      SLOT(renameMappingItem()));
-    // Rename Paint with double click
-    connect(paintList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-            this,      SLOT(renamePaintItem()));
+    // When finish to edit mapping item
+    connect(mappingList->itemDelegate(), SIGNAL(commitData(QWidget*)),
+            this, SLOT(mappingListEditEnd(QWidget*)));
 }
 
 void MainWindow::disconnectProjectWidgets()

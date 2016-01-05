@@ -100,6 +100,10 @@ void ProjectReader::parsePaint(const QDomElement& paint)
     uid id = _window->createMediaPaint(paintAttrId.toInt(), uri, x.toFloat(), y.toFloat(), paintAttrType == "image", false, rate.toDouble());
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create media with uri %1.").arg(uri));
+
+    // Restore Paint name
+    if (!paintAttrName.isEmpty())
+      _window->renamePaint(id, paintAttrName);
   }
   else if (paintAttrType == "color")
   {
@@ -110,6 +114,9 @@ void ProjectReader::parsePaint(const QDomElement& paint)
     if (id == NULL_UID)
       _xml.raiseError(QObject::tr("Cannot create color with RGB hex code %1.").arg(rgb));
 
+    // Restore Paint name
+    if (!paintAttrName.isEmpty())
+      _window->renamePaint(id, paintAttrName);
   }
   else
     _xml.raiseError(QObject::tr("Unsupported paint type: %1.").arg(paintAttrType));
@@ -120,6 +127,7 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
 {
   uid id = NULL_UID;
   QString mappingAttrId      = mapping.attribute("id", QString::number(NULL_UID));
+  QString mappingAttrName    = mapping.attribute("name", "");
   QString mappingAttrPaintId = mapping.attribute("paint_id", QString::number(NULL_UID));
   QString mappingAttrType    = mapping.attribute("type", "");
 
@@ -218,6 +226,8 @@ void ProjectReader::parseMapping(const QDomElement& mapping)
     _window->setMappingVisible(id, isVisible);
     _window->setMappingSolo   (id, isSolo);
     _window->setMappingLocked (id, isLocked);
+    if (!mappingAttrName.isEmpty())
+      _window->renameMapping(id, mappingAttrName);
   }
 }
 

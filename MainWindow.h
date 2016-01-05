@@ -93,12 +93,14 @@ private slots:
   // Edit menu.
   void deleteItem();
   // Context menu for mappings.
-  void cloneItem();
+  void duplicateMappingItem();
   void deleteMappingItem();
   void renameMappingItem();
+  void mappingListEditEnd(QWidget* editor);
   // Context menu for paints
   void deletePaintItem();
   void renamePaintItem();
+  void paintListEditEnd(QWidget* editor);
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
@@ -179,7 +181,7 @@ public slots:
   void deleteMapping(uid mappingId);
 
   /// Clone/duplicate a mapping
-  void cloneMappingItem(uid mappingId);
+  void duplicateMapping(uid mappingId);
 
   /// Deletes/removes a paint and all associated mappigns.
   void deletePaint(uid paintId, bool replace);
@@ -240,8 +242,8 @@ public:
   void addPaintItem(uid paintId, const QIcon& icon, const QString& name);
   void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
-  void renameMappingItem(uid mappingId, QString name);
-  void renamePaintItem(uid paintId, QString name);
+  void renameMapping(uid mappingId, QString name);
+  void renamePaint(uid paintId, QString name);
   void clearWindow();
   // Check if the file exists
   bool fileExists(const QString file);

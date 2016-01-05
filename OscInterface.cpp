@@ -211,13 +211,13 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
   {
     int mappingId = command.at(2).toInt();
     QString mappingName = command.at(3).toString();
-    main_window.renameMappingItem(mappingId, mappingName);
+    main_window.renameMapping(mappingId, mappingName);
   }
   else if (path == "/mapmap/paint/media/rename" && typetags == "is")
   {
     int paintId = command.at(2).toInt();
     QString paintName = command.at(3).toString();
-    main_window.renamePaintItem(paintId, paintName);
+    main_window.renamePaint(paintId, paintName);
   }
   else if (path == "/mapmap/quit")
   {
