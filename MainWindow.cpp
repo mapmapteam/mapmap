@@ -753,7 +753,7 @@ void MainWindow::renameMappingItem()
   contentTab->setCurrentWidget(mappingSplitter);
 }
 
-void MainWindow::renameMapping(uid mappingId, QString name)
+void MainWindow::renameMapping(uid mappingId, const QString &name)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
   if (!mapping.isNull()) {
@@ -791,7 +791,7 @@ void MainWindow::renamePaintItem()
   contentTab->setCurrentWidget(paintSplitter);
 }
 
-void MainWindow::renamePaint(uid paintId, QString name)
+void MainWindow::renamePaint(uid paintId, const QString &name)
 {
   Paint::ptr paint = mappingManager->getPaintById(paintId);
   if (!paint.isNull()) {
@@ -2045,6 +2045,9 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
   QFile file(fileName);
   QDir currentDir;
 
+  if (!fileSupported(fileName, isImage))
+    return false;
+
   bool live = false;
   if (!file.open(QIODevice::ReadOnly)) {
     if (file.isSequential())
@@ -2357,13 +2360,32 @@ void MainWindow::clearWindow()
   clearProject();
 }
 
-bool MainWindow::fileExists(const QString file)
+bool MainWindow::fileExists(const QString &file)
 {
   QFileInfo checkFile(file);
 
   if (checkFile.exists() && checkFile.isFile())
     return true;
 
+  return false;
+}
+
+bool MainWindow::fileSupported(const QString &file, bool isImage)
+{
+  QFileInfo fileInfo(file);
+  QString fileExtension = fileInfo.suffix();
+
+  if (isImage) {
+    if (MM::IMAGE_FILES_FILTER.contains(fileExtension, Qt::CaseInsensitive))
+      return true;
+  } else {
+    if (MM::VIDEO_FILES_FILTER.contains(fileExtension, Qt::CaseInsensitive))
+      return true;
+  }
+
+  QMessageBox::warning(this, tr("Warning"),
+                       tr("The following file is not supported: %1")
+                       .arg(fileInfo.fileName()));
   return false;
 }
 
