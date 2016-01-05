@@ -87,7 +87,7 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
         QList<int> selected;
         if (hasActiveVertex())
           selected.push_back(getActiveVertexIndex());
-        item->getControlPainter()->paint(painter, selected);
+        item->getControlPainter()->paint(painter, this, selected);
       }
     }
   }

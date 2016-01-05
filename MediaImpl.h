@@ -28,6 +28,7 @@
 // GStreamer includes.
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
+#include <gst/pbutils/pbutils.h>
 
 // Other includes.
 #include <QtGlobal>
@@ -125,6 +126,7 @@ public:
   bool loadMovie(QString filename);
 
   bool setPlayState(bool play);
+  bool getPlayState() const { return _playState; }
 
   /**
    * Tells the MediaImpl that we are actually reading from a shmsrc.
@@ -159,7 +161,6 @@ private:
   void _checkMessages();
   void _setMovieReady(bool ready);
   bool _isMovieReady() const { return _movieReady; }
-  bool getPlayState() const { return _playState; }
   void _setFinished(bool finished);
 
   // Sends the appropriate seek events to adjust to rate.
@@ -227,16 +228,19 @@ private:
   bool       _bitsChanged;
 
   /**
+   * Contains meta informations about current file.
+   */
+  int _width;
+  int _height;
+//  bool _isSeekable;
+  unsigned long _duration; // duration (in nanoseconds) (unused for now)
+
+  /**
    * shmsrc socket poller.
    */
   GSource *_pollSource;
 
   GstPadHandlerData _padHandlerData;
-
-  // unused
-  int _width;
-  // unused
-  int _height;
 
   /// Raw image data of the last video frame.
   uchar *_data;

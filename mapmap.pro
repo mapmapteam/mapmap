@@ -78,7 +78,7 @@ unix:!mac {
   CONFIG += link_pkgconfig
   INCLUDE_PATH += 
   PKGCONFIG += \
-    gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 \
+    gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-pbutils-1.0 \
     liblo \
     gl x11 
   QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors

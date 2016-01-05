@@ -44,14 +44,16 @@ bool MediaImpl::hasVideoSupport()
 
 int MediaImpl::getWidth() const
 {
-  Q_ASSERT(videoIsConnected());
-  return _padHandlerData.width;
+  return _width;
+//  Q_ASSERT(videoIsConnected());
+//  return _padHandlerData.width;
 }
 
 int MediaImpl::getHeight() const
 {
-  Q_ASSERT(videoIsConnected());
-  return _padHandlerData.height;
+  return _height;
+//  Q_ASSERT(videoIsConnected());
+//  return _padHandlerData.height;
 }
 
 const uchar* MediaImpl::getBits()
@@ -174,14 +176,14 @@ GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
   // For live sources, video dimensions have not been set, because
   // gstPadAddedCallback is never called. Fix dimensions from first sample /
   // caps we receive.
-  if (p->_isSharedMemorySource && ( p->_padHandlerData.width == -1 ||
-        p->_padHandlerData.height == -1)) {
+  if (p->_isSharedMemorySource &&
+      ( p->_width  == -1 ||
+        p->_height == -1)) {
     GstCaps *caps = gst_sample_get_caps(sample);
     GstStructure *structure;
     structure = gst_caps_get_structure(caps, 0);
-    gst_structure_get_int(structure, "width",  &p->_padHandlerData.width);
-    gst_structure_get_int(structure, "height", &p->_padHandlerData.height);
-    // g_print("Size is %u x %u\n", _padHandlerData.width, _padHandlerData.height);
+    gst_structure_get_int(structure, "width",  &p->_width);
+    gst_structure_get_int(structure, "height", &p->_height);
   }
 
   // Try to retrieve data bits of frame.
@@ -221,8 +223,10 @@ _audiosink0(NULL),
 _currentFrameSample(NULL),
 _currentFrameBuffer(NULL),
 _bitsChanged(false),
-_width(640), // unused
-_height(480), // unused
+_width(-1),
+_height(-1),
+_duration(0),
+//_isSeekable(false),
 _data(NULL),
 _seekEnabled(false),
 _rate(1.0),
@@ -249,6 +253,11 @@ void MediaImpl::unloadMovie()
   // Un-ready.
   _setMovieReady(false);
   setPlayState(false);
+
+  // Reinit.
+  _width = _height = -1;
+  _duration = 0;
+//  _isSeekable = false;
 
   // Free allocated resources.
   freeResources();
@@ -345,7 +354,8 @@ gstPollShmsrc (void *user_data)
 
 bool MediaImpl::loadMovie(QString filename)
 {
-  gchar* filetestpath = (gchar*) filename.toUtf8().constData();
+  // Verify if file exists.
+  const gchar* filetestpath = (const gchar*) filename.toUtf8().constData();
   if (FALSE == g_file_test(filetestpath, G_FILE_TEST_EXISTS))
   {
       std::cout << "File " << filetestpath << " does not exist" << std::endl;
@@ -512,7 +522,86 @@ bool MediaImpl::loadMovie(QString filename)
   // Connect to the pad-added signal
   if (! _isSharedMemorySource)
   {
+    // Extract meta info.
+    GError* error = NULL;
+    GstDiscoverer* discoverer = gst_discoverer_new(5*GST_SECOND, &error);
+    if (!discoverer)
+    {
+      std::cout << "Error creating discoverer: " << error->message << std::endl;
+      g_clear_error (&error);
+      return false;
+    }
+
+    GstDiscovererInfo* info = gst_discoverer_discover_uri(discoverer, uri, &error);
+
+    if (!info)
+    {
+      std::cout << "Error getting discoverer info: " << error->message << std::endl;
+      g_clear_error (&error);
+      return false;
+    }
+
+    GstDiscovererResult result = gst_discoverer_info_get_result(info);
+
+    switch (result) {
+      case GST_DISCOVERER_URI_INVALID:
+        std::cout<< "Invalid URI '" << uri << "'" << std::endl;
+        break;
+      case GST_DISCOVERER_ERROR:
+        std::cout<< "Discoverer error: " << error->message << std::endl;
+        break;
+      case GST_DISCOVERER_TIMEOUT:
+        std::cout << "Timeout" << std::endl;
+        break;
+      case GST_DISCOVERER_BUSY:
+        std::cout << "Busy" << std::endl;
+        break;
+      case GST_DISCOVERER_MISSING_PLUGINS:{
+        const GstStructure *s;
+        gchar *str;
+
+        s = gst_discoverer_info_get_misc (info);
+        str = gst_structure_to_string (s);
+
+        std::cout << "Missing plugins: " << str << std::endl;
+        g_free (str);
+        break;
+      }
+      case GST_DISCOVERER_OK:
+        std::cout << "Discovered '" << uri << "'" << std::endl;
+        break;
+    }
+
+    g_clear_error (&error);
+
+    if (result != GST_DISCOVERER_OK) {
+      std::cout << "This URI cannot be played" << std::endl;
+      return false;
+    }
+
+    // Gather info from video.
+    GList *videoStreams = gst_discoverer_info_get_video_streams (info);
+    if (!videoStreams)
+    {
+      std::cout << "This URI does not contain any video streams" << std::endl;
+      return false;
+    }
+
+    // Retrieve meta-info.
+    _width = gst_discoverer_video_info_get_width((GstDiscovererVideoInfo*)videoStreams->data);
+    _height = gst_discoverer_video_info_get_height((GstDiscovererVideoInfo*)videoStreams->data);
+//    _isSeekable = gst_discoverer_info_get_seekable(info);
+    _duration = gst_discoverer_info_get_duration(info);
+
+    // Free everything.
+    g_object_unref(discoverer);
+    gst_discoverer_info_unref(info);
+    gst_discoverer_stream_info_list_free(videoStreams);
+
+    // Connect pad signal.
     g_signal_connect (_uridecodebin0, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
+
+    // Set uri of decoder.
     g_object_set (_uridecodebin0, "uri", uri, NULL);
   }
   else

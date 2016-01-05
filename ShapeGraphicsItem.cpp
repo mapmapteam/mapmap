@@ -57,11 +57,6 @@ void ShapeGraphicsItem::paint(QPainter *painter,
   }
 }
 
-QPen ShapeGraphicsItem::getRescaledShapeStroke(bool innerStroke)
-{
-  return QPen(QBrush(MM::CONTROL_COLOR), (innerStroke ? MM::SHAPE_INNER_STROKE_WIDTH : MM::SHAPE_STROKE_WIDTH) / getCanvas()->getZoomFactor());
-}
-
 //void VertexGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
 //{
 //  ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
