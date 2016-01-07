@@ -1259,9 +1259,6 @@ void MainWindow::createLayout()
   mappingPropertyPanel->setDisabled(true);
   mappingPropertyPanel->setMinimumHeight(MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT);
 
-  // Create undo view.
-  undoView = new QUndoView(getUndoStack(), this);
-
   // Create canvases.
   sourceCanvas = new SourceGLCanvas(this);
   sourceCanvas->setFocusPolicy(Qt::ClickFocus);
@@ -2457,6 +2454,9 @@ void MainWindow::enableTestSignal(bool enable)
 void MainWindow::displayUndoStack(bool display)
 {
   _displayUndoStack = display;
+
+  // Create undo view.
+  undoView = new QUndoView(getUndoStack(), this);
 
   if (display) {
     contentTab->addTab(undoView, tr("Undo stack"));
