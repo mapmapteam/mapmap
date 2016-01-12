@@ -2461,7 +2461,7 @@ void MainWindow::displayUndoStack(bool display)
   if (display) {
     contentTab->addTab(undoView, tr("Undo stack"));
   } else {
-    contentTab->removeTab(contentTab->indexOf(undoView));
+    contentTab->removeTab(2);
   }
 }
 
