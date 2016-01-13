@@ -86,10 +86,16 @@ public:
   bool shapeGrabbed() const { return _shapeGrabbed; }
   bool vertexGrabbed() const { return _vertexGrabbed; }
 
-  qreal getZoomFactor() const { return qBound(qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MIN, MM::ZOOM_MAX); }
+  //qreal getZoomFactor() const { return qBound(qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MIN, MM::ZOOM_MAX); }
+  qreal getZoomFactor() const { return _shapeIsAdapted
+        ? _scalingFactor
+        : qBound(MM::ZOOM_MIN, qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MAX); }
 
   /// This function needs to be called after a shape inside the canvas has been changed for appropriate signals to be activated.
   void currentShapeWasChanged();
+
+  // Apply zoom to view
+  void applyZoomToView();
 
 protected:
 //  void initializeGL();
@@ -147,8 +153,26 @@ private:
   // The zoom level (in number of steps).
   int _zoomLevel;
 
+  // The scaling factor
+  qreal _scalingFactor;
+
+  bool _shapeIsAdapted;
+
+  // The delta level
+  int _deltaLevel;
+
   // Pointer to MainWindow UndoStack
   QUndoStack *undoStack;
+
+  // Buttons for toolbox layout
+  QWidget* _zoomToolBox;
+  QPushButton* _zoomInButton;
+  QPushButton* _zoomOutButton;
+  QPushButton* _resetZoomButton;
+  QPushButton* _fitToViewButton;
+
+  // Create zoom tool buttons
+  void createZoomToolButtons();
 
 signals:
   void shapeChanged(MShape*);
@@ -167,6 +191,16 @@ public slots:
 
   // Event Filter
   bool eventFilter(QObject *target, QEvent *event);
+
+  // Zoom
+  void increaseZoomLevel();
+  void decreaseZoomLevel();
+  void resetZoomLevel();
+  void fitShapeInView();
+
+  // Show/Hide zoom tool buttons
+  void showZoomToolBar(bool visible);
+  void enableZoomToolButtons(bool enabled);
 
 protected:
   // TODO: Perhaps the sticky-sensitivity should be configurable through GUI

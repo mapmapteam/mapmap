@@ -325,6 +325,7 @@ private:
   QAction *displayTestSignalAction;
   QAction *stickyVerticesAction;
   QAction *displayUndoStackAction;
+  QAction *displayZoomToolAction;
 
   enum { MaxRecentFiles = 10 };
   enum { MaxRecentVideo = 5 };

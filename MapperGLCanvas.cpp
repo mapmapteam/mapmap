@@ -30,7 +30,8 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
     _activeVertex(NO_VERTEX),
     _shapeGrabbed(false), // comment out?
     _shapeFirstGrab(false), // comment out?
-    _zoomLevel(0)
+    _zoomLevel(0),
+    _shapeIsAdapted(false)
 {
   // For now clicking on the window doesn't do anything.
   setDragMode(QGraphicsView::NoDrag);
@@ -59,6 +60,11 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
 
   // Black background.
   this->scene()->setBackgroundBrush(Qt::black);
+
+  // Create zoom tool buttons
+  createZoomToolButtons();
+  // Disable zoom tool buttons
+  enableZoomToolButtons(false);
 }
 
 MShape::ptr MapperGLCanvas::getCurrentShape()
@@ -96,6 +102,73 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 void MapperGLCanvas::currentShapeWasChanged()
 {
   emit shapeChanged(getCurrentShape().data());
+}
+
+void MapperGLCanvas::applyZoomToView()
+{
+  // Re-bound zoom (for consistency).
+  qreal zoomFactor = getZoomFactor();
+  // Get first of the list of all the views
+  QGraphicsView* view = this->scene()->views().first();
+  // Resets the view transformation matrix
+  view->resetMatrix();
+  // Scale the current view
+  view->scale(zoomFactor, zoomFactor);
+  // And update
+  view->update();
+}
+
+void MapperGLCanvas::createZoomToolButtons()
+{
+  // Create zoom tool bar
+  _zoomToolBox = new QWidget(this);
+  _zoomToolBox->setWindowFlags(Qt::WindowStaysOnTopHint);
+  _zoomToolBox->setObjectName("zoom-toolbox");
+
+  // Create vertical layout for buttons
+  QVBoxLayout* buttonsLayout = new QVBoxLayout;
+  buttonsLayout->setMargin(0);
+  // Create buttons
+  // Zoom In button
+  _zoomInButton = new QPushButton;
+  _zoomInButton->setIcon(QIcon(":/zoom-in"));
+  _zoomInButton->setIconSize(QSize(22, 22));
+  _zoomInButton->setToolTip(tr("Enlarge the shape"));
+  _zoomInButton->setFixedSize(32, 32);
+  _zoomInButton->setObjectName("zoom-in");
+  connect(_zoomInButton, SIGNAL(clicked()), this, SLOT(increaseZoomLevel()));
+  // Zoom Out button
+  _zoomOutButton = new QPushButton;
+  _zoomOutButton->setIcon(QIcon(":/zoom-out"));
+  _zoomOutButton->setIconSize(QSize(22, 22));
+  _zoomOutButton->setToolTip(tr("Shrink the shape"));
+  _zoomOutButton->setFixedSize(32, 32);
+  _zoomOutButton->setObjectName("zoom-out");
+  connect(_zoomOutButton, SIGNAL(clicked()), this, SLOT(decreaseZoomLevel()));
+  // Reset to normal size button.
+  _resetZoomButton = new QPushButton;
+  _resetZoomButton->setIcon(QIcon(":/reset-zoom"));
+  _resetZoomButton->setIconSize(QSize(22, 22));
+  _resetZoomButton->setToolTip(tr("Reset the shape to the normal size"));
+  _resetZoomButton->setFixedSize(32, 32);
+  _resetZoomButton->setObjectName("reset-zoom");
+  connect(_resetZoomButton, SIGNAL(clicked()), this, SLOT(resetZoomLevel()));
+  // Fit to view button
+  _fitToViewButton = new QPushButton;
+  _fitToViewButton->setIcon(QIcon(":/zoom-fit"));
+  _fitToViewButton->setIconSize(QSize(22, 22));
+  _fitToViewButton->setToolTip(tr("Fit the shape to content view"));
+  _fitToViewButton->setFixedSize(32, 32);
+  _fitToViewButton->setObjectName("zoom-fit");
+  connect(_fitToViewButton, SIGNAL(clicked()), this, SLOT(fitShapeInView()));
+
+  // Add buttons into layout
+  buttonsLayout->addWidget(_zoomInButton);
+  buttonsLayout->addWidget(_zoomOutButton);
+  buttonsLayout->addWidget(_resetZoomButton);
+  buttonsLayout->addWidget(_fitToViewButton);
+  // Insert layout in widget
+  _zoomToolBox->setLayout(buttonsLayout);
 }
 
 
@@ -311,14 +384,12 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 
   // Checks if the key has been handled by this function or needs to be deferred to superclass.
   bool handledKey = false;
-
   // Active vertex selected.
   if (hasActiveVertex())
   {
     MShape::ptr shape = getCurrentShape();
     QPoint pos = mapFromScene(shape->getVertex(_activeVertex));
     handledKey = true;
-
     switch (event->key()) {
     // TODO: key tab should switch to next vertex: not working because somehow caught at a higher level
     // to switch between frames of the layout
@@ -342,12 +413,6 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
       pos.rx()--;
       break;
     default:
-      if (event->matches(QKeySequence::Undo))
-        undoStack->undo();
-
-      else if (event->matches(QKeySequence::Redo))
-        undoStack->redo();
-      else
         handledKey = false;
       break;
     }
@@ -358,6 +423,22 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
     // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
     // Enable to Undo and Redo when arrow keys move the position of vertices
     undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::STEP, _activeVertex, scenePos));
+  } else {
+    handledKey = true;
+    if (event->matches(QKeySequence::Undo))
+      undoStack->undo();
+    else if (event->matches(QKeySequence::Redo))
+      undoStack->redo();
+    else if (event->matches(QKeySequence::ZoomIn))
+      increaseZoomLevel();
+    else if (event->matches(QKeySequence::ZoomOut))
+      decreaseZoomLevel();
+    else if (event->modifiers() == Qt::CTRL)  {
+      if(event->key() == Qt::Key_0)
+        resetZoomLevel();
+    }
+    else
+      handledKey = false;
   }
 
   // Defer unhandled keys to parent.
@@ -466,37 +547,19 @@ void MapperGLCanvas::deselectAll()
 
 void MapperGLCanvas::wheelEvent(QWheelEvent *event)
 {
-  int deltaLevel = event->delta() / 120;
-  qreal zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
-  if (deltaLevel > 0)
+  // [-120]-----[-1]|[1]++++++[120]
+  _deltaLevel = event->delta() / 120;
+
+  if (_deltaLevel > 0)
   {
-    // First check if we're already at max.
-    while (deltaLevel && zoomFactor < MM::ZOOM_MAX) {
-      _zoomLevel++;
-      deltaLevel--;
-      zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
-    }
-    zoomFactor = qMin(zoomFactor, MM::ZOOM_MAX);
+    // Increase zoom level
+    increaseZoomLevel();
   }
   else
   {
-    // First check if we're already at min.
-    while (deltaLevel && zoomFactor > MM::ZOOM_MIN) {
-      _zoomLevel--;
-      deltaLevel++;
-      zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
-    }
-    zoomFactor = qMax(zoomFactor, MM::ZOOM_MIN);
+    // Decrease zoom level
+    decreaseZoomLevel();
   }
-
-  // Re-bound zoom (for consistency).
-  zoomFactor = getZoomFactor();
-
-  // Apply zoom to view.
-  QGraphicsView* view = scene()->views().first();
-  view->resetMatrix();
-  view->scale(zoomFactor, zoomFactor);
-  view->update();
 
   // Accept wheel scrolling event.
   event->accept();
@@ -515,6 +578,88 @@ bool MapperGLCanvas::eventFilter(QObject *target, QEvent *event)
   {
     return QObject::eventFilter(target, event);
   }
+}
+
+void MapperGLCanvas::increaseZoomLevel()
+{
+  qreal zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+
+  if (zoomFactor < MM::ZOOM_MAX) {
+    _zoomLevel++;
+    if (_deltaLevel)
+      _deltaLevel--;
+    zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+  }
+  zoomFactor = qMin(zoomFactor, MM::ZOOM_MAX);
+
+  // Reset adaptation
+  _shapeIsAdapted = false;
+
+  // Apply to view
+  applyZoomToView();
+}
+
+void MapperGLCanvas::decreaseZoomLevel()
+{
+  qreal zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+
+  if (zoomFactor > MM::ZOOM_MIN) {
+    _zoomLevel--;
+    if (_deltaLevel)
+      _deltaLevel++;
+    zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+  }
+  zoomFactor = qMax(zoomFactor, MM::ZOOM_MIN);
+
+  // Reset adaptation
+  _shapeIsAdapted = false;
+
+  // Apply to view
+  applyZoomToView();
+}
+
+void MapperGLCanvas::resetZoomLevel()
+{
+  // Reset zoom level to zero
+  _zoomLevel = 0;
+
+  // Reset adaptation
+  _shapeIsAdapted = false;
+
+  // Apply to view
+  applyZoomToView();
+}
+
+void MapperGLCanvas::fitShapeInView()
+{
+  // Reset zoom level before fit it
+  //resetZoomLevel();
+  // Get first of the list of all the views
+  QGraphicsView* view = scene()->views().first();
+  // Scales the view matrix
+  view->fitInView(this->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
+  // Get the horizontal scaling factor
+  _scalingFactor = view->matrix().m11();
+
+  // Adapt shape
+  _shapeIsAdapted = true;
+}
+
+void MapperGLCanvas::showZoomToolBar(bool visible)
+{
+  if (visible)
+    _zoomToolBox->show();
+  else
+    _zoomToolBox->hide();
+}
+
+void MapperGLCanvas::enableZoomToolButtons(bool enabled)
+{
+  // Enable/Disable all button
+  _zoomInButton->setEnabled(enabled);
+  _zoomOutButton->setEnabled(enabled);
+  _resetZoomButton->setEnabled(enabled);
+  _fitToViewButton->setEnabled(enabled);
 }
 
 
