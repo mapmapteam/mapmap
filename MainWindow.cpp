@@ -131,23 +131,25 @@ void MainWindow::handlePaintItemSelectionChanged()
 
 void MainWindow::handleMappingItemSelectionChanged()
 {
-    if (mappingList->selectedItems().empty())
-    {
-      removeCurrentMapping();
-    }
-    else
-    {
-      QListWidgetItem* item = mappingList->currentItem();
-      currentSelectedItem = item;
+  if (mappingList->selectedItems().empty())
+  {
+    removeCurrentMapping();
+  }
+  else
+  {
+    QListWidgetItem* item = mappingList->currentItem();
+    currentSelectedItem = item;
 
-      // Set current paint and mappings.
-      uid mappingId = getItemId(*item);
-      Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
-      uid paintId = mapping->getPaint()->getId();
-      setCurrentMapping(mappingId);
-      setCurrentPaint(paintId);
-    }
-
+    // Set current paint and mappings.
+    uid mappingId = getItemId(*item);
+    Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+    uid paintId = mapping->getPaint()->getId();
+    setCurrentMapping(mappingId);
+    setCurrentPaint(paintId);
+    // Enable or not zoom tool buttons
+    sourceCanvas->enableZoomToolButtons(item ? true : false);
+    destinationCanvas->enableZoomToolButtons(item ? true : false);
+  }
 
   // Update canvases.
   updateCanvases();
@@ -1605,6 +1607,14 @@ void MainWindow::createActions()
   displayUndoStackAction->setChecked(_displayUndoStack);
   // Manage show/hide of Undo Stack
   connect(displayUndoStackAction, SIGNAL(toggled(bool)), this, SLOT(displayUndoStack(bool)));
+
+  // Toggle display of zoom tool buttons
+  displayZoomToolAction = new QAction(tr("Display &Zoom Toolbar"), this);
+  displayZoomToolAction->setShortcut(tr("Alt+Z"));
+  displayZoomToolAction->setCheckable(true);
+  displayZoomToolAction->setChecked(true);
+  connect(displayZoomToolAction, SIGNAL(toggled(bool)), sourceCanvas, SLOT(showZoomToolBar(bool)));
+  connect(displayZoomToolAction, SIGNAL(toggled(bool)), destinationCanvas, SLOT(showZoomToolBar(bool)));
 }
 
 void MainWindow::startFullScreen()
@@ -1673,6 +1683,7 @@ void MainWindow::createMenus()
   viewMenu->addAction(displayTestSignalAction);
   viewMenu->addSeparator();
   viewMenu->addAction(displayUndoStackAction);
+  viewMenu->addAction(displayZoomToolAction);
 
   // Run.
   runMenu = menuBar->addMenu(tr("&Run"));
@@ -1831,6 +1842,8 @@ void MainWindow::readSettings()
   // new in 0.3.2
   if (settings.contains("displayUndoStack"))
     displayUndoStackAction->setChecked(settings.value("displayUndoStack").toBool());
+  if (settings.contains("zoomToolBar"))
+    displayZoomToolAction->setChecked(settings.value("zoomToolBar").toBool());
 }
 
 void MainWindow::writeSettings()
@@ -1848,6 +1861,7 @@ void MainWindow::writeSettings()
   settings.setValue("displayTestSignal", displayTestSignalAction->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
   settings.setValue("displayUndoStack", displayUndoStackAction->isChecked());
+  settings.setValue("zoomToolBar", displayZoomToolAction->isChecked());
 }
 
 bool MainWindow::okToContinue()
