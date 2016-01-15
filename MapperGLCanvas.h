@@ -165,14 +165,16 @@ private:
   QUndoStack *undoStack;
 
   // Buttons for toolbox layout
-  QWidget* _zoomToolBox;
+  QWidget* _zoomToolBar;
   QPushButton* _zoomInButton;
   QPushButton* _zoomOutButton;
   QPushButton* _resetZoomButton;
   QPushButton* _fitToViewButton;
+  // Dropdown menu
+  QComboBox* _dropdownMenu;
 
   // Create zoom tool buttons
-  void createZoomToolButtons();
+  void createZoomToolsLayout();
 
 signals:
   void shapeChanged(MShape*);
@@ -200,7 +202,11 @@ public slots:
 
   // Show/Hide zoom tool buttons
   void showZoomToolBar(bool visible);
-  void enableZoomToolButtons(bool enabled);
+  void enableZoomToolBar(bool enabled);
+  // Set zoom factor with drowmenu data
+  void setZoomFromMenu(const QString& text);
+  // Update and feedback zoom level
+  void updateDropdownMenu();
 
 protected:
   // TODO: Perhaps the sticky-sensitivity should be configurable through GUI

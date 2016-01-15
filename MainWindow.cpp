@@ -147,8 +147,8 @@ void MainWindow::handleMappingItemSelectionChanged()
     setCurrentMapping(mappingId);
     setCurrentPaint(paintId);
     // Enable or not zoom tool buttons
-    sourceCanvas->enableZoomToolButtons(item ? true : false);
-    destinationCanvas->enableZoomToolButtons(item ? true : false);
+    sourceCanvas->enableZoomToolBar(item ? true : false);
+    destinationCanvas->enableZoomToolBar(item ? true : false);
   }
 
   // Update canvases.

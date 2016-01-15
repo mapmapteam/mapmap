@@ -55,16 +55,16 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
   setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers), this, shareWidget));
   setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
+  // Create zoom tools layout
+  createZoomToolsLayout();
+  // Disable zoom tool buttons
+  enableZoomToolBar(false);
+
   // TODO: do we need to delete scene (or call new QGraphicsScene(this)?)
   setScene(scene ? scene : new QGraphicsScene);
 
   // Black background.
   this->scene()->setBackgroundBrush(Qt::black);
-
-  // Create zoom tool buttons
-  createZoomToolButtons();
-  // Disable zoom tool buttons
-  enableZoomToolButtons(false);
 }
 
 MShape::ptr MapperGLCanvas::getCurrentShape()
@@ -116,17 +116,18 @@ void MapperGLCanvas::applyZoomToView()
   view->scale(zoomFactor, zoomFactor);
   // And update
   view->update();
+  // Update dropdown menu
+  updateDropdownMenu();
 }
 
-void MapperGLCanvas::createZoomToolButtons()
+void MapperGLCanvas::createZoomToolsLayout()
 {
   // Create zoom tool bar
-  _zoomToolBox = new QWidget(this);
-  _zoomToolBox->setWindowFlags(Qt::WindowStaysOnTopHint);
-  _zoomToolBox->setObjectName("zoom-toolbox");
+  _zoomToolBar = new QWidget(this);
+  _zoomToolBar->setObjectName("zoom-toolbox");
 
-  // Create vertical layout for buttons
-  QVBoxLayout* buttonsLayout = new QVBoxLayout;
+  // Create vertical layout for widgets
+  QHBoxLayout* buttonsLayout = new QHBoxLayout;
   buttonsLayout->setMargin(0);
   // Create buttons
   // Zoom In button
@@ -162,13 +163,31 @@ void MapperGLCanvas::createZoomToolButtons()
   _fitToViewButton->setObjectName("zoom-fit");
   connect(_fitToViewButton, SIGNAL(clicked()), this, SLOT(fitShapeInView()));
 
-  // Add buttons into layout
+  // Create separator
+  QFrame *separator = new QFrame(_zoomToolBar);
+  separator->setFixedSize(5, 30);
+  separator->setFrameShape(QFrame::VLine);
+
+  // Create the dropdowm menu
+  _dropdownMenu = new QComboBox;
+  // make some settings
+  _dropdownMenu->setObjectName("dropdown-menu");
+  // Create if empty or update list
+  updateDropdownMenu();
+  // And listen
+  connect(_dropdownMenu, SIGNAL(activated(QString)), this, SLOT(setZoomFromMenu(QString)));
+
+  // Add widgets into layout
   buttonsLayout->addWidget(_zoomInButton);
   buttonsLayout->addWidget(_zoomOutButton);
   buttonsLayout->addWidget(_resetZoomButton);
   buttonsLayout->addWidget(_fitToViewButton);
+  buttonsLayout->addWidget(separator);
+  buttonsLayout->addWidget(_dropdownMenu);
+  buttonsLayout->addSpacing(5);
+
   // Insert layout in widget
-  _zoomToolBox->setLayout(buttonsLayout);
+  _zoomToolBar->setLayout(buttonsLayout);
 }
 
 
@@ -632,8 +651,6 @@ void MapperGLCanvas::resetZoomLevel()
 
 void MapperGLCanvas::fitShapeInView()
 {
-  // Reset zoom level before fit it
-  //resetZoomLevel();
   // Get first of the list of all the views
   QGraphicsView* view = scene()->views().first();
   // Scales the view matrix
@@ -643,23 +660,60 @@ void MapperGLCanvas::fitShapeInView()
 
   // Adapt shape
   _shapeIsAdapted = true;
+
+  // Update zoom menu list
+  updateDropdownMenu();
 }
 
 void MapperGLCanvas::showZoomToolBar(bool visible)
 {
   if (visible)
-    _zoomToolBox->show();
+    _zoomToolBar->show();
   else
-    _zoomToolBox->hide();
+    _zoomToolBar->hide();
 }
 
-void MapperGLCanvas::enableZoomToolButtons(bool enabled)
+void MapperGLCanvas::enableZoomToolBar(bool enabled)
 {
   // Enable/Disable all button
   _zoomInButton->setEnabled(enabled);
   _zoomOutButton->setEnabled(enabled);
   _resetZoomButton->setEnabled(enabled);
   _fitToViewButton->setEnabled(enabled);
+  _dropdownMenu->setEnabled(enabled);
+}
+
+void MapperGLCanvas::setZoomFromMenu(const QString &text)
+{
+  // Get text choosen by user and convert it to double
+  qreal zoomFactor = text.mid(0, text.length() - 1).toDouble();
+  // Set zoom factor
+  _scalingFactor = zoomFactor / 100;
+
+  // Adapt shape
+  _shapeIsAdapted = true;
+
+  // Apply to view
+  applyZoomToView();
+}
+
+void MapperGLCanvas::updateDropdownMenu()
+{
+  // Get current zoom factor percentage
+  QString zoomFactor = QString::number(int(getZoomFactor() * 100)).append(QChar('%'));
+  //Create list
+  QStringList zoomFactorList;
+  zoomFactorList << "400%" << "300%" << "200%" << "150%" << "125%" <<
+                    "100%" << "75%" << "50%" << "25%" << "12.5%";
+  // Avoid duplicate
+  if (!zoomFactorList.contains(zoomFactor))
+    zoomFactorList.append(zoomFactor);
+  // Clear if is not empty
+  _dropdownMenu->clear();
+  // Add list item
+  _dropdownMenu->addItems(zoomFactorList);
+  // Select 100% by default
+  _dropdownMenu->setCurrentText(zoomFactor);
 }
 
 
