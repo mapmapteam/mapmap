@@ -128,7 +128,7 @@ void MapperGLCanvas::createZoomToolsLayout()
 
   // Create vertical layout for widgets
   QHBoxLayout* buttonsLayout = new QHBoxLayout;
-  buttonsLayout->setMargin(0);
+  buttonsLayout->setContentsMargins(0, 0, 5, 0);
   // Create buttons
   // Zoom In button
   _zoomInButton = new QPushButton;
@@ -184,7 +184,6 @@ void MapperGLCanvas::createZoomToolsLayout()
   buttonsLayout->addWidget(_fitToViewButton);
   buttonsLayout->addWidget(separator);
   buttonsLayout->addWidget(_dropdownMenu);
-  buttonsLayout->addSpacing(5);
 
   // Insert layout in widget
   _zoomToolBar->setLayout(buttonsLayout);
