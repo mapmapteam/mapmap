@@ -134,6 +134,12 @@ void MainWindow::handleMappingItemSelectionChanged()
   if (mappingList->selectedItems().empty())
   {
     removeCurrentMapping();
+    /* Disable some menus and buttons when
+     * no mapping was selected  */
+    sourceCanvas->enableZoomToolBar(false);
+    sourceMenu->setEnabled(false);
+    destinationCanvas->enableZoomToolBar(false);
+    destinationMenu->setEnabled(false);
   }
   else
   {
@@ -146,9 +152,11 @@ void MainWindow::handleMappingItemSelectionChanged()
     uid paintId = mapping->getPaint()->getId();
     setCurrentMapping(mappingId);
     setCurrentPaint(paintId);
-    // Enable or not zoom tool buttons
-    sourceCanvas->enableZoomToolBar(item ? true : false);
-    destinationCanvas->enableZoomToolBar(item ? true : false);
+    // Enable some menus and buttons
+    sourceCanvas->enableZoomToolBar(true);
+    sourceMenu->setEnabled(true);
+    destinationCanvas->enableZoomToolBar(true);
+    destinationMenu->setEnabled(true);
   }
 
   // Update canvases.
@@ -1445,11 +1453,11 @@ void MainWindow::createActions()
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
   // Duplicate.
-  cloneAction = new QAction(tr("Duplicate"), this);
-  cloneAction->setShortcut(tr("Ctrl+D"));
-  cloneAction->setStatusTip(tr("Duplicate item"));
-  cloneAction->setIconVisibleInMenu(false);
-  connect(cloneAction, SIGNAL(triggered()), this, SLOT(duplicateMappingItem()));
+  cloneMappingAction = new QAction(tr("Duplicate"), this);
+  cloneMappingAction->setShortcut(tr("Ctrl+D"));
+  cloneMappingAction->setStatusTip(tr("Duplicate item"));
+  cloneMappingAction->setIconVisibleInMenu(false);
+  connect(cloneMappingAction, SIGNAL(triggered()), this, SLOT(duplicateMappingItem()));
 
   // Delete mapping.
   deleteMappingAction = new QAction(tr("Delete"), this);
@@ -1669,9 +1677,23 @@ void MainWindow::createMenus()
 
   // Edit.
   editMenu = menuBar->addMenu(tr("&Edit"));
+  // Undo & Redo menu
   editMenu->addAction(undoAction);
   editMenu->addAction(redoAction);
-  editMenu->addAction(deleteMappingAction);
+  editMenu->addSeparator();
+  // Source canvas menu
+  sourceMenu = editMenu->addMenu(tr("Source"));
+  sourceMenu->setEnabled(false);
+  sourceMenu->addAction(deletePaintAction);
+  sourceMenu->addAction(renamePaintAction);
+  // Destination canvas menu
+  destinationMenu = editMenu->addMenu(tr("Destination"));
+  destinationMenu->setEnabled(false);
+  destinationMenu->addAction(cloneMappingAction);
+  destinationMenu->addAction(deleteMappingAction);
+  destinationMenu->addAction(renameMappingAction);
+  editMenu->addSeparator();
+  // Preferences
   editMenu->addAction(preferencesAction);
 
   // View.
@@ -1704,7 +1726,7 @@ void MainWindow::createMappingContextMenu()
   mappingContextMenu = new QMenu(this);
 
   // Add different Action
-  mappingContextMenu->addAction(cloneAction);
+  mappingContextMenu->addAction(cloneMappingAction);
   mappingContextMenu->addAction(deleteMappingAction);
   mappingContextMenu->addAction(renameMappingAction);
 
