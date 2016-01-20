@@ -283,6 +283,9 @@ private:
   QMenu *recentVideoMenu;
   QMenu *mappingContextMenu;
   QMenu *paintContextMenu;
+  // Some menus when need to be separated
+  QMenu *sourceMenu;
+  QMenu *destinationMenu;
 
   // Toolbar.
   QToolBar *mainToolBar;
@@ -300,7 +303,7 @@ private:
   QAction *exitAction;
   QAction *undoAction;
   QAction *redoAction;
-  QAction *cloneAction;
+  QAction *cloneMappingAction;
   QAction *deleteMappingAction;
   QAction *renameMappingAction;
   QAction *deletePaintAction;
