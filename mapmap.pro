@@ -19,6 +19,7 @@ HEADERS  = \
     MappingManager.h \
     Maths.h \
     MediaImpl.h \
+    MetaObjectRegistry.h \
     OscInterface.h \
     OscReceiver.h \
     OutputGLCanvas.h \
@@ -47,6 +48,7 @@ SOURCES  = \
     Mapping.cpp \
     MappingManager.cpp \
     MediaImpl.cpp \
+    MetaObjectRegistry.cpp \
     OscInterface.cpp \
     OscReceiver.cpp \
     OutputGLCanvas.cpp \
