@@ -37,6 +37,8 @@
 
 #include "Element.h"
 
+Q_DECLARE_METATYPE(GLfloat)
+
 /**
  * A Paint is a style that can be applied when drawing potentially any shape.
  * 
@@ -180,6 +182,7 @@ protected:
   QImage image;
 
 public:
+  Q_INVOKABLE Image(int id=NULL_UID) : Texture(id) {}
   Image(const QString uri_, uid id=NULL_UID) :
     Texture(id)
   {
@@ -207,6 +210,8 @@ public:
   }
 
   virtual bool bitsHaveChanged() const { return bitsChanged; }
+
+  virtual QIcon getIcon() const { return QIcon(QPixmap::fromImage(image)); }
 };
 
 class MediaImpl; // forward declaration

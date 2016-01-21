@@ -50,11 +50,11 @@ class Mapping : public Element
   Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
   Q_PROPERTY(int  depth   READ getDepth  WRITE setDepth)
 
-  Q_PROPERTY(MShape::ptr shape READ getShape)
-  Q_PROPERTY(MShape::ptr inputShape READ getInputShape)
+//  Q_PROPERTY(MShape::ptr shape READ getShape)
+//  Q_PROPERTY(MShape::ptr inputShape READ getInputShape)
 
   Q_PROPERTY(bool hasInputShape READ hasInputShape STORED false)
-  Q_PROPERTY(Paint::ptr paint READ getPaint WRITE setPaint)
+//  Q_PROPERTY(Paint::ptr paint READ getPaint WRITE setPaint)
 
 protected:
   /// The input Paint instance.
@@ -126,6 +126,7 @@ public:
  */
 class ColorMapping : public Mapping
 {
+  Q_OBJECT
 public:
   ColorMapping(Paint::ptr paint, MShape::ptr shape,
                uid id=NULL_UID)
@@ -143,6 +144,7 @@ public:
  */
 class TextureMapping : public Mapping
 {
+  Q_OBJECT
 private:
   MShape::ptr _inputShape;
 

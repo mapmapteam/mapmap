@@ -19,8 +19,11 @@
 
 #include "Element.h"
 
+#include <QDebug>
+
 Element::Element(uid id, UidAllocator* allocator) : _name(""), _isLocked(false), _opacity(1.0f), _allocator(allocator)
 {
+  qDebug() << "Trying to create Element with allocator " << allocator << " and id " << id << endl;
   if (id == NULL_UID)
     id = allocator->allocate();
   else

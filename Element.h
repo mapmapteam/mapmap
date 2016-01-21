@@ -22,17 +22,21 @@
 
 #include <QtGlobal>
 #include <QObject>
+#include <QIcon>
 
 #include "UidAllocator.h"
+
+Q_DECLARE_METATYPE(uid)
 
 class Element : public QObject
 {
   Q_OBJECT
 
   Q_PROPERTY(uid     id      READ getId)
-  Q_PROPERTY(QString name    READ getName WRITE setName RESET unsetName)
-  Q_PROPERTY(bool locked  READ isLocked  WRITE setLocked)
+  Q_PROPERTY(QString name    READ getName    WRITE setName RESET unsetName)
+  Q_PROPERTY(bool    locked  READ isLocked   WRITE setLocked)
   Q_PROPERTY(float   opacity READ getOpacity WRITE setOpacity)
+  Q_PROPERTY(QIcon   icon    READ getIcon)
 
 public:
   Element(uid id, UidAllocator* allocator);
@@ -54,6 +58,8 @@ public:
   void toggleLocked()  { _isLocked = !_isLocked; }
 
   virtual void build() {}
+
+  virtual QIcon getIcon() const { return QIcon(); }
 
 private:
   uid _id;

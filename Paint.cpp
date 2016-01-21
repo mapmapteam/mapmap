@@ -45,10 +45,12 @@ bool Image::setUri(const QString &uri)
 Media::Media(const QString uri_, bool live, double rate, uid id):
     Texture(id),
     uri(uri_),
+
     impl_(NULL)
 {
   impl_ = new MediaImpl(uri_, live);
   setRate(rate);
+  setVolume(1.0);
 }
 
 // vertigo
