@@ -26,8 +26,9 @@
 #include <GL/gl.h>
 #endif
 
+#include "Shapes.h"
+
 #include "MM.h"
-#include "Shape.h"
 #include "Paint.h"
 #include <QString>
 

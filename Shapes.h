@@ -1,7 +1,7 @@
 /*
- * Shape.cpp
+ * Shapes.h
  *
- * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2016 Sofian Audry -- info(@)sofianaudry(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,24 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Shape.h"
 
-void MShape::copyFrom(const MShape& shape)
-{
-  // Just copy vertices.
-  vertices = shape.vertices;
-}
+#ifndef SHAPES_H_
+#define SHAPES_H_
 
-MShape* MShape::clone() const {
-  MShape* copyShape = _create();
-  copyShape->copyFrom(*this);
-  return copyShape;
-}
+#include "Quad.h"
+#include "Ellipse.h"
+#include "Mesh.h"
+#include "Triangle.h"
 
-void MShape::translate(const QPointF& offset)
-{
-  // We can feel free to translate every vertex without check by default.
-  for (QVector<QPointF>::iterator it = vertices.begin(); it != vertices.end(); ++it)
-    *it += offset;
-}
-
+#endif /* SHAPES_H_ */

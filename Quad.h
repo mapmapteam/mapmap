@@ -1,7 +1,7 @@
 /*
- * Shape.cpp
+ * Quad.h
  *
- * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2016 Sofian Audry -- info(@)sofianaudry(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,24 +17,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Shape.h"
 
-void MShape::copyFrom(const MShape& shape)
+#ifndef QUAD_H_
+#define QUAD_H_
+
+#include "Polygon.h"
+
+/**
+ * Four-vertex shape.
+ */
+class Quad : public Polygon
 {
-  // Just copy vertices.
-  vertices = shape.vertices;
-}
+  Q_OBJECT
+public:
+  typedef QSharedPointer<Quad> ptr;
 
-MShape* MShape::clone() const {
-  MShape* copyShape = _create();
-  copyShape->copyFrom(*this);
-  return copyShape;
-}
+  Quad() {}
+  Quad(QPointF p1, QPointF p2, QPointF p3, QPointF p4)
+  {
+    _addVertex(p1);
+    _addVertex(p2);
+    _addVertex(p3);
+    _addVertex(p4);
+  }
+  virtual ~Quad() {}
 
-void MShape::translate(const QPointF& offset)
-{
-  // We can feel free to translate every vertex without check by default.
-  for (QVector<QPointF>::iterator it = vertices.begin(); it != vertices.end(); ++it)
-    *it += offset;
-}
+  virtual QString getType() const { return "quad"; }
 
+protected:
+  /// Returns a new MShape (using default constructor).
+  virtual MShape* _create() const { return new Quad(); }
+};
+
+
+#endif /* QUAD_H_ */

@@ -31,7 +31,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "Shape.h"
+#include "Shapes.h"
+
 #include "Paint.h"
 #include "Mapping.h"
 #include "MapperGLCanvas.h"
@@ -204,8 +205,8 @@ class MeshTextureGraphicsItem : public PolygonTextureGraphicsItem
 {
   // Internal use (cache). A structure consisting of the input and output quads of mapping.
   struct CacheQuadMapping {
-    Quad input;
-    Quad output;
+    Quad::ptr input;
+    Quad::ptr output;
   };
 
   // Internal use (cache). Contains a parent mapping and all its sub-mappings.
@@ -224,12 +225,12 @@ private:
    * Builds cache item recursively using the technique described in
    * Oliveira, M. "Correcting Texture Mapping Errors Introduced by Graphics Hardware"
    */
-  void _buildCacheQuadItem(CacheQuadItem& item, const Quad& inputQuad, const Quad& outputQuad,
+  void _buildCacheQuadItem(CacheQuadItem& item, const Quad::ptr& inputQuad, const Quad::ptr& outputQuad,
                            float outputArea, float inputThreshold = 0.0001f, float outputThreshold = 0.001f,
                            int minArea=MM::MESH_SUBDIVISION_MIN_AREA, int maxDepth=-1);
 
   // Help function that returns four equal-size sub-quads from a quad.
-  QList<Quad> _split(const Quad& quad);
+  QList<Quad::ptr> _split(const Quad& quad);
 
   // Contains the current cache.
   QVector<QVector<CacheQuadItem> > _cachedQuadItems;

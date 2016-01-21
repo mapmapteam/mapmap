@@ -10,6 +10,7 @@ HEADERS  = \
     Commands.h \
     DestinationGLCanvas.h \
     Element.h \
+    Ellipse.h \
     MM.h \
     MainApplication.h \
     MainWindow.h \
@@ -19,6 +20,7 @@ HEADERS  = \
     MappingManager.h \
     Maths.h \
     MediaImpl.h \
+    Mesh.h \
     MetaObjectRegistry.h \
     OscInterface.h \
     OscReceiver.h \
@@ -26,13 +28,17 @@ HEADERS  = \
     OutputGLWindow.h \
     Paint.h \
     PaintGui.h \
+    Polygon.h \
     PreferencesDialog.h \
     ProjectReader.h \
     ProjectWriter.h \
+    Quad.h \
     Shape.h \
+    Shapes.h \
     ShapeControlPainter.h \
     ShapeGraphicsItem.h \
     SourceGLCanvas.h \
+    Triangle.h \
     UidAllocator.h \
     Util.h
 
@@ -40,6 +46,7 @@ SOURCES  = \
     Commands.cpp \
     DestinationGLCanvas.cpp \
     Element.cpp \
+    Ellipse.cpp \
     MM.cpp \
     MainApplication.cpp \
     MainWindow.cpp \
@@ -48,6 +55,7 @@ SOURCES  = \
     Mapping.cpp \
     MappingManager.cpp \
     MediaImpl.cpp \
+    Mesh.cpp \
     MetaObjectRegistry.cpp \
     OscInterface.cpp \
     OscReceiver.cpp \
@@ -55,6 +63,7 @@ SOURCES  = \
     OutputGLWindow.cpp \
     Paint.cpp \
     PaintGui.cpp \
+    Polygon.cpp \
     PreferencesDialog.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
