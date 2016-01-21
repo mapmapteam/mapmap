@@ -42,8 +42,17 @@ public:
   }
 };
 
+// Intercept all logging message and display it in the console
+void logMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+  ConsoleWindow::getInstance()->messageLog(type, context, msg);
+}
+
 int main(int argc, char *argv[])
 {
+  // Install message handler
+  qInstallMessageHandler(logMessageHandler);
+
   set_env_vars_if_needed();
 
   MainApplication app(argc, argv);

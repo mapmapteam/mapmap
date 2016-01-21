@@ -34,7 +34,7 @@ OscInterface::OscInterface(
   //if (listen_port != OSC_PORT_NONE)
   receiving_enabled_ = true;
   if (receiving_enabled_) {
-    std::cout << "Listening osc.udp://localhost:" << listen_port << std::endl;
+    QMessageLogger(__FILE__, __LINE__, 0).debug() << "Listening osc.udp://localhost:" << listen_port.c_str();
     // receiver_.addHandler("/ping", "", ping_cb, this);
     // receiver_.addHandler("/pong", "", pong_cb, this);
     //receiver_.addHandler("/image/path", "ss", image_path_cb, this);
@@ -53,7 +53,7 @@ int OscInterface::pong_cb(const char *path, const char * /*types*/,
     lo_arg ** /*argv*/, int /*argc*/, void * /*data*/, void *user_data) {
   OscInterface* context = static_cast<OscInterface*>(user_data);
   if (context->is_verbose())
-    std::cout << "Got " << path << std::endl;
+    QMessageLogger(__FILE__, __LINE__, 0).debug() << "Got " << path;
   return 0;
 }
 
@@ -64,7 +64,7 @@ int OscInterface::ping_cb(const char *path, const char * /*types*/,
     lo_arg ** /*argv*/, int /*argc*/, void * /*data*/, void *user_data) {
   OscInterface* context = static_cast<OscInterface*>(user_data);
   if (context->is_verbose())
-    std::cout << "Got " << path << std::endl;
+    QMessageLogger(__FILE__, __LINE__, 0).debug() << "Got " << path;
   return 0;
 }
 
@@ -171,35 +171,30 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
   {
       int paint_id = command.at(2).toInt();
       std::string image_uri = command.at(3).toString().toStdString();
-      //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
       main_window.setTextureUri(paint_id, image_uri);
   }
   else if (path == "/mapmap/paint/media/rate" && typetags == "if")
   {
       int paint_id = command.at(2).toInt();
       float rate = command.at(3).toDouble();
-      //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
       main_window.setTextureRate(paint_id, rate);
   }
   else if (path == "/mapmap/paint/media/volume" && typetags == "if")
   {
       int paint_id = command.at(2).toInt();
       float volume = command.at(3).toDouble();
-      //std::cout << "set /mapmap/paint/media/volume " << paint_id << " " << image_uri << std::endl;
       main_window.setTextureVolume(paint_id, volume);
   }
   else if (path == "/mapmap/paint/media/played" && typetags == "ii")
   {
       int paint_id = command.at(2).toInt();
       int played = command.at(3).toInt();
-      //std::cout << "set /mapmap/paint/media/played " << paint_id << " " << image_uri << std::endl;
       main_window.setTexturePlayState(paint_id, played ? true : false);
   }
   else if (path == "/mapmap/mapping/visible" && typetags == "ii")
   {
       int mappingId = command.at(2).toInt();
       int visible = command.at(3).toInt();
-      //std::cout << "Visibility of MappingId " << mappingId << " set to " << visible << std::endl;
       main_window.setMappingVisible(mappingId, visible ? true : false);
   }
   else if (path == "/mapmap/output/fullscreen" && typetags == "i")

@@ -276,7 +276,7 @@ bool eraseSettings()
   }
   else
   {
-    std::cout << "Erase MapMap settings." << std::endl;
+    QMessageLogger(__FILE__, __LINE__, 0).debug() << "Erase MapMap settings.";
     settingsFile.close();
     return settingsFile.remove();
   }

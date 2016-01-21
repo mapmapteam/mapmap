@@ -54,7 +54,8 @@ QListView::item:selected {
   background: #272a36;
 }
 
-QGraphicsView {
+QGraphicsView,
+QPlainTextEdit {
   border-style: none;
 }
 
