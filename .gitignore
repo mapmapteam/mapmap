@@ -22,6 +22,8 @@ Release/
 *.mov
 *.ogg
 *.png
+# except resources files
+!resources/images/icons/*.png
 *.tar
 *.rar
 *.qm
