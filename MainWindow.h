@@ -39,6 +39,7 @@
 
 #include "OutputGLWindow.h"
 #include "PreferencesDialog.h"
+#include "ConsoleWindow.h"
 
 #include "MappingManager.h"
 
@@ -329,6 +330,7 @@ private:
   QAction *stickyVerticesAction;
   QAction *displayUndoStackAction;
   QAction *displayZoomToolAction;
+  QAction *displayConsoleAction;
 
   enum { MaxRecentFiles = 10 };
   enum { MaxRecentVideo = 5 };
@@ -351,6 +353,7 @@ private:
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
   OutputGLWindow* outputWindow;
+  ConsoleWindow* consoleWindow;
 
   QSplitter* mainSplitter;
   QSplitter* canvasSplitter;

@@ -29,9 +29,9 @@ MainWindow::MainWindow()
 {
   // Create model.
   if (Media::hasVideoSupport())
-    std::cout << "Video support: yes" << std::endl;
+    QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: yes";
   else
-    std::cout << "Video support: no" << std::endl;
+    QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: no";
 
   mappingManager = new MappingManager;
 
@@ -1298,6 +1298,10 @@ void MainWindow::createLayout()
 //  connect(outputWindow->getCanvas()->scene(), SIGNAL(changed(const QList<QRectF>&)),
 //          destinationCanvas,                  SLOT(updateCanvas()));
 
+  // Create console logging output
+  consoleWindow = ConsoleWindow::getInstance();
+  consoleWindow->setVisible(false);
+
   // Create layout.
   paintSplitter = new QSplitter(Qt::Vertical);
   paintSplitter->addWidget(paintList);
@@ -1616,6 +1620,15 @@ void MainWindow::createActions()
   // Manage show/hide of Undo Stack
   connect(displayUndoStackAction, SIGNAL(toggled(bool)), this, SLOT(displayUndoStack(bool)));
 
+  // Toggle display of Console output
+  displayConsoleAction = new QAction(tr("Disp&lay Console"), this);
+  displayConsoleAction->setShortcut(tr("Alt+L"));
+  displayConsoleAction->setCheckable(true);
+  displayConsoleAction->setChecked(false);
+  connect(displayConsoleAction, SIGNAL(toggled(bool)), consoleWindow, SLOT(setVisible(bool)));
+  // uncheck action when window is closed
+  connect(consoleWindow, SIGNAL(windowClosed()), displayConsoleAction, SLOT(toggle()));
+
   // Toggle display of zoom tool buttons
   displayZoomToolAction = new QAction(tr("Display &Zoom Toolbar"), this);
   displayZoomToolAction->setShortcut(tr("Alt+Z"));
@@ -1706,6 +1719,7 @@ void MainWindow::createMenus()
   viewMenu->addSeparator();
   viewMenu->addAction(displayUndoStackAction);
   viewMenu->addAction(displayZoomToolAction);
+  viewMenu->addAction(displayConsoleAction);
 
   // Run.
   runMenu = menuBar->addMenu(tr("&Run"));
@@ -2690,7 +2704,7 @@ void MainWindow::startOscReceiver()
   int port = config_osc_receive_port;
   std::ostringstream os;
   os << port;
-  std::cout << "OSC port: " << port << std::endl;
+  QMessageLogger(__FILE__, __LINE__, 0).info() << "OSC port: " << port ;
   osc_interface.reset(new OscInterface(os.str()));
   if (port != 0)
   {
