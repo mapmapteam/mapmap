@@ -27,13 +27,13 @@ class Mesh : public Quad
 {
   Q_OBJECT
 
-  Q_PROPERTY(int nColumns READ nColumns)
-  Q_PROPERTY(int nRows    READ nRows)
+  Q_PROPERTY(int nColumns READ nColumns WRITE setNColumns)
+  Q_PROPERTY(int nRows    READ nRows    WRITE setNRows)
 
   typedef QVector<QVector<int> > IndexVector2d;
 
 public:
-  Mesh();
+  Q_INVOKABLE Mesh();
 
   // This constructor creates a quad mesh (four corners) using the same order as for the quad
   // constructor (ie. clockwise).
@@ -86,6 +86,13 @@ public:
 
   int nColumns() const { return _nColumns; }
   int nRows() const  { return _nRows; }
+
+  void setNColumns(int nColumns_) {
+    resize(nColumns_, nRows());
+  }
+  void setNRows(int nRows_) {
+    resize(nColumns(), nRows_);
+  }
 
   int nHorizontalQuads() const { return _nColumns-1; }
   int nVerticalQuads() const { return _nRows-1; }

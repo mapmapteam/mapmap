@@ -39,8 +39,8 @@ bool ProjectWriter::writeFile(QIODevice *device)
   QDomElement project = doc.createElement("project");
   project.setAttribute("version", MM::VERSION);
 
+  // Paints.
   QDomElement paints = doc.createElement("paints");
-
   for (int i=0; i<manager.nPaints(); i++)
   {
     QDomElement paint = doc.createElement("paint");
@@ -48,7 +48,17 @@ bool ProjectWriter::writeFile(QIODevice *device)
     paints.appendChild(paint);
   }
 
+  // Mappings.
+  QDomElement mappings = doc.createElement("mappings");
+  for (int i=0; i<manager.nMappings(); i++)
+  {
+    QDomElement mapping = doc.createElement("mapping");
+    manager.getMapping(i)->write(mapping);
+    mappings.appendChild(mapping);
+  }
+
   project.appendChild(paints);
+  project.appendChild(mappings);
   doc.appendChild(project);
 
   QTextStream out(device);

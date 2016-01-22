@@ -32,7 +32,7 @@ class Quad : public Polygon
 public:
   typedef QSharedPointer<Quad> ptr;
 
-  Quad() {}
+  Q_INVOKABLE Quad() {}
   Quad(QPointF p1, QPointF p2, QPointF p3, QPointF p4)
   {
     _addVertex(p1);

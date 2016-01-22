@@ -39,15 +39,16 @@
 #include <QSharedPointer>
 
 #include "Maths.h"
+#include "Serializable.h"
 
 /**
  * Shape represented by a series of control points.
  */
-class MShape : public QObject
+class MShape : public Serializable
 {
   Q_OBJECT
 
-  Q_PROPERTY(QVector<QPointF> vertices READ getVertices WRITE setVertices)
+  Q_PROPERTY(QVector<QPointF> vertices READ getVertices WRITE setVertices STORED false)
 public:
   typedef QSharedPointer<MShape> ptr;
 
@@ -100,6 +101,9 @@ public:
   {
     vertices = vertices_;
   }
+
+  virtual void read(const QDomElement& obj);
+  virtual void write(QDomElement& obj);
 
 protected:
   QVector<QPointF> vertices;

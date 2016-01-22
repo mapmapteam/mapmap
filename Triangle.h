@@ -30,7 +30,7 @@ class Triangle : public Polygon
 {
   Q_OBJECT
 public:
-  Triangle() {}
+  Q_INVOKABLE Triangle() {}
   Triangle(QPointF p1, QPointF p2, QPointF p3)
   {
     _addVertex(p1);

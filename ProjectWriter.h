@@ -47,7 +47,7 @@ public:
     bool writeFile (QIODevice *device);
 
   private:
-    void writeProject();
+//    void writeProject();
 //    void writePaint(Paint::ptr paint);
 //    void writeItem (Paint *item);
 //    void writeItem (Mapping *item);

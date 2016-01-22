@@ -30,6 +30,11 @@
 
 #include "UidAllocator.h"
 
+#include "MetaObjectRegistry.h"
+
+// TODO: replace by ProjectAttribute
+//#include "ProjectWriter.h"
+
 /**
  * Mapping is the central concept of this software.
  *
@@ -119,6 +124,17 @@ public:
   float getComputedOpacity() const { return getOpacity() * _paint->getOpacity(); }
 
   void setPaint(Paint::ptr p) { _paint = p; }
+  void setShape(MShape::ptr s) { _shape = s; }
+
+  virtual void read(const QDomElement& obj);
+  virtual void write(QDomElement& obj);
+
+protected:
+  virtual QList<QString> _propertiesAttributes() const
+  { return Element::_propertiesAttributes() << "solo" << "visible" << "depth"; }
+
+  void _readShape(const QDomElement& obj, bool isOutput);
+  void _writeShape(QDomElement& obj, bool isOutput);
 };
 
 /**
@@ -128,14 +144,13 @@ class ColorMapping : public Mapping
 {
   Q_OBJECT
 public:
-  ColorMapping(Paint::ptr paint, MShape::ptr shape,
+  Q_INVOKABLE ColorMapping(Paint::ptr paint, MShape::ptr shape,
                uid id=NULL_UID)
     : Mapping(paint, shape, id) {}
 
   virtual QString getType() const {
     return getShape()->getType() + "_color";
   }
-
 };
 
 /**
@@ -149,6 +164,14 @@ private:
   MShape::ptr _inputShape;
 
 public:
+  Q_INVOKABLE TextureMapping(
+                 Paint::ptr paint,
+                 MShape::ptr shape, uid id=NULL_UID)
+    : Mapping(paint, shape, id),
+      _inputShape()
+  {
+
+  }
   TextureMapping(Paint::ptr paint,
                  MShape::ptr shape,
                  MShape::ptr inputShape, uid id=NULL_UID)
@@ -171,6 +194,7 @@ public:
 public:
   virtual bool hasInputShape() const { return true; }
   virtual MShape::ptr getInputShape() const { return _inputShape; }
+
 };
 
 #endif /* MAPPING_H_ */

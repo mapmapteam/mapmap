@@ -38,3 +38,27 @@ void MShape::translate(const QPointF& offset)
     *it += offset;
 }
 
+void MShape::read(const QDomElement& obj)
+{
+  // Read basic data.
+  Serializable::read(obj);
+}
+
+void MShape::write(QDomElement& obj)
+{
+  // Write basic data.
+  Serializable::write(obj);
+
+  // Write vertices.
+  QDomElement verticesObj = obj.ownerDocument().createElement("vertices");
+  for (int i=0; i<nVertices(); i++)
+  {
+    QDomElement vertexObj = obj.ownerDocument().createElement("vertex");
+    vertexObj.setAttribute("x", getVertex(i).x());
+    vertexObj.setAttribute("y", getVertex(i).y());
+    verticesObj.appendChild(vertexObj);
+  }
+
+  obj.appendChild(verticesObj);
+}
+
