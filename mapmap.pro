@@ -33,6 +33,7 @@ HEADERS  = \
     ProjectReader.h \
     ProjectWriter.h \
     Quad.h \
+    Serializable.h \
     Shape.h \
     Shapes.h \
     ShapeControlPainter.h \
@@ -67,6 +68,7 @@ SOURCES  = \
     PreferencesDialog.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
+    Serializable.cpp \
     Shape.cpp \
     ShapeControlPainter.cpp \
     ShapeGraphicsItem.cpp \

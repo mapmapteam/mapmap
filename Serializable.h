@@ -1,5 +1,5 @@
 /*
- * Element.cpp
+ * Serializable.h
  *
  * (c) 2016 Sofian Audry -- info(@)sofianaudry(.)com
  *
@@ -17,26 +17,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Element.h"
+#ifndef SERIALIZABLE_H_
+#define SERIALIZABLE_H_
 
+#include <QObject>
+#include <QDomDocument>
+#include <QMetaProperty>
 #include <QDebug>
 
-Element::Element(uid id, UidAllocator* allocator) : _name(""), _isLocked(false), _opacity(1.0f), _allocator(allocator)
-{
-  qDebug() << "Trying to create Element with allocator " << allocator << " and id " << id << endl;
-  if (id == NULL_UID)
-    id = allocator->allocate();
-  else
-  {
-    Q_ASSERT(!allocator->exists(id));
-    allocator->reserve(id);
-  }
-  // Assign id.
-  _id = id;
-  // Reset name.
-  unsetName();
-}
+class Serializable : public QObject {
+  Q_OBJECT
 
-Element::~Element() {
-  _allocator->free(_id);
-}
+protected:
+  Serializable() {}
+
+public:
+  virtual ~Serializable() {}
+
+  virtual void read(const QDomElement& obj);
+  virtual void write(QDomElement& obj);
+
+protected:
+  // Lists QProperties that should be represented as XML attributes, not as childen nodes.
+  virtual QList<QString> _propertiesAttributes() const { return QList<QString>(); }
+};
+
+#endif /* SERIALIZABLE_H_ */

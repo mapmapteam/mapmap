@@ -24,14 +24,12 @@
 #include <QObject>
 #include <QIcon>
 
-#include <QDomDocument>
-#include <QMetaProperty>
-
+#include "Serializable.h"
 #include "UidAllocator.h"
 
 Q_DECLARE_METATYPE(uid)
 
-class Element : public QObject
+class Element : public Serializable
 {
   Q_OBJECT
 
@@ -64,11 +62,9 @@ public:
 
   virtual QIcon getIcon() const { return QIcon(); }
 
-  virtual void read(const QDomElement& obj);
-  virtual void write(QDomElement& obj);
-
 protected:
-  virtual QList<QString> _propertiesAttributes() const;
+  virtual QList<QString> _propertiesAttributes() const
+  { return Serializable::_propertiesAttributes() << "name" << "locked";  }
 
 private:
   uid _id;
