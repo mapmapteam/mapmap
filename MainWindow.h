@@ -28,6 +28,7 @@
 #include <QTimer>
 #include <QVariant>
 #include <QMap>
+#include <QMessageLogger>
 
 #include "MM.h"
 
