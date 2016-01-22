@@ -17,22 +17,44 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef PROJECT_WRITER_H_
+#define PROJECT_WRITER_H_
 
 #include <QXmlStreamWriter>
 #include "MappingManager.h"
 #include "Mapping.h"
 #include "Paint.h"
+#include "MainWindow.h"
+
+#include "Shapes.h"
+
+class ProjectAttributes
+{
+public:
+  static const char* CLASS_NAME;
+  static const char* PAINTS;
+  static const char* MAPPINGS;
+
+  static const char* ID;
+  static const char* NAME;
+  static const char* PAINT_ID;
+};
 
 class ProjectWriter
 {
-  public:
-    ProjectWriter (MappingManager *manager);
+public:
+    ProjectWriter (MainWindow *window);
     bool writeFile (QIODevice *device);
 
   private:
-    void writeItem (Paint *item);
-    void writeItem (Mapping *item);
-    void writeShapeVertices (MShape *shape);
+    void writeProject();
+//    void writePaint(Paint::ptr paint);
+//    void writeItem (Paint *item);
+//    void writeItem (Mapping *item);
+//    void writeShapeVertices (MShape *shape);
+
     QXmlStreamWriter _xml;
-    MappingManager *_manager;
+    MainWindow *_window;
 };
+
+#endif

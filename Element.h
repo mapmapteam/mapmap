@@ -24,6 +24,9 @@
 #include <QObject>
 #include <QIcon>
 
+#include <QDomDocument>
+#include <QMetaProperty>
+
 #include "UidAllocator.h"
 
 Q_DECLARE_METATYPE(uid)
@@ -60,6 +63,12 @@ public:
   virtual void build() {}
 
   virtual QIcon getIcon() const { return QIcon(); }
+
+  virtual void read(const QDomElement& obj);
+  virtual void write(QDomElement& obj);
+
+protected:
+  virtual QList<QString> _propertiesAttributes() const;
 
 private:
   uid _id;

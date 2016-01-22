@@ -37,8 +37,6 @@
 
 #include "Element.h"
 
-Q_DECLARE_METATYPE(GLfloat)
-
 /**
  * A Paint is a style that can be applied when drawing potentially any shape.
  * 
@@ -96,13 +94,19 @@ protected:
   QColor color;
 
 public:
-  Color(uid id=NULL_UID) : Paint(id) {}
+  Q_INVOKABLE Color(int id=NULL_UID) : Paint(id) {}
   Color(const QColor& color_, uid id=NULL_UID) : Paint(id), color(color_) {}
 
   QColor getColor() const { return color; }
   void setColor(const QColor& color_) { color = color_; }
 
   virtual QString getType() const { return "color"; }
+
+  virtual QIcon getIcon() const {
+    QPixmap pixmap(100,100);
+    pixmap.fill(color);
+    return QIcon(pixmap);
+  }
 };
 
 /**
@@ -114,8 +118,8 @@ class Texture : public Paint
 {
   Q_OBJECT
 
-  Q_PROPERTY(GLfloat x READ getX WRITE setX)
-  Q_PROPERTY(GLfloat y READ getY WRITE setY)
+  Q_PROPERTY(float x READ getX WRITE setX)
+  Q_PROPERTY(float y READ getY WRITE setY)
 
 protected:
   GLuint textureId;
@@ -231,6 +235,7 @@ class Media : public Texture
 protected:
   QString uri;
 public:
+  Q_INVOKABLE Media(int id=NULL_UID) : Texture(id) {}
   Media(const QString uri_, bool live, double rate, uid id=NULL_UID);
   virtual ~Media();
   const QString getUri() const

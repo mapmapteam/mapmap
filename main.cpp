@@ -12,6 +12,9 @@
 #include "MM.h"
 #include "MainWindow.h"
 #include "MainApplication.h"
+
+#include "MetaObjectRegistry.h"
+
 #include <stdlib.h>
 #include <iostream>
 
@@ -42,9 +45,32 @@ public:
   }
 };
 
+void initRegistry()
+{
+  MetaObjectRegistry& registry = MetaObjectRegistry::instance();
+
+  // Paints.
+  registry.add<Media>();
+  registry.add<Image>();
+  registry.add<Color>();
+
+  // Mappings.
+  registry.add<TextureMapping>();
+  registry.add<ColorMapping>();
+
+  // Shapes.
+  registry.add<Quad>();
+  registry.add<Mesh>();
+  registry.add<Ellipse>();
+  registry.add<Triangle>();
+}
+
 int main(int argc, char *argv[])
 {
   set_env_vars_if_needed();
+
+  // Initialize meta-object registry.
+  initRegistry();
 
   MainApplication app(argc, argv);
 

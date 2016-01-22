@@ -24,6 +24,10 @@
 #include "Mapping.h"
 #include "Paint.h"
 
+#include "MetaObjectRegistry.h"
+// TODO: replace with ProjectAttributes.h
+#include "ProjectWriter.h"
+
 class ProjectReader
 {
 public:
@@ -34,15 +38,15 @@ public:
 private:
     void readProject();
     void parseProject(const QDomElement& project);
-    void parsePaint(const QDomElement& paint);
-    void parseMapping(const QDomElement& mapping);
-
-    void _parseStandardShape(const QString& type, const QDomElement& shape, QVector<QPointF>& points, int nVertices=-1);
-    void _parseQuad(const QDomElement& quad, QVector<QPointF>& points);
-    void _parseTriangle(const QDomElement& triangle, QVector<QPointF>& points);
-    void _parseMesh(const QDomElement& mesh, QVector<QPointF>& points, int& nColumns, int& nRows);
-    void _parseEllipse(const QDomElement& ellipse, QVector<QPointF>& points);
-    QPointF _parseVertex(const QDomElement& vertex);
+    Paint::ptr   parsePaint(const QDomElement& paint);
+//    Mapping::ptr parseMapping(const QDomElement& mapping);
+//
+//    void _parseStandardShape(const QString& type, const QDomElement& shape, QVector<QPointF>& points, int nVertices=-1);
+//    void _parseQuad(const QDomElement& quad, QVector<QPointF>& points);
+//    void _parseTriangle(const QDomElement& triangle, QVector<QPointF>& points);
+//    void _parseMesh(const QDomElement& mesh, QVector<QPointF>& points, int& nColumns, int& nRows);
+//    void _parseEllipse(const QDomElement& ellipse, QVector<QPointF>& points);
+//    QPointF _parseVertex(const QDomElement& vertex);
 
 //    void readPaint(); //Paint *item);
 //    void readMapping(); //Mapping *item);
