@@ -22,11 +22,11 @@
 
 #include <QMainWindow>
 #include <QPlainTextEdit>
-#include <QtMessageHandler>
+#include <QtGlobal>
+#include <QFont>
 
 class QAction;
 class QMenu;
-class QMenuBar;
 
 class ConsoleWindow : public QMainWindow
 {
