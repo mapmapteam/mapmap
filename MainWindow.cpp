@@ -1351,6 +1351,7 @@ void MainWindow::createActions()
   newAction->setShortcut(QKeySequence::New);
   newAction->setStatusTip(tr("Create a new project"));
   newAction->setIconVisibleInMenu(false);
+  addAction(newAction);
   connect(newAction, SIGNAL(triggered()), this, SLOT(newFile()));
 
   // Open.
@@ -1359,6 +1360,7 @@ void MainWindow::createActions()
   openAction->setShortcut(QKeySequence::Open);
   openAction->setStatusTip(tr("Open an existing project"));
   openAction->setIconVisibleInMenu(false);
+  addAction(openAction);
   connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
   // Save.
@@ -1367,14 +1369,16 @@ void MainWindow::createActions()
   saveAction->setShortcut(QKeySequence::Save);
   saveAction->setStatusTip(tr("Save the project"));
   saveAction->setIconVisibleInMenu(false);
+  addAction(saveAction);
   connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
 
   // Save as.
   saveAsAction = new QAction(tr("Save &As..."), this);
   saveAsAction->setIcon(QIcon(":/save-as"));
-  saveAsAction->setShortcut(tr("Ctrl+Shift+S"));
+  saveAsAction->setShortcut(QKeySequence::SaveAs);
   saveAsAction->setStatusTip(tr("Save the project as..."));
   saveAsAction->setIconVisibleInMenu(false);
+  addAction(saveAsAction);
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
   // Recents file
@@ -1410,6 +1414,7 @@ void MainWindow::createActions()
   importVideoAction->setIcon(QIcon(":/add-video"));
   importVideoAction->setStatusTip(tr("Import a video source file..."));
   importVideoAction->setIconVisibleInMenu(false);
+  addAction(importVideoAction);
   connect(importVideoAction, SIGNAL(triggered()), this, SLOT(importVideo()));
 
   // Import imiage.
@@ -1418,6 +1423,7 @@ void MainWindow::createActions()
   importImageAction->setIcon(QIcon(":/add-image"));
   importImageAction->setStatusTip(tr("Import a image source file..."));
   importImageAction->setIconVisibleInMenu(false);
+  addAction(importImageAction);
   connect(importImageAction, SIGNAL(triggered()), this, SLOT(importImage()));
 
   // Add color.
@@ -1426,13 +1432,15 @@ void MainWindow::createActions()
   addColorAction->setIcon(QIcon(":/add-color"));
   addColorAction->setStatusTip(tr("Add a color paint..."));
   addColorAction->setIconVisibleInMenu(false);
+  addAction(addColorAction);
   connect(addColorAction, SIGNAL(triggered()), this, SLOT(addColor()));
 
   // Exit/quit.
   exitAction = new QAction(tr("E&xit"), this);
-  exitAction->setShortcut(tr("Ctrl+Q"));
+  exitAction->setShortcut(QKeySequence::Quit);
   exitAction->setStatusTip(tr("Exit the application"));
   exitAction->setIconVisibleInMenu(false);
+  addAction(exitAction);
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
   // Undo action
@@ -1440,31 +1448,36 @@ void MainWindow::createActions()
   undoAction->setShortcut(QKeySequence::Undo);
   undoAction->setIconVisibleInMenu(false);
   undoAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(undoAction);
 
   //Redo action
   redoAction = undoStack->createRedoAction(this, tr("&Redo"));
   redoAction->setShortcut(QKeySequence::Redo);
   redoAction->setIconVisibleInMenu(false);
   redoAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(redoAction);
 
   // About.
   aboutAction = new QAction(tr("&About"), this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
   aboutAction->setIconVisibleInMenu(false);
+  addAction(aboutAction);
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
   // Duplicate.
   cloneMappingAction = new QAction(tr("Duplicate"), this);
-  cloneMappingAction->setShortcut(tr("Ctrl+D"));
+  cloneMappingAction->setShortcut(Qt::CTRL + Qt::Key_D);
   cloneMappingAction->setStatusTip(tr("Duplicate item"));
   cloneMappingAction->setIconVisibleInMenu(false);
+  addAction(cloneMappingAction);
   connect(cloneMappingAction, SIGNAL(triggered()), this, SLOT(duplicateMappingItem()));
 
   // Delete mapping.
-  deleteMappingAction = new QAction(tr("Delete"), this);
-  deleteMappingAction->setShortcut(tr("CTRL+DEL"));
+  deleteMappingAction = new QAction(tr("Delete mapping"), this);
+  deleteMappingAction->setShortcut(QKeySequence::Delete);
   deleteMappingAction->setStatusTip(tr("Delete item"));
   deleteMappingAction->setIconVisibleInMenu(false);
+  addAction(deleteMappingAction);
   connect(deleteMappingAction, SIGNAL(triggered()), this, SLOT(deleteMappingItem()));
 
   // Rename mapping.
@@ -1472,10 +1485,11 @@ void MainWindow::createActions()
   renameMappingAction->setShortcut(Qt::Key_F2);
   renameMappingAction->setStatusTip(tr("Rename item"));
   renameMappingAction->setIconVisibleInMenu(false);
+  addAction(renameMappingAction);
   connect(renameMappingAction, SIGNAL(triggered()), this, SLOT(renameMappingItem()));
 
   // Delete paint.
-  deletePaintAction = new QAction(tr("Delete"), this);
+  deletePaintAction = new QAction(tr("Delete paint"), this);
   //deletePaintAction->setShortcut(tr("CTRL+DEL"));
   deletePaintAction->setStatusTip(tr("Delete item"));
   deletePaintAction->setIconVisibleInMenu(false);
@@ -1486,14 +1500,16 @@ void MainWindow::createActions()
   //renamePaintAction->setShortcut(Qt::Key_F2);
   renamePaintAction->setStatusTip(tr("Rename item"));
   renamePaintAction->setIconVisibleInMenu(false);
+  addAction(renamePaintAction);
   connect(renamePaintAction, SIGNAL(triggered()), this, SLOT(renamePaintItem()));
 
   // Preferences...
   preferencesAction = new QAction(tr("&Preferences..."), this);
   //preferencesAction->setIcon(QIcon(":/preferences"));
-  preferencesAction->setShortcut(tr("CTRL+,"));
+  preferencesAction->setShortcut(Qt::CTRL + Qt::Key_Comma);
   preferencesAction->setStatusTip(tr("Configure preferences..."));
   //preferencesAction->setIconVisibleInMenu(false);
+  addAction(preferencesAction);
   connect(preferencesAction, SIGNAL(triggered()), this, SLOT(preferences()));
 
   // Add quad/mesh.
@@ -1502,6 +1518,7 @@ void MainWindow::createActions()
   addMeshAction->setIcon(QIcon(":/add-mesh"));
   addMeshAction->setStatusTip(tr("Add quad/mesh"));
   addMeshAction->setIconVisibleInMenu(false);
+  addAction(addMeshAction);
   connect(addMeshAction, SIGNAL(triggered()), this, SLOT(addMesh()));
   addMeshAction->setEnabled(false);
 
@@ -1511,6 +1528,7 @@ void MainWindow::createActions()
   addTriangleAction->setIcon(QIcon(":/add-triangle"));
   addTriangleAction->setStatusTip(tr("Add triangle"));
   addTriangleAction->setIconVisibleInMenu(false);
+  addAction(addTriangleAction);
   connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
   addTriangleAction->setEnabled(false);
 
@@ -1520,6 +1538,7 @@ void MainWindow::createActions()
   addEllipseAction->setIcon(QIcon(":/add-ellipse"));
   addEllipseAction->setStatusTip(tr("Add ellipse"));
   addEllipseAction->setIconVisibleInMenu(false);
+  addAction(addEllipseAction);
   connect(addEllipseAction, SIGNAL(triggered()), this, SLOT(addEllipse()));
   addEllipseAction->setEnabled(false);
 
@@ -1529,6 +1548,7 @@ void MainWindow::createActions()
   playAction->setIcon(QIcon(":/play"));
   playAction->setStatusTip(tr("Play"));
   playAction->setIconVisibleInMenu(false);
+  addAction(playAction);
   connect(playAction, SIGNAL(triggered()), this, SLOT(play()));
   playAction->setVisible(true);
 
@@ -1538,25 +1558,28 @@ void MainWindow::createActions()
   pauseAction->setIcon(QIcon(":/pause"));
   pauseAction->setStatusTip(tr("Pause"));
   pauseAction->setIconVisibleInMenu(false);
+  addAction(pauseAction);
   connect(pauseAction, SIGNAL(triggered()), this, SLOT(pause()));
   pauseAction->setVisible(false);
 
-  // Pause.
+  // Rewind.
   rewindAction = new QAction(tr("Rewind"), this);
   rewindAction->setShortcut(tr("CTRL+R"));
   rewindAction->setIcon(QIcon(":/rewind"));
   rewindAction->setStatusTip(tr("Rewind"));
   rewindAction->setIconVisibleInMenu(false);
+  addAction(rewindAction);
   connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
 
   // Toggle display of output window.
   displayOutputWindowAction = new QAction(tr("&Display Output Window"), this);
-  displayOutputWindowAction->setShortcut(tr("Ctrl+W"));
+  displayOutputWindowAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_W);
   displayOutputWindowAction->setIcon(QIcon(":/output-window"));
   displayOutputWindowAction->setStatusTip(tr("Display output window"));
   displayOutputWindowAction->setIconVisibleInMenu(false);
   displayOutputWindowAction->setCheckable(true);
   displayOutputWindowAction->setChecked(true);
+  addAction(displayOutputWindowAction);
   // Manage show/hide of GL output window.
   connect(displayOutputWindowAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setVisible(bool)));
   // When closing the GL output window, uncheck the action in menu.
@@ -1565,11 +1588,12 @@ void MainWindow::createActions()
   // Toggle display of output window.
   outputWindowFullScreenAction = new QAction(tr("&Fullscreen"), this);
   outputWindowFullScreenAction->setIcon(QIcon(":/fullscreen"));
-  outputWindowFullScreenAction->setShortcut(tr("Ctrl+F"));
+  outputWindowFullScreenAction->setShortcut(Qt::CTRL + Qt::Key_F);
   outputWindowFullScreenAction->setStatusTip(tr("Full screen"));
   outputWindowFullScreenAction->setIconVisibleInMenu(false);
   outputWindowFullScreenAction->setCheckable(true);
   outputWindowFullScreenAction->setChecked(false);
+  addAction(displayOutputWindowAction);
   // Manage fullscreen mode for output window.
   connect(outputWindowFullScreenAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
   // When fullscreen is toggled by the output window (eg. when pressing ESC), change the action checkbox.
@@ -1579,58 +1603,64 @@ void MainWindow::createActions()
 
   // Toggle display of canvas controls.
   displayControlsAction = new QAction(tr("&Display Canvas Controls"), this);
-  displayControlsAction->setShortcut(tr("Alt+D"));
+  displayControlsAction->setShortcut(Qt::ALT + Qt::Key_C);
   displayControlsAction->setIcon(QIcon(":/control-points"));
   displayControlsAction->setStatusTip(tr("Display canvas controls"));
   displayControlsAction->setIconVisibleInMenu(false);
   displayControlsAction->setCheckable(true);
   displayControlsAction->setChecked(_displayControls);
+  addAction(displayControlsAction);
   // Manage show/hide of canvas controls.
   connect(displayControlsAction, SIGNAL(toggled(bool)), this, SLOT(enableDisplayControls(bool)));
 
   // Toggle sticky vertices
   stickyVerticesAction = new QAction(tr("&Sticky Vertices"), this);
-  stickyVerticesAction->setShortcut(tr("Alt+S"));
+  stickyVerticesAction->setShortcut(Qt::ALT + Qt::Key_S);
   stickyVerticesAction->setIcon(QIcon(":/control-points"));
   stickyVerticesAction->setStatusTip(tr("Enable sticky vertices"));
   stickyVerticesAction->setIconVisibleInMenu(false);
   stickyVerticesAction->setCheckable(true);
   stickyVerticesAction->setChecked(_stickyVertices);
+  addAction(stickyVerticesAction);
   // Manage sticky vertices
   connect(stickyVerticesAction, SIGNAL(toggled(bool)), this, SLOT(enableStickyVertices(bool)));
 
   displayTestSignalAction = new QAction(tr("&Display Test Signal"), this);
-  displayTestSignalAction->setShortcut(tr("Alt+T"));
+  displayTestSignalAction->setShortcut(Qt::ALT + Qt::Key_T);
   displayTestSignalAction->setIcon(QIcon(":/control-points"));
   displayTestSignalAction->setStatusTip(tr("Display test signal"));
   displayTestSignalAction->setIconVisibleInMenu(false);
   displayTestSignalAction->setCheckable(true);
   displayTestSignalAction->setChecked(_displayTestSignal);
+  addAction(displayTestSignalAction);
   // Manage show/hide of test signal
   connect(displayTestSignalAction, SIGNAL(toggled(bool)), this, SLOT(enableTestSignal(bool)));
 
   // Toggle display of Undo Stack
   displayUndoStackAction = new QAction(tr("Display &Undo Stack"), this);
-  displayUndoStackAction->setShortcut(tr("Ctrl+U"));
+  displayUndoStackAction->setShortcut(Qt::ALT + Qt::Key_U);
   displayUndoStackAction->setCheckable(true);
   displayUndoStackAction->setChecked(_displayUndoStack);
+  addAction(displayUndoStackAction);
   // Manage show/hide of Undo Stack
   connect(displayUndoStackAction, SIGNAL(toggled(bool)), this, SLOT(displayUndoStack(bool)));
 
   // Toggle display of Console output
   displayConsoleAction = new QAction(tr("Disp&lay Console"), this);
-  displayConsoleAction->setShortcut(tr("Alt+L"));
+  displayConsoleAction->setShortcut(Qt::ALT + Qt::Key_L);
   displayConsoleAction->setCheckable(true);
   displayConsoleAction->setChecked(false);
+  addAction(displayConsoleAction);
   connect(displayConsoleAction, SIGNAL(toggled(bool)), consoleWindow, SLOT(setVisible(bool)));
   // uncheck action when window is closed
   connect(consoleWindow, SIGNAL(windowClosed()), displayConsoleAction, SLOT(toggle()));
 
   // Toggle display of zoom tool buttons
   displayZoomToolAction = new QAction(tr("Display &Zoom Toolbar"), this);
-  displayZoomToolAction->setShortcut(tr("Alt+Z"));
+  displayZoomToolAction->setShortcut(Qt::ALT + Qt::Key_Z);
   displayZoomToolAction->setCheckable(true);
   displayZoomToolAction->setChecked(true);
+  addAction(displayZoomToolAction);
   connect(displayZoomToolAction, SIGNAL(toggled(bool)), sourceCanvas, SLOT(showZoomToolBar(bool)));
   connect(displayZoomToolAction, SIGNAL(toggled(bool)), destinationCanvas, SLOT(showZoomToolBar(bool)));
 }
