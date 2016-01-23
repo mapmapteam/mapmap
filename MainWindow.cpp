@@ -28,10 +28,7 @@
 MainWindow::MainWindow()
 {
   // Create model.
-  if (Media::hasVideoSupport())
-    QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: yes";
-  else
-    QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: no";
+  QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: " << (Media::hasVideoSupport() ? "yes" : "no") << endl;
 
   mappingManager = new MappingManager;
 
