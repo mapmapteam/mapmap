@@ -275,7 +275,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
   // Popup dialog allowing the user to save before closing.
   if (okToContinue())
   {
+    // Save settings
     writeSettings();
+    // Close all top level widgets
+    foreach (QWidget *widget, QApplication::topLevelWidgets()) {
+      if (widget != this) { // Avoid recursion
+        widget->close();
+      }
+    }
     event->accept();
   }
   else
