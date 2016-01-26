@@ -3,7 +3,22 @@ Release notes for MapMap
 
 2015-??-?? - MapMap 0.3.2
 -------------------------
-* (none)
+* Added zoom toolbar
+* Added console window
+* Fix #179: Paints and mappings renamings are now saved in file
+* Fix #162: Zooming in the destination canvas changes the size of controls in output window.
+* Fix #154: Problem with some video files: shape is size of single point
+* Can rename paints and mappings via OSC
+* Can rename paints and mappings with double click
+* Fix #156 White rectangle around the fullscreen window
+* Fix #152: The software frozen when we load a project and the video files are not found
+* Abled to locate the video files if is not found when load a project
+* Fix #149: Deleting a mapping actually deletes a paint when the paint tab is chosen
+* Improved Test signal
+* Enhancement #117: Ellipse conical projection
+* Performance improvements
+* OSC general bug fixes
+* OSC support on OSX
 
 2015-10-30 - MapMap 0.3.1
 -------------------------
