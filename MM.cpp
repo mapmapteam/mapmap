@@ -21,7 +21,7 @@
 
 const QString MM::APPLICATION_NAME = "MapMap";
 const QString MM::VERSION = "0.3.2";
-const QString MM::COPYRIGHT_OWNERS = "Sofian Audry, Alexandre Quessy, Mike Latona, Vasilis Liaskovitis, Dame Diongue";
+const QString MM::COPYRIGHT_OWNERS = "Sofian Audry, Alexandre Quessy, Dame Diongue, Mike Latona, Vasilis Liaskovitis";
 const QString MM::ORGANIZATION_NAME = "MapMap";
 const QString MM::ORGANIZATION_DOMAIN = "mapmap.info";
 const QString MM::FILE_EXTENSION = "mmp";
