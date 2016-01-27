@@ -32,9 +32,11 @@ ConsoleWindow::ConsoleWindow(QWidget *parent) : QMainWindow(parent)
   // Make read-only but allow copy of text
   _console->setReadOnly(true);
   // Create and customize font
+#if QT_VERSION >= 0x050400
   QFont font(QFont(":/base-font", 10, QFont::Medium));
   font.setStyleHint(QFont::Monospace, QFont::PreferAntialias);
   _console->setFont(font);
+#endif
   // Set color scheme
   QPalette scheme = palette();
   scheme.setColor(QPalette::Base, Qt::black);
@@ -91,9 +93,11 @@ void ConsoleWindow::messageLog(QtMsgType type, const QMessageLogContext &context
   case QtDebugMsg:
     output = time + " | Debug: " + QString(message.constData()) + " - " + contexts;
     break;
+#if QT_VERSION >= 0x050400
   case QtInfoMsg:
     output = time + " | Info: " + QString(message.constData()) + " - " + contexts;
     break;
+#endif
   case QtWarningMsg:
     output = time + " | Warning: " + QString(message.constData()) + " - " + contexts;
     break;
