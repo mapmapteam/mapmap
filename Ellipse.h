@@ -28,7 +28,7 @@ class Ellipse : public MShape
 {
   Q_OBJECT
 public:
-  Ellipse() {}
+  Q_INVOKABLE Ellipse() {}
   Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4, QPointF p5)
   {
     _addVertex(p1);
