@@ -89,21 +89,23 @@ void ProjectReader::parseProject(const QDomElement& project)
     paintNode = paintNode.nextSibling();
   }
 
-//  // Parse mappings.
-//  QDomNode mappingNode = mappings.firstChild();
-//  while (!mappingNode.isNull())
-//  {
-//    Mapping::ptr mapping = parseMapping(mappingNode.toElement());
-//    if (mapping.isNull())
-//    {
-//      qDebug() << "Problem creating mapping." << endl;
-//    }
-//    else
-//    {
-//    }
-//
-//    mappingNode = mappingNode.nextSibling();
-//  }
+  // Parse mappings.
+  QDomNode mappingNode = mappings.firstChild();
+  while (!mappingNode.isNull())
+  {
+    Mapping::ptr mapping = parseMapping(mappingNode.toElement());
+    if (mapping.isNull())
+    {
+      qDebug() << "Problem creating mapping." << endl;
+    }
+    else
+    {
+      manager.addMapping(mapping);
+      _window->addMappingItem(mapping->getId());
+    }
+
+    mappingNode = mappingNode.nextSibling();
+  }
 }
 
 Paint::ptr ProjectReader::parsePaint(const QDomElement& paintElem)
@@ -137,6 +139,40 @@ Paint::ptr ProjectReader::parsePaint(const QDomElement& paintElem)
     return Paint::ptr();
   }
 }
+
+Mapping::ptr ProjectReader::parseMapping(const QDomElement& mappingElem)
+{
+  // Get attributes.
+  QString className = mappingElem.attribute(ProjectAttributes::CLASS_NAME);
+  int id            = mappingElem.attribute(ProjectAttributes::ID, QString::number(NULL_UID)).toInt();
+
+  qDebug() << "Found mapping with classname: " << className << endl;
+
+  const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
+  if (metaObject)
+  {
+    // Create new instance.
+    Mapping::ptr mapping (qobject_cast<Mapping*>(metaObject->newInstance( Q_ARG(int, id)) ));
+    if (mapping.isNull())
+    {
+      qDebug() << QObject::tr("Problem at creation of mapping.") << endl;
+//      _xml.raiseError(QObject::tr("Problem at creation of paint."));
+    }
+    else
+      qDebug() << "Created new instance with id: " << mapping->getId();
+
+    mapping->read(mappingElem);
+
+    return mapping;
+  }
+
+  else
+  {
+    _xml.raiseError(QObject::tr("Unable to create paint of type '%1'.").arg(className));
+    return Mapping::ptr();
+  }
+}
+
 //
 //Mapping::ptr ProjectReader::parseMapping(const QDomElement& mappingElem)
 //{

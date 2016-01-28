@@ -42,6 +42,21 @@ void MShape::read(const QDomElement& obj)
 {
   // Read basic data.
   Serializable::read(obj);
+
+  // Read vertices.
+  QDomElement verticesObj = obj.firstChildElement("vertices");
+  QDomNode vertexNode = verticesObj.firstChild();
+  QVector<QPointF> vertices;
+  while (!vertexNode.isNull())
+  {
+    const QDomElement& vertexElem = vertexNode.toElement();
+    qreal x = vertexElem.attribute("x").toDouble();
+    qreal y = vertexElem.attribute("y").toDouble();
+    vertices.append(QPointF(x, y));
+
+    vertexNode = vertexNode.nextSibling();
+  }
+  setVertices(vertices);
 }
 
 void MShape::write(QDomElement& obj)

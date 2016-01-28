@@ -20,11 +20,14 @@
 #include "ProjectWriter.h"
 #include <sstream>
 
-const char* ProjectAttributes::CLASS_NAME = "className";
-const char* ProjectAttributes::PAINTS     = "paints";
-const char* ProjectAttributes::MAPPINGS   = "mappings";
-const char* ProjectAttributes::ID         = "id";
-const char* ProjectAttributes::NAME       = "name";
+const char* ProjectAttributes::CLASS_NAME  = "className";
+const char* ProjectAttributes::PAINTS      = "paints";
+const char* ProjectAttributes::MAPPINGS    = "mappings";
+const char* ProjectAttributes::ID          = "id";
+const char* ProjectAttributes::PAINT_ID    = "paintId";
+const char* ProjectAttributes::NAME        = "name";
+const char* ProjectAttributes::SOURCE      = "id";
+const char* ProjectAttributes::DESTINATION = "name";
 
 ProjectWriter::ProjectWriter(MainWindow *window) :
     _window(window)

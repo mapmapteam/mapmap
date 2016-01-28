@@ -39,7 +39,7 @@ private:
     void readProject();
     void parseProject(const QDomElement& project);
     Paint::ptr   parsePaint(const QDomElement& paint);
-//    Mapping::ptr parseMapping(const QDomElement& mapping);
+    Mapping::ptr parseMapping(const QDomElement& mapping);
 //
 //    void _parseStandardShape(const QString& type, const QDomElement& shape, QVector<QPointF>& points, int nVertices=-1);
 //    void _parseQuad(const QDomElement& quad, QVector<QPointF>& points);

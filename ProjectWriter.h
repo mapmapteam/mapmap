@@ -38,6 +38,9 @@ public:
   static const char* ID;
   static const char* NAME;
   static const char* PAINT_ID;
+
+  static const char* DESTINATION;
+  static const char* SOURCE;
 };
 
 class ProjectWriter
