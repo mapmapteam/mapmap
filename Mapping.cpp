@@ -23,9 +23,18 @@
 
 UidAllocator Mapping::allocator;
 
+Mapping::Mapping(uid id)
+: Mapping(Paint::ptr(), MShape::ptr(), MShape::ptr(), id) {}
+
+Mapping::Mapping(Paint::ptr paint, uid id)
+: Mapping(paint, MShape::ptr(), MShape::ptr(), id) {}
+
 Mapping::Mapping(Paint::ptr paint, MShape::ptr shape, uid id)
+: Mapping(paint, shape, MShape::ptr(), id) {}
+
+Mapping::Mapping(Paint::ptr paint, MShape::ptr shape, MShape::ptr inputShape, uid id)
   : Element(id, &allocator),
-    _paint(paint), _shape(shape),
+    _paint(paint), _shape(shape), _inputShape(inputShape),
     _isSolo(false), _isVisible(true)
 {
   // Default.

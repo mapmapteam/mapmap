@@ -1,4 +1,4 @@
-CONFIG  += qt debug
+CONFIG  += qt debug c++11
 TEMPLATE = app
 VERSION = 0.3.2
 TARGET = mapmap

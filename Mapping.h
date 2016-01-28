@@ -68,6 +68,9 @@ protected:
   /// The output Shape instance.
   MShape::ptr _shape;
 
+  /// The (optional) input Shape instance.
+  MShape::ptr _inputShape;
+
 private:
   static UidAllocator allocator;
 
@@ -76,8 +79,10 @@ private:
   int _depth; // depth of the layer
 
 protected:
-  /// Constructor.
+  Mapping(int id=NULL_UID);
+  Mapping(Paint::ptr paint, uid id=NULL_UID);
   Mapping(Paint::ptr paint, MShape::ptr shape, uid id=NULL_UID);
+  Mapping(Paint::ptr paint, MShape::ptr shape, MShape::ptr inputShape, uid id=NULL_UID);
 
 public:
   typedef QSharedPointer<Mapping> ptr;
@@ -93,6 +98,8 @@ public:
   virtual void build() {
     _paint->build();
     _shape->build();
+    if (hasInputShape())
+      _inputShape->build();
   }
 
   /// The type of the mapping (expressed as a string).
@@ -105,10 +112,10 @@ public:
   MShape::ptr getShape() const { return _shape; }
 
   /// Returns true iff the mapping possesses an input (source) shape.
-  virtual bool hasInputShape() const { return false; }
+  virtual bool hasInputShape() const { return !_inputShape.isNull(); }
 
   /// Returns the input (source) shape (if this mapping has one) or a null pointer if not.
-  virtual MShape::ptr getInputShape() const { return MShape::ptr(); }
+  virtual MShape::ptr getInputShape() const { return _inputShape; }
 
   void setSolo(bool solo)        { _isSolo = solo; }
   void setVisible(bool visible)  { _isVisible = visible; }
@@ -123,8 +130,9 @@ public:
 
   float getComputedOpacity() const { return getOpacity() * _paint->getOpacity(); }
 
-  void setPaint(Paint::ptr p) { _paint = p; }
-  void setShape(MShape::ptr s) { _shape = s; }
+  virtual void setPaint(Paint::ptr p) { _paint = p; }
+  virtual void setShape(MShape::ptr s) { _shape = s; }
+  virtual void setInputShape(MShape::ptr s) { _inputShape = s; }
 
   virtual void read(const QDomElement& obj);
   virtual void write(QDomElement& obj);
@@ -144,7 +152,10 @@ class ColorMapping : public Mapping
 {
   Q_OBJECT
 public:
-  Q_INVOKABLE ColorMapping(Paint::ptr paint, MShape::ptr shape,
+  Q_INVOKABLE ColorMapping(int id=NULL_UID)
+    : Mapping(id) {}
+
+  ColorMapping(Paint::ptr paint, MShape::ptr shape,
                uid id=NULL_UID)
     : Mapping(paint, shape, id) {}
 
@@ -160,41 +171,22 @@ public:
 class TextureMapping : public Mapping
 {
   Q_OBJECT
-private:
-  MShape::ptr _inputShape;
-
 public:
-  Q_INVOKABLE TextureMapping(
-                 Paint::ptr paint,
-                 MShape::ptr shape, uid id=NULL_UID)
-    : Mapping(paint, shape, id),
-      _inputShape()
-  {
+  Q_INVOKABLE TextureMapping(int id=NULL_UID)
+    : Mapping(id) {}
 
-  }
   TextureMapping(Paint::ptr paint,
                  MShape::ptr shape,
                  MShape::ptr inputShape, uid id=NULL_UID)
-    : Mapping(paint, shape, id),
-      _inputShape(inputShape)
+    : Mapping(paint, shape, inputShape, id)
   {
     // Only supports shape of the same type (for now).
     Q_ASSERT(shape->getType() == inputShape->getType());
   }
 
-  virtual void build() {
-    Mapping::build();
-    _inputShape->build();
-  }
-
   virtual QString getType() const {
     return getShape()->getType() + "_texture";
   }
-
-public:
-  virtual bool hasInputShape() const { return true; }
-  virtual MShape::ptr getInputShape() const { return _inputShape; }
-
 };
 
 #endif /* MAPPING_H_ */
