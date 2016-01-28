@@ -69,8 +69,8 @@ void MShape::write(QDomElement& obj)
   for (int i=0; i<nVertices(); i++)
   {
     QDomElement vertexObj = obj.ownerDocument().createElement("vertex");
-    vertexObj.setAttribute("x", getVertex(i).x());
-    vertexObj.setAttribute("y", getVertex(i).y());
+    vertexObj.setAttribute("x", QString::number(getVertex(i).x()));
+    vertexObj.setAttribute("y", QString::number(getVertex(i).y()));
     verticesObj.appendChild(vertexObj);
   }
 
