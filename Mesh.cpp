@@ -39,14 +39,8 @@ Mesh::Mesh(const QVector<QPointF>& points, int nColumns, int nRows) : Quad()
   init(points, nColumns, nRows);
 }
 
-void Mesh::init(const QVector<QPointF>& points, int nColumns, int nRows)
+void Mesh::build()
 {
-  Q_ASSERT(nColumns >= 2 && nRows >= 2);
-  Q_ASSERT(points.size() == nColumns * nRows);
-
-  _nColumns = nColumns;
-  _nRows    = nRows;
-
   // Resize the vertices2d vector to appropriate dimensions.
   resizeVertices2d(_vertices2d, _nColumns, _nRows);
 
@@ -55,10 +49,21 @@ void Mesh::init(const QVector<QPointF>& points, int nColumns, int nRows)
   for (int y=0; y<_nRows; y++)
     for (int x=0; x<_nColumns; x++)
     {
-      vertices.push_back( points[k] );
       _vertices2d[x][y] = k;
       k++;
     }
+}
+
+void Mesh::init(const QVector<QPointF>& points, int nColumns, int nRows)
+{
+  Q_ASSERT(nColumns >= 2 && nRows >= 2);
+  Q_ASSERT(points.size() == nColumns * nRows);
+
+  _nColumns = nColumns;
+  _nRows    = nRows;
+
+  setVertices(points);
+  build();
 }
 
 QPolygonF Mesh::toPolygon() const

@@ -47,6 +47,8 @@ public:
   // Performs the actual adding of points (used for loading).
   void init(const QVector<QPointF>& points, int nColumns, int nRows);
 
+  virtual void build();
+
   virtual QString getType() const { return "mesh"; }
 
   /// Returns a polygon that is formed by all the contour points of the mesh.

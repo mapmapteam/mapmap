@@ -113,6 +113,7 @@ void Mapping::_readShape(const QDomElement& obj, bool isOutput)
     if (isOutput)
       setShape(shape);
     else
+      setInputShape(shape);
       qDebug() << "Shit!!!!" << endl;
 
   }

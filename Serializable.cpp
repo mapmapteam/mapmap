@@ -22,6 +22,7 @@
 void Serializable::read(const QDomElement& obj)
 {
   QList<QString> attributeNames = _propertiesAttributes();
+  QList<QString> specialNames   = _propertiesSpecial();
 
   // Fill up properties.
   int count = metaObject()->propertyCount();
@@ -29,11 +30,16 @@ void Serializable::read(const QDomElement& obj)
     // Get property/tag.
     QMetaProperty property = metaObject()->property(i);
 
+    // Name of property.
+    const char* propertyName =  property.name();
+
+    // Don't try to write special properties (leave it to children).
+    if (specialNames.contains(propertyName))
+      continue;
+
     // If property is writable, try to find it and rewrite it.
     if (property.isWritable())
     {
-      // Name of property.
-      const char* propertyName =  property.name();
 
       // Always ignore objectName default property.
       if (QString(propertyName) == QString("objectName"))
@@ -64,6 +70,7 @@ void Serializable::read(const QDomElement& obj)
 void Serializable::write(QDomElement& obj)
 {
   QList<QString> attributeNames = _propertiesAttributes();
+  QList<QString> specialNames   = _propertiesSpecial();
 
   // Write up classname.
   obj.setAttribute("className", metaObject()->className());
@@ -74,6 +81,13 @@ void Serializable::write(QDomElement& obj)
     // Get property/tag.
     QMetaProperty property = metaObject()->property(i);
 
+    // Name of property.
+    const char* propertyName =  property.name();
+
+    // Don't try to write special properties (leave it to children).
+    if (specialNames.contains(propertyName))
+      continue;
+
     // Don't save unstored properties.
     if (!property.isStored(this))
       continue;
@@ -81,8 +95,6 @@ void Serializable::write(QDomElement& obj)
     // If property is writable, try to find it and rewrite it.
     if (property.isWritable() && property.isReadable())
     {
-      // Name of property.
-      const char* propertyName =  property.name();
       qDebug() << "Read " << propertyName << " : " << property.read(this) << endl;
       QString propertyValue = property.read(this).toString();
 

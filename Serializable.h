@@ -40,6 +40,9 @@ public:
 protected:
   // Lists QProperties that should be represented as XML attributes, not as childen nodes.
   virtual QList<QString> _propertiesAttributes() const { return QList<QString>(); }
+
+  // Lists QProperties that should NOT be parsed automatically.
+  virtual QList<QString> _propertiesSpecial() const { return QList<QString>(); }
 };
 
 #endif /* SERIALIZABLE_H_ */

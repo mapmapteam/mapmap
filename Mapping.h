@@ -159,6 +159,9 @@ public:
                uid id=NULL_UID)
     : Mapping(paint, shape, id) {}
 
+  /// Returns true iff the mapping possesses an input (source) shape.
+  virtual bool hasInputShape() const { return false; }
+
   virtual QString getType() const {
     return getShape()->getType() + "_color";
   }
@@ -183,6 +186,9 @@ public:
     // Only supports shape of the same type (for now).
     Q_ASSERT(shape->getType() == inputShape->getType());
   }
+
+  /// Returns true iff the mapping possesses an input (source) shape.
+  virtual bool hasInputShape() const { return true; }
 
   virtual QString getType() const {
     return getShape()->getType() + "_texture";

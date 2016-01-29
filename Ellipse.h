@@ -36,7 +36,7 @@ public:
     _addVertex(p3);
     _addVertex(p4);
     _addVertex(p5);
-    sanitize();
+    build();
   }
 
   Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4, bool hasCenterControl=true)
@@ -47,7 +47,7 @@ public:
     _addVertex(p4);
     if (hasCenterControl)
       _addVertex(getCenter());
-    sanitize();
+    build();
   }
 
   virtual ~Ellipse() {}
@@ -55,6 +55,10 @@ public:
   /// Remaps points so as to make sure this is a correct ellipse, keeping vertices 0 and 2 as
   /// reference for the horizzontal axis.
   void sanitize();
+
+  virtual void build() {
+    sanitize();
+  }
 
   virtual QString getType() const { return "ellipse"; }
 

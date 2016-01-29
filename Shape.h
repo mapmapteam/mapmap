@@ -53,11 +53,13 @@ public:
   typedef QSharedPointer<MShape> ptr;
 
   MShape() {}
-  MShape(QVector<QPointF> vertices_) :
-    vertices(vertices_)
-  {}
+  MShape(const QVector<QPointF>& vertices_);
   virtual ~MShape() {}
 
+  /**
+   * This method should be called after vertices and other properties have been set
+   * to compute any other information needed by the object and possibly do some sanitizing.
+   */
   virtual void build() {}
 
   int nVertices() const { return vertices.size(); }
@@ -96,10 +98,12 @@ public:
 
   virtual MShape* clone() const;
 
-  QVector<QPointF> getVertices() const { return vertices; }
-  virtual void setVertices(QVector<QPointF> vertices_)
+  const QVector<QPointF>& getVertices() const { return vertices; }
+  virtual void setVertices(const QVector<QPointF>& vertices_)
   {
-    vertices = vertices_;
+    // Deep copy.
+    vertices.resize(vertices_.size());
+    qCopy(vertices_.begin(), vertices_.end(), vertices.begin());
   }
 
   virtual void read(const QDomElement& obj);
@@ -120,6 +124,9 @@ protected:
 
   /// Returns a new MShape (using default constructor).
   virtual MShape* _create() const = 0;
+
+  // Lists QProperties that should NOT be parsed automatically.
+  virtual QList<QString> _propertiesSpecial() const { return Serializable::_propertiesSpecial() << "vertices"; }
 };
 
 

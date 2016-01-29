@@ -36,6 +36,7 @@ public:
     _addVertex(p1);
     _addVertex(p2);
     _addVertex(p3);
+    build();
   }
   virtual ~Triangle() {}
   virtual QString getType() const { return "triangle"; }

@@ -19,10 +19,15 @@
 
 #include "Shape.h"
 
+MShape::MShape(const QVector<QPointF>& vertices_) {
+  setVertices(vertices_);
+  build();
+}
+
 void MShape::copyFrom(const MShape& shape)
 {
   // Just copy vertices.
-  vertices = shape.vertices;
+  setVertices(shape.getVertices());
 }
 
 MShape* MShape::clone() const {
@@ -56,7 +61,12 @@ void MShape::read(const QDomElement& obj)
 
     vertexNode = vertexNode.nextSibling();
   }
+
+  // Set the vertices.
   setVertices(vertices);
+
+  // Rebuild.
+  build();
 }
 
 void MShape::write(QDomElement& obj)
