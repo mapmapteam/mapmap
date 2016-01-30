@@ -455,11 +455,11 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
     else if (event->modifiers() & Qt::ControlModifier)  {
       if(event->key() == Qt::Key_0)
         resetZoomLevel();
-      // Case 2: zoom in with CTRL+SHIFT++
-      if (event->modifiers() & Qt::ShiftModifier) {
-        if (event->key() == Qt::Key_Plus)
+      // Case 2: zoom in with CTRL+=
+      else if (event->key() == Qt::Key_Equal ||
+               // Case 3: zoom in with CTRL+SHIFT++
+               (event->modifiers() & Qt::ShiftModifier && event->key() == Qt::Key_Plus))
           increaseZoomLevel();
-      }
     }
     else
       handledKey = false;
