@@ -32,11 +32,11 @@ ConsoleWindow::ConsoleWindow(QWidget *parent) : QMainWindow(parent)
   // Make read-only but allow copy of text
   _console->setReadOnly(true);
   // Create and customize font
-#if QT_VERSION >= 0x050400
-  QFont font(QFont(":/base-font", 10, QFont::Medium));
-  font.setStyleHint(QFont::Monospace, QFont::PreferAntialias);
+  int id = QFontDatabase::addApplicationFont(":/console-font");
+  QString family = QFontDatabase::applicationFontFamilies(id).at(0);
+  QFont font(QFont(family, 10, QFont::Normal));
   _console->setFont(font);
-#endif
+
   // Set color scheme
   QPalette scheme = palette();
   scheme.setColor(QPalette::Base, Qt::black);
@@ -83,33 +83,40 @@ void ConsoleWindow::messageLog(QtMsgType type, const QMessageLogContext &context
   // Message
   QByteArray message = msg.toLocal8Bit();
   // Context
-  QString contexts(QStringLiteral("%1:%2").arg(context.file).arg(context.line));
-  // Date and time
-  QString time(QDateTime::currentDateTime().toString(tr("MMM dd yy HH:mm")));
+  QString contexts(QStringLiteral("%1:%2").arg(context.file).arg(context.line)),
+      // Date and time
+      time(QDateTime::currentDateTime().toString(tr("MMM dd yy HH:mm"))),
+      // Colorized time
+      timeHtml = "<font color=\"#000000\">" + time + "</font>",
+      debug = "<strong style=\"color: #00FF00;\">Debug:</strong>",
+      info = "<strong style=\"color: #1E90FF;\">Info:</strong>",
+      warning = "<strong style=\"color: #FFFF00;\">Warning:</strong>",
+      critical = "<strong style=\"color: #FF0000;\">Critical:</strong>",
+      fatal = "<strong style=\"background: #FF0000;\">Fatal!</strong>";
   // Output
   QString output;
 
   switch (type) {
   case QtDebugMsg:
-    output = time + " | Debug: " + QString(message.constData()) + " - " + contexts;
+    output = time + " | " + debug + " " + QString(message.constData()) + " - <strong>" + contexts + "</strong>";
     break;
 #if QT_VERSION >= 0x050400
   case QtInfoMsg:
-    output = time + " | Info: " + QString(message.constData()) + " - " + contexts;
+    output = time + " | " + info + " " + QString(message.constData()) + " - <strong>" + contexts + "</strong>";
     break;
 #endif
   case QtWarningMsg:
-    output = time + " | Warning: " + QString(message.constData()) + " - " + contexts;
+    output = time + " | " + warning + " " + QString(message.constData()) + " - <strong>" + contexts + "</strong>";
     break;
   case QtCriticalMsg:
-    output = time + " | Critical: " + QString(message.constData()) + " - " + contexts;
+    output = time + " | " + critical + " " + QString(message.constData()) + " - <strong>" + contexts + "</strong>";
     break;
   case QtFatalMsg:
-    output = time + " | Fatal: " + QString(message.constData()) + " - " + contexts;
+    output = time + " | " + fatal + " " + QString(message.constData()) + " - <strong>" + contexts + "</strong>";
     abort();
   }
   // Print in console
-  _console->appendPlainText(output);
+  _console->appendHtml(output);
 }
 
 void ConsoleWindow::closeEvent(QCloseEvent *event)

@@ -29,7 +29,7 @@ MainWindow::MainWindow()
 {
   // Create model.
 #if QT_VERSION >= 0x050400
-  QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: " << (Media::hasVideoSupport() ? "yes" : "no") << endl;
+  QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: " << (Media::hasVideoSupport() ? "yes" : "no");
 #endif
 
   mappingManager = new MappingManager;
