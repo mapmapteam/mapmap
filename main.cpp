@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
   splash.showMessage("  " + QObject::tr("Initiating program..."),
                      Qt::AlignLeft | Qt::AlignTop, MM::WHITE);
 
-  bool FORCE_FRENCH_LANG = false;
+  //bool FORCE_FRENCH_LANG = false;
   // set_language_to_french(app);
 
   // Let splash for at least one second.
@@ -124,10 +124,10 @@ int main(int argc, char *argv[])
 
   // Create window.
   MainWindow* win = MainWindow::instance();
-
-  QFontDatabase db;
-  Q_ASSERT( QFontDatabase::addApplicationFont(":/base-font") != -1);
-  app.setFont(QFont(":/base-font", 10, QFont::Bold));
+  // Add custom font
+  int id = QFontDatabase::addApplicationFont(":/base-font");
+  QString family = QFontDatabase::applicationFontFamilies(id).at(0);
+  app.setFont(QFont(family, 11, QFont::Normal));
 
   // Load stylesheet.
   QFile stylesheet(":/stylesheet");
