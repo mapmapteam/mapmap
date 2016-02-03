@@ -47,6 +47,8 @@ public:
   static const int DEFAULT_WINDOW_HEIGHT = 480;
   static const int TOP_TOOLBAR_ICON_SIZE = 48;
   static const int BOTTOM_TOOLBAR_ICON_SIZE = 32;
+  static const int ZOOM_TOOLBAR_ICON_SIZE = 22;
+  static const int ZOOM_TOOLBAR_BUTTON_SIZE = 32;
 
   // Style.
   static const QColor WHITE;
