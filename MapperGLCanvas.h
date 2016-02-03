@@ -96,8 +96,8 @@ public:
 
   // Apply zoom to view
   void applyZoomToView();
-  // Set the zoom toolbar position
-  void moveZoomToolbar(const QRect &rect);
+  // Refresh the zoom toolbar position
+  void updateZoomToolbar();
 
 protected:
 //  void initializeGL();

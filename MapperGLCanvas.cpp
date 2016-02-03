@@ -189,11 +189,10 @@ void MapperGLCanvas::createZoomToolsLayout()
   _zoomToolBar->setLayout(buttonsLayout);
 }
 
-void MapperGLCanvas::moveZoomToolbar(const QRect &rect)
+void MapperGLCanvas::updateZoomToolbar()
 {
-
-  _zoomToolBar->move(rect.width() - _zoomToolBar->width(),
-                     rect.height() - _zoomToolBar->height());
+  _zoomToolBar->move(this->viewport()->width() - _zoomToolBar->width(),
+                     this->viewport()->height() - _zoomToolBar->height());
 }
 
 

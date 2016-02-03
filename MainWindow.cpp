@@ -2524,8 +2524,8 @@ void MainWindow::updateCanvases()
   outputWindow->getCanvas()->update();
 
   // Update position of zoom toolbar
-  sourceCanvas->moveZoomToolbar(canvasSplitter->widget(0)->rect());
-  destinationCanvas->moveZoomToolbar(canvasSplitter->widget(1)->rect());
+  sourceCanvas->updateZoomToolbar();
+  destinationCanvas->updateZoomToolbar();
 }
 
 
