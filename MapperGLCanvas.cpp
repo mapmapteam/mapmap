@@ -414,27 +414,28 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
     MShape::ptr shape = getCurrentShape();
     QPoint pos = mapFromScene(shape->getVertex(_activeVertex));
     handledKey = true;
+    if (event->modifiers() & Qt::ShiftModifier) {
+      if (event->key() == Qt::Key_Up)
+        pos.ry() -= 50;
+      else if (event->key() == Qt::Key_Down)
+        pos.ry() += 50;
+      else if (event->key() == Qt::Key_Right)
+        pos.rx() += 50;
+      else if (event->key() == Qt::Key_Left)
+        pos.rx() -= 50;
+    }
     switch (event->key()) {
-    // TODO: key tab should switch to next vertex: not working because somehow caught at a higher level
-    // to switch between frames of the layout
-//    case Qt::Key_Tab:
-//      if (shape)
-//        _activeVertex = (_activeVertex + 1) % shape->nVertices();
-//        p = shape->getVertex(_activeVertex); // reset to new vertex
-//        qDebug() << "New active vertex : " << _activeVertex << endl;
-//      break;
-    // Handle pixel-wise adjustments of vertex.
     case Qt::Key_Up:
-      pos.ry() -= 10;
+      pos.ry()--;
       break;
     case Qt::Key_Down:
-      pos.ry() += 10;
+      pos.ry()++;
       break;
     case Qt::Key_Right:
-      pos.rx() += 10;
+      pos.rx()++;
       break;
     case Qt::Key_Left:
-      pos.rx() -= 10;
+      pos.rx()--;
       break;
     default:
         handledKey = false;
@@ -492,91 +493,13 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   {
     QWidget::keyPressEvent(event);
   }
-
-//  std::cout << "Key pressed" << std::endl;
-//  int xMove = 0;
-//  int yMove = 0;
-//  switch (event->key()) {
-//  case Qt::Key_Tab:
-//    if (event->modifiers() & Qt::ControlModifier)
-//      switchImage( (Common::getCurrentSourceId() + 1) % Common::nImages());
-//    else
-//    {
-//      Quad& quad = getQuad();
-//      _active_vertex = (_active_vertex + 1 ) % 4;
-//    }
-//    break;
-//  case Qt::Key_Up:
-//    yMove = -1;
-//    break;
-//  case Qt::Key_Down:
-//    yMove = +1;
-//    break;
-//  case Qt::Key_Left:
-//    xMove = -1;
-//    break;
-//  case Qt::Key_Right:
-//    xMove = +1;
-//    break;
-//  default:
-//    std::cerr << "Unhandled key" << std::endl;
-//    QWidget::keyPressEvent(event);
-//    break;
-//  }
-//
-//  Quad& quad = getQuad();
-//  Point *p = quad.getVertex(_active_vertex);
-//  p->x += xMove;
-//  p->y += yMove;
-//  quad.setVertex(_active_vertex, p);
-//
-//  update();
-//
-//  emit quadChanged();
 }
-//
-//void MapperGLCanvas::paintEvent(QPaintEvent* )
-//{
-//  makeCurrent();
-//
-//  QPainter painter(this);
-//  painter.setRenderHint(QPainter::Antialiasing);
-//
-//  draw(&painter);
-//
-//  painter.end();
-//}
 
 void MapperGLCanvas::updateCanvas()
 {
   update();
   scene()->update();
 }
-
-///* Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
-// * close enough. The distance per coordinate is currently set in dist_stick
-// * variable. Perhaps the sticky-sensitivity should be configurable through GUI */
-//void MapperGLCanvas::glueVertex(MShape *orig, QPointF *p)
-//{
-//  MappingManager manager = getMainWindow()->getMappingManager();
-//  for (int i = 0; i < manager.nMappings(); i++)
-//  {
-//    MShape *shape = getShapeFromMappingId(manager.getMapping(i)->getId());
-//    if (shape && shape != orig)
-//    {
-//      for (int vertex = 0; vertex < shape->nVertices(); vertex++)
-//      {
-//        const QPointF& v = shape->getVertex(vertex);
-//        if (distIsInside(v, *p, MM::VERTEX_STICK_RADIUS))
-//        {
-//          p->setX(v.x());
-//          p->setY(v.y());
-//        }
-//      }
-//    }
-//  }
-//}
-
 
 void MapperGLCanvas::deselectVertices()
 {
