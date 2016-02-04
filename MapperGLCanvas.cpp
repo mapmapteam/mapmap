@@ -425,16 +425,16 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 //      break;
     // Handle pixel-wise adjustments of vertex.
     case Qt::Key_Up:
-      pos.ry()--;
+      pos.ry() -= 10;
       break;
     case Qt::Key_Down:
-      pos.ry()++;
+      pos.ry() += 10;
       break;
     case Qt::Key_Right:
-      pos.rx()++;
+      pos.rx() += 10;
       break;
     case Qt::Key_Left:
-      pos.rx()--;
+      pos.rx() -= 10;
       break;
     default:
         handledKey = false;
@@ -448,6 +448,10 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
     // Enable to Undo and Redo when arrow keys move the position of vertices
     undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::STEP, _activeVertex, scenePos));
   } else {
+    // Take scroll bar current coordinate
+    int posX = this->horizontalScrollBar()->value();
+    int posY = this->verticalScrollBar()->value();
+
     handledKey = true;
     if (event->matches(QKeySequence::Undo))
       undoStack->undo();
@@ -467,8 +471,20 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
                (event->modifiers() & Qt::ShiftModifier && event->key() == Qt::Key_Plus))
           increaseZoomLevel();
     }
+    else if(event->key() == Qt::Key_Up)
+      posY -= 50;
+    else if(event->key() == Qt::Key_Down)
+      posY += 50;
+    else if(event->key() == Qt::Key_Right)
+      posX += 50;
+    else if(event->key() == Qt::Key_Left)
+      posX -= 50;
     else
       handledKey = false;
+
+    // Set scroll bar new value
+    this->verticalScrollBar()->setValue(posY);
+    this->horizontalScrollBar()->setValue(posX);
   }
 
   // Defer unhandled keys to parent.
