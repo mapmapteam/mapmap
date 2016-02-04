@@ -1803,9 +1803,6 @@ void MainWindow::createToolBars()
   mainToolBar->setMovable(false);
   mainToolBar->addAction(importMediaAction);
   mainToolBar->addAction(addColorAction);
-  mainToolBar->addAction(newAction);
-  mainToolBar->addAction(openAction);
-  mainToolBar->addAction(saveAction);
 
   mainToolBar->addSeparator();
 
@@ -1816,9 +1813,6 @@ void MainWindow::createToolBars()
   mainToolBar->addSeparator();
 
   mainToolBar->addAction(displayOutputWindowAction);
-  mainToolBar->addAction(outputWindowFullScreenAction);
-  mainToolBar->addAction(displayControlsAction);
-  mainToolBar->addAction(stickyVerticesAction);
   mainToolBar->addAction(displayTestSignalAction);
 
   runToolBar = addToolBar(tr("&Run"));
