@@ -476,22 +476,7 @@ bool MainWindow::saveAs()
   return saveFile(fileName);
 }
 
-void MainWindow::importVideo()
-{
-  // Stop video playback to avoid lags. XXX Hack
-  videoTimer->stop();
-
-  // Pop-up file-choosing dialog to choose media file.
-  // TODO: restrict the type of files that can be imported
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Import media source file"), settings.value("defaultVideoDir").toString(), tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER));
-  // Restart video playback. XXX Hack
-  videoTimer->start();
-
-  if (!fileName.isEmpty())
-    importMediaFile(fileName, false);
-}
-
-void MainWindow::importImage()
+void MainWindow::importMedia()
 {
   // Stop video playback to avoid lags. XXX Hack
   videoTimer->stop();
@@ -499,13 +484,22 @@ void MainWindow::importImage()
   // Pop-up file-choosing dialog to choose media file.
   // TODO: restrict the type of files that can be imported
   QString fileName = QFileDialog::getOpenFileName(this,
-      tr("Import media source file"), settings.value("defaultImageDir").toString(), tr("Image files (%1);;All files (*)").arg(MM::IMAGE_FILES_FILTER));
-
+                                                  tr("Import media source file"),
+                                                  settings.value("defaultVideoDir").toString(),
+                                                  tr("Media files (%1 %2);;All files (*)")
+                                                  .arg(MM::VIDEO_FILES_FILTER)
+                                                  .arg(MM::IMAGE_FILES_FILTER));
   // Restart video playback. XXX Hack
   videoTimer->start();
 
-  if (!fileName.isEmpty())
-    importMediaFile(fileName, true);
+  // Check if file is image or not
+  // according to file extension
+  if (!fileName.isEmpty()) {
+    if (MM::IMAGE_FILES_FILTER.contains(QFileInfo(fileName).suffix(), Qt::CaseInsensitive))
+      importMediaFile(fileName, true);
+    else
+      importMediaFile(fileName, false);
+  }
 }
 
 void MainWindow::addColor()
@@ -1361,7 +1355,7 @@ void MainWindow::createActions()
   newAction = new QAction(tr("&New"), this);
   newAction->setIcon(QIcon(":/new"));
   newAction->setShortcut(QKeySequence::New);
-  newAction->setStatusTip(tr("Create a new project"));
+  newAction->setToolTip(tr("Create a new project"));
   newAction->setIconVisibleInMenu(false);
   addAction(newAction);
   connect(newAction, SIGNAL(triggered()), this, SLOT(newFile()));
@@ -1370,7 +1364,7 @@ void MainWindow::createActions()
   openAction = new QAction(tr("&Open..."), this);
   openAction->setIcon(QIcon(":/open"));
   openAction->setShortcut(QKeySequence::Open);
-  openAction->setStatusTip(tr("Open an existing project"));
+  openAction->setToolTip(tr("Open an existing project"));
   openAction->setIconVisibleInMenu(false);
   addAction(openAction);
   connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
@@ -1379,7 +1373,7 @@ void MainWindow::createActions()
   saveAction = new QAction(tr("&Save"), this);
   saveAction->setIcon(QIcon(":/save"));
   saveAction->setShortcut(QKeySequence::Save);
-  saveAction->setStatusTip(tr("Save the project"));
+  saveAction->setToolTip(tr("Save the project"));
   saveAction->setIconVisibleInMenu(false);
   addAction(saveAction);
   connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
@@ -1388,7 +1382,7 @@ void MainWindow::createActions()
   saveAsAction = new QAction(tr("Save &As..."), this);
   saveAsAction->setIcon(QIcon(":/save-as"));
   saveAsAction->setShortcut(QKeySequence::SaveAs);
-  saveAsAction->setStatusTip(tr("Save the project as..."));
+  saveAsAction->setToolTip(tr("Save the project as..."));
   saveAsAction->setIconVisibleInMenu(false);
   addAction(saveAsAction);
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
@@ -1420,29 +1414,20 @@ void MainWindow::createActions()
   emptyRecentVideos->setEnabled(false);
 
 
-  // Import video.
-  importVideoAction = new QAction(tr("&Import Video File..."), this);
-  importVideoAction->setShortcut(tr("Ctrl+I"));
-  importVideoAction->setIcon(QIcon(":/add-video"));
-  importVideoAction->setStatusTip(tr("Import a video source file..."));
-  importVideoAction->setIconVisibleInMenu(false);
-  addAction(importVideoAction);
-  connect(importVideoAction, SIGNAL(triggered()), this, SLOT(importVideo()));
-
-  // Import imiage.
-  importImageAction = new QAction(tr("&Import Image File..."), this);
-  importImageAction->setShortcut(tr("Ctrl+Shift+I"));
-  importImageAction->setIcon(QIcon(":/add-image"));
-  importImageAction->setStatusTip(tr("Import a image source file..."));
-  importImageAction->setIconVisibleInMenu(false);
-  addAction(importImageAction);
-  connect(importImageAction, SIGNAL(triggered()), this, SLOT(importImage()));
+  // Import Media.
+  importMediaAction = new QAction(tr("&Import Media File..."), this);
+  importMediaAction->setShortcut(tr("Ctrl+I"));
+  importMediaAction->setIcon(QIcon(":/add-video"));
+  importMediaAction->setToolTip(tr("Import a video or image file..."));
+  importMediaAction->setIconVisibleInMenu(false);
+  addAction(importMediaAction);
+  connect(importMediaAction, SIGNAL(triggered()), this, SLOT(importMedia()));
 
   // Add color.
   addColorAction = new QAction(tr("Add &Color Paint..."), this);
   addColorAction->setShortcut(tr("Ctrl+Shift+A"));
   addColorAction->setIcon(QIcon(":/add-color"));
-  addColorAction->setStatusTip(tr("Add a color paint..."));
+  addColorAction->setToolTip(tr("Add a color paint..."));
   addColorAction->setIconVisibleInMenu(false);
   addAction(addColorAction);
   connect(addColorAction, SIGNAL(triggered()), this, SLOT(addColor()));
@@ -1450,7 +1435,7 @@ void MainWindow::createActions()
   // Exit/quit.
   exitAction = new QAction(tr("E&xit"), this);
   exitAction->setShortcut(QKeySequence::Quit);
-  exitAction->setStatusTip(tr("Exit the application"));
+  exitAction->setToolTip(tr("Exit the application"));
   exitAction->setIconVisibleInMenu(false);
   addAction(exitAction);
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
@@ -1471,7 +1456,7 @@ void MainWindow::createActions()
 
   // About.
   aboutAction = new QAction(tr("&About"), this);
-  aboutAction->setStatusTip(tr("Show the application's About box"));
+  aboutAction->setToolTip(tr("Show the application's About box"));
   aboutAction->setIconVisibleInMenu(false);
   addAction(aboutAction);
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
@@ -1479,7 +1464,7 @@ void MainWindow::createActions()
   // Duplicate.
   cloneMappingAction = new QAction(tr("Duplicate"), this);
   cloneMappingAction->setShortcut(Qt::CTRL + Qt::Key_D);
-  cloneMappingAction->setStatusTip(tr("Duplicate item"));
+  cloneMappingAction->setToolTip(tr("Duplicate item"));
   cloneMappingAction->setIconVisibleInMenu(false);
   addAction(cloneMappingAction);
   connect(cloneMappingAction, SIGNAL(triggered()), this, SLOT(duplicateMappingItem()));
@@ -1487,7 +1472,7 @@ void MainWindow::createActions()
   // Delete mapping.
   deleteMappingAction = new QAction(tr("Delete mapping"), this);
   deleteMappingAction->setShortcut(QKeySequence::Delete);
-  deleteMappingAction->setStatusTip(tr("Delete item"));
+  deleteMappingAction->setToolTip(tr("Delete item"));
   deleteMappingAction->setIconVisibleInMenu(false);
   addAction(deleteMappingAction);
   connect(deleteMappingAction, SIGNAL(triggered()), this, SLOT(deleteMappingItem()));
@@ -1495,7 +1480,7 @@ void MainWindow::createActions()
   // Rename mapping.
   renameMappingAction = new QAction(tr("Rename"), this);
   renameMappingAction->setShortcut(Qt::Key_F2);
-  renameMappingAction->setStatusTip(tr("Rename item"));
+  renameMappingAction->setToolTip(tr("Rename item"));
   renameMappingAction->setIconVisibleInMenu(false);
   addAction(renameMappingAction);
   connect(renameMappingAction, SIGNAL(triggered()), this, SLOT(renameMappingItem()));
@@ -1503,14 +1488,14 @@ void MainWindow::createActions()
   // Delete paint.
   deletePaintAction = new QAction(tr("Delete paint"), this);
   //deletePaintAction->setShortcut(tr("CTRL+DEL"));
-  deletePaintAction->setStatusTip(tr("Delete item"));
+  deletePaintAction->setToolTip(tr("Delete item"));
   deletePaintAction->setIconVisibleInMenu(false);
   connect(deletePaintAction, SIGNAL(triggered()), this, SLOT(deletePaintItem()));
 
   // Rename paint.
   renamePaintAction = new QAction(tr("Rename"), this);
   //renamePaintAction->setShortcut(Qt::Key_F2);
-  renamePaintAction->setStatusTip(tr("Rename item"));
+  renamePaintAction->setToolTip(tr("Rename item"));
   renamePaintAction->setIconVisibleInMenu(false);
   addAction(renamePaintAction);
   connect(renamePaintAction, SIGNAL(triggered()), this, SLOT(renamePaintItem()));
@@ -1519,7 +1504,7 @@ void MainWindow::createActions()
   preferencesAction = new QAction(tr("&Preferences..."), this);
   //preferencesAction->setIcon(QIcon(":/preferences"));
   preferencesAction->setShortcut(Qt::CTRL + Qt::Key_Comma);
-  preferencesAction->setStatusTip(tr("Configure preferences..."));
+  preferencesAction->setToolTip(tr("Configure preferences..."));
   //preferencesAction->setIconVisibleInMenu(false);
   addAction(preferencesAction);
   connect(preferencesAction, SIGNAL(triggered()), this, SLOT(preferences()));
@@ -1528,7 +1513,7 @@ void MainWindow::createActions()
   addMeshAction = new QAction(tr("Add Quad/&Mesh"), this);
   addMeshAction->setShortcut(tr("CTRL+M"));
   addMeshAction->setIcon(QIcon(":/add-mesh"));
-  addMeshAction->setStatusTip(tr("Add quad/mesh"));
+  addMeshAction->setToolTip(tr("Add quad/mesh"));
   addMeshAction->setIconVisibleInMenu(false);
   addAction(addMeshAction);
   connect(addMeshAction, SIGNAL(triggered()), this, SLOT(addMesh()));
@@ -1538,7 +1523,7 @@ void MainWindow::createActions()
   addTriangleAction = new QAction(tr("Add &Triangle"), this);
   addTriangleAction->setShortcut(tr("CTRL+T"));
   addTriangleAction->setIcon(QIcon(":/add-triangle"));
-  addTriangleAction->setStatusTip(tr("Add triangle"));
+  addTriangleAction->setToolTip(tr("Add triangle"));
   addTriangleAction->setIconVisibleInMenu(false);
   addAction(addTriangleAction);
   connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
@@ -1548,7 +1533,7 @@ void MainWindow::createActions()
   addEllipseAction = new QAction(tr("Add &Ellipse"), this);
   addEllipseAction->setShortcut(tr("CTRL+E"));
   addEllipseAction->setIcon(QIcon(":/add-ellipse"));
-  addEllipseAction->setStatusTip(tr("Add ellipse"));
+  addEllipseAction->setToolTip(tr("Add ellipse"));
   addEllipseAction->setIconVisibleInMenu(false);
   addAction(addEllipseAction);
   connect(addEllipseAction, SIGNAL(triggered()), this, SLOT(addEllipse()));
@@ -1558,7 +1543,7 @@ void MainWindow::createActions()
   playAction = new QAction(tr("Play"), this);
   playAction->setShortcut(Qt::Key_Space);
   playAction->setIcon(QIcon(":/play"));
-  playAction->setStatusTip(tr("Play"));
+  playAction->setToolTip(tr("Play"));
   playAction->setIconVisibleInMenu(false);
   addAction(playAction);
   connect(playAction, SIGNAL(triggered()), this, SLOT(play()));
@@ -1568,7 +1553,7 @@ void MainWindow::createActions()
   pauseAction = new QAction(tr("Pause"), this);
   pauseAction->setShortcut(Qt::Key_Space);
   pauseAction->setIcon(QIcon(":/pause"));
-  pauseAction->setStatusTip(tr("Pause"));
+  pauseAction->setToolTip(tr("Pause"));
   pauseAction->setIconVisibleInMenu(false);
   addAction(pauseAction);
   connect(pauseAction, SIGNAL(triggered()), this, SLOT(pause()));
@@ -1578,7 +1563,7 @@ void MainWindow::createActions()
   rewindAction = new QAction(tr("Rewind"), this);
   rewindAction->setShortcut(tr("CTRL+R"));
   rewindAction->setIcon(QIcon(":/rewind"));
-  rewindAction->setStatusTip(tr("Rewind"));
+  rewindAction->setToolTip(tr("Rewind"));
   rewindAction->setIconVisibleInMenu(false);
   addAction(rewindAction);
   connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
@@ -1587,7 +1572,7 @@ void MainWindow::createActions()
   displayOutputWindowAction = new QAction(tr("&Display Output Window"), this);
   displayOutputWindowAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_W);
   displayOutputWindowAction->setIcon(QIcon(":/output-window"));
-  displayOutputWindowAction->setStatusTip(tr("Display output window"));
+  displayOutputWindowAction->setToolTip(tr("Display output window"));
   displayOutputWindowAction->setIconVisibleInMenu(false);
   displayOutputWindowAction->setCheckable(true);
   displayOutputWindowAction->setChecked(true);
@@ -1601,7 +1586,7 @@ void MainWindow::createActions()
   outputWindowFullScreenAction = new QAction(tr("&Fullscreen"), this);
   outputWindowFullScreenAction->setIcon(QIcon(":/fullscreen"));
   outputWindowFullScreenAction->setShortcut(Qt::CTRL + Qt::Key_F);
-  outputWindowFullScreenAction->setStatusTip(tr("Full screen"));
+  outputWindowFullScreenAction->setToolTip(tr("Full screen"));
   outputWindowFullScreenAction->setIconVisibleInMenu(false);
   outputWindowFullScreenAction->setCheckable(true);
   outputWindowFullScreenAction->setChecked(false);
@@ -1617,7 +1602,7 @@ void MainWindow::createActions()
   displayControlsAction = new QAction(tr("&Display Canvas Controls"), this);
   displayControlsAction->setShortcut(Qt::ALT + Qt::Key_C);
   displayControlsAction->setIcon(QIcon(":/control-points"));
-  displayControlsAction->setStatusTip(tr("Display canvas controls"));
+  displayControlsAction->setToolTip(tr("Display canvas controls"));
   displayControlsAction->setIconVisibleInMenu(false);
   displayControlsAction->setCheckable(true);
   displayControlsAction->setChecked(_displayControls);
@@ -1629,7 +1614,7 @@ void MainWindow::createActions()
   stickyVerticesAction = new QAction(tr("&Sticky Vertices"), this);
   stickyVerticesAction->setShortcut(Qt::ALT + Qt::Key_S);
   stickyVerticesAction->setIcon(QIcon(":/control-points"));
-  stickyVerticesAction->setStatusTip(tr("Enable sticky vertices"));
+  stickyVerticesAction->setToolTip(tr("Enable sticky vertices"));
   stickyVerticesAction->setIconVisibleInMenu(false);
   stickyVerticesAction->setCheckable(true);
   stickyVerticesAction->setChecked(_stickyVertices);
@@ -1640,7 +1625,7 @@ void MainWindow::createActions()
   displayTestSignalAction = new QAction(tr("&Display Test Signal"), this);
   displayTestSignalAction->setShortcut(Qt::ALT + Qt::Key_T);
   displayTestSignalAction->setIcon(QIcon(":/control-points"));
-  displayTestSignalAction->setStatusTip(tr("Display test signal"));
+  displayTestSignalAction->setToolTip(tr("Display test signal"));
   displayTestSignalAction->setIconVisibleInMenu(false);
   displayTestSignalAction->setCheckable(true);
   displayTestSignalAction->setChecked(_displayTestSignal);
@@ -1705,8 +1690,7 @@ void MainWindow::createMenus()
   fileMenu->addAction(saveAction);
   fileMenu->addAction(saveAsAction);
   fileMenu->addSeparator();
-  fileMenu->addAction(importVideoAction);
-  fileMenu->addAction(importImageAction);
+  fileMenu->addAction(importMediaAction);
   fileMenu->addAction(addColorAction);
 
   // Recent file separator
@@ -1817,8 +1801,7 @@ void MainWindow::createToolBars()
   mainToolBar = addToolBar(tr("&File"));
   mainToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
   mainToolBar->setMovable(false);
-  mainToolBar->addAction(importVideoAction);
-  mainToolBar->addAction(importImageAction);
+  mainToolBar->addAction(importMediaAction);
   mainToolBar->addAction(addColorAction);
   mainToolBar->addAction(newAction);
   mainToolBar->addAction(openAction);

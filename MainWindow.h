@@ -83,8 +83,7 @@ private slots:
   void preferences();
   bool save();
   bool saveAs();
-  void importVideo();
-  void importImage();
+  void importMedia();
   void addColor();
   void about();
   void updateStatusBar();
@@ -297,8 +296,7 @@ private:
   QAction *separatorAction;
   QAction *newAction;
   QAction *openAction;
-  QAction *importVideoAction;
-  QAction *importImageAction;
+  QAction *importMediaAction;
   QAction *addColorAction;
   QAction *saveAction;
   QAction *saveAsAction;
