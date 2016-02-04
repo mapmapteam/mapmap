@@ -86,6 +86,9 @@ MainWindow::MainWindow()
 
   // after readSettings():
   _preferences_dialog = new PreferencesDialog(this, this);
+
+  // Refresh all
+  updateCanvases();
 }
 
 MainWindow::~MainWindow()
