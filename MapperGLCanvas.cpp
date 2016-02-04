@@ -416,13 +416,19 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
     handledKey = true;
     if (event->modifiers() & Qt::ShiftModifier) {
       if (event->key() == Qt::Key_Up)
-        pos.ry() -= 50;
+        pos.ry() -= MM::VERTEX_MOVES_STEP;
       else if (event->key() == Qt::Key_Down)
-        pos.ry() += 50;
+        pos.ry() += MM::VERTEX_MOVES_STEP;
       else if (event->key() == Qt::Key_Right)
-        pos.rx() += 50;
+        pos.rx() += MM::VERTEX_MOVES_STEP;
       else if (event->key() == Qt::Key_Left)
-        pos.rx() -= 50;
+        pos.rx() -= MM::VERTEX_MOVES_STEP;
+      // SHIFT+Space to switch between vertex
+      else if (event->key() == Qt::Key_Space) {
+        if (shape)
+          _activeVertex = (_activeVertex + 1) % shape->nVertices();
+        pos = shape->getVertex(_activeVertex).toPoint(); // reset to new vertex
+      }
     }
     switch (event->key()) {
     case Qt::Key_Up:
@@ -450,8 +456,8 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
     undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::STEP, _activeVertex, scenePos));
   } else {
     // Take scroll bar current coordinate
-    int posX = this->horizontalScrollBar()->value();
-    int posY = this->verticalScrollBar()->value();
+    int scrollX = this->horizontalScrollBar()->value();
+    int scrollY = this->verticalScrollBar()->value();
 
     handledKey = true;
     if (event->matches(QKeySequence::Undo))
@@ -463,7 +469,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
       increaseZoomLevel();
     else if (event->matches(QKeySequence::ZoomOut))
       decreaseZoomLevel();
-    else if (event->modifiers() & Qt::ControlModifier)  {
+    else if (event->modifiers() & Qt::ControlModifier) {
       if(event->key() == Qt::Key_0)
         resetZoomLevel();
       // Case 2: zoom in with CTRL+=
@@ -473,19 +479,19 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
           increaseZoomLevel();
     }
     else if(event->key() == Qt::Key_Up)
-      posY -= 50;
+      scrollY -= 50;
     else if(event->key() == Qt::Key_Down)
-      posY += 50;
+      scrollY += 50;
     else if(event->key() == Qt::Key_Right)
-      posX += 50;
+      scrollX += 50;
     else if(event->key() == Qt::Key_Left)
-      posX -= 50;
+      scrollX -= 50;
     else
       handledKey = false;
 
     // Set scroll bar new value
-    this->verticalScrollBar()->setValue(posY);
-    this->horizontalScrollBar()->setValue(posX);
+    this->verticalScrollBar()->setValue(scrollY);
+    this->horizontalScrollBar()->setValue(scrollX);
   }
 
   // Defer unhandled keys to parent.
