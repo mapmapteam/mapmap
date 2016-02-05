@@ -278,7 +278,8 @@ private:
   QMenu *fileMenu;
   QMenu *editMenu;
   QMenu *viewMenu;
-  QMenu *runMenu;
+  QMenu *toolsMenu;
+  QMenu *playbackMenu;
   QMenu *helpMenu;
   QMenu *recentFileMenu;
   QMenu *recentVideoMenu;
@@ -321,15 +322,13 @@ private:
   QAction *pauseAction;
   QAction *rewindAction;
 
-  QAction *displayOutputWindowAction;
-  //QAction *outputWindowHasCursor;
-  QAction *outputWindowFullScreenAction;
+  QAction *outputFullScreenAction;
   QAction *displayControlsAction;
   QAction *displayTestSignalAction;
   QAction *stickyVerticesAction;
   QAction *displayUndoStackAction;
   QAction *displayZoomToolAction;
-  QAction *displayConsoleAction;
+  QAction *openConsoleAction;
 
   enum { MaxRecentFiles = 10 };
   enum { MaxRecentVideo = 5 };

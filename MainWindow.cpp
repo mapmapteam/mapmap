@@ -86,9 +86,6 @@ MainWindow::MainWindow()
 
   // after readSettings():
   _preferences_dialog = new PreferencesDialog(this, this);
-
-  // Refresh all
-  updateCanvases();
 }
 
 MainWindow::~MainWindow()
@@ -310,14 +307,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     if (keyEvent->modifiers() == Qt::CTRL)
     {
         switch (keyEvent->key()) {
-        case Qt::Key_F:
-            if (outputWindow->windowState() != Qt::WindowFullScreen)
-            {
-              outputWindow->setFullScreen(true);
-              outputWindowFullScreenAction->setChecked(true);
-              outputWindowFullScreenAction->setEnabled(true);
-            }
-            break;
           case Qt::Key_N:
             newFile();
             break;
@@ -358,11 +347,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
       undoStack->redo();
     }
     else if (keyEvent->key() == Qt::Key_Escape)
-    {
-      outputWindow->setFullScreen(false);
-      outputWindowFullScreenAction->setChecked(false);
-      outputWindowFullScreenAction->setEnabled(false);
-    }
+       outputWindow->close();
     else if (keyEvent->key() == Qt::Key_Space)
     {
       if (_isPlaying)
@@ -387,9 +372,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
 void MainWindow::setOutputWindowFullScreen(bool enable)
 {
-  outputWindow->setFullScreen(false);
+  outputWindow->setFullScreen(enable);
   // setCheckState
-  outputWindowFullScreenAction->setChecked(enable);
   displayControlsAction->setChecked(enable);
 }
 
@@ -1284,7 +1268,6 @@ void MainWindow::createLayout()
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
   outputWindow = new OutputGLWindow(this, destinationCanvas);
-  outputWindow->setVisible(true);
   outputWindow->installEventFilter(destinationCanvas);
   outputWindow->installEventFilter(this);
 
@@ -1569,34 +1552,19 @@ void MainWindow::createActions()
   connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
 
   // Toggle display of output window.
-  displayOutputWindowAction = new QAction(tr("&Display Output Window"), this);
-  displayOutputWindowAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_W);
-  displayOutputWindowAction->setIcon(QIcon(":/output-window"));
-  displayOutputWindowAction->setToolTip(tr("Display output window"));
-  displayOutputWindowAction->setIconVisibleInMenu(false);
-  displayOutputWindowAction->setCheckable(true);
-  displayOutputWindowAction->setChecked(true);
-  addAction(displayOutputWindowAction);
-  // Manage show/hide of GL output window.
-  connect(displayOutputWindowAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setVisible(bool)));
-  // When closing the GL output window, uncheck the action in menu.
-  connect(outputWindow, SIGNAL(closed()), displayOutputWindowAction, SLOT(toggle()));
-
-  // Toggle display of output window.
-  outputWindowFullScreenAction = new QAction(tr("&Fullscreen"), this);
-  outputWindowFullScreenAction->setIcon(QIcon(":/fullscreen"));
-  outputWindowFullScreenAction->setShortcut(Qt::CTRL + Qt::Key_F);
-  outputWindowFullScreenAction->setToolTip(tr("Full screen"));
-  outputWindowFullScreenAction->setIconVisibleInMenu(false);
-  outputWindowFullScreenAction->setCheckable(true);
-  outputWindowFullScreenAction->setChecked(false);
-  addAction(displayOutputWindowAction);
-  // Manage fullscreen mode for output window.
-  connect(outputWindowFullScreenAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
-  // When fullscreen is toggled by the output window (eg. when pressing ESC), change the action checkbox.
-  connect(outputWindow, SIGNAL(fullScreenToggled(bool)), outputWindowFullScreenAction, SLOT(setChecked(bool)));
-  // Output window should be displayed for full screen option to be available.
-  connect(displayOutputWindowAction, SIGNAL(toggled(bool)), outputWindowFullScreenAction, SLOT(setEnabled(bool)));
+  outputFullScreenAction = new QAction(tr("&Full Screen"), this);
+  outputFullScreenAction->setShortcut(Qt::CTRL + Qt::Key_F);
+  outputFullScreenAction->setIcon(QIcon(":/fullscreen"));
+  outputFullScreenAction->setToolTip(tr("Full screen mode"));
+  outputFullScreenAction->setIconVisibleInMenu(false);
+  outputFullScreenAction->setCheckable(true);
+  // Don't be displayed by default
+  outputFullScreenAction->setChecked(false);
+  addAction(outputFullScreenAction);
+  // Manage fullscreen/modal show of GL output window.
+  connect(outputFullScreenAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
+  // When closing the GL output window or hit ESC key, uncheck the action in menu.
+  connect(outputWindow, SIGNAL(closed()), outputFullScreenAction, SLOT(toggle()));
 
   // Toggle display of canvas controls.
   displayControlsAction = new QAction(tr("&Display Canvas Controls"), this);
@@ -1643,14 +1611,14 @@ void MainWindow::createActions()
   connect(displayUndoStackAction, SIGNAL(toggled(bool)), this, SLOT(displayUndoStack(bool)));
 
   // Toggle display of Console output
-  displayConsoleAction = new QAction(tr("Disp&lay Console"), this);
-  displayConsoleAction->setShortcut(Qt::ALT + Qt::Key_L);
-  displayConsoleAction->setCheckable(true);
-  displayConsoleAction->setChecked(false);
-  addAction(displayConsoleAction);
-  connect(displayConsoleAction, SIGNAL(toggled(bool)), consoleWindow, SLOT(setVisible(bool)));
+  openConsoleAction = new QAction(tr("Open Conso&le"), this);
+  openConsoleAction->setShortcut(Qt::ALT + Qt::Key_L);
+  openConsoleAction->setCheckable(true);
+  openConsoleAction->setChecked(false);
+  addAction(openConsoleAction);
+  connect(openConsoleAction, SIGNAL(toggled(bool)), consoleWindow, SLOT(setVisible(bool)));
   // uncheck action when window is closed
-  connect(consoleWindow, SIGNAL(windowClosed()), displayConsoleAction, SLOT(toggle()));
+  connect(consoleWindow, SIGNAL(windowClosed()), openConsoleAction, SLOT(toggle()));
 
   // Toggle display of zoom tool buttons
   displayZoomToolAction = new QAction(tr("Display &Zoom Toolbar"), this);
@@ -1667,9 +1635,7 @@ void MainWindow::startFullScreen()
   // Remove canvas controls.
   displayControlsAction->setChecked(false);
   // Display output window.
-  displayOutputWindowAction->setChecked(true);
-  // Send fullscreen.
-  outputWindowFullScreenAction->setChecked(true);
+  outputFullScreenAction->setChecked(true);
 }
 
 void MainWindow::createMenus()
@@ -1734,21 +1700,24 @@ void MainWindow::createMenus()
 
   // View.
   viewMenu = menuBar->addMenu(tr("&View"));
-  viewMenu->addAction(displayOutputWindowAction);
-  viewMenu->addAction(outputWindowFullScreenAction);
   viewMenu->addAction(displayControlsAction);
   viewMenu->addAction(stickyVerticesAction);
   viewMenu->addAction(displayTestSignalAction);
   viewMenu->addSeparator();
   viewMenu->addAction(displayUndoStackAction);
   viewMenu->addAction(displayZoomToolAction);
-  viewMenu->addAction(displayConsoleAction);
+  viewMenu->addSeparator();
+  viewMenu->addAction(outputFullScreenAction);
 
   // Run.
-  runMenu = menuBar->addMenu(tr("&Run"));
-  runMenu->addAction(playAction);
-  runMenu->addAction(pauseAction);
-  runMenu->addAction(rewindAction);
+  playbackMenu = menuBar->addMenu(tr("&Playback"));
+  playbackMenu->addAction(playAction);
+  playbackMenu->addAction(pauseAction);
+  playbackMenu->addAction(rewindAction);
+
+  // Tools
+  toolsMenu = menuBar->addMenu(tr("&Tools"));
+  toolsMenu->addAction(openConsoleAction);
 
   // Help.
   helpMenu = menuBar->addMenu(tr("&Help"));
@@ -1812,7 +1781,7 @@ void MainWindow::createToolBars()
 
   mainToolBar->addSeparator();
 
-  mainToolBar->addAction(displayOutputWindowAction);
+  mainToolBar->addAction(outputFullScreenAction);
   mainToolBar->addAction(displayTestSignalAction);
 
   runToolBar = addToolBar(tr("&Run"));
@@ -1830,13 +1799,6 @@ void MainWindow::createToolBars()
   // Add toolbars.
   addToolBar(Qt::TopToolBarArea, mainToolBar);
   addToolBar(Qt::TopToolBarArea, runToolBar);
-
-//  editToolBar = addToolBar(tr("&Edit"));
-//  editToolBar->addAction(cloneAction);
-//  editToolBar->addAction(deleteAction);
-//  editToolBar->addSeparator();
-//  editToolBar->addAction(findAction);
-//  editToolBar->addAction(goToCellAction);
 }
 
 void MainWindow::createStatusBar()
@@ -1875,15 +1837,11 @@ void MainWindow::readSettings()
   // new in 0.1.2:
   if (settings.contains("displayOutputWindow"))
   {
-    displayOutputWindowAction->setChecked(settings.value("displayOutputWindow").toBool());
-  }
-  if (settings.contains("outputWindowFullScreen"))
-  {
-    outputWindowFullScreenAction->setChecked(settings.value("outputWindowFullScreen").toBool());
+    outputFullScreenAction->setChecked(settings.value("displayOutputWindow").toBool());
   }
   if (settings.contains("displayTestSignal"))
   {
-    displayOutputWindowAction->setChecked(settings.value("displayTestSignal").toBool());
+    outputFullScreenAction->setChecked(settings.value("displayTestSignal").toBool());
   }
   config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 
@@ -1908,8 +1866,7 @@ void MainWindow::writeSettings()
   settings.setValue("mappingSplitter", mappingSplitter->saveState());
   settings.setValue("canvasSplitter", canvasSplitter->saveState());
   settings.setValue("outputWindow", outputWindow->saveGeometry());
-  settings.setValue("displayOutputWindow", displayOutputWindowAction->isChecked());
-  settings.setValue("outputWindowFullScreen", outputWindowFullScreenAction->isChecked());
+  settings.setValue("displayOutputWindow", outputFullScreenAction->isChecked());
   settings.setValue("displayTestSignal", displayTestSignalAction->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
   settings.setValue("displayUndoStack", displayUndoStackAction->isChecked());
