@@ -36,9 +36,6 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const DestinationGLCanvas* canv
   layout->addWidget(canvas);
   setLayout(layout);
 
-  // Save window geometry.
-  _geometry = saveGeometry();
-
   _pointerIsVisible = true;
 }
 
@@ -87,61 +84,46 @@ void OutputGLWindow::closeEvent(QCloseEvent *event)
 
 void OutputGLWindow::setFullScreen(bool fullscreen)
 {
-  setCursorVisible(!fullscreen);
-  emit fullScreenToggled(fullscreen);
-  // Activate crosshair in fullscreen mode.
-  // should be only drawn if the controls should be shown
-  canvas->setDisplayCrosshair(fullscreen && canvas->getMainWindow()->displayControls());
-
-  // NOTE: The showFullScreen() method does not work well under Ubuntu Linux. The code below fixes the issue.
-  // Notice that there might be problems with the fullscreen in other OS / window managers. If so, please add
-  // the code to fix those issues here.
-  // See: http://qt-project.org/doc/qt-4.8/qwidget.html#showFullScreen
-  // Source: http://stackoverflow.com/questions/12645880/fullscreen-for-qdialog-from-within-mainwindow-only-working-sometimes
-#ifdef Q_OS_UNIX
-  const QString session = QString(getenv("DESKTOP_SESSION")).toLower();
-#endif
   if (fullscreen)
   {
-    // Save window geometry.
-    _geometry = saveGeometry();
-    //qDebug() << "Saving Geometry " << _geometry.toHex() << endl;
-
-    // Move window to second screen before fullscreening it.
+    // Check if user is on multiple screen
     if (QApplication::desktop()->screenCount() > 1)
+    {
+      // Hide cursor
+      setCursorVisible(!fullscreen);
+      // Activate crosshair in fullscreen mode.
+      // should be only drawn if the controls should be shown
+      canvas->setDisplayCrosshair(fullscreen && canvas->getMainWindow()->displayControls());
+      //Move window to second screen before fullscreening it.
       setGeometry(QApplication::desktop()->screenGeometry(1));
-
-#ifdef Q_OS_UNIX
-    // Special case for Unity.
-    if (session == "ubuntu" || session == "cinnamon" || session == "default") {
+      //The problem related to the full screen on linux seems to be resolved
+      // with Qt 5.5 at least on Debian but define macro anyway
+#ifdef Q_OS_LINUX
       setWindowFlags(Qt::Window);
       setVisible(true);
       setWindowState( windowState() ^ Qt::WindowFullScreen );
       show();
-    } else {
-      showFullScreen();
-    }
 #else
     showFullScreen();
 #endif
+    }
+    else
+    {
+      show();
+    }
   }
   else
   {
-    // Restore geometry of window to what it was before full screen call.
-    //restoreGeometry(_geometry);
-
-#ifdef Q_OS_UNIX
-    // Special case for Unity.
-    if (session == "ubuntu") {
-      showNormal();
-    } else {
-      restoreGeometry(_geometry);
-      showNormal();
+    if (QApplication::desktop()->screenCount() > 1) {
+#ifdef Q_OS_LINUX
       setWindowFlags( windowFlags() & ~Qt::Window );
-    }
 #else
-    restoreGeometry(_geometry);
     showNormal();
 #endif
+    }
+    else
+    {
+      hide();
+    }
   }
 }

@@ -83,8 +83,7 @@ private slots:
   void preferences();
   bool save();
   bool saveAs();
-  void importVideo();
-  void importImage();
+  void importMedia();
   void addColor();
   void about();
   void updateStatusBar();
@@ -279,7 +278,8 @@ private:
   QMenu *fileMenu;
   QMenu *editMenu;
   QMenu *viewMenu;
-  QMenu *runMenu;
+  QMenu *toolsMenu;
+  QMenu *playbackMenu;
   QMenu *helpMenu;
   QMenu *recentFileMenu;
   QMenu *recentVideoMenu;
@@ -297,8 +297,7 @@ private:
   QAction *separatorAction;
   QAction *newAction;
   QAction *openAction;
-  QAction *importVideoAction;
-  QAction *importImageAction;
+  QAction *importMediaAction;
   QAction *addColorAction;
   QAction *saveAction;
   QAction *saveAsAction;
@@ -323,15 +322,13 @@ private:
   QAction *pauseAction;
   QAction *rewindAction;
 
-  QAction *displayOutputWindowAction;
-  //QAction *outputWindowHasCursor;
-  QAction *outputWindowFullScreenAction;
+  QAction *outputFullScreenAction;
   QAction *displayControlsAction;
   QAction *displayTestSignalAction;
   QAction *stickyVerticesAction;
   QAction *displayUndoStackAction;
   QAction *displayZoomToolAction;
-  QAction *displayConsoleAction;
+  QAction *openConsoleAction;
 
   enum { MaxRecentFiles = 10 };
   enum { MaxRecentVideo = 5 };

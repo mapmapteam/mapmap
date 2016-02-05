@@ -50,7 +50,6 @@ protected:
 
 signals:
   void closed();
-  void fullScreenToggled(bool fullScreen);
 
 public:
   DestinationGLCanvas* getCanvas() const { return canvas; }
@@ -59,7 +58,6 @@ public:
 
 private:
   OutputGLCanvas* canvas;
-  QByteArray _geometry;
 
   bool _pointerIsVisible;
 };
