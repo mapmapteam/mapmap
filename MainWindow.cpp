@@ -370,6 +370,18 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
   }
 }
 
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+#ifdef Q_OS_OSX
+  // Do nothing
+#else
+  if (event->modifiers() & Qt::AltModifier) {
+    menuBar()->setHidden(!menuBar()->isHidden());
+    menuBar()->setFocus(Qt::MenuBarFocusReason);
+  }
+#endif
+}
+
 void MainWindow::setOutputWindowFullScreen(bool enable)
 {
   outputWindow->setFullScreen(enable);
@@ -1854,6 +1866,8 @@ void MainWindow::readSettings()
     displayUndoStackAction->setChecked(settings.value("displayUndoStack").toBool());
   if (settings.contains("zoomToolBar"))
     displayZoomToolAction->setChecked(settings.value("zoomToolBar").toBool());
+  if (settings.contains("menuBarHidden"))
+    menuBar()->setHidden(settings.value("menuBarHidden").toBool());
 }
 
 void MainWindow::writeSettings()
@@ -1871,6 +1885,7 @@ void MainWindow::writeSettings()
   settings.setValue("osc_receive_port", config_osc_receive_port);
   settings.setValue("displayUndoStack", displayUndoStackAction->isChecked());
   settings.setValue("zoomToolBar", displayZoomToolAction->isChecked());
+  settings.setValue("menuBarHidden", menuBar()->isHidden());
 }
 
 bool MainWindow::okToContinue()
