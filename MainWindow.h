@@ -289,10 +289,10 @@ private:
   // Some menus when need to be separated
   QMenu *sourceMenu;
   QMenu *destinationMenu;
+  QMenu *toolBarsMenu;
 
   // Toolbar.
   QToolBar *mainToolBar;
-  QToolBar *runToolBar;
 
   // Actions.
   QAction *separatorAction;
@@ -330,6 +330,8 @@ private:
   QAction *displayUndoStackAction;
   QAction *displayZoomToolAction;
   QAction *openConsoleAction;
+  QAction *showMenuBarAction;
+  QAction *showToolBarAction;
 
   enum { MaxRecentFiles = 10 };
   enum { MaxRecentVideo = 5 };

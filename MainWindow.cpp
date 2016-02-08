@@ -1640,6 +1640,12 @@ void MainWindow::createActions()
   addAction(displayZoomToolAction);
   connect(displayZoomToolAction, SIGNAL(toggled(bool)), sourceCanvas, SLOT(showZoomToolBar(bool)));
   connect(displayZoomToolAction, SIGNAL(toggled(bool)), destinationCanvas, SLOT(showZoomToolBar(bool)));
+
+  // Toggle show/hide menuBar
+  showMenuBarAction = new QAction(tr("&Menu Bar"), this);
+  showMenuBarAction->setCheckable(true);
+  showMenuBarAction->setChecked(true);
+  connect(showMenuBarAction, SIGNAL(triggered(bool)), menuBar(), SLOT(setVisible(bool)));
 }
 
 void MainWindow::startFullScreen()
@@ -1712,6 +1718,10 @@ void MainWindow::createMenus()
 
   // View.
   viewMenu = menuBar->addMenu(tr("&View"));
+  // Toolbars menu
+  toolBarsMenu = viewMenu->addMenu(tr("Toolbars"));
+  toolBarsMenu->addAction(showMenuBarAction);
+  viewMenu->addSeparator();
   viewMenu->addAction(displayControlsAction);
   viewMenu->addAction(stickyVerticesAction);
   viewMenu->addAction(displayTestSignalAction);
@@ -1779,7 +1789,7 @@ void MainWindow::createPaintContextMenu()
 
 void MainWindow::createToolBars()
 {
-  mainToolBar = addToolBar(tr("&File"));
+  mainToolBar = addToolBar(tr("&Toolbar"));
   mainToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
   mainToolBar->setMovable(false);
   mainToolBar->addAction(importMediaAction);
@@ -1796,21 +1806,24 @@ void MainWindow::createToolBars()
   mainToolBar->addAction(outputFullScreenAction);
   mainToolBar->addAction(displayTestSignalAction);
 
-  runToolBar = addToolBar(tr("&Run"));
-  runToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
-  runToolBar->setMovable(false);
   // XXX: style hack: dummy expanding widget allows the placement of toolbar at the top right
   // From: http://www.qtcentre.org/threads/9102-QToolbar-setContentsMargins
-  QWidget* spacer = new QWidget(runToolBar);
+  QWidget* spacer = new QWidget(mainToolBar);
   spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  runToolBar->addWidget(spacer);
-  runToolBar->addAction(playAction);
-  runToolBar->addAction(pauseAction);
-  runToolBar->addAction(rewindAction);
+  mainToolBar->addWidget(spacer);
+  mainToolBar->addAction(playAction);
+  mainToolBar->addAction(pauseAction);
+  mainToolBar->addAction(rewindAction);
+
+  // Disable toolbar context menu
+  mainToolBar->setContextMenuPolicy(Qt::PreventContextMenu);
+
+  // Toggle show/hide of toolbar
+  showToolBarAction = mainToolBar->toggleViewAction();
+  toolBarsMenu->addAction(showToolBarAction);
 
   // Add toolbars.
   addToolBar(Qt::TopToolBarArea, mainToolBar);
-  addToolBar(Qt::TopToolBarArea, runToolBar);
 }
 
 void MainWindow::createStatusBar()
@@ -2479,7 +2492,6 @@ void MainWindow::updateCanvases()
   sourceCanvas->updateZoomToolbar();
   destinationCanvas->updateZoomToolbar();
 }
-
 
 void MainWindow::enableDisplayControls(bool display)
 {
