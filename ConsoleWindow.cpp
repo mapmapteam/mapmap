@@ -100,7 +100,7 @@ void ConsoleWindow::messageLog(QtMsgType type, const QMessageLogContext &context
   case QtDebugMsg:
     output = time + " | " + debug + " " + QString(message.constData()) + " - <strong>" + contexts + "</strong>";
     break;
-#if QT_VERSION >= 0x050400
+#if QT_VERSION >= 0x050500
   case QtInfoMsg:
     output = time + " | " + info + " " + QString(message.constData()) + " - <strong>" + contexts + "</strong>";
     break;
