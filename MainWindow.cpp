@@ -2710,8 +2710,10 @@ void MainWindow::startOscReceiver()
   int port = config_osc_receive_port;
   std::ostringstream os;
   os << port;
-#if QT_VERSION >= 0x050400
+#if QT_VERSION >= 0x050500
   QMessageLogger(__FILE__, __LINE__, 0).info() << "OSC port: " << port ;
+#else
+  QMessageLogger(__FILE__, __LINE__, 0).debug() << "OSC port: " << port ;
 #endif
   osc_interface.reset(new OscInterface(os.str()));
   if (port != 0)
