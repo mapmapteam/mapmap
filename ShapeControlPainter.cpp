@@ -36,16 +36,17 @@ void ShapeControlPainter::paint(QPainter *painter, MapperGLCanvas* canvas, const
 void ShapeControlPainter::_paintVertices(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices)
 {
   qreal zoomFactor = canvas->getZoomFactor();
-  qreal selectRadius = MM::VERTEX_SELECT_RADIUS / zoomFactor;
+  qreal selectRadius = (getShape()->isLocked() ? MM::VERTEX_LOCKED_RADIUS : MM::VERTEX_SELECT_RADIUS) / zoomFactor;
   qreal strokeWidth  = MM::VERTEX_SELECT_STROKE_WIDTH / zoomFactor;
 
   for (int i=0; i<getShape()->nVertices(); i++)
-    Util::drawControlsVertex(painter, getShape()->getVertex(i), selectedVertices.contains(i), selectRadius, strokeWidth);
+    Util::drawControlsVertex(painter, getShape()->getVertex(i), selectedVertices.contains(i), getShape()->isLocked(), selectRadius, strokeWidth);
 }
 
 QPen ShapeControlPainter::getRescaledShapeStroke(MapperGLCanvas* canvas, bool innerStroke)
 {
-  return QPen(QBrush(MM::CONTROL_COLOR), (innerStroke ? MM::SHAPE_INNER_STROKE_WIDTH : MM::SHAPE_STROKE_WIDTH) / canvas->getZoomFactor());
+  return QPen(getShape()->isLocked() ? QBrush(MM::CONTROL_LOCKED_COLOR) : QBrush(MM::CONTROL_COLOR),
+              (innerStroke ? MM::SHAPE_INNER_STROKE_WIDTH : MM::SHAPE_STROKE_WIDTH) / canvas->getZoomFactor());
 }
 
 void PolygonControlPainter::_paintShape(QPainter *painter, MapperGLCanvas* canvas)

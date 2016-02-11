@@ -178,6 +178,7 @@ private:
 signals:
   void shapeChanged(MShape*);
   void imageChanged();
+  void shapeContextMenuRequested(const QPoint &pos);
 
 public slots:
   void updateCanvas();

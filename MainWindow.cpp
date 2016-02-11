@@ -764,6 +764,21 @@ void MainWindow::renameMappingItem()
   contentTab->setCurrentWidget(mappingSplitter);
 }
 
+void MainWindow::setMappingitemLocked(bool locked)
+{
+  setMappingLocked(getItemId(*mappingList->currentItem()), locked);
+}
+
+void MainWindow::setMappingitemVisible(bool visible)
+{
+  setMappingVisible(getItemId(*mappingList->currentItem()), !visible);
+}
+
+void MainWindow::setMappingItemSolo(bool solo)
+{
+  setMappingSolo(getItemId(*mappingList->currentItem()), solo);
+}
+
 void MainWindow::renameMapping(uid mappingId, const QString &name)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
@@ -1135,14 +1150,27 @@ void MainWindow::setMappingVisible(uid mappingId, bool visible)
 
 void MainWindow::setMappingSolo(uid mappingId, bool solo)
 {
-  Q_UNUSED(mappingId);
-  Q_UNUSED(solo);
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+  if (!mapping.isNull()) {
+    // Turn this mapping into solo mode
+    mapping->setSolo(solo);
+    // Update canvases
+    updateCanvases();
+  }
 }
 
 void MainWindow::setMappingLocked(uid mappingId, bool locked)
 {
-  Q_UNUSED(mappingId);
-  Q_UNUSED(locked);
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+
+  if (!mapping.isNull()) {
+    // Lock position of mapping
+    mapping->setLocked(locked);
+    // Lock shape too.
+    mapping->getShape()->setLocked(locked);
+    // Update canvases
+    updateCanvases();
+  }
 }
 
 void MainWindow::deleteMapping(uid mappingId)
@@ -1482,6 +1510,33 @@ void MainWindow::createActions()
   addAction(renameMappingAction);
   connect(renameMappingAction, SIGNAL(triggered()), this, SLOT(renameMappingItem()));
 
+  // Lock mapping.
+  mappingLockedAction = new QAction(tr("Lock mapping"), this);
+  mappingLockedAction->setToolTip(tr("Lock mapping item"));
+  mappingLockedAction->setIconVisibleInMenu(false);
+  mappingLockedAction->setCheckable(true);
+  mappingLockedAction->setChecked(false);
+  addAction(mappingLockedAction);
+  connect(mappingLockedAction, SIGNAL(triggered(bool)), this, SLOT(setMappingitemLocked(bool)));
+
+  // Mute mapping.
+  mappingMuteAction = new QAction(tr("Mute mapping"), this);
+  mappingMuteAction->setToolTip(tr("Mute mapping item"));
+  mappingMuteAction->setIconVisibleInMenu(false);
+  mappingMuteAction->setCheckable(true);
+  mappingMuteAction->setChecked(false);
+  addAction(mappingMuteAction);
+  connect(mappingMuteAction, SIGNAL(triggered(bool)), this, SLOT(setMappingitemVisible(bool)));
+
+  // Solo mapping.
+  mappingSoloAction = new QAction(tr("Solo mapping"), this);
+  mappingSoloAction->setToolTip(tr("solo mapping item"));
+  mappingSoloAction->setIconVisibleInMenu(false);
+  mappingSoloAction->setCheckable(true);
+  mappingSoloAction->setChecked(false);
+  addAction(mappingSoloAction);
+  connect(mappingSoloAction, SIGNAL(triggered(bool)), this, SLOT(setMappingItemSolo(bool)));
+
   // Delete paint.
   deletePaintAction = new QAction(tr("Delete paint"), this);
   //deletePaintAction->setShortcut(tr("CTRL+DEL"));
@@ -1759,6 +1814,9 @@ void MainWindow::createMappingContextMenu()
   mappingContextMenu->addAction(cloneMappingAction);
   mappingContextMenu->addAction(deleteMappingAction);
   mappingContextMenu->addAction(renameMappingAction);
+  mappingContextMenu->addAction(mappingLockedAction);
+  mappingContextMenu->addAction(mappingMuteAction);
+  mappingContextMenu->addAction(mappingSoloAction);
 
   // Set context menu policy
   mappingList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1767,8 +1825,8 @@ void MainWindow::createMappingContextMenu()
 
   // Context Menu Connexions
   connect(mappingList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
-  connect(destinationCanvas, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
-  connect(outputWindow, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
+  connect(destinationCanvas, SIGNAL(shapeContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
+  connect(outputWindow->getCanvas(), SIGNAL(shapeContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
 }
 
 void MainWindow::createPaintContextMenu()
@@ -1786,7 +1844,7 @@ void MainWindow::createPaintContextMenu()
 
   // Connexions
   connect(paintList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPaintContextMenu(const QPoint&)));
-  connect(sourceCanvas, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPaintContextMenu(const QPoint&)));
+  connect(sourceCanvas, SIGNAL(shapeContextMenuRequested(const QPoint&)), this, SLOT(showPaintContextMenu(const QPoint&)));
 }
 
 void MainWindow::createToolBars()
@@ -2529,6 +2587,13 @@ void MainWindow::enableStickyVertices(bool value)
 void MainWindow::showMappingContextMenu(const QPoint &point)
 {
   QWidget *objectSender = dynamic_cast<QWidget*>(sender());
+  uid mappingId = getItemId(*mappingList->currentItem());
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+
+  // Switch to right action check state
+  mappingLockedAction->setChecked(mapping->isLocked());
+  mappingMuteAction->setChecked(!mapping->isVisible());
+  mappingSoloAction->setChecked(mapping->isSolo());
 
   if (objectSender != NULL && mappingList->count() > 0)
     mappingContextMenu->exec(objectSender->mapToGlobal(point));

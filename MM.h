@@ -56,8 +56,10 @@ public:
   static const QColor DARK_GRAY;
 
   static const QColor CONTROL_COLOR;
+  static const QColor CONTROL_LOCKED_COLOR;
   static const QBrush VERTEX_BACKGROUND;
   static const QBrush VERTEX_SELECTED_BACKGROUND;
+  static const QBrush VERTEX_LOCKED_BACKGROUND;
 
   static const qreal SHAPE_STROKE_WIDTH;
   static const qreal SHAPE_INNER_STROKE_WIDTH;
@@ -67,6 +69,7 @@ public:
   // Control.
   static const qreal VERTEX_STICK_RADIUS;
   static const qreal VERTEX_SELECT_RADIUS;
+  static const qreal VERTEX_LOCKED_RADIUS;
   static const qreal VERTEX_SELECT_STROKE_WIDTH;
 
   // Time.

@@ -236,7 +236,8 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
           _activeVertex = i;
           minDistance = dist;
 
-          _vertexGrabbed = true;
+          // Vertex can be grabbed only if the mapping is not locked
+          _vertexGrabbed = shape->isLocked() ? false : true;
           mousePressedOnSomething = true;
 
           _grabbedObjectStartScenePosition = shape->getVertex(i);
@@ -287,10 +288,19 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     {
       if (selectedShape && selectedShape->includesPoint(pos))
       {
-        _shapeGrabbed = true;
+        // Shape can be grabbed only if it is not locked
+        _shapeGrabbed = selectedShape->isLocked() ? false : true;
         _shapeFirstGrab = true;
 
         _grabbedObjectStartScenePosition = pos;
+      }
+    }
+    // Show the shape/mapping context menu
+    if (event->button() & Qt::RightButton)
+    {
+      if (selectedShape && selectedShape->includesPoint(pos))
+      {
+        emit shapeContextMenuRequested(event->pos());
       }
     }
   }

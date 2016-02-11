@@ -98,6 +98,9 @@ private slots:
   void duplicateMappingItem();
   void deleteMappingItem();
   void renameMappingItem();
+  void setMappingitemLocked(bool locked);
+  void setMappingitemVisible(bool visible);
+  void setMappingItemSolo(bool solo);
   void mappingListEditEnd(QWidget* editor);
   // Context menu for paints
   void deletePaintItem();
@@ -305,9 +308,14 @@ private:
   QAction *exitAction;
   QAction *undoAction;
   QAction *redoAction;
+  // Mappings context menu actions
   QAction *cloneMappingAction;
   QAction *deleteMappingAction;
   QAction *renameMappingAction;
+  QAction *mappingSoloAction;
+  QAction *mappingLockedAction;
+  QAction *mappingMuteAction;
+  // Paints context menu action
   QAction *deletePaintAction;
   QAction *renamePaintAction;
   QAction *preferencesAction;

@@ -46,7 +46,7 @@ class MShape
 public:
   typedef QSharedPointer<MShape> ptr;
 
-  MShape() {}
+  MShape() : _isLocked(false) {}
   MShape(QVector<QPointF> vertices_) :
     vertices(vertices_)
   {}
@@ -89,6 +89,9 @@ public:
   virtual void copyFrom(const MShape& shape);
 
   virtual MShape* clone() const;
+  // Handle shape lock
+  bool isLocked() const { return _isLocked; }
+  void setLocked(bool locked) { _isLocked = locked; }
 
 protected:
   QVector<QPointF> vertices;
@@ -105,6 +108,10 @@ protected:
 
   /// Returns a new MShape (using default constructor).
   virtual MShape* _create() const = 0;
+
+private:
+  // Shape lock state
+  bool _isLocked;
 };
 
 /**
