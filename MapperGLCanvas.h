@@ -160,9 +160,6 @@ private:
 
   bool _shapeIsAdapted;
 
-  // The delta level
-  int _deltaLevel;
-
   // Pointer to MainWindow UndoStack
   QUndoStack *undoStack;
 
@@ -197,8 +194,8 @@ public slots:
   bool eventFilter(QObject *target, QEvent *event);
 
   // Zoom
-  void increaseZoomLevel();
-  void decreaseZoomLevel();
+  void increaseZoomLevel(int steps=1);
+  void decreaseZoomLevel(int steps=1);
   void resetZoomLevel();
   void fitShapeInView();
 

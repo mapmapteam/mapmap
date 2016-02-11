@@ -523,17 +523,22 @@ void MapperGLCanvas::deselectAll()
 void MapperGLCanvas::wheelEvent(QWheelEvent *event)
 {
   // [-120]-----[-1]|[1]++++++[120]
-  _deltaLevel = event->delta() / 120;
+  // See: http://doc.qt.io/qt-5/qwheelevent.html#angleDelta
+#if QT_VERSION >= 0x050500
+  int deltaLevel = event->angleDelta().y() / 120;
+#else
+  int deltaLevel = event->delta() / 120;
+#endif
 
-  if (_deltaLevel > 0)
+  if (deltaLevel > 0)
   {
     // Increase zoom level
-    increaseZoomLevel();
+    increaseZoomLevel(deltaLevel);
   }
   else
   {
     // Decrease zoom level
-    decreaseZoomLevel();
+    decreaseZoomLevel(-deltaLevel);
   }
 
   // Accept wheel scrolling event.
@@ -555,15 +560,14 @@ bool MapperGLCanvas::eventFilter(QObject *target, QEvent *event)
   }
 }
 
-void MapperGLCanvas::increaseZoomLevel()
+void MapperGLCanvas::increaseZoomLevel(int steps)
 {
   qreal zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
 
-  if (zoomFactor < MM::ZOOM_MAX) {
+  while (steps > 0 && zoomFactor < MM::ZOOM_MAX) {
     _zoomLevel++;
-    if (_deltaLevel)
-      _deltaLevel--;
     zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+    steps--;
   }
   zoomFactor = qMin(zoomFactor, MM::ZOOM_MAX);
 
@@ -574,15 +578,14 @@ void MapperGLCanvas::increaseZoomLevel()
   applyZoomToView();
 }
 
-void MapperGLCanvas::decreaseZoomLevel()
+void MapperGLCanvas::decreaseZoomLevel(int steps)
 {
   qreal zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
 
-  if (zoomFactor > MM::ZOOM_MIN) {
+  while (steps > 0 && zoomFactor > MM::ZOOM_MIN) {
     _zoomLevel--;
-    if (_deltaLevel)
-      _deltaLevel++;
     zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+    steps--;
   }
   zoomFactor = qMax(zoomFactor, MM::ZOOM_MIN);
 
