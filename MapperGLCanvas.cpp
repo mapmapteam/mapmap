@@ -408,13 +408,18 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 
   // Checks if the key has been handled by this function or needs to be deferred to superclass.
   bool handledKey = false;
+
   // Active vertex selected.
   if (hasActiveVertex())
   {
     MShape::ptr shape = getCurrentShape();
     QPoint pos = mapFromScene(shape->getVertex(_activeVertex));
+
     handledKey = true;
+
     if (event->modifiers() & Qt::ShiftModifier) {
+
+      // SHIFT + directional keys allow move with large steps
       if (event->key() == Qt::Key_Up)
         pos.ry() -= MM::VERTEX_MOVES_STEP;
       else if (event->key() == Qt::Key_Down)
@@ -423,38 +428,44 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
         pos.rx() += MM::VERTEX_MOVES_STEP;
       else if (event->key() == Qt::Key_Left)
         pos.rx() -= MM::VERTEX_MOVES_STEP;
+
       // SHIFT+Space to switch between vertex
       else if (event->key() == Qt::Key_Space) {
         if (shape)
           _activeVertex = (_activeVertex + 1) % shape->nVertices();
         pos = shape->getVertex(_activeVertex).toPoint(); // reset to new vertex
       }
-    }
-    switch (event->key()) {
-    case Qt::Key_Up:
-      pos.ry()--;
-      break;
-    case Qt::Key_Down:
-      pos.ry()++;
-      break;
-    case Qt::Key_Right:
-      pos.rx()++;
-      break;
-    case Qt::Key_Left:
-      pos.rx()--;
-      break;
-    default:
+
+      else
         handledKey = false;
-      break;
+    }
+    else
+    {
+      switch (event->key()) {
+      case Qt::Key_Up:
+        pos.ry()--;
+        break;
+      case Qt::Key_Down:
+        pos.ry()++;
+        break;
+      case Qt::Key_Right:
+        pos.rx()++;
+        break;
+      case Qt::Key_Left:
+        pos.rx()--;
+        break;
+      default:
+        handledKey = false;
+        break;
+      }
     }
 
-    // Remap window position to scene.
-    QPointF scenePos = mapToScene(pos);
+    if (handledKey)
+      // Enable to Undo and Redo when arrow keys move the position of vertices
+      undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::STEP, _activeVertex, mapToScene(pos)));
+  }
 
-    // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
-    // Enable to Undo and Redo when arrow keys move the position of vertices
-    undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::STEP, _activeVertex, scenePos));
-  } else {
+  else {
     // Take scroll bar current coordinate
     int scrollX = this->horizontalScrollBar()->value();
     int scrollY = this->verticalScrollBar()->value();
