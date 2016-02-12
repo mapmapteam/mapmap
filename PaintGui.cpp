@@ -134,13 +134,14 @@ MediaGui::MediaGui(Paint::ptr paint)
 
   _mediaRateItem = _variantManager->addProperty(QVariant::Double,
                                                 tr("Speed (%)"));
-  double rate = media->getRate(); // we need to save it because the call to setAttribute will set it to minimum
-  _mediaRateItem->setAttribute("minimum", 1);
+  // we need to save it because the call to setAttribute will set it to minimum
+  double rate = media->getRate()*100;
   _mediaRateItem->setAttribute("decimals", 1);
   _mediaRateItem->setValue(rate);
   
   _mediaVolumeItem = _variantManager->addProperty(QVariant::Double,
                                                 tr("Volume (%)"));
+  double volume = media->getVolume()*100;
   _mediaVolumeItem->setAttribute("minimum", 0.0);
   _mediaVolumeItem->setAttribute("maximum", 100.0);
   _mediaVolumeItem->setAttribute("decimals", 1);
@@ -165,8 +166,8 @@ void MediaGui::setValue(QtProperty* property, const QVariant& value)
   }
   else if (property == _mediaRateItem)
   {
-    double rateSign = (media->getRate() <= 0 ? -1 : +1);
-    media->setRate(value.toDouble());
+    //double rateSign = (media->getRate() <= 0 ? -1 : +1);
+    media->setRate(value.toDouble()/100.0);
     emit valueChanged(_paint);
   }
 //    else if (property == _mediaReverseItem)
@@ -177,7 +178,7 @@ void MediaGui::setValue(QtProperty* property, const QVariant& value)
 //    }
   else if (property == _mediaVolumeItem)
   {
-    media->setVolume(value.toDouble());
+    media->setVolume(value.toDouble()/100.0);
     emit valueChanged(_paint);
   }
   else

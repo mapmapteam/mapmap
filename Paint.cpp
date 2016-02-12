@@ -46,8 +46,8 @@ Media::Media(int id) : Texture(id),
     impl_(NULL)
 {
   impl_ = new MediaImpl(uri, false);
-  setRate(100.0);
-  setVolume(100.0);
+  setRate(1);
+  setVolume(1);
 }
 
 Media::Media(const QString uri_, bool live, double rate, uid id):
@@ -57,7 +57,7 @@ Media::Media(const QString uri_, bool live, double rate, uid id):
 {
   impl_ = new MediaImpl(uri_, live);
   setRate(rate);
-  setVolume(100.0);
+  setVolume(1);
 }
 
 // vertigo
@@ -123,22 +123,22 @@ bool Media::bitsHaveChanged() const
 
 void Media::setRate(double rate)
 {
-  impl_->setRate(rate / 100.0);
+  impl_->setRate(rate);
 }
 
 double Media::getRate() const
 {
-  return impl_->getRate() * 100.0;
+  return impl_->getRate();
 }
 
 void Media::setVolume(double rate)
 {
-  impl_->setVolume(rate / 100.0);
+  impl_->setVolume(rate);
 }
 
 double Media::getVolume() const
 {
-  return impl_->getVolume() * 100.0;
+  return impl_->getVolume();
 }
 
 bool Media::hasVideoSupport()
