@@ -144,7 +144,7 @@ MediaGui::MediaGui(Paint::ptr paint)
   _mediaVolumeItem->setAttribute("minimum", 0.0);
   _mediaVolumeItem->setAttribute("maximum", 100.0);
   _mediaVolumeItem->setAttribute("decimals", 1);
-  //_mediaVolumeItem->setValue(rate);
+  _mediaVolumeItem->setValue(volume);
 
 //  _mediaReverseItem = _variantManager->addProperty(QVariant::Bool,
 //                                                tr("Reverse"));
