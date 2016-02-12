@@ -37,12 +37,6 @@ public:
     bool writeFile (QIODevice *device);
 
   private:
-//    void writeProject();
-//    void writePaint(Paint::ptr paint);
-//    void writeItem (Paint *item);
-//    void writeItem (Mapping *item);
-//    void writeShapeVertices (MShape *shape);
-
     QXmlStreamWriter _xml;
     MainWindow *_window;
 };

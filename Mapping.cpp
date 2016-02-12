@@ -91,8 +91,6 @@ void Mapping::_readShape(const QDomElement& obj, bool isOutput)
 
   QString className = shapeObj.attribute(ProjectLabels::CLASS_NAME);
 
-  qDebug() << "Found shape with classname: " << className << endl;
-
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
   if (metaObject)
   {
@@ -103,8 +101,6 @@ void Mapping::_readShape(const QDomElement& obj, bool isOutput)
       qDebug() << QObject::tr("Problem at creation of shape.") << endl;
 //      _xml.raiseError(QObject::tr("Problem at creation of paint."));
     }
-    else
-      qDebug() << "Created new shape" << endl;
 
     // Read shape.
     shape->read(shapeObj);
@@ -114,8 +110,6 @@ void Mapping::_readShape(const QDomElement& obj, bool isOutput)
       setShape(shape);
     else
       setInputShape(shape);
-      qDebug() << "Shit!!!!" << endl;
-
   }
 
   else
