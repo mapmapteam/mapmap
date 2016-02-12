@@ -28,7 +28,8 @@ Release notes for MapMap
 * Done #183: Display logging output in a console and be able to turn it on and off
 * Done #203: The toolbar can be shown or hidden at will by the user
 * Done #147: Be able to delete a mapping with the delete key #147 (tested on Ubuntu)
-
+* Done #184: Make sure names support UTF-8 characters
+* Done #201 UX Design document: implement main toolbar improvements
 
 2015-10-30 - MapMap 0.3.1
 -------------------------
