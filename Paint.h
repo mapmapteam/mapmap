@@ -235,7 +235,7 @@ class Media : public Texture
 protected:
   QString uri;
 public:
-  Q_INVOKABLE Media(int id=NULL_UID) : Texture(id) {}
+  Q_INVOKABLE Media(int id=NULL_UID);
   Media(const QString uri_, bool live, double rate, uid id=NULL_UID);
   virtual ~Media();
   const QString getUri() const
@@ -271,13 +271,13 @@ public:
   virtual bool bitsHaveChanged() const;
 
   /// Sets playback rate (in %). Negative values mean reverse playback.
-  virtual void setRate(double rate=100.0);
+  virtual void setRate(double rate);
 
   /// Returns playback rate.
   double getRate() const;
 
   /// Sets audio playback volume (in %).
-  virtual void setVolume(double volume=0.0);
+  virtual void setVolume(double volume);
 
   /// Returns audio playback volume.
   double getVolume() const;

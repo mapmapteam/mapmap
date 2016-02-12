@@ -207,7 +207,6 @@ GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
   return GST_FLOW_OK;
 }
 
-
 MediaImpl::MediaImpl(const QString uri, bool live) :
 _bus(NULL),
 _pipeline(NULL),
@@ -361,9 +360,10 @@ bool MediaImpl::loadMovie(QString filename)
       std::cout << "File " << filetestpath << " does not exist" << std::endl;
       return false;
   }
-  _uri = filename;
-
   qDebug() << "Opening movie: " << filename << ".";
+
+  // Assign URI.
+  _uri = filename;
 
   // Free previously allocated structures
   unloadMovie();

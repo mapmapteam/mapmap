@@ -41,16 +41,23 @@ bool Image::setUri(const QString &uri)
 }
 
 /* Implementation of the Video class */
+Media::Media(int id) : Texture(id),
+    uri(""),
+    impl_(NULL)
+{
+  impl_ = new MediaImpl(uri, false);
+  setRate(100.0);
+  setVolume(100.0);
+}
 
 Media::Media(const QString uri_, bool live, double rate, uid id):
     Texture(id),
     uri(uri_),
-
     impl_(NULL)
 {
   impl_ = new MediaImpl(uri_, live);
   setRate(rate);
-  setVolume(1.0);
+  setVolume(100.0);
 }
 
 // vertigo
