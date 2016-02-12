@@ -26,22 +26,9 @@
 #include "Paint.h"
 #include "MainWindow.h"
 
+#include "ProjectLabels.h"
+
 #include "Shapes.h"
-
-class ProjectAttributes
-{
-public:
-  static const char* CLASS_NAME;
-  static const char* PAINTS;
-  static const char* MAPPINGS;
-
-  static const char* ID;
-  static const char* NAME;
-  static const char* PAINT_ID;
-
-  static const char* DESTINATION;
-  static const char* SOURCE;
-};
 
 class ProjectWriter
 {

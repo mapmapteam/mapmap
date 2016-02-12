@@ -30,6 +30,7 @@ HEADERS  = \
     PaintGui.h \
     Polygon.h \
     PreferencesDialog.h \
+    ProjectLabels.h \
     ProjectReader.h \
     ProjectWriter.h \
     Quad.h \
@@ -66,6 +67,7 @@ SOURCES  = \
     PaintGui.cpp \
     Polygon.cpp \
     PreferencesDialog.cpp \
+    ProjectLabels.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
     Serializable.cpp \

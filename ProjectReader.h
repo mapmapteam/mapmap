@@ -25,8 +25,7 @@
 #include "Paint.h"
 
 #include "MetaObjectRegistry.h"
-// TODO: replace with ProjectAttributes.h
-#include "ProjectWriter.h"
+#include "ProjectLabels.h"
 
 class ProjectReader
 {

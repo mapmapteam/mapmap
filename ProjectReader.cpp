@@ -68,8 +68,8 @@ void ProjectReader::parseProject(const QDomElement& project)
   MappingManager& manager = _window->getMappingManager();
   manager.clearAll();
 
-  QDomElement paints = project.firstChildElement(ProjectAttributes::PAINTS);
-  QDomElement mappings = project.firstChildElement(ProjectAttributes::MAPPINGS);
+  QDomElement paints = project.firstChildElement(ProjectLabels::PAINTS);
+  QDomElement mappings = project.firstChildElement(ProjectLabels::MAPPINGS);
 
   // Parse paints.
   QDomNode paintNode = paints.firstChild();
@@ -110,8 +110,8 @@ void ProjectReader::parseProject(const QDomElement& project)
 
 Paint::ptr ProjectReader::parsePaint(const QDomElement& paintElem)
 {
-  QString className = paintElem.attribute(ProjectAttributes::CLASS_NAME);
-  int id            = paintElem.attribute(ProjectAttributes::ID, QString::number(NULL_UID)).toInt();
+  QString className = paintElem.attribute(ProjectLabels::CLASS_NAME);
+  int id            = paintElem.attribute(ProjectLabels::ID, QString::number(NULL_UID)).toInt();
 
   qDebug() << "Found paint with classname: " << className << endl;
 
@@ -143,8 +143,8 @@ Paint::ptr ProjectReader::parsePaint(const QDomElement& paintElem)
 Mapping::ptr ProjectReader::parseMapping(const QDomElement& mappingElem)
 {
   // Get attributes.
-  QString className = mappingElem.attribute(ProjectAttributes::CLASS_NAME);
-  int id            = mappingElem.attribute(ProjectAttributes::ID, QString::number(NULL_UID)).toInt();
+  QString className = mappingElem.attribute(ProjectLabels::CLASS_NAME);
+  int id            = mappingElem.attribute(ProjectLabels::ID, QString::number(NULL_UID)).toInt();
 
   qDebug() << "Found mapping with classname: " << className << endl;
 
@@ -176,10 +176,10 @@ Mapping::ptr ProjectReader::parseMapping(const QDomElement& mappingElem)
 //
 //Mapping::ptr ProjectReader::parseMapping(const QDomElement& mappingElem)
 //{
-//  QString className = mappingElem.attribute(ProjectAttributes::CLASS_NAME);
-//  int id            = mappingElem.attribute(ProjectAttributes::ID, QString::number(NULL_UID)).toInt();
-//  int paintId       = mappingElem.attribute(ProjectAttributes::PAINT_ID, QString::number(NULL_UID)).toInt();
-//  QString name      = mappingElem.attribute(ProjectAttributes::NAME, "");
+//  QString className = mappingElem.attribute(ProjectLabels::CLASS_NAME);
+//  int id            = mappingElem.attribute(ProjectLabels::ID, QString::number(NULL_UID)).toInt();
+//  int paintId       = mappingElem.attribute(ProjectLabels::PAINT_ID, QString::number(NULL_UID)).toInt();
+//  QString name      = mappingElem.attribute(ProjectLabels::NAME, "");
 //
 //  qDebug() << "Found mapping with classname: " << className << endl;
 //
