@@ -19,7 +19,11 @@
 
 #include "Mesh.h"
 
-Mesh::Mesh() : Quad(), _nColumns(0), _nRows(0) {}
+Mesh::Mesh() : Quad() {
+  // Create dummy points (will be all overwritten later on by load/save).
+  QVector<QPointF> points(4);
+  init(points, 2, 2);
+}
 
 Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4) : Quad()
 {
