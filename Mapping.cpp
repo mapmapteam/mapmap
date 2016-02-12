@@ -85,11 +85,11 @@ void Mapping::write(QDomElement& obj)
 
 void Mapping::_readShape(const QDomElement& obj, bool isOutput)
 {
-  QString tag       = isOutput ? "output" : "input";
+  QString tag       = isOutput ? ProjectLabels::DESTINATION : ProjectLabels::SOURCE;
 
   QDomElement shapeObj = obj.firstChildElement(tag);
 
-  QString className = shapeObj.attribute("className");
+  QString className = shapeObj.attribute(ProjectLabels::CLASS_NAME);
 
   qDebug() << "Found shape with classname: " << className << endl;
 
@@ -127,7 +127,7 @@ void Mapping::_readShape(const QDomElement& obj, bool isOutput)
 
 void Mapping::_writeShape(QDomElement& obj, bool isOutput)
 {
-  QString tag       = isOutput ? "output" : "input";
+  QString tag       = isOutput ? ProjectLabels::DESTINATION : ProjectLabels::SOURCE;
   MShape::ptr shape = isOutput ? getShape() : getInputShape();
   QDomElement shapeObj = obj.ownerDocument().createElement(tag);
   shape->write(shapeObj);

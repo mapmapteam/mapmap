@@ -25,6 +25,8 @@
 #include <QMetaProperty>
 #include <QDebug>
 
+#include "ProjectLabels.h"
+
 class Serializable : public QObject {
   Q_OBJECT
 
