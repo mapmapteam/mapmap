@@ -38,6 +38,10 @@ bool ShapeGraphicsItem::isMappingCurrent() const {
   return MainWindow::instance()->getCurrentMappingId() == getMapping()->getId();
 }
 
+bool ShapeGraphicsItem::isMappingVisible() const {
+  return MainWindow::instance()->getMappingManager().mappingIsVisible(getMapping());
+}
+
 void ShapeGraphicsItem::paint(QPainter *painter,
                               const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
