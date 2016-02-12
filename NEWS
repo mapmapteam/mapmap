@@ -10,7 +10,7 @@ Release notes for MapMap
 * Fix #154: Problem with some video files: shape is size of single point
 * Can rename paints and mappings via OSC
 * Can rename paints and mappings with double click
-* Fix #156 White rectangle around the fullscreen window
+* Fix #156: White rectangle around the fullscreen window
 * Fix #152: The software frozen when we load a project and the video files are not found
 * Abled to locate the video files if is not found when load a project
 * Fix #149: Deleting a mapping actually deletes a paint when the paint tab is chosen
@@ -19,6 +19,16 @@ Release notes for MapMap
 * Performance improvements
 * OSC general bug fixes
 * OSC support on OSX
+* Done #174: Be able to rename a Paint
+* DOne #72: Be able to name paints and mappings - for OSC controls
+* Center the test signal #97 (must use all the space available)
+* Fix #159: Program just freezes when importing corrupted video file
+* Done #145: The user doesn't need to see the undo stack
+* Done #40: Ctrl-Q should quit the application
+* Done #183: Display logging output in a console and be able to turn it on and off
+* Done #203: The toolbar can be shown or hidden at will by the user
+* Done #147: Be able to delete a mapping with the delete key #147 (tested on Ubuntu)
+
 
 2015-10-30 - MapMap 0.3.1
 -------------------------
