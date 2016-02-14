@@ -8,6 +8,7 @@ DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
 HEADERS  = \
     Commands.h \
+    ConcurrentQueue.h \
     ConsoleWindow.h \
     DestinationGLCanvas.h \
     MM.h \
