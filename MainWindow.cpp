@@ -52,6 +52,7 @@ MainWindow::MainWindow()
   _stickyVertices = true;
   _displayTestSignal = false;
   _displayUndoStack = false;
+  _showMenuBar = true; // Show menubar by default
 
   // UndoStack
   undoStack = new QUndoStack(this);
@@ -374,12 +375,25 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-#ifdef Q_OS_OSX
+#ifdef Q_OS_OSX // On Mac OS X
   // Do nothing
-#else
+#endif
+
+#ifdef Q_OS_LINUX // On Linux
   if (event->modifiers() & Qt::AltModifier) {
-    menuBar()->setHidden(!menuBar()->isHidden());
-    menuBar()->setFocus(Qt::MenuBarFocusReason);
+    QString currentDesktop = QString(getenv("XDG_CURRENT_DESKTOP")).toLower();
+    if (currentDesktop != "unity" && !_showMenuBar) {
+      menuBar()->setHidden(!menuBar()->isHidden());
+      menuBar()->setFocus(Qt::MenuBarFocusReason);
+    }
+  }
+#endif
+#ifdef Q_OS_WIN
+  if (event->modifiers() & Qt::AltModifier) {
+    if (!_showMenuBar) {
+      menuBar()->setHidden(!menuBar()->isHidden());
+      menuBar()->setFocus(Qt::MenuBarFocusReason);
+    }
   }
 #endif
 }
@@ -696,10 +710,29 @@ void MainWindow::updateStatusBar()
   QPointF mousePos = destinationCanvas->mapToScene(destinationCanvas->mapFromGlobal(destinationCanvas->cursor().pos()));
   if (currentSelectedItem) // Show mouse coordinate only if mappingList is not empty
     mousePosLabel->setText("Mouse coordinate:   X " + QString::number(mousePos.x()) + "   Y " + QString::number(mousePos.y()));
+  else
+    mousePosLabel->setText(""); // Otherwise set empty text.
   currentMessageLabel->setText(statusBar()->currentMessage());
   sourceZoomLabel->setText("Source: " + QString::number(int(sourceCanvas->getZoomFactor() * 100)).append(QChar('%')));
   destinationZoomLabel->setText("Destination: " + QString::number(int(destinationCanvas->getZoomFactor() * 100)).append(QChar('%')));
   undoLabel->setText(undoStack->text(undoStack->count() - 1));
+}
+
+void MainWindow::showMenuBar(bool shown)
+{
+  _showMenuBar = shown;
+
+#ifdef Q_OS_OSX // On Mac OS X
+  // Do nothing
+#endif
+#ifdef Q_OS_LINUX // On Linux
+  QString currentDesktop = QString(getenv("XDG_CURRENT_DESKTOP")).toLower();
+  if (currentDesktop != "unity")
+    menuBar()->setVisible(shown);
+#endif
+#ifdef Q_OS_WIN // On Windows
+    menuBar()->setVisible(shown);
+#endif
 }
 
 /**
@@ -1705,8 +1738,8 @@ void MainWindow::createActions()
   // Toggle show/hide menuBar
   showMenuBarAction = new QAction(tr("&Menu Bar"), this);
   showMenuBarAction->setCheckable(true);
-  showMenuBarAction->setChecked(true);
-  connect(showMenuBarAction, SIGNAL(triggered(bool)), menuBar(), SLOT(setVisible(bool)));
+  showMenuBarAction->setChecked(_showMenuBar);
+  connect(showMenuBarAction, SIGNAL(toggled(bool)), this, SLOT(showMenuBar(bool)));
 }
 
 void MainWindow::startFullScreen()
@@ -1781,7 +1814,13 @@ void MainWindow::createMenus()
   viewMenu = menuBar->addMenu(tr("&View"));
   // Toolbars menu
   toolBarsMenu = viewMenu->addMenu(tr("Toolbars"));
+#ifdef Q_OS_LINUX
+  if (QString(getenv("XDG_CURRENT_DESKTOP")).toLower() != "unity")
+    toolBarsMenu->addAction(showMenuBarAction);
+#endif
+#ifdef Q_OS_WIN
   toolBarsMenu->addAction(showMenuBarAction);
+#endif
   viewMenu->addSeparator();
   viewMenu->addAction(displayControlsAction);
   viewMenu->addAction(stickyVerticesAction);
@@ -1909,20 +1948,14 @@ void MainWindow::createStatusBar()
   currentMessageLabel->setContentsMargins(0, 0, 0, 0);
   // Current location of the mouse
   mousePosLabel = new QLabel(statusBar());
-  mousePosLabel->setText(""); // set empty text.
   mousePosLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   mousePosLabel->setContentsMargins(2, 0, 0, 0);
-
-  // Create separator
-  QFrame *separator = new QFrame(statusBar());
-  separator->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 
   // Add permanently into the statut bar
   statusBar()->addPermanentWidget(currentMessageLabel, 5);
   statusBar()->addPermanentWidget(undoLabel, 4);
   statusBar()->addPermanentWidget(mousePosLabel, 3);
   statusBar()->addPermanentWidget(sourceZoomLabel, 1);
-  //statusBar()->addPermanentWidget(separator);
   statusBar()->addPermanentWidget(destinationZoomLabel, 1);
 
   // Update the status bar
@@ -1963,8 +1996,8 @@ void MainWindow::readSettings()
     displayUndoStackAction->setChecked(settings.value("displayUndoStack").toBool());
   if (settings.contains("zoomToolBar"))
     displayZoomToolAction->setChecked(settings.value("zoomToolBar").toBool());
-  if (settings.contains("menuBarHidden"))
-    menuBar()->setHidden(settings.value("menuBarHidden").toBool());
+  if (settings.contains("showMenuBar"))
+    showMenuBarAction->setChecked(settings.value("showMenuBar").toBool());
 }
 
 void MainWindow::writeSettings()
@@ -1982,7 +2015,7 @@ void MainWindow::writeSettings()
   settings.setValue("osc_receive_port", config_osc_receive_port);
   settings.setValue("displayUndoStack", displayUndoStackAction->isChecked());
   settings.setValue("zoomToolBar", displayZoomToolAction->isChecked());
-  settings.setValue("menuBarHidden", menuBar()->isHidden());
+  settings.setValue("showMenuBar", showMenuBarAction->isChecked());
 }
 
 bool MainWindow::okToContinue()

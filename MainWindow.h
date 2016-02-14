@@ -88,6 +88,7 @@ private slots:
   void addColor();
   void about();
   void updateStatusBar();
+  void showMenuBar(bool shown);
   void openRecentFile();
   void clearRecentFileList();
   void openRecentVideo();
@@ -417,6 +418,9 @@ private:
   bool _stickyVertices;
 
   bool _displayUndoStack;
+
+  // Menu bar hidden state
+  bool _showMenuBar;
 
   // Keeps track of the current selected item, wether it's a paint or mapping.
   QListWidgetItem* currentSelectedItem;
