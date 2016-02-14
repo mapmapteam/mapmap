@@ -87,6 +87,10 @@ QWidget#zoom-toolbox {
     background-color: #272a36;
 }
 
+QStatusBar::item {
+    border: 0px solid black;
+}
+
 /*
  QListView::item:selected:!active {
      background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,

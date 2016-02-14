@@ -93,7 +93,7 @@ MainWindow::MainWindow()
 MainWindow::~MainWindow()
 {
   delete mappingManager;
-//  delete _facade;
+  //  delete _facade;
 #ifdef HAVE_OSC
   delete osc_timer;
 #endif // ifdef
@@ -244,21 +244,21 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
     QSharedPointer<Media> media = qSharedPointerCast<Media>(paint);
     Q_CHECK_PTR(media);
     updatePaintItem(paintId, createFileIcon(media->getUri()), strippedName(media->getUri()));
-//    QString fileName = QFileDialog::getOpenFileName(this,
-//        tr("Import media source file"), ".");
-//    // Restart video playback. XXX Hack
-//    if (!fileName.isEmpty())
-//      importMediaFile(fileName, paint, false);
+    //    QString fileName = QFileDialog::getOpenFileName(this,
+    //        tr("Import media source file"), ".");
+    //    // Restart video playback. XXX Hack
+    //    if (!fileName.isEmpty())
+    //      importMediaFile(fileName, paint, false);
   }
   if (paint->getType() == "image") {
     QSharedPointer<Image> image = qSharedPointerCast<Image>(paint);
     Q_CHECK_PTR(image);
     updatePaintItem(paintId, createImageIcon(image->getUri()), strippedName(image->getUri()));
-//    QString fileName = QFileDialog::getOpenFileName(this,
-//        tr("Import media source file"), ".");
-//    // Restart video playback. XXX Hack
-//    if (!fileName.isEmpty())
-//      importMediaFile(fileName, paint, true);
+    //    QString fileName = QFileDialog::getOpenFileName(this,
+    //        tr("Import media source file"), ".");
+    //    // Restart video playback. XXX Hack
+    //    if (!fileName.isEmpty())
+    //      importMediaFile(fileName, paint, true);
   }
   else if (paint->getType() == "color") {
     // Pop-up color-choosing dialog to choose color paint.
@@ -300,7 +300,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    bool eventKey = false;
+  bool eventKey = false;
   if (event->type() == QEvent::KeyPress)
   {
     QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
@@ -308,48 +308,48 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     // Menubar shortcut
     if (keyEvent->modifiers() == Qt::CTRL)
     {
-        switch (keyEvent->key()) {
-          case Qt::Key_N:
-            newFile();
-            break;
-          case Qt::Key_O:
-            open();
-            break;
-          case Qt::Key_S:
-            save();
-            break;
-          case Qt::Key_Q:
-            close();
-            break;
-          case Qt::Key_Delete:
-            deleteItem();
-            break;
-          case Qt::Key_M:
-            addMesh();
-            break;
-          case Qt::Key_T:
-            addTriangle();
-            break;
-          case Qt::Key_E:
-            addEllipse();
-            break;
-          case Qt::Key_W:
-            outputWindow->setVisible(true);
-            break;
-          case Qt::Key_R:
-            rewind();
-            break;
-          case Qt::Key_Z:
-            undoStack->undo();
-            break;
-        }
+      switch (keyEvent->key()) {
+      case Qt::Key_N:
+        newFile();
+        break;
+      case Qt::Key_O:
+        open();
+        break;
+      case Qt::Key_S:
+        save();
+        break;
+      case Qt::Key_Q:
+        close();
+        break;
+      case Qt::Key_Delete:
+        deleteItem();
+        break;
+      case Qt::Key_M:
+        addMesh();
+        break;
+      case Qt::Key_T:
+        addTriangle();
+        break;
+      case Qt::Key_E:
+        addEllipse();
+        break;
+      case Qt::Key_W:
+        outputWindow->setVisible(true);
+        break;
+      case Qt::Key_R:
+        rewind();
+        break;
+      case Qt::Key_Z:
+        undoStack->undo();
+        break;
+      }
     }
     else if (keyEvent->matches(QKeySequence::Redo))
     {
       undoStack->redo();
     }
     else if (keyEvent->key() == Qt::Key_Escape)
-       outputWindow->close();
+      outputWindow->close();
     else if (keyEvent->key() == Qt::Key_Space)
     {
       if (_isPlaying)
@@ -417,9 +417,9 @@ void MainWindow::open()
   if (okToContinue())
   {
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Open project"),
-        settings.value("defaultProjectDir").toString(),
-        tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
+                                                    tr("Open project"),
+                                                    settings.value("defaultProjectDir").toString(),
+                                                    tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
     if (! fileName.isEmpty())
       loadFile(fileName);
   }
@@ -453,8 +453,8 @@ bool MainWindow::saveAs()
 
   // Popul file dialog to choose filename.
   QString fileName = QFileDialog::getSaveFileName(this,
-      tr("Save project"), settings.value("defaultProjectDir").toString(),
-      tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
+                                                  tr("Save project"), settings.value("defaultProjectDir").toString(),
+                                                  tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
 
   // Restart video playback. XXX Hack
   videoTimer->start();
@@ -465,9 +465,9 @@ bool MainWindow::saveAs()
   if (! fileName.endsWith(MM::FILE_EXTENSION))
   {
     std::cout << "filename doesn't end with expected extension: " <<
-      fileName.toStdString() << std::endl;
-      fileName.append(".");
-      fileName.append(MM::FILE_EXTENSION);
+                 fileName.toStdString() << std::endl;
+    fileName.append(".");
+    fileName.append(MM::FILE_EXTENSION);
   }
 
   // Save to filename.
@@ -510,8 +510,8 @@ void MainWindow::addColor()
   // it should rather be a member of this class, or so.
   static QColor color = QColor(0, 255, 0, 255);
   color = QColorDialog::getColor(color, this, tr("Select Color"),
-    // QColorDialog::DontUseNativeDialog | 
-    QColorDialog::ShowAlphaChannel);
+                                 // QColorDialog::DontUseNativeDialog |
+                                 QColorDialog::ShowAlphaChannel);
   if (color.isValid())
   {
     addColorPaint(color);
@@ -667,25 +667,25 @@ void MainWindow::about()
 
   // Pop-up about dialog.
   QMessageBox::about(this, tr("About MapMap"),
-      tr("<h2><img src=\":mapmap-title\"/> %1</h2>"
-          "<p>Copyright &copy; 2013 %2.</p>"
-          "<p>MapMap is a free software for video mapping.</p>"
-          "<p>Projection mapping, also known as video mapping and spatial augmented reality, "
-          "is a projection technology used to turn objects, often irregularly shaped, into "
-          "a display surface for video projection. These objects may be complex industrial "
-          "landscapes, such as buildings. By using specialized software, a two or three "
-          "dimensional object is spatially mapped on the virtual program which mimics the "
-          "real environment it is to be projected on. The software can interact with a "
-          "projector to fit any desired image onto the surface of that object. This "
-          "technique is used by artists and advertisers alike who can add extra dimensions, "
-          "optical illusions, and notions of movement onto previously static objects. The "
-          "video is commonly combined with, or triggered by, audio to create an "
-          "audio-visual narrative."
-          "This project was made possible by the support of the International Organization of "
-          "La Francophonie.</p>"
-          "<p>http://mapmap.info<br />"
-          "http://www.francophonie.org</p>"
-          ).arg(MM::VERSION, MM::COPYRIGHT_OWNERS));
+                     tr("<h2><img src=\":mapmap-title\"/> %1</h2>"
+                        "<p>Copyright &copy; 2013 %2.</p>"
+                        "<p>MapMap is a free software for video mapping.</p>"
+                        "<p>Projection mapping, also known as video mapping and spatial augmented reality, "
+                        "is a projection technology used to turn objects, often irregularly shaped, into "
+                        "a display surface for video projection. These objects may be complex industrial "
+                        "landscapes, such as buildings. By using specialized software, a two or three "
+                        "dimensional object is spatially mapped on the virtual program which mimics the "
+                        "real environment it is to be projected on. The software can interact with a "
+                        "projector to fit any desired image onto the surface of that object. This "
+                        "technique is used by artists and advertisers alike who can add extra dimensions, "
+                        "optical illusions, and notions of movement onto previously static objects. The "
+                        "video is commonly combined with, or triggered by, audio to create an "
+                        "audio-visual narrative."
+                        "This project was made possible by the support of the International Organization of "
+                        "La Francophonie.</p>"
+                        "<p>http://mapmap.info<br />"
+                        "http://www.francophonie.org</p>"
+                        ).arg(MM::VERSION, MM::COPYRIGHT_OWNERS));
 
   // Restart video playback. XXX Hack
   videoTimer->start();
@@ -693,14 +693,18 @@ void MainWindow::about()
 
 void MainWindow::updateStatusBar()
 {
-  // Nothing to do for now.
-//  locationLabel->setText(spreadsheet->currentLocation());
-//  formulaLabel->setText(spreadsheet->currentFormula());
+  QPointF mousePos = destinationCanvas->mapToScene(destinationCanvas->mapFromGlobal(destinationCanvas->cursor().pos()));
+  if (currentSelectedItem) // Show mouse coordinate only if mappingList is not empty
+    mousePosLabel->setText("Mouse coordinate:   X " + QString::number(mousePos.x()) + "   Y " + QString::number(mousePos.y()));
+  currentMessageLabel->setText(statusBar()->currentMessage());
+  sourceZoomLabel->setText("Source: " + QString::number(int(sourceCanvas->getZoomFactor() * 100)).append(QChar('%')));
+  destinationZoomLabel->setText("Destination: " + QString::number(int(destinationCanvas->getZoomFactor() * 100)).append(QChar('%')));
+  undoLabel->setText(undoStack->text(undoStack->count() - 1));
 }
 
 /**
  * Called when the user wants to delete an item.
- * 
+ *
  * Deletes either a Paint or a Mapping.
  */
 void MainWindow::deleteItem()
@@ -726,7 +730,7 @@ void MainWindow::deleteItem()
     {
       qCritical() << "Selected item neither a mapping nor a paint." << endl;
     }
-    }
+  }
 }
 
 void MainWindow::duplicateMappingItem()
@@ -834,16 +838,16 @@ void MainWindow::paintListEditEnd(QWidget *editor)
 
 void MainWindow::openRecentFile()
 {
-	QAction *action = qobject_cast<QAction *>(sender());
-	if (action)
-		loadFile(action->data().toString());
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (action)
+    loadFile(action->data().toString());
 }
 
 void MainWindow::openRecentVideo()
 {
-    QAction *action = qobject_cast<QAction *>(sender());
-    if (action)
-        importMediaFile(action->data().toString(),false);
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (action)
+    importMediaFile(action->data().toString(),false);
 }
 
 bool MainWindow::clearProject()
@@ -899,7 +903,7 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
   {
     // Check if file exists before
     if (! fileExists(uri))
-        uri = locateMediaFile(uri, isImage);
+      uri = locateMediaFile(uri, isImage);
 
     Texture* tex = 0;
     if (isImage)
@@ -1179,7 +1183,7 @@ void MainWindow::deleteMapping(uid mappingId)
   if (Mapping::getUidAllocator().exists(mappingId))
   {
     removeMappingItem(mappingId);
-    }
+  }
 }
 
 void MainWindow::duplicateMapping(uid mappingId)
@@ -1202,14 +1206,14 @@ void MainWindow::duplicateMapping(uid mappingId)
   {
     if (shapeType == "quad")
       shapePtr = MShape::ptr(new Quad(shape->getVertex(0), shape->getVertex(1),
-                                   shape->getVertex(2), shape->getVertex(3)));
+                                      shape->getVertex(2), shape->getVertex(3)));
 
     if (shapeType == "triangle")
       shapePtr = MShape::ptr(new Triangle(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2)));
 
     if (shapeType == "ellipse")
       shapePtr = MShape::ptr(new Ellipse(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2),
-                             shape->getVertex(3)));
+                                         shape->getVertex(3)));
 
     mapping = new ColorMapping(paint, shapePtr);
   }
@@ -1219,14 +1223,14 @@ void MainWindow::duplicateMapping(uid mappingId)
 
     if (shapeType == "mesh")
       shapePtr = MShape::ptr(new Mesh(shape->getVertex(0), shape->getVertex(1),
-                                   shape->getVertex(3), shape->getVertex(2)));
+                                      shape->getVertex(3), shape->getVertex(2)));
 
     if (shapeType == "triangle")
       shapePtr = MShape::ptr(new Triangle(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2)));
 
     if (shapeType == "ellipse")
       shapePtr = MShape::ptr(new Ellipse(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2),
-                             shape->getVertex(3), shape->getVertex(4)));
+                                         shape->getVertex(3), shape->getVertex(4)));
 
     mapping = new TextureMapping(paint, shapePtr, inputShape);
   }
@@ -1251,8 +1255,8 @@ void MainWindow::deletePaint(uid paintId, bool replace)
   {
     if (replace == false) {
       int r = QMessageBox::warning(this, tr("MapMap"),
-          tr("Remove this paint and all its associated mappings?"),
-          QMessageBox::Ok | QMessageBox::Cancel);
+                                   tr("Remove this paint and all its associated mappings?"),
+                                   QMessageBox::Ok | QMessageBox::Cancel);
       if (r == QMessageBox::Ok)
       {
         removePaintItem(paintId);
@@ -1323,8 +1327,8 @@ void MainWindow::createLayout()
 
   // Output changed -> change destinatioin
   // XXX si je decommente cette ligne alors quand je clique sur ajouter media ca gele...
-//  connect(outputWindow->getCanvas()->scene(), SIGNAL(changed(const QList<QRectF>&)),
-//          destinationCanvas,                  SLOT(updateCanvas()));
+  //  connect(outputWindow->getCanvas()->scene(), SIGNAL(changed(const QList<QRectF>&)),
+  //          destinationCanvas,                  SLOT(updateCanvas()));
 
   // Create console logging output
   consoleWindow = ConsoleWindow::getInstance();
@@ -1415,18 +1419,18 @@ void MainWindow::createActions()
   // Recents file
   for (int i = 0; i < MaxRecentFiles; i++)
   {
-      recentFileActions[i] = new QAction(this);
-      recentFileActions[i]->setVisible(false);
-      connect(recentFileActions[i], SIGNAL(triggered()),
-              this, SLOT(openRecentFile()));
+    recentFileActions[i] = new QAction(this);
+    recentFileActions[i]->setVisible(false);
+    connect(recentFileActions[i], SIGNAL(triggered()),
+            this, SLOT(openRecentFile()));
   }
 
   // Recent video
   for (int i = 0; i < MaxRecentVideo; i++)
   {
-      recentVideoActions[i] = new QAction(this);
-      recentVideoActions[i]->setVisible(false);
-      connect(recentVideoActions[i], SIGNAL(triggered()), this, SLOT(openRecentVideo()));
+    recentVideoActions[i] = new QAction(this);
+    recentVideoActions[i]->setVisible(false);
+    connect(recentVideoActions[i], SIGNAL(triggered()), this, SLOT(openRecentVideo()));
   }
 
   // Clear recent video list action
@@ -1738,14 +1742,14 @@ void MainWindow::createMenus()
   separatorAction = fileMenu->addSeparator();
   recentFileMenu = fileMenu->addMenu(tr("Open Recents Projects"));
   for (int i = 0; i < MaxRecentFiles; ++i)
-      recentFileMenu->addAction(recentFileActions[i]);
+    recentFileMenu->addAction(recentFileActions[i]);
   recentFileMenu->addAction(clearRecentFileActions);
 
   // Recent import video
   recentVideoMenu = fileMenu->addMenu(tr("Open Recents Videos"));
   recentVideoMenu->addAction(emptyRecentVideos);
   for (int i = 0; i < MaxRecentVideo; ++i)
-      recentVideoMenu->addAction(recentVideoActions[i]);
+    recentVideoMenu->addAction(recentVideoActions[i]);
 
   // Exit
   fileMenu->addSeparator();
@@ -1801,7 +1805,7 @@ void MainWindow::createMenus()
   // Help.
   helpMenu = menuBar->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAction);
-//  helpMenu->addAction(aboutQtAction);
+  //  helpMenu->addAction(aboutQtAction);
 
 }
 
@@ -1888,20 +1892,40 @@ void MainWindow::createToolBars()
 
 void MainWindow::createStatusBar()
 {
-//  locationLabel = new QLabel(" W999 ");
-//  locationLabel->setAlignment(Qt::AlignHCenter);
-//  locationLabel->setMinimumSize(locationLabel->sizeHint());
-//
-//  formulaLabel = new QLabel;
-//  formulaLabel->setIndent(3);
-//
-//  statusBar()->addWidget(locationLabel);
-//  statusBar()->addWidget(formulaLabel, 1);
-//
-//  connect(spreadsheet, SIGNAL(currentCellChanged(int, int, int, int)), this,
-//      SLOT(updateStatusBar()));
-//  connect(spreadsheet, SIGNAL(modified()), this, SLOT(spreadsheetModified()));
+  // Create canvases zoom level statut
+  destinationZoomLabel = new QLabel(statusBar());
+  destinationZoomLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  destinationZoomLabel->setContentsMargins(2, 0, 0, 0);
+  sourceZoomLabel = new QLabel(statusBar());
+  sourceZoomLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  sourceZoomLabel->setContentsMargins(2, 0, 0, 0);
+  // Undoview statut
+  undoLabel = new QLabel(statusBar());
+  undoLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  undoLabel->setContentsMargins(2, 0, 0, 0);
+  // Standard message
+  currentMessageLabel = new QLabel(statusBar());
+  currentMessageLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  currentMessageLabel->setContentsMargins(0, 0, 0, 0);
+  // Current location of the mouse
+  mousePosLabel = new QLabel(statusBar());
+  mousePosLabel->setText(""); // set empty text.
+  mousePosLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  mousePosLabel->setContentsMargins(2, 0, 0, 0);
 
+  // Create separator
+  QFrame *separator = new QFrame(statusBar());
+  separator->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+
+  // Add permanently into the statut bar
+  statusBar()->addPermanentWidget(currentMessageLabel, 5);
+  statusBar()->addPermanentWidget(undoLabel, 4);
+  statusBar()->addPermanentWidget(mousePosLabel, 3);
+  statusBar()->addPermanentWidget(sourceZoomLabel, 1);
+  //statusBar()->addPermanentWidget(separator);
+  statusBar()->addPermanentWidget(destinationZoomLabel, 1);
+
+  // Update the status bar
   updateStatusBar();
 }
 
@@ -1966,9 +1990,9 @@ bool MainWindow::okToContinue()
   if (isWindowModified())
   {
     int r = QMessageBox::warning(this, tr("MapMap"),
-        tr("The document has been modified.\n"
-            "Do you want to save your changes?"),
-        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+                                 tr("The document has been modified.\n"
+                                    "Do you want to save your changes?"),
+                                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
     if (r == QMessageBox::Yes)
     {
       return save();
@@ -1989,10 +2013,10 @@ bool MainWindow::loadFile(const QString &fileName)
   if (! file.open(QFile::ReadOnly | QFile::Text))
   {
     QMessageBox::warning(this, tr("Error reading mapping project file"),
-      tr("Cannot read file %1:\n%2.")
-      .arg(fileName)
-      .arg(file.errorString()));
-      return false;
+                         tr("Cannot read file %1:\n%2.")
+                         .arg(fileName)
+                         .arg(file.errorString()));
+    return false;
   }
 
   // Clear current project.
@@ -2003,9 +2027,9 @@ bool MainWindow::loadFile(const QString &fileName)
   if (! reader.readFile(&file))
   {
     QMessageBox::warning(this, tr("Error reading mapping project file"),
-      tr("Parse error in file %1:\n\n%2")
-      .arg(fileName)
-      .arg(reader.errorString()));
+                         tr("Parse error in file %1:\n\n%2")
+                         .arg(fileName)
+                         .arg(reader.errorString()));
   }
   else
   {
@@ -2023,9 +2047,9 @@ bool MainWindow::saveFile(const QString &fileName)
   if (! file.open(QFile::WriteOnly | QFile::Text))
   {
     QMessageBox::warning(this, tr("Error saving mapping project"),
-      tr("Cannot write file %1:\n%2.")
-        .arg(fileName)
-        .arg(file.errorString()));
+                         tr("Cannot write file %1:\n%2.")
+                         .arg(fileName)
+                         .arg(file.errorString()));
     return false;
   }
 
@@ -2065,15 +2089,15 @@ void MainWindow::setCurrentFile(const QString &fileName)
 
 void MainWindow::setCurrentVideo(const QString &fileName)
 {
-    curVideo = fileName;
+  curVideo = fileName;
 
-    recentVideos = settings.value("recentVideos").toStringList();
-    recentVideos.removeAll(curVideo);
-    recentVideos.prepend(curVideo);
-    while (recentVideos.size() > MaxRecentVideo)
-        recentVideos.removeLast();
-    settings.setValue("recentVideos", recentVideos);
-    updateRecentVideoActions();
+  recentVideos = settings.value("recentVideos").toStringList();
+  recentVideos.removeAll(curVideo);
+  recentVideos.prepend(curVideo);
+  while (recentVideos.size() > MaxRecentVideo)
+    recentVideos.removeLast();
+  settings.setValue("recentVideos", recentVideos);
+  updateRecentVideoActions();
 }
 
 void MainWindow::updateRecentFileActions()
@@ -2084,14 +2108,14 @@ void MainWindow::updateRecentFileActions()
   for (int j = 0; j < numRecentFiles; ++j)
   {
     QString text = tr("&%1 %2")
-      .arg(j + 1)
-      .arg(strippedName(recentFiles[j]));
+        .arg(j + 1)
+        .arg(strippedName(recentFiles[j]));
     recentFileActions[j]->setText(text);
     recentFileActions[j]->setData(recentFiles[j]);
     recentFileActions[j]->setVisible(true);
     clearRecentFileActions->setVisible(true);
   }
-  
+
   for (int i = numRecentFiles; i < MaxRecentFiles; ++i)
   {
     recentFileActions[i]->setVisible(false);
@@ -2110,37 +2134,37 @@ void MainWindow::updateRecentFileActions()
 
 void MainWindow::updateRecentVideoActions()
 {
-    recentVideos = settings.value("recentVideos").toStringList();
-    int numRecentVideos = qMin(recentVideos.size(), int(MaxRecentVideo));
+  recentVideos = settings.value("recentVideos").toStringList();
+  int numRecentVideos = qMin(recentVideos.size(), int(MaxRecentVideo));
 
-    for (int i = 0; i < numRecentVideos; ++i)
-    {
-        QString text = tr("&%1 %2")
-                .arg(i + 1)
-                .arg(strippedName(recentVideos[i]));
-        recentVideoActions[i]->setText(text);
-        recentVideoActions[i]->setData(recentVideos[i]);
-        recentVideoActions[i]->setVisible(true);
-    }
+  for (int i = 0; i < numRecentVideos; ++i)
+  {
+    QString text = tr("&%1 %2")
+        .arg(i + 1)
+        .arg(strippedName(recentVideos[i]));
+    recentVideoActions[i]->setText(text);
+    recentVideoActions[i]->setData(recentVideos[i]);
+    recentVideoActions[i]->setVisible(true);
+  }
 
-    for (int j = numRecentVideos; j < MaxRecentVideo; ++j)
-        recentVideoActions[j]->setVisible(false);
+  for (int j = numRecentVideos; j < MaxRecentVideo; ++j)
+    recentVideoActions[j]->setVisible(false);
 
-    if (numRecentVideos >  0)
-    {
-        emptyRecentVideos->setVisible(false);
-    }
+  if (numRecentVideos >  0)
+  {
+    emptyRecentVideos->setVisible(false);
+  }
 }
 
 void MainWindow::clearRecentFileList()
 {
-    recentFiles = settings.value("recentFiles").toStringList();
+  recentFiles = settings.value("recentFiles").toStringList();
 
-    while (recentFiles.size() > 0)
-        recentFiles.clear();
+  while (recentFiles.size() > 0)
+    recentFiles.clear();
 
-    settings.setValue("recentFiles", recentFiles);
-    updateRecentFileActions();
+  settings.setValue("recentFiles", recentFiles);
+  updateRecentFileActions();
 }
 
 // TODO
@@ -2252,8 +2276,8 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
   paintPropertyPanel->setEnabled(true);
 
   // When paint value is changed, update canvases.
-//  connect(paintGui.get(), SIGNAL(valueChanged()),
-//          this,           SLOT(updateCanvases()));
+  //  connect(paintGui.get(), SIGNAL(valueChanged()),
+  //          this,           SLOT(updateCanvases()));
 
   connect(paintGui.data(), SIGNAL(valueChanged(Paint::ptr)),
           this,            SLOT(handlePaintChanged(Paint::ptr)));
@@ -2365,7 +2389,7 @@ void MainWindow::addMappingItem(uid mappingId)
 
   connect(destinationCanvas, SIGNAL(shapeChanged(MShape*)),
           mapper.data(),     SLOT(updateShape(MShape*)));
-  
+
   // Switch to mapping tab.
   contentTab->setCurrentWidget(mappingSplitter);
 
@@ -2513,18 +2537,18 @@ QString MainWindow::locateMediaFile(const QString &uri, bool isImage)
 
   // Show a warning and offer to locate the file
   QMessageBox::warning(this,
-    tr("Cannot load movie"),
-    tr("Unable to use the file « %1 » \n"
-    "The original file is not found. Will you locate?")
-    .arg(filename));
+                       tr("Cannot load movie"),
+                       tr("Unable to use the file « %1 » \n"
+                          "The original file is not found. Will you locate?")
+                       .arg(filename));
 
   // Set the new uri
   url = QFileDialog::getOpenFileName(this,
-    tr("Locate file « %1 »").arg(filename),
-    directory,
-    tr("%1 files (%2)")
-    .arg(mediaType)
-    .arg(mediaFilter));
+                                     tr("Locate file « %1 »").arg(filename),
+                                     directory,
+                                     tr("%1 files (%2)")
+                                     .arg(mediaType)
+                                     .arg(mediaFilter));
 
   return url;
 }
@@ -2551,6 +2575,9 @@ void MainWindow::updateCanvases()
   // Update position of zoom toolbar
   sourceCanvas->updateZoomToolbar();
   destinationCanvas->updateZoomToolbar();
+
+  // Update statut bar
+  updateStatusBar();
 }
 
 void MainWindow::enableDisplayControls(bool display)
@@ -2620,8 +2647,8 @@ void MainWindow::connectProjectWidgets()
   connect(paintList, SIGNAL(itemPressed(QListWidgetItem*)),
           this,      SLOT(handleItemSelected(QListWidgetItem*)));
 
-//  connect(paintList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-//          this,      SLOT(handleItemDoubleClicked(QListWidgetItem*)));
+  //  connect(paintList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+  //          this,      SLOT(handleItemDoubleClicked(QListWidgetItem*)));
 
   connect(paintList, SIGNAL(itemActivated(QListWidgetItem*)),
           this,      SLOT(handleItemSelected(QListWidgetItem*)));
@@ -2649,12 +2676,12 @@ void MainWindow::connectProjectWidgets()
 
   connect(mappingList->model(), SIGNAL(rowsMoved(const QModelIndex&, int, int, const QModelIndex &, int)),
           this,                 SLOT(handleMappingIndexesMoved()));
-    // Rename mapping with double click
-    connect(mappingList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-            this,      SLOT(renameMappingItem()));
-    // When finish to edit mapping item
-    connect(mappingList->itemDelegate(), SIGNAL(commitData(QWidget*)),
-            this, SLOT(mappingListEditEnd(QWidget*)));
+  // Rename mapping with double click
+  connect(mappingList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+          this,      SLOT(renameMappingItem()));
+  // When finish to edit mapping item
+  connect(mappingList->itemDelegate(), SIGNAL(commitData(QWidget*)),
+          this, SLOT(mappingListEditEnd(QWidget*)));
 }
 
 void MainWindow::disconnectProjectWidgets()
@@ -2732,7 +2759,7 @@ QIcon MainWindow::createImageIcon(const QString& filename) {
 void MainWindow::setCurrentPaint(int uid)
 {
   if (uid == NULL_UID)
-	removeCurrentPaint();
+    removeCurrentPaint();
   else {
     if (currentPaintId != uid) {
       currentPaintId = uid;
@@ -2857,7 +2884,7 @@ void MainWindow::pollOscInterface()
 //     std::cout << std::endl;
 //     std::cout.flush();
 //   }
-// 
+//
 //   if (command.size() < 2)
 //       return;
 //   if (command.at(0).type() != QVariant::String)
@@ -2866,7 +2893,7 @@ void MainWindow::pollOscInterface()
 //       return;
 //   std::string path = command.at(0).toString().toStdString();
 //   std::string typetags = command.at(1).toString().toStdString();
-// 
+//
 //   // Handle all OSC messages here
 //   if (path == "/image/uri" && typetags == "s")
 //   {
@@ -2887,38 +2914,38 @@ void MainWindow::pollOscInterface()
 
 bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
 {
-    // TODO: const QString &
+  // TODO: const QString &
 
-    bool success = false;
-    Paint::ptr paint = this->mappingManager->getPaintById(texture_id);
-    if (paint.isNull())
+  bool success = false;
+  Paint::ptr paint = this->mappingManager->getPaintById(texture_id);
+  if (paint.isNull())
+  {
+    std::cout << "No such texture paint id " << texture_id << std::endl;
+    success = false;
+  }
+  else
+  {
+    if (paint->getType() == "media")
     {
-        std::cout << "No such texture paint id " << texture_id << std::endl;
-        success = false;
+      Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
+      videoTimer->stop();
+      success = media->setUri(QString(uri.c_str()));
+      videoTimer->start();
+    }
+    else if (paint->getType() == "image")
+    {
+      Image *media = (Image*) paint.data(); // FIXME: use sharedptr cast
+      videoTimer->stop();
+      success = media->setUri(QString(uri.c_str()));
+      videoTimer->start();
     }
     else
     {
-        if (paint->getType() == "media")
-        {
-          Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
-          videoTimer->stop();
-          success = media->setUri(QString(uri.c_str()));
-          videoTimer->start();
-        }
-        else if (paint->getType() == "image")
-        {
-          Image *media = (Image*) paint.data(); // FIXME: use sharedptr cast
-          videoTimer->stop();
-          success = media->setUri(QString(uri.c_str()));
-          videoTimer->start();
-        }
-        else
-        {
-            std::cout << "Paint id " << texture_id << " is not a media texture." << std::endl;
-            return false;
-        }
+      std::cout << "Paint id " << texture_id << " is not a media texture." << std::endl;
+      return false;
     }
-    return success;
+  }
+  return success;
 }
 
 bool MainWindow::setTextureRate(int texture_id, double rate)
@@ -2926,23 +2953,23 @@ bool MainWindow::setTextureRate(int texture_id, double rate)
   Paint::ptr paint = this->mappingManager->getPaintById(texture_id);
   if (paint.isNull())
   {
-      std::cout << "No such texture paint id " << texture_id << std::endl;
-      return false;
+    std::cout << "No such texture paint id " << texture_id << std::endl;
+    return false;
   }
   else
   {
-      if (paint->getType() == "media")
-      {
-        Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
-        videoTimer->stop();
-        media->setRate(rate);
-        videoTimer->start();
-      }
-      else
-      {
-          std::cout << "Paint id " << texture_id << " is not a media texture." << std::endl;
-          return false;
-      }
+    if (paint->getType() == "media")
+    {
+      Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
+      videoTimer->stop();
+      media->setRate(rate);
+      videoTimer->start();
+    }
+    else
+    {
+      std::cout << "Paint id " << texture_id << " is not a media texture." << std::endl;
+      return false;
+    }
   }
   return true;
 }
@@ -2959,15 +2986,15 @@ bool MainWindow::setTextureVolume(int texture_id, double volume)
   {
     if (paint->getType() == "media")
     {
-        Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
-        videoTimer->stop();
-        media->setVolume(volume);
-        videoTimer->start();
+      Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
+      videoTimer->stop();
+      media->setVolume(volume);
+      videoTimer->start();
     }
     else
     {
-        std::cout << "Paint id " << texture_id << " is not a media texture." << std::endl;
-        return false;
+      std::cout << "Paint id " << texture_id << " is not a media texture." << std::endl;
+      return false;
     }
   }
   return true;

@@ -427,6 +427,12 @@ private:
   // UndoStack
   QUndoStack *undoStack;
 
+  // Labels for status bar
+  QLabel *destinationZoomLabel;
+  QLabel *sourceZoomLabel;
+  QLabel *undoLabel;
+  QLabel *currentMessageLabel;
+  QLabel *mousePosLabel;
 
 
 public:
