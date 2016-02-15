@@ -25,6 +25,13 @@
 #include "MainWindow.h"
 #include <QVariant>
 
+const QString OscInterface::OSC_ROOT("mapmap");
+const QString OscInterface::OSC_PAINT("paint");
+const QString OscInterface::OSC_MAPPING("mapping");
+const QString OscInterface::OSC_QUIT("quit");
+const QString OscInterface::OSC_PAINT_MEDIA("media");
+const QString OscInterface::OSC_PAINT_COLOR("color");
+
 OscInterface::OscInterface(
 //        MainWindow* owner,
     const std::string &listen_port) :
@@ -134,17 +141,16 @@ int OscInterface::genericHandler(const char *path, const char *types,
 static void printCommand(QVariantList &command) {
   for (int i = 0; i < command.size(); ++i) {
     if (command.at(i).type() == QVariant::Int) {
-      std::cout << command.at(i).toInt() << " ";
+      qDebug() << command.at(i).toInt() << " ";
     } else if (command.at(i).type() == QVariant::Double) {
-      std::cout << command.at(i).toDouble() << " ";
+      qDebug() << command.at(i).toDouble() << " ";
     } else if (command.at(i).type() == QVariant::String) {
-      std::cout << command.at(i).toString().toStdString() << " ";
+      qDebug() << command.at(i).toString().toStdString() << " ";
     } else {
-      std::cout << "(?) ";
+      qDebug() << "(?) ";
     }
   }
-  std::cout << std::endl;
-  std::cout.flush();
+  qDebug() << endl;
 }
 
 void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & command) {
@@ -163,80 +169,67 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
     return;
   if (command.at(1).type() != QVariant::String)
     return;
-  std::string path = command.at(0).toString().toStdString();
-  std::string typetags = command.at(1).toString().toStdString();
 
-  // Handle all OSC messages here
-  if (path == "/mapmap/paint/media/load" && typetags == "is")
+  QString path     = command.at(0).toString();
+  QString typetags = command.at(1).toString();
+
+  bool pathIsValid = false;
+  QPair<QString,QString> iterator = next(path);
+
+  if (iterator.first.isEmpty())
   {
-      int paint_id = command.at(2).toInt();
-      std::string image_uri = command.at(3).toString().toStdString();
-      //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
-      main_window.setTextureUri(paint_id, image_uri);
+    // Check root tag.
+    iterator = next(iterator.second);
+    if (iterator.first == OSC_ROOT)
+    {
+      // Check type.
+      iterator = next(iterator.second);
+      if (iterator.first == OSC_PAINT)
+      {
+        // Find paint.
+        int id = command.at(2).toInt();
+        Paint::ptr elem = main_window.getMappingManager().getPaintById(id);
+        pathIsValid = setElementProperty(elem, next(iterator.second).first, command.at(3));
+      }
+      else if (iterator.first == OSC_MAPPING)
+      {
+        // Find mapping.
+        int id = command.at(2).toInt();
+        Mapping::ptr elem = main_window.getMappingManager().getMappingById(id);
+        pathIsValid = setElementProperty(elem, next(iterator.second).first, command.at(3));
+      }
+      else if (iterator.first == OSC_QUIT)
+      {
+        main_window.close();
+      }
+    }
   }
-  else if (path == "/mapmap/paint/media/rate" && typetags == "if")
+
+  if (!pathIsValid)
   {
-      int paint_id = command.at(2).toInt();
-      float rate = command.at(3).toDouble();
-      //std::cout << "load /mapmap/paint/media/load " << paint_id << " " << image_uri << std::endl;
-      main_window.setTextureRate(paint_id, rate);
-  }
-  else if (path == "/mapmap/paint/media/volume" && typetags == "if")
-  {
-      int paint_id = command.at(2).toInt();
-      float volume = command.at(3).toDouble();
-      //std::cout << "set /mapmap/paint/media/volume " << paint_id << " " << image_uri << std::endl;
-      main_window.setTextureVolume(paint_id, volume);
-  }
-  else if (path == "/mapmap/paint/media/played" && typetags == "ii")
-  {
-      int paint_id = command.at(2).toInt();
-      int played = command.at(3).toInt();
-      //std::cout << "set /mapmap/paint/media/played " << paint_id << " " << image_uri << std::endl;
-      main_window.setTexturePlayState(paint_id, played ? true : false);
-  }
-  else if (path == "/mapmap/mapping/visible" && typetags == "ii")
-  {
-      int mappingId = command.at(2).toInt();
-      int visible = command.at(3).toInt();
-      //std::cout << "Visibility of MappingId " << mappingId << " set to " << visible << std::endl;
-      main_window.setMappingVisible(mappingId, visible ? true : false);
-  }
-  else if (path == "/mapmap/output/fullscreen" && typetags == "i")
-  {
-    int enable = command.at(2).toInt();
-    main_window.setOutputWindowFullScreen(enable == 1 ? true : false);
-  }
-  else if (path == "/mapmap/mapping/rename" && typetags == "is")
-  {
-    int mappingId = command.at(2).toInt();
-    QString mappingName = command.at(3).toString();
-    main_window.renameMappingItem(mappingId, mappingName);
-  }
-  else if (path == "/mapmap/paint/media/rename" && typetags == "is")
-  {
-    int paintId = command.at(2).toInt();
-    QString paintName = command.at(3).toString();
-    main_window.renamePaintItem(paintId, paintName);
-  }
-  else if (path == "/mapmap/quit")
-  {
-    main_window.close();
-  }
-  else
-  {
-    std::cout << "Unhandled OSC message: ";
+    qDebug() << "Path could not be processed: " << path << endl;
     printCommand(command);
   }
 
-  //else if (path == "/add/quad")
-  //    addQuad();
-  //else if (path == "/add/triangle")
-  //    addTriangle();
-  //else if (path == "/project/save")
-  //    save();
-  //else if (path == "/project/open")
-  //    open();
 }
+
+QPair<QString,QString> OscInterface::next(const QString& path)
+{
+  int idx = path.indexOf('/');
+  if (idx >= 0)
+    return QPair<QString,QString>(path.left(idx), path.right(path.size()-idx-1));
+  else
+    return QPair<QString,QString>(path, "");
+
+}
+
+bool OscInterface::setElementProperty(const QSharedPointer<Element>& elem, const QString& property, const QVariant& value)
+{
+  if (elem.isNull())
+    return false;
+  else
+    return elem->setProperty(property.toUtf8().data(), value);
+}
+
 
 #endif // HAVE_OSC
