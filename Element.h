@@ -40,6 +40,8 @@ class Element : public Serializable
   Q_PROPERTY(QIcon   icon    READ getIcon)
 
 public:
+  typedef QSharedPointer<Element> ptr;
+
   Element(uid id, UidAllocator* allocator);
   virtual ~Element();
 
