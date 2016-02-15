@@ -1,8 +1,7 @@
 /*
- * ProjectWriter.h
+ * Element.cpp
  *
- * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
- * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2016 Sofian Audry -- info(@)sofianaudry(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,28 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef PROJECT_WRITER_H_
-#define PROJECT_WRITER_H_
 
-#include <QXmlStreamWriter>
-#include "MappingManager.h"
-#include "Mapping.h"
-#include "Paint.h"
-#include "MainWindow.h"
+#include "Element.h"
 
-#include "ProjectLabels.h"
+#include <QDebug>
 
-#include "Shapes.h"
-
-class ProjectWriter
+Element::Element(uid id, UidAllocator* allocator) : _name(""), _isLocked(false), _opacity(1.0f), _allocator(allocator)
 {
-public:
-    ProjectWriter (MainWindow *window);
-    bool writeFile (QIODevice *device);
+  if (id == NULL_UID)
+    id = allocator->allocate();
+  else
+  {
+    Q_ASSERT(!allocator->exists(id));
+    allocator->reserve(id);
+  }
+  // Assign id.
+  _id = id;
+  // Reset name.
+  unsetName();
+}
 
-  private:
-    QXmlStreamWriter _xml;
-    MainWindow *_window;
-};
-
-#endif
+Element::~Element() {
+  _allocator->free(_id);
+}

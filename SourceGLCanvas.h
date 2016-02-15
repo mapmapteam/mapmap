@@ -36,8 +36,8 @@ public:
   virtual ~SourceGLCanvas() {}
 
   virtual bool isOutput() const { return false; }
-  virtual MShape::ptr getShapeFromMappingId(uid mappingId) const;
-  virtual QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMappingId(uid mappingId) const;
+  virtual MShape::ptr getShapeFromMapping(const Mapping::ptr& mapping) const;
+  virtual QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMapping(const Mapping::ptr& mapping) const;
 
 private:
 //  virtual void doDraw(QPainter* painter);

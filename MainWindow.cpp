@@ -2086,7 +2086,7 @@ bool MainWindow::saveFile(const QString &fileName)
     return false;
   }
 
-  ProjectWriter writer(mappingManager);
+  ProjectWriter writer(this);
   if (writer.writeFile(&file))
   {
     setCurrentFile(fileName);

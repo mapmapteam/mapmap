@@ -1,8 +1,7 @@
 /*
- * ProjectWriter.h
+ * ProjectLabels.h
  *
- * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
- * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2016 Sofian Audry -- info(@)sofianaudry(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,28 +16,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef PROJECT_WRITER_H_
-#define PROJECT_WRITER_H_
 
-#include <QXmlStreamWriter>
-#include "MappingManager.h"
-#include "Mapping.h"
-#include "Paint.h"
-#include "MainWindow.h"
+#ifndef PROJECTLABELS_H_
+#define PROJECTLABELS_H_
 
-#include "ProjectLabels.h"
-
-#include "Shapes.h"
-
-class ProjectWriter
-{
+class ProjectLabels {
 public:
-    ProjectWriter (MainWindow *window);
-    bool writeFile (QIODevice *device);
+  static const char* CLASS_NAME;
+  static const char* PAINTS;
+  static const char* MAPPINGS;
 
-  private:
-    QXmlStreamWriter _xml;
-    MainWindow *_window;
+  static const char* ID;
+  static const char* NAME;
+  static const char* PAINT_ID;
+
+  static const char* DESTINATION;
+  static const char* SOURCE;
 };
 
-#endif
+#endif /* PROJECTLABELS_H_ */

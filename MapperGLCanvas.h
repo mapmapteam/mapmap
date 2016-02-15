@@ -54,8 +54,8 @@ public:
 
   /// Returns shape associated with mapping id.
   virtual bool isOutput() const = 0;
-  virtual MShape::ptr getShapeFromMappingId(uid mappingId) const = 0;
-  virtual QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMappingId(uid mappingId) const = 0;
+  virtual MShape::ptr getShapeFromMapping(const Mapping::ptr& mapping) const = 0;
+  virtual QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMapping(const Mapping::ptr& mapping) const = 0;
 
   MShape::ptr getCurrentShape();
   QSharedPointer<ShapeGraphicsItem> getCurrentShapeGraphicsItem();

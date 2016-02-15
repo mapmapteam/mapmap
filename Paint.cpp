@@ -24,33 +24,31 @@
 
 UidAllocator Paint::allocator;
 
-Paint::Paint(uid id)
-  : _opacity(1.0f)
+Paint::Paint(uid id) : Element(id, &allocator)
 {
-  if (id == NULL_UID)
-    id = allocator.allocate();
-  else
-  {
-    Q_ASSERT(!allocator.exists(id));
-    allocator.reserve(id);
-  }
-  // Assign id.
-  _id = id;
 }
 
 Paint::~Paint()
 {
-  allocator.free(_id);
+  allocator.free(getId());
 }
 
 bool Image::setUri(const QString &uri)
 {
   this->uri = uri;
   build();
-  return true;
+  return !image.isNull();
 }
 
 /* Implementation of the Video class */
+Media::Media(int id) : Texture(id),
+    uri(""),
+    impl_(NULL)
+{
+  impl_ = new MediaImpl(uri, false);
+  setRate(1);
+  setVolume(1);
+}
 
 Media::Media(const QString uri_, bool live, double rate, uid id):
     Texture(id),
@@ -59,6 +57,7 @@ Media::Media(const QString uri_, bool live, double rate, uid id):
 {
   impl_ = new MediaImpl(uri_, live);
   setRate(rate);
+  setVolume(1);
 }
 
 // vertigo
@@ -124,22 +123,22 @@ bool Media::bitsHaveChanged() const
 
 void Media::setRate(double rate)
 {
-  impl_->setRate(rate / 100.0);
+  impl_->setRate(rate);
 }
 
 double Media::getRate() const
 {
-  return impl_->getRate() * 100.0;
+  return impl_->getRate();
 }
 
 void Media::setVolume(double rate)
 {
-  impl_->setVolume(rate / 100.0);
+  impl_->setVolume(rate);
 }
 
 double Media::getVolume() const
 {
-  return impl_->getVolume() * 100.0;
+  return impl_->getVolume();
 }
 
 bool Media::hasVideoSupport()

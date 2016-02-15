@@ -137,7 +137,7 @@ public slots:
   bool clearProject();
 
   /// Create or replace a media paint (or image).
-  uid createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage, bool live=false, double rate=100.0);
+  uid createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage, bool live=false, double rate=1.0);
 
   /// Create or replace a color paint.
   uid createColorPaint(uid paintId, QColor color);
@@ -445,6 +445,8 @@ public:
   MappingGui::ptr getMappingGuiByMappingId(uint id) const { return mappers[id]; }
   uid getCurrentPaintId() const { return currentPaintId; }
   uid getCurrentMappingId() const { return currentMappingId; }
+  Mapping::ptr getCurrentMapping() const { return mappingManager->getMappingById(currentMappingId); }
+  Paint::ptr getCurrentPaint() const { return mappingManager->getPaintById(currentPaintId); }
   OutputGLWindow* getOutputWindow() const { return outputWindow; }
   bool hasCurrentPaint() const { return _hasCurrentPaint; }
   bool hasCurrentMapping() const { return _hasCurrentMapping; }

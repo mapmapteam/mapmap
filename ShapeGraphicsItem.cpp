@@ -118,7 +118,7 @@ void ColorGraphicsItem::_prePaint(QPainter *painter,
 
   // Set brush.
   QColor col = color->getColor();
-  col.setAlphaF(getMapping()->getOpacity());
+  col.setAlphaF(getMapping()->getComputedOpacity());
   painter->setBrush(col);
 }
 
@@ -261,7 +261,7 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
 
   // Set texture color (apply opacity).
   glColor4f(1.0f, 1.0f, 1.0f,
-            isOutput() ? getMapping()->getOpacity() : getMapping()->getPaint()->getOpacity());
+            isOutput() ? getMapping()->getComputedOpacity() : getMapping()->getPaint()->getOpacity());
 }
 
 void TextureGraphicsItem::_postPaint(QPainter* painter,
@@ -321,8 +321,8 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   {
     QSharedPointer<Mesh> outputMesh = qSharedPointerCast<Mesh>(_shape);
     QSharedPointer<Mesh> inputMesh  = qSharedPointerCast<Mesh>(_inputShape);
-    QVector<QVector<Quad> > outputQuads = outputMesh->getQuads2d();
-    QVector<QVector<Quad> > inputQuads  = inputMesh->getQuads2d();
+    QVector<QVector<Quad::ptr> > outputQuads = outputMesh->getQuads2d();
+    QVector<QVector<Quad::ptr> > inputQuads  = inputMesh->getQuads2d();
 
     // Check if we increased or decreased number of columns/rows in mesh.
     bool forceRebuild = false;
@@ -354,14 +354,14 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
     {
       for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
       {
-        Quad& inputQuad  = inputQuads[x][y];
-        Quad& outputQuad = outputQuads[x][y];
+        Quad::ptr inputQuad  = inputQuads[x][y];
+        Quad::ptr outputQuad = outputQuads[x][y];
 
         // Verify if item needs recomputing.
         CacheQuadItem& item = _cachedQuadItems[x][y];
         if (forceRebuild ||
-            item.parent.input.toPolygon()  != inputQuad.toPolygon() ||
-            item.parent.output.toPolygon() != outputQuad.toPolygon()) {
+            item.parent.input->toPolygon()  != inputQuad->toPolygon() ||
+            item.parent.output->toPolygon() != outputQuad->toPolygon()) {
 
           // Copy input and output quads for verification purposes.
           item.parent.input  = inputQuad;
@@ -370,7 +370,7 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
           // Recompute sub quads.
           item.subQuads.clear();
 
-          QSizeF size = mapFromScene(outputQuad.toPolygon()).boundingRect().size();
+          QSizeF size = mapFromScene(outputQuad->toPolygon()).boundingRect().size();
           float area = size.width() * size.height();
 
           // Rebuild cache quad item.
@@ -381,9 +381,9 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
         foreach (CacheQuadMapping m, item.subQuads)
         {
           glBegin(GL_QUADS);
-          for (int i = 0; i < outputQuad.nVertices(); i++)
+          for (int i = 0; i < outputQuad->nVertices(); i++)
           {
-            Util::setGlTexPoint(*_texture.toStrongRef(), m.input.getVertex(i), mapFromScene(m.output.getVertex(i)));
+            Util::setGlTexPoint(*_texture.toStrongRef(), m.input->getVertex(i), mapFromScene(m.output->getVertex(i)));
           }
           glEnd();
         }
@@ -392,21 +392,21 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   }
 }
 
-void MeshTextureGraphicsItem::_buildCacheQuadItem(CacheQuadItem& item, const Quad& inputQuad, const Quad& outputQuad, float outputArea, float inputThreshod, float outputThreshold, int minArea, int maxDepth)
+void MeshTextureGraphicsItem::_buildCacheQuadItem(CacheQuadItem& item, const Quad::ptr& inputQuad, const Quad::ptr& outputQuad, float outputArea, float inputThreshod, float outputThreshold, int minArea, int maxDepth)
 {
   bool stop = false;
   if (maxDepth == 0 || outputArea < minArea)
     stop = true;
   else {
-    QPointF oa = mapFromScene(outputQuad.getVertex(0));
-    QPointF ob = mapFromScene(outputQuad.getVertex(1));
-    QPointF oc = mapFromScene(outputQuad.getVertex(2));
-    QPointF od = mapFromScene(outputQuad.getVertex(3));
+    QPointF oa = mapFromScene(outputQuad->getVertex(0));
+    QPointF ob = mapFromScene(outputQuad->getVertex(1));
+    QPointF oc = mapFromScene(outputQuad->getVertex(2));
+    QPointF od = mapFromScene(outputQuad->getVertex(3));
 
-    QPointF ia = inputQuad.getVertex(0);
-    QPointF ib = inputQuad.getVertex(1);
-    QPointF ic = inputQuad.getVertex(2);
-    QPointF id = inputQuad.getVertex(3);
+    QPointF ia = inputQuad->getVertex(0);
+    QPointF ib = inputQuad->getVertex(1);
+    QPointF ic = inputQuad->getVertex(2);
+    QPointF id = inputQuad->getVertex(3);
 
     QPointF outputV1 = oa-ob;
     QPointF outputV2 = oc-ob;
@@ -444,8 +444,8 @@ void MeshTextureGraphicsItem::_buildCacheQuadItem(CacheQuadItem& item, const Qua
   }
   else // subdivide
   {
-    QList<Quad> inputSubQuads  = _split(inputQuad);
-    QList<Quad> outputSubQuads = _split(outputQuad);
+    QList<Quad::ptr> inputSubQuads  = _split(*inputQuad);
+    QList<Quad::ptr> outputSubQuads = _split(*outputQuad);
     for (int i = 0; i < inputSubQuads.size(); i++)
     {
       _buildCacheQuadItem(item, inputSubQuads[i], outputSubQuads[i], outputArea*0.25, inputThreshod, outputThreshold, minArea, (maxDepth == -1 ? -1 : maxDepth - 1));
@@ -453,9 +453,9 @@ void MeshTextureGraphicsItem::_buildCacheQuadItem(CacheQuadItem& item, const Qua
   }
 }
 
-QList<Quad> MeshTextureGraphicsItem::_split(const Quad& quad)
+QList<Quad::ptr> MeshTextureGraphicsItem::_split(const Quad& quad)
 {
-  QList<Quad> quads;
+  QList<Quad::ptr> quads;
 
   QPointF a = quad.getVertex(0);
   QPointF b = quad.getVertex(1);
@@ -469,10 +469,10 @@ QList<Quad> MeshTextureGraphicsItem::_split(const Quad& quad)
 
   QPointF abcd = (ab + cd) * 0.5f;
 
-  quads.append(Quad(a, ab, abcd, ad));
-  quads.append(Quad(ab, b, bc, abcd));
-  quads.append(Quad(abcd, bc, c, cd));
-  quads.append(Quad(ad, abcd, cd, d));
+  quads.append(Quad::ptr(new Quad(a, ab, abcd, ad)));
+  quads.append(Quad::ptr(new Quad(ab, b, bc, abcd)));
+  quads.append(Quad::ptr(new Quad(abcd, bc, c, cd)));
+  quads.append(Quad::ptr(new Quad(ad, abcd, cd, d)));
 
   return quads;
 }

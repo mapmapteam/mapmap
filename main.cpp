@@ -12,6 +12,9 @@
 #include "MM.h"
 #include "MainWindow.h"
 #include "MainApplication.h"
+
+#include "MetaObjectRegistry.h"
+
 #include <stdlib.h>
 #include <iostream>
 
@@ -42,6 +45,26 @@ public:
   }
 };
 
+void initRegistry()
+{
+  MetaObjectRegistry& registry = MetaObjectRegistry::instance();
+
+  // Paints.
+  registry.add<Media>();
+  registry.add<Image>();
+  registry.add<Color>();
+
+  // Mappings.
+  registry.add<TextureMapping>();
+  registry.add<ColorMapping>();
+
+  // Shapes.
+  registry.add<Quad>();
+  registry.add<Mesh>();
+  registry.add<Ellipse>();
+  registry.add<Triangle>();
+}
+
 // Intercept all logging message and display it in the console
 void logMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -54,6 +77,9 @@ int main(int argc, char *argv[])
   qInstallMessageHandler(logMessageHandler);
 
   set_env_vars_if_needed();
+
+  // Initialize meta-object registry.
+  initRegistry();
 
   MainApplication app(argc, argv);
 
@@ -116,7 +142,7 @@ int main(int argc, char *argv[])
   splash.showMessage("  " + QObject::tr("Initiating program..."),
                      Qt::AlignLeft | Qt::AlignTop, MM::WHITE);
 
-  //bool FORCE_FRENCH_LANG = false;
+  bool FORCE_FRENCH_LANG = false;
   // set_language_to_french(app);
 
   // Let splash for at least one second.

@@ -220,10 +220,10 @@ void drawControlsMesh(QPainter* painter, const QList<int>* selectedVertices, con
   painter->setPen(MM::SHAPE_INNER_STROKE);
 
   // Draw inner quads.
-  QVector<Quad> quads = mesh.getQuads();
-  for (QVector<Quad>::const_iterator it = quads.begin(); it != quads.end(); ++it)
+  QVector<Quad::ptr> quads = mesh.getQuads();
+  for (QVector<Quad::ptr>::const_iterator it = quads.begin(); it != quads.end(); ++it)
   {
-    painter->drawPolygon(it->toPolygon());
+    painter->drawPolygon((*it)->toPolygon());
   }
 
   // Draw outer quad.

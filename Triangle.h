@@ -1,8 +1,7 @@
 /*
- * ProjectWriter.h
+ * Triangle.h
  *
- * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
- * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2016 Sofian Audry -- info(@)sofianaudry(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,28 +16,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef PROJECT_WRITER_H_
-#define PROJECT_WRITER_H_
 
-#include <QXmlStreamWriter>
-#include "MappingManager.h"
-#include "Mapping.h"
-#include "Paint.h"
-#include "MainWindow.h"
 
-#include "ProjectLabels.h"
+#ifndef TRIANGLE_H_
+#define TRIANGLE_H_
 
-#include "Shapes.h"
+#include "Polygon.h"
 
-class ProjectWriter
+/**
+ * Triangle shape.
+ */
+class Triangle : public Polygon
 {
+  Q_OBJECT
 public:
-    ProjectWriter (MainWindow *window);
-    bool writeFile (QIODevice *device);
+  Q_INVOKABLE Triangle() {}
+  Triangle(QPointF p1, QPointF p2, QPointF p3)
+  {
+    _addVertex(p1);
+    _addVertex(p2);
+    _addVertex(p3);
+    build();
+  }
+  virtual ~Triangle() {}
+  virtual QString getType() const { return "triangle"; }
 
-  private:
-    QXmlStreamWriter _xml;
-    MainWindow *_window;
+protected:
+  /// Returns a new MShape (using default constructor).
+  virtual MShape* _create() const { return new Triangle(); }
 };
 
-#endif
+
+#endif /* TRIANGLE_H_ */

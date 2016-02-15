@@ -1,8 +1,7 @@
 /*
- * ProjectWriter.h
+ * Quad.h
  *
- * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
- * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2016 Sofian Audry -- info(@)sofianaudry(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,28 +16,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef PROJECT_WRITER_H_
-#define PROJECT_WRITER_H_
 
-#include <QXmlStreamWriter>
-#include "MappingManager.h"
-#include "Mapping.h"
-#include "Paint.h"
-#include "MainWindow.h"
 
-#include "ProjectLabels.h"
+#ifndef QUAD_H_
+#define QUAD_H_
 
-#include "Shapes.h"
+#include "Polygon.h"
 
-class ProjectWriter
+/**
+ * Four-vertex shape.
+ */
+class Quad : public Polygon
 {
+  Q_OBJECT
 public:
-    ProjectWriter (MainWindow *window);
-    bool writeFile (QIODevice *device);
+  typedef QSharedPointer<Quad> ptr;
 
-  private:
-    QXmlStreamWriter _xml;
-    MainWindow *_window;
+  Q_INVOKABLE Quad() {}
+  Quad(QPointF p1, QPointF p2, QPointF p3, QPointF p4)
+  {
+    _addVertex(p1);
+    _addVertex(p2);
+    _addVertex(p3);
+    _addVertex(p4);
+    build();
+  }
+  virtual ~Quad() {}
+
+  virtual QString getType() const { return "quad"; }
+
+protected:
+  /// Returns a new MShape (using default constructor).
+  virtual MShape* _create() const { return new Quad(); }
 };
 
-#endif
+
+#endif /* QUAD_H_ */

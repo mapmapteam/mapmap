@@ -1,4 +1,4 @@
-CONFIG  += qt debug
+CONFIG  += qt debug c++11
 TEMPLATE = app
 VERSION = 0.3.2
 TARGET = mapmap
@@ -11,6 +11,8 @@ HEADERS  = \
     ConcurrentQueue.h \
     ConsoleWindow.h \
     DestinationGLCanvas.h \
+    Element.h \
+    Ellipse.h \
     MM.h \
     MainApplication.h \
     MainWindow.h \
@@ -20,19 +22,27 @@ HEADERS  = \
     MappingManager.h \
     Maths.h \
     MediaImpl.h \
+    Mesh.h \
+    MetaObjectRegistry.h \
     OscInterface.h \
     OscReceiver.h \
     OutputGLCanvas.h \
     OutputGLWindow.h \
     Paint.h \
     PaintGui.h \
+    Polygon.h \
     PreferencesDialog.h \
+    ProjectLabels.h \
     ProjectReader.h \
     ProjectWriter.h \
+    Quad.h \
+    Serializable.h \
     Shape.h \
+    Shapes.h \
     ShapeControlPainter.h \
     ShapeGraphicsItem.h \
     SourceGLCanvas.h \
+    Triangle.h \
     UidAllocator.h \
     Util.h
 
@@ -40,6 +50,8 @@ SOURCES  = \
     Commands.cpp \
     ConsoleWindow.cpp \
     DestinationGLCanvas.cpp \
+    Element.cpp \
+    Ellipse.cpp \
     MM.cpp \
     MainApplication.cpp \
     MainWindow.cpp \
@@ -48,15 +60,20 @@ SOURCES  = \
     Mapping.cpp \
     MappingManager.cpp \
     MediaImpl.cpp \
+    Mesh.cpp \
+    MetaObjectRegistry.cpp \
     OscInterface.cpp \
     OscReceiver.cpp \
     OutputGLCanvas.cpp \
     OutputGLWindow.cpp \
     Paint.cpp \
     PaintGui.cpp \
+    Polygon.cpp \
     PreferencesDialog.cpp \
+    ProjectLabels.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
+    Serializable.cpp \
     Shape.cpp \
     ShapeControlPainter.cpp \
     ShapeGraphicsItem.cpp \

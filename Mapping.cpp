@@ -19,29 +19,111 @@
  */
 
 #include "Mapping.h"
+#include "MainWindow.h"
 
 UidAllocator Mapping::allocator;
 
+Mapping::Mapping(uid id)
+: Mapping(Paint::ptr(), MShape::ptr(), MShape::ptr(), id) {}
+
+Mapping::Mapping(Paint::ptr paint, uid id)
+: Mapping(paint, MShape::ptr(), MShape::ptr(), id) {}
+
 Mapping::Mapping(Paint::ptr paint, MShape::ptr shape, uid id)
-  : _paint(paint), _shape(shape),
-    _isLocked(false), _isSolo(false), _isVisible(true), _opacity(1.0f)
+: Mapping(paint, shape, MShape::ptr(), id) {}
+
+Mapping::Mapping(Paint::ptr paint, MShape::ptr shape, MShape::ptr inputShape, uid id)
+  : Element(id, &allocator),
+    _paint(paint), _shape(shape), _inputShape(inputShape),
+    _isSolo(false), _isVisible(true)
 {
-  if (id == NULL_UID)
-    id = allocator.allocate();
-  else
-  {
-    Q_ASSERT(!allocator.exists(id));
-    allocator.reserve(id);
-  }
-
-  // Assign id.
-  _id = id;
-
   // Default.
-  _depth = _id;
+  _depth = getId();
 }
 
 Mapping::~Mapping() {
-  allocator.free(_id);
+  allocator.free(getId());
 }
 
+void Mapping::read(const QDomElement& obj)
+{
+  // Read basic data.
+  Element::read(obj);
+
+  // Read paint.
+  int paintId = obj.attribute("paintId").toInt();
+  setPaint(MainWindow::instance()->getMappingManager().getPaintById(paintId));
+
+  // Read output shape.
+  _readShape(obj, true);
+
+  // Read input shape.
+  if (hasInputShape())
+  {
+    _readShape(obj, false);
+  }
+
+}
+
+void Mapping::write(QDomElement& obj)
+{
+  // Write basic data.
+  Element::write(obj);
+
+  // Write paint ID.
+  obj.setAttribute("paintId", getPaint()->getId());
+
+  // Write output shape.
+  _writeShape(obj, true);
+
+  // Write input shape.
+  if (hasInputShape())
+  {
+    _writeShape(obj, false);
+  }
+}
+
+void Mapping::_readShape(const QDomElement& obj, bool isOutput)
+{
+  QString tag       = isOutput ? ProjectLabels::DESTINATION : ProjectLabels::SOURCE;
+
+  QDomElement shapeObj = obj.firstChildElement(tag);
+
+  QString className = shapeObj.attribute(ProjectLabels::CLASS_NAME);
+
+  const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
+  if (metaObject)
+  {
+    // Create new instance.
+    MShape::ptr shape (qobject_cast<MShape*>(metaObject->newInstance()));
+    if (shape.isNull())
+    {
+      qDebug() << QObject::tr("Problem at creation of shape.") << endl;
+//      _xml.raiseError(QObject::tr("Problem at creation of paint."));
+    }
+
+    // Read shape.
+    shape->read(shapeObj);
+
+    // Set shape.
+    if (isOutput)
+      setShape(shape);
+    else
+      setInputShape(shape);
+  }
+
+  else
+  {
+    qDebug() << QObject::tr("Unable to create paint of type '%1'.").arg(className) << endl;
+  }
+
+}
+
+void Mapping::_writeShape(QDomElement& obj, bool isOutput)
+{
+  QString tag       = isOutput ? ProjectLabels::DESTINATION : ProjectLabels::SOURCE;
+  MShape::ptr shape = isOutput ? getShape() : getInputShape();
+  QDomElement shapeObj = obj.ownerDocument().createElement(tag);
+  shape->write(shapeObj);
+  obj.appendChild(shapeObj);
+}

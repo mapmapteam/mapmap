@@ -1,8 +1,7 @@
 /*
- * ProjectWriter.h
+ * Shapes.h
  *
- * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
- * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2016 Sofian Audry -- info(@)sofianaudry(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,28 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef PROJECT_WRITER_H_
-#define PROJECT_WRITER_H_
 
-#include <QXmlStreamWriter>
-#include "MappingManager.h"
-#include "Mapping.h"
-#include "Paint.h"
-#include "MainWindow.h"
 
-#include "ProjectLabels.h"
+#ifndef SHAPES_H_
+#define SHAPES_H_
 
-#include "Shapes.h"
+#include "Quad.h"
+#include "Ellipse.h"
+#include "Mesh.h"
+#include "Triangle.h"
 
-class ProjectWriter
-{
-public:
-    ProjectWriter (MainWindow *window);
-    bool writeFile (QIODevice *device);
-
-  private:
-    QXmlStreamWriter _xml;
-    MainWindow *_window;
-};
-
-#endif
+#endif /* SHAPES_H_ */

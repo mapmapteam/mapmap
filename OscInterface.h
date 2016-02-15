@@ -33,6 +33,7 @@
 #include "OscReceiver.h"
 
 class MainWindow;
+class Element;
 
 /**
  * Open Sound Control sending and receiving for MapMap.
@@ -40,6 +41,13 @@ class MainWindow;
 class OscInterface {
 public:
   typedef QSharedPointer<OscInterface> ptr;
+
+  static const QString OSC_ROOT;
+  static const QString OSC_PAINT;
+  static const QString OSC_MAPPING;
+  static const QString OSC_QUIT;
+  static const QString OSC_PAINT_MEDIA;
+  static const QString OSC_PAINT_COLOR;
 
   OscInterface(const std::string &listen_port);
   ~OscInterface();
@@ -77,6 +85,12 @@ private:
 
   // In the main thread, handles the messages.
   void applyOscCommand(MainWindow &main_window, QVariantList & command);
+
+  // For path = "path_item/rest_of_path" returns (path_item, rest_of_path).
+  static QPair<QString,QString> next(const QString& path);
+
+  // Sets property on element with given value.
+  bool setElementProperty(const QSharedPointer<Element>& elem, const QString& property, const QVariant& value);
 };
 
 #endif // HAVE_OSC

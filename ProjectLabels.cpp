@@ -1,8 +1,7 @@
 /*
- * MainWindow.cpp
+ * ProjectLabels.cpp
  *
- * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
- * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2016 Sofian Audry -- info(@)sofianaudry(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,28 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QXmlStreamReader>
-#include <QDomDocument>
-#include "MainWindow.h"
-#include "Mapping.h"
-#include "Paint.h"
-
-#include "MetaObjectRegistry.h"
 #include "ProjectLabels.h"
 
-class ProjectReader
-{
-public:
-    ProjectReader (MainWindow* window);
-    bool readFile (QIODevice *device);
-    QString errorString() const;
+const char* ProjectLabels::CLASS_NAME  = "className";
+const char* ProjectLabels::PAINTS      = "paints";
+const char* ProjectLabels::MAPPINGS    = "mappings";
+const char* ProjectLabels::ID          = "id";
+const char* ProjectLabels::PAINT_ID    = "paintId";
+const char* ProjectLabels::NAME        = "name";
+const char* ProjectLabels::SOURCE      = "id";
+const char* ProjectLabels::DESTINATION = "name";
 
-private:
-    void readProject();
-    void parseProject(const QDomElement& project);
-    Paint::ptr   parsePaint(const QDomElement& paint);
-    Mapping::ptr parseMapping(const QDomElement& mapping);
 
-    QXmlStreamReader _xml;
-    MainWindow *_window;
-};

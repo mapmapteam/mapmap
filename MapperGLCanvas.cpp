@@ -69,12 +69,12 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
 
 MShape::ptr MapperGLCanvas::getCurrentShape()
 {
-  return getShapeFromMappingId(MainWindow::instance()->getCurrentMappingId());
+  return getShapeFromMapping(MainWindow::instance()->getCurrentMapping());
 }
 
 QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getCurrentShapeGraphicsItem()
 {
-  return getShapeGraphicsItemFromMappingId(MainWindow::instance()->getCurrentMappingId());
+  return getShapeGraphicsItemFromMapping(MainWindow::instance()->getCurrentMapping());
 }
 
 // Draws foreground (displays crosshair if needed).
@@ -237,7 +237,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
           minDistance = dist;
 
           // Vertex can be grabbed only if the mapping is not locked
-          _vertexGrabbed = shape->isLocked() ? false : true;
+          _vertexGrabbed = !shape->isLocked() ? false : true;
           mousePressedOnSomething = true;
 
           _grabbedObjectStartScenePosition = shape->getVertex(i);
@@ -259,7 +259,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     QVector<Mapping::ptr> mappings = manager.getVisibleMappings();
     for (QVector<Mapping::ptr>::const_iterator it = mappings.end() - 1; it >= mappings.begin(); --it)
     {
-      MShape::ptr shape = getShapeFromMappingId((*it)->getId());
+      MShape::ptr shape = getShapeFromMapping(*it);
 
       // Check if mouse was pressed on that shape.
       if (shape && shape->includesPoint(pos))

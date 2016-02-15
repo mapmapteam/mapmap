@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SHAPE_H_
-#define SHAPE_H_
+#ifndef M_SHAPE_H_
+#define M_SHAPE_H_
 
 #include <iostream>
 #include <cmath>
@@ -36,22 +36,31 @@
 #include <QString>
 #include <QMetaType>
 
+#include <QSharedPointer>
+
 #include "Maths.h"
+#include "Serializable.h"
 
 /**
  * Shape represented by a series of control points.
  */
-class MShape
+class MShape : public Serializable
 {
+  Q_OBJECT
+
+  Q_PROPERTY(bool    locked  READ isLocked   WRITE setLocked)
+  Q_PROPERTY(QVector<QPointF> vertices READ getVertices WRITE setVertices STORED false)
 public:
   typedef QSharedPointer<MShape> ptr;
 
   MShape() : _isLocked(false) {}
-  MShape(QVector<QPointF> vertices_) :
-    vertices(vertices_)
-  {}
+  MShape(const QVector<QPointF>& vertices_);
   virtual ~MShape() {}
 
+  /**
+   * This method should be called after vertices and other properties have been set
+   * to compute any other information needed by the object and possibly do some sanitizing.
+   */
   virtual void build() {}
 
   int nVertices() const { return vertices.size(); }
@@ -89,12 +98,25 @@ public:
   virtual void copyFrom(const MShape& shape);
 
   virtual MShape* clone() const;
-  // Handle shape lock
-  bool isLocked() const { return _isLocked; }
-  void setLocked(bool locked) { _isLocked = locked; }
+
+  bool isLocked() const    { return _isLocked; }
+  void setLocked(bool locked)    { _isLocked = locked; }
+  void toggleLocked()  { _isLocked = !_isLocked; }
+
+  const QVector<QPointF>& getVertices() const { return vertices; }
+  virtual void setVertices(const QVector<QPointF>& vertices_)
+  {
+    // Deep copy.
+    vertices.resize(vertices_.size());
+    qCopy(vertices_.begin(), vertices_.end(), vertices.begin());
+  }
+
+  virtual void read(const QDomElement& obj);
+  virtual void write(QDomElement& obj);
 
 protected:
   QVector<QPointF> vertices;
+  bool _isLocked;
 
   void _addVertex(const QPointF& vertex)
   {
@@ -109,279 +131,9 @@ protected:
   /// Returns a new MShape (using default constructor).
   virtual MShape* _create() const = 0;
 
-private:
-  // Shape lock state
-  bool _isLocked;
+  // Lists QProperties that should NOT be parsed automatically.
+  virtual QList<QString> _propertiesSpecial() const { return Serializable::_propertiesSpecial() << "vertices"; }
 };
 
-/**
- * This class represents a simple polygon (ie. the control points are vertices).
- */
-class Polygon : public MShape {
-public:
-  Polygon() {}
-  Polygon(QVector<QPointF> vertices_) : MShape(vertices_) {}
-  virtual ~Polygon() {}
-
-  virtual QPolygonF toPolygon() const;
-
-  virtual bool includesPoint(const QPointF& p) {
-    return toPolygon().containsPoint(p, Qt::OddEvenFill);
-  }
-
-  // Override the parent, checking to make sure the vertices are displaced correctly.
-  virtual void setVertex(int i, const QPointF& v);
-
-protected:
-  /// Returns all line segments of the polygon.
-  QVector<QLineF> _getSegments() const;
-
-  /// Returns all line segments of a polygon.
-  static QVector<QLineF> _getSegments(const QPolygonF& polygon);
-
-  /// Makes sure vertex v as the i-th point of polygon stays inside the polygon.
-  static void _constrainVertex(const QPolygonF& polygon, int i, QPointF& v);
-};
-
-/**
- * Four-vertex shape.
- */
-class Quad : public Polygon
-{
-public:
-  Quad() {}
-  Quad(QPointF p1, QPointF p2, QPointF p3, QPointF p4)
-  {
-    _addVertex(p1);
-    _addVertex(p2);
-    _addVertex(p3);
-    _addVertex(p4);
-  }
-  virtual ~Quad() {}
-
-  virtual QString getType() const { return "quad"; }
-
-protected:
-  /// Returns a new MShape (using default constructor).
-  virtual MShape* _create() const { return new Quad(); }
-};
-
-/**
- * Triangle shape.
- */
-class Triangle : public Polygon
-{
-public:
-  Triangle() {}
-  Triangle(QPointF p1, QPointF p2, QPointF p3)
-  {
-    _addVertex(p1);
-    _addVertex(p2);
-    _addVertex(p3);
-  }
-  virtual ~Triangle() {}
-  virtual QString getType() const { return "triangle"; }
-
-protected:
-  /// Returns a new MShape (using default constructor).
-  virtual MShape* _create() const { return new Triangle(); }
-};
-
-class Mesh : public Quad
-{
-  typedef QVector<QVector<int> > IndexVector2d;
-
-public:
-  Mesh();
-
-  // This constructor creates a quad mesh (four corners) using the same order as for the quad
-  // constructor (ie. clockwise).
-  Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4);
-
-  // Standard mesh constructor.
-  Mesh(const QVector<QPointF>& points, int nColumns, int nRows);
-
-  virtual ~Mesh() {}
-
-  // Performs the actual adding of points (used for loading).
-  void init(const QVector<QPointF>& points, int nColumns, int nRows);
-
-  virtual QString getType() const { return "mesh"; }
-
-  /// Returns a polygon that is formed by all the contour points of the mesh.
-  virtual QPolygonF toPolygon() const;
-
-  // Override the parent, checking to make sure the vertices are displaced correctly.
-  virtual void setVertex(int i, const QPointF& v);
-
-  QPointF getVertex2d(int i, int j) const
-  {
-    return vertices[_vertices2d[i][j]];
-  }
-
-  void setVertex2d(int i, int j, const QPointF& v)
-  {
-    vertices[_vertices2d[i][j]] = v; // copy
-  }
-
-  void setVertex2d(int i, int j, double x, double y)
-  {
-    vertices[_vertices2d[i][j]] = QPointF(x, y);
-  }
-
-  void resizeVertices2d(IndexVector2d& vertices2d, int nColumns, int nRows);
-
-  //
-  void addColumn();
-  void addRow();
-
-  void removeColumn(int columnId);
-  void removeRow(int rowId);
-
-  void resize(int nColumns_, int nRows_);
-
-  QVector<Quad> getQuads() const;
-  QVector<QVector<Quad> > getQuads2d() const;
-
-  int nColumns() const { return _nColumns; }
-  int nRows() const  { return _nRows; }
-
-  int nHorizontalQuads() const { return _nColumns-1; }
-  int nVerticalQuads() const { return _nRows-1; }
-
-
-protected:
-  int _nColumns;
-  int _nRows;
-  // _vertices[i][j] contains vertex id of vertex at position (i,j) where i = 0..nColumns and j = 0..nRows
-  IndexVector2d _vertices2d;
-
-  /**
-   * Reorder vertices in a standard order:
-   *
-   * 0----1----2----3
-   * |    |    |    |
-   * 4----5----6----7
-   * |    |    |    |
-   * 8----9---10----11
-   */
-  void _reorderVertices();
-
-  /// Returns a new MShape (using default constructor).
-  virtual MShape* _create() const { return new Mesh(); }
-};
-
-class Ellipse : public MShape {
-public:
-  Ellipse() {}
-  Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4, QPointF p5)
-  {
-    _addVertex(p1);
-    _addVertex(p2);
-    _addVertex(p3);
-    _addVertex(p4);
-    _addVertex(p5);
-    sanitize();
-  }
-
-  Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4, bool hasCenterControl=true)
-  {
-    _addVertex(p1);
-    _addVertex(p2);
-    _addVertex(p3);
-    _addVertex(p4);
-    if (hasCenterControl)
-      _addVertex(getCenter());
-    sanitize();
-  }
-
-  virtual ~Ellipse() {}
-
-  /// Remaps points so as to make sure this is a correct ellipse, keeping vertices 0 and 2 as
-  /// reference for the horizzontal axis.
-  void sanitize();
-
-  virtual QString getType() const { return "ellipse"; }
-
-  qreal getRotationRadians() const
-  {
-    QVector2D hAxis = getHorizontalAxis();
-    return atan2( hAxis.y(), hAxis.x() );
-  }
-
-  qreal getRotation() const
-  {
-    return radiansToDegrees( getRotationRadians() );
-  }
-
-  bool hasCenterControl() const
-  {
-    return (nVertices() == 5);
-  }
-
-  /// If v is outside boundaries, remap it to the border.
-  QPointF clipInside(const QPointF& v) const;
-
-//  QRect getBoundingRect() const {
-//    return QRect(0,                                     getVerticalAxis().manhattanLength(),
-//                 getHorizontalAxis().manhattanLength(), getVerticalAxis().manhattanLength());
-//  }
-//
-  QPointF getCenter() const
-  {
-    return (QVector2D(getVertex(0)) - (getHorizontalAxis() / 2)).toPointF();
-  }
-
-  QVector2D getHorizontalAxis() const
-  {
-    return QVector2D(getVertex(0)) - QVector2D(getVertex(2));
-  }
-
-  QVector2D getVerticalAxis() const
-  {
-    return QVector2D(getVertex(1)) - QVector2D(getVertex(3));
-  }
-
-  qreal getHorizontalRadius() const
-  {
-    return getHorizontalAxis().length() / 2;
-  }
-
-  qreal getVerticalRadius() const
-  {
-    return getVerticalAxis().length() / 2;
-  }
-
-  /// Remaps point from ellipse to a circle with radius 1 set at origin (0,0).
-  QTransform toUnitCircle() const;
-
-  /// Remaps point from circle with radius 1 set at origin (0,0) to ellipse coordinates.
-  QTransform fromUnitCircle() const;
-
-  /** Return true if Shape includes point (x,y), false otherwise
-   *  Algorithm should work for all polygons, including non-convex
-   *  Found at http://www.cs.tufts.edu/comp/163/notes05/point_inclusion_handout.pdf
-   */
-  virtual bool includesPoint(qreal x, qreal y);
-
-  virtual bool includesPoint(const QPointF& p)
-  {
-    return includesPoint(p.x(), p.y());
-  }
-
-  // Override the parent, checking to make sure the vertices are displaced correctly.
-  virtual void setVertex(int i, const QPointF& v);
-
-protected:
-  /// Returns a new MShape (using default constructor).
-  virtual MShape* _create() const { return new Ellipse(); }
-
-//protected:
-//  virtual void _vertexChanged(int i, Point* p=NULL) {
-//    // Get horizontal and vertical axis length.
-//    qreal hAxisLength = Point::dist(getVertex(0)->toPoint(), getVertex(2)->toPoint());
-//    qreal vAxisLength = Point::dist(getVertex(1)->toPoint(), getVertex(3)->toPoint());
-//  }
-};
 
 #endif /* SHAPE_H_ */

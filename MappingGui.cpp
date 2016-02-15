@@ -45,7 +45,7 @@ MappingGui::MappingGui(Mapping::ptr mapping)
   _opacityItem->setAttribute("minimum", 0.0);
   _opacityItem->setAttribute("maximum", 100.0);
   _opacityItem->setAttribute("decimals", 1);
-  _opacityItem->setValue(_mapping->getRawOpacity()*100.0);
+  _opacityItem->setValue(_mapping->getOpacity()*100.0);
   _topItem->addSubProperty(_opacityItem);
 
   // Output shape.
@@ -69,9 +69,9 @@ void MappingGui::setValue(QtProperty* property, const QVariant& value)
   if (property == _opacityItem)
   {
     double opacity = qBound(value.toDouble() / 100.0, 0.0, 1.0);
-    if (opacity != _mapping->getRawOpacity())
+    if (opacity != _mapping->getOpacity())
     {
-      _mapping->setRawOpacity(opacity);
+      _mapping->setOpacity(opacity);
       emit valueChanged();
     }
   }
