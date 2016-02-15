@@ -30,7 +30,8 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
     _activeVertex(NO_VERTEX),
     _shapeGrabbed(false), // comment out?
     _shapeFirstGrab(false), // comment out?
-    _zoomLevel(0)
+    _zoomLevel(0),
+    _shapeIsAdapted(false)
 {
   // For now clicking on the window doesn't do anything.
   setDragMode(QGraphicsView::NoDrag);
@@ -54,6 +55,11 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
   setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers), this, shareWidget));
   setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
+  // Create zoom tools layout
+  createZoomToolsLayout();
+  // Disable zoom tool buttons
+  enableZoomToolBar(false);
+
   // TODO: do we need to delete scene (or call new QGraphicsScene(this)?)
   setScene(scene ? scene : new QGraphicsScene);
 
@@ -63,12 +69,12 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
 
 MShape::ptr MapperGLCanvas::getCurrentShape()
 {
-  return getShapeFromMappingId(MainWindow::instance()->getCurrentMappingId());
+  return getShapeFromMapping(MainWindow::instance()->getCurrentMapping());
 }
 
 QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getCurrentShapeGraphicsItem()
 {
-  return getShapeGraphicsItemFromMappingId(MainWindow::instance()->getCurrentMappingId());
+  return getShapeGraphicsItemFromMapping(MainWindow::instance()->getCurrentMapping());
 }
 
 // Draws foreground (displays crosshair if needed).
@@ -96,6 +102,97 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 void MapperGLCanvas::currentShapeWasChanged()
 {
   emit shapeChanged(getCurrentShape().data());
+}
+
+void MapperGLCanvas::applyZoomToView()
+{
+  // Re-bound zoom (for consistency).
+  qreal zoomFactor = getZoomFactor();
+  // Get first of the list of all the views
+  QGraphicsView* view = this->scene()->views().first();
+  // Resets the view transformation matrix
+  view->resetMatrix();
+  // Scale the current view
+  view->scale(zoomFactor, zoomFactor);
+  // And update
+  view->update();
+  // Update dropdown menu
+  updateDropdownMenu();
+}
+
+void MapperGLCanvas::createZoomToolsLayout()
+{
+  // Create zoom tool bar
+  _zoomToolBar = new QWidget(this);
+  _zoomToolBar->setObjectName("zoom-toolbox");
+
+  // Create vertical layout for widgets
+  QHBoxLayout* buttonsLayout = new QHBoxLayout;
+  buttonsLayout->setContentsMargins(0, 0, 5, 0);
+  // Create buttons
+  // Zoom In button
+  _zoomInButton = new QPushButton;
+  _zoomInButton->setIcon(QIcon(":/zoom-in"));
+  _zoomInButton->setIconSize(QSize(MM::ZOOM_TOOLBAR_ICON_SIZE, MM::ZOOM_TOOLBAR_ICON_SIZE));
+  _zoomInButton->setToolTip(tr("Enlarge the shape"));
+  _zoomInButton->setFixedSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE);
+  _zoomInButton->setObjectName("zoom-in");
+  connect(_zoomInButton, SIGNAL(clicked()), this, SLOT(increaseZoomLevel()));
+  // Zoom Out button
+  _zoomOutButton = new QPushButton;
+  _zoomOutButton->setIcon(QIcon(":/zoom-out"));
+  _zoomOutButton->setIconSize(QSize(MM::ZOOM_TOOLBAR_ICON_SIZE, MM::ZOOM_TOOLBAR_ICON_SIZE));
+  _zoomOutButton->setToolTip(tr("Shrink the shape"));
+  _zoomOutButton->setFixedSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE);
+  _zoomOutButton->setObjectName("zoom-out");
+  connect(_zoomOutButton, SIGNAL(clicked()), this, SLOT(decreaseZoomLevel()));
+  // Reset to normal size button.
+  _resetZoomButton = new QPushButton;
+  _resetZoomButton->setIcon(QIcon(":/reset-zoom"));
+  _resetZoomButton->setIconSize(QSize(MM::ZOOM_TOOLBAR_ICON_SIZE, MM::ZOOM_TOOLBAR_ICON_SIZE));
+  _resetZoomButton->setToolTip(tr("Reset the shape to the normal size"));
+  _resetZoomButton->setFixedSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE);
+  _resetZoomButton->setObjectName("reset-zoom");
+  connect(_resetZoomButton, SIGNAL(clicked()), this, SLOT(resetZoomLevel()));
+  // Fit to view button
+  _fitToViewButton = new QPushButton;
+  _fitToViewButton->setIcon(QIcon(":/zoom-fit"));
+  _fitToViewButton->setIconSize(QSize(MM::ZOOM_TOOLBAR_ICON_SIZE, MM::ZOOM_TOOLBAR_ICON_SIZE));
+  _fitToViewButton->setToolTip(tr("Fit the shape to content view"));
+  _fitToViewButton->setFixedSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE);
+  _fitToViewButton->setObjectName("zoom-fit");
+  connect(_fitToViewButton, SIGNAL(clicked()), this, SLOT(fitShapeInView()));
+
+  // Create separator
+  QFrame *separator = new QFrame(_zoomToolBar);
+  separator->setFixedSize(5, 30);
+  separator->setFrameShape(QFrame::VLine);
+
+  // Create the dropdowm menu
+  _dropdownMenu = new QComboBox;
+  // make some settings
+  _dropdownMenu->setObjectName("dropdown-menu");
+  // Create if empty or update list
+  updateDropdownMenu();
+  // And listen
+  connect(_dropdownMenu, SIGNAL(activated(QString)), this, SLOT(setZoomFromMenu(QString)));
+
+  // Add widgets into layout
+  buttonsLayout->addWidget(_zoomInButton);
+  buttonsLayout->addWidget(_zoomOutButton);
+  buttonsLayout->addWidget(_resetZoomButton);
+  buttonsLayout->addWidget(_fitToViewButton);
+  buttonsLayout->addWidget(separator);
+  buttonsLayout->addWidget(_dropdownMenu);
+
+  // Insert layout in widget
+  _zoomToolBar->setLayout(buttonsLayout);
+}
+
+void MapperGLCanvas::updateZoomToolbar()
+{
+  _zoomToolBar->move(this->viewport()->width() - _zoomToolBar->width(),
+                     this->viewport()->height() - _zoomToolBar->height());
 }
 
 
@@ -139,7 +236,8 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
           _activeVertex = i;
           minDistance = dist;
 
-          _vertexGrabbed = true;
+          // Vertex can be grabbed only if the mapping is not locked
+          _vertexGrabbed = !shape->isLocked() ? false : true;
           mousePressedOnSomething = true;
 
           _grabbedObjectStartScenePosition = shape->getVertex(i);
@@ -161,7 +259,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     QVector<Mapping::ptr> mappings = manager.getVisibleMappings();
     for (QVector<Mapping::ptr>::const_iterator it = mappings.end() - 1; it >= mappings.begin(); --it)
     {
-      MShape::ptr shape = getShapeFromMappingId((*it)->getId());
+      MShape::ptr shape = getShapeFromMapping(*it);
 
       // Check if mouse was pressed on that shape.
       if (shape && shape->includesPoint(pos))
@@ -190,10 +288,19 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     {
       if (selectedShape && selectedShape->includesPoint(pos))
       {
-        _shapeGrabbed = true;
+        // Shape can be grabbed only if it is not locked
+        _shapeGrabbed = selectedShape->isLocked() ? false : true;
         _shapeFirstGrab = true;
 
         _grabbedObjectStartScenePosition = pos;
+      }
+    }
+    // Show the shape/mapping context menu
+    if (event->button() & Qt::RightButton)
+    {
+      if (selectedShape && selectedShape->includesPoint(pos))
+      {
+        emit shapeContextMenuRequested(event->pos());
       }
     }
   }
@@ -317,47 +424,95 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   {
     MShape::ptr shape = getCurrentShape();
     QPoint pos = mapFromScene(shape->getVertex(_activeVertex));
+
     handledKey = true;
 
-    switch (event->key()) {
-    // TODO: key tab should switch to next vertex: not working because somehow caught at a higher level
-    // to switch between frames of the layout
-//    case Qt::Key_Tab:
-//      if (shape)
-//        _activeVertex = (_activeVertex + 1) % shape->nVertices();
-//        p = shape->getVertex(_activeVertex); // reset to new vertex
-//        qDebug() << "New active vertex : " << _activeVertex << endl;
-//      break;
-    // Handle pixel-wise adjustments of vertex.
-    case Qt::Key_Up:
-      pos.ry()--;
-      break;
-    case Qt::Key_Down:
-      pos.ry()++;
-      break;
-    case Qt::Key_Right:
-      pos.rx()++;
-      break;
-    case Qt::Key_Left:
-      pos.rx()--;
-      break;
-    default:
-      if (event->matches(QKeySequence::Undo))
-        undoStack->undo();
+    if (event->modifiers() & Qt::ShiftModifier) {
 
-      else if (event->matches(QKeySequence::Redo))
-        undoStack->redo();
+      // SHIFT + directional keys allow move with large steps
+      if (event->key() == Qt::Key_Up)
+        pos.ry() -= MM::VERTEX_MOVES_STEP;
+      else if (event->key() == Qt::Key_Down)
+        pos.ry() += MM::VERTEX_MOVES_STEP;
+      else if (event->key() == Qt::Key_Right)
+        pos.rx() += MM::VERTEX_MOVES_STEP;
+      else if (event->key() == Qt::Key_Left)
+        pos.rx() -= MM::VERTEX_MOVES_STEP;
+
+      // SHIFT+Space to switch between vertex
+      else if (event->key() == Qt::Key_Space) {
+        if (shape)
+          _activeVertex = (_activeVertex + 1) % shape->nVertices();
+        pos = shape->getVertex(_activeVertex).toPoint(); // reset to new vertex
+      }
+
       else
         handledKey = false;
-      break;
+    }
+    else
+    {
+      switch (event->key()) {
+      case Qt::Key_Up:
+        pos.ry()--;
+        break;
+      case Qt::Key_Down:
+        pos.ry()++;
+        break;
+      case Qt::Key_Right:
+        pos.rx()++;
+        break;
+      case Qt::Key_Left:
+        pos.rx()--;
+        break;
+      default:
+        handledKey = false;
+        break;
+      }
     }
 
-    // Remap window position to scene.
-    QPointF scenePos = mapToScene(pos);
+    if (handledKey)
+      // Enable to Undo and Redo when arrow keys move the position of vertices
+      undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::STEP, _activeVertex, mapToScene(pos)));
+  }
 
-    // TODO: this will always be called even if no arrow key has been pressed (small performance issue).
-    // Enable to Undo and Redo when arrow keys move the position of vertices
-    undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::STEP, _activeVertex, scenePos));
+  else {
+    // Take scroll bar current coordinate
+    int scrollX = this->horizontalScrollBar()->value();
+    int scrollY = this->verticalScrollBar()->value();
+
+    handledKey = true;
+    if (event->matches(QKeySequence::Undo))
+      undoStack->undo();
+    else if (event->matches(QKeySequence::Redo))
+      undoStack->redo();
+    // Case 1: zoom in with CTRL++
+    else if (event->matches(QKeySequence::ZoomIn))
+      increaseZoomLevel();
+    else if (event->matches(QKeySequence::ZoomOut))
+      decreaseZoomLevel();
+    else if (event->modifiers() & Qt::ControlModifier) {
+      if(event->key() == Qt::Key_0)
+        resetZoomLevel();
+      // Case 2: zoom in with CTRL+=
+      else if (event->key() == Qt::Key_Equal ||
+               // Case 3: zoom in with CTRL+SHIFT++
+               (event->modifiers() & Qt::ShiftModifier && event->key() == Qt::Key_Plus))
+          increaseZoomLevel();
+    }
+    else if(event->key() == Qt::Key_Up)
+      scrollY -= 50;
+    else if(event->key() == Qt::Key_Down)
+      scrollY += 50;
+    else if(event->key() == Qt::Key_Right)
+      scrollX += 50;
+    else if(event->key() == Qt::Key_Left)
+      scrollX -= 50;
+    else
+      handledKey = false;
+
+    // Set scroll bar new value
+    this->verticalScrollBar()->setValue(scrollY);
+    this->horizontalScrollBar()->setValue(scrollX);
   }
 
   // Defer unhandled keys to parent.
@@ -365,91 +520,13 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   {
     QWidget::keyPressEvent(event);
   }
-
-//  std::cout << "Key pressed" << std::endl;
-//  int xMove = 0;
-//  int yMove = 0;
-//  switch (event->key()) {
-//  case Qt::Key_Tab:
-//    if (event->modifiers() & Qt::ControlModifier)
-//      switchImage( (Common::getCurrentSourceId() + 1) % Common::nImages());
-//    else
-//    {
-//      Quad& quad = getQuad();
-//      _active_vertex = (_active_vertex + 1 ) % 4;
-//    }
-//    break;
-//  case Qt::Key_Up:
-//    yMove = -1;
-//    break;
-//  case Qt::Key_Down:
-//    yMove = +1;
-//    break;
-//  case Qt::Key_Left:
-//    xMove = -1;
-//    break;
-//  case Qt::Key_Right:
-//    xMove = +1;
-//    break;
-//  default:
-//    std::cerr << "Unhandled key" << std::endl;
-//    QWidget::keyPressEvent(event);
-//    break;
-//  }
-//
-//  Quad& quad = getQuad();
-//  Point *p = quad.getVertex(_active_vertex);
-//  p->x += xMove;
-//  p->y += yMove;
-//  quad.setVertex(_active_vertex, p);
-//
-//  update();
-//
-//  emit quadChanged();
 }
-//
-//void MapperGLCanvas::paintEvent(QPaintEvent* )
-//{
-//  makeCurrent();
-//
-//  QPainter painter(this);
-//  painter.setRenderHint(QPainter::Antialiasing);
-//
-//  draw(&painter);
-//
-//  painter.end();
-//}
 
 void MapperGLCanvas::updateCanvas()
 {
   update();
   scene()->update();
 }
-
-///* Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
-// * close enough. The distance per coordinate is currently set in dist_stick
-// * variable. Perhaps the sticky-sensitivity should be configurable through GUI */
-//void MapperGLCanvas::glueVertex(MShape *orig, QPointF *p)
-//{
-//  MappingManager manager = getMainWindow()->getMappingManager();
-//  for (int i = 0; i < manager.nMappings(); i++)
-//  {
-//    MShape *shape = getShapeFromMappingId(manager.getMapping(i)->getId());
-//    if (shape && shape != orig)
-//    {
-//      for (int vertex = 0; vertex < shape->nVertices(); vertex++)
-//      {
-//        const QPointF& v = shape->getVertex(vertex);
-//        if (distIsInside(v, *p, MM::VERTEX_STICK_RADIUS))
-//        {
-//          p->setX(v.x());
-//          p->setY(v.y());
-//        }
-//      }
-//    }
-//  }
-//}
-
 
 void MapperGLCanvas::deselectVertices()
 {
@@ -466,37 +543,24 @@ void MapperGLCanvas::deselectAll()
 
 void MapperGLCanvas::wheelEvent(QWheelEvent *event)
 {
+  // [-120]-----[-1]|[1]++++++[120]
+  // See: http://doc.qt.io/qt-5/qwheelevent.html#angleDelta
+#if QT_VERSION >= 0x050500
+  int deltaLevel = event->angleDelta().y() / 120;
+#else
   int deltaLevel = event->delta() / 120;
-  qreal zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+#endif
+
   if (deltaLevel > 0)
   {
-    // First check if we're already at max.
-    while (deltaLevel && zoomFactor < MM::ZOOM_MAX) {
-      _zoomLevel++;
-      deltaLevel--;
-      zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
-    }
-    zoomFactor = qMin(zoomFactor, MM::ZOOM_MAX);
+    // Increase zoom level
+    increaseZoomLevel(deltaLevel);
   }
   else
   {
-    // First check if we're already at min.
-    while (deltaLevel && zoomFactor > MM::ZOOM_MIN) {
-      _zoomLevel--;
-      deltaLevel++;
-      zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
-    }
-    zoomFactor = qMax(zoomFactor, MM::ZOOM_MIN);
+    // Decrease zoom level
+    decreaseZoomLevel(-deltaLevel);
   }
-
-  // Re-bound zoom (for consistency).
-  zoomFactor = getZoomFactor();
-
-  // Apply zoom to view.
-  QGraphicsView* view = scene()->views().first();
-  view->resetMatrix();
-  view->scale(zoomFactor, zoomFactor);
-  view->update();
 
   // Accept wheel scrolling event.
   event->accept();
@@ -515,6 +579,121 @@ bool MapperGLCanvas::eventFilter(QObject *target, QEvent *event)
   {
     return QObject::eventFilter(target, event);
   }
+}
+
+void MapperGLCanvas::increaseZoomLevel(int steps)
+{
+  qreal zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+
+  while (steps > 0 && zoomFactor < MM::ZOOM_MAX) {
+    _zoomLevel++;
+    zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+    steps--;
+  }
+  zoomFactor = qMin(zoomFactor, MM::ZOOM_MAX);
+
+  // Reset adaptation
+  _shapeIsAdapted = false;
+
+  // Apply to view
+  applyZoomToView();
+}
+
+void MapperGLCanvas::decreaseZoomLevel(int steps)
+{
+  qreal zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+
+  while (steps > 0 && zoomFactor > MM::ZOOM_MIN) {
+    _zoomLevel--;
+    zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
+    steps--;
+  }
+  zoomFactor = qMax(zoomFactor, MM::ZOOM_MIN);
+
+  // Reset adaptation
+  _shapeIsAdapted = false;
+
+  // Apply to view
+  applyZoomToView();
+}
+
+void MapperGLCanvas::resetZoomLevel()
+{
+  // Reset zoom level to zero
+  _zoomLevel = 0;
+
+  // Reset adaptation
+  _shapeIsAdapted = false;
+
+  // Apply to view
+  applyZoomToView();
+}
+
+void MapperGLCanvas::fitShapeInView()
+{
+  // Get first of the list of all the views
+  QGraphicsView* view = scene()->views().first();
+  // Scales the view matrix
+  view->fitInView(this->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
+  // Get the horizontal scaling factor
+  _scalingFactor = view->matrix().m11();
+
+  // Adapt shape
+  _shapeIsAdapted = true;
+
+  // Update zoom menu list
+  updateDropdownMenu();
+}
+
+void MapperGLCanvas::showZoomToolBar(bool visible)
+{
+  if (visible)
+    _zoomToolBar->show();
+  else
+    _zoomToolBar->hide();
+}
+
+void MapperGLCanvas::enableZoomToolBar(bool enabled)
+{
+  // Enable/Disable all button
+  _zoomInButton->setEnabled(enabled);
+  _zoomOutButton->setEnabled(enabled);
+  _resetZoomButton->setEnabled(enabled);
+  _fitToViewButton->setEnabled(enabled);
+  _dropdownMenu->setEnabled(enabled);
+}
+
+void MapperGLCanvas::setZoomFromMenu(const QString &text)
+{
+  // Get text choosen by user and convert it to double
+  qreal zoomFactor = text.mid(0, text.length() - 1).toDouble();
+  // Set zoom factor
+  _scalingFactor = zoomFactor / 100;
+
+  // Adapt shape
+  _shapeIsAdapted = true;
+
+  // Apply to view
+  applyZoomToView();
+}
+
+void MapperGLCanvas::updateDropdownMenu()
+{
+  // Get current zoom factor percentage
+  QString zoomFactor = QString::number(int(getZoomFactor() * 100)).append(QChar('%'));
+  //Create list
+  QStringList zoomFactorList;
+  zoomFactorList << "400%" << "300%" << "200%" << "150%" << "125%" <<
+                    "100%" << "75%" << "50%" << "25%" << "12.5%";
+  // Avoid duplicate
+  if (!zoomFactorList.contains(zoomFactor))
+    zoomFactorList.append(zoomFactor);
+  // Clear if is not empty
+  _dropdownMenu->clear();
+  // Add list item
+  _dropdownMenu->addItems(zoomFactorList);
+  // Select 100% by default
+  _dropdownMenu->setCurrentText(zoomFactor);
 }
 
 

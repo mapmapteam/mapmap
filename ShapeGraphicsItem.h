@@ -76,7 +76,7 @@ public:
   bool isMappingCurrent() const;
 
   /// Returns whether the mapping this shape is associated should be visible.
-  bool isMappingVisible() const { return getMapping()->isVisible(); }
+  bool isMappingVisible() const;
 
   /// Returns the bounding rectangle of this item.
   virtual QRectF boundingRect() const { return shape().boundingRect(); }

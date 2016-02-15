@@ -58,7 +58,7 @@ Quad* createQuadForColor(int frameWidth, int frameHeight);
 Triangle* createTriangleForColor(int frameWidth, int frameHeight);
 Ellipse* createEllipseForColor(int frameWidth, int frameHeight);
 
-void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected, qreal radius = MM::VERTEX_SELECT_RADIUS, qreal strokeWidth = MM::VERTEX_SELECT_STROKE_WIDTH);
+void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected, bool locked, qreal radius = MM::VERTEX_SELECT_RADIUS, qreal strokeWidth = MM::VERTEX_SELECT_STROKE_WIDTH);
 
 void drawControlsVertices(QPainter* painter, const QList<int>* selectedVertices, const MShape& shape);
 void drawControlsEllipse(QPainter* painter, const QList<int>* selectedVertices, const Ellipse& ellipse);

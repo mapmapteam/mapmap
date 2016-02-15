@@ -100,7 +100,11 @@ public:
   /// Reorders the mappings according to given list of uids. QVector needs to
   void reorderMappings(QVector<uid> mappingIds);
 
+  /// Returns the ordered list of visible mappings, using both the "visible" and "solo" properties.
   QVector<Mapping::ptr> getVisibleMappings() const;
+
+  /// Returns true iff the mapping is visible.
+  bool mappingIsVisible(Mapping::ptr mapping) const;
 
   void clearAll();
 };

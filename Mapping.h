@@ -165,6 +165,7 @@ public:
   virtual QString getType() const {
     return getShape()->getType() + "_color";
   }
+
 };
 
 /**

@@ -47,6 +47,8 @@ public:
   static const int DEFAULT_WINDOW_HEIGHT = 480;
   static const int TOP_TOOLBAR_ICON_SIZE = 48;
   static const int BOTTOM_TOOLBAR_ICON_SIZE = 32;
+  static const int ZOOM_TOOLBAR_ICON_SIZE = 22;
+  static const int ZOOM_TOOLBAR_BUTTON_SIZE = 32;
 
   // Style.
   static const QColor WHITE;
@@ -54,8 +56,10 @@ public:
   static const QColor DARK_GRAY;
 
   static const QColor CONTROL_COLOR;
+  static const QColor CONTROL_LOCKED_COLOR;
   static const QBrush VERTEX_BACKGROUND;
   static const QBrush VERTEX_SELECTED_BACKGROUND;
+  static const QBrush VERTEX_LOCKED_BACKGROUND;
 
   static const qreal SHAPE_STROKE_WIDTH;
   static const qreal SHAPE_INNER_STROKE_WIDTH;
@@ -65,6 +69,7 @@ public:
   // Control.
   static const qreal VERTEX_STICK_RADIUS;
   static const qreal VERTEX_SELECT_RADIUS;
+  static const qreal VERTEX_LOCKED_RADIUS;
   static const qreal VERTEX_SELECT_STROKE_WIDTH;
 
   // Time.
@@ -80,6 +85,7 @@ public:
   static const int MESH_SUBDIVISION_MAX_DEPTH_EDITING = 4;
   static const int MESH_SUBDIVISION_MAX_DEPTH         = (-1);
   static const int ELLIPSE_N_TRIANGLES = 100; // n triangles used to draw an ellipse
+  static const int VERTEX_MOVES_STEP = 25;
 };
 
 #endif

@@ -54,8 +54,41 @@ QListView::item:selected {
   background: #272a36;
 }
 
-QGraphicsView {
+QGraphicsView,
+QPlainTextEdit {
   border-style: none;
+}
+
+QPushButton#zoom-in,
+QPushButton#zoom-out,
+QPushButton#reset-zoom,
+QPushButton#zoom-fit {
+    background-color: rgba(0, 0, 0, 0%);
+}
+
+QPushButton:hover#zoom-in, QPushButton:checked#zoom-in,
+QPushButton:hover#zoom-out, QPushButton:checked#zoom-out,
+QPushButton:hover#reset-zoom, QPushButton:checked#reset-zoom,
+QPushButton:hover#zoom-fit, QPushButton:checked#zoom-fit {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                    stop: 0 #0c0927, stop: 1 #191C28);
+    border-radius: 2px;
+    border: none;
+}
+
+QPushButton:pressed#zoom-in,
+QPushButton:pressed#zoom-out,
+QPushButton:pressed#reset-zoom,
+QPushButton:pressed#zoom-fit {
+    border: none;
+}
+
+QWidget#zoom-toolbox {
+    background-color: #272a36;
+}
+
+QStatusBar::item {
+    border: 0px solid black;
 }
 
 /*

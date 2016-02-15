@@ -150,11 +150,15 @@ Ellipse* createEllipseForColor(int frameWidth, int frameHeight)
   );
 }
 
-void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected, qreal radius, qreal strokeWidth)
+void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected, bool locked, qreal radius, qreal strokeWidth)
 {
   // Init colors and stroke.
-  painter->setBrush(selected ? MM::VERTEX_SELECTED_BACKGROUND : MM::VERTEX_BACKGROUND);
-  painter->setPen(QPen(MM::CONTROL_COLOR, strokeWidth));
+  if (locked)
+    painter->setBrush(MM::VERTEX_LOCKED_BACKGROUND);
+  else
+    painter->setBrush(selected ? MM::VERTEX_SELECTED_BACKGROUND : MM::VERTEX_BACKGROUND);
+
+  painter->setPen(locked ? QPen(MM::CONTROL_LOCKED_COLOR) : QPen(MM::CONTROL_COLOR, strokeWidth));
 
   // Draw ellipse.
   painter->drawEllipse(vertex, radius, radius);
@@ -169,10 +173,10 @@ void drawControlsVertices(QPainter* painter, const QList<int>* selectedVertices,
 {
   if (!selectedVertices)
     for (int i=0; i<shape.nVertices(); i++)
-      drawControlsVertex(painter, shape.getVertex(i), false);
+      drawControlsVertex(painter, shape.getVertex(i), false, shape.isLocked());
   else
     for (int i=0; i<shape.nVertices(); i++)
-      drawControlsVertex(painter, shape.getVertex(i), selectedVertices->contains(i));
+      drawControlsVertex(painter, shape.getVertex(i), selectedVertices->contains(i), shape.isLocked());
 }
 
 void drawControlsEllipse(QPainter* painter, const QList<int>* selectedVertices, const Ellipse& ellipse)
@@ -276,7 +280,7 @@ bool eraseSettings()
   }
   else
   {
-    std::cout << "Erase MapMap settings." << std::endl;
+    QMessageLogger(__FILE__, __LINE__, 0).debug() << "Erase MapMap settings.";
     settingsFile.close();
     return settingsFile.remove();
   }

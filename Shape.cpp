@@ -19,7 +19,7 @@
 
 #include "Shape.h"
 
-MShape::MShape(const QVector<QPointF>& vertices_) {
+MShape::MShape(const QVector<QPointF>& vertices_) : _isLocked(false) {
   setVertices(vertices_);
   build();
 }

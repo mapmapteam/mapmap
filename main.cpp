@@ -65,8 +65,17 @@ void initRegistry()
   registry.add<Triangle>();
 }
 
+// Intercept all logging message and display it in the console
+void logMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+  ConsoleWindow::getInstance()->messageLog(type, context, msg);
+}
+
 int main(int argc, char *argv[])
 {
+  // Install message handler
+  qInstallMessageHandler(logMessageHandler);
+
   set_env_vars_if_needed();
 
   // Initialize meta-object registry.
@@ -141,10 +150,10 @@ int main(int argc, char *argv[])
 
   // Create window.
   MainWindow* win = MainWindow::instance();
-
-  QFontDatabase db;
-  Q_ASSERT( QFontDatabase::addApplicationFont(":/base-font") != -1);
-  app.setFont(QFont(":/base-font", 10, QFont::Bold));
+  // Add custom font
+  int id = QFontDatabase::addApplicationFont(":/base-font");
+  QString family = QFontDatabase::applicationFontFamilies(id).at(0);
+  app.setFont(QFont(family, 11, QFont::Normal));
 
   // Load stylesheet.
   QFile stylesheet(":/stylesheet");

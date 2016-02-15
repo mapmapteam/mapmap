@@ -3,11 +3,13 @@ TEMPLATE = app
 VERSION = 0.3.2
 TARGET = mapmap
 QT += gui opengl xml
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets core
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
 HEADERS  = \
     Commands.h \
+    ConcurrentQueue.h \
+    ConsoleWindow.h \
     DestinationGLCanvas.h \
     Element.h \
     Ellipse.h \
@@ -46,6 +48,7 @@ HEADERS  = \
 
 SOURCES  = \
     Commands.cpp \
+    ConsoleWindow.cpp \
     DestinationGLCanvas.cpp \
     Element.cpp \
     Ellipse.cpp \

@@ -48,11 +48,12 @@ class MShape : public Serializable
 {
   Q_OBJECT
 
+  Q_PROPERTY(bool    locked  READ isLocked   WRITE setLocked)
   Q_PROPERTY(QVector<QPointF> vertices READ getVertices WRITE setVertices STORED false)
 public:
   typedef QSharedPointer<MShape> ptr;
 
-  MShape() {}
+  MShape() : _isLocked(false) {}
   MShape(const QVector<QPointF>& vertices_);
   virtual ~MShape() {}
 
@@ -98,6 +99,10 @@ public:
 
   virtual MShape* clone() const;
 
+  bool isLocked() const    { return _isLocked; }
+  void setLocked(bool locked)    { _isLocked = locked; }
+  void toggleLocked()  { _isLocked = !_isLocked; }
+
   const QVector<QPointF>& getVertices() const { return vertices; }
   virtual void setVertices(const QVector<QPointF>& vertices_)
   {
@@ -111,6 +116,7 @@ public:
 
 protected:
   QVector<QPointF> vertices;
+  bool _isLocked;
 
   void _addVertex(const QPointF& vertex)
   {

@@ -35,8 +35,8 @@ public:
   virtual ~DestinationGLCanvas() {}
 
   virtual bool isOutput() const { return true; }
-  virtual MShape::ptr getShapeFromMappingId(uid mappingId) const;
-  virtual QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMappingId(uid mappingId) const;
+  virtual MShape::ptr getShapeFromMapping(const Mapping::ptr& mapping) const;
+  virtual QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMapping(const Mapping::ptr& mapping) const;
 };
 
 #endif /* DESTINATIONGLCANVAS_H_ */

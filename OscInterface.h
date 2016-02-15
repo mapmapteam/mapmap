@@ -27,8 +27,9 @@
 #ifdef HAVE_OSC
 
 #include <QVariant>
+#include <QMessageLogger>
 
-#include "concurrentqueue.h"
+#include "ConcurrentQueue.h"
 #include "OscReceiver.h"
 
 class MainWindow;

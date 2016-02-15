@@ -28,6 +28,7 @@
 #include <QTimer>
 #include <QVariant>
 #include <QMap>
+#include <QMessageLogger>
 
 #include "MM.h"
 
@@ -39,6 +40,7 @@
 
 #include "OutputGLWindow.h"
 #include "PreferencesDialog.h"
+#include "ConsoleWindow.h"
 
 #include "MappingManager.h"
 
@@ -70,6 +72,7 @@ protected:
   // Events ///////////////////////////////////////////////////////////////////////////////////////////////////
   void closeEvent(QCloseEvent *event);
   bool eventFilter(QObject *obj, QEvent *event);
+  void keyPressEvent(QKeyEvent *event);
 
   // Slots ////////////////////////////////////////////////////////////////////////////////////////////////////
 private slots:
@@ -81,11 +84,11 @@ private slots:
   void preferences();
   bool save();
   bool saveAs();
-  void importVideo();
-  void importImage();
+  void importMedia();
   void addColor();
   void about();
   void updateStatusBar();
+  void showMenuBar(bool shown);
   void openRecentFile();
   void clearRecentFileList();
   void openRecentVideo();
@@ -93,12 +96,17 @@ private slots:
   // Edit menu.
   void deleteItem();
   // Context menu for mappings.
-  void cloneItem();
+  void duplicateMappingItem();
   void deleteMappingItem();
   void renameMappingItem();
+  void setMappingitemLocked(bool locked);
+  void setMappingitemVisible(bool visible);
+  void setMappingItemSolo(bool solo);
+  void mappingListEditEnd(QWidget* editor);
   // Context menu for paints
   void deletePaintItem();
   void renamePaintItem();
+  void paintListEditEnd(QWidget* editor);
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
@@ -179,7 +187,7 @@ public slots:
   void deleteMapping(uid mappingId);
 
   /// Clone/duplicate a mapping
-  void cloneMappingItem(uid mappingId);
+  void duplicateMapping(uid mappingId);
 
   /// Deletes/removes a paint and all associated mappigns.
   void deletePaint(uid paintId, bool replace);
@@ -240,11 +248,13 @@ public:
   void addPaintItem(uid paintId, const QIcon& icon, const QString& name);
   void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
-  void renameMappingItem(uid mappingId, QString name);
-  void renamePaintItem(uid paintId, QString name);
+  void renameMapping(uid mappingId, const QString& name);
+  void renamePaint(uid paintId, const QString& name);
   void clearWindow();
   // Check if the file exists
-  bool fileExists(const QString file);
+  bool fileExists(const QString& file);
+  // Check if the file is supported
+  bool fileSupported(const QString& file, bool isImage);
   // Locate the file not found
   QString locateMediaFile(const QString& uri, bool isImage);
 
@@ -273,32 +283,40 @@ private:
   QMenu *fileMenu;
   QMenu *editMenu;
   QMenu *viewMenu;
-  QMenu *runMenu;
+  QMenu *toolsMenu;
+  QMenu *playbackMenu;
   QMenu *helpMenu;
   QMenu *recentFileMenu;
   QMenu *recentVideoMenu;
   QMenu *mappingContextMenu;
   QMenu *paintContextMenu;
+  // Some menus when need to be separated
+  QMenu *sourceMenu;
+  QMenu *destinationMenu;
+  QMenu *toolBarsMenu;
 
   // Toolbar.
   QToolBar *mainToolBar;
-  QToolBar *runToolBar;
 
   // Actions.
   QAction *separatorAction;
   QAction *newAction;
   QAction *openAction;
-  QAction *importVideoAction;
-  QAction *importImageAction;
+  QAction *importMediaAction;
   QAction *addColorAction;
   QAction *saveAction;
   QAction *saveAsAction;
   QAction *exitAction;
   QAction *undoAction;
   QAction *redoAction;
-  QAction *cloneAction;
+  // Mappings context menu actions
+  QAction *cloneMappingAction;
   QAction *deleteMappingAction;
   QAction *renameMappingAction;
+  QAction *mappingSoloAction;
+  QAction *mappingLockedAction;
+  QAction *mappingMuteAction;
+  // Paints context menu action
   QAction *deletePaintAction;
   QAction *renamePaintAction;
   QAction *preferencesAction;
@@ -314,13 +332,15 @@ private:
   QAction *pauseAction;
   QAction *rewindAction;
 
-  QAction *displayOutputWindowAction;
-  //QAction *outputWindowHasCursor;
-  QAction *outputWindowFullScreenAction;
+  QAction *outputFullScreenAction;
   QAction *displayControlsAction;
   QAction *displayTestSignalAction;
   QAction *stickyVerticesAction;
   QAction *displayUndoStackAction;
+  QAction *displayZoomToolAction;
+  QAction *openConsoleAction;
+  QAction *showMenuBarAction;
+  QAction *showToolBarAction;
 
   enum { MaxRecentFiles = 10 };
   enum { MaxRecentVideo = 5 };
@@ -343,6 +363,7 @@ private:
   SourceGLCanvas* sourceCanvas;
   DestinationGLCanvas* destinationCanvas;
   OutputGLWindow* outputWindow;
+  ConsoleWindow* consoleWindow;
 
   QSplitter* mainSplitter;
   QSplitter* canvasSplitter;
@@ -398,6 +419,9 @@ private:
 
   bool _displayUndoStack;
 
+  // Menu bar hidden state
+  bool _showMenuBar;
+
   // Keeps track of the current selected item, wether it's a paint or mapping.
   QListWidgetItem* currentSelectedItem;
   QTimer *videoTimer;
@@ -407,6 +431,12 @@ private:
   // UndoStack
   QUndoStack *undoStack;
 
+  // Labels for status bar
+  QLabel *destinationZoomLabel;
+  QLabel *sourceZoomLabel;
+  QLabel *undoLabel;
+  QLabel *currentMessageLabel;
+  QLabel *mousePosLabel;
 
 
 public:
@@ -415,6 +445,8 @@ public:
   MappingGui::ptr getMappingGuiByMappingId(uint id) const { return mappers[id]; }
   uid getCurrentPaintId() const { return currentPaintId; }
   uid getCurrentMappingId() const { return currentMappingId; }
+  Mapping::ptr getCurrentMapping() const { return mappingManager->getMappingById(currentMappingId); }
+  Paint::ptr getCurrentPaint() const { return mappingManager->getPaintById(currentPaintId); }
   OutputGLWindow* getOutputWindow() const { return outputWindow; }
   bool hasCurrentPaint() const { return _hasCurrentPaint; }
   bool hasCurrentMapping() const { return _hasCurrentMapping; }

@@ -54,8 +54,8 @@ public:
 
   /// Returns shape associated with mapping id.
   virtual bool isOutput() const = 0;
-  virtual MShape::ptr getShapeFromMappingId(uid mappingId) const = 0;
-  virtual QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMappingId(uid mappingId) const = 0;
+  virtual MShape::ptr getShapeFromMapping(const Mapping::ptr& mapping) const = 0;
+  virtual QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMapping(const Mapping::ptr& mapping) const = 0;
 
   MShape::ptr getCurrentShape();
   QSharedPointer<ShapeGraphicsItem> getCurrentShapeGraphicsItem();
@@ -86,10 +86,18 @@ public:
   bool shapeGrabbed() const { return _shapeGrabbed; }
   bool vertexGrabbed() const { return _vertexGrabbed; }
 
-  qreal getZoomFactor() const { return qBound(qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MIN, MM::ZOOM_MAX); }
+  //qreal getZoomFactor() const { return qBound(qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MIN, MM::ZOOM_MAX); }
+  qreal getZoomFactor() const { return _shapeIsAdapted
+        ? _scalingFactor
+        : qBound(MM::ZOOM_MIN, qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MAX); }
 
   /// This function needs to be called after a shape inside the canvas has been changed for appropriate signals to be activated.
   void currentShapeWasChanged();
+
+  // Apply zoom to view
+  void applyZoomToView();
+  // Refresh the zoom toolbar position
+  void updateZoomToolbar();
 
 protected:
 //  void initializeGL();
@@ -147,12 +155,30 @@ private:
   // The zoom level (in number of steps).
   int _zoomLevel;
 
+  // The scaling factor
+  qreal _scalingFactor;
+
+  bool _shapeIsAdapted;
+
   // Pointer to MainWindow UndoStack
   QUndoStack *undoStack;
+
+  // Buttons for toolbox layout
+  QWidget* _zoomToolBar;
+  QPushButton* _zoomInButton;
+  QPushButton* _zoomOutButton;
+  QPushButton* _resetZoomButton;
+  QPushButton* _fitToViewButton;
+  // Dropdown menu
+  QComboBox* _dropdownMenu;
+
+  // Create zoom tool buttons
+  void createZoomToolsLayout();
 
 signals:
   void shapeChanged(MShape*);
   void imageChanged();
+  void shapeContextMenuRequested(const QPoint &pos);
 
 public slots:
   void updateCanvas();
@@ -167,6 +193,20 @@ public slots:
 
   // Event Filter
   bool eventFilter(QObject *target, QEvent *event);
+
+  // Zoom
+  void increaseZoomLevel(int steps=1);
+  void decreaseZoomLevel(int steps=1);
+  void resetZoomLevel();
+  void fitShapeInView();
+
+  // Show/Hide zoom tool buttons
+  void showZoomToolBar(bool visible);
+  void enableZoomToolBar(bool enabled);
+  // Set zoom factor with drowmenu data
+  void setZoomFromMenu(const QString& text);
+  // Update and feedback zoom level
+  void updateDropdownMenu();
 
 protected:
   // TODO: Perhaps the sticky-sensitivity should be configurable through GUI

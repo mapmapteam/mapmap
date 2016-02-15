@@ -145,6 +145,31 @@ QVector<Mapping::ptr> MappingManager::getVisibleMappings() const
   return visible;
 }
 
+/// Returns true iff the mapping is visible.
+bool MappingManager::mappingIsVisible(Mapping::ptr mapping) const
+{
+  // Solo mappings are always visible.
+  if (mapping->isSolo())
+    return true;
+
+  // Non-solo invisible mappings are always invisible.
+  else if (!mapping->isVisible())
+    return false;
+
+  // Mapping is non-solo yet visible: check if another mapping is solo (which would thus make it invisible).
+  else
+  {
+    for (QVector<Mapping::ptr>::const_iterator it = mappingVector.begin(); it != mappingVector.end(); ++it)
+    {
+      if ((*it)->isSolo())
+        return false;
+    }
+
+    // Mapping is non-solo yet visible and there are no solo mappings.
+    return true;
+  }
+}
+
 void MappingManager::reorderMappings(QVector<uid> mappingIds)
 {
   // Both vector needs to have the same size.
