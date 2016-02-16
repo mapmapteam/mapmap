@@ -224,6 +224,9 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     MShape::ptr shape = getCurrentShape();
     if (shape)
     {
+      // Shape is locked either if either itself or its mapping is locked.
+      bool shapeIsLocked = _mainWindow->getCurrentMapping()->isLocked() || shape->isLocked();
+
       // Note: we compare with the square value for fastest computation of the distance
       int minDistance = sq(MM::VERTEX_SELECT_RADIUS);
 
@@ -237,7 +240,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
           minDistance = dist;
 
           // Vertex can be grabbed only if the mapping is not locked
-          _vertexGrabbed = !shape->isLocked() ? false : true;
+          _vertexGrabbed = !shapeIsLocked;
           mousePressedOnSomething = true;
 
           _grabbedObjectStartScenePosition = shape->getVertex(i);
