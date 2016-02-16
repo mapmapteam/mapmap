@@ -244,7 +244,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   if (paint->getType() == "media") {
     QSharedPointer<Media> media = qSharedPointerCast<Media>(paint);
     Q_CHECK_PTR(media);
-    updatePaintItem(paintId, createFileIcon(media->getUri()), strippedName(media->getUri()));
+    updatePaintItem(paintId, media->getIcon(), strippedName(media->getUri()));
     //    QString fileName = QFileDialog::getOpenFileName(this,
     //        tr("Import media source file"), ".");
     //    // Restart video playback. XXX Hack
@@ -254,7 +254,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   if (paint->getType() == "image") {
     QSharedPointer<Image> image = qSharedPointerCast<Image>(paint);
     Q_CHECK_PTR(image);
-    updatePaintItem(paintId, createImageIcon(image->getUri()), strippedName(image->getUri()));
+    updatePaintItem(paintId, image->getIcon(), strippedName(image->getUri()));
     //    QString fileName = QFileDialog::getOpenFileName(this,
     //        tr("Import media source file"), ".");
     //    // Restart video playback. XXX Hack
@@ -265,7 +265,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
     // Pop-up color-choosing dialog to choose color paint.
     QSharedPointer<Color> color = qSharedPointerCast<Color>(paint);
     Q_CHECK_PTR(color);
-    updatePaintItem(paintId, createColorIcon(color->getColor()), strippedName(color->getColor().name()));
+    updatePaintItem(paintId, color->getIcon(), strippedName(color->getColor().name()));
   }
 
   if (curMappingId != NULL_UID)
@@ -955,7 +955,7 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
     uid id = mappingManager->addPaint(paint);
 
     // Add paint widget item.
-    addPaintItem(id, isImage ? createImageIcon(uri) : createFileIcon(uri), strippedName(uri));
+    addPaintItem(id, paint->getIcon(), strippedName(uri));
     return id;
   }
 }
@@ -977,7 +977,7 @@ uid MainWindow::createColorPaint(uid paintId, QColor color)
     uid id = mappingManager->addPaint(paint);
 
     // Add paint widget item.
-    addPaintItem(id, createColorIcon(color), strippedName(color.name()));
+    addPaintItem(id, paint->getIcon(), strippedName(color.name()));
 
     return id;
   }

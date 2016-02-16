@@ -45,7 +45,7 @@ Media::Media(int id) : Texture(id),
     uri(""),
     impl_(NULL)
 {
-  impl_ = new MediaImpl(uri, false);
+  impl_ = new MediaImpl("", false);
   setRate(1);
   setVolume(1);
 }
@@ -55,9 +55,10 @@ Media::Media(const QString uri_, bool live, double rate, uid id):
     uri(uri_),
     impl_(NULL)
 {
-  impl_ = new MediaImpl(uri_, live);
+  impl_ = new MediaImpl("", live);
   setRate(rate);
   setVolume(1);
+  setUri(uri_);
 }
 
 // vertigo
@@ -148,11 +149,40 @@ bool Media::hasVideoSupport()
 
 bool Media::setUri(const QString &uri)
 {
+  // Try to load movie.
   bool success = false;
   this->uri = uri;
   success = this->impl_->loadMovie(uri);
   if (! success)
     qDebug() << "Cannot load movie " << uri << "." << endl;
+
+  // Try to get thumbnail.
+  const uint* bits = NULL;
+  do
+  {
+    lockMutex();
+    bits = (uint*)impl_->getBits();
+    unlockMutex();
+  } while (!bits);
+
+  if (!impl_->seekTo(0.5))
+  {
+    impl_->resetMovie();
+    return false;
+  }
+  bits = (uint*)impl_->getBits();
+
+  // Copy bits into thumbnail QImage.
+  thumbnail = QImage(getWidth(), getHeight(), QImage::Format_ARGB32);
+  int i=0;
+  for (int y=0; y<getHeight(); y++)
+    for (int x=0; x<getWidth(); x++)
+      thumbnail.setPixel(x, y, bits[i++]);
+
+  // Reset movie.
+  impl_->resetMovie();
+
+  // Return success.
   return success;
 }
 

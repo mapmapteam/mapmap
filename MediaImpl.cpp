@@ -351,7 +351,7 @@ gstPollShmsrc (void *user_data)
   return true;
 }
 
-bool MediaImpl::loadMovie(QString filename)
+bool MediaImpl::loadMovie(const QString& filename)
 {
   // Verify if file exists.
   const gchar* filetestpath = (const gchar*) filename.toUtf8().constData();
@@ -687,7 +687,7 @@ bool MediaImpl::setPlayState(bool play)
   GstStateChangeReturn ret = gst_element_set_state (_pipeline, (play ? GST_STATE_PLAYING : GST_STATE_PAUSED));
   if (ret == GST_STATE_CHANGE_FAILURE)
   {
-    qDebug() << "Unable to set the pipeline to the playing state.";
+    qDebug() << "Unable to set the pipeline to the playing state." << endl;
     unloadMovie();
     return false;
   }
@@ -696,6 +696,45 @@ bool MediaImpl::setPlayState(bool play)
     _playState = play;
     return true;
   }
+}
+
+bool MediaImpl::seekTo(double position)
+{
+  gint64 duration;
+  if (!gst_element_query_duration (_pipeline, GST_FORMAT_TIME, &duration))
+  {
+    qDebug() << "Cannot get duration of file" << endl;
+    return false;
+  }
+
+  // Make sure position is in [0,1].
+  position = qBound(0.0, position, 1.0);
+
+  // Seek at position in nanoseconds.
+  return seekTo((gint64)(position*duration));
+}
+
+bool MediaImpl::seekTo(gint64 positionNanoSeconds)
+{
+//  if (!isReady() || !seekIsEnabled())
+//    return false;
+
+  GstEvent *seekEvent;
+
+  /* Create the seek event */
+  ////// TODO: corriger pour rate < 0
+  seekEvent = gst_event_new_seek (abs(_rate), GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
+        GST_SEEK_TYPE_SET, positionNanoSeconds, GST_SEEK_TYPE_NONE, 0);
+
+  if (_appsink0 == NULL) {
+    /* If we have not done so, obtain the sink through which we will send the seek events */
+    g_object_get (_pipeline, "video-sink", &_appsink0, NULL);
+  }
+
+  /* Send the event */
+  gst_element_send_event (_appsink0, seekEvent);
+
+  return true;
 }
 
 //bool MediaImpl::_preRun()

@@ -107,7 +107,7 @@ public:
    * Returns whether or not the elements in the pipeline are connected,
    * and if we are using shmsrc, if the shared memory socket is being read.
    */
-  bool isReady() const { return _movieReady && _padHandlerData.videoIsConnected; }
+  bool isReady() const { return _isMovieReady() && videoIsConnected(); }
 
   bool videoIsConnected() const { return _padHandlerData.videoIsConnected; }
 
@@ -123,10 +123,15 @@ public:
    * 
    * Creates a new GStreamer pipeline, opens a movie or a shmsrc socket.
    */
-  bool loadMovie(QString filename);
+  bool loadMovie(const QString& filename);
 
   bool setPlayState(bool play);
   bool getPlayState() const { return _playState; }
+
+  bool seekIsEnabled() const { return _seekEnabled; }
+
+  bool seekTo(double position);
+  bool seekTo(gint64 positionNanoSeconds);
 
   /**
    * Tells the MediaImpl that we are actually reading from a shmsrc.

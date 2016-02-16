@@ -234,6 +234,8 @@ class Media : public Texture
 
 protected:
   QString uri;
+  QImage thumbnail;
+
 public:
   Q_INVOKABLE Media(int id=NULL_UID);
   Media(const QString uri_, bool live, double rate, uid id=NULL_UID);
@@ -286,6 +288,8 @@ public:
    * Checks whether or not video is supported on this platform.
    */
   static bool hasVideoSupport();
+
+  virtual QIcon getIcon() const { return QIcon(QPixmap::fromImage(thumbnail)); }
 
 private:
   /**
