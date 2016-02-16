@@ -234,7 +234,7 @@ class Media : public Texture
 
 protected:
   QString uri;
-  QImage thumbnail;
+  QIcon icon;
 
 public:
   Q_INVOKABLE Media(int id=NULL_UID);
@@ -289,7 +289,7 @@ public:
    */
   static bool hasVideoSupport();
 
-  virtual QIcon getIcon() const { return QIcon(QPixmap::fromImage(thumbnail)); }
+  virtual QIcon getIcon() const { return icon; }
 
 private:
   /**
