@@ -704,25 +704,26 @@ bool MediaImpl::seekTo(double position)
 
 bool MediaImpl::seekTo(gint64 positionNanoSeconds)
 {
-//  if (!isReady() || !seekIsEnabled())
-//    return false;
+  if (!_appsink0)
+    return false;
+  else
+  {
+    lockMutex();
 
-  GstEvent *seekEvent;
+    // Free the current sample and reset.
+    _freeCurrentSample();
+    _bitsChanged = false;
 
-  /* Create the seek event */
-  ////// TODO: corriger pour rate < 0
-  seekEvent = gst_event_new_seek (abs(_rate), GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
-        GST_SEEK_TYPE_SET, positionNanoSeconds, GST_SEEK_TYPE_NONE, 0);
+    // Seek to position.
+    bool result = gst_element_seek_simple(
+                    _appsink0, GST_FORMAT_TIME,
+                    GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
+                    positionNanoSeconds);
 
-  if (_appsink0 == NULL) {
-    /* If we have not done so, obtain the sink through which we will send the seek events */
-    g_object_get (_pipeline, "video-sink", &_appsink0, NULL);
+    unlockMutex();
+
+    return result;
   }
-
-  /* Send the event */
-  gst_element_send_event (_appsink0, seekEvent);
-
-  return true;
 }
 
 //bool MediaImpl::_preRun()
