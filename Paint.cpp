@@ -165,20 +165,30 @@ bool Media::setUri(const QString &uri)
   }
 
   // Try to get thumbnail.
-  const uint* bits = NULL;
-  do
-  {
-    lockMutex();
-    bits = (uint*)impl_->getBits();
-    unlockMutex();
-  } while (!bits);
 
+  // Wait for the first samples to be available to make sure we are ready.
+  if (!impl_->waitForNextBits(1000))
+  {
+    return false;
+  }
+
+  // Try seeking to the middle of the movie.
   if (!impl_->seekTo(0.5))
   {
     impl_->resetMovie();
     return false;
   }
-  bits = (uint*)impl_->getBits();
+
+  // Try to get a sample from the current position.
+  // NOTE: There is no guarantee the sample has yet been acquired.
+  const uchar* data;
+  if (!impl_->waitForNextBits(1000, &data))
+  {
+    qDebug() << "Second waiting wrong..." << endl;
+    return false;
+  }
+
+  const uint* bits = (uint*)data;
 
   // Copy bits into thumbnail QImage.
   QImage thumbnail(getWidth(), getHeight(), QImage::Format_ARGB32);
