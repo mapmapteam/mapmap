@@ -98,6 +98,9 @@ public:
    */
   const uchar* getBits();
 
+  /// Returns true iff bits have started flowing (ie. if there is at least a first sample available).
+  bool hasBits() const { return (_currentFrameSample != NULL); }
+
   /// Returns true iff bits have changed since last call to getBits().
   bool bitsHaveChanged() const { return _bitsChanged; }
 

@@ -62,10 +62,7 @@ const uchar* MediaImpl::getBits()
   _bitsChanged = false;
 
   // Return data.
-  if (_currentFrameSample == NULL)
-    return NULL;
-  else
-    return _data;
+  return (hasBits() ? _data : NULL);
 }
 
 QString MediaImpl::getUri() const
