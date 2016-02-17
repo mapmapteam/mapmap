@@ -152,9 +152,7 @@ bool Media::setUri(const QString &uri)
   static QFileIconProvider provider;
 
   // Try to load movie.
-  bool success = false;
-  success = impl_->loadMovie(uri);
-  if (! success)
+  if (!impl_->loadMovie(uri))
   {
     qDebug() << "Cannot load movie " << uri << "." << endl;
     return false;
@@ -204,6 +202,6 @@ bool Media::setUri(const QString &uri)
   impl_->resetMovie();
 
   // Return success.
-  return success;
+  return true;
 }
 
