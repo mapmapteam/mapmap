@@ -109,7 +109,7 @@ public:
    */
   bool isReady() const { return _isMovieReady() && videoIsConnected(); }
 
-  bool videoIsConnected() const { return _padHandlerData.videoIsConnected; }
+  bool videoIsConnected() const { return _videoIsConnected; }
 
   /**
    * Performs regular updates (checks if movie is ready and checks messages).
@@ -174,31 +174,13 @@ private:
   void _freeCurrentSample();
 
 public:
-  // GStreamer callbacks.
-
-  struct GstPadHandlerData {
-    GstElement* videoToConnect;
-    GstElement* videoSink;
-    bool videoIsConnected;
-    int width;
-    int height;
-
-    GstElement* audioToConnect;
-
-    GstPadHandlerData() :
-      videoToConnect(NULL), videoSink(NULL),
-      videoIsConnected(false),
-      width(-1), height(-1)
-    {}
-  };
-
   // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
   static GstFlowReturn gstNewSampleCallback(GstElement*, MediaImpl *p);
   //static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
 
   // GStreamer callback that plugs the audio/video pads into the proper elements when they
   // are made available by the source.
-  static void gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data);
+  static void gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl* p);
 
   /// Locks mutex (default = no effect).
   void lockMutex();
@@ -240,12 +222,13 @@ private:
 //  bool _isSeekable;
   unsigned long _duration; // duration (in nanoseconds) (unused for now)
 
+  bool _videoIsConnected;
+
   /**
    * shmsrc socket poller.
    */
   GSource *_pollSource;
 
-  GstPadHandlerData _padHandlerData;
 
   /// Raw image data of the last video frame.
   uchar *_data;

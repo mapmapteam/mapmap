@@ -253,12 +253,7 @@ void MediaImpl::unloadMovie()
   _setMovieReady(false);
   setPlayState(false);
 
-  // Reinit.
-  _width = _height = -1;
-  _duration = 0;
-//  _isSeekable = false;
-
-  // Free allocated resources.
+  // Free allocated resources / reinit.
   freeResources();
 }
 
@@ -284,9 +279,6 @@ void MediaImpl::freeResources()
   _videoconvert0 = NULL;
   _appsink0 = NULL;
 
-  // Reset pad handler.
-  _padHandlerData = GstPadHandlerData();
-
   // Unref the shmsrc poller.
   if (_pollSource)
   {
@@ -299,8 +291,11 @@ void MediaImpl::freeResources()
   // Frees current sample and buffer.
   _freeCurrentSample();
 
-  // Resets bits changed.
+  // Reset other informations.
   _bitsChanged = false;
+  _width = _height = (-1);
+  _duration = 0;
+  _videoIsConnected = false;
 }
 
 void MediaImpl::resetMovie()
@@ -395,17 +390,13 @@ bool MediaImpl::loadMovie(const QString& filename)
   _appsink0 = gst_element_factory_make ("appsink", "appsink0");
 
   // Prepare handler data.
-  _padHandlerData.videoToConnect = _queue0;
-  _padHandlerData.videoSink = _appsink0;
-  _padHandlerData.videoIsConnected = false;
+  _videoIsConnected = false;
 
   _audioqueue0 = gst_element_factory_make ("queue", "audioqueue0");
   _audioconvert0 = gst_element_factory_make ("audioconvert", "audioconvert0");
   _audioresample0 = gst_element_factory_make ("audioresample", "audioresample0");
   _audiovolume0 = gst_element_factory_make ("volume", "audiovolume0");
   _audiosink0 = gst_element_factory_make ("autoaudiosink", "audiosink0");
-
-  _padHandlerData.audioToConnect = _audioqueue0;
 
   // Create the empty pipeline.
   _pipeline = gst_pipeline_new ( "video-source-pipeline" );
@@ -599,7 +590,7 @@ bool MediaImpl::loadMovie(const QString& filename)
     gst_discoverer_stream_info_list_free(videoStreams);
 
     // Connect pad signal.
-    g_signal_connect (_uridecodebin0, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), &_padHandlerData);
+    g_signal_connect (_uridecodebin0, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), this);
 
     // Set uri of decoder.
     g_object_set (_uridecodebin0, "uri", uri, NULL);
@@ -609,7 +600,7 @@ bool MediaImpl::loadMovie(const QString& filename)
     //qDebug() << "LIVE mode" << uri;
     g_object_set (_shmsrc0, "socket-path", uri, NULL);
     g_object_set (_shmsrc0, "is-live", TRUE, NULL);
-    _padHandlerData.videoIsConnected = true;
+    _videoIsConnected = true;
   }
   g_free(uri);
 
@@ -942,7 +933,7 @@ void MediaImpl::_freeCurrentSample() {
 /**
  * FIXME: remove GOTO
  */
-void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::GstPadHandlerData* data)
+void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl* p)
 {
   g_print ("Received new pad '%s' from '%s':\n", GST_PAD_NAME (newPad), GST_ELEMENT_NAME (src));
   GstPad *sinkPad = NULL;
@@ -956,13 +947,13 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
   g_free(newPadStructStr);
   if (g_str_has_prefix (newPadType, "video/x-raw"))
   {
-    sinkPad = gst_element_get_static_pad (data->videoToConnect, "sink");
-    gst_structure_get_int(newPadStruct, "width",  &data->width);
-    gst_structure_get_int(newPadStruct, "height", &data->height);
+    sinkPad = gst_element_get_static_pad (p->_queue0, "sink");
+    gst_structure_get_int(newPadStruct, "width",  &p->_width);
+    gst_structure_get_int(newPadStruct, "height", &p->_height);
   }
   else if (g_str_has_prefix (newPadType, "audio/x-raw"))
   {
-    sinkPad = gst_element_get_static_pad (data->audioToConnect, "sink");
+    sinkPad = gst_element_get_static_pad (p->_audioqueue0, "sink");
   }
   else {
     g_print ("  It has type '%s' which is not raw audio/video. Ignoring.\n", newPadType);
@@ -994,7 +985,7 @@ void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl::
     g_print ("  Type is '%s' but link failed.\n", newPadType);
     goto exit;
   } else {
-    data->videoIsConnected = true;
+    p->_videoIsConnected = true;
     g_print ("  Link succeeded (type '%s').\n", newPadType);
   }
 
