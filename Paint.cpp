@@ -151,18 +151,18 @@ bool Media::setUri(const QString &uri)
 {
   static QFileIconProvider provider;
 
-  // Default (in case seeking and loading don't work).
-  icon = provider.icon(QFileInfo(uri));
-
   // Try to load movie.
-  bool success = false;
-  this->uri = uri;
-  success = impl_->loadMovie(uri);
-  if (! success)
+  if (!impl_->loadMovie(uri))
   {
     qDebug() << "Cannot load movie " << uri << "." << endl;
     return false;
   }
+
+  // Set uri.
+  this->uri = uri;
+
+  // Default (in case seeking and loading don't work).
+  icon = provider.icon(QFileInfo(uri));
 
   // Try to get thumbnail.
 
@@ -195,12 +195,13 @@ bool Media::setUri(const QString &uri)
     for (int x=0; x<getWidth(); x++)
       thumbnail.setPixel(x, y, bits[i++]);
 
+  // Generate icon.
   icon = QIcon(QPixmap::fromImage(thumbnail));
 
   // Reset movie.
   impl_->resetMovie();
 
   // Return success.
-  return success;
+  return true;
 }
 
