@@ -237,6 +237,10 @@ protected:
   QIcon icon;
 
 public:
+  // Thumbnail generation timeout (in ms).
+  static const int ICON_TIMEOUT = 1000;
+
+public:
   Q_INVOKABLE Media(int id=NULL_UID);
   Media(const QString uri_, bool live, double rate, uid id=NULL_UID);
   virtual ~Media();

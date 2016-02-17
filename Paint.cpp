@@ -182,11 +182,11 @@ bool Media::setUri(const QString &uri)
   // Try to get a sample from the current position.
   // NOTE: There is no guarantee the sample has yet been acquired.
   const uint* bits;
+  if (!impl_->waitForNextBits(ICON_TIMEOUT, (const uchar**)&bits))
   {
     qDebug() << "Second waiting wrong..." << endl;
     return false;
   }
-
 
   // Copy bits into thumbnail QImage.
   QImage thumbnail(getWidth(), getHeight(), QImage::Format_ARGB32);
