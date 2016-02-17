@@ -191,6 +191,9 @@ public:
   /// Unlocks mutex (default = no effect).
   void unlockMutex();
 
+  /// Wait until first data samples are available (blocking).
+  bool waitForNextBits(int timeout, const uchar** bits=0);
+
 private:
   //locals
 
@@ -231,7 +234,6 @@ private:
    * shmsrc socket poller.
    */
   GSource *_pollSource;
-
 
   /// Raw image data of the last video frame.
   uchar *_data;

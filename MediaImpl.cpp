@@ -1010,3 +1010,23 @@ void MediaImpl::unlockMutex()
   _mutexLocker->unlock();
 }
 
+bool MediaImpl::waitForNextBits(int timeout, const uchar** bits)
+{
+  QTime time;
+  time.start();
+  while (time.elapsed() < timeout)
+  {
+    // Bits available.
+    if (hasBits() && bitsHaveChanged())
+    {
+      if (bits)
+        *bits = getBits();
+      return true;
+    }
+  }
+
+  // Timed out.
+  return false;
+}
+
+
