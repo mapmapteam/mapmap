@@ -300,7 +300,7 @@ void MediaImpl::resetMovie()
   // XXX: There used to be an issue that when we reached EOS (_eos() == true) we could not seek anymore.
   if (_seekEnabled)
   {
-    qDebug() << "Seeking at position 0.";
+    qDebug() << "Seeking at position 0." << endl;
     GstEvent* seek_event;
 
     if (_rate > 0) {
@@ -312,15 +312,11 @@ void MediaImpl::resetMovie()
     }
     /* Send the event */
     gst_element_send_event (_appsink0, seek_event);
-//    gst_element_seek_simple (_pipeline, GST_FORMAT_TIME,
-//                             (GstSeekFlags) (GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT), 0);
-//    this->_currentFrameSample = NULL;
-    _setMovieReady(true);
   }
   else
   {
     // Just reload movie.
-    qDebug() << "Reloading the movie" << _seekEnabled;
+    qDebug() << "Reloading the movie (seek enabled = " << _seekEnabled << ")" << endl;
     loadMovie(_uri);
   }
 }
@@ -824,6 +820,7 @@ void MediaImpl::_checkMessages()
           gst_query_unref (query);
 
           // Movie is ready!
+          qDebug() << "Preroll done: movie is ready." << endl;
           _setMovieReady(true);
         }
 
