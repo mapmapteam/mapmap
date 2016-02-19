@@ -1,5 +1,5 @@
 /*
- * MediaImpl.h
+ * VideoImpl.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -22,8 +22,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEDIA_IMPL_H_
-#define MEDIA_IMPL_H_
+#ifndef VIDEO_IMPL_H_
+#define VIDEO_IMPL_H_
 
 // GStreamer includes.
 #include <gst/gst.h>
@@ -48,7 +48,7 @@
  * This is to prevent the GStreamer header to be included in the whole project.
  * (it just needs to be included in this file).
  */
-class MediaImpl
+class VideoImpl
 {
 public:
   /**
@@ -56,8 +56,8 @@ public:
    * This media player works for both video files and shared memory sockets.
    * If live is true, it's a shared memory socket.
    */
-  MediaImpl(const QString uri="", bool live=false);
-  ~MediaImpl();
+  VideoImpl(const QString uri="", bool live=false);
+  ~VideoImpl();
 
 //  void setUri(const QString uri);
   /**
@@ -137,7 +137,7 @@ public:
   bool seekTo(gint64 positionNanoSeconds);
 
   /**
-   * Tells the MediaImpl that we are actually reading from a shmsrc.
+   * Tells the VideoImpl that we are actually reading from a shmsrc.
    * Called from the GStreamer callback of the shmsrc.
    */
   void setAttached(bool attach);
@@ -178,12 +178,12 @@ private:
 
 public:
   // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
-  static GstFlowReturn gstNewSampleCallback(GstElement*, MediaImpl *p);
+  static GstFlowReturn gstNewSampleCallback(GstElement*, VideoImpl *p);
   //static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
 
   // GStreamer callback that plugs the audio/video pads into the proper elements when they
   // are made available by the source.
-  static void gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl* p);
+  static void gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* p);
 
   /// Locks mutex (default = no effect).
   void lockMutex();

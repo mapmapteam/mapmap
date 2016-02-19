@@ -1,5 +1,5 @@
 /*
- * MediaImpl.cpp
+ * VideoImpl.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -21,13 +21,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "MediaImpl.h"
+#include "VideoImpl.h"
 #include <cstring>
 #include <iostream>
 
 // -------- private implementation of VideoImpl -------
 
-bool MediaImpl::hasVideoSupport()
+bool VideoImpl::hasVideoSupport()
 {
   static bool did_print_gst_version = false;
   if (! did_print_gst_version)
@@ -42,21 +42,21 @@ bool MediaImpl::hasVideoSupport()
   return true;
 }
 
-int MediaImpl::getWidth() const
+int VideoImpl::getWidth() const
 {
   return _width;
 //  Q_ASSERT(videoIsConnected());
 //  return _padHandlerData.width;
 }
 
-int MediaImpl::getHeight() const
+int VideoImpl::getHeight() const
 {
   return _height;
 //  Q_ASSERT(videoIsConnected());
 //  return _padHandlerData.height;
 }
 
-const uchar* MediaImpl::getBits()
+const uchar* VideoImpl::getBits()
 {
   // Reset bits changed.
   _bitsChanged = false;
@@ -65,23 +65,23 @@ const uchar* MediaImpl::getBits()
   return (hasBits() ? _data : NULL);
 }
 
-QString MediaImpl::getUri() const
+QString VideoImpl::getUri() const
 {
   return _uri;
 }
 
-bool MediaImpl::getAttached()
+bool VideoImpl::getAttached()
 {
   return _attached;
 }
 
-void MediaImpl::setAttached(bool attach)
+void VideoImpl::setAttached(bool attach)
 {
   _attached = attach;
 }
 
 
-void MediaImpl::setRate(double rate)
+void VideoImpl::setRate(double rate)
 {
   if (rate == 0)
   {
@@ -100,7 +100,7 @@ void MediaImpl::setRate(double rate)
   }
 }
 
-void MediaImpl::setVolume(double volume)
+void VideoImpl::setVolume(double volume)
 {
   // Only update volume if needed.
   if (_volume != volume)
@@ -112,7 +112,7 @@ void MediaImpl::setVolume(double volume)
   }
 }
 
-void MediaImpl::build()
+void VideoImpl::build()
 {
   qDebug() << "Building video impl";
   if (!loadMovie(_uri))
@@ -121,7 +121,7 @@ void MediaImpl::build()
   }
 }
 
-MediaImpl::~MediaImpl()
+VideoImpl::~VideoImpl()
 {
   // Free all resources.
   freeResources();
@@ -130,7 +130,7 @@ MediaImpl::~MediaImpl()
   delete _mutexLocker;
 }
 
-bool MediaImpl::_eos() const
+bool VideoImpl::_eos() const
 {
   if (_movieReady)
   {
@@ -156,7 +156,7 @@ bool MediaImpl::_eos() const
     return false;
 }
 
-GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
+GstFlowReturn VideoImpl::gstNewSampleCallback(GstElement*, VideoImpl *p)
 {
   // Make it thread-safe.
   p->lockMutex();
@@ -204,7 +204,7 @@ GstFlowReturn MediaImpl::gstNewSampleCallback(GstElement*, MediaImpl *p)
   return GST_FLOW_OK;
 }
 
-MediaImpl::MediaImpl(const QString uri, bool live) :
+VideoImpl::VideoImpl(const QString uri, bool live) :
 _bus(NULL),
 _pipeline(NULL),
 _uridecodebin0(NULL),
@@ -240,7 +240,7 @@ _uri(uri)
   _mutexLocker = new QMutexLocker(&_mutex);
 }
 
-void MediaImpl::unloadMovie()
+void VideoImpl::unloadMovie()
 {
   // Reset variables.
   _terminate = false;
@@ -254,7 +254,7 @@ void MediaImpl::unloadMovie()
   freeResources();
 }
 
-void MediaImpl::freeResources()
+void VideoImpl::freeResources()
 {
   // Free resources.
   if (_bus)
@@ -295,7 +295,7 @@ void MediaImpl::freeResources()
   _videoIsConnected = false;
 }
 
-void MediaImpl::resetMovie()
+void VideoImpl::resetMovie()
 {
   // XXX: There used to be an issue that when we reached EOS (_eos() == true) we could not seek anymore.
   if (_seekEnabled)
@@ -324,7 +324,7 @@ void MediaImpl::resetMovie()
 gboolean 
 gstPollShmsrc (void *user_data)
 {
-  MediaImpl *p = (MediaImpl*) user_data;
+  VideoImpl *p = (VideoImpl*) user_data;
   if (g_file_test(p->getUri().toUtf8().constData(), G_FILE_TEST_EXISTS) &&
     ! p->getAttached())
   {
@@ -339,7 +339,7 @@ gstPollShmsrc (void *user_data)
   return true;
 }
 
-bool MediaImpl::loadMovie(const QString& filename)
+bool VideoImpl::loadMovie(const QString& filename)
 {
   // Verify if file exists.
   const gchar* filetestpath = (const gchar*) filename.toUtf8().constData();
@@ -583,7 +583,7 @@ bool MediaImpl::loadMovie(const QString& filename)
     gst_discoverer_stream_info_list_free(videoStreams);
 
     // Connect pad signal.
-    g_signal_connect (_uridecodebin0, "pad-added", G_CALLBACK (MediaImpl::gstPadAddedCallback), this);
+    g_signal_connect (_uridecodebin0, "pad-added", G_CALLBACK (VideoImpl::gstPadAddedCallback), this);
 
     // Set uri of decoder.
     g_object_set (_uridecodebin0, "uri", uri, NULL);
@@ -620,7 +620,7 @@ bool MediaImpl::loadMovie(const QString& filename)
                             "drop", TRUE,         // ... other buffers are dropped
                             "sync", TRUE,
                             NULL);
-  g_signal_connect (_appsink0, "new-sample", G_CALLBACK (MediaImpl::gstNewSampleCallback), this);
+  g_signal_connect (_appsink0, "new-sample", G_CALLBACK (VideoImpl::gstNewSampleCallback), this);
   gst_caps_unref (videoCaps);
 
   g_object_set (_audiovolume0, "mute", false, NULL);
@@ -638,7 +638,7 @@ bool MediaImpl::loadMovie(const QString& filename)
   return true;
 }
 
-void MediaImpl::update()
+void VideoImpl::update()
 {
   // Check for end-of-stream or terminate.
   if (_eos() || _terminate)
@@ -661,7 +661,7 @@ void MediaImpl::update()
   _checkMessages();
 }
 
-bool MediaImpl::setPlayState(bool play)
+bool VideoImpl::setPlayState(bool play)
 {
   if (_pipeline == NULL)
   {
@@ -682,7 +682,7 @@ bool MediaImpl::setPlayState(bool play)
   }
 }
 
-bool MediaImpl::seekTo(double position)
+bool VideoImpl::seekTo(double position)
 {
   gint64 duration;
   if (!gst_element_query_duration (_pipeline, GST_FORMAT_TIME, &duration))
@@ -698,7 +698,7 @@ bool MediaImpl::seekTo(double position)
   return seekTo((gint64)(position*duration));
 }
 
-bool MediaImpl::seekTo(gint64 positionNanoSeconds)
+bool VideoImpl::seekTo(gint64 positionNanoSeconds)
 {
   if (!_appsink0)
     return false;
@@ -722,7 +722,7 @@ bool MediaImpl::seekTo(gint64 positionNanoSeconds)
   }
 }
 
-//bool MediaImpl::_preRun()
+//bool VideoImpl::_preRun()
 //{
 //  // Check for end-of-stream or terminate.
 //  if (_eos() || _terminate)
@@ -742,7 +742,7 @@ bool MediaImpl::seekTo(gint64 positionNanoSeconds)
 //  return true;
 //}
 
-void MediaImpl::_checkMessages()
+void VideoImpl::_checkMessages()
 {
   if (_bus != NULL)
   {
@@ -850,18 +850,18 @@ void MediaImpl::_checkMessages()
   }
 }
 
-void MediaImpl::_setMovieReady(bool ready)
+void VideoImpl::_setMovieReady(bool ready)
 {
   _movieReady = ready;
 }
 
-void MediaImpl::_setFinished(bool finished)
+void VideoImpl::_setFinished(bool finished)
 {
   Q_UNUSED(finished);
   //  qDebug() << "Clip " << (finished ? "finished" : "not finished");
 }
 
-void  MediaImpl::_updateRate()
+void  VideoImpl::_updateRate()
 {
   if (_pipeline == NULL)
   {
@@ -909,7 +909,7 @@ void  MediaImpl::_updateRate()
   g_print ("Current rate: %g\n", _rate);
 }
 
-void MediaImpl::_freeCurrentSample() {
+void VideoImpl::_freeCurrentSample() {
   if (_currentFrameBuffer != NULL)
   {
     gst_buffer_unmap(_currentFrameBuffer, &_mapInfo);
@@ -928,7 +928,7 @@ void MediaImpl::_freeCurrentSample() {
 /**
  * FIXME: remove GOTO
  */
-void MediaImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, MediaImpl* p)
+void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* p)
 {
   g_print ("Received new pad '%s' from '%s':\n", GST_PAD_NAME (newPad), GST_ELEMENT_NAME (src));
   GstPad *sinkPad = NULL;
@@ -998,17 +998,17 @@ exit:
   }
 }
 
-void MediaImpl::lockMutex()
+void VideoImpl::lockMutex()
 {
   _mutexLocker->relock();
 }
 
-void MediaImpl::unlockMutex()
+void VideoImpl::unlockMutex()
 {
   _mutexLocker->unlock();
 }
 
-bool MediaImpl::waitForNextBits(int timeout, const uchar** bits)
+bool VideoImpl::waitForNextBits(int timeout, const uchar** bits)
 {
   QTime time;
   time.start();

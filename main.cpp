@@ -50,7 +50,7 @@ void initRegistry()
   MetaObjectRegistry& registry = MetaObjectRegistry::instance();
 
   // Paints.
-  registry.add<Media>();
+  registry.add<Video>();
   registry.add<Image>();
   registry.add<Color>();
 

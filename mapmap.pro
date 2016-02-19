@@ -21,7 +21,7 @@ HEADERS  = \
     Mapping.h \
     MappingManager.h \
     Maths.h \
-    MediaImpl.h \
+    VideoImpl.h \
     Mesh.h \
     MetaObjectRegistry.h \
     OscInterface.h \
@@ -59,7 +59,7 @@ SOURCES  = \
     MapperGLCanvas.cpp \
     Mapping.cpp \
     MappingManager.cpp \
-    MediaImpl.cpp \
+    VideoImpl.cpp \
     Mesh.cpp \
     MetaObjectRegistry.cpp \
     OscInterface.cpp \
