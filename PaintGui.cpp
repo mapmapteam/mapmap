@@ -120,14 +120,14 @@ void ImageGui::setValue(QtProperty* property, const QVariant& value) {
     PaintGui::setValue(property, value);
 }
 
-MediaGui::MediaGui(Paint::ptr paint)
+VideoGui::VideoGui(Paint::ptr paint)
 : TextureGui(paint)
 {
-  media = qSharedPointerCast<Media>(paint);
+  media = qSharedPointerCast<Video>(paint);
   Q_CHECK_PTR(media);
 
   _mediaFileItem = _variantManager->addProperty(VariantManager::filePathTypeId(),
-                                                tr("Media file"));
+                                                tr("Video file"));
 
   _mediaFileItem->setAttribute("filter", tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER));
   _mediaFileItem->setValue(media->getUri());
@@ -157,7 +157,7 @@ MediaGui::MediaGui(Paint::ptr paint)
 //  _topItem->addSubProperty(_mediaReverseItem);
 }
 
-void MediaGui::setValue(QtProperty* property, const QVariant& value)
+void VideoGui::setValue(QtProperty* property, const QVariant& value)
 {
   if (property == _mediaFileItem)
   {

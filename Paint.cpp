@@ -19,7 +19,7 @@
  */
 
 #include "Paint.h"
-#include "MediaImpl.h"
+#include "VideoImpl.h"
 #include <iostream>
 
 UidAllocator Paint::allocator;
@@ -41,21 +41,21 @@ bool Image::setUri(const QString &uri)
 }
 
 /* Implementation of the Video class */
-Media::Media(int id) : Texture(id),
+Video::Video(int id) : Texture(id),
     uri(""),
     impl(NULL)
 {
-  impl = new MediaImpl("", false);
+  impl = new VideoImpl("", false);
   setRate(1);
   setVolume(1);
 }
 
-Media::Media(const QString uri_, bool live, double rate, uid id):
+Video::Video(const QString uri_, bool live, double rate, uid id):
     Texture(id),
     uri(uri_),
     impl(NULL)
 {
-  impl = new MediaImpl("", live);
+  impl = new VideoImpl("", live);
   setRate(rate);
   setVolume(1);
   setUri(uri_);
@@ -63,91 +63,91 @@ Media::Media(const QString uri_, bool live, double rate, uid id):
 
 // vertigo
 
-Media::~Media()
+Video::~Video()
 {
   delete impl;
 }
 
-void Media::build()
+void Video::build()
 {
   this->impl->build();
 }
 
-int Media::getWidth() const
+int Video::getWidth() const
 {
   while (!this->impl->videoIsConnected());
   return this->impl->getWidth();
 }
 
-int Media::getHeight() const
+int Video::getHeight() const
 {
   while (!this->impl->videoIsConnected());
   return this->impl->getHeight();
 }
 
-void Media::update() {
+void Video::update() {
   impl->update();
 }
 
-void Media::play()
+void Video::play()
 {
   impl->setPlayState(true);
 }
 
-void Media::pause()
+void Video::pause()
 {
   impl->setPlayState(false);
 }
 
-void Media::rewind()
+void Video::rewind()
 {
   impl->resetMovie();
 }
 
-void Media::lockMutex() {
+void Video::lockMutex() {
   impl->lockMutex();
 }
 
-void Media::unlockMutex() {
+void Video::unlockMutex() {
   impl->unlockMutex();
 }
 
-const uchar* Media::getBits()
+const uchar* Video::getBits()
 {
   return this->impl->getBits();
 }
 
-bool Media::bitsHaveChanged() const
+bool Video::bitsHaveChanged() const
 {
   return this->impl->bitsHaveChanged();
 }
 
-void Media::setRate(double rate)
+void Video::setRate(double rate)
 {
   impl->setRate(rate);
 }
 
-double Media::getRate() const
+double Video::getRate() const
 {
   return impl->getRate();
 }
 
-void Media::setVolume(double rate)
+void Video::setVolume(double rate)
 {
   impl->setVolume(rate);
 }
 
-double Media::getVolume() const
+double Video::getVolume() const
 {
   return impl->getVolume();
 }
 
-bool Media::hasVideoSupport()
+bool Video::hasVideoSupport()
 {
-  return MediaImpl::hasVideoSupport();
+  return VideoImpl::hasVideoSupport();
 }
 
-bool Media::setUri(const QString &uri)
+bool Video::setUri(const QString &uri)
 {
   static QFileIconProvider provider;
 

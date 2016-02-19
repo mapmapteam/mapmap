@@ -120,18 +120,18 @@ protected:
   QtVariantProperty* _imageFileItem;
 };
 
-class MediaGui : public TextureGui {
+class VideoGui : public TextureGui {
   Q_OBJECT
 
 public:
-  MediaGui(Paint::ptr paint);
-  virtual ~MediaGui() {}
+  VideoGui(Paint::ptr paint);
+  virtual ~VideoGui() {}
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
 
 protected:
-  QSharedPointer<Media> media;
+  QSharedPointer<Video> media;
   QtVariantProperty* _mediaFileItem;
   QtVariantProperty* _mediaRateItem;
   QtVariantProperty* _mediaVolumeItem;

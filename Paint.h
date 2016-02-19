@@ -218,12 +218,12 @@ public:
   virtual QIcon getIcon() const { return QIcon(QPixmap::fromImage(image)); }
 };
 
-class MediaImpl; // forward declaration
+class VideoImpl; // forward declaration
 
 /**
  * Paint that is a Texture retrieved via a video file.
  */
-class Media : public Texture
+class Video : public Texture
 {
   Q_OBJECT
 
@@ -237,9 +237,9 @@ public:
   static const int ICON_TIMEOUT = 1000;
 
 public:
-  Q_INVOKABLE Media(int id=NULL_UID);
-  Media(const QString uri_, bool live, double rate, uid id=NULL_UID);
-  virtual ~Media();
+  Q_INVOKABLE Video(int id=NULL_UID);
+  Video(const QString uri_, bool live, double rate, uid id=NULL_UID);
+  virtual ~Video();
   const QString getUri() const
   {
     return uri;
@@ -299,7 +299,7 @@ protected:
    * Private implementation, so that GStreamer headers don't need
    * to be included from every file in the project.
    */
-  MediaImpl *impl;
+  VideoImpl *impl;
 };
 
 #endif /* PAINT_H_ */

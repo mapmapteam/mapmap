@@ -29,9 +29,9 @@ MainWindow::MainWindow()
 {
   // Create model.
 #if QT_VERSION >= 0x050500
-  QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: " << (Media::hasVideoSupport() ? "yes" : "no");
+  QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: " << (Video::hasVideoSupport() ? "yes" : "no");
 #else
-  QMessageLogger(__FILE__, __LINE__, 0).debug() << "Video support: " << (Media::hasVideoSupport() ? "yes" : "no");
+  QMessageLogger(__FILE__, __LINE__, 0).debug() << "Video support: " << (Video::hasVideoSupport() ? "yes" : "no");
 #endif
 
   mappingManager = new MappingManager;
@@ -242,7 +242,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   uid paintId = mappingManager->getPaintId(paint);
 
   if (paint->getType() == "media") {
-    QSharedPointer<Media> media = qSharedPointerCast<Media>(paint);
+    QSharedPointer<Video> media = qSharedPointerCast<Video>(paint);
     Q_CHECK_PTR(media);
     updatePaintItem(paintId, media->getIcon(), strippedName(media->getUri()));
     //    QString fileName = QFileDialog::getOpenFileName(this,
@@ -942,7 +942,7 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
     if (isImage)
       tex = new Image(uri, paintId);
     else {
-      tex = new Media(uri, live, rate, paintId);
+      tex = new Video(uri, live, rate, paintId);
     }
 
     // Create new image with corresponding ID.
@@ -2277,7 +2277,7 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
   uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, isImage, live);
 
   // Initialize position (center).
-  QSharedPointer<Media> media = qSharedPointerCast<Media>(mappingManager->getPaintById(mediaId));
+  QSharedPointer<Video> media = qSharedPointerCast<Video>(mappingManager->getPaintById(mediaId));
   Q_CHECK_PTR(media);
 
   if (_isPlaying)
@@ -2338,7 +2338,7 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
   PaintGui::ptr paintGui;
   QString paintType = paint->getType();
   if (paintType == "media")
-    paintGui = PaintGui::ptr(new MediaGui(paint));
+    paintGui = PaintGui::ptr(new VideoGui(paint));
   else if (paintType == "image")
     paintGui = PaintGui::ptr(new ImageGui(paint));
   else if (paintType == "color")
@@ -2998,7 +2998,7 @@ bool MainWindow::setTextureUri(int texture_id, const std::string &uri)
   {
     if (paint->getType() == "media")
     {
-      Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
+      Video *media = static_cast<Video*>(paint.data()); // FIXME: use sharedptr cast
       videoTimer->stop();
       success = media->setUri(QString(uri.c_str()));
       videoTimer->start();
@@ -3031,7 +3031,7 @@ bool MainWindow::setTextureRate(int texture_id, double rate)
   {
     if (paint->getType() == "media")
     {
-      Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
+      Video *media = static_cast<Video*>(paint.data()); // FIXME: use sharedptr cast
       videoTimer->stop();
       media->setRate(rate);
       videoTimer->start();
@@ -3057,7 +3057,7 @@ bool MainWindow::setTextureVolume(int texture_id, double volume)
   {
     if (paint->getType() == "media")
     {
-      Media *media = static_cast<Media*>(paint.data()); // FIXME: use sharedptr cast
+      Video *media = static_cast<Video*>(paint.data()); // FIXME: use sharedptr cast
       videoTimer->stop();
       media->setVolume(volume);
       videoTimer->start();
