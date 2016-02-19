@@ -181,8 +181,8 @@ bool Media::setUri(const QString &uri)
 
   // Try to get a sample from the current position.
   // NOTE: There is no guarantee the sample has yet been acquired.
-  const uint* bits;
-  if (!impl_->waitForNextBits(ICON_TIMEOUT, (const uchar**)&bits))
+  const uchar* bits;
+  if (!impl_->waitForNextBits(ICON_TIMEOUT, &bits))
   {
     qDebug() << "Second waiting wrong..." << endl;
     return false;
@@ -193,7 +193,14 @@ bool Media::setUri(const QString &uri)
   int i=0;
   for (int y=0; y<getHeight(); y++)
     for (int x=0; x<getWidth(); x++)
-      thumbnail.setPixel(x, y, bits[i++]);
+    {
+      // Transfer RGBA to ARGB.
+      uint r = *bits++;
+      uint b = *bits++;
+      uint g = *bits++;
+      bits++; // skip alpha
+      thumbnail.setPixel(x, y, qRgb(r, g, b));
+    }
 
   // Generate icon.
   icon = QIcon(QPixmap::fromImage(thumbnail));
