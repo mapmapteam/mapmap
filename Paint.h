@@ -232,10 +232,6 @@ class Media : public Texture
   Q_PROPERTY(double volume READ getVolume WRITE setVolume)
   Q_PROPERTY(double rate READ getRate WRITE setRate)
 
-protected:
-  QString uri;
-  QIcon icon;
-
 public:
   // Thumbnail generation timeout (in ms).
   static const int ICON_TIMEOUT = 1000;
@@ -295,12 +291,15 @@ public:
 
   virtual QIcon getIcon() const { return icon; }
 
-private:
+protected:
+  QString uri;
+  QIcon icon;
+
   /**
    * Private implementation, so that GStreamer headers don't need
    * to be included from every file in the project.
    */
-  MediaImpl * impl_; // PIMPL opaque pointer
+  MediaImpl *impl;
 };
 
 #endif /* PAINT_H_ */

@@ -43,9 +43,9 @@ bool Image::setUri(const QString &uri)
 /* Implementation of the Video class */
 Media::Media(int id) : Texture(id),
     uri(""),
-    impl_(NULL)
+    impl(NULL)
 {
-  impl_ = new MediaImpl("", false);
+  impl = new MediaImpl("", false);
   setRate(1);
   setVolume(1);
 }
@@ -53,9 +53,9 @@ Media::Media(int id) : Texture(id),
 Media::Media(const QString uri_, bool live, double rate, uid id):
     Texture(id),
     uri(uri_),
-    impl_(NULL)
+    impl(NULL)
 {
-  impl_ = new MediaImpl("", live);
+  impl = new MediaImpl("", live);
   setRate(rate);
   setVolume(1);
   setUri(uri_);
@@ -65,81 +65,81 @@ Media::Media(const QString uri_, bool live, double rate, uid id):
 
 Media::~Media()
 {
-  delete impl_;
+  delete impl;
 }
 
 void Media::build()
 {
-  this->impl_->build();
+  this->impl->build();
 }
 
 int Media::getWidth() const
 {
-  while (!this->impl_->videoIsConnected());
-  return this->impl_->getWidth();
+  while (!this->impl->videoIsConnected());
+  return this->impl->getWidth();
 }
 
 int Media::getHeight() const
 {
-  while (!this->impl_->videoIsConnected());
-  return this->impl_->getHeight();
+  while (!this->impl->videoIsConnected());
+  return this->impl->getHeight();
 }
 
 void Media::update() {
-  impl_->update();
+  impl->update();
 }
 
 void Media::play()
 {
-  impl_->setPlayState(true);
+  impl->setPlayState(true);
 }
 
 void Media::pause()
 {
-  impl_->setPlayState(false);
+  impl->setPlayState(false);
 }
 
 void Media::rewind()
 {
-  impl_->resetMovie();
+  impl->resetMovie();
 }
 
 void Media::lockMutex() {
-  impl_->lockMutex();
+  impl->lockMutex();
 }
 
 void Media::unlockMutex() {
-  impl_->unlockMutex();
+  impl->unlockMutex();
 }
 
 const uchar* Media::getBits()
 {
-  return this->impl_->getBits();
+  return this->impl->getBits();
 }
 
 bool Media::bitsHaveChanged() const
 {
-  return this->impl_->bitsHaveChanged();
+  return this->impl->bitsHaveChanged();
 }
 
 void Media::setRate(double rate)
 {
-  impl_->setRate(rate);
+  impl->setRate(rate);
 }
 
 double Media::getRate() const
 {
-  return impl_->getRate();
+  return impl->getRate();
 }
 
 void Media::setVolume(double rate)
 {
-  impl_->setVolume(rate);
+  impl->setVolume(rate);
 }
 
 double Media::getVolume() const
 {
-  return impl_->getVolume();
+  return impl->getVolume();
 }
 
 bool Media::hasVideoSupport()
@@ -152,7 +152,7 @@ bool Media::setUri(const QString &uri)
   static QFileIconProvider provider;
 
   // Try to load movie.
-  if (!impl_->loadMovie(uri))
+  if (!impl->loadMovie(uri))
   {
     qDebug() << "Cannot load movie " << uri << "." << endl;
     return false;
@@ -167,22 +167,22 @@ bool Media::setUri(const QString &uri)
   // Try to get thumbnail.
 
   // Wait for the first samples to be available to make sure we are ready.
-  if (!impl_->waitForNextBits(1000))
+  if (!impl->waitForNextBits(1000))
   {
     return false;
   }
 
   // Try seeking to the middle of the movie.
-  if (!impl_->seekTo(0.5))
+  if (!impl->seekTo(0.5))
   {
-    impl_->resetMovie();
+    impl->resetMovie();
     return false;
   }
 
   // Try to get a sample from the current position.
   // NOTE: There is no guarantee the sample has yet been acquired.
   const uchar* bits;
-  if (!impl_->waitForNextBits(ICON_TIMEOUT, &bits))
+  if (!impl->waitForNextBits(ICON_TIMEOUT, &bits))
   {
     qDebug() << "Second waiting wrong..." << endl;
     return false;
@@ -206,7 +206,7 @@ bool Media::setUri(const QString &uri)
   icon = QIcon(QPixmap::fromImage(thumbnail));
 
   // Reset movie.
-  impl_->resetMovie();
+  impl->resetMovie();
 
   // Return success.
   return true;
