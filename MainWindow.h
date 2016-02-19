@@ -222,6 +222,7 @@ private:
   void createMappingContextMenu();
   void createPaintContextMenu();
   void createToolBars();
+  void createMappingItemLayer(uid mappingId, const QString &label, const QIcon &icon);
   void createStatusBar();
   void updateRecentFileActions();
   void updateRecentVideoActions();
