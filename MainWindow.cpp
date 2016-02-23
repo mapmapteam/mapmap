@@ -1364,7 +1364,7 @@ void MainWindow::createLayout()
   //          destinationCanvas,                  SLOT(updateCanvas()));
 
   // Create console logging output
-  consoleWindow = ConsoleWindow::getInstance();
+  consoleWindow = ConsoleWindow::console();
   consoleWindow->setVisible(false);
 
   // Create layout.

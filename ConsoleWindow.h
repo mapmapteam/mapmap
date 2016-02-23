@@ -38,9 +38,9 @@ private:
 
 public:
   // Using a singleton instance
-  static ConsoleWindow *getInstance();
+  static ConsoleWindow *console();
   // Console log message handler
-  void messageLog(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+  void printMessage(QtMsgType type, const QMessageLogContext &context, const QString &msg);
   // Destructor
   ~ConsoleWindow();
   // This instance killer
@@ -54,7 +54,7 @@ protected:
 
 private:
   // This instance
-  static ConsoleWindow *_singleton;
+  static ConsoleWindow *instance;
 
   // Console logger
   QPlainTextEdit *_console;

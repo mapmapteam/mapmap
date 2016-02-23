@@ -20,7 +20,7 @@
 #include "ConsoleWindow.h"
 #include <QtWidgets>
 
-ConsoleWindow* ConsoleWindow::_singleton = NULL;
+ConsoleWindow* ConsoleWindow::instance = NULL;
 
 ConsoleWindow::ConsoleWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -53,12 +53,12 @@ ConsoleWindow::ConsoleWindow(QWidget *parent) : QMainWindow(parent)
   setCentralWidget(_console);
 }
 
-ConsoleWindow *ConsoleWindow::getInstance()
+ConsoleWindow *ConsoleWindow::console()
 {
-  if (!_singleton)
-    _singleton = new ConsoleWindow;
+  if (!instance)
+    instance = new ConsoleWindow;
 
-  return _singleton;
+  return instance;
 }
 
 void ConsoleWindow::createActions()
@@ -78,7 +78,7 @@ void ConsoleWindow::createMenu()
   fileMenu->addAction(quitAction);
 }
 
-void ConsoleWindow::messageLog(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+void ConsoleWindow::printMessage(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
   // Message
   QByteArray message = msg.toLocal8Bit();
@@ -86,8 +86,6 @@ void ConsoleWindow::messageLog(QtMsgType type, const QMessageLogContext &context
   QString contexts(QStringLiteral("%1:%2").arg(context.file).arg(context.line)),
       // Date and time
       time(QDateTime::currentDateTime().toString(tr("MMM dd yy HH:mm"))),
-      // Colorized time
-      timeHtml = "<font color=\"#000000\">" + time + "</font>",
       debug = "<strong style=\"color: #00FF00;\">Debug:</strong>",
       info = "<strong style=\"color: #1E90FF;\">Info:</strong>",
       warning = "<strong style=\"color: #FFFF00;\">Warning:</strong>",
@@ -128,9 +126,9 @@ void ConsoleWindow::closeEvent(QCloseEvent *event)
 
 void ConsoleWindow::kill()
 {
-  if (_singleton) {
-    delete _singleton;
-    _singleton = NULL;
+  if (instance) {
+    delete instance;
+    instance = NULL;
   }
 }
 

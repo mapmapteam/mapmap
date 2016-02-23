@@ -68,7 +68,7 @@ void initRegistry()
 // Intercept all logging message and display it in the console
 void logMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-  ConsoleWindow::getInstance()->messageLog(type, context, msg);
+  ConsoleWindow::console()->printMessage(type, context, msg);
 }
 
 int main(int argc, char *argv[])
