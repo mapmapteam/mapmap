@@ -1929,51 +1929,6 @@ void MainWindow::createToolBars()
   addToolBar(Qt::TopToolBarArea, mainToolBar);
 }
 
-void MainWindow::createMappingItemLayer(uid mappingId, const QString &label, const QIcon &icon)
-{
-  // Create item
-  QListWidgetItem* item = new QListWidgetItem;
-  item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-  item->setCheckState(Qt::Checked);
-  // Create widget and layout
-  QWidget *toolButton = new QWidget;
-  QHBoxLayout *layout = new QHBoxLayout;
-  // Create buttons
-  // Lock mapping buttons
-  QToolButton *lockMappingButton = new QToolButton;
-  lockMappingButton->setIcon(QIcon(":/lock-mapping"));
-  lockMappingButton->setIconSize(QSize(16, 16));
-  lockMappingButton->setToolTip(tr("Lock mapping"));
-  lockMappingButton->setCheckable(true);
-  lockMappingButton->setChecked(false);
-  connect(lockMappingButton, SIGNAL(toggled(bool)), this, SLOT(setMappingitemLocked(bool)));
-  // Delete mapping buttons
-  QToolButton *deleteMappingButton = new QToolButton;
-  deleteMappingButton->setIcon(QIcon(":/delete-mapping"));
-  deleteMappingButton->setIconSize(QSize(16, 16));
-  deleteMappingButton->setToolTip(tr("Delete mapping"));
-  connect(mappingList->itemDelegate(), SIGNAL(), this, SLOT(deleteMappingItem()));
-  // Mapping name
-  QLabel *mappingName = new QLabel(label);
-  mappingName->setStyleSheet("color: #f6f5f5;");
-
-  // Arrange layout
-  layout->addWidget(mappingName);
-  layout->addStretch();
-  layout->addWidget(lockMappingButton);
-  layout->addWidget(deleteMappingButton);
-
-  //layout->setSizeConstraint(QLayout::SetFixedSize);
-  toolButton->setLayout(layout);
-
-  setItemId(*item, mappingId); // TODO: could possibly be replaced by a Paint pointer
-  item->setIcon(icon);
-  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
-  mappingList->insertItem(0, item);
-  mappingList->setItemWidget(item, toolButton);
-  mappingList->setCurrentItem(item);
-}
-
 void MainWindow::createStatusBar()
 {
   // Create canvases zoom level statut
@@ -2472,7 +2427,14 @@ void MainWindow::addMappingItem(uid mappingId)
   contentTab->setCurrentWidget(mappingSplitter);
 
   // Add item to layerList widget.
-  createMappingItemLayer(mappingId, label, icon);
+  QListWidgetItem* item = new QListWidgetItem(label);
+  item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+  item->setCheckState(Qt::Checked);
+  setItemId(*item, mappingId); // TODO: could possibly be replaced by a Paint pointer
+  item->setIcon(icon);
+  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
+  mappingList->insertItem(0, item);
+  mappingList->setCurrentItem(item);
 
   // Disable Test signal when add Shapes
   enableTestSignal(false);
