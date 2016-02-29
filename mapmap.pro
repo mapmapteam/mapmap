@@ -2,7 +2,7 @@ CONFIG  += qt debug c++11
 TEMPLATE = app
 VERSION = 0.3.2
 TARGET = mapmap
-QT += gui opengl xml core
+QT += gui opengl xml
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets core
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
@@ -17,8 +17,6 @@ HEADERS  = \
     MainApplication.h \
     MainWindow.h \
     MappingGui.h \
-    MappingItemDelegate.h \
-    MappingListModel.h \
     MapperGLCanvas.h \
     Mapping.h \
     MappingManager.h \
@@ -58,8 +56,6 @@ SOURCES  = \
     MainApplication.cpp \
     MainWindow.cpp \
     MappingGui.cpp \
-    MappingItemDelegate.cpp \
-    MappingListModel.cpp \
     MapperGLCanvas.cpp \
     Mapping.cpp \
     MappingManager.cpp \

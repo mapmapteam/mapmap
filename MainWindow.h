@@ -43,8 +43,6 @@
 #include "ConsoleWindow.h"
 
 #include "MappingManager.h"
-#include "MappingItemDelegate.h"
-#include "MappingListModel.h"
 
 #include "qtpropertymanager.h"
 #include "qtvariantproperty.h"
@@ -113,11 +111,10 @@ private slots:
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
 //  void handleItemDoubleClicked(QListWidgetItem* item);
-  void mappingItemSelectionChanged(const QModelIndex &index);
-  void handleMappingItemChanged(const QModelIndex &index);
+  void handleMappingItemSelectionChanged();
+  void handleMappingItemChanged(QListWidgetItem* item);
   void handleMappingIndexesMoved();
-  void handlePaintItemSelected(QListWidgetItem* item);
-  void handleMappingItemSelected(const QModelIndex &index);
+  void handleItemSelected(QListWidgetItem* item);
   void handlePaintChanged(Paint::ptr paint);
 
   void addMesh();
@@ -279,7 +276,6 @@ private:
   static QIcon createColorIcon(const QColor& color);
   static QIcon createFileIcon(const QString& filename);
   static QIcon createImageIcon(const QString& filename);
-  uid currentMappingItemId() const;
 
   // GUI elements. ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -359,7 +355,7 @@ private:
   QStackedWidget* paintPropertyPanel;
 
   QSplitter* mappingSplitter;
-  QTableView* mappingList;
+  QListWidget* mappingList;
   QStackedWidget* mappingPropertyPanel;
 
   QUndoView* undoView;
@@ -389,7 +385,6 @@ private:
 
   // Model.
   MappingManager* mappingManager;
-  MappingListModel *mappingListModel;
 
   // OSC.
 #ifdef HAVE_OSC
@@ -429,7 +424,6 @@ private:
 
   // Keeps track of the current selected item, wether it's a paint or mapping.
   QListWidgetItem* currentSelectedItem;
-  QModelIndex currentSelectedIndex;
   QTimer *videoTimer;
 
   PreferencesDialog* _preferences_dialog;

@@ -32,10 +32,5 @@
         <file alias="zoom-out">resources/images/icons/zoom_out_w.png</file>
         <file alias="zoom-fit">resources/images/icons/zoom_fit_w.png</file>
         <file alias="console-font">resources/fonts/Hack-Regular.otf</file>
-        <file alias="delete-mapping">resources/images/icons/small/delete_w.png</file>
-        <file alias="lock-mapping">resources/images/icons/small/lock_w.png</file>
-        <file alias="visible-mapping">resources/images/icons/small/visible_w.png</file>
-        <file alias="duplicate-mapping">resources/images/icons/small/duplicate_w.png</file>
-        <file alias="solo-mapping">resources/images/icons/small/solo_w.png</file>
     </qresource>
 </RCC>
