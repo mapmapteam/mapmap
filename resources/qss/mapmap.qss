@@ -37,7 +37,7 @@ QToolBar::separator:horizontal {
   width: 64;
 }
 
-QListView {
+QListView, QTableView {
   background-color: #323541;
   border: 1px solid #323541;
 }
