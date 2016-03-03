@@ -712,7 +712,7 @@ void MainWindow::deleteItem()
     if (isMappingTabSelected) //currentSelectedItem->listWidget() == mappingList)
     {
       // Delete mapping.
-      undoStack->push(new DeleteMappingCommand(this, mappingList->currentIndex().data(Qt::UserRole).toInt()));
+      undoStack->push(new DeleteMappingCommand(this, currentMappingItemId()));
       //currentSelectedItem = NULL;
     }
     else if (isPaintTabSelected) //currentSelectedItem->listWidget() == paintList)
@@ -756,7 +756,7 @@ void MainWindow::renameMappingItem()
 {
   // Set current item editable and rename it
   QModelIndex index = mappingList->currentIndex();
-//  // Used by context menu
+  // Used by context menu
   mappingList->edit(index);
   // Switch to mapping tab.
   contentTab->setCurrentWidget(mappingSplitter);
@@ -781,6 +781,8 @@ void MainWindow::renameMapping(uid mappingId, const QString &name)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
   if (!mapping.isNull()) {
+    QModelIndex index = mappingListModel->getIndexFromId(mappingId);
+    mappingListModel->setData(index, name, Qt::EditRole);
     mapping->setName(name);
   }
 }
@@ -1545,13 +1547,13 @@ void MainWindow::createActions()
 
   // Delete paint.
   deletePaintAction = new QAction(tr("Delete paint"), this);
-  deletePaintAction->setShortcut(tr("CTRL+DEL"));
+  //deletePaintAction->setShortcut(tr("CTRL+DEL"));
   deletePaintAction->setToolTip(tr("Delete item"));
   connect(deletePaintAction, SIGNAL(triggered()), this, SLOT(deletePaintItem()));
 
   // Rename paint.
   renamePaintAction = new QAction(tr("Rename"), this);
-  renamePaintAction->setShortcut(Qt::Key_F2);
+  //renamePaintAction->setShortcut(Qt::Key_F2);
   renamePaintAction->setToolTip(tr("Rename item"));
   renamePaintAction->setIconVisibleInMenu(false);
   addAction(renamePaintAction);
@@ -2393,14 +2395,6 @@ void MainWindow::addMappingItem(uid mappingId)
   contentTab->setCurrentWidget(mappingSplitter);
 
   // Add item to layerList widget.
-//  QListWidgetItem* item = new QListWidgetItem(label);
-//  item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-//  item->setCheckState(Qt::Checked);
-//  setItemId(*item, mappingId); // TODO: could possibly be replaced by a Paint pointer
-//  item->setIcon(icon);
-//  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
-//  mappingList->insertItem(0, item);
-//  mappingList->setCurrentItem(item);
   mappingListModel->addItem(icon, label, mappingId);
   mappingListModel->updateModel();
   mappingList->resizeRowsToContents();
@@ -2710,14 +2704,15 @@ void MainWindow::disconnectProjectWidgets()
   disconnect(mappingList, SIGNAL(activated(const QModelIndex&)),
           this,        SLOT(handleMappingItemSelected(const QModelIndex&)));
 
-  disconnect(mappingList->model(),  SIGNAL(indexesMoved(const QModelIndexList&)),
-          this,                 SLOT(handleMappingIndexesMoved()));
+//  disconnect(mappingList,  SIGNAL(indexesMoved(const QModelIndexList&)),
+//          this,                 SLOT(handleMappingIndexesMoved()));
 
-  disconnect(mappingList->model(), SIGNAL(rowsMoved(const QModelIndex&, int, int, const QModelIndex &, int)),
-          this,                 SLOT(handleMappingIndexesMoved()));
-
-  disconnect(mappingList->itemDelegate(), SIGNAL(commitData(QWidget*)),
-          this, SLOT(mappingListEditEnd(QWidget*)));
+//  disconnect(mappingListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
+//          this,                 SLOT(handleMappingIndexesMoved()));
+  disconnect(mappingItemDelegate, SIGNAL(itemDuplicated(uid)),
+          this, SLOT(duplicateMapping(uid)));
+  disconnect(mappingItemDelegate, SIGNAL(itemRemoved(uid)),
+          this, SLOT(deleteMapping(uid)));
 }
 
 uid MainWindow::getItemId(const QListWidgetItem& item)

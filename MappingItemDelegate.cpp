@@ -1,7 +1,7 @@
 /*
  * MppingItemDelegate.h
  *
- * (c) 20MM::MAPPING_LIST_ICON_SIZE Dame Diongue -- baydamd(@)gmail(.)com
+ * (c) 2016 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
