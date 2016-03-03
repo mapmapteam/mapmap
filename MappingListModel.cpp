@@ -45,42 +45,41 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
 {
   if (!index.isValid())
     return QVariant();
-
-  if (index.column() == MM::MuteColunm) {
-
-    if (role == Qt::CheckStateRole)
-      return mappingList.at(index.row()).isVisible ? Qt::Checked : Qt::Unchecked;
-
-    if (role == Qt::SizeHintRole)
-      return QSize(30, 40);
-
-  } else {
-
-    if (role == Qt::EditRole || role == Qt::DisplayRole)
-      return QVariant(mappingList.at(index.row()).name);
-
-    if (role == Qt::UserRole)
-      return QVariant(mappingList.at(index.row()).id);
-
-    if (role == Qt::DecorationRole)
-      return mappingList.at(index.row()).icon;
-
-    if (role == Qt::SizeHintRole)
-      return QSize(130, 40);
-
-    if (role == Qt::TextAlignmentRole)
-      return int(Qt::AlignVCenter);
+  
+  switch (role) {
+  case Qt::CheckStateRole:
+    return mappingList.at(index.row()).isVisible ? Qt::Checked : Qt::Unchecked;
+    break;
+  case Qt::SizeHintRole:
+    if (index.column() == MM::MuteColunm)
+      return QSize(20, 40);
+    if (index.column() == MM::IconAndNameColum)
+      return QSize(140, 40);
+    break;
+  case Qt::CheckStateRole + 1:
+    return mappingList.at(index.row()).isSolo ? Qt::Checked : Qt::Unchecked;
+    break;
+  case Qt::CheckStateRole + 2:
+    return mappingList.at(index.row()).isLocked ? Qt::Checked : Qt::Unchecked;
+    break;
+  case Qt::UserRole:
+    return QVariant(mappingList.at(index.row()).id);
+    break;
+  case Qt::EditRole:
+    return QVariant(mappingList.at(index.row()).name);
+    break;
+  case Qt::DisplayRole:
+    return QVariant(mappingList.at(index.row()).name);
+    break;
+  case Qt::DecorationRole:
+    return mappingList.at(index.row()).icon;
+    break;
+  default:
+    return QVariant();
+    break;
   }
 
   return QVariant();
-}
-
-QVariant MappingListModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-  if (role == Qt::DisplayRole)
-    return QString::number(section);
-
-  return QAbstractItemModel::headerData(section, orientation, role);
 }
 
 Qt::ItemFlags MappingListModel::flags(const QModelIndex &index) const
@@ -88,12 +87,12 @@ Qt::ItemFlags MappingListModel::flags(const QModelIndex &index) const
   if (!index.isValid())
     return 0;
 
-  if (index.column() == MM::MuteColunm)
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable |
-        Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;;
+  if (index.column() == MM::IconAndNameColum)
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable |
+        Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 
-  return Qt::ItemIsEnabled | Qt::ItemIsSelectable |
-      Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+  return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable |
+      Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
 bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -102,15 +101,35 @@ bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, 
     return false;
 
   if (role == Qt::CheckStateRole && value.type() == QVariant::Bool) {
-    mappingList[index.row()].isVisible = value.toBool();
-    emit dataChanged(index, index);
-    return true;
+    if (mappingList[index.row()].isVisible != value.toBool()) {
+      mappingList[index.row()].isVisible = value.toBool();
+      emit dataChanged(index, index);
+      return true;
+    }
+  }
+
+  if (role == Qt::CheckStateRole + 1 && value.type() == QVariant::Bool) {
+    if (mappingList[index.row()].isSolo != value.toBool()) {
+      mappingList[index.row()].isSolo = value.toBool();
+      emit dataChanged(index, index);
+      return true;
+    }
+  }
+
+  if (role == Qt::CheckStateRole + 2 && value.type() == QVariant::Bool) {
+    if (mappingList[index.row()].isLocked != value.toBool()) {
+      mappingList[index.row()].isLocked = value.toBool();
+      emit dataChanged(index, index);
+      return true;
+    }
   }
 
   if (role == Qt::EditRole && index.column() == MM::IconAndNameColum) {
-    mappingList[index.row()].name = value.toString();
-    emit dataChanged(index, index);
-    return true;
+    if (mappingList[index.row()].name != value.toString()) {
+      mappingList[index.row()].name = value.toString();
+      emit dataChanged(index, index);
+      return true;
+    }
   }
 
   return false;
@@ -129,6 +148,8 @@ void MappingListModel::addItem(const QIcon &icon, const QString &name, int id)
   item.icon = icon;
   item.name = name;
   item.isVisible = true;
+  item.isLocked = false;
+  item.isSolo = false;
   item.id = id;
   mappingList.insert(0, item);
 }
@@ -139,36 +160,37 @@ void MappingListModel::updateModel()
   endResetModel();
 }
 
-QModelIndex MappingListModel::selectedIndex(int row)
+void MappingListModel::clear()
+{
+  for (QList<MappingItem>::iterator it = mappingList.end() - 1;
+       it >= mappingList.begin(); --it) {
+    mappingList.erase(it);
+    updateModel();
+  }
+}
+
+QModelIndex MappingListModel::getIndexFromRow(int row)
 {
   return this->createIndex(row, 1);
 }
 
-void MappingListModel::setSelectedRow(int row)
-{
-  selectedRow = row;
-}
-
-int MappingListModel::getSelectedRow() const
-{
-  return selectedRow;
-}
-
-int MappingListModel::getItemRowFromId(int id) const
+int MappingListModel::getItemRowFromId(uid id) const
 {
   for ( int row = 0; row < mappingList.size(); row++) {
     int itemId = mappingList.at(row).id;
     if (itemId == id)
       return row;
   }
+
+  return -1;
 }
 
-QModelIndex MappingListModel::getIndexFromId(int id) const
+QModelIndex MappingListModel::getIndexFromId(uid id) const
 {
   return this->createIndex(getItemRowFromId(id), 0);
 }
 
-int MappingListModel::getItemId(const QModelIndex &index) const
+uid MappingListModel::getItemId(const QModelIndex &index) const
 {
   return mappingList.at(index.row()).id;
 }

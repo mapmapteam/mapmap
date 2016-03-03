@@ -104,7 +104,6 @@ private slots:
   void setMappingitemLocked(bool locked);
   void setMappingitemVisible(bool visible);
   void setMappingItemSolo(bool solo);
-  void mappingListEditEnd(QWidget* editor);
   // Context menu for paints
   void deletePaintItem();
   void renamePaintItem();
@@ -113,7 +112,7 @@ private slots:
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
 //  void handleItemDoubleClicked(QListWidgetItem* item);
-  void mappingItemSelectionChanged(const QModelIndex &index);
+  void handleMappingItemSelectionChanged(const QModelIndex &index);
   void handleMappingItemChanged(const QModelIndex &index);
   void handleMappingIndexesMoved();
   void handlePaintItemSelected(QListWidgetItem* item);
@@ -390,6 +389,7 @@ private:
   // Model.
   MappingManager* mappingManager;
   MappingListModel *mappingListModel;
+  MappingItemDelegate *mappingItemDelegate;
 
   // OSC.
 #ifdef HAVE_OSC

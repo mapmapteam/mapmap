@@ -28,6 +28,8 @@
 
 #include "MM.h"
 
+typedef int uid;
+
 class MappingListModel : public QAbstractTableModel
 {
   Q_OBJECT
@@ -39,8 +41,6 @@ public:
   int rowCount(const QModelIndex & parent = QModelIndex()) const;
   int columnCount(const QModelIndex & parent = QModelIndex()) const;
   QVariant data(const QModelIndex &index, int role) const;
-  QVariant headerData(int section, Qt::Orientation orientation,
-                      int role = Qt::DisplayRole) const;
   Qt::ItemFlags flags(const QModelIndex &index) const;
 
   bool setData(const QModelIndex &index, const QVariant &value, int role);
@@ -49,13 +49,12 @@ public:
   void addItem(const QIcon &icon, const QString &name, int id);
 
   void updateModel();
-  QModelIndex selectedIndex(int row);
+  void clear();
 
-  void setSelectedRow(int row);
-  int getSelectedRow() const;
-  int getItemRowFromId(int id) const;
-  int getItemId(const QModelIndex &index) const;
-  QModelIndex getIndexFromId(int id) const;
+  QModelIndex getIndexFromRow(int row);
+  int getItemRowFromId(uid id) const;
+  uid getItemId(const QModelIndex &index) const;
+  QModelIndex getIndexFromId(uid id) const;
 
 public slots:
   void setVisibility(const QModelIndex &index);
@@ -65,12 +64,12 @@ private:
     int id;
     QIcon icon;
     QString name;
+    bool isLocked;
     bool isVisible;
+    bool isSolo;
   };
 
   QList<MappingItem> mappingList;
-
-  int selectedRow;
 };
 
 #endif // MAPPINGLISTMODEL_H

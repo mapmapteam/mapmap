@@ -26,9 +26,11 @@
 #include <QPainter>
 #include <QApplication>
 #include <QMouseEvent>
-#include <QAbstractTableModel>
+#include <QToolTip>
 
 #include "MM.h"
+
+typedef int uid;
 
 class MappingItemDelegate : public QStyledItemDelegate
 {
@@ -39,14 +41,19 @@ public:
   ~MappingItemDelegate();
 
   void paint(QPainter *painter, const QStyleOptionViewItem &option,
-             const QModelIndex &index) const /*Q_DECL_OVERRIDE*/;
+             const QModelIndex &index) const;
   QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                        const QModelIndex &index) const /*Q_DECL_OVERRIDE*/;
-  void setEditorData(QWidget *editor, const QModelIndex &index) const /*Q_DECL_OVERRIDE*/;
+                        const QModelIndex &index) const;
+  void setEditorData(QWidget *editor, const QModelIndex &index) const;
   void setModelData(QWidget *editor, QAbstractItemModel *model,
-                    const QModelIndex &index) const /*Q_DECL_OVERRIDE*/;
+                    const QModelIndex &index) const;
   void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
-                            const QModelIndex &index) const /*Q_DECL_OVERRIDE*/;
+                            const QModelIndex &index) const;
+
+signals:
+  void itemDuplicated(uid itemId);
+  void itemRemoved(uid itemId);
+
 protected:
   bool editorEvent(QEvent *event, QAbstractItemModel *model,
                    const QStyleOptionViewItem &option, const QModelIndex &index);

@@ -49,6 +49,7 @@ public:
   static const int BOTTOM_TOOLBAR_ICON_SIZE = 32;
   static const int ZOOM_TOOLBAR_ICON_SIZE = 22;
   static const int ZOOM_TOOLBAR_BUTTON_SIZE = 32;
+  static const int MAPPING_LIST_ICON_SIZE = 16;
 
   // Style.
   static const QColor WHITE;
