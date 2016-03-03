@@ -131,107 +131,61 @@ void MainWindow::handlePaintItemSelectionChanged()
   updateCanvases();
 }
 
-void MainWindow::handleMappingItemSelectionChanged()
+void MainWindow::mappingItemSelectionChanged(const QModelIndex &index)
 {
-  if (mappingList->selectedItems().empty())
-  {
-    removeCurrentMapping();
-    /* Disable some menus and buttons when
-     * no mapping was selected  */
-    sourceCanvas->enableZoomToolBar(false);
-    sourceMenu->setEnabled(false);
-    destinationCanvas->enableZoomToolBar(false);
-    destinationMenu->setEnabled(false);
-  }
-  else
-  {
-    QListWidgetItem* item = mappingList->currentItem();
-    currentSelectedItem = item;
+  // Set current paint and mappings.
+  uid mappingId = mappingListModel->getItemId(index);
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+  uid paintId = mapping->getPaint()->getId();
+  setCurrentMapping(mappingId);
+  setCurrentPaint(paintId);
+  // Enable some menus and buttons
+  sourceCanvas->enableZoomToolBar(true);
+  sourceMenu->setEnabled(true);
+  destinationCanvas->enableZoomToolBar(true);
+  destinationMenu->setEnabled(true);
 
-    // Set current paint and mappings.
-    uid mappingId = getItemId(*item);
-    Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
-    uid paintId = mapping->getPaint()->getId();
-    setCurrentMapping(mappingId);
-    setCurrentPaint(paintId);
-    // Enable some menus and buttons
-    sourceCanvas->enableZoomToolBar(true);
-    sourceMenu->setEnabled(true);
-    destinationCanvas->enableZoomToolBar(true);
-    destinationMenu->setEnabled(true);
-  }
-
-  // Update canvases.
-  updateCanvases();
+//  // Update canvases.
+//  updateCanvases();
 }
 
-void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
+void MainWindow::handleMappingItemChanged(const QModelIndex &index)
 {
   // Toggle visibility of mapping depending on checkbox of item.
-  uid mappingId = getItemId(*item);
-  setMappingVisible(mappingId, item->checkState() == Qt::Checked);
-}
+  uid mappingId = mappingListModel->getItemId(index);
+  setMappingVisible(mappingId, index.data(Qt::CheckStateRole) == Qt::Checked);
+ }
 
 void MainWindow::handleMappingIndexesMoved()
 {
   // Reorder mappings.
-  QVector<uid> newOrder;
-  for (int row=mappingList->count()-1; row>=0; row--)
+  //QVector<uid> newOrder;
+  for (int row=mappingList->model()->rowCount()-1; row>=0; row--)
   {
-    uid layerId = mappingList->item(row)->data(Qt::UserRole).toInt();
-    newOrder.push_back(layerId);
+    //uid layerId = mappingList->item(row)->data(Qt::UserRole).toInt();
+    //newOrder.push_back(layerId);
   }
-  mappingManager->reorderMappings(newOrder);
+  //mappingManager->reorderMappings(newOrder);
 
   // Update canvases according to new order.
   updateCanvases();
 }
 
-void MainWindow::handleItemSelected(QListWidgetItem* item)
+void MainWindow::handlePaintItemSelected(QListWidgetItem* item)
 {
   Q_UNUSED(item);
   // Change currently selected item.
   currentSelectedItem = item;
 }
 
-//void MainWindow::handleItemDoubleClicked(QListWidgetItem* item)
-//{
-//  // Change currently selected item.
-//  Paint::ptr paint = mappingManager->getPaintById(getItemId(*item));
-//  uid curMappingId = getCurrentMappingId();
-//  removeCurrentMapping();
-//  removeCurrentPaint();
-//
-//  //qDebug() << "DOUBLE CLICK! " << endl;
-//  videoTimer->stop();
-//  if (paint->getType() == "media") {
-//    QString fileName = QFileDialog::getOpenFileName(this,
-//        tr("Import media source file"), ".");
-//    // Restart video playback. XXX Hack
-//    videoTimer->start();
-//    if (!fileName.isEmpty())
-//      importMediaFile(fileName, paint, false);
-//  }
-//  if (paint->getType() == "image") {
-//    QString fileName = QFileDialog::getOpenFileName(this,
-//        tr("Import media source file"), ".");
-//    // Restart video playback. XXX Hack
-//    videoTimer->start();
-//    if (!fileName.isEmpty())
-//      importMediaFile(fileName, paint, true);
-//  }
-//  else if (paint->getType() == "color") {
-//    // Pop-up color-choosing dialog to choose color paint.
-//    QColor initialColor;
-//    QColor color = QColorDialog::getColor(initialColor, this);
-//    videoTimer->start();
-//    if (color.isValid())
-//      addColorPaint(color, paint);
-//  }
-//
-//  if (curMappingId != NULL_UID)
-//    setCurrentMapping(curMappingId);
-//}
+void MainWindow::handleMappingItemSelected(const QModelIndex &index)
+{
+  if (index.isValid()) {
+    if (index.column() == MM::MuteColunm) {
+      mappingListModel->setVisibility(index);
+    }
+  }
+}
 
 void MainWindow::handlePaintChanged(Paint::ptr paint) {
   // Change currently selected item.
@@ -750,7 +704,7 @@ void MainWindow::deleteItem()
     if (isMappingTabSelected) //currentSelectedItem->listWidget() == mappingList)
     {
       // Delete mapping.
-      undoStack->push(new DeleteMappingCommand(this, getItemId(*mappingList->currentItem())));
+      undoStack->push(new DeleteMappingCommand(this, mappingList->currentIndex().data(Qt::UserRole).toInt()));
       //currentSelectedItem = NULL;
     }
     else if (isPaintTabSelected) //currentSelectedItem->listWidget() == paintList)
@@ -768,9 +722,9 @@ void MainWindow::deleteItem()
 
 void MainWindow::duplicateMappingItem()
 {
-  if (currentSelectedItem)
+  if (currentSelectedIndex.isValid())
   {
-    duplicateMapping(getItemId(*mappingList->currentItem()));
+    duplicateMapping(currentMappingItemId());
   }
   else
   {
@@ -780,9 +734,9 @@ void MainWindow::duplicateMappingItem()
 
 void MainWindow::deleteMappingItem()
 {
-  if (currentSelectedItem)
+  if (currentSelectedIndex.isValid())
   {
-    deleteMapping(getItemId(*mappingList->currentItem()));
+    deleteMapping(currentMappingItemId());
   }
   else
   {
@@ -793,42 +747,42 @@ void MainWindow::deleteMappingItem()
 void MainWindow::renameMappingItem()
 {
   // Set current item editable and rename it
-  QListWidgetItem* item = mappingList->currentItem();
-  item->setFlags(item->flags() | Qt::ItemIsEditable);
-  // Used by context menu
-  mappingList->editItem(item);
+//  QListWidgetItem* item = mappingList->currentItem();
+//  item->setFlags(item->flags() | Qt::ItemIsEditable);
+//  // Used by context menu
+//  mappingList->editItem(item);
   // Switch to mapping tab.
   contentTab->setCurrentWidget(mappingSplitter);
 }
 
 void MainWindow::setMappingitemLocked(bool locked)
 {
-  setMappingLocked(getItemId(*mappingList->currentItem()), locked);
+  setMappingLocked(currentMappingItemId(), locked);
 }
 
 void MainWindow::setMappingitemVisible(bool visible)
 {
-  setMappingVisible(getItemId(*mappingList->currentItem()), !visible);
+  setMappingVisible(currentMappingItemId(), !visible);
 }
 
 void MainWindow::setMappingItemSolo(bool solo)
 {
-  setMappingSolo(getItemId(*mappingList->currentItem()), solo);
+  setMappingSolo(currentMappingItemId(), solo);
 }
 
 void MainWindow::renameMapping(uid mappingId, const QString &name)
 {
-  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
-  if (!mapping.isNull()) {
-    getItemFromId(*mappingList, mappingId)->setText(name);
-    mapping->setName(name);
-  }
+//  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+//  if (!mapping.isNull()) {
+//    getItemFromId(*mappingList, mappingId)->setText(name);
+//    mapping->setName(name);
+//  }
 }
 
 void MainWindow::mappingListEditEnd(QWidget *editor)
 {
   QString name = reinterpret_cast<QLineEdit*>(editor)->text();
-  renameMapping(getItemId(*mappingList->currentItem()), name);
+  renameMapping(currentMappingItemId(), name);
 }
 
 void MainWindow::deletePaintItem()
@@ -893,7 +847,8 @@ bool MainWindow::clearProject()
   removeCurrentMapping();
 
   // Empty list widgets.
-  mappingList->clear();
+  for (int i = 0; i < mappingList->model()->rowCount(); i++)
+    mappingList->model()->removeRow(i);
   paintList->clear();
 
   // Clear property panel.
@@ -1177,9 +1132,8 @@ void MainWindow::setMappingVisible(uid mappingId, bool visible)
   {
     mapping->setVisible(visible);
     // Change list item check state
-    QListWidgetItem* item = getItemFromId(*mappingList, mappingId);
-    Q_ASSERT( item );
-    item->setCheckState(visible ? Qt::Checked : Qt::Unchecked );
+    //QModelIndex index = mappingListModel->getIndexFromId(mappingId);
+    //mappingListModel->setData(index, visible, Qt::CheckStateRole);
     // Update canvases.
     updateCanvases();
   }
@@ -1322,13 +1276,26 @@ void MainWindow::createLayout()
   paintPropertyPanel->setMinimumHeight(PAINT_PROPERTY_PANEL_MINIMUM_HEIGHT);
 
   // Create mapping list.
-  mappingList = new QListWidget;
+  mappingList = new QTableView;
   mappingList->setSelectionMode(QAbstractItemView::SingleSelection);
+  mappingList->setSelectionBehavior(QAbstractItemView::SelectRows);
   mappingList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-  //layerList->setDragDropMode(QAbstractItemView::DragDrop);
   mappingList->setDefaultDropAction(Qt::MoveAction);
   mappingList->setDragDropMode(QAbstractItemView::InternalMove);
+  mappingList->setEditTriggers(QAbstractItemView::DoubleClicked);
   mappingList->setMinimumHeight(MAPPING_LIST_MINIMUM_HEIGHT);
+  mappingList->setContentsMargins(0, 0, 0, 0);
+  // Set view delegate
+  mappingList->setItemDelegate(new MappingItemDelegate(this));
+  mappingListModel = new MappingListModel(this);
+  mappingList->setModel(mappingListModel);
+  // Pimp Mapping table widget
+  mappingList->horizontalHeader()->setStretchLastSection(true);
+  mappingList->horizontalHeader()->setHighlightSections(false);
+  mappingList->setFrameShape(QFrame::NoFrame);
+  mappingList->horizontalHeader()->setVisible(false);
+  mappingList->verticalHeader()->setVisible(false);
+  mappingList->setMouseTracking(true);// Important
 
   // Create property panel.
   mappingPropertyPanel = new QStackedWidget;
@@ -1862,12 +1829,12 @@ void MainWindow::createMappingContextMenu()
   mappingContextMenu->addAction(mappingSoloAction);
 
   // Set context menu policy
-  mappingList->setContextMenuPolicy(Qt::CustomContextMenu);
+  mappingList->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
   destinationCanvas->setContextMenuPolicy(Qt::CustomContextMenu);
   outputWindow->setContextMenuPolicy(Qt::CustomContextMenu);
 
   // Context Menu Connexions
-  connect(mappingList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
+  connect(mappingList->horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
   connect(destinationCanvas, SIGNAL(shapeContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
   connect(outputWindow->getCanvas(), SIGNAL(shapeContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
 }
@@ -2427,14 +2394,19 @@ void MainWindow::addMappingItem(uid mappingId)
   contentTab->setCurrentWidget(mappingSplitter);
 
   // Add item to layerList widget.
-  QListWidgetItem* item = new QListWidgetItem(label);
-  item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-  item->setCheckState(Qt::Checked);
-  setItemId(*item, mappingId); // TODO: could possibly be replaced by a Paint pointer
-  item->setIcon(icon);
-  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
-  mappingList->insertItem(0, item);
-  mappingList->setCurrentItem(item);
+//  QListWidgetItem* item = new QListWidgetItem(label);
+//  item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+//  item->setCheckState(Qt::Checked);
+//  setItemId(*item, mappingId); // TODO: could possibly be replaced by a Paint pointer
+//  item->setIcon(icon);
+//  item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::SHAPE_LIST_ITEM_HEIGHT));
+//  mappingList->insertItem(0, item);
+//  mappingList->setCurrentItem(item);
+  mappingListModel->addItem(icon, label, mappingId);
+  mappingListModel->updateModel();
+  mappingList->resizeRowsToContents();
+  mappingList->resizeColumnsToContents();
+  setCurrentMapping(mappingId);
 
   // Disable Test signal when add Shapes
   enableTestSignal(false);
@@ -2461,16 +2433,18 @@ void MainWindow::removeMappingItem(uid mappingId)
   mappingPropertyPanel->removeWidget(mappers[mappingId]->getPropertiesEditor());
   mappers.remove(mappingId);
 
-  // Remove widget from mappingList.
-  int row = getItemRowFromId(*mappingList, mappingId);
-  Q_ASSERT( row >= 0 );
-  QListWidgetItem* item = mappingList->takeItem(row);
-  if (item == currentSelectedItem)
-    currentSelectedItem = NULL;
-  delete item;
+
+
+//  // Remove widget from mappingList.
+//  QModelIndex index = getIndexFromId(*mappingListModel, mappingId);
+//  //Q_ASSERT( row >= 0 );
+//  QStandardItem* item = mappingListModel->itemFromIndex(index);
+//  if (item == currentSelectedMappingItem)
+//    currentSelectedMappingItem= NULL;
+//  delete item;
 
   // Update list.
-  mappingList->update();
+  //mappingList->update();
 
   // Update everything.
   updateCanvases();
@@ -2647,7 +2621,7 @@ void MainWindow::enableStickyVertices(bool value)
 void MainWindow::showMappingContextMenu(const QPoint &point)
 {
   QWidget *objectSender = dynamic_cast<QWidget*>(sender());
-  uid mappingId = getItemId(*mappingList->currentItem());
+  uid mappingId = currentMappingItemId();
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
 
   // Switch to right action check state
@@ -2655,7 +2629,7 @@ void MainWindow::showMappingContextMenu(const QPoint &point)
   mappingMuteAction->setChecked(!mapping->isVisible());
   mappingSoloAction->setChecked(mapping->isSolo());
 
-  if (objectSender != NULL && mappingList->count() > 0)
+  if (objectSender != NULL && mappingListModel->rowCount() > 0)
     mappingContextMenu->exec(objectSender->mapToGlobal(point));
 }
 
@@ -2678,13 +2652,10 @@ void MainWindow::connectProjectWidgets()
           this,      SLOT(handlePaintItemSelectionChanged()));
 
   connect(paintList, SIGNAL(itemPressed(QListWidgetItem*)),
-          this,      SLOT(handleItemSelected(QListWidgetItem*)));
-
-  //  connect(paintList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-  //          this,      SLOT(handleItemDoubleClicked(QListWidgetItem*)));
+          this,      SLOT(handlePaintItemSelected(QListWidgetItem*)));
 
   connect(paintList, SIGNAL(itemActivated(QListWidgetItem*)),
-          this,      SLOT(handleItemSelected(QListWidgetItem*)));
+          this,      SLOT(handlePaintItemSelected(QListWidgetItem*)));
   // Rename Paint with double click
   connect(paintList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
           this,      SLOT(renamePaintItem()));
@@ -2692,29 +2663,29 @@ void MainWindow::connectProjectWidgets()
   connect(paintList->itemDelegate(), SIGNAL(commitData(QWidget*)),
           this, SLOT(paintListEditEnd(QWidget*)));
 
-  connect(mappingList, SIGNAL(itemSelectionChanged()),
-          this,        SLOT(handleMappingItemSelectionChanged()));
+  connect(mappingList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+          this,        SLOT(mappingItemSelectionChanged(QModelIndex)));
 
-  connect(mappingList, SIGNAL(itemChanged(QListWidgetItem*)),
-          this,        SLOT(handleMappingItemChanged(QListWidgetItem*)));
+  connect(mappingListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+          this,        SLOT(handleMappingItemChanged(QModelIndex)));
 
-  connect(mappingList, SIGNAL(itemPressed(QListWidgetItem*)),
-          this,        SLOT(handleItemSelected(QListWidgetItem*)));
+  connect(mappingList, SIGNAL(pressed(QModelIndex)),
+          this,        SLOT(handleMappingItemSelected(const QModelIndex&)));
 
-  connect(mappingList, SIGNAL(itemActivated(QListWidgetItem*)),
-          this,        SLOT(handleItemSelected(QListWidgetItem*)));
+  connect(mappingList, SIGNAL(activated(const QModelIndex&)),
+          this,        SLOT(handleMappingItemSelected(const QModelIndex&)));
 
-  connect(mappingList,  SIGNAL(indexesMoved(const QModelIndexList&)),
-          this,                 SLOT(handleMappingIndexesMoved()));
+//  connect(mappingList,  SIGNAL(indexesMoved(const QModelIndexList&)),
+//          this,                 SLOT(handleMappingIndexesMoved()));
 
-  connect(mappingList->model(), SIGNAL(rowsMoved(const QModelIndex&, int, int, const QModelIndex &, int)),
-          this,                 SLOT(handleMappingIndexesMoved()));
-  // Rename mapping with double click
-  connect(mappingList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-          this,      SLOT(renameMappingItem()));
-  // When finish to edit mapping item
-  connect(mappingList->itemDelegate(), SIGNAL(commitData(QWidget*)),
-          this, SLOT(mappingListEditEnd(QWidget*)));
+//  connect(mappingList->model(), SIGNAL(rowsMoved(const QModelIndex&, int, int, const QModelIndex &, int)),
+//          this,                 SLOT(handleMappingIndexesMoved()));
+//  // Rename mapping with double click
+//  connect(mappingList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+//          this,      SLOT(renameMappingItem()));
+//  // When finish to edit mapping item
+//  connect(mappingList->itemDelegate(), SIGNAL(commitData(QWidget*)),
+//          this, SLOT(mappingListEditEnd(QWidget*)));
 }
 
 void MainWindow::disconnectProjectWidgets()
@@ -2723,25 +2694,34 @@ void MainWindow::disconnectProjectWidgets()
              this,      SLOT(handlePaintItemSelectionChanged()));
 
   disconnect(paintList, SIGNAL(itemPressed(QListWidgetItem*)),
-             this,      SLOT(handleItemSelected(QListWidgetItem*)));
+             this,      SLOT(handlePaintItemSelected(QListWidgetItem*)));
 
   disconnect(paintList, SIGNAL(itemActivated(QListWidgetItem*)),
-             this,      SLOT(handleItemSelected(QListWidgetItem*)));
+             this,      SLOT(handlePaintItemSelected(QListWidgetItem*)));
 
-  disconnect(mappingList, SIGNAL(itemSelectionChanged()),
-             this,        SLOT(handleMappingItemSelectionChanged()));
+  disconnect(mappingList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+          this,        SLOT(mappingItemSelectionChanged(QModelIndex)));
 
-  disconnect(mappingList, SIGNAL(itemChanged(QListWidgetItem*)),
-             this,        SLOT(handleMappingItemChanged(QListWidgetItem*)));
+  disconnect(mappingListModel, SIGNAL(itemChanged(QStandardItem*)),
+          this,        SLOT(handleMappingItemChanged(QStandardItem*)));
 
-  disconnect(mappingList, SIGNAL(itemPressed(QListWidgetItem*)),
-             this,        SLOT(handleItemSelected(QListWidgetItem*)));
+  disconnect(mappingList, SIGNAL(pressed(const QModelIndex&)),
+          this,        SLOT(handleMappingItemSelected(const QModelIndex&)));
 
-  disconnect(mappingList, SIGNAL(itemActivated(QListWidgetItem*)),
-             this,        SLOT(handleItemSelected(QListWidgetItem*)));
+  disconnect(mappingList, SIGNAL(activated(const QModelIndex&)),
+          this,        SLOT(handleMappingItemSelected(const QModelIndex&)));
+
+  disconnect(mappingList->model(),  SIGNAL(indexesMoved(const QModelIndexList&)),
+          this,                 SLOT(handleMappingIndexesMoved()));
 
   disconnect(mappingList->model(), SIGNAL(rowsMoved(const QModelIndex&, int, int, const QModelIndex &, int)),
-             this,                 SLOT(handleMappingIndexesMoved()));
+          this,                 SLOT(handleMappingIndexesMoved()));
+
+  disconnect(mappingList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+          this,      SLOT(renameMappingItem()));
+
+  disconnect(mappingList->itemDelegate(), SIGNAL(commitData(QWidget*)),
+          this, SLOT(mappingListEditEnd(QWidget*)));
 }
 
 uid MainWindow::getItemId(const QListWidgetItem& item)
@@ -2789,6 +2769,11 @@ QIcon MainWindow::createImageIcon(const QString& filename) {
   return QIcon(filename);
 }
 
+uid MainWindow::currentMappingItemId() const
+{
+  return mappingList->selectionModel()->selectedRows().first().data(Qt::UserRole).toInt();
+}
+
 void MainWindow::setCurrentPaint(int uid)
 {
   if (uid == NULL_UID)
@@ -2810,7 +2795,9 @@ void MainWindow::setCurrentMapping(int uid)
   else {
     if (currentMappingId != uid) {
       currentMappingId = uid;
-      mappingList->setCurrentRow(  getItemRowFromId(*mappingList, uid) );
+      currentSelectedIndex = mappingListModel->selectedIndex(mappingListModel->getItemRowFromId(uid));
+      mappingList->selectionModel()->select(currentSelectedIndex, QItemSelectionModel::Select);
+      mappingList->setCurrentIndex(currentSelectedIndex);
       mappingPropertyPanel->setCurrentWidget(mappers[uid]->getPropertiesEditor());
     }
     _hasCurrentMapping = true;
