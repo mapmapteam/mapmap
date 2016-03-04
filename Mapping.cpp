@@ -45,6 +45,34 @@ Mapping::~Mapping() {
   allocator.free(getId());
 }
 
+void Mapping::setSolo(bool solo)
+{
+  if (solo != _isSolo)
+  {
+    _isSolo = solo;
+    _emitPropertyChanged("solo");
+  }
+}
+
+void Mapping::setVisible(bool visible)
+{
+  if (visible != _isVisible)
+  {
+    _isVisible = visible;
+    _emitPropertyChanged("visible");
+  }
+}
+
+void Mapping::setDepth(int depth)
+{
+  if (depth != _depth)
+  {
+    _depth = depth;
+    _emitPropertyChanged("depth");
+  }
+}
+
+
 void Mapping::read(const QDomElement& obj)
 {
   // Read basic data.

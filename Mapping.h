@@ -117,16 +117,16 @@ public:
   /// Returns the input (source) shape (if this mapping has one) or a null pointer if not.
   virtual MShape::ptr getInputShape() const { return _inputShape; }
 
-  void setSolo(bool solo)        { _isSolo = solo; }
-  void setVisible(bool visible)  { _isVisible = visible; }
-  void setDepth(int depth) { _depth = depth; }
-
-  void toggleSolo()    { _isSolo = !_isSolo; }
-  void toggleVisible() { _isVisible = !_isVisible; }
+  void setSolo(bool solo);
+  void setVisible(bool visible);
+  void setDepth(int depth);
 
   bool isSolo() const      { return _isSolo; }
   bool isVisible() const   { return _isVisible; }
   int getDepth() const { return _depth; }
+
+  void toggleSolo()    { setSolo(!isSolo()); }
+  void toggleVisible() { setVisible(!isVisible()); }
 
   float getComputedOpacity() const { return getOpacity() * _paint->getOpacity(); }
 

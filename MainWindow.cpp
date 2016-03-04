@@ -278,10 +278,21 @@ void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant v
   Mapping::ptr mapping = mappingManager->getMappingById(id);
   Q_CHECK_PTR(mapping);
 
+  // Send to mapping gui.
   MappingGui::ptr mappingGui = getMappingGuiByMappingId(id);
   Q_CHECK_PTR(mappingGui);
-
   mappingGui->setValue(propertyName, value);
+
+  // Send to actions.
+  if (mapping == getCurrentMapping())
+  {
+    if (propertyName == "solo")
+      mappingSoloAction->setChecked(value.toBool());
+    else if (propertyName == "locked")
+      mappingLockedAction->setChecked(value.toBool());
+    else if (propertyName == "visible")
+      mappingMuteAction->setChecked(!value.toBool());
+  }
 }
 
 void MainWindow::paintPropertyChanged(uid id, QString propertyName, QVariant value)
