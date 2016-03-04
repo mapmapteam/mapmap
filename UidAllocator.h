@@ -33,7 +33,7 @@
 typedef int uid;
 
 /// Represents a UID that does not refer to any entity.
-#define NULL_UID (-1)
+#define NULL_UID (0)
 
 /**
  * Allocates uids for instances by appending an incremental number to a given string.

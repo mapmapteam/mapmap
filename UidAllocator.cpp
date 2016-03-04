@@ -26,7 +26,7 @@
 uid UidAllocator::allocate()
 {
   // Iterate until we find an id that has not been taken.
-  uid id = 0;
+  uid id = 1;
   while (exists(id))
     id++;
 
