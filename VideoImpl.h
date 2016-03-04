@@ -56,7 +56,7 @@ public:
    * This media player works for both video files and shared memory sockets.
    * If live is true, it's a shared memory socket.
    */
-  VideoImpl(const QString uri="", bool live=false);
+  VideoImpl(bool live=false);
   ~VideoImpl();
 
 //  void setUri(const QString uri);

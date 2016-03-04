@@ -204,7 +204,7 @@ GstFlowReturn VideoImpl::gstNewSampleCallback(GstElement*, VideoImpl *p)
   return GST_FLOW_OK;
 }
 
-VideoImpl::VideoImpl(const QString uri, bool live) :
+VideoImpl::VideoImpl(bool live) :
 _bus(NULL),
 _pipeline(NULL),
 _uridecodebin0(NULL),
@@ -230,13 +230,9 @@ _isSharedMemorySource(live),
 _attached(false),
 _movieReady(false),
 _playState(false),
-_uri(uri)
+_uri("")
 {
   _pollSource = NULL;
-  if (uri != "")
-  {
-    loadMovie(uri);
-  }
   _mutexLocker = new QMutexLocker(&_mutex);
 }
 
@@ -630,7 +626,8 @@ bool VideoImpl::loadMovie(const QString& filename)
   _bus = gst_element_get_bus (_pipeline);
 
   // Start playing.
-  if (! _isSharedMemorySource && ! setPlayState(true))
+  if (! _isSharedMemorySource &&
+      ! setPlayState(true))
   {
     return false;
   }
@@ -668,7 +665,11 @@ bool VideoImpl::setPlayState(bool play)
     return false;
   }
 
+  // Change state.
   GstStateChangeReturn ret = gst_element_set_state (_pipeline, (play ? GST_STATE_PLAYING : GST_STATE_PAUSED));
+
+//  // Wait until its done.
+//  GstStateChangeReturn ret = gst_element_get_state (_pipeline, NULL, NULL, -1);
   if (ret == GST_STATE_CHANGE_FAILURE)
   {
     qDebug() << "Unable to set the pipeline to the playing state." << endl;

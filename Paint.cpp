@@ -68,17 +68,17 @@ Video::Video(int id) : Texture(id),
     _uri(""),
     _impl(NULL)
 {
-  _impl = new VideoImpl("", false);
+  _impl = new VideoImpl(false);
   setRate(1);
   setVolume(1);
 }
 
 Video::Video(const QString uri_, bool live, double rate, uid id):
     Texture(id),
-    _uri(uri_),
+    _uri(""),
     _impl(NULL)
 {
-  _impl = new VideoImpl("", live);
+  _impl = new VideoImpl(live);
   setRate(rate);
   setVolume(1);
   setUri(uri_);
@@ -98,13 +98,11 @@ void Video::build()
 
 int Video::getWidth() const
 {
-  while (!this->_impl->videoIsConnected());
   return this->_impl->getWidth();
 }
 
 int Video::getHeight() const
 {
-  while (!this->_impl->videoIsConnected());
   return this->_impl->getHeight();
 }
 
@@ -194,6 +192,13 @@ bool Video::setUri(const QString &uri)
     _uri = uri;
 
     // Try to get thumbnail.
+    // Wait for the first samples to be available to make sure we are ready.
+    if (!_impl->waitForNextBits(1000))
+    {
+      qDebug() << "No bits coming" << endl;
+      return false;
+    }
+
     if (!_generateThumbnail())
       qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << endl;
 
@@ -210,12 +215,6 @@ bool Video::_generateThumbnail()
 
   // Default (in case seeking and loading don't work).
   _icon = provider.icon(QFileInfo(_uri));
-
-  // Wait for the first samples to be available to make sure we are ready.
-  if (_impl->waitForNextBits(1000))
-  {
-    return false;
-  }
 
   // Try seeking to the middle of the movie.
   if (!_impl->seekTo(0.5))
