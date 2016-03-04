@@ -96,7 +96,6 @@ private slots:
   void openRecentVideo();
   void quitMapMap();
   // Edit menu.
-  void deleteItem();
   // Context menu for mappings.
   void duplicateMappingItem();
   void deleteMappingItem();

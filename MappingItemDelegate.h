@@ -38,17 +38,16 @@ class MappingItemDelegate : public QStyledItemDelegate
 
 public:
   MappingItemDelegate(QObject *parent = 0);
-  ~MappingItemDelegate();
 
   void paint(QPainter *painter, const QStyleOptionViewItem &option,
-             const QModelIndex &index) const;
+             const QModelIndex &index) const Q_DECL_OVERRIDE;
   QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                        const QModelIndex &index) const;
-  void setEditorData(QWidget *editor, const QModelIndex &index) const;
+                        const QModelIndex &index) const Q_DECL_OVERRIDE;
+  void setEditorData(QWidget *editor, const QModelIndex &index) const Q_DECL_OVERRIDE;
   void setModelData(QWidget *editor, QAbstractItemModel *model,
-                    const QModelIndex &index) const;
+                    const QModelIndex &index) const Q_DECL_OVERRIDE;
   void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
-                            const QModelIndex &index) const;
+                            const QModelIndex &index) const Q_DECL_OVERRIDE;
 
 signals:
   void itemDuplicated(uid itemId);
@@ -56,7 +55,7 @@ signals:
 
 protected:
   bool editorEvent(QEvent *event, QAbstractItemModel *model,
-                   const QStyleOptionViewItem &option, const QModelIndex &index);
+                   const QStyleOptionViewItem &option, const QModelIndex &index) Q_DECL_OVERRIDE;
 };
 
 #endif // MAPPINGITEMDELEGATE_H

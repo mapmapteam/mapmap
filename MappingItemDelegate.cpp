@@ -25,11 +25,6 @@ MappingItemDelegate::MappingItemDelegate(QObject *parent) :
 
 }
 
-MappingItemDelegate::~MappingItemDelegate()
-{
-
-}
-
 void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
   if (index.isValid()) {

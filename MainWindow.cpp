@@ -284,9 +284,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
       case Qt::Key_Q:
         close();
         break;
-      case Qt::Key_Delete:
-        deleteItem();
-        break;
       case Qt::Key_M:
         addMesh();
         break;
@@ -527,9 +524,8 @@ void MainWindow::addMesh()
   // Create texture mapping.
   Mapping::ptr mapping(mappingPtr);
   uint mappingId = mappingManager->addMapping(mapping);
-  addMappingItem(mappingId);
 
-  // Implement undoStack Commands
+  // Let's undostack handle Undo/Redo the adding of mapping item
   undoStack->push(new AddShapesCommand(this, mappingId));
 }
 
@@ -563,9 +559,8 @@ void MainWindow::addTriangle()
   // Create mapping.
   Mapping::ptr mapping(mappingPtr);
   uint mappingId = mappingManager->addMapping(mapping);
-  addMappingItem(mappingId);
 
-  // Implement undoStack Commands
+  // Let's undostack handle Undo/Redo the adding of mapping item
   undoStack->push(new AddShapesCommand(this, mappingId));
 }
 
@@ -599,9 +594,8 @@ void MainWindow::addEllipse()
   // Create mapping.
   Mapping::ptr mapping(mappingPtr);
   uint mappingId = mappingManager->addMapping(mapping);
-  addMappingItem(mappingId);
 
-  // Implement undoStack Commands
+  // Let's undostack handle Undo/Redo the adding of mapping item
   undoStack->push(new AddShapesCommand(this, mappingId));
 }
 
@@ -697,37 +691,6 @@ void MainWindow::showMenuBar(bool shown)
 #endif
 }
 
-/**
- * Called when the user wants to delete an item.
- *
- * Deletes either a Paint or a Mapping.
- */
-void MainWindow::deleteItem()
-{
-  bool isMappingTabSelected = (mappingSplitter == contentTab->currentWidget());
-  bool isPaintTabSelected = (paintSplitter == contentTab->currentWidget());
-
-  if (currentSelectedItem)
-  {
-    if (isMappingTabSelected) //currentSelectedItem->listWidget() == mappingList)
-    {
-      // Delete mapping.
-      undoStack->push(new DeleteMappingCommand(this, currentMappingItemId()));
-      //currentSelectedItem = NULL;
-    }
-    else if (isPaintTabSelected) //currentSelectedItem->listWidget() == paintList)
-    {
-      // Delete paint.
-      deletePaint( getItemId(*paintList->currentItem()), false );
-      //currentSelectedItem = NULL;
-    }
-    else
-    {
-      qCritical() << "Selected item neither a mapping nor a paint." << endl;
-    }
-  }
-}
-
 void MainWindow::duplicateMappingItem()
 {
   if (currentSelectedIndex.isValid())
@@ -744,7 +707,7 @@ void MainWindow::deleteMappingItem()
 {
   if (currentSelectedIndex.isValid())
   {
-    deleteMapping(currentMappingItemId());
+    undoStack->push(new DeleteMappingCommand(this, currentMappingItemId()));
   }
   else
   {

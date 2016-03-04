@@ -36,15 +36,15 @@ enum CommandId {
 class AddShapesCommand : public QUndoCommand
 {
 public:
-  AddShapesCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent = 0);
-  void undo();
-  void redo();
+  explicit AddShapesCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent = 0);
+
+  void undo() Q_DECL_OVERRIDE;
+  void redo() Q_DECL_OVERRIDE;
 
 private:
-  MainWindow *m_mainWindow;
-  Mapping::ptr m_mappingPtr;
-  uid m_mappingId;
-
+  MainWindow *_mainWindow;
+  Mapping::ptr _mapping;
+  uid _mappingId;
 };
 
 class TransformShapeCommand : public QUndoCommand
@@ -112,14 +112,15 @@ private:
 class DeleteMappingCommand : public QUndoCommand
 {
 public:
-  DeleteMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent = 0);
-  void undo();
-  void redo();
+  explicit DeleteMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent = 0);
+
+  void undo() Q_DECL_OVERRIDE;
+  void redo() Q_DECL_OVERRIDE;
 
 private:
-  MainWindow *m_mainWindow;
-  Mapping::ptr m_mappingPtr;
-  uid m_mappingId;
+  MainWindow *_mainWindow;
+  Mapping::ptr _mapping;
+  uid _mappingId;
 };
 
 #endif /* COMMANDS_H_ */
