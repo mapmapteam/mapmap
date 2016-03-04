@@ -28,7 +28,8 @@ void Texture::read(const QDomElement& obj)
 {
   Paint::read(obj);
   // Set x and y.
-  QDomElement e = obj.firstChildElement("x");
+  QDomElement e;
+  e = obj.firstChildElement("x");
   if (!e.isNull())
     setX(e.text().toDouble());
   e = obj.firstChildElement("y");
