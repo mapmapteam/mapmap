@@ -451,9 +451,10 @@ public:
 
   uid getCurrentPaintId() const { return currentPaintId; }
   uid getCurrentMappingId() const { return currentMappingId; }
+
   Mapping::ptr getCurrentMapping() const { return mappingManager->getMappingById(currentMappingId); }
   Paint::ptr getCurrentPaint() const { return mappingManager->getPaintById(currentPaintId); }
-  OutputGLWindow* getOutputWindow() const { return outputWindow; }
+
   bool hasCurrentPaint() const { return _hasCurrentPaint; }
   bool hasCurrentMapping() const { return _hasCurrentMapping; }
   void setCurrentPaint(int uid);
@@ -461,6 +462,7 @@ public:
   void removeCurrentPaint();
   void removeCurrentMapping();
 
+  OutputGLWindow* getOutputWindow() const { return outputWindow; }
   MapperGLCanvas* getSourceCanvas() const { return sourceCanvas; }
   MapperGLCanvas* getDestinationCanvas() const { return destinationCanvas; }
 
