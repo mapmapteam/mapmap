@@ -107,8 +107,8 @@ void VideoImpl::setVolume(double volume)
   {
     _volume = volume;
 
-    // Set volume element property.
-    g_object_set (_audiovolume0, "volume", _volume, NULL);
+    // Set volume element property
+    //g_object_set (_audiovolume0, "volume", _volume, NULL);
   }
 }
 
@@ -619,8 +619,8 @@ bool VideoImpl::loadMovie(const QString& filename)
   g_signal_connect (_appsink0, "new-sample", G_CALLBACK (VideoImpl::gstNewSampleCallback), this);
   gst_caps_unref (videoCaps);
 
-  g_object_set (_audiovolume0, "mute", false, NULL);
-  g_object_set (_audiovolume0, "volume", 0.0, NULL);
+//  g_object_set (_audiovolume0, "mute", false, NULL);
+//  g_object_set (_audiovolume0, "volume", 0.0, NULL);
 
   // Listen to the bus.
   _bus = gst_element_get_bus (_pipeline);
