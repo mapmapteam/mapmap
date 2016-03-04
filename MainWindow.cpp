@@ -291,7 +291,7 @@ void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant v
     else if (propertyName == "locked")
       mappingLockedAction->setChecked(value.toBool());
     else if (propertyName == "visible")
-      mappingMuteAction->setChecked(!value.toBool());
+      mappingHideAction->setChecked(!value.toBool());
   }
 }
 
@@ -836,14 +836,14 @@ void MainWindow::renameMappingItem()
   contentTab->setCurrentWidget(mappingSplitter);
 }
 
-void MainWindow::setMappingitemLocked(bool locked)
+void MainWindow::setMappingItemLocked(bool locked)
 {
   setMappingLocked(getItemId(*mappingList->currentItem()), locked);
 }
 
-void MainWindow::setMappingitemVisible(bool visible)
+void MainWindow::setMappingItemHide(bool hide)
 {
-  setMappingVisible(getItemId(*mappingList->currentItem()), !visible);
+  setMappingVisible(getItemId(*mappingList->currentItem()), !hide);
 }
 
 void MainWindow::setMappingItemSolo(bool solo)
@@ -1589,16 +1589,16 @@ void MainWindow::createActions()
   mappingLockedAction->setCheckable(true);
   mappingLockedAction->setChecked(false);
   addAction(mappingLockedAction);
-  connect(mappingLockedAction, SIGNAL(triggered(bool)), this, SLOT(setMappingitemLocked(bool)));
+  connect(mappingLockedAction, SIGNAL(triggered(bool)), this, SLOT(setMappingItemLocked(bool)));
 
-  // Mute mapping.
-  mappingMuteAction = new QAction(tr("Mute mapping"), this);
-  mappingMuteAction->setToolTip(tr("Mute mapping item"));
-  mappingMuteAction->setIconVisibleInMenu(false);
-  mappingMuteAction->setCheckable(true);
-  mappingMuteAction->setChecked(false);
-  addAction(mappingMuteAction);
-  connect(mappingMuteAction, SIGNAL(triggered(bool)), this, SLOT(setMappingitemVisible(bool)));
+  // Hide mapping.
+  mappingHideAction = new QAction(tr("Hide mapping"), this);
+  mappingHideAction->setToolTip(tr("Hide mapping item"));
+  mappingHideAction->setIconVisibleInMenu(false);
+  mappingHideAction->setCheckable(true);
+  mappingHideAction->setChecked(false);
+  addAction(mappingHideAction);
+  connect(mappingHideAction, SIGNAL(triggered(bool)), this, SLOT(setMappingItemHide(bool)));
 
   // Solo mapping.
   mappingSoloAction = new QAction(tr("Solo mapping"), this);
@@ -1893,7 +1893,7 @@ void MainWindow::createMappingContextMenu()
   mappingContextMenu->addAction(deleteMappingAction);
   mappingContextMenu->addAction(renameMappingAction);
   mappingContextMenu->addAction(mappingLockedAction);
-  mappingContextMenu->addAction(mappingMuteAction);
+  mappingContextMenu->addAction(mappingHideAction);
   mappingContextMenu->addAction(mappingSoloAction);
 
   // Set context menu policy
@@ -2698,7 +2698,7 @@ void MainWindow::showMappingContextMenu(const QPoint &point)
 
   // Switch to right action check state
   mappingLockedAction->setChecked(mapping->isLocked());
-  mappingMuteAction->setChecked(!mapping->isVisible());
+  mappingHideAction->setChecked(!mapping->isVisible());
   mappingSoloAction->setChecked(mapping->isSolo());
 
   if (objectSender != NULL && mappingList->count() > 0)
