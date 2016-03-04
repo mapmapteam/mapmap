@@ -111,12 +111,18 @@ void Serializable::write(QDomElement& obj)
       // Add to children.
       else
       {
-        QDomElement propertyNode = obj.ownerDocument().createElement(propertyName);
-        QDomText    text         = obj.ownerDocument().createTextNode(propertyValue);
-        propertyNode.appendChild(text);
-        obj.appendChild(propertyNode);
+        _writeNode(obj, propertyName, propertyValue);
       }
     }
   }
 }
+
+void Serializable::_writeNode(QDomElement& obj, const QString& nodeName, const QString& nodeValue)
+{
+  QDomElement propertyNode = obj.ownerDocument().createElement(nodeName);
+  QDomText    text         = obj.ownerDocument().createTextNode(nodeValue);
+  propertyNode.appendChild(text);
+  obj.appendChild(propertyNode);
+}
+
 

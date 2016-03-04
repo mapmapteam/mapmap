@@ -45,6 +45,8 @@ protected:
 
   // Lists QProperties that should NOT be parsed automatically.
   virtual QList<QString> _propertiesSpecial() const { return QList<QString>(); }
+
+  void _writeNode(QDomElement& obj, const QString& nodeName, const QString& nodeValue);
 };
 
 #endif /* SERIALIZABLE_H_ */

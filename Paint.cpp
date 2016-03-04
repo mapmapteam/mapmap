@@ -24,6 +24,25 @@
 
 UidAllocator Paint::allocator;
 
+void Texture::read(const QDomElement& obj)
+{
+  Paint::read(obj);
+  // Set x and y.
+  QDomElement e = obj.firstChildElement("x");
+  if (!e.isNull())
+    setX(e.text().toDouble());
+  e = obj.firstChildElement("y");
+  if (!e.isNull())
+    setY(e.text().toDouble());
+}
+
+void Texture::write(QDomElement& obj)
+{
+  Paint::write(obj);
+  _writeNode(obj, "x", QString::number(getX()));
+  _writeNode(obj, "y", QString::number(getX()));
+}
+
 Paint::Paint(uid id) : Element(id, &allocator)
 {
 }

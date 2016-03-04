@@ -118,8 +118,8 @@ class Texture : public Paint
 {
   Q_OBJECT
 
-  Q_PROPERTY(float x READ getX WRITE setX)
-  Q_PROPERTY(float y READ getY WRITE setY)
+  Q_PROPERTY(float x READ getX)
+  Q_PROPERTY(float y READ getY)
 
 protected:
   GLuint textureId;
@@ -170,6 +170,13 @@ public:
   }
 
   virtual QRectF getRect() const { return QRectF(getX(), getY(), getWidth(), getHeight()); }
+
+  virtual void read(const QDomElement& obj);
+  virtual void write(QDomElement& obj);
+
+protected:
+  // Lists QProperties that should NOT be parsed automatically.
+  virtual QList<QString> _propertiesSpecial() const { return Paint::_propertiesSpecial() << "x" << "y"; }
 };
 
 /**
