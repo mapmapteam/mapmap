@@ -293,26 +293,14 @@ void VideoImpl::freeResources()
 
 void VideoImpl::resetMovie()
 {
-  // XXX: There used to be an issue that when we reached EOS (_eos() == true) we could not seek anymore.
   if (_seekEnabled)
   {
     qDebug() << "Seeking at position 0." << endl;
-    GstEvent* seek_event;
-
-    if (_rate > 0) {
-      seek_event = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
-          GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_NONE, 0);
-    } else {
-      seek_event = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
-          GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_END, 0);
-    }
-    /* Send the event */
-    gst_element_send_event (_appsink0, seek_event);
+    seekTo(0L);
   }
   else
   {
-    // Just reload movie.
-    qDebug() << "Reloading the movie (seek enabled = " << _seekEnabled << ")" << endl;
+    qDebug() << "Seeking not enabled: reloading the movie" << endl;
     loadMovie(_uri);
   }
 }
@@ -570,8 +558,8 @@ bool VideoImpl::loadMovie(const QString& filename)
     // Retrieve meta-info.
     _width = gst_discoverer_video_info_get_width((GstDiscovererVideoInfo*)videoStreams->data);
     _height = gst_discoverer_video_info_get_height((GstDiscovererVideoInfo*)videoStreams->data);
-//    _isSeekable = gst_discoverer_info_get_seekable(info);
     _duration = gst_discoverer_info_get_duration(info);
+    _seekEnabled = gst_discoverer_info_get_seekable(info);
 
     // Free everything.
     g_object_unref(discoverer);
@@ -701,7 +689,7 @@ bool VideoImpl::seekTo(double position)
 
 bool VideoImpl::seekTo(gint64 positionNanoSeconds)
 {
-  if (!_appsink0)
+  if (!_appsink0 || !_seekEnabled)
     return false;
   else
   {
