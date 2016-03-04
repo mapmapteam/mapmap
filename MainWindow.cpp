@@ -272,6 +272,30 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
     setCurrentMapping(curMappingId);
 }
 
+void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant value)
+{
+  // Retrieve mapping.
+  Mapping::ptr mapping = mappingManager->getMappingById(id);
+  Q_CHECK_PTR(mapping);
+
+  MappingGui::ptr mappingGui = getMappingGuiByMappingId(id);
+  Q_CHECK_PTR(mappingGui);
+
+  mappingGui->setValue(propertyName, value);
+}
+
+void MainWindow::paintPropertyChanged(uid id, QString propertyName, QVariant value)
+{
+  // Retrieve paint.
+  Paint::ptr paint = mappingManager->getPaintById(id);
+  Q_CHECK_PTR(paint);
+
+  PaintGui::ptr paintGui = getPaintGuiByPaintId(id);
+  Q_CHECK_PTR(paintGui);
+
+  paintGui->setValue(propertyName, value);
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
   // Stop video playback to avoid lags. XXX Hack
@@ -2315,6 +2339,13 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
   connect(paintGui.data(), SIGNAL(valueChanged(Paint::ptr)),
           this,            SLOT(handlePaintChanged(Paint::ptr)));
 
+  connect(paint.data(), SIGNAL(propertyChanged(uid, QString, QVariant)),
+          this,           SLOT(paintPropertyChanged(uid, QString, QVariant)));
+
+  // TODO: attention: if mapping is invisible canvases will be updated for no reason
+  connect(paint.data(), SIGNAL(propertyChanged(uid, QString, QVariant)),
+          this,           SLOT(updateCanvases()));
+
   // Add paint item to paintList widget.
   QListWidgetItem* item = new QListWidgetItem(icon, name);
   setItemId(*item, paintId); // TODO: could possibly be replaced by a Paint pointer
@@ -2414,14 +2445,18 @@ void MainWindow::addMappingItem(uid mappingId)
   mappingPropertyPanel->setEnabled(true);
 
   // When mapper value is changed, update canvases.
-  connect(mapper.data(), SIGNAL(valueChanged()),
-          this,          SLOT(updateCanvases()));
-
   connect(sourceCanvas,  SIGNAL(shapeChanged(MShape*)),
           mapper.data(), SLOT(updateShape(MShape*)));
 
   connect(destinationCanvas, SIGNAL(shapeChanged(MShape*)),
           mapper.data(),     SLOT(updateShape(MShape*)));
+
+  connect(mapping.data(), SIGNAL(propertyChanged(uid, QString, QVariant)),
+          this,           SLOT(mappingPropertyChanged(uid, QString, QVariant)));
+
+  // TODO: attention: if mapping is invisible canvases will be updated for no reason
+  connect(mapping.data(), SIGNAL(propertyChanged(uid, QString, QVariant)),
+          this,           SLOT(updateCanvases()));
 
   // Switch to mapping tab.
   contentTab->setCurrentWidget(mappingSplitter);

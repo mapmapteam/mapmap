@@ -182,8 +182,8 @@ class Image : public Texture
   Q_PROPERTY(QString uri READ getUri WRITE setUri)
 
 protected:
-  QString uri;
-  QImage image;
+  QString _uri;
+  QImage _image;
 
 public:
   Q_INVOKABLE Image(int id=NULL_UID) : Texture(id) {}
@@ -196,26 +196,26 @@ public:
   virtual ~Image() {}
 
   virtual void build() {
-    image = QGLWidget::convertToGLFormat(QImage(uri)).mirrored(true, false).transformed(QTransform().rotate(180));
+    _image = QGLWidget::convertToGLFormat(QImage(_uri)).mirrored(true, false).transformed(QTransform().rotate(180));
     bitsChanged = true;
   }
 
-  const QString getUri() const { return uri; }
+  const QString getUri() const { return _uri; }
   bool setUri(const QString &uri);
 
   virtual QString getType() const { return "image"; }
 
-  virtual int getWidth() const { return image.width(); }
-  virtual int getHeight() const { return image.height(); }
+  virtual int getWidth() const { return _image.width(); }
+  virtual int getHeight() const { return _image.height(); }
 
   virtual const uchar* getBits() {
     bitsChanged = false;
-    return image.bits();
+    return _image.bits();
   }
 
   virtual bool bitsHaveChanged() const { return bitsChanged; }
 
-  virtual QIcon getIcon() const { return QIcon(QPixmap::fromImage(image)); }
+  virtual QIcon getIcon() const { return QIcon(QPixmap::fromImage(_image)); }
 };
 
 class VideoImpl; // forward declaration
@@ -242,7 +242,7 @@ public:
   virtual ~Video();
   const QString getUri() const
   {
-    return uri;
+    return _uri;
   }
   bool setUri(const QString &uri);
   virtual void build();
@@ -289,17 +289,21 @@ public:
    */
   static bool hasVideoSupport();
 
-  virtual QIcon getIcon() const { return icon; }
+  virtual QIcon getIcon() const { return _icon; }
 
 protected:
-  QString uri;
-  QIcon icon;
+
+  // Try to generate a thumbnail from currently loaded movie.
+  bool _generateThumbnail();
+
+  QString _uri;
+  QIcon _icon;
 
   /**
    * Private implementation, so that GStreamer headers don't need
    * to be included from every file in the project.
    */
-  VideoImpl *impl;
+  VideoImpl *_impl;
 };
 
 #endif /* PAINT_H_ */

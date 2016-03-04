@@ -39,3 +39,28 @@ Element::Element(uid id, UidAllocator* allocator) : _name(""), _isLocked(false),
 Element::~Element() {
   _allocator->free(_id);
 }
+
+void Element::setLocked(bool locked)
+{
+  if (locked != _isLocked)
+  {
+    _isLocked = locked;
+    _emitPropertyChanged("locked");
+  }
+}
+
+void Element::setOpacity(float opacity)
+{
+  opacity = qBound(opacity, 0.0f, 1.0f);
+  if (opacity != _opacity)
+  {
+    _opacity = opacity;
+    _emitPropertyChanged("opacity");
+  }
+}
+
+void Element::_emitPropertyChanged(const QString& propertyName)
+{
+  emit propertyChanged(getId(), propertyName, property(propertyName.toAscii()));
+}
+

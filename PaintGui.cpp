@@ -69,6 +69,11 @@ void PaintGui::setValue(QtProperty* property, const QVariant& value)
   }
 }
 
+void PaintGui::setValue(QString propertyName, QVariant value)
+{
+  if (propertyName == "opacity")
+    _opacityItem->setValue(value.toDouble() * 100);
+}
 
 ColorGui::ColorGui(Paint::ptr paint)
   : PaintGui(paint)
@@ -91,6 +96,14 @@ void ColorGui::setValue(QtProperty* property, const QVariant& value) {
   }
   else
     PaintGui::setValue(property, value);
+}
+
+void ColorGui::setValue(QString propertyName, QVariant value)
+{
+  if (propertyName == "color")
+    setValue(_colorItem, value);
+  else
+    PaintGui::setValue(propertyName, value);
 }
 
 TextureGui::TextureGui(Paint::ptr paint) : PaintGui(paint) {
@@ -117,7 +130,15 @@ void ImageGui::setValue(QtProperty* property, const QVariant& value) {
     emit valueChanged(_paint);
   }
   else
-    PaintGui::setValue(property, value);
+    TextureGui::setValue(property, value);
+}
+
+void ImageGui::setValue(QString propertyName, QVariant value)
+{
+  if (propertyName == "uri")
+    _imageFileItem->setValue(value);
+  else
+    TextureGui::setValue(propertyName, value);
 }
 
 VideoGui::VideoGui(Paint::ptr paint)
@@ -182,5 +203,17 @@ void VideoGui::setValue(QtProperty* property, const QVariant& value)
     emit valueChanged(_paint);
   }
   else
-    PaintGui::setValue(property, value);
+    TextureGui::setValue(property, value);
+}
+
+void VideoGui::setValue(QString propertyName, QVariant value)
+{
+  if (propertyName == "uri")
+    _mediaFileItem->setValue(value);
+  if (propertyName == "rate")
+    _mediaRateItem->setValue(value.toDouble()*100);
+  if (propertyName == "volume")
+    _mediaVolumeItem->setValue(value.toDouble()*100);
+  else
+    TextureGui::setValue(propertyName, value);
 }

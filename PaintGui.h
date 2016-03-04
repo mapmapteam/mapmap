@@ -66,6 +66,7 @@ public:
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
+  virtual void setValue(QString propertyName, QVariant value);
 
 signals:
   void valueChanged(Paint::ptr);
@@ -88,6 +89,7 @@ public:
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
+  virtual void setValue(QString propertyName, QVariant value);
 
 protected:
   QSharedPointer<Color> color;
@@ -100,9 +102,6 @@ class TextureGui : public PaintGui {
 public:
   TextureGui(Paint::ptr paint);
   virtual ~TextureGui() {}
-
-public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value) = 0;
 };
 
 class ImageGui : public TextureGui {
@@ -114,6 +113,7 @@ public:
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
+  virtual void setValue(QString propertyName, QVariant value);
 
 protected:
   QSharedPointer<Image> image;
@@ -129,6 +129,7 @@ public:
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
+  virtual void setValue(QString propertyName, QVariant value);
 
 protected:
   QSharedPointer<Video> media;

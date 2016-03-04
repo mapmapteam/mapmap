@@ -27,6 +27,7 @@
 #include "Serializable.h"
 #include "UidAllocator.h"
 
+#include <QEvent>
 Q_DECLARE_METATYPE(uid)
 
 class Element : public Serializable
@@ -36,7 +37,7 @@ class Element : public Serializable
   Q_PROPERTY(uid     id      READ getId)
   Q_PROPERTY(QString name    READ getName    WRITE setName RESET unsetName)
   Q_PROPERTY(bool    locked  READ isLocked   WRITE setLocked)
-  Q_PROPERTY(float   opacity READ getOpacity WRITE setOpacity)
+  Q_PROPERTY(float   opacity READ getOpacity WRITE setOpacity NOTIFY propertyChanged)
   Q_PROPERTY(QIcon   icon    READ getIcon)
 
 public:
@@ -52,21 +53,24 @@ public:
   virtual void unsetName() { _name = _id; }
 
   float getOpacity() const { return _opacity; }
-  void setOpacity(float opacity) {
-    _opacity = qBound(opacity, 0.0f, 1.0f);
-  }
+  void setOpacity(float opacity);
 
   bool isLocked() const    { return _isLocked; }
-  void setLocked(bool locked)    { _isLocked = locked; }
-  void toggleLocked()  { _isLocked = !_isLocked; }
+  void setLocked(bool locked);
+  void toggleLocked()  { setLocked(!isLocked()); }
 
   virtual void build() {}
 
   virtual QIcon getIcon() const { return QIcon(); }
 
+signals:
+  void propertyChanged(uid id, QString propertyName, QVariant value);
+
 protected:
   virtual QList<QString> _propertiesAttributes() const
   { return Serializable::_propertiesAttributes() << "name" << "locked";  }
+
+  void _emitPropertyChanged(const QString& propertyName);
 
 private:
   uid _id;

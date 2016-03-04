@@ -87,6 +87,7 @@ public:
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
+  virtual void setValue(QString propertyName, QVariant value);
   virtual void updateShape(MShape* shape);
 
 signals:

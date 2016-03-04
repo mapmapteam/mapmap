@@ -35,27 +35,31 @@ Paint::~Paint()
 
 bool Image::setUri(const QString &uri)
 {
-  this->uri = uri;
-  build();
-  return !image.isNull();
+  if (uri != _uri)
+  {
+    _uri = uri;
+    build();
+    _emitPropertyChanged("uri");
+  }
+  return !_image.isNull();
 }
 
 /* Implementation of the Video class */
 Video::Video(int id) : Texture(id),
-    uri(""),
-    impl(NULL)
+    _uri(""),
+    _impl(NULL)
 {
-  impl = new VideoImpl("", false);
+  _impl = new VideoImpl("", false);
   setRate(1);
   setVolume(1);
 }
 
 Video::Video(const QString uri_, bool live, double rate, uid id):
     Texture(id),
-    uri(uri_),
-    impl(NULL)
+    _uri(uri_),
+    _impl(NULL)
 {
-  impl = new VideoImpl("", live);
+  _impl = new VideoImpl("", live);
   setRate(rate);
   setVolume(1);
   setUri(uri_);
@@ -65,81 +69,89 @@ Video::Video(const QString uri_, bool live, double rate, uid id):
 
 Video::~Video()
 {
-  delete impl;
+  delete _impl;
 }
 
 void Video::build()
 {
-  this->impl->build();
+  this->_impl->build();
 }
 
 int Video::getWidth() const
 {
-  while (!this->impl->videoIsConnected());
-  return this->impl->getWidth();
+  while (!this->_impl->videoIsConnected());
+  return this->_impl->getWidth();
 }
 
 int Video::getHeight() const
 {
-  while (!this->impl->videoIsConnected());
-  return this->impl->getHeight();
+  while (!this->_impl->videoIsConnected());
+  return this->_impl->getHeight();
 }
 
 void Video::update() {
-  impl->update();
+  _impl->update();
 }
 
 void Video::play()
 {
-  impl->setPlayState(true);
+  _impl->setPlayState(true);
 }
 
 void Video::pause()
 {
-  impl->setPlayState(false);
+  _impl->setPlayState(false);
 }
 
 void Video::rewind()
 {
-  impl->resetMovie();
+  _impl->resetMovie();
 }
 
 void Video::lockMutex() {
-  impl->lockMutex();
+  _impl->lockMutex();
 }
 
 void Video::unlockMutex() {
-  impl->unlockMutex();
+  _impl->unlockMutex();
 }
 
 const uchar* Video::getBits()
 {
-  return this->impl->getBits();
+  return this->_impl->getBits();
 }
 
 bool Video::bitsHaveChanged() const
 {
-  return this->impl->bitsHaveChanged();
+  return this->_impl->bitsHaveChanged();
 }
 
 void Video::setRate(double rate)
 {
-  impl->setRate(rate);
+  if (rate != _impl->getRate())
+  {
+    _impl->setRate(rate);
+    _emitPropertyChanged("rate");
+  }
 }
 
 double Video::getRate() const
 {
-  return impl->getRate();
+  return _impl->getRate();
 }
 
-void Video::setVolume(double rate)
+void Video::setVolume(double volume)
 {
-  impl->setVolume(rate);
+  if (volume != _impl->getVolume())
+  {
+    _impl->setVolume(volume);
+    _emitPropertyChanged("volume");
+  }
 }
 
 double Video::getVolume() const
 {
-  return impl->getVolume();
+  return _impl->getVolume();
 }
 
 bool Video::hasVideoSupport()
@@ -149,40 +161,54 @@ bool Video::hasVideoSupport()
 
 bool Video::setUri(const QString &uri)
 {
-  static QFileIconProvider provider;
-
-  // Try to load movie.
-  if (!impl->loadMovie(uri))
+  // Check if we're actually changing the uri.
+  if (uri != _uri)
   {
-    qDebug() << "Cannot load movie " << uri << "." << endl;
-    return false;
+    // Try to load movie.
+    if (!_impl->loadMovie(uri))
+    {
+      qDebug() << "Cannot load movie " << uri << "." << endl;
+      return false;
+    }
+
+    // Set uri.
+    _uri = uri;
+
+    // Try to get thumbnail.
+    if (!_generateThumbnail())
+      qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << endl;
+
+    _emitPropertyChanged("uri");
   }
 
-  // Set uri.
-  this->uri = uri;
+  // Return success.
+  return true;
+}
+
+bool Video::_generateThumbnail()
+{
+  static QFileIconProvider provider;
 
   // Default (in case seeking and loading don't work).
-  icon = provider.icon(QFileInfo(uri));
-
-  // Try to get thumbnail.
+  _icon = provider.icon(QFileInfo(_uri));
 
   // Wait for the first samples to be available to make sure we are ready.
-  if (!impl->waitForNextBits(1000))
+  if (_impl->waitForNextBits(1000))
   {
     return false;
   }
 
   // Try seeking to the middle of the movie.
-  if (!impl->seekTo(0.5))
+  if (!_impl->seekTo(0.5))
   {
-    impl->resetMovie();
+    _impl->resetMovie();
     return false;
   }
 
   // Try to get a sample from the current position.
   // NOTE: There is no guarantee the sample has yet been acquired.
   const uchar* bits;
-  if (!impl->waitForNextBits(ICON_TIMEOUT, &bits))
+  if (!_impl->waitForNextBits(ICON_TIMEOUT, &bits))
   {
     qDebug() << "Second waiting wrong..." << endl;
     return false;
@@ -203,12 +229,10 @@ bool Video::setUri(const QString &uri)
     }
 
   // Generate icon.
-  icon = QIcon(QPixmap::fromImage(thumbnail));
+  _icon = QIcon(QPixmap::fromImage(thumbnail));
 
   // Reset movie.
-  impl->resetMovie();
+  _impl->resetMovie();
 
-  // Return success.
   return true;
 }
-

@@ -92,6 +92,12 @@ void MappingGui::setValue(QtProperty* property, const QVariant& value)
   }
 }
 
+void MappingGui::setValue(QString propertyName, QVariant value)
+{
+  if (propertyName == "opacity")
+    _opacityItem->setValue(value.toDouble() * 100);
+}
+
 void MappingGui::updateShape(MShape* shape)
 {
   if (shape == _mapping->getShape().data())

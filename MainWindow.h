@@ -117,6 +117,9 @@ private slots:
   void handleItemSelected(QListWidgetItem* item);
   void handlePaintChanged(Paint::ptr paint);
 
+  void mappingPropertyChanged(uid id, QString propertyName, QVariant value);
+  void paintPropertyChanged(uid id, QString propertyName, QVariant value);
+
   void addMesh();
   void addTriangle();
   void addEllipse();
@@ -442,7 +445,10 @@ private:
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
   MappingManager& getMappingManager() const { return *mappingManager; }
+
   MappingGui::ptr getMappingGuiByMappingId(uint id) const { return mappers[id]; }
+  PaintGui::ptr getPaintGuiByPaintId(uint id) const { return paintGuis[id]; }
+
   uid getCurrentPaintId() const { return currentPaintId; }
   uid getCurrentMappingId() const { return currentMappingId; }
   Mapping::ptr getCurrentMapping() const { return mappingManager->getMappingById(currentMappingId); }
