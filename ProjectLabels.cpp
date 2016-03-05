@@ -25,7 +25,7 @@ const char* ProjectLabels::MAPPINGS    = "mappings";
 const char* ProjectLabels::ID          = "id";
 const char* ProjectLabels::PAINT_ID    = "paintId";
 const char* ProjectLabels::NAME        = "name";
-const char* ProjectLabels::SOURCE      = "id";
-const char* ProjectLabels::DESTINATION = "name";
+const char* ProjectLabels::SOURCE      = "source";
+const char* ProjectLabels::DESTINATION = "destination";
 
 
