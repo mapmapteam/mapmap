@@ -295,8 +295,14 @@ void VideoImpl::resetMovie()
 {
   if (_seekEnabled)
   {
-    qDebug() << "Seeking at position 0." << endl;
-    seekTo(0L);
+    if (_rate > 0)
+      seekTo(0L);
+    else
+    {
+      // NOTE: Untested.
+      seekTo(_duration);
+      _updateRate();
+    }
   }
   else
   {
@@ -684,10 +690,10 @@ bool VideoImpl::seekTo(double position)
   position = qBound(0.0, position, 1.0);
 
   // Seek at position in nanoseconds.
-  return seekTo((gint64)(position*duration));
+  return seekTo((guint64)(position*duration));
 }
 
-bool VideoImpl::seekTo(gint64 positionNanoSeconds)
+bool VideoImpl::seekTo(guint64 positionNanoSeconds)
 {
   if (!_appsink0 || !_seekEnabled)
     return false;
@@ -852,33 +858,33 @@ void VideoImpl::_setFinished(bool finished)
 
 void  VideoImpl::_updateRate()
 {
+  // Check different things.
   if (_pipeline == NULL)
   {
-    qDebug() << "Cannot set rate: no pipeline!" << endl;
+    qWarning() << "Cannot set rate: no pipeline!" << endl;
     return;
   }
 
   if (!_seekEnabled)
   {
-    qDebug() << "Cannot set rate: seek not working" << endl;
+    qWarning() << "Cannot set rate: seek not working" << endl;
     return;
   }
 
   if (!_isMovieReady())
   {
-    qDebug() << "Movie is not yet ready to play, cannot seek yet." << endl;
+    qWarning() << "Movie is not yet ready to play, cannot seek yet." << endl;
   }
 
+  // Obtain the current position, needed for the seek event.
   gint64 position;
-  GstEvent *seekEvent;
-
-  /* Obtain the current position, needed for the seek event */
   if (!gst_element_query_position (_pipeline, GST_FORMAT_TIME, &position)) {
-    g_printerr ("Unable to retrieve current position.\n");
+    qWarning() << "Unable to retrieve current position." << endl;
     return;
   }
 
-  /* Create the seek event */
+  // Create the seek event.
+  GstEvent *seekEvent;
   if (_rate > 0) {
     seekEvent = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
         GST_SEEK_TYPE_SET, position, GST_SEEK_TYPE_NONE, 0);
@@ -887,15 +893,17 @@ void  VideoImpl::_updateRate()
         GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position);
   }
 
+  // If we have not done so, obtain the sink through which we will send the seek events.
   if (_appsink0 == NULL) {
-    /* If we have not done so, obtain the sink through which we will send the seek events */
     g_object_get (_pipeline, "video-sink", &_appsink0, NULL);
   }
 
-  /* Send the event */
-  gst_element_send_event (_appsink0, seekEvent);
+  // Send the event.
+  if (!gst_element_send_event (_appsink0, seekEvent)) {
+    qWarning() << "Cannot perform seek event" << endl;
+  }
 
-  g_print ("Current rate: %g\n", _rate);
+  qDebug() << "Current rate: " << _rate << "." << endl;
 }
 
 void VideoImpl::_freeCurrentSample() {

@@ -134,7 +134,7 @@ public:
   bool seekIsEnabled() const { return _seekEnabled; }
 
   bool seekTo(double position);
-  bool seekTo(gint64 positionNanoSeconds);
+  bool seekTo(guint64 positionNanoSeconds);
 
   /**
    * Tells the VideoImpl that we are actually reading from a shmsrc.
@@ -226,7 +226,7 @@ private:
   int _width;
   int _height;
 //  bool _isSeekable;
-  unsigned long _duration; // duration (in nanoseconds) (unused for now)
+  guint64 _duration; // duration (in nanoseconds) (unused for now)
 
   bool _videoIsConnected;
 
