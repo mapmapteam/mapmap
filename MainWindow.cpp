@@ -428,6 +428,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
 #ifdef Q_OS_OSX // On Mac OS X
+  Q_UNUSED(event);
   // Do nothing
 #endif
 

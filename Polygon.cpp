@@ -34,9 +34,6 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
   if (polygon.size() <= 3)
     return;
 
-  // Save previous position of vertex.
-  QPointF prevV = polygon.at(i);
-
   // Look at the two adjunct segments to vertex i and see if they
   // intersect with any non-adjacent segments.
 

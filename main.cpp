@@ -142,9 +142,6 @@ int main(int argc, char *argv[])
   splash.showMessage("  " + QObject::tr("Initiating program..."),
                      Qt::AlignLeft | Qt::AlignTop, MM::WHITE);
 
-  bool FORCE_FRENCH_LANG = false;
-  // set_language_to_french(app);
-
   // Let splash for at least one second.
   I::sleep(1);
 
