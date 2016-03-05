@@ -41,7 +41,7 @@ void Texture::write(QDomElement& obj)
 {
   Paint::write(obj);
   _writeNode(obj, "x", QString::number(getX()));
-  _writeNode(obj, "y", QString::number(getX()));
+  _writeNode(obj, "y", QString::number(getY()));
 }
 
 Paint::Paint(uid id) : Element(id, &allocator)
