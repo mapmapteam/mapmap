@@ -296,7 +296,7 @@ void VideoImpl::resetMovie()
   if (_seekEnabled)
   {
     if (_rate > 0)
-      seekTo(0L);
+      seekTo(0UL);
     else
     {
       // NOTE: Untested.
