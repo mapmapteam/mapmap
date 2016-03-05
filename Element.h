@@ -35,7 +35,7 @@ class Element : public Serializable
   Q_OBJECT
 
   Q_PROPERTY(uid     id      READ getId)
-  Q_PROPERTY(QString name    READ getName    WRITE setName RESET unsetName)
+  Q_PROPERTY(QString name    READ getName    WRITE setName)
   Q_PROPERTY(bool    locked  READ isLocked   WRITE setLocked)
   Q_PROPERTY(float   opacity READ getOpacity WRITE setOpacity NOTIFY propertyChanged)
   Q_PROPERTY(QIcon   icon    READ getIcon)
@@ -48,9 +48,8 @@ public:
 
   uid getId() const { return _id; }
 
-  void setName(const QString& name) { _name = name; }
+  void setName(const QString& name);
   QString getName() const { return _name; }
-  virtual void unsetName() { _name = _id; }
 
   float getOpacity() const { return _opacity; }
   void setOpacity(float opacity);

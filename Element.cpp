@@ -32,12 +32,19 @@ Element::Element(uid id, UidAllocator* allocator) : _name(""), _isLocked(false),
   }
   // Assign id.
   _id = id;
-  // Reset name.
-  unsetName();
 }
 
 Element::~Element() {
   _allocator->free(_id);
+}
+
+void Element::setName(const QString& name)
+{
+  if (name != _name)
+  {
+    _name = name;
+    _emitPropertyChanged("name");
+  }
 }
 
 void Element::setLocked(bool locked)
