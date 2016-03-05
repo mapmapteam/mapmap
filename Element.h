@@ -63,6 +63,9 @@ public:
 
   virtual QIcon getIcon() const { return QIcon(); }
 
+  virtual void read(const QDomElement& obj);
+  virtual void write(QDomElement& obj);
+
 signals:
   void propertyChanged(uid id, QString propertyName, QVariant value);
 

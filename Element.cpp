@@ -59,6 +59,21 @@ void Element::setOpacity(float opacity)
   }
 }
 
+void Element::read(const QDomElement& obj)
+{
+  Serializable::read(obj);
+
+  // Check id.
+  Q_ASSERT(_id == obj.attribute("id").toInt());
+}
+
+void Element::write(QDomElement& obj)
+{
+  Serializable::write(obj);
+  // Set id.
+  obj.setAttribute("id", getId());
+}
+
 void Element::_emitPropertyChanged(const QString& propertyName)
 {
   emit propertyChanged(getId(), propertyName, property(propertyName.toAscii()));
