@@ -167,9 +167,14 @@ void MainWindow::handleMappingItemSelectionChanged()
 
 void MainWindow::handleMappingItemChanged(QListWidgetItem* item)
 {
-  // Toggle visibility of mapping depending on checkbox of item.
+  // Get item.
   uid mappingId = getItemId(*item);
-  setMappingVisible(mappingId, item->checkState() == Qt::Checked);
+
+  // Sync name.
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+  Q_CHECK_PTR(mapping);
+
+  mapping->setName(item->text());
 }
 
 void MainWindow::handleMappingIndexesMoved()
@@ -293,6 +298,12 @@ void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant v
     else if (propertyName == "visible")
       mappingHideAction->setChecked(!value.toBool());
   }
+
+  // Send to list items.
+  QListWidgetItem* mappingItem = getItemFromId(*mappingList, id);
+  if (propertyName == "name")
+    mappingItem->setText(mapping->getName());
+
 }
 
 void MainWindow::paintPropertyChanged(uid id, QString propertyName, QVariant value)
@@ -301,10 +312,16 @@ void MainWindow::paintPropertyChanged(uid id, QString propertyName, QVariant val
   Paint::ptr paint = mappingManager->getPaintById(id);
   Q_CHECK_PTR(paint);
 
+  // Send to paint gui.
   PaintGui::ptr paintGui = getPaintGuiByPaintId(id);
   Q_CHECK_PTR(paintGui);
 
   paintGui->setValue(propertyName, value);
+
+  // Send to list items.
+  QListWidgetItem* paintItem = getItemFromId(*paintList, id);
+  if (propertyName == "name")
+    paintItem->setText(paint->getName());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -854,10 +871,8 @@ void MainWindow::setMappingItemSolo(bool solo)
 void MainWindow::renameMapping(uid mappingId, const QString &name)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
-  if (!mapping.isNull()) {
-    getItemFromId(*mappingList, mappingId)->setText(name);
-    mapping->setName(name);
-  }
+  Q_CHECK_PTR(mapping);
+  mapping->setName(name);
 }
 
 void MainWindow::mappingListEditEnd(QWidget *editor)
@@ -892,10 +907,8 @@ void MainWindow::renamePaintItem()
 void MainWindow::renamePaint(uid paintId, const QString &name)
 {
   Paint::ptr paint = mappingManager->getPaintById(paintId);
-  if (!paint.isNull()) {
-    getItemFromId(*paintList, paintId)->setText(name);
-    paint->setName(name);
-  }
+  Q_CHECK_PTR(paint);
+  paint->setName(name);
 }
 
 void MainWindow::paintListEditEnd(QWidget *editor)
@@ -2411,7 +2424,6 @@ void MainWindow::addMappingItem(uid mappingId)
 
   // XXX Branching on nVertices() is crap
 
-
   // Triangle
   if (shapeType == "triangle")
   {
@@ -2447,6 +2459,10 @@ void MainWindow::addMappingItem(uid mappingId)
     label = QString("Polygon %1").arg(mappingId);
     icon = QIcon(":/shape-polygon");
   }
+
+  // Label is only going to be applied if no name is present.
+  if (!mapping->getName().isEmpty())
+    label = mapping->getName();
 
   // Add to list of mappers.
   mappers[mappingId] = mapper;
