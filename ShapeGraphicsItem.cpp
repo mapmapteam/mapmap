@@ -111,6 +111,8 @@ void ShapeGraphicsItem::paint(QPainter *painter,
 void ColorGraphicsItem::_prePaint(QPainter *painter,
                                   const QStyleOptionGraphicsItem *option)
 {
+  Q_UNUSED(option);
+
   Color* color = static_cast<Color*>(getMapping()->getPaint().data());
   Q_ASSERT(color);
 
