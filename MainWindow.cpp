@@ -1389,12 +1389,12 @@ void MainWindow::createLayout()
   mappingPropertyPanel->setMinimumHeight(MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT);
 
   // Create canvases.
-  sourceCanvas = new SourceGLCanvas(this);
+  sourceCanvas = new MapperGLCanvas(this, false);
   sourceCanvas->setFocusPolicy(Qt::ClickFocus);
   sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  destinationCanvas = new DestinationGLCanvas(this, 0, (QGLWidget*)sourceCanvas->viewport());
+  destinationCanvas = new MapperGLCanvas(this, true, 0, (QGLWidget*)sourceCanvas->viewport());
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);

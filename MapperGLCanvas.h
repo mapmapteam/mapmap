@@ -49,14 +49,13 @@ class MapperGLCanvas: public QGraphicsView
   Q_OBJECT
 public:
   /// Constructor.
-  MapperGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
+  MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
   virtual ~MapperGLCanvas() {}
 
   /// Returns shape associated with mapping id.
-  virtual bool isOutput() const = 0;
-  virtual MShape::ptr getShapeFromMapping(const Mapping::ptr& mapping) const = 0;
-  virtual QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMapping(const Mapping::ptr& mapping) const = 0;
+  virtual bool isOutput() const { return _isOutput; }
 
+  MShape::ptr getShapeFromMapping(Mapping::ptr mapping);
   MShape::ptr getCurrentShape();
   QSharedPointer<ShapeGraphicsItem> getCurrentShapeGraphicsItem();
 
@@ -133,6 +132,9 @@ protected:
 private:
   // Pointer to main window.
   MainWindow* _mainWindow;
+
+  // Is this a destination (output) or source (input) canvas.
+  bool _isOutput;
 
   // Last point pressed (in mouse/window coordinates).
   QPoint _mousePressedPosition;

@@ -39,7 +39,7 @@ class OutputGLWindow : public QDialog
   Q_OBJECT
 
 public:
-  OutputGLWindow(QWidget* parent, const DestinationGLCanvas* canvas_);
+  OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_);
   //OutputGLWindow(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget * shareWidget = 0);
 
 public slots:
@@ -52,7 +52,7 @@ signals:
   void closed();
 
 public:
-  DestinationGLCanvas* getCanvas() const { return canvas; }
+  MapperGLCanvas* getCanvas() const { return canvas; }
   void setPointerHasMoved();
   void setCursorVisible(bool visible);
 

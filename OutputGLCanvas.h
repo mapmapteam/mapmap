@@ -21,9 +21,9 @@
 #ifndef OUTPUTGLCANVAS_H_
 #define OUTPUTGLCANVAS_H_
 
-#include "DestinationGLCanvas.h"
+#include "MapperGLCanvas.h"
 
-class OutputGLCanvas: public DestinationGLCanvas
+class OutputGLCanvas: public MapperGLCanvas
 {
   Q_OBJECT
 

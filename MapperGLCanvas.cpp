@@ -23,9 +23,10 @@
 #include "MainWindow.h"
 #include "Commands.h"
 
-MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget, QGraphicsScene* scene)
+MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* parent, const QGLWidget * shareWidget, QGraphicsScene* scene)
   : QGraphicsView(parent),
     _mainWindow(mainWindow),
+    _isOutput(isOutput),
     _vertexGrabbed(false),
     _activeVertex(NO_VERTEX),
     _shapeGrabbed(false), // comment out?
@@ -67,6 +68,16 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
   this->scene()->setBackgroundBrush(Qt::black);
 }
 
+MShape::ptr MapperGLCanvas::getShapeFromMapping(Mapping::ptr mapping)
+{
+  if (mapping.isNull())
+    return MShape::ptr();
+  else
+  {
+    return (isOutput() ? mapping->getShape() : mapping->getInputShape());
+  }
+}
+
 MShape::ptr MapperGLCanvas::getCurrentShape()
 {
   return getShapeFromMapping(MainWindow::instance()->getCurrentMapping());
@@ -74,7 +85,14 @@ MShape::ptr MapperGLCanvas::getCurrentShape()
 
 QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getCurrentShapeGraphicsItem()
 {
-  return getShapeGraphicsItemFromMapping(MainWindow::instance()->getCurrentMapping());
+  Mapping::ptr mapping = MainWindow::instance()->getCurrentMapping();
+  if (mapping.isNull())
+    return QSharedPointer<ShapeGraphicsItem>();
+  else
+  {
+    MappingGui::ptr mappingGui = MainWindow::instance()->getMappingGuiByMappingId(mapping->getId());
+    return (isOutput() ? mappingGui->getGraphicsItem() : mappingGui->getInputGraphicsItem());
+  }
 }
 
 // Draws foreground (displays crosshair if needed).

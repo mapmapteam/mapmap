@@ -22,7 +22,7 @@
 #include "MainWindow.h"
 
 OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget* shareWidget, QGraphicsScene* scene)
-: DestinationGLCanvas(mainWindow, parent, shareWidget, scene),
+: MapperGLCanvas(mainWindow, true, parent, shareWidget, scene),
   _displayCrosshair(false),
   _svg_test_signal(":/test-signal"),
   _brush_test_signal(_svg_test_signal)
@@ -128,6 +128,6 @@ void OutputGLCanvas::mouseMoveEvent(QMouseEvent *event)
   }
   else
   {
-    DestinationGLCanvas::mouseMoveEvent(event);
+    MapperGLCanvas::mouseMoveEvent(event);
   }
 }

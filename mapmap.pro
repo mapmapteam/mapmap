@@ -10,7 +10,6 @@ HEADERS  = \
     Commands.h \
     ConcurrentQueue.h \
     ConsoleWindow.h \
-    DestinationGLCanvas.h \
     Element.h \
     Ellipse.h \
     MM.h \
@@ -43,7 +42,6 @@ HEADERS  = \
     Shapes.h \
     ShapeControlPainter.h \
     ShapeGraphicsItem.h \
-    SourceGLCanvas.h \
     Triangle.h \
     UidAllocator.h \
     Util.h
@@ -51,7 +49,6 @@ HEADERS  = \
 SOURCES  = \
     Commands.cpp \
     ConsoleWindow.cpp \
-    DestinationGLCanvas.cpp \
     Element.cpp \
     Ellipse.cpp \
     MM.cpp \
@@ -81,7 +78,6 @@ SOURCES  = \
     Shape.cpp \
     ShapeControlPainter.cpp \
     ShapeGraphicsItem.cpp \
-    SourceGLCanvas.cpp \
     UidAllocator.cpp \
     Util.cpp \
     main.cpp
