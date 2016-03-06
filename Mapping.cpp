@@ -74,8 +74,9 @@ void Mapping::setDepth(int depth)
 
 void Mapping::setLocked(bool locked)
 {
-  _shape->setLocked(locked);
-  if (hasInputShape())
+  if (!_shape.isNull())
+    _shape->setLocked(locked);
+  if (!_inputShape.isNull())
     _inputShape->setLocked(locked);
   Element::setLocked(locked);
 }
