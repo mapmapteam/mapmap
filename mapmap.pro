@@ -19,6 +19,7 @@ HEADERS  = \
     MappingItemDelegate.h \
     MappingListModel.h \
     MapperGLCanvas.h \
+    MapperGLCanvasToolbar.h \
     Mapping.h \
     MappingManager.h \
     Maths.h \
@@ -58,6 +59,7 @@ SOURCES  = \
     MappingItemDelegate.cpp \
     MappingListModel.cpp \
     MapperGLCanvas.cpp \
+    MapperGLCanvasToolbar.cpp \
     Mapping.cpp \
     MappingManager.cpp \
     VideoImpl.cpp \

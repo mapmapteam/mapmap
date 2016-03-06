@@ -30,7 +30,6 @@ OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
   // Disable scrollbars.
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  showZoomToolBar(false);
 }
 
 void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)

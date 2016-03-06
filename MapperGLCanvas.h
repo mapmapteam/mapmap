@@ -95,8 +95,6 @@ public:
 
   // Apply zoom to view
   void applyZoomToView();
-  // Refresh the zoom toolbar position
-  void updateZoomToolbar();
 
 protected:
 //  void initializeGL();
@@ -165,22 +163,11 @@ private:
   // Pointer to MainWindow UndoStack
   QUndoStack *undoStack;
 
-  // Buttons for toolbox layout
-  QWidget* _zoomToolBar;
-  QPushButton* _zoomInButton;
-  QPushButton* _zoomOutButton;
-  QPushButton* _resetZoomButton;
-  QPushButton* _fitToViewButton;
-  // Dropdown menu
-  QComboBox* _dropdownMenu;
-
-  // Create zoom tool buttons
-  void createZoomToolsLayout();
-
 signals:
   void shapeChanged(MShape*);
   void imageChanged();
   void shapeContextMenuRequested(const QPoint &pos);
+  void zoomFactorChanged(qreal value);
 
 public slots:
   void updateCanvas();
@@ -201,14 +188,8 @@ public slots:
   void decreaseZoomLevel(int steps=1);
   void resetZoomLevel();
   void fitShapeInView();
-
-  // Show/Hide zoom tool buttons
-  void showZoomToolBar(bool visible);
-  void enableZoomToolBar(bool enabled);
   // Set zoom factor with drowmenu data
   void setZoomFromMenu(const QString& text);
-  // Update and feedback zoom level
-  void updateDropdownMenu();
 
 protected:
   // TODO: Perhaps the sticky-sensitivity should be configurable through GUI

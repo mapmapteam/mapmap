@@ -153,9 +153,9 @@ void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
   setCurrentMapping(mappingId);
   setCurrentPaint(paintId);
   // Enable some menus and buttons
-  sourceCanvas->enableZoomToolBar(true);
+  sourceCanvasToolbar->enableZoomToolBar(true);
   sourceMenu->setEnabled(true);
-  destinationCanvas->enableZoomToolBar(true);
+  destinationCanvasToolbar->enableZoomToolBar(true);
   destinationMenu->setEnabled(true);
 //  }
 
@@ -1394,10 +1394,26 @@ void MainWindow::createLayout()
   sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
+  sourceCanvasToolbar = new MapperGLCanvasToolbar(sourceCanvas, this);
+  QVBoxLayout* sourceLayout = new QVBoxLayout;
+  QWidget* sourcePanel = new QWidget(this);
+
+  sourceLayout->addWidget(sourceCanvas);
+  sourceLayout->addWidget(sourceCanvasToolbar);
+  sourcePanel->setLayout(sourceLayout);
+
   destinationCanvas = new MapperGLCanvas(this, true, 0, (QGLWidget*)sourceCanvas->viewport());
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
+
+  destinationCanvasToolbar = new MapperGLCanvasToolbar(destinationCanvas, this);
+  QVBoxLayout* destinationLayout = new QVBoxLayout;
+  QWidget* destinationPanel = new QWidget(this);
+
+  destinationLayout->addWidget(destinationCanvas);
+  destinationLayout->addWidget(destinationCanvasToolbar);
+  destinationPanel->setLayout(destinationLayout);
 
   outputWindow = new OutputGLWindow(this, destinationCanvas);
   outputWindow->installEventFilter(destinationCanvas);
@@ -1435,8 +1451,8 @@ void MainWindow::createLayout()
   contentTab->addTab(mappingSplitter, QIcon(":/add-mesh"), tr("Mappings"));
 
   canvasSplitter = new QSplitter(Qt::Vertical);
-  canvasSplitter->addWidget(sourceCanvas);
-  canvasSplitter->addWidget(destinationCanvas);
+  canvasSplitter->addWidget(sourcePanel);
+  canvasSplitter->addWidget(destinationPanel);
 
   mainSplitter = new QSplitter(Qt::Horizontal);
   mainSplitter->addWidget(canvasSplitter);
@@ -2713,9 +2729,9 @@ void MainWindow::updateCanvases()
   destinationCanvas->update();
   outputWindow->getCanvas()->update();
 
-  // Update position of zoom toolbar
-  sourceCanvas->updateZoomToolbar();
-  destinationCanvas->updateZoomToolbar();
+//  // Update position of zoom toolbar
+//  sourceCanvasToolbar->updateZoomToolbar();
+//  destinationCanvasToolbar->updateZoomToolbar();
 
   // Update statut bar
   updateStatusBar();

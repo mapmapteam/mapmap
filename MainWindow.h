@@ -33,6 +33,7 @@
 #include "MM.h"
 
 #include "MapperGLCanvas.h"
+#include "MapperGLCanvasToolbar.h"
 #ifdef HAVE_OSC
 #include "OscInterface.h"
 #endif
@@ -368,7 +369,10 @@ private:
   QUndoView* undoView;
 
   MapperGLCanvas* sourceCanvas;
+  MapperGLCanvasToolbar* sourceCanvasToolbar;
   MapperGLCanvas* destinationCanvas;
+  MapperGLCanvasToolbar* destinationCanvasToolbar;
+
   OutputGLWindow* outputWindow;
   ConsoleWindow* consoleWindow;
 

@@ -56,11 +56,6 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* p
   setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers), this, shareWidget));
   setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
-  // Create zoom tools layout
-  createZoomToolsLayout();
-  // Disable zoom tool buttons
-  enableZoomToolBar(false);
-
   // TODO: do we need to delete scene (or call new QGraphicsScene(this)?)
   setScene(scene ? scene : new QGraphicsScene);
 
@@ -134,83 +129,8 @@ void MapperGLCanvas::applyZoomToView()
   view->scale(zoomFactor, zoomFactor);
   // And update
   view->update();
-  // Update dropdown menu
-  updateDropdownMenu();
-}
 
-void MapperGLCanvas::createZoomToolsLayout()
-{
-  // Create zoom tool bar
-  _zoomToolBar = new QWidget(this);
-  _zoomToolBar->setObjectName("zoom-toolbox");
-
-  // Create vertical layout for widgets
-  QHBoxLayout* buttonsLayout = new QHBoxLayout;
-  buttonsLayout->setContentsMargins(0, 0, 5, 0);
-  // Create buttons
-  // Zoom In button
-  _zoomInButton = new QPushButton;
-  _zoomInButton->setIcon(QIcon(":/zoom-in"));
-  _zoomInButton->setIconSize(QSize(MM::ZOOM_TOOLBAR_ICON_SIZE, MM::ZOOM_TOOLBAR_ICON_SIZE));
-  _zoomInButton->setToolTip(tr("Enlarge the shape"));
-  _zoomInButton->setFixedSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE);
-  _zoomInButton->setObjectName("zoom-in");
-  connect(_zoomInButton, SIGNAL(clicked()), this, SLOT(increaseZoomLevel()));
-  // Zoom Out button
-  _zoomOutButton = new QPushButton;
-  _zoomOutButton->setIcon(QIcon(":/zoom-out"));
-  _zoomOutButton->setIconSize(QSize(MM::ZOOM_TOOLBAR_ICON_SIZE, MM::ZOOM_TOOLBAR_ICON_SIZE));
-  _zoomOutButton->setToolTip(tr("Shrink the shape"));
-  _zoomOutButton->setFixedSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE);
-  _zoomOutButton->setObjectName("zoom-out");
-  connect(_zoomOutButton, SIGNAL(clicked()), this, SLOT(decreaseZoomLevel()));
-  // Reset to normal size button.
-  _resetZoomButton = new QPushButton;
-  _resetZoomButton->setIcon(QIcon(":/reset-zoom"));
-  _resetZoomButton->setIconSize(QSize(MM::ZOOM_TOOLBAR_ICON_SIZE, MM::ZOOM_TOOLBAR_ICON_SIZE));
-  _resetZoomButton->setToolTip(tr("Reset the shape to the normal size"));
-  _resetZoomButton->setFixedSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE);
-  _resetZoomButton->setObjectName("reset-zoom");
-  connect(_resetZoomButton, SIGNAL(clicked()), this, SLOT(resetZoomLevel()));
-  // Fit to view button
-  _fitToViewButton = new QPushButton;
-  _fitToViewButton->setIcon(QIcon(":/zoom-fit"));
-  _fitToViewButton->setIconSize(QSize(MM::ZOOM_TOOLBAR_ICON_SIZE, MM::ZOOM_TOOLBAR_ICON_SIZE));
-  _fitToViewButton->setToolTip(tr("Fit the shape to content view"));
-  _fitToViewButton->setFixedSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE);
-  _fitToViewButton->setObjectName("zoom-fit");
-  connect(_fitToViewButton, SIGNAL(clicked()), this, SLOT(fitShapeInView()));
-
-  // Create separator
-  QFrame *separator = new QFrame(_zoomToolBar);
-  separator->setFixedSize(5, 30);
-  separator->setFrameShape(QFrame::VLine);
-
-  // Create the dropdowm menu
-  _dropdownMenu = new QComboBox;
-  // make some settings
-  _dropdownMenu->setObjectName("dropdown-menu");
-  // Create if empty or update list
-  updateDropdownMenu();
-  // And listen
-  connect(_dropdownMenu, SIGNAL(activated(QString)), this, SLOT(setZoomFromMenu(QString)));
-
-  // Add widgets into layout
-  buttonsLayout->addWidget(_zoomInButton);
-  buttonsLayout->addWidget(_zoomOutButton);
-  buttonsLayout->addWidget(_resetZoomButton);
-  buttonsLayout->addWidget(_fitToViewButton);
-  buttonsLayout->addWidget(separator);
-  buttonsLayout->addWidget(_dropdownMenu);
-
-  // Insert layout in widget
-  _zoomToolBar->setLayout(buttonsLayout);
-}
-
-void MapperGLCanvas::updateZoomToolbar()
-{
-  _zoomToolBar->move(this->viewport()->width() - _zoomToolBar->width(),
-                     this->viewport()->height() - _zoomToolBar->height());
+  emit zoomFactorChanged(zoomFactor);
 }
 
 
@@ -662,27 +582,9 @@ void MapperGLCanvas::fitShapeInView()
   // Adapt shape
   _shapeIsAdapted = true;
 
-  // Update zoom menu list
-  updateDropdownMenu();
+  emit zoomFactorChanged(getZoomFactor());
 }
 
-void MapperGLCanvas::showZoomToolBar(bool visible)
-{
-  if (visible)
-    _zoomToolBar->show();
-  else
-    _zoomToolBar->hide();
-}
-
-void MapperGLCanvas::enableZoomToolBar(bool enabled)
-{
-  // Enable/Disable all button
-  _zoomInButton->setEnabled(enabled);
-  _zoomOutButton->setEnabled(enabled);
-  _resetZoomButton->setEnabled(enabled);
-  _fitToViewButton->setEnabled(enabled);
-  _dropdownMenu->setEnabled(enabled);
-}
 
 void MapperGLCanvas::setZoomFromMenu(const QString &text)
 {
@@ -697,26 +599,6 @@ void MapperGLCanvas::setZoomFromMenu(const QString &text)
   // Apply to view
   applyZoomToView();
 }
-
-void MapperGLCanvas::updateDropdownMenu()
-{
-  // Get current zoom factor percentage
-  QString zoomFactor = QString::number(int(getZoomFactor() * 100)).append(QChar('%'));
-  //Create list
-  QStringList zoomFactorList;
-  zoomFactorList << "400%" << "300%" << "200%" << "150%" << "125%" <<
-                    "100%" << "75%" << "50%" << "25%" << "12.5%";
-  // Avoid duplicate
-  if (!zoomFactorList.contains(zoomFactor))
-    zoomFactorList.append(zoomFactor);
-  // Clear if is not empty
-  _dropdownMenu->clear();
-  // Add list item
-  _dropdownMenu->addItems(zoomFactorList);
-  // Select 100% by default
-  _dropdownMenu->setCurrentText(zoomFactor);
-}
-
 
 void MapperGLCanvas::_glueVertex(QPointF* p)
 {
