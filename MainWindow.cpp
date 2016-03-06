@@ -982,12 +982,13 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
 
     // Add it to the manager.
     Paint::ptr paint(tex);
+    paint->setName(strippedName(uri));
 
     // Add paint to model and return its uid.
     uid id = mappingManager->addPaint(paint);
 
     // Add paint widget item.
-    addPaintItem(id, paint->getIcon(), strippedName(uri));
+    addPaintItem(id, paint->getIcon(), paint->getName());
     return id;
   }
 }
@@ -1004,12 +1005,13 @@ uid MainWindow::createColorPaint(uid paintId, QColor color)
 
     // Add it to the manager.
     Paint::ptr paint(img);
+    paint->setName(strippedName(color.name()));
 
     // Add paint to model and return its uid.
     uid id = mappingManager->addPaint(paint);
 
     // Add paint widget item.
-    addPaintItem(id, paint->getIcon(), strippedName(color.name()));
+    addPaintItem(id, paint->getIcon(), paint->getName());
 
     return id;
   }
