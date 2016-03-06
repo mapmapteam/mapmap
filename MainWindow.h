@@ -91,12 +91,12 @@ private slots:
   void about();
   void updateStatusBar();
   void showMenuBar(bool shown);
-  void deleteItem();
   void openRecentFile();
   void clearRecentFileList();
   void openRecentVideo();
   void quitMapMap();
   // Edit menu.
+  void deleteItem();
   // Context menu for mappings.
   void duplicateMappingItem();
   void deleteMappingItem();
@@ -133,6 +133,7 @@ private slots:
   // Other.
   void windowModified();
   void pollOscInterface();
+  void updateOutputAction(int screen);
 
 public slots:
 
@@ -278,10 +279,11 @@ private:
   static void setItemId(QListWidgetItem& item, uid id);
   static QListWidgetItem* getItemFromId(const QListWidget& list, uid id);
   static int getItemRowFromId(const QListWidget& list, uid id);
+  uid currentMappingItemId() const;
+
   static QIcon createColorIcon(const QColor& color);
   static QIcon createFileIcon(const QString& filename);
   static QIcon createImageIcon(const QString& filename);
-  uid currentMappingItemId() const;
 
   // GUI elements. ////////////////////////////////////////////////////////////////////////////////////////
 
