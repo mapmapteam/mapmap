@@ -1526,7 +1526,7 @@ void MainWindow::createActions()
 
   // Import Media.
   importMediaAction = new QAction(tr("&Import Media File..."), this);
-  importMediaAction->setShortcut(tr("Ctrl+I"));
+  importMediaAction->setShortcut(Qt::CTRL + Qt::Key_I);
   importMediaAction->setIcon(QIcon(":/add-video"));
   importMediaAction->setToolTip(tr("Import a video or image file..."));
   importMediaAction->setIconVisibleInMenu(false);
@@ -1535,7 +1535,7 @@ void MainWindow::createActions()
 
   // Add color.
   addColorAction = new QAction(tr("Add &Color Paint..."), this);
-  addColorAction->setShortcut(tr("Ctrl+Shift+A"));
+  addColorAction->setShortcut(Qt::CTRL + Qt:SHIFT + Qt::Key_A);
   addColorAction->setIcon(QIcon(":/add-color"));
   addColorAction->setToolTip(tr("Add a color paint..."));
   addColorAction->setIconVisibleInMenu(false);
@@ -1648,7 +1648,7 @@ void MainWindow::createActions()
 
   // Add quad/mesh.
   addMeshAction = new QAction(tr("Add Quad/&Mesh"), this);
-  addMeshAction->setShortcut(tr("CTRL+M"));
+  addMeshAction->setShortcut(Qt::CTRL + Qt::Key_M);
   addMeshAction->setIcon(QIcon(":/add-mesh"));
   addMeshAction->setToolTip(tr("Add quad/mesh"));
   addMeshAction->setIconVisibleInMenu(false);
@@ -1658,7 +1658,7 @@ void MainWindow::createActions()
 
   // Add triangle.
   addTriangleAction = new QAction(tr("Add &Triangle"), this);
-  addTriangleAction->setShortcut(tr("CTRL+T"));
+  addTriangleAction->setShortcut(Qt::CTRL + Qt::Key_T);
   addTriangleAction->setIcon(QIcon(":/add-triangle"));
   addTriangleAction->setToolTip(tr("Add triangle"));
   addTriangleAction->setIconVisibleInMenu(false);
@@ -1668,7 +1668,7 @@ void MainWindow::createActions()
 
   // Add ellipse.
   addEllipseAction = new QAction(tr("Add &Ellipse"), this);
-  addEllipseAction->setShortcut(tr("CTRL+E"));
+  addEllipseAction->setShortcut(Qt::CTRL + Qt::Key_E);
   addEllipseAction->setIcon(QIcon(":/add-ellipse"));
   addEllipseAction->setToolTip(tr("Add ellipse"));
   addEllipseAction->setIconVisibleInMenu(false);
@@ -1698,7 +1698,7 @@ void MainWindow::createActions()
 
   // Rewind.
   rewindAction = new QAction(tr("Rewind"), this);
-  rewindAction->setShortcut(tr("CTRL+R"));
+  rewindAction->setShortcut(Qt::CTRL + Qt::Key_R);
   rewindAction->setIcon(QIcon(":/rewind"));
   rewindAction->setToolTip(tr("Rewind"));
   rewindAction->setIconVisibleInMenu(false);
