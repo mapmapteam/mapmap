@@ -347,80 +347,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
   videoTimer->start();
 }
 
-bool MainWindow::eventFilter(QObject *obj, QEvent *event)
-{
-  bool eventKey = false;
-  if (event->type() == QEvent::KeyPress)
-  {
-    QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-    eventKey = true;
-    // Menubar shortcut
-    if (keyEvent->modifiers() == Qt::CTRL)
-    {
-      switch (keyEvent->key()) {
-      case Qt::Key_N:
-        newFile();
-        break;
-      case Qt::Key_O:
-        open();
-        break;
-      case Qt::Key_S:
-        save();
-        break;
-      case Qt::Key_Q:
-        close();
-        break;
-      case Qt::Key_Delete:
-        deleteItem();
-        break;
-      case Qt::Key_M:
-        addMesh();
-        break;
-      case Qt::Key_T:
-        addTriangle();
-        break;
-      case Qt::Key_E:
-        addEllipse();
-        break;
-      case Qt::Key_W:
-        outputWindow->setVisible(true);
-        break;
-      case Qt::Key_R:
-        rewind();
-        break;
-      case Qt::Key_Z:
-        undoStack->undo();
-        break;
-      }
-    }
-    else if (keyEvent->matches(QKeySequence::Redo))
-    {
-      undoStack->redo();
-    }
-    else if (keyEvent->key() == Qt::Key_Escape)
-      outputWindow->close();
-    else if (keyEvent->key() == Qt::Key_Space)
-    {
-      if (_isPlaying)
-      {
-        pause();
-      }
-      else
-      {
-        play();
-      }
-    }
-    eventKey = false;
-
-    return eventKey;
-  }
-  else
-  {
-    // standard event processing
-    return QObject::eventFilter(obj, event);
-  }
-}
-
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
 #ifdef Q_OS_OSX // On Mac OS X
@@ -1393,7 +1319,6 @@ void MainWindow::createLayout()
 
   outputWindow = new OutputGLWindow(this, destinationCanvas);
   outputWindow->installEventFilter(destinationCanvas);
-  outputWindow->installEventFilter(this);
 
   // Source scene changed -> change destination.
   connect(sourceCanvas->scene(), SIGNAL(changed(const QList<QRectF>&)),
@@ -1464,7 +1389,7 @@ void MainWindow::createActions()
   newAction->setShortcut(QKeySequence::New);
   newAction->setToolTip(tr("Create a new project"));
   newAction->setIconVisibleInMenu(false);
-  addAction(newAction);
+  newAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(newAction, SIGNAL(triggered()), this, SLOT(newFile()));
 
   // Open.
@@ -1473,7 +1398,7 @@ void MainWindow::createActions()
   openAction->setShortcut(QKeySequence::Open);
   openAction->setToolTip(tr("Open an existing project"));
   openAction->setIconVisibleInMenu(false);
-  addAction(openAction);
+  openAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
   // Save.
@@ -1482,7 +1407,7 @@ void MainWindow::createActions()
   saveAction->setShortcut(QKeySequence::Save);
   saveAction->setToolTip(tr("Save the project"));
   saveAction->setIconVisibleInMenu(false);
-  addAction(saveAction);
+  saveAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
 
   // Save as.
@@ -1491,7 +1416,7 @@ void MainWindow::createActions()
   saveAsAction->setShortcut(QKeySequence::SaveAs);
   saveAsAction->setToolTip(tr("Save the project as..."));
   saveAsAction->setIconVisibleInMenu(false);
-  addAction(saveAsAction);
+  saveAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
   // Recents file
@@ -1527,7 +1452,7 @@ void MainWindow::createActions()
   importMediaAction->setIcon(QIcon(":/add-video"));
   importMediaAction->setToolTip(tr("Import a video or image file..."));
   importMediaAction->setIconVisibleInMenu(false);
-  addAction(importMediaAction);
+  importMediaAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(importMediaAction, SIGNAL(triggered()), this, SLOT(importMedia()));
 
   // Add color.
@@ -1544,7 +1469,7 @@ void MainWindow::createActions()
   exitAction->setShortcut(QKeySequence::Quit);
   exitAction->setToolTip(tr("Exit the application"));
   exitAction->setIconVisibleInMenu(false);
-  addAction(exitAction);
+  exitAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
   // Undo action
@@ -1565,7 +1490,7 @@ void MainWindow::createActions()
   aboutAction = new QAction(tr("&About"), this);
   aboutAction->setToolTip(tr("Show the application's About box"));
   aboutAction->setIconVisibleInMenu(false);
-  addAction(aboutAction);
+  aboutAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
   // Duplicate.
@@ -1573,7 +1498,7 @@ void MainWindow::createActions()
   cloneMappingAction->setShortcut(Qt::CTRL + Qt::Key_D);
   cloneMappingAction->setToolTip(tr("Duplicate item"));
   cloneMappingAction->setIconVisibleInMenu(false);
-  addAction(cloneMappingAction);
+  cloneMappingAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(cloneMappingAction, SIGNAL(triggered()), this, SLOT(duplicateMappingItem()));
 
   // Delete mapping.
@@ -1581,7 +1506,7 @@ void MainWindow::createActions()
   deleteMappingAction->setShortcut(QKeySequence::Delete);
   deleteMappingAction->setToolTip(tr("Delete item"));
   deleteMappingAction->setIconVisibleInMenu(false);
-  addAction(deleteMappingAction);
+  deleteMappingAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(deleteMappingAction, SIGNAL(triggered()), this, SLOT(deleteMappingItem()));
 
   // Rename mapping.
@@ -1589,7 +1514,7 @@ void MainWindow::createActions()
   renameMappingAction->setShortcut(Qt::Key_F2);
   renameMappingAction->setToolTip(tr("Rename item"));
   renameMappingAction->setIconVisibleInMenu(false);
-  addAction(renameMappingAction);
+  renameMappingAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(renameMappingAction, SIGNAL(triggered()), this, SLOT(renameMappingItem()));
 
   // Lock mapping.
@@ -1598,7 +1523,7 @@ void MainWindow::createActions()
   mappingLockedAction->setIconVisibleInMenu(false);
   mappingLockedAction->setCheckable(true);
   mappingLockedAction->setChecked(false);
-  addAction(mappingLockedAction);
+  mappingLockedAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(mappingLockedAction, SIGNAL(triggered(bool)), this, SLOT(setMappingItemLocked(bool)));
 
   // Hide mapping.
@@ -1607,7 +1532,7 @@ void MainWindow::createActions()
   mappingHideAction->setIconVisibleInMenu(false);
   mappingHideAction->setCheckable(true);
   mappingHideAction->setChecked(false);
-  addAction(mappingHideAction);
+  mappingHideAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(mappingHideAction, SIGNAL(triggered(bool)), this, SLOT(setMappingItemHide(bool)));
 
   // Solo mapping.
@@ -1616,7 +1541,7 @@ void MainWindow::createActions()
   mappingSoloAction->setIconVisibleInMenu(false);
   mappingSoloAction->setCheckable(true);
   mappingSoloAction->setChecked(false);
-  addAction(mappingSoloAction);
+  mappingSoloAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(mappingSoloAction, SIGNAL(triggered(bool)), this, SLOT(setMappingItemSolo(bool)));
 
   // Delete paint.
@@ -1640,7 +1565,7 @@ void MainWindow::createActions()
   preferencesAction->setShortcut(Qt::CTRL + Qt::Key_Comma);
   preferencesAction->setToolTip(tr("Configure preferences..."));
   //preferencesAction->setIconVisibleInMenu(false);
-  addAction(preferencesAction);
+  preferencesAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(preferencesAction, SIGNAL(triggered()), this, SLOT(preferences()));
 
   // Add quad/mesh.
@@ -1649,7 +1574,7 @@ void MainWindow::createActions()
   addMeshAction->setIcon(QIcon(":/add-mesh"));
   addMeshAction->setToolTip(tr("Add quad/mesh"));
   addMeshAction->setIconVisibleInMenu(false);
-  addAction(addMeshAction);
+  addMeshAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(addMeshAction, SIGNAL(triggered()), this, SLOT(addMesh()));
   addMeshAction->setEnabled(false);
 
@@ -1659,7 +1584,7 @@ void MainWindow::createActions()
   addTriangleAction->setIcon(QIcon(":/add-triangle"));
   addTriangleAction->setToolTip(tr("Add triangle"));
   addTriangleAction->setIconVisibleInMenu(false);
-  addAction(addTriangleAction);
+  addTriangleAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
   addTriangleAction->setEnabled(false);
 
@@ -1669,7 +1594,7 @@ void MainWindow::createActions()
   addEllipseAction->setIcon(QIcon(":/add-ellipse"));
   addEllipseAction->setToolTip(tr("Add ellipse"));
   addEllipseAction->setIconVisibleInMenu(false);
-  addAction(addEllipseAction);
+  addEllipseAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(addEllipseAction, SIGNAL(triggered()), this, SLOT(addEllipse()));
   addEllipseAction->setEnabled(false);
 
@@ -1679,7 +1604,7 @@ void MainWindow::createActions()
   playAction->setIcon(QIcon(":/play"));
   playAction->setToolTip(tr("Play"));
   playAction->setIconVisibleInMenu(false);
-  addAction(playAction);
+  playAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(playAction, SIGNAL(triggered()), this, SLOT(play()));
   playAction->setVisible(true);
 
@@ -1689,7 +1614,7 @@ void MainWindow::createActions()
   pauseAction->setIcon(QIcon(":/pause"));
   pauseAction->setToolTip(tr("Pause"));
   pauseAction->setIconVisibleInMenu(false);
-  addAction(pauseAction);
+  pauseAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(pauseAction, SIGNAL(triggered()), this, SLOT(pause()));
   pauseAction->setVisible(false);
 
@@ -1699,7 +1624,7 @@ void MainWindow::createActions()
   rewindAction->setIcon(QIcon(":/rewind"));
   rewindAction->setToolTip(tr("Rewind"));
   rewindAction->setIconVisibleInMenu(false);
-  addAction(rewindAction);
+  rewindAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
 
   // Toggle display of output window.
@@ -1711,11 +1636,17 @@ void MainWindow::createActions()
   outputFullScreenAction->setCheckable(true);
   // Don't be displayed by default
   outputFullScreenAction->setChecked(false);
-  addAction(outputFullScreenAction);
+  outputFullScreenAction->setShortcutContext(Qt::ApplicationShortcut);
   // Manage fullscreen/modal show of GL output window.
   connect(outputFullScreenAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
   // When closing the GL output window or hit ESC key, uncheck the action in menu.
   connect(outputWindow, SIGNAL(closed()), outputFullScreenAction, SLOT(toggle()));
+  // Create hiden action for closing output window
+  QAction *closeOutput = new QAction(tr("Close output"), this);
+  closeOutput->setShortcut(Qt::Key_Escape);
+  closeOutput->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(closeOutput);
+  connect(closeOutput, SIGNAL(triggered(bool)), outputWindow, SLOT(close()));
 
   // Toggle display of canvas controls.
   displayControlsAction = new QAction(tr("&Display Canvas Controls"), this);
@@ -1725,7 +1656,7 @@ void MainWindow::createActions()
   displayControlsAction->setIconVisibleInMenu(false);
   displayControlsAction->setCheckable(true);
   displayControlsAction->setChecked(_displayControls);
-  addAction(displayControlsAction);
+  displayControlsAction->setShortcutContext(Qt::ApplicationShortcut);
   // Manage show/hide of canvas controls.
   connect(displayControlsAction, SIGNAL(toggled(bool)), this, SLOT(enableDisplayControls(bool)));
 
@@ -1737,7 +1668,7 @@ void MainWindow::createActions()
   stickyVerticesAction->setIconVisibleInMenu(false);
   stickyVerticesAction->setCheckable(true);
   stickyVerticesAction->setChecked(_stickyVertices);
-  addAction(stickyVerticesAction);
+  stickyVerticesAction->setShortcutContext(Qt::ApplicationShortcut);
   // Manage sticky vertices
   connect(stickyVerticesAction, SIGNAL(toggled(bool)), this, SLOT(enableStickyVertices(bool)));
 
@@ -1748,7 +1679,7 @@ void MainWindow::createActions()
   displayTestSignalAction->setIconVisibleInMenu(false);
   displayTestSignalAction->setCheckable(true);
   displayTestSignalAction->setChecked(_displayTestSignal);
-  addAction(displayTestSignalAction);
+  displayTestSignalAction->setShortcutContext(Qt::ApplicationShortcut);
   // Manage show/hide of test signal
   connect(displayTestSignalAction, SIGNAL(toggled(bool)), this, SLOT(enableTestSignal(bool)));
 
@@ -1757,7 +1688,7 @@ void MainWindow::createActions()
   displayUndoStackAction->setShortcut(Qt::ALT + Qt::Key_U);
   displayUndoStackAction->setCheckable(true);
   displayUndoStackAction->setChecked(_displayUndoStack);
-  addAction(displayUndoStackAction);
+  displayUndoStackAction->setShortcutContext(Qt::ApplicationShortcut);
   // Manage show/hide of Undo Stack
   connect(displayUndoStackAction, SIGNAL(toggled(bool)), this, SLOT(displayUndoStack(bool)));
 
@@ -1766,7 +1697,7 @@ void MainWindow::createActions()
   openConsoleAction->setShortcut(Qt::ALT + Qt::Key_L);
   openConsoleAction->setCheckable(true);
   openConsoleAction->setChecked(false);
-  addAction(openConsoleAction);
+  openConsoleAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(openConsoleAction, SIGNAL(toggled(bool)), consoleWindow, SLOT(setVisible(bool)));
   // uncheck action when window is closed
   connect(consoleWindow, SIGNAL(windowClosed()), openConsoleAction, SLOT(toggle()));
@@ -1776,7 +1707,7 @@ void MainWindow::createActions()
   displayZoomToolAction->setShortcut(Qt::ALT + Qt::Key_Z);
   displayZoomToolAction->setCheckable(true);
   displayZoomToolAction->setChecked(true);
-  addAction(displayZoomToolAction);
+  displayZoomToolAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(displayZoomToolAction, SIGNAL(toggled(bool)), sourceCanvas, SLOT(showZoomToolBar(bool)));
   connect(displayZoomToolAction, SIGNAL(toggled(bool)), destinationCanvas, SLOT(showZoomToolBar(bool)));
 
