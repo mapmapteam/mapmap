@@ -1660,12 +1660,14 @@ void MainWindow::createActions()
   outputFullScreenAction->setCheckable(true);
   // Don't be displayed by default
   outputFullScreenAction->setChecked(false);
+  outputFullScreenAction->setEnabled(QApplication::desktop()->screenCount() > 1);
   outputFullScreenAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(outputFullScreenAction);
   // Manage fullscreen/modal show of GL output window.
   connect(outputFullScreenAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
   // When closing the GL output window or hit ESC key, uncheck the action in menu.
   connect(outputWindow, SIGNAL(closed()), outputFullScreenAction, SLOT(toggle()));
+  connect(QApplication::desktop(), SIGNAL(screenCountChanged(int)), this, SLOT(updateOutputAction(int)));
   // Create hiden action for closing output window
   QAction *closeOutput = new QAction(tr("Close output"), this);
   closeOutput->setShortcut(Qt::Key_Escape);
@@ -2904,6 +2906,14 @@ void MainWindow::pollOscInterface()
 #ifdef HAVE_OSC
   osc_interface->consume_commands(*this);
 #endif
+}
+
+void MainWindow::updateOutputAction(int screen)
+{
+  if (screen > 1)
+    outputFullScreenAction->setEnabled(true);
+  else
+    outputFullScreenAction->setEnabled(false);
 }
 
 // void MainWindow::applyOscCommand(const QVariantList& command)

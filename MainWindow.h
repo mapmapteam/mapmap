@@ -109,7 +109,6 @@ private slots:
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
-//  void handleItemDoubleClicked(QListWidgetItem* item);
   void handleMappingItemSelectionChanged();
   void handleMappingItemChanged(QListWidgetItem* item);
   void handleMappingIndexesMoved();
@@ -130,6 +129,7 @@ private slots:
   // Other.
   void windowModified();
   void pollOscInterface();
+  void updateOutputAction(int screen);
 
 public slots:
 
