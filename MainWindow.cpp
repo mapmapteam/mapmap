@@ -193,15 +193,15 @@ void MainWindow::handleMappingItemChanged(const QModelIndex &index)
 
 void MainWindow::handleMappingIndexesMoved()
 {
-// TODO
-//  // Reorder mappings.
-//  QVector<uid> newOrder;
-//  for (int row=mappingList->count()-1; row>=0; row--)
-//  {
-//    uid layerId = mappingList->item(row)->data(Qt::UserRole).toInt();
-//    newOrder.push_back(layerId);
-//  }
-//  mappingManager->reorderMappings(newOrder);
+  // Reorder mappings.
+  QVector<uid> newOrder;
+  for (int row=mappingListModel->rowCount()-1; row>=0; row--)
+  {
+    uid layerId = mappingListModel->getIndexFromRow(mappingList->verticalHeader()->visualIndex(row)).data(Qt::UserRole).toInt();
+    qDebug() << "Got layer id " << layerId << endl;
+    newOrder.push_back(layerId);
+  }
+  mappingManager->reorderMappings(newOrder);
 
   // Update canvases according to new order.
   updateCanvases();
@@ -1363,7 +1363,10 @@ void MainWindow::createLayout()
   mappingList->setSelectionMode(QAbstractItemView::SingleSelection);
   mappingList->setSelectionBehavior(QAbstractItemView::SelectRows);
   mappingList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+  mappingList->verticalHeader()->setMovable(true);
   mappingList->setDefaultDropAction(Qt::MoveAction);
+  mappingList->setDragDropOverwriteMode(false);
+  mappingList->setDragEnabled(true);
   mappingList->setDragDropMode(QAbstractItemView::InternalMove);
   mappingList->setEditTriggers(QAbstractItemView::DoubleClicked);
   mappingList->setMinimumHeight(MAPPING_LIST_MINIMUM_HEIGHT);
@@ -1377,7 +1380,7 @@ void MainWindow::createLayout()
   mappingList->horizontalHeader()->setStretchLastSection(true);
   mappingList->setShowGrid(false);
   mappingList->horizontalHeader()->hide();
-  mappingList->verticalHeader()->hide();
+//  mappingList->verticalHeader()->hide();
   mappingList->setMouseTracking(true);// Important
 
   // Create property panel.
@@ -2808,7 +2811,8 @@ void MainWindow::connectProjectWidgets()
 
 //  connect(mappingList,  SIGNAL(indexesMoved(const QModelIndexList&)),
 //          this,                 SLOT(handleMappingIndexesMoved()));
-
+  connect(mappingList->verticalHeader(),  SIGNAL(sectionMoved(int, int, int)),
+          this,                 SLOT(handleMappingIndexesMoved()));
 //  connect(mappingListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
 //          this,                 SLOT(handleMappingIndexesMoved()));
   connect(mappingItemDelegate, SIGNAL(itemDuplicated(uid)),
