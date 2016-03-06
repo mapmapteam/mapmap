@@ -33,9 +33,7 @@ bool VideoImpl::hasVideoSupport()
   if (! did_print_gst_version)
   {
     qDebug() << "Using GStreamer version " <<
-      GST_VERSION_MAJOR << "." <<
-      GST_VERSION_MINOR << "." <<
-      GST_VERSION_MICRO;
+      GST_VERSION_MAJOR << "." << GST_VERSION_MINOR << "." << GST_VERSION_MICRO << endl;
     did_print_gst_version = true;
   }
   // TODO: actually check if we have it
@@ -146,7 +144,7 @@ bool VideoImpl::_eos() const
       /* Obtain the current position, needed for the seek event */
       gint64 position;
       if (!gst_element_query_position (_pipeline, GST_FORMAT_TIME, &position)) {
-        g_printerr ("Unable to retrieve current position.\n");
+        qDebug() << "Unable to retrieve current position." << endl;
         return false;
       }
       return (position == 0);
@@ -335,9 +333,10 @@ bool VideoImpl::loadMovie(const QString& filename)
   const gchar* filetestpath = (const gchar*) filename.toUtf8().constData();
   if (FALSE == g_file_test(filetestpath, G_FILE_TEST_EXISTS))
   {
-      std::cout << "File " << filetestpath << " does not exist" << std::endl;
+      qDebug() << "File " << filename << " does not exist" << endl;
       return false;
   }
+
   qDebug() << "Opening movie: " << filename << ".";
 
   // Assign URI.
@@ -450,7 +449,7 @@ bool VideoImpl::loadMovie(const QString& filename)
 
   if (! gst_element_link_many (_queue0, _videoconvert0, capsfilter0, videoscale0, _appsink0, NULL))
   {
-    g_printerr ("Could not link video queue, colorspace converter, caps filter, scaler and app sink.\n");
+    qDebug() << "Could not link video queue, colorspace converter, caps filter, scaler and app sink." << endl;
     unloadMovie();
     return false;
   }
@@ -466,17 +465,18 @@ bool VideoImpl::loadMovie(const QString& filename)
   // Process URI.
   QByteArray ba = filename.toLocal8Bit();
   gchar *filename_tmp = g_strdup((gchar*) filename.toUtf8().constData());
-  gchar* uri = NULL; //  (gchar*) filename.toUtf8().constData();
-  if (! _isSharedMemorySource && ! gst_uri_is_valid(uri))
+  gchar* uri = (gchar*) filename.toUtf8().constData();
+  if (! _isSharedMemorySource &&
+      ! gst_uri_is_valid(uri))
   {
     // Try to convert filename to URI.
     GError* error = NULL;
-    qDebug() << "Calling gst_filename_to_uri : " << uri;
+    qDebug() << "Calling gst_filename_to_uri : " << uri << endl;
     uri = gst_filename_to_uri(filename_tmp, &error);
     if (error)
     {
-      qDebug() << "Filename to URI error: " << error->message;
-      g_error_free(error);
+      qDebug() << "Filename to URI error: " << error->message << endl;
+      g_clear_error(&error);
       gst_object_unref (uri);
       freeResources();
       return false;
@@ -490,7 +490,7 @@ bool VideoImpl::loadMovie(const QString& filename)
   }
 
   // Set URI to be played.
-  qDebug() << "URI for uridecodebin: " << uri;
+  qDebug() << "URI for uridecodebin: " << uri << endl;
   // FIXME: sometimes it's just the path to the directory that is given, not the file itself.
 
   // Connect to the pad-added signal
@@ -501,7 +501,7 @@ bool VideoImpl::loadMovie(const QString& filename)
     GstDiscoverer* discoverer = gst_discoverer_new(5*GST_SECOND, &error);
     if (!discoverer)
     {
-      std::cout << "Error creating discoverer: " << error->message << std::endl;
+      qDebug() << "Error creating discoverer: " << error->message << endl;
       g_clear_error (&error);
       return false;
     }
@@ -510,7 +510,7 @@ bool VideoImpl::loadMovie(const QString& filename)
 
     if (!info)
     {
-      std::cout << "Error getting discoverer info: " << error->message << std::endl;
+      qDebug() << "Error getting discoverer info: " << error->message << endl;
       g_clear_error (&error);
       return false;
     }
@@ -519,16 +519,16 @@ bool VideoImpl::loadMovie(const QString& filename)
 
     switch (result) {
       case GST_DISCOVERER_URI_INVALID:
-        std::cout<< "Invalid URI '" << uri << "'" << std::endl;
+        qDebug()<< "Invalid URI '" << uri << "'" << endl;
         break;
       case GST_DISCOVERER_ERROR:
-        std::cout<< "Discoverer error: " << error->message << std::endl;
+        qDebug()<< "Discoverer error: " << error->message << endl;
         break;
       case GST_DISCOVERER_TIMEOUT:
-        std::cout << "Timeout" << std::endl;
+        qDebug() << "Timeout" << endl;
         break;
       case GST_DISCOVERER_BUSY:
-        std::cout << "Busy" << std::endl;
+        qDebug() << "Busy" << endl;
         break;
       case GST_DISCOVERER_MISSING_PLUGINS:{
         const GstStructure *s;
@@ -537,19 +537,19 @@ bool VideoImpl::loadMovie(const QString& filename)
         s = gst_discoverer_info_get_misc (info);
         str = gst_structure_to_string (s);
 
-        std::cout << "Missing plugins: " << str << std::endl;
+        qDebug() << "Missing plugins: " << str << endl;
         g_free (str);
         break;
       }
       case GST_DISCOVERER_OK:
-        std::cout << "Discovered '" << uri << "'" << std::endl;
+        qDebug() << "Discovered '" << uri << "'" << endl;
         break;
     }
 
     g_clear_error (&error);
 
     if (result != GST_DISCOVERER_OK) {
-      std::cout << "This URI cannot be played" << std::endl;
+      qDebug() << "This URI cannot be played" << endl;
       return false;
     }
 
@@ -557,7 +557,7 @@ bool VideoImpl::loadMovie(const QString& filename)
     GList *videoStreams = gst_discoverer_info_get_video_streams (info);
     if (!videoStreams)
     {
-      std::cout << "This URI does not contain any video streams" << std::endl;
+      qDebug() << "This URI does not contain any video streams" << endl;
       return false;
     }
 
@@ -756,10 +756,8 @@ void VideoImpl::_checkMessages()
       // Error ////////////////////////////////////////////////
       case GST_MESSAGE_ERROR:
         gst_message_parse_error(msg, &err, &debug_info);
-        g_printerr("Error received from element %s: %s\n",
-            GST_OBJECT_NAME (msg->src), err->message);
-        g_printerr("Debugging information: %s\n",
-            debug_info ? debug_info : "none");
+        qWarning() << "Error received from element " << GST_OBJECT_NAME (msg->src) << ": " << err->message << endl;
+        qDebug() << "Debugging information: " << (debug_info ? debug_info : "none") << "." << endl;
         g_clear_error(&err);
         g_free(debug_info);
 
@@ -780,7 +778,7 @@ void VideoImpl::_checkMessages()
       // End-of-stream ////////////////////////////////////////
       case GST_MESSAGE_EOS:
         // Automatically loop back.
-        g_print("End-Of-Stream reached.\n");
+        qDebug() << "End-Of-Stream reached." << endl;
         resetMovie();
 //        _terminate = true;
 //        _finish();
@@ -798,18 +796,16 @@ void VideoImpl::_checkMessages()
             gst_query_parse_seeking (query, NULL, (gboolean*)&_seekEnabled, &start, &end);
             if (_seekEnabled)
             {
-              g_print ("Seeking is ENABLED from %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT "\n",
-                       GST_TIME_ARGS (start), GST_TIME_ARGS (end));
-
+              qDebug() << "Seeking is ENABLED from " << start << " to " << end << "." << endl;
             }
             else
             {
-              g_print ("Seeking is DISABLED for this stream.\n");
+              qDebug() << "Seeking is DISABLED for this stream." << endl;
             }
           }
           else
           {
-            g_printerr ("Seeking query failed.");
+            qWarning() << "Seeking query failed." << endl;
           }
 
           gst_query_unref (query);
@@ -826,18 +822,16 @@ void VideoImpl::_checkMessages()
         if (GST_MESSAGE_SRC (msg) == GST_OBJECT (_pipeline))
         {
           GstState oldState, newState, pendingState;
-          gst_message_parse_state_changed(msg, &oldState, &newState,
-              &pendingState);
-          g_print("Pipeline state for movie %s changed from %s to %s:\n",
-              _uri.toUtf8().constData(),
-              gst_element_state_get_name(oldState),
-              gst_element_state_get_name(newState));
+          gst_message_parse_state_changed(msg, &oldState, &newState, &pendingState);
+          qDebug() << "Pipeline state for movie " << _uri
+                   << " changed from " << gst_element_state_get_name(oldState)
+                   << " to " << gst_element_state_get_name(newState) << endl;
         }
         break;
 
       default:
         // We should not reach here.
-        g_printerr("Unexpected message received.\n");
+        qWarning() << "Unexpected message received." << endl;
         break;
       }
       gst_message_unref(msg);
@@ -927,7 +921,7 @@ void VideoImpl::_freeCurrentSample() {
  */
 void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* p)
 {
-  g_print ("Received new pad '%s' from '%s':\n", GST_PAD_NAME (newPad), GST_ELEMENT_NAME (src));
+  qDebug() << "Received new pad '" << GST_PAD_NAME(newPad) << "' from '" << GST_ELEMENT_NAME (src) << "'." << endl;
   GstPad *sinkPad = NULL;
 
   // Check the new pad's type.
@@ -935,20 +929,26 @@ void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* 
   GstStructure *newPadStruct = gst_caps_get_structure (newPadCaps, 0);
   const gchar *newPadType   = gst_structure_get_name (newPadStruct);
   gchar *newPadStructStr = gst_structure_to_string(newPadStruct);
-  g_print("Structure is %s\n", newPadStructStr);
+  qDebug() << "Structure is " << newPadStructStr << "." << endl;
   g_free(newPadStructStr);
+
+  // Check for video pads.
   if (g_str_has_prefix (newPadType, "video/x-raw"))
   {
     sinkPad = gst_element_get_static_pad (p->_queue0, "sink");
     gst_structure_get_int(newPadStruct, "width",  &p->_width);
     gst_structure_get_int(newPadStruct, "height", &p->_height);
   }
+
+  // Check for audio pads.
   else if (g_str_has_prefix (newPadType, "audio/x-raw"))
   {
     sinkPad = gst_element_get_static_pad (p->_audioqueue0, "sink");
   }
+
+  // Other types: ignore.
   else {
-    g_print ("  It has type '%s' which is not raw audio/video. Ignoring.\n", newPadType);
+    qDebug() << "  It has type '" << newPadType << "' which is not raw audio/video: ignored." << endl;
     goto exit;
   }
 
@@ -959,26 +959,26 @@ void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* 
     if (g_str_has_prefix (newPadType, "audio/x-raw-float") ||
         g_str_has_prefix (newPadType, "video/x-raw-int") )
     {
-      g_print ("  Found a better pad.\n");
+      qDebug() << "  Found a better pad." << endl;
       GstPad* oldPad = gst_pad_get_peer(sinkPad);
       gst_pad_unlink(oldPad, sinkPad);
       g_object_unref(oldPad);
     }
     else
     {
-      g_print ("  We are already linked. Ignoring.\n");
+      qDebug() << "  We are already linked: ignoring." << endl;
       goto exit;
     }
   }
 
-  // Attempt the link
+  // Attempt the link.
   if (GST_PAD_LINK_FAILED (gst_pad_link (newPad, sinkPad)))
   {
-    g_print ("  Type is '%s' but link failed.\n", newPadType);
+    qDebug() << "  Type is '" << newPadType << "' but link failed." << endl;
     goto exit;
   } else {
     p->_videoIsConnected = true;
-    g_print ("  Link succeeded (type '%s').\n", newPadType);
+    qDebug() << "  Link succeeded (type '" << newPadType << "')." << endl;
   }
 
 exit:
