@@ -197,8 +197,8 @@ void MainWindow::handleMappingIndexesMoved()
   QVector<uid> newOrder;
   for (int row=mappingListModel->rowCount()-1; row>=0; row--)
   {
-    uid layerId = mappingListModel->getIndexFromRow(mappingList->verticalHeader()->visualIndex(row)).data(Qt::UserRole).toInt();
-    qDebug() << "Got layer id " << layerId << endl;
+    int logicalIndex = mappingList->verticalHeader()->logicalIndex(row) ;
+    uid layerId = mappingListModel->getIndexFromRow(logicalIndex).data(Qt::UserRole).toInt();
     newOrder.push_back(layerId);
   }
   mappingManager->reorderMappings(newOrder);
