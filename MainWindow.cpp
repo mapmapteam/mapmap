@@ -28,11 +28,7 @@
 MainWindow::MainWindow()
 {
   // Create model.
-#if QT_VERSION >= 0x050500
-  QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: " << (Video::hasVideoSupport() ? "yes" : "no");
-#else
-  QMessageLogger(__FILE__, __LINE__, 0).debug() << "Video support: " << (Video::hasVideoSupport() ? "yes" : "no");
-#endif
+  qDebug() << "Video support: " << (Video::hasVideoSupport() ? "yes" : "no");
 
   mappingManager = new MappingManager;
 
@@ -2898,11 +2894,7 @@ void MainWindow::startOscReceiver()
   int port = config_osc_receive_port;
   std::ostringstream os;
   os << port;
-#if QT_VERSION >= 0x050500
-  QMessageLogger(__FILE__, __LINE__, 0).info() << "OSC port: " << port ;
-#else
-  QMessageLogger(__FILE__, __LINE__, 0).debug() << "OSC port: " << port ;
-#endif
+  qDebug() << "OSC port: " << port ;
   osc_interface.reset(new OscInterface(os.str()));
   if (port != 0)
   {

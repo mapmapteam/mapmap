@@ -203,7 +203,7 @@ bool eraseSettings()
   }
   else
   {
-    QMessageLogger(__FILE__, __LINE__, 0).debug() << "Erase MapMap settings.";
+    qDebug() << "Erase MapMap settings.";
     settingsFile.close();
     return settingsFile.remove();
   }
