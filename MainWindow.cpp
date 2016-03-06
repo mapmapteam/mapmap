@@ -1536,7 +1536,7 @@ void MainWindow::createActions()
 
   // Add color.
   addColorAction = new QAction(tr("Add &Color Paint..."), this);
-  addColorAction->setShortcut(Qt::CTRL + Qt:SHIFT + Qt::Key_A);
+  addColorAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_A);
   addColorAction->setIcon(QIcon(":/add-color"));
   addColorAction->setToolTip(tr("Add a color paint..."));
   addColorAction->setIconVisibleInMenu(false);
