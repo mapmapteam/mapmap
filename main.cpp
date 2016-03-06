@@ -200,7 +200,6 @@ int main(int argc, char *argv[])
 #if USING_QT_5
   if (parser.isSet(fullscreenOption))
   {
-    qDebug() << "TODO: Running in fullscreen mode";
     win->startFullScreen();
   }
 #endif
