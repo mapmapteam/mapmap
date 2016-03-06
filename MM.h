@@ -49,6 +49,7 @@ public:
   static const int BOTTOM_TOOLBAR_ICON_SIZE = 32;
   static const int ZOOM_TOOLBAR_ICON_SIZE = 22;
   static const int ZOOM_TOOLBAR_BUTTON_SIZE = 32;
+  static const int MAPPING_LIST_ICON_SIZE = 16;
 
   // Style.
   static const QColor WHITE;
@@ -86,6 +87,13 @@ public:
   static const int MESH_SUBDIVISION_MAX_DEPTH         = (-1);
   static const int ELLIPSE_N_TRIANGLES = 100; // n triangles used to draw an ellipse
   static const int VERTEX_MOVES_STEP = 25;
+
+  // Enumerations
+  enum ItemColumn {
+    MuteColunm,
+    IconAndNameColum,
+    GroupButtonColum
+  };
 };
 
 #endif

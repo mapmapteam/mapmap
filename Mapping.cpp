@@ -72,6 +72,14 @@ void Mapping::setDepth(int depth)
   }
 }
 
+void Mapping::setLocked(bool locked)
+{
+  _shape->setLocked(locked);
+  if (hasInputShape())
+    _inputShape->setLocked(locked);
+  Element::setLocked(locked);
+}
+
 
 void Mapping::read(const QDomElement& obj)
 {

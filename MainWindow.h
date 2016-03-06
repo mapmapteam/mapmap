@@ -43,6 +43,8 @@
 #include "ConsoleWindow.h"
 
 #include "MappingManager.h"
+#include "MappingItemDelegate.h"
+#include "MappingListModel.h"
 
 #include "qtpropertymanager.h"
 #include "qtvariantproperty.h"
@@ -72,6 +74,7 @@ protected:
   // Events ///////////////////////////////////////////////////////////////////////////////////////////////////
   void closeEvent(QCloseEvent *event);
   void keyPressEvent(QKeyEvent *event);
+  bool eventFilter(QObject *obj, QEvent *event);
 
   // Slots ////////////////////////////////////////////////////////////////////////////////////////////////////
 private slots:
@@ -88,12 +91,12 @@ private slots:
   void about();
   void updateStatusBar();
   void showMenuBar(bool shown);
+  void deleteItem();
   void openRecentFile();
   void clearRecentFileList();
   void openRecentVideo();
   void quitMapMap();
   // Edit menu.
-  void deleteItem();
   // Context menu for mappings.
   void duplicateMappingItem();
   void deleteMappingItem();
@@ -101,7 +104,6 @@ private slots:
   void setMappingItemLocked(bool locked);
   void setMappingItemHide(bool hide);
   void setMappingItemSolo(bool solo);
-  void mappingListEditEnd(QWidget* editor);
   // Context menu for paints
   void deletePaintItem();
   void renamePaintItem();
@@ -110,10 +112,11 @@ private slots:
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
 //  void handleItemDoubleClicked(QListWidgetItem* item);
-  void handleMappingItemSelectionChanged();
-  void handleMappingItemChanged(QListWidgetItem* item);
+  void handleMappingItemSelectionChanged(const QModelIndex &index);
+  void handleMappingItemChanged(const QModelIndex &index);
   void handleMappingIndexesMoved();
-  void handleItemSelected(QListWidgetItem* item);
+  void handlePaintItemSelected(QListWidgetItem* item);
+  void handleMappingItemSelected(const QModelIndex &index);
   void handlePaintChanged(Paint::ptr paint);
 
   void mappingPropertyChanged(uid id, QString propertyName, QVariant value);
@@ -278,6 +281,7 @@ private:
   static QIcon createColorIcon(const QColor& color);
   static QIcon createFileIcon(const QString& filename);
   static QIcon createImageIcon(const QString& filename);
+  uid currentMappingItemId() const;
 
   // GUI elements. ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -357,7 +361,7 @@ private:
   QStackedWidget* paintPropertyPanel;
 
   QSplitter* mappingSplitter;
-  QListWidget* mappingList;
+  QTableView* mappingList;
   QStackedWidget* mappingPropertyPanel;
 
   QUndoView* undoView;
@@ -387,6 +391,8 @@ private:
 
   // Model.
   MappingManager* mappingManager;
+  MappingListModel *mappingListModel;
+  MappingItemDelegate *mappingItemDelegate;
 
   // OSC.
 #ifdef HAVE_OSC
@@ -426,6 +432,7 @@ private:
 
   // Keeps track of the current selected item, wether it's a paint or mapping.
   QListWidgetItem* currentSelectedItem;
+  QModelIndex currentSelectedIndex;
   QTimer *videoTimer;
 
   PreferencesDialog* _preferences_dialog;
@@ -482,6 +489,7 @@ public:
   bool setOscPort(int portNumber);
   int getOscPort() const;
   void setOutputWindowFullScreen(bool enable);
+
 public:
   // Constants. ///////////////////////////////////////////////////////////////////////////////////////
   static const int DEFAULT_WIDTH = 1360;

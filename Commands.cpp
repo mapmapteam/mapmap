@@ -2,26 +2,30 @@
 #include "Commands.h"
 
 AddShapesCommand::AddShapesCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent):
-  QUndoCommand(parent)
+  QUndoCommand(parent),
+  _mainWindow(mainWindow),
+  _mappingId(mappingId)
 {
   setText(QObject::tr("Add mapping"));
-  m_mainWindow = mainWindow;
-  m_mappingId = mappingId;
 }
 
 void AddShapesCommand::undo()
 {
-  m_mappingPtr = m_mainWindow->getMappingManager().getMappingById(m_mappingId);
-  m_mainWindow->deleteMapping(m_mappingId);
+  _mapping = _mainWindow->getMappingManager().getMappingById(_mappingId);
+  _mainWindow->deleteMapping(_mappingId);
 }
 
 void AddShapesCommand::redo()
 {
-  if(m_mappingPtr != NULL)
+  if(!_mapping.isNull())
     {
-      uint currentId = m_mainWindow->getMappingManager().addMapping(m_mappingPtr);
-      m_mainWindow->addMappingItem(currentId);
+      uid storedId = _mainWindow->getMappingManager().addMapping(_mapping);
+      _mainWindow->addMappingItem(storedId);
     }
+  else
+  {
+    _mainWindow->addMappingItem(_mappingId);
+  }
 }
 
 
@@ -136,25 +140,26 @@ void TranslateShapeCommand::_doTransform(MShape::ptr shape)
 
 
 DeleteMappingCommand::DeleteMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent) :
-  QUndoCommand(parent)
+  QUndoCommand(parent),
+  _mainWindow(mainWindow),
+  _mappingId(mappingId)
 {
   setText(QObject::tr("Delete mapping"));
-  m_mainWindow = mainWindow;
-  m_mappingId = mappingId;
 }
 
 void DeleteMappingCommand::undo()
 {
-  if(m_mappingPtr != NULL)
+  if(!_mapping.isNull())
     {
-      uint currentId = m_mainWindow->getMappingManager().addMapping(m_mappingPtr);
-      m_mainWindow->addMappingItem(currentId);
+      uid storedId = _mainWindow->getMappingManager().addMapping(_mapping);
+      _mainWindow->addMappingItem(storedId);
     }
 }
 
 void DeleteMappingCommand::redo()
 {
-  m_mappingPtr = m_mainWindow->getMappingManager().getMappingById(m_mappingId);
-  m_mainWindow->deleteMapping(m_mappingId);
+  // Store mapping pointer before delete it
+  _mapping = _mainWindow->getMappingManager().getMappingById(_mappingId);
+  _mainWindow->deleteMapping(_mappingId);
 }
 

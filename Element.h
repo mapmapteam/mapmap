@@ -48,15 +48,15 @@ public:
 
   uid getId() const { return _id; }
 
-  void setName(const QString& name);
-  QString getName() const { return _name; }
+  virtual void setName(const QString& name);
+  virtual QString getName() const { return _name; }
 
-  float getOpacity() const { return _opacity; }
-  void setOpacity(float opacity);
+  virtual float getOpacity() const { return _opacity; }
+  virtual void setOpacity(float opacity);
 
-  bool isLocked() const    { return _isLocked; }
-  void setLocked(bool locked);
-  void toggleLocked()  { setLocked(!isLocked()); }
+  virtual bool isLocked() const    { return _isLocked; }
+  virtual void setLocked(bool locked);
+  virtual void toggleLocked()  { setLocked(!isLocked()); }
 
   virtual void build() {}
 
