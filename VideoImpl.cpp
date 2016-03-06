@@ -25,6 +25,8 @@
 #include <cstring>
 #include <iostream>
 
+// #define VIDEO_IMPL_VERBOSE
+
 // -------- private implementation of VideoImpl -------
 
 bool VideoImpl::hasVideoSupport()
@@ -85,7 +87,7 @@ void VideoImpl::setRate(double rate)
 {
   if (rate == 0)
   {
-    qDebug() << "Cannot set rate to zero, ignoring rate " << rate << endl;
+    qDebug() << "Cannot set rate to zero, ignoring rate " << rate;
     return;
   }
 
@@ -117,7 +119,7 @@ void VideoImpl::build()
   qDebug() << "Building video impl";
   if (!loadMovie(_uri))
   {
-    qDebug() << "Cannot load movie " << _uri << ".";
+    std::cout << "Cannot load movie " << _uri.toUtf8().constData() << ".";
   }
 }
 
@@ -182,6 +184,7 @@ GstFlowReturn VideoImpl::gstNewSampleCallback(GstElement*, VideoImpl *p)
     gst_structure_get_int(structure, "width",  &p->_width);
     gst_structure_get_int(structure, "height", &p->_height);
   }
+
 
   // Try to retrieve data bits of frame.
   GstMapInfo& map = p->_mapInfo;
@@ -279,7 +282,7 @@ void VideoImpl::freeResources()
      _pollSource = NULL;
   }
 
-  qDebug() << "Freeing remaining samples/buffers" << endl;
+  qDebug() << "Freeing remaining samples/buffers";
 
   // Frees current sample and buffer.
   _freeCurrentSample();
@@ -306,7 +309,7 @@ void VideoImpl::resetMovie()
   }
   else
   {
-    qDebug() << "Seeking not enabled: reloading the movie" << endl;
+    qDebug() << "Seeking not enabled: reloading the movie";
     loadMovie(_uri);
   }
 }
@@ -320,10 +323,10 @@ gstPollShmsrc (void *user_data)
   {
     if (! p->setPlayState(true))
     {
-      qDebug() << "tried to attach, but starting pipeline failed!" << endl;
+      qDebug() << "tried to attach, but starting pipeline failed!";
       return false;
     }
-    //qDebug() << "attached, started pipeline!" << endl;
+    //qDebug() << "attached, started pipeline!" << std::endl;
     p->setAttached(true);
   }
   return true;
@@ -335,7 +338,7 @@ bool VideoImpl::loadMovie(const QString& filename)
   const gchar* filetestpath = (const gchar*) filename.toUtf8().constData();
   if (FALSE == g_file_test(filetestpath, G_FILE_TEST_EXISTS))
   {
-      std::cout << "File " << filetestpath << " does not exist" << std::endl;
+      std::cout << "File " << filetestpath << " does not exist";
       return false;
   }
   qDebug() << "Opening movie: " << filename << ".";
@@ -467,7 +470,7 @@ bool VideoImpl::loadMovie(const QString& filename)
   QByteArray ba = filename.toLocal8Bit();
   gchar *filename_tmp = g_strdup((gchar*) filename.toUtf8().constData());
   gchar* uri = NULL; //  (gchar*) filename.toUtf8().constData();
-  if (! _isSharedMemorySource && ! gst_uri_is_valid(uri))
+  if (! _isSharedMemorySource) //  && ! gst_uri_is_valid(uri))
   {
     // Try to convert filename to URI.
     GError* error = NULL;
@@ -666,7 +669,7 @@ bool VideoImpl::setPlayState(bool play)
 //  GstStateChangeReturn ret = gst_element_get_state (_pipeline, NULL, NULL, -1);
   if (ret == GST_STATE_CHANGE_FAILURE)
   {
-    qDebug() << "Unable to set the pipeline to the playing state." << endl;
+    std::cout << "Unable to set the pipeline to the playing state." << std::endl;
     unloadMovie();
     return false;
   }
@@ -682,7 +685,7 @@ bool VideoImpl::seekTo(double position)
   gint64 duration;
   if (!gst_element_query_duration (_pipeline, GST_FORMAT_TIME, &duration))
   {
-    qDebug() << "Cannot get duration of file" << endl;
+    std::cout << "Cannot get duration of file" << std::endl;
     return false;
   }
 
@@ -696,23 +699,21 @@ bool VideoImpl::seekTo(double position)
 bool VideoImpl::seekTo(guint64 positionNanoSeconds)
 {
   if (!_appsink0 || !_seekEnabled)
+  {
     return false;
+  }
   else
   {
     lockMutex();
-
     // Free the current sample and reset.
     _freeCurrentSample();
     _bitsChanged = false;
-
     // Seek to position.
     bool result = gst_element_seek_simple(
                     _appsink0, GST_FORMAT_TIME,
                     GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
                     positionNanoSeconds);
-
     unlockMutex();
-
     return result;
   }
 }
@@ -780,7 +781,7 @@ void VideoImpl::_checkMessages()
       // End-of-stream ////////////////////////////////////////
       case GST_MESSAGE_EOS:
         // Automatically loop back.
-        g_print("End-Of-Stream reached.\n");
+        // g_print("End-Of-Stream reached.\n");
         resetMovie();
 //        _terminate = true;
 //        _finish();
@@ -798,9 +799,10 @@ void VideoImpl::_checkMessages()
             gst_query_parse_seeking (query, NULL, (gboolean*)&_seekEnabled, &start, &end);
             if (_seekEnabled)
             {
+#ifdef VIDEO_IMPL_VERBOSE
               g_print ("Seeking is ENABLED from %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT "\n",
                        GST_TIME_ARGS (start), GST_TIME_ARGS (end));
-
+#endif // ifdef
             }
             else
             {
@@ -815,7 +817,9 @@ void VideoImpl::_checkMessages()
           gst_query_unref (query);
 
           // Movie is ready!
-          qDebug() << "Preroll done: movie is ready." << endl;
+#ifdef VIDEO_IMPL_VERBOSE
+          qDebug() << "Preroll done: movie is ready.\n";
+#endif // ifdef
           _setMovieReady(true);
         }
 
@@ -828,10 +832,12 @@ void VideoImpl::_checkMessages()
           GstState oldState, newState, pendingState;
           gst_message_parse_state_changed(msg, &oldState, &newState,
               &pendingState);
+#ifdef VIDEO_IMPL_VERBOSE
           g_print("Pipeline state for movie %s changed from %s to %s:\n",
               _uri.toUtf8().constData(),
               gst_element_state_get_name(oldState),
               gst_element_state_get_name(newState));
+#endif // ifdef
         }
         break;
 
@@ -861,25 +867,25 @@ void  VideoImpl::_updateRate()
   // Check different things.
   if (_pipeline == NULL)
   {
-    qWarning() << "Cannot set rate: no pipeline!" << endl;
+    std::cout << "Cannot set rate: no pipeline!" << std::endl;
     return;
   }
 
   if (!_seekEnabled)
   {
-    qWarning() << "Cannot set rate: seek not working" << endl;
+    std::cout << "Cannot set rate: seek not working" << std::endl;
     return;
   }
 
   if (!_isMovieReady())
   {
-    qWarning() << "Movie is not yet ready to play, cannot seek yet." << endl;
+    std::cout << "Movie is not yet ready to play, cannot seek yet." << std::endl;
   }
 
   // Obtain the current position, needed for the seek event.
   gint64 position;
   if (!gst_element_query_position (_pipeline, GST_FORMAT_TIME, &position)) {
-    qWarning() << "Unable to retrieve current position." << endl;
+    std::cout << "Unable to retrieve current position." << std::endl;
     return;
   }
 
@@ -900,10 +906,10 @@ void  VideoImpl::_updateRate()
 
   // Send the event.
   if (!gst_element_send_event (_appsink0, seekEvent)) {
-    qWarning() << "Cannot perform seek event" << endl;
+    std::cout << "Cannot perform seek event" << std::endl;
   }
 
-  qDebug() << "Current rate: " << _rate << "." << endl;
+  qDebug() << "Current rate: " << _rate << ".\n";
 }
 
 void VideoImpl::_freeCurrentSample() {
@@ -927,7 +933,7 @@ void VideoImpl::_freeCurrentSample() {
  */
 void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* p)
 {
-  g_print ("Received new pad '%s' from '%s':\n", GST_PAD_NAME (newPad), GST_ELEMENT_NAME (src));
+  // g_print ("Received new pad '%s' from '%s':\n", GST_PAD_NAME (newPad), GST_ELEMENT_NAME (src));
   GstPad *sinkPad = NULL;
 
   // Check the new pad's type.
@@ -935,7 +941,9 @@ void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* 
   GstStructure *newPadStruct = gst_caps_get_structure (newPadCaps, 0);
   const gchar *newPadType   = gst_structure_get_name (newPadStruct);
   gchar *newPadStructStr = gst_structure_to_string(newPadStruct);
+#ifdef VIDEO_IMPL_VERBOSE
   g_print("Structure is %s\n", newPadStructStr);
+#endif // ifdef
   g_free(newPadStructStr);
   if (g_str_has_prefix (newPadType, "video/x-raw"))
   {
@@ -966,7 +974,9 @@ void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* 
     }
     else
     {
+#ifdef VIDEO_IMPL_VERBOSE
       g_print ("  We are already linked. Ignoring.\n");
+#endif // ifdef
       goto exit;
     }
   }
@@ -974,11 +984,15 @@ void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* 
   // Attempt the link
   if (GST_PAD_LINK_FAILED (gst_pad_link (newPad, sinkPad)))
   {
+#ifdef VIDEO_IMPL_VERBOSE
     g_print ("  Type is '%s' but link failed.\n", newPadType);
+#endif // ifdef
     goto exit;
   } else {
     p->_videoIsConnected = true;
+#ifdef VIDEO_IMPL_VERBOSE
     g_print ("  Link succeeded (type '%s').\n", newPadType);
+#endif // ifdef
   }
 
 exit:
