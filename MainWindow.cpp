@@ -217,7 +217,7 @@ void MainWindow::handlePaintItemSelected(QListWidgetItem* item)
 void MainWindow::handleMappingItemSelected(const QModelIndex &index)
 {
   if (index.isValid()) {
-    if (index.column() == MM::MuteColunm) {
+    if (index.column() == MM::HideColumn) {
       mappingListModel->setVisibility(index);
     }
   }

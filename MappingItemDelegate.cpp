@@ -35,7 +35,7 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     if (option.state & QStyle::State_Selected)
       painter->fillRect(rect, MM::DARK_GRAY);
 
-    if (index.column() == MM::MuteColunm) {
+    if (index.column() == MM::HideColumn) {
       bool isVisible = index.model()->data(index, Qt::CheckStateRole).toBool();
       if (isVisible) {
         QStyleOptionToolButton mappingMuteButton;

@@ -51,7 +51,7 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
     return mappingList.at(index.row()).isVisible ? Qt::Checked : Qt::Unchecked;
     break;
   case Qt::SizeHintRole:
-    if (index.column() == MM::MuteColunm)
+    if (index.column() == MM::HideColumn)
       return QSize(20, 40);
     if (index.column() == MM::IconAndNameColum)
       return QSize(140, 40);
@@ -197,7 +197,7 @@ uid MappingListModel::getItemId(const QModelIndex &index) const
 
 void MappingListModel::setVisibility(const QModelIndex &index)
 {
-  if (index.isValid() && index.column() == MM::MuteColunm) {
+  if (index.isValid() && index.column() == MM::HideColumn) {
     setData(index, !(mappingList.at(index.row()).isVisible), Qt::CheckStateRole);
   }
 }

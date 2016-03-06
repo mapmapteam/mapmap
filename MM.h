@@ -90,7 +90,7 @@ public:
 
   // Enumerations
   enum ItemColumn {
-    MuteColunm,
+    HideColumn,
     IconAndNameColum,
     GroupButtonColum
   };
