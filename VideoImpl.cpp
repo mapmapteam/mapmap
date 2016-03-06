@@ -25,6 +25,8 @@
 #include <cstring>
 #include <iostream>
 
+// #define VIDEO_IMPL_VERBOSE
+
 // -------- private implementation of VideoImpl -------
 
 bool VideoImpl::hasVideoSupport()
@@ -144,7 +146,7 @@ bool VideoImpl::_eos() const
       /* Obtain the current position, needed for the seek event */
       gint64 position;
       if (!gst_element_query_position (_pipeline, GST_FORMAT_TIME, &position)) {
-        qDebug() << "Unable to retrieve current position." << endl;
+        g_printerr ("Unable to retrieve current position.\n");
         return false;
       }
       return (position == 0);
@@ -321,7 +323,6 @@ gstPollShmsrc (void *user_data)
       qDebug() << "tried to attach, but starting pipeline failed!" << endl;
       return false;
     }
-    //qDebug() << "attached, started pipeline!" << endl;
     p->setAttached(true);
   }
   return true;
@@ -696,7 +697,9 @@ bool VideoImpl::seekTo(double position)
 bool VideoImpl::seekTo(guint64 positionNanoSeconds)
 {
   if (!_appsink0 || !_seekEnabled)
+  {
     return false;
+  }
   else
   {
     lockMutex();
@@ -778,7 +781,6 @@ void VideoImpl::_checkMessages()
       // End-of-stream ////////////////////////////////////////
       case GST_MESSAGE_EOS:
         // Automatically loop back.
-        qDebug() << "End-Of-Stream reached." << endl;
         resetMovie();
 //        _terminate = true;
 //        _finish();
@@ -796,7 +798,9 @@ void VideoImpl::_checkMessages()
             gst_query_parse_seeking (query, NULL, (gboolean*)&_seekEnabled, &start, &end);
             if (_seekEnabled)
             {
+#ifdef VIDEO_IMPL_VERBOSE
               qDebug() << "Seeking is ENABLED from " << start << " to " << end << "." << endl;
+#endif
             }
             else
             {
@@ -811,7 +815,9 @@ void VideoImpl::_checkMessages()
           gst_query_unref (query);
 
           // Movie is ready!
+#ifdef VIDEO_IMPL_VERBOSE
           qDebug() << "Preroll done: movie is ready." << endl;
+#endif // ifdef
           _setMovieReady(true);
         }
 
@@ -823,9 +829,11 @@ void VideoImpl::_checkMessages()
         {
           GstState oldState, newState, pendingState;
           gst_message_parse_state_changed(msg, &oldState, &newState, &pendingState);
+#ifdef VIDEO_IMPL_VERBOSE
           qDebug() << "Pipeline state for movie " << _uri
                    << " changed from " << gst_element_state_get_name(oldState)
                    << " to " << gst_element_state_get_name(newState) << endl;
+#endif
         }
         break;
 
@@ -929,7 +937,9 @@ void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* 
   GstStructure *newPadStruct = gst_caps_get_structure (newPadCaps, 0);
   const gchar *newPadType   = gst_structure_get_name (newPadStruct);
   gchar *newPadStructStr = gst_structure_to_string(newPadStruct);
+#ifdef VIDEO_IMPL_VERBOSE
   qDebug() << "Structure is " << newPadStructStr << "." << endl;
+#endif
   g_free(newPadStructStr);
 
   // Check for video pads.
@@ -966,7 +976,9 @@ void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* 
     }
     else
     {
+#ifdef VIDEO_IMPL_VERBOSE
       qDebug() << "  We are already linked: ignoring." << endl;
+#endif
       goto exit;
     }
   }
@@ -974,11 +986,15 @@ void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* 
   // Attempt the link.
   if (GST_PAD_LINK_FAILED (gst_pad_link (newPad, sinkPad)))
   {
+#ifdef VIDEO_IMPL_VERBOSE
     qDebug() << "  Type is '" << newPadType << "' but link failed." << endl;
+#endif // ifdef
     goto exit;
   } else {
     p->_videoIsConnected = true;
+#ifdef VIDEO_IMPL_VERBOSE
     qDebug() << "  Link succeeded (type '" << newPadType << "')." << endl;
+#endif // ifdef
   }
 
 exit:
