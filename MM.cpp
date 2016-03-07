@@ -31,6 +31,7 @@ const QString MM::IMAGE_FILES_FILTER = "*.jpg *.jpeg *.gif *.png *.tiff *.tif *.
 const QColor MM::WHITE("#f6f5f5");
 const QColor MM::BLUE_GRAY("#323541");
 const QColor MM::DARK_GRAY("#272a36");
+const QColor MM::DARK_BLUE("#0C0927");
 
 const QColor MM::CONTROL_COLOR(WHITE);
 const QColor MM::CONTROL_LOCKED_COLOR("#FF0000");

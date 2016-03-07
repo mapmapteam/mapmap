@@ -27,6 +27,8 @@ MappingItemDelegate::MappingItemDelegate(QObject *parent) :
 
 void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+  painter->setRenderHint(QPainter::Antialiasing);
+
   if (index.isValid()) {
     QRect rect = option.rect;
     int x = rect.x();
@@ -67,7 +69,9 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     }
 
     if (index.column() == MM::GroupButtonColum) {
-      // Draw Buttons
+     bool isSolo = index.model()->data(index, Qt::CheckStateRole + 1).toBool();
+     bool isLocked = index.model()->data(index, Qt::CheckStateRole + 2).toBool();
+      // Create Buttons
       QStyleOptionToolButton mappingSoloButton;
       mappingSoloButton.state |= QStyle::State_Enabled;
       mappingSoloButton.rect = QRect(x + 10, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
@@ -92,8 +96,22 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
       mappingDeleteButton.icon = QIcon(":/delete-mapping");
       mappingDeleteButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
 
+      if (isSolo) {
+        QPainterPath mappingSoloPanel;
+        mappingSoloPanel.addRoundedRect(mappingSoloButton.rect.adjusted(-2, -2, 2, 2), 4, 4);
+        painter->setPen(QPen()); // No pen
+        painter->fillPath(mappingSoloPanel, MM::DARK_BLUE);
+        painter->drawPath(mappingSoloPanel);
+      }
       QApplication::style()->drawControl(
             QStyle::CE_ToolButtonLabel, &mappingSoloButton, painter);
+      if (isLocked) {
+        QPainterPath mappingLockPanel;
+        mappingLockPanel.addRoundedRect(QRectF(mappingLockButton.rect.adjusted(-2, -2, 2, 2)), 4, 4);
+        painter->setPen(QPen()); // No pen
+        painter->fillPath(mappingLockPanel, MM::DARK_BLUE);
+        painter->drawPath(mappingLockPanel);
+      }
       QApplication::style()->drawControl(
             QStyle::CE_ToolButtonLabel, &mappingLockButton, painter);
       QApplication::style()->drawControl(
