@@ -18,6 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MapperGLCanvas.h"
+#include "ShapeGraphicsItem.h"
+#include "ShapeControlPainter.h"
+
 #include "MappingGui.h"
 
 MappingGui::MappingGui(Mapping::ptr mapping)

@@ -25,6 +25,10 @@
 #include <QtGlobal>
 #include <cmath>
 
+#ifndef M_PI
+# define M_PI 3.14159265358979323846
+#endif
+
 /// Converts from degrees to radians.
 inline qreal degreesToRadians(qreal degrees) { return degrees / 180.0f * M_PI; }
 
