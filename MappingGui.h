@@ -39,11 +39,6 @@
 
 #include "MapperGLCanvas.h"
 
-#include "ShapeGraphicsItem.h"
-#include "ShapeControlPainter.h"
-
-#include "Util.h"
-
 #include "qtpropertymanager.h"
 #include "qtvariantproperty.h"
 #include "qttreepropertybrowser.h"

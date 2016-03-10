@@ -22,6 +22,8 @@
 
 #include "MainWindow.h"
 
+#include "Util.h"
+
 ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
   : _mapping(mapping), _output(output)
 {
