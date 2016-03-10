@@ -164,11 +164,11 @@ mac {
 win32 {
   DEFINES += WIN32
   INCLUDEPATH += \
-#    C:/gstreamer/include \
-#    C:/gstreamer/include/libxml2 \
-#    C:/gstreamer/include/glib-2.0 \
-#    C:/gstreamer/lib/glib-2.0/include \
-#    C:/gstreamer/include/gstreamer-0.10
+    C:/gstreamer/include \
+    C:/gstreamer/include/libxml2 \
+    C:/gstreamer/include/glib-2.0 \
+    C:/gstreamer/lib/glib-2.0/include \
+    C:/gstreamer/include/gstreamer-0.10
   LIBS += -L"C:/gstreamer/lib" \
     -L"C:/gstreamer/bin" \
     -lgstreamer-0.10 \

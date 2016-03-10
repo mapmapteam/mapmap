@@ -23,7 +23,7 @@
 #define MATH_H_
 
 #include <QtGlobal>
-#include "math.h"
+#include <cmath>
 
 #ifndef M_PI
 # define M_PI 3.14159265358979323846

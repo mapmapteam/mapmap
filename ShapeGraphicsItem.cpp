@@ -22,7 +22,9 @@
 
 #include "MainWindow.h"
 
+#ifdef WIN32
 #include "Util.h"
+#endif
 
 ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
   : _mapping(mapping), _output(output)

@@ -39,6 +39,12 @@
 
 #include "MapperGLCanvas.h"
 
+#ifndef WIN32
+#include "ShapeGraphicsItem.h"
+#include "ShapeControlPainter.h"
+#include "Util.h"
+#endif
+
 #include "qtpropertymanager.h"
 #include "qtvariantproperty.h"
 #include "qttreepropertybrowser.h"
