@@ -103,7 +103,9 @@ unix:!mac {
     gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-pbutils-1.0 \
     liblo \
     gl x11 
-  QMAKE_CXXFLAGS += -Wno-unused-result -Wfatal-errors
+  QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-result -Wno-unused-parameter \
+                            -Wno-unused-variable -Wno-switch -Wno-comment \
+                            -Wno-unused-but-set-variable
   QMAKE_CXXFLAGS += -DHAVE_OSC
   mapmapfile.files = mapmap
   mapmapfile.path = /usr/bin
