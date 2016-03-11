@@ -276,7 +276,7 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
     QPointF p = mapToScene(event->pos());
 
     // Stick to vertices.
-    if (_mainWindow->stickyVertices())
+    if (xOr(_mainWindow->stickyVertices(), (event->modifiers() & Qt::ShiftModifier)))
       _glueVertex(&p);
 
     undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::RELEASE, _activeVertex, p));
@@ -313,7 +313,7 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       QPointF p = scenePos;
 
       // Stick to vertices.
-      if (_mainWindow->stickyVertices())
+      if (xOr(_mainWindow->stickyVertices(), (event->modifiers() & Qt::ShiftModifier)))
         _glueVertex(&p);
 
       undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::FREE, _activeVertex, p));

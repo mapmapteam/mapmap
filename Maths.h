@@ -59,4 +59,9 @@ inline bool distIsInside(const QPointF& p1, const QPointF& p2, qreal radius) {
   return distSq(p1, p2) < sq(radius);
 }
 
+/// Performs a boolean XOR operation.
+inline bool xOr(bool a, bool b) {
+  return (a && !b) || (!a && b);
+}
+
 #endif /* MATH_H_ */
