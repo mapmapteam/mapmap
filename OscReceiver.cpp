@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cstdio>
 
+MM_BEGIN_NAMESPACE
+
 bool OscReceiver::server_is_ok_ = true;
 
 OscReceiver::OscReceiver(const std::string &port) : port_(port), server_(0) {
@@ -73,5 +75,7 @@ void OscReceiver::error(int num, const char *msg, const char *path) {
 std::string OscReceiver::toString() const {
   return "port:" + port_;
 }
+
+MM_END_NAMESPACE
 
 #endif // HAVE_OSC

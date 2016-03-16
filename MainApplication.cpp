@@ -20,6 +20,8 @@
 
 #include "MainApplication.h"
 
+MM_BEGIN_NAMESPACE
+
 MainApplication::MainApplication(int &argc, char *argv[])
   : QApplication(argc, argv)
 {
@@ -53,3 +55,5 @@ bool MainApplication::notify(QObject *receiver, QEvent *event)
 
   return false;
 }
+
+MM_END_NAMESPACE

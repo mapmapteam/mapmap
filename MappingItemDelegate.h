@@ -30,6 +30,8 @@
 
 #include "MM.h"
 
+MM_BEGIN_NAMESPACE
+
 typedef int uid;
 
 class MappingItemDelegate : public QStyledItemDelegate
@@ -57,5 +59,7 @@ protected:
   bool editorEvent(QEvent *event, QAbstractItemModel *model,
                    const QStyleOptionViewItem &option, const QModelIndex &index) Q_DECL_OVERRIDE;
 };
+
+MM_END_NAMESPACE
 
 #endif // MAPPINGITEMDELEGATE_H

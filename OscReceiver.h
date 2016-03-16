@@ -4,7 +4,10 @@
 
 #include "lo/lo.h"
 #include <string>
+#include "MM.h"
 #define CONFIG_DEBUG
+
+MM_BEGIN_NAMESPACE
 
 /**
  * General-purpose wrapper around liblo to receive OSC messages.
@@ -38,5 +41,8 @@ private:
   static void error(int num, const char *msg, const char *path);
 };
 
+MM_END_NAMESPACE
+
 #endif // HAVE_OSC
+
 #endif // _OSC_RECEIVER_H_

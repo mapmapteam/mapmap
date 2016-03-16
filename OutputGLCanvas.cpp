@@ -21,6 +21,8 @@
 #include "OutputGLCanvas.h"
 #include "MainWindow.h"
 
+MM_BEGIN_NAMESPACE
+
 OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget* shareWidget, QGraphicsScene* scene)
 : MapperGLCanvas(mainWindow, true, parent, shareWidget, scene),
   _displayCrosshair(false),
@@ -130,3 +132,5 @@ void OutputGLCanvas::mouseMoveEvent(QMouseEvent *event)
     MapperGLCanvas::mouseMoveEvent(event);
   }
 }
+
+MM_END_NAMESPACE

@@ -22,6 +22,8 @@
 #include "VideoImpl.h"
 #include <iostream>
 
+MM_BEGIN_NAMESPACE
+
 UidAllocator Paint::allocator;
 
 void Texture::read(const QDomElement& obj)
@@ -254,3 +256,5 @@ bool Video::_generateThumbnail()
 
   return true;
 }
+
+MM_END_NAMESPACE

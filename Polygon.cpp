@@ -19,6 +19,8 @@
 
 #include "Polygon.h"
 
+MM_BEGIN_NAMESPACE
+
 void Polygon::setVertex(int i, const QPointF& v)
 {
   // Constrain vertex.
@@ -104,5 +106,4 @@ QPolygonF Polygon::toPolygon() const
   return polygon;
 }
 
-
-
+MM_END_NAMESPACE

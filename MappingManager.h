@@ -27,6 +27,8 @@
 #include "Paint.h"
 #include "Mapping.h"
 
+MM_BEGIN_NAMESPACE
+
 /**
  * This is a container class for all the paints and mappings ie. the main model object that allows
  * CRUD over paints and mappings.
@@ -108,5 +110,7 @@ public:
 
   void clearAll();
 };
+
+MM_END_NAMESPACE
 
 #endif /* MAPPINGMANAGER_H_ */

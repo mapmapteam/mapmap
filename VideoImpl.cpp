@@ -25,6 +25,8 @@
 #include <cstring>
 #include <iostream>
 
+MM_BEGIN_NAMESPACE
+
 // #define VIDEO_IMPL_VERBOSE
 
 // -------- private implementation of VideoImpl -------
@@ -1046,4 +1048,4 @@ bool VideoImpl::waitForNextBits(int timeout, const uchar** bits)
   return false;
 }
 
-
+MM_END_NAMESPACE

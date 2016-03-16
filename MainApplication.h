@@ -27,6 +27,8 @@
 #include "MM.h"
 #include "PreferencesDialog.h"
 
+MM_BEGIN_NAMESPACE
+
 class MainApplication : public QApplication
 {
 public:
@@ -35,5 +37,7 @@ public:
 
   bool notify(QObject *receiver, QEvent *event);
 };
+
+MM_END_NAMESPACE
 
 #endif /* MAINAPPLICATION_H_ */

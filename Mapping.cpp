@@ -21,6 +21,8 @@
 #include "Mapping.h"
 #include "MainWindow.h"
 
+MM_BEGIN_NAMESPACE
+
 UidAllocator Mapping::allocator;
 
 Mapping::Mapping(uid id)
@@ -164,3 +166,5 @@ void Mapping::_writeShape(QDomElement& obj, bool isOutput)
   shape->write(shapeObj);
   obj.appendChild(shapeObj);
 }
+
+MM_END_NAMESPACE

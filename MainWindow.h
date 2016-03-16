@@ -53,6 +53,8 @@
 
 #include "PaintGui.h"
 
+MM_BEGIN_NAMESPACE
+
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
  */
@@ -512,5 +514,7 @@ public:
   static const int OUTPUT_WINDOW_MINIMUM_WIDTH = 480;
   static const int OUTPUT_WINDOW_MINIMUM_HEIGHT = 270;
 };
+
+MM_END_NAMESPACE
 
 #endif /* MAIN_WINDOW_H_ */

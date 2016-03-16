@@ -24,6 +24,8 @@
 
 #include "Commands.h"
 
+MM_BEGIN_NAMESPACE
+
 AddShapesCommand::AddShapesCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent):
   QUndoCommand(parent),
   _mainWindow(mainWindow),
@@ -186,3 +188,4 @@ void DeleteMappingCommand::redo()
   _mainWindow->deleteMapping(_mappingId);
 }
 
+MM_END_NAMESPACE

@@ -23,6 +23,7 @@
 
 #include "Shape.h"
 
+MM_BEGIN_NAMESPACE
 
 class Ellipse : public MShape
 {
@@ -142,5 +143,7 @@ protected:
 //    qreal vAxisLength = Point::dist(getVertex(1)->toPoint(), getVertex(3)->toPoint());
 //  }
 };
+
+MM_END_NAMESPACE
 
 #endif /* ELLIPSE_H_ */

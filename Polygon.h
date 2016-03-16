@@ -21,6 +21,8 @@
 
 #include "Shape.h"
 
+MM_BEGIN_NAMESPACE
+
 /**
  * This class represents a simple polygon (ie. the control points are vertices).
  */
@@ -52,5 +54,6 @@ protected:
   static void _constrainVertex(const QPolygonF& polygon, int i, QPointF& v);
 };
 
+MM_END_NAMESPACE
 
 #endif /* POLYGON_H_ */

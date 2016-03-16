@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <iostream>
 
+MM_USE_NAMESPACE
+
 static void set_env_vars_if_needed()
 {
 #ifdef __MACOSX_CORE__

@@ -26,6 +26,8 @@
 #include <QTimer>
 #include "OutputGLCanvas.h"
 
+MM_BEGIN_NAMESPACE
+
 // TODO: add SLOT for mySetVisible
 // TODO: Maybe improve support for Ubuntu: http://stackoverflow.com/questions/12645880/fullscreen-for-qdialog-from-within-mainwindow-only-working-sometimes
 
@@ -61,5 +63,7 @@ private:
 
   bool _pointerIsVisible;
 };
+
+MM_END_NAMESPACE
 
 #endif /* OutputGLWINDOW_H_ */

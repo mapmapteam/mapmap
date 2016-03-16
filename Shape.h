@@ -40,6 +40,8 @@
 #include "Maths.h"
 #include "Serializable.h"
 
+MM_BEGIN_NAMESPACE
+
 /**
  * Shape represented by a series of control points.
  */
@@ -134,5 +136,7 @@ protected:
   virtual QList<QString> _propertiesSpecial() const { return Serializable::_propertiesSpecial() << "vertices"; }
 };
 
+
+MM_END_NAMESPACE
 
 #endif /* SHAPE_H_ */

@@ -20,6 +20,8 @@
 #include "ConsoleWindow.h"
 #include <QtWidgets>
 
+MM_BEGIN_NAMESPACE
+
 ConsoleWindow* ConsoleWindow::instance = NULL;
 
 ConsoleWindow::ConsoleWindow(QWidget *parent) : QMainWindow(parent)
@@ -137,5 +139,4 @@ ConsoleWindow::~ConsoleWindow()
   kill();
 }
 
-
-
+MM_END_NAMESPACE

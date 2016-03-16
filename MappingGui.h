@@ -53,6 +53,8 @@
 #include "variantmanager.h"
 #include "variantfactory.h"
 
+MM_BEGIN_NAMESPACE
+
 /**
  * This is the "view" side of the Mapping class (model). It contains the graphic items for
  * both input and output as well as the properties editor.
@@ -209,5 +211,6 @@ protected:
   static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
 };
 
+MM_END_NAMESPACE
 
 #endif /* MAPPER_H_ */

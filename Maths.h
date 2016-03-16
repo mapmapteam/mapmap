@@ -22,8 +22,10 @@
 #ifndef MATH_H_
 #define MATH_H_
 
-#include <QtGlobal>
+#include "MM.h"
 #include <cmath>
+
+MM_BEGIN_NAMESPACE
 
 /// Converts from degrees to radians.
 inline qreal degreesToRadians(qreal degrees) { return degrees / 180.0f * M_PI; }
@@ -59,5 +61,7 @@ inline bool distIsInside(const QPointF& p1, const QPointF& p2, qreal radius) {
 inline bool xOr(bool a, bool b) {
   return (a && !b) || (!a && b);
 }
+
+MM_END_NAMESPACE
 
 #endif /* MATH_H_ */

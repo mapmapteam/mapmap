@@ -25,6 +25,19 @@
 #include <QPen>
 #include <QBrush>
 
+#ifndef MM_NAMESPACE
+#define MM_NAMESPACE mmp
+#endif
+#define MM_PREPEND_NAMESPACE(name) MM_NAMESPACE::name
+#define MM_USE_NAMESPACE using namespace MM_NAMESPACE;
+#define MM_BEGIN_NAMESPACE namespace MM_NAMESPACE {
+#define MM_END_NAMESPACE }
+#define MM_FORWARD_DECLARE_CLASS(name) \
+  MM_BEGIN_NAMESPACE class name; MM_END_NAMESPACE \
+  using MM_PREPEND_NAMESPACE(name);
+
+MM_BEGIN_NAMESPACE
+
 /**
  * This class is a placeholder for predefined static variables that can be used
  * accross the software.
@@ -96,6 +109,8 @@ public:
     GroupButtonColum
   };
 };
+
+MM_END_NAMESPACE
 
 #endif
 

@@ -23,6 +23,8 @@
 #include "MM.h"
 #include "MapperGLCanvas.h"
 
+MM_BEGIN_NAMESPACE
+
 class MapperGLCanvasToolbar : public QWidget {
   Q_OBJECT
 public:
@@ -52,5 +54,7 @@ protected:
   QComboBox* _dropdownMenu;
 
 };
+
+MM_END_NAMESPACE
 
 #endif /* MAPPERGLCANVASTOOLBAR_H_ */

@@ -42,6 +42,8 @@
 #include "variantmanager.h"
 #include "variantfactory.h"
 
+MM_BEGIN_NAMESPACE
+
 /**
  * The view components corresponding to a Paint (which is the model) in the interface.
  * Mainly manages the property browser for the Paint.
@@ -138,5 +140,7 @@ protected:
   QtVariantProperty* _mediaVolumeItem;
 //  QtVariantProperty* _mediaReverseItem;
 };
+
+MM_END_NAMESPACE
 
 #endif /* PAINTGUI_H_ */

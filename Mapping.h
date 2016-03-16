@@ -32,6 +32,8 @@
 
 #include "MetaObjectRegistry.h"
 
+MM_BEGIN_NAMESPACE
+
 // TODO: replace by ProjectAttribute
 //#include "ProjectWriter.h"
 
@@ -197,5 +199,7 @@ public:
     return getShape()->getType() + "_texture";
   }
 };
+
+MM_END_NAMESPACE
 
 #endif /* MAPPING_H_ */

@@ -24,6 +24,8 @@
 #include "MainWindow.h"
 #include "Commands.h"
 
+MM_BEGIN_NAMESPACE
+
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* parent, const QGLWidget * shareWidget, QGraphicsScene* scene)
   : QGraphicsView(parent),
     _mainWindow(mainWindow),
@@ -621,3 +623,5 @@ void MapperGLCanvas::_glueVertex(QPointF* p)
     }
   }
 }
+
+MM_END_NAMESPACE

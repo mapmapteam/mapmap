@@ -19,6 +19,8 @@
 
 #include <PaintGui.h>
 
+MM_BEGIN_NAMESPACE
+
 PaintGui::PaintGui(Paint::ptr paint)
   : _paint(paint)
 {
@@ -217,3 +219,5 @@ void VideoGui::setValue(QString propertyName, QVariant value)
   else
     TextureGui::setValue(propertyName, value);
 }
+
+MM_END_NAMESPACE

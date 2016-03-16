@@ -23,6 +23,8 @@
 
 #include "Polygon.h"
 
+MM_BEGIN_NAMESPACE
+
 /**
  * Four-vertex shape.
  */
@@ -50,5 +52,7 @@ protected:
   virtual MShape* _create() const { return new Quad(); }
 };
 
+
+MM_END_NAMESPACE
 
 #endif /* QUAD_H_ */

@@ -31,7 +31,7 @@
 #include <gst/pbutils/pbutils.h>
 
 // Other includes.
-#include <QtGlobal>
+#include "MM.h"
 #include <QtOpenGL>
 #include <QMutex>
 #include <QWaitCondition>
@@ -42,6 +42,8 @@
 #else
 #include <GL/gl.h>
 #endif
+
+MM_BEGIN_NAMESPACE
 
 /**
  * Private declaration of the video player.
@@ -275,5 +277,7 @@ private:
 
   static const int MAX_SAMPLES_IN_BUFFER_QUEUES = 30;
 };
+
+MM_END_NAMESPACE
 
 #endif /* ifndef */

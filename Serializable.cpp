@@ -19,6 +19,8 @@
 
 #include "Serializable.h"
 
+MM_BEGIN_NAMESPACE
+
 void Serializable::read(const QDomElement& obj)
 {
   QList<QString> attributeNames = _propertiesAttributes();
@@ -126,3 +128,5 @@ void Serializable::_writeNode(QDomElement& obj, const QString& nodeName, const Q
 }
 
 
+
+MM_END_NAMESPACE

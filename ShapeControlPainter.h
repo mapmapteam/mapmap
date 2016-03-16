@@ -27,6 +27,8 @@
 #include "MapperGLCanvas.h"
 #include "ShapeGraphicsItem.h"
 
+MM_BEGIN_NAMESPACE
+
 class ShapeGraphicsItem;
 class MapperGLCanvas;
 
@@ -86,5 +88,7 @@ public:
 protected:
   virtual void _paintShape(QPainter *painter, MapperGLCanvas* canvas);
 };
+
+MM_END_NAMESPACE
 
 #endif

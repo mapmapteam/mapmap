@@ -23,6 +23,8 @@
 
 #include "MainWindow.h"
 
+MM_BEGIN_NAMESPACE
+
 OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) : QDialog(parent)
 {
   resize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
@@ -127,3 +129,5 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
     }
   }
 }
+
+MM_END_NAMESPACE

@@ -19,6 +19,8 @@
 
 #include "MetaObjectRegistry.h"
 
+MM_BEGIN_NAMESPACE
+
 MetaObjectRegistry& MetaObjectRegistry::instance()
 {
   static MetaObjectRegistry inst;
@@ -30,3 +32,5 @@ const QMetaObject* MetaObjectRegistry::getMetaObject(QString className) const
   QMap<QString, const QMetaObject*>::const_iterator it = metaObjectLookup.find(className);
   return (it == metaObjectLookup.constEnd() ? 0 : *it);
 }
+
+MM_END_NAMESPACE

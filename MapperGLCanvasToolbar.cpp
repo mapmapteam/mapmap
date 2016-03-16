@@ -19,6 +19,8 @@
 
 #include "MapperGLCanvasToolbar.h"
 
+MM_BEGIN_NAMESPACE
+
 MapperGLCanvasToolbar::MapperGLCanvasToolbar(MapperGLCanvas* canvas, QWidget* parent)
   : QWidget(parent),
     _canvas(canvas)
@@ -30,8 +32,6 @@ MapperGLCanvasToolbar::MapperGLCanvasToolbar(MapperGLCanvas* canvas, QWidget* pa
 
   // Disable zoom tool buttons
   enableZoomToolBar(false);
-
-
 
 }
 
@@ -146,3 +146,4 @@ void MapperGLCanvasToolbar::updateDropdownMenu()
   _dropdownMenu->setCurrentText(zoomFactor);
 }
 
+MM_END_NAMESPACE
