@@ -1,6 +1,6 @@
 CONFIG  += qt debug c++11
 TEMPLATE = app
-VERSION = 0.3.2
+VERSION = 0.4
 TARGET = mapmap
 QT += gui opengl xml core
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets core
