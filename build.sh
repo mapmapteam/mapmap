@@ -3,7 +3,7 @@
 # On Mac, install it from http://qt-project.org/downloads
 # set -o verbose
 
-qtversion=5.4
+qtversion=5.5
 
 do_create_dmg() {
     if [ -f DMGVERSION.txt ]
@@ -37,11 +37,11 @@ do_fix_qt_plugins_in_app() {
     cp $qtdir/plugins/platforms/libqcocoa.dylib $appdir/Contents/PlugIns/platforms
     # fix its identity and references to others
     install_name_tool -id @executable_path/../PlugIns/platforms/libqcocoa.dylib $appdir/Contents/PlugIns/platforms/libqcocoa.dylib
-    install_name_tool -change $qtdir/lib/QtWidgets.framework/Versions/5/QtWidgets @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets $appdir/Contents/PlugIns/platforms/libqcocoa.dylib
-    install_name_tool -change $qtdir/lib/QtGui.framework/Versions/5/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui $appdir/Contents/PlugIns/platforms/libqcocoa.dylib
-    install_name_tool -change $qtdir/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore $appdir/Contents/PlugIns/platforms/libqcocoa.dylib
-    install_name_tool -change $qtdir/lib/QtXml.framework/Versions/5/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/5/QtXml $appdir/Contents/PlugIns/platforms/libqcocoa.dylib
-    install_name_tool -change $qtdir/lib/QtOpenGL.framework/Versions/5/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/5/QtOpenGL $appdir/Contents/PlugIns/platforms/libqcocoa.dylib
+    for qtframework in QtWidgets, QtGui, QtCore, QtXml, QtOpenGL; do
+      framework = "$qtframework.framework/Versions/5/$qtframework"
+      echo "Processing $framework"
+      install_name_tool -change $qtdir/lib/$framework @executable_path/../Frameworks/$framework
+    done
 }
 
 unamestr=$(uname)
@@ -51,26 +51,40 @@ if [[ $unamestr == "Darwin" ]]; then
     #QMAKE_CFLAGS_PPC_64+="-Xarch_ppc64 -mmacosx-version-min=10.7"
     #export MAKE_CFLAGS_X86_64
     #export QMAKE_CFLAGS_PPC_64
-    export QMAKESPEC=macx-g++
+    #export QMAKESPEC=macx-g++
     #export QMAKESPEC=macx-xcode
-    PATH=$PATH:~/Qt${qtversion}/${qtversion}/clang_64/bin
-    qmake5=~/Qt/${qtversion}/clang_64/bin/qmake
-    # $qmake5 -spec macx-llvm
+    qtbindir=~/Qt/${qtversion}/clang_64/bin/
+    PATH=$PATH:${qtbindir}
+    gstreamer="GStreamer.framework/Versions/1.0/lib/GStreamer"
+    app="MapMap.app"
 
     # XXX
     #$qmake5 -config release -spec macx-llvm
     #$qmake5 -config debug -spec macx-llvm
     #$qmake5 -config release -spec macx-llvm
     #$qmake5 -config debug -spec macx-g++
-    $qmake5 -config release -spec macx-g++
+    #qmake -config release -spec macx-g++
 
-    make
-    macdeployqt MapMap.app
-    #cp -R /Library/Frameworks/GStreamer.framework ./MapMap.app/Contents/Frameworks/
+    # build program
+    echo "Building program ..."
+    qmake -config release
+    make -j4
+    
+    # Bundle Qt frameworks in app using macdeployqt
+    echo "Bundling Qt ..."
+    macdeployqt $app
+    
+    # Bundle GStreamer framework in app
+    echo "Bundling GStreamer ..."
+    cp -R /Library/Frameworks/GStreamer.framework ${app}/Contents/Frameworks/
+    install_name_tool -id @executable_path/../Frameworks/${gstreamer} ${app}/Contents/Frameworks/${gstreamer}
+    install_name_tool -change /Library/Frameworks/${gstreamer} @executable_path/../Frameworks/${gstreamer} ${app}/Contents/MacOs/MapMap
+    
     # do_fix_qt_plugins_in_app
+    echo "Creating DMG ..."
     do_create_dmg
 elif [[ $unamestr == "Linux" ]]; then
     qmake
-    make
+    make -j4
 fi
 
