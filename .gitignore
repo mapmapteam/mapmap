@@ -27,6 +27,7 @@ Release/
 *.tar
 *.rar
 *.qm
+!resources/texts/*.qm
 *.psd
 *.ai
 *.gif
