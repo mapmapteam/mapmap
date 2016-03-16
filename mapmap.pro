@@ -178,25 +178,23 @@ mac {
 # Windows-specific:
 win32 {
   DEFINES += WIN32
-  INCLUDEPATH += \
-    C:/gstreamer/include \
-    C:/gstreamer/include/libxml2 \
-    C:/gstreamer/include/glib-2.0 \
-    C:/gstreamer/lib/glib-2.0/include \
-    C:/gstreamer/include/gstreamer-0.10
-  LIBS += -L"C:/gstreamer/lib" \
-    -L"C:/gstreamer/bin" \
-    -lgstreamer-0.10 \
-    -lglib-2.0 \
-    -lgmodule-2.0 \
+  INCLUDEPATH += C:/gstreamer/1.0/x86/lib/gstreamer-1.0/include \
+    C:/gstreamer/1.0/x86/include/glib-2.0 \
+    C:/gstreamer/1.0/x86/lib/glib-2.0/include \
+    C:/gstreamer/1.0/x86/include/gstreamer-1.0
+  LIBS += -LC:/gstreamer/1.0/x86/lib \
+    -lgstapp-1.0 \
+    -lgstbase-1.0 \
+    -lgstpbutils-1.0 \
+    -lgstreamer-1.0 \
     -lgobject-2.0 \
-    -lgthread-2.0 \
-    -lgstinterfaces-0.10 \
-    -lopengl32 \
-    -lglu32
+    -lglib-2.0 \
+    -lopengl32
+
   # Add console to the CONFIG to see debug messages printed in 
   # the console on Windows
   CONFIG += console
+  QMAKE_CXXFLAGS += -D_USE_MATH_DEFINES
 }
 
 # Adds the tarball target

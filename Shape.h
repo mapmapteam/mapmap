@@ -21,7 +21,6 @@
 #define M_SHAPE_H_
 
 #include <iostream>
-#include <cmath>
 
 #include <QtGlobal>
 

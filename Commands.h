@@ -23,8 +23,6 @@
 #define COMMANDS_H_
 
 #include <QUndoCommand>
-#include "MainWindow.h"
-#include "MapperGLCanvas.h"
 
 enum CommandId {
   CMD_KEY_MOVE_VERTEX,
@@ -32,6 +30,9 @@ enum CommandId {
   CMD_KEY_TRANSLATE_SHAPE,
   CMD_MOUSE_TRANSLATE_SHAPE,
 };
+
+class MainWindow;
+class MapperGLCanvas;
 
 class AddShapesCommand : public QUndoCommand
 {
