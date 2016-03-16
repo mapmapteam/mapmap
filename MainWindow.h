@@ -126,10 +126,6 @@ private slots:
   void addTriangle();
   void addEllipse();
 
-  void play();
-  void pause();
-  void rewind();
-
   // Other.
   void windowModified();
   void pollOscInterface();
@@ -211,6 +207,15 @@ public slots:
   void showMappingContextMenu(const QPoint &point);
   // Show Paint Context Menu
   void showPaintContextMenu(const QPoint &point);
+
+  /// Start playback.
+  void play();
+
+  /// Pause playback.
+  void pause();
+
+  /// Reset playback.
+  void rewind();
 
 public:
   bool setTextureUri(int texture_id, const std::string &uri);

@@ -46,6 +46,10 @@ public:
   static const QString OSC_PAINT;
   static const QString OSC_MAPPING;
   static const QString OSC_QUIT;
+  static const QString OSC_PLAY;
+  static const QString OSC_PAUSE;
+  static const QString OSC_REWIND;
+
   static const QString OSC_PAINT_MEDIA;
   static const QString OSC_PAINT_COLOR;
 

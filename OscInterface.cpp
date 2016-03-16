@@ -29,6 +29,10 @@ const QString OscInterface::OSC_ROOT("mapmap");
 const QString OscInterface::OSC_PAINT("paint");
 const QString OscInterface::OSC_MAPPING("mapping");
 const QString OscInterface::OSC_QUIT("quit");
+const QString OscInterface::OSC_PLAY("play");
+const QString OscInterface::OSC_PAUSE("pause");
+const QString OscInterface::OSC_REWIND("rewind");
+
 const QString OscInterface::OSC_PAINT_MEDIA("media");
 const QString OscInterface::OSC_PAINT_COLOR("color");
 
@@ -197,6 +201,18 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
         int id = command.at(2).toInt();
         Mapping::ptr elem = main_window.getMappingManager().getMappingById(id);
         pathIsValid = setElementProperty(elem, next(iterator.second).first, command.at(3));
+      }
+      else if (iterator.first == OSC_PLAY)
+      {
+        main_window.play();
+      }
+      else if (iterator.first == OSC_PAUSE)
+      {
+        main_window.pause();
+      }
+      else if (iterator.first == OSC_REWIND)
+      {
+        main_window.rewind();
       }
       else if (iterator.first == OSC_QUIT)
       {

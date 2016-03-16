@@ -673,37 +673,6 @@ void MainWindow::addEllipse()
   undoStack->push(new AddShapesCommand(this, mappingId));
 }
 
-void MainWindow::play()
-{
-  // Update buttons.
-  playAction->setVisible(false);
-  pauseAction->setVisible(true);
-  _isPlaying = true;
-
-  // Start all paints.
-  for (int i=0; i<mappingManager->nPaints(); i++)
-    mappingManager->getPaint(i)->play();
-}
-
-void MainWindow::pause()
-{
-  // Update buttons.
-  playAction->setVisible(true);
-  pauseAction->setVisible(false);
-  _isPlaying = false;
-
-  // Pause all paints.
-  for (int i=0; i<mappingManager->nPaints(); i++)
-    mappingManager->getPaint(i)->pause();
-}
-
-void MainWindow::rewind()
-{
-  // Rewind all paints.
-  for (int i=0; i<mappingManager->nPaints(); i++)
-    mappingManager->getPaint(i)->rewind();
-}
-
 void MainWindow::about()
 {
   // Stop video playback to avoid lags. XXX Hack
@@ -2797,6 +2766,37 @@ void MainWindow::showPaintContextMenu(const QPoint &point)
 
   if (objectSender != NULL && paintList->count() > 0)
     paintContextMenu->exec(objectSender->mapToGlobal(point));
+}
+
+void MainWindow::play()
+{
+  // Update buttons.
+  playAction->setVisible(false);
+  pauseAction->setVisible(true);
+  _isPlaying = true;
+
+  // Start all paints.
+  for (int i=0; i<mappingManager->nPaints(); i++)
+    mappingManager->getPaint(i)->play();
+}
+
+void MainWindow::pause()
+{
+  // Update buttons.
+  playAction->setVisible(true);
+  pauseAction->setVisible(false);
+  _isPlaying = false;
+
+  // Pause all paints.
+  for (int i=0; i<mappingManager->nPaints(); i++)
+    mappingManager->getPaint(i)->pause();
+}
+
+void MainWindow::rewind()
+{
+  // Rewind all paints.
+  for (int i=0; i<mappingManager->nPaints(); i++)
+    mappingManager->getPaint(i)->rewind();
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)
