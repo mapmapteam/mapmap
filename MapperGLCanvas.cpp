@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ShapeGraphicsItem.h"
 #include "MapperGLCanvas.h"
 
 #include "MainWindow.h"

@@ -70,10 +70,6 @@ if [[ $unamestr == "Darwin" ]]; then
     qmake -config release
     make -j4
     
-    # Release language files
-    echo "Integrating language resources ..."
-    lrelease resources/texts/mapmap_*.ts
-
     # Bundle Qt frameworks in app using macdeployqt
     echo "Bundling Qt ..."
     macdeployqt $app
@@ -89,7 +85,6 @@ if [[ $unamestr == "Darwin" ]]; then
     do_create_dmg
 elif [[ $unamestr == "Linux" ]]; then
     qmake
-    make
-    lrelease resources/texts/mapmap_*.ts
+    make -j4
 fi
 

@@ -39,11 +39,10 @@
 
 #include "MapperGLCanvas.h"
 
-#ifndef WIN32
 #include "ShapeGraphicsItem.h"
 #include "ShapeControlPainter.h"
+
 #include "Util.h"
-#endif
 
 #include "qtpropertymanager.h"
 #include "qtvariantproperty.h"
@@ -53,10 +52,6 @@
 
 #include "variantmanager.h"
 #include "variantfactory.h"
-
-class MapperGLCanvas;
-class ShapeGraphicsItem;
-class ShapeControlPainter;
 
 /**
  * This is the "view" side of the Mapping class (model). It contains the graphic items for

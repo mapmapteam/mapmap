@@ -235,7 +235,6 @@ bool Video::_generateThumbnail()
 
   // Copy bits into thumbnail QImage.
   QImage thumbnail(getWidth(), getHeight(), QImage::Format_ARGB32);
-  int i=0;
   for (int y=0; y<getHeight(); y++)
     for (int x=0; x<getWidth(); x++)
     {

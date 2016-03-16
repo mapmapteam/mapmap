@@ -370,8 +370,10 @@ private:
 
   MapperGLCanvas* sourceCanvas;
   MapperGLCanvasToolbar* sourceCanvasToolbar;
+  QWidget* sourcePanel;
   MapperGLCanvas* destinationCanvas;
   MapperGLCanvasToolbar* destinationCanvasToolbar;
+  QWidget* destinationPanel;
 
   OutputGLWindow* outputWindow;
   ConsoleWindow* consoleWindow;
