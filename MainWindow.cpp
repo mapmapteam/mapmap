@@ -1398,7 +1398,7 @@ void MainWindow::createLayout()
 
   sourceCanvasToolbar = new MapperGLCanvasToolbar(sourceCanvas, this);
   QVBoxLayout* sourceLayout = new QVBoxLayout;
-  QWidget* sourcePanel = new QWidget(this);
+  sourcePanel = new QWidget(this);
 
   sourceLayout->setContentsMargins(0, 0, 0, 0);
   sourceLayout->addWidget(sourceCanvas);
@@ -1412,7 +1412,7 @@ void MainWindow::createLayout()
 
   destinationCanvasToolbar = new MapperGLCanvasToolbar(destinationCanvas, this);
   QVBoxLayout* destinationLayout = new QVBoxLayout;
-  QWidget* destinationPanel = new QWidget(this);
+  destinationPanel = new QWidget(this);
 
   destinationLayout->setContentsMargins(0, 0, 0, 0);
   destinationLayout->addWidget(destinationCanvas);
