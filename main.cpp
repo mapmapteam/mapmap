@@ -111,6 +111,10 @@ int main(int argc, char *argv[])
   QCommandLineOption oscPortOption(QStringList() << "p" << "osc-port", "Use OSC port number <osc-port>.", "osc-port", "");
   parser.addOption(oscPortOption);
 
+  // --lang option
+  QCommandLineOption localeOption(QStringList() << "l" << "lang", "Use language <lang>.", "lang", "en");
+  parser.addOption(localeOption);
+
   // Positional argument: file
   parser.addPositionalArgument("file", "Load project from that file.");
 
@@ -122,6 +126,20 @@ int main(int argc, char *argv[])
   if (parser.isSet(resetSettingsOption))
   {
     Util::eraseSettings();
+  }
+
+  // IMPORTANT: Translator must be set *before* the MainWindow is created for it to work.
+  QString langValue = parser.value("lang");
+  QTranslator translator;
+  if (translator.load(QString(":/translation-%1").arg(langValue)))
+  {
+    qDebug() << "Setting language to " << langValue << "." << endl;
+    app.installTranslator(&translator);
+    QLocale::setDefault(QLocale(langValue));
+  }
+  else if (langValue != "en")
+  {
+    qWarning() << "Unrecognized/unsupported language: " << langValue << "." << endl;
   }
 
 #endif // USING_QT_5
@@ -157,8 +175,6 @@ int main(int argc, char *argv[])
   stylesheet.open(QFile::ReadOnly);
   app.setStyleSheet(QLatin1String(stylesheet.readAll()));
 
-  //win.setLocale(QLocale("fr"));
-
 #if USING_QT_5
   // read positional argument:
   const QStringList args = parser.positionalArguments();
@@ -186,7 +202,9 @@ int main(int argc, char *argv[])
   {
     win->setOscPort(oscPortNumberValue);
   }
+
 #endif
+
 
   // Terminate splash.
   splash.showMessage("  " + QObject::tr("Done."),

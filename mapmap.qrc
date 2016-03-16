@@ -37,5 +37,8 @@
         <file alias="visible-mapping">resources/images/icons/small/visible_w.png</file>
         <file alias="duplicate-mapping">resources/images/icons/small/duplicate_w.png</file>
         <file alias="solo-mapping">resources/images/icons/small/solo_w.png</file>
+
+        <file alias="translation-fr">resources/texts/mapmap_fr.qm</file>
+
     </qresource>
 </RCC>
