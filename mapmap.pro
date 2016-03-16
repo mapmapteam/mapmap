@@ -84,10 +84,25 @@ SOURCES  = \
     Util.cpp \
     main.cpp
 
-RESOURCES = mapmap.qrc
-TRANSLATIONS = resources/texts/mapmap_fr.ts
+
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
 include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
+
+TRANSLATIONS = resources/texts/mapmap_fr.ts
+RESOURCES = mapmap.qrc
+
+# Manage lrelease (for translations)
+isEmpty(QMAKE_LRELEASE) {
+    win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\lrelease.exe
+    else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
+}
+updateqm.input = TRANSLATIONS
+updateqm.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
+updateqm.commands = $$QMAKE_LRELEASE ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
+updateqm.CONFIG += no_link
+QMAKE_EXTRA_COMPILERS += updateqm
+PRE_TARGETDEPS += compiler_updateqm_make_all
+system(lrelease mapmap.pro) # Run lrelease
 
 # Add the docs target:
 docs.depends = $(HEADERS) $(SOURCES)
