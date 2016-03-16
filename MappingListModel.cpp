@@ -19,6 +19,8 @@
 
 #include "MappingListModel.h"
 
+MM_BEGIN_NAMESPACE
+
 MappingListModel::MappingListModel(QObject *parent) :
   QAbstractTableModel(parent)
 {
@@ -201,3 +203,5 @@ void MappingListModel::setVisibility(const QModelIndex &index)
     setData(index, !(mappingList.at(index.row()).isVisible), Qt::CheckStateRole);
   }
 }
+
+MM_END_NAMESPACE

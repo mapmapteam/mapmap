@@ -23,6 +23,9 @@
 #define COMMANDS_H_
 
 #include <QUndoCommand>
+#include "MM.h"
+
+MM_BEGIN_NAMESPACE
 
 enum CommandId {
   CMD_KEY_MOVE_VERTEX,
@@ -123,5 +126,7 @@ private:
   Mapping::ptr _mapping;
   uid _mappingId;
 };
+
+MM_END_NAMESPACE
 
 #endif /* COMMANDS_H_ */

@@ -22,10 +22,12 @@
 #define PREFERENCESDIALOG_H_
 
 #include <QDialog>
-#include <QtGlobal>
+#include "MM.h"
 #include <QTimer>
 #include <QSpinBox>
 #include <QDialogButtonBox>
+
+MM_BEGIN_NAMESPACE
 
 class MainWindow;
 
@@ -52,5 +54,7 @@ private:
   QDialogButtonBox* _button_box;
   void resetValues();
 };
+
+MM_END_NAMESPACE
 
 #endif /* PREFERENCESDIALOG_H_ */

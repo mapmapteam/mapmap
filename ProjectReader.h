@@ -27,6 +27,8 @@
 #include "MetaObjectRegistry.h"
 #include "ProjectLabels.h"
 
+MM_BEGIN_NAMESPACE
+
 class ProjectReader
 {
 public:
@@ -43,3 +45,5 @@ private:
     QXmlStreamReader _xml;
     MainWindow *_window;
 };
+
+MM_END_NAMESPACE

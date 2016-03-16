@@ -19,6 +19,8 @@
 
 #include "Mesh.h"
 
+MM_BEGIN_NAMESPACE
+
 Mesh::Mesh() : Quad() {
   // Create dummy points (will be all overwritten later on by load/save).
   QVector<QPointF> points(4);
@@ -467,3 +469,4 @@ void Mesh::_reorderVertices()
   vertices = newVertices;
 }
 
+MM_END_NAMESPACE

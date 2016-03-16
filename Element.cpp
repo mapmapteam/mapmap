@@ -21,6 +21,8 @@
 
 #include <QDebug>
 
+MM_BEGIN_NAMESPACE
+
 Element::Element(uid id, UidAllocator* allocator) : _name(""), _isLocked(false), _opacity(1.0f), _allocator(allocator)
 {
   if (id == NULL_UID)
@@ -86,3 +88,4 @@ void Element::_emitPropertyChanged(const QString& propertyName)
   emit propertyChanged(getId(), propertyName, property(propertyName.toAscii()));
 }
 
+MM_END_NAMESPACE

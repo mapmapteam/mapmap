@@ -19,6 +19,8 @@
 
 #include "Shape.h"
 
+MM_BEGIN_NAMESPACE
+
 MShape::MShape(const QVector<QPointF>& vertices_) : _isLocked(false) {
   setVertices(vertices_);
   build();
@@ -87,3 +89,4 @@ void MShape::write(QDomElement& obj)
   obj.appendChild(verticesObj);
 }
 
+MM_END_NAMESPACE

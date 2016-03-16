@@ -28,6 +28,8 @@
 
 #include "MM.h"
 
+MM_BEGIN_NAMESPACE
+
 typedef int uid;
 
 class MappingListModel : public QAbstractTableModel
@@ -71,5 +73,7 @@ private:
 
   QList<MappingItem> mappingList;
 };
+
+MM_END_NAMESPACE
 
 #endif // MAPPINGLISTMODEL_H

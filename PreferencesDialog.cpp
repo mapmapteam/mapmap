@@ -22,6 +22,8 @@
 #include "MainWindow.h"
 #include <iostream>
 
+MM_BEGIN_NAMESPACE
+
 PreferencesDialog::PreferencesDialog(MainWindow* mainWindow, QWidget* parent) :
     QDialog(parent)
 {
@@ -85,3 +87,5 @@ void PreferencesDialog::accept_cb()
   this->close();
 }
 
+
+MM_END_NAMESPACE

@@ -19,6 +19,8 @@
 
 #include "Ellipse.h"
 
+MM_BEGIN_NAMESPACE
+
 void Ellipse::sanitize()
 {
   // Get horizontal axis rotated 90 degrees CW
@@ -147,6 +149,4 @@ void Ellipse::setVertex(int i, const QPointF& v)
   sanitize();
 }
 
-
-
-
+MM_END_NAMESPACE

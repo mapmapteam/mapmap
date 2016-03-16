@@ -25,6 +25,8 @@
 #include "MainWindow.h"
 #include <QVariant>
 
+MM_BEGIN_NAMESPACE
+
 const QString OscInterface::OSC_ROOT("mapmap");
 const QString OscInterface::OSC_PAINT("paint");
 const QString OscInterface::OSC_MAPPING("mapping");
@@ -247,5 +249,6 @@ bool OscInterface::setElementProperty(const QSharedPointer<Element>& elem, const
     return elem->setProperty(property.toUtf8().data(), value);
 }
 
+MM_END_NAMESPACE
 
 #endif // HAVE_OSC

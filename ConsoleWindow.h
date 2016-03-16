@@ -22,11 +22,10 @@
 
 #include <QMainWindow>
 #include <QPlainTextEdit>
-#include <QtGlobal>
+#include "MM.h"
 #include <QFont>
 
-class QAction;
-class QMenu;
+MM_BEGIN_NAMESPACE
 
 class ConsoleWindow : public QMainWindow
 {
@@ -73,5 +72,7 @@ private:
   static const int CONSOLE_WINDOW_DEFAULT_WIDTH = 640;
   static const int CONSOLE_WINDOW_DEFAULT_HEIGHT = 480;
 };
+
+MM_END_NAMESPACE
 
 #endif // CONSOLE_H

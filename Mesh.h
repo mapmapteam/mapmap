@@ -23,6 +23,8 @@
 
 #include "Quad.h"
 
+MM_BEGIN_NAMESPACE
+
 class Mesh : public Quad
 {
   Q_OBJECT
@@ -121,6 +123,6 @@ protected:
   virtual MShape* _create() const { return new Mesh(); }
 };
 
-
+MM_END_NAMESPACE
 
 #endif /* MESH_H_ */

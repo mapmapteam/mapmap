@@ -20,6 +20,8 @@
 #include "ProjectWriter.h"
 #include <sstream>
 
+MM_BEGIN_NAMESPACE
+
 ProjectWriter::ProjectWriter(MainWindow *window) :
     _window(window)
 {
@@ -62,3 +64,5 @@ bool ProjectWriter::writeFile(QIODevice *device)
 
   return true;
 }
+
+MM_END_NAMESPACE

@@ -37,6 +37,8 @@
 #include "Mapping.h"
 #include "MapperGLCanvas.h"
 
+MM_BEGIN_NAMESPACE
+
 class MapperGLCanvas;
 class ShapeControlPainter;
 
@@ -271,5 +273,7 @@ public:
 
   static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
 };
+
+MM_END_NAMESPACE
 
 #endif

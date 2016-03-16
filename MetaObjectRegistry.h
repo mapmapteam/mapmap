@@ -23,6 +23,9 @@
 #include <QObject>
 #include <QMap>
 #include <QList>
+#include "MM.h"
+
+MM_BEGIN_NAMESPACE
 
 class MetaObjectRegistry {
 private:
@@ -49,5 +52,7 @@ public:
   static MetaObjectRegistry& instance();
 
 };
+
+MM_END_NAMESPACE
 
 #endif /* METAOBJECTREGISTRY_H_ */

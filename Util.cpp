@@ -26,6 +26,8 @@
 #include <iostream>
 #include <QRegExp>
 
+MM_BEGIN_NAMESPACE
+
 namespace Util {
 
 void correctGlTexCoord(GLfloat x, GLfloat y)
@@ -217,3 +219,4 @@ bool isNumeric(const QString& text)
 
 } // end of namespace
 
+MM_END_NAMESPACE

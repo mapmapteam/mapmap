@@ -30,6 +30,8 @@
 
 #include "Shapes.h"
 
+MM_BEGIN_NAMESPACE
+
 class ProjectWriter
 {
 public:
@@ -41,4 +43,5 @@ public:
     MainWindow *_window;
 };
 
+MM_END_NAMESPACE
 #endif

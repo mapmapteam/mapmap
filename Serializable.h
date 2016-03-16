@@ -27,6 +27,8 @@
 
 #include "ProjectLabels.h"
 
+MM_BEGIN_NAMESPACE
+
 class Serializable : public QObject {
   Q_OBJECT
 
@@ -48,5 +50,7 @@ protected:
 
   void _writeNode(QDomElement& obj, const QString& nodeName, const QString& nodeValue);
 };
+
+MM_END_NAMESPACE
 
 #endif /* SERIALIZABLE_H_ */

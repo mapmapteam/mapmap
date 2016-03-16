@@ -30,6 +30,8 @@
 #include <QEvent>
 Q_DECLARE_METATYPE(uid)
 
+MM_BEGIN_NAMESPACE
+
 class Element : public Serializable
 {
   Q_OBJECT
@@ -81,5 +83,7 @@ private:
   float _opacity;
   UidAllocator* _allocator;
 };
+
+MM_END_NAMESPACE
 
 #endif /* MOBJECT_H_ */

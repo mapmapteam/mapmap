@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <iostream>
 
+MM_USE_NAMESPACE
+
 static void set_env_vars_if_needed()
 {
 #ifdef __MACOSX_CORE__
@@ -61,7 +63,7 @@ void initRegistry()
   // Shapes.
   registry.add<Quad>();
   registry.add<Mesh>();
-  registry.add<Ellipse>();
+  registry.add<MM_PREPEND_NAMESPACE(Ellipse)>();
   registry.add<Triangle>();
 }
 

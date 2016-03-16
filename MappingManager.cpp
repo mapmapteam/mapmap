@@ -21,6 +21,8 @@
 #include "MappingManager.h"
 #include <iostream>
 
+MM_BEGIN_NAMESPACE
+
 MappingManager::MappingManager()
 {
   // TODO Auto-generated constructor stub
@@ -202,3 +204,5 @@ void MappingManager::clearAll()
   paintMap.clear();
   mappingMap.clear();
 }
+
+MM_END_NAMESPACE

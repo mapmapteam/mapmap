@@ -19,6 +19,8 @@
 
 #include "MappingItemDelegate.h"
 
+MM_BEGIN_NAMESPACE
+
 MappingItemDelegate::MappingItemDelegate(QObject *parent) :
   QStyledItemDelegate(parent)
 {
@@ -191,3 +193,5 @@ bool MappingItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, 
   }
   return false;
 }
+
+MM_END_NAMESPACE

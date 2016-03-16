@@ -23,6 +23,8 @@
 
 #include "MapperGLCanvas.h"
 
+MM_BEGIN_NAMESPACE
+
 class OutputGLCanvas: public MapperGLCanvas
 {
   Q_OBJECT
@@ -52,5 +54,7 @@ protected:
   void wheelEvent(QWheelEvent *event);
   void mouseMoveEvent(QMouseEvent *event);
 };
+
+MM_END_NAMESPACE
 
 #endif /* OutputGLCanvas_H_ */

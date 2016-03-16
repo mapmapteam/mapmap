@@ -22,6 +22,8 @@
 #include <iostream>
 #include <string>
 
+MM_BEGIN_NAMESPACE
+
 ProjectReader::ProjectReader(MainWindow *window) : _window(window)
 {
 }
@@ -169,4 +171,4 @@ Mapping::ptr ProjectReader::parseMapping(const QDomElement& mappingElem)
   }
 }
 
-
+MM_END_NAMESPACE

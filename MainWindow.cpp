@@ -25,6 +25,8 @@
 #include <sstream>
 #include <string>
 
+MM_BEGIN_NAMESPACE
+
 MainWindow::MainWindow()
 {
   // Create model.
@@ -3219,3 +3221,5 @@ void MainWindow::quitMapMap()
 {
   close();
 }
+
+MM_END_NAMESPACE

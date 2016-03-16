@@ -20,6 +20,10 @@
 #ifndef PROJECTLABELS_H_
 #define PROJECTLABELS_H_
 
+#include "MM.h"
+
+MM_BEGIN_NAMESPACE
+
 class ProjectLabels {
 public:
   static const char* CLASS_NAME;
@@ -33,5 +37,7 @@ public:
   static const char* DESTINATION;
   static const char* SOURCE;
 };
+
+MM_END_NAMESPACE
 
 #endif /* PROJECTLABELS_H_ */

@@ -31,6 +31,9 @@
 #include <queue>
 #include <QMutex>
 #include <QWaitCondition>
+#include "MM.h"
+
+MM_BEGIN_NAMESPACE
 
 template<typename Data>
 class ConcurrentQueue
@@ -81,5 +84,7 @@ class ConcurrentQueue
             queue_.pop();
         }
 };
+
+MM_END_NAMESPACE
 
 #endif // _CONCURRENT_QUEUE_H_

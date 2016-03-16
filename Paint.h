@@ -37,6 +37,8 @@
 
 #include "Element.h"
 
+MM_BEGIN_NAMESPACE
+
 /**
  * A Paint is a style that can be applied when drawing potentially any shape.
  * 
@@ -312,5 +314,7 @@ protected:
    */
   VideoImpl *_impl;
 };
+
+MM_END_NAMESPACE
 
 #endif /* PAINT_H_ */

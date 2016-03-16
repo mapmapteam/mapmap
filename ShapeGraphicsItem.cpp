@@ -22,6 +22,8 @@
 
 #include "MainWindow.h"
 
+MM_BEGIN_NAMESPACE
+
 ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
   : _mapping(mapping), _output(output)
 {
@@ -597,3 +599,4 @@ void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   }
 }
 
+MM_END_NAMESPACE
