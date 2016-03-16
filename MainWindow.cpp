@@ -2082,6 +2082,8 @@ void MainWindow::readSettings()
 
   // settings present since 0.1.0:
   restoreGeometry(settings.value("geometry").toByteArray());
+  restoreState(settings.value("windowState").toByteArray());
+  
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
   paintSplitter->restoreState(settings.value("paintSplitter").toByteArray());
   mappingSplitter->restoreState(settings.value("mappingSplitter").toByteArray());
@@ -2117,6 +2119,8 @@ void MainWindow::writeSettings()
   QSettings settings("MapMap", "MapMap");
 
   settings.setValue("geometry", saveGeometry());
+  settings.setValue("windowState", saveState());
+  
   settings.setValue("mainSplitter", mainSplitter->saveState());
   settings.setValue("paintSplitter", paintSplitter->saveState());
   settings.setValue("mappingSplitter", mappingSplitter->saveState());
