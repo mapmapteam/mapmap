@@ -85,7 +85,7 @@ SOURCES  = \
     main.cpp
 
 RESOURCES = mapmap.qrc
-TRANSLATIONS = resources/texts/mapmap_*.ts
+TRANSLATIONS = resources/texts/mapmap_fr.ts
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
 include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
 
