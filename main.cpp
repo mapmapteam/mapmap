@@ -63,7 +63,7 @@ void initRegistry()
   // Shapes.
   registry.add<Quad>();
   registry.add<Mesh>();
-  registry.add<Ellipse>();
+  registry.add<MM_PREPEND_NAMESPACE(Ellipse)>();
   registry.add<Triangle>();
 }
 

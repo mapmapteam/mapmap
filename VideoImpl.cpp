@@ -931,6 +931,7 @@ void VideoImpl::_freeCurrentSample() {
  */
 void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* p)
 {
+  (void)src; //Unused
 #ifdef VIDEO_IMPL_VERBOSE
 #ifndef Q_OS_OSX
   // NOTE: This line was causing a problem on Mac OSX: it caused the software to freeze when loading a new movie.
