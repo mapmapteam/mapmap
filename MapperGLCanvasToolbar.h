@@ -34,13 +34,13 @@ public:
   // Create zoom tool buttons
   void createZoomToolsLayout();
 
-  // Show/Hide zoom tool buttons
-  void showZoomToolBar(bool visible);
   void enableZoomToolBar(bool enabled);
 
 public slots:
   // Update and feedback zoom level
-  void updateDropdownMenu();
+  void updateDropdownMenu(qreal factor = 1);
+  // Show/Hide zoom tool buttons
+  void showZoomToolBar(bool visible);
 
 protected:
   MapperGLCanvas* _canvas;

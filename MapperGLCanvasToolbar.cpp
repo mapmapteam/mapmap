@@ -106,7 +106,7 @@ void MapperGLCanvasToolbar::createZoomToolsLayout()
   // Insert layout in widget
   setLayout(buttonsLayout);
 
-  connect(_canvas, SIGNAL(zoomFactorChanged(qreal)), this, SLOT(updateDropdownMenu()));
+  connect(_canvas, SIGNAL(zoomFactorChanged(qreal)), this, SLOT(updateDropdownMenu(qreal)));
 }
 
 void MapperGLCanvasToolbar::showZoomToolBar(bool visible)
@@ -127,10 +127,10 @@ void MapperGLCanvasToolbar::enableZoomToolBar(bool enabled)
   _dropdownMenu->setEnabled(enabled);
 }
 
-void MapperGLCanvasToolbar::updateDropdownMenu()
+void MapperGLCanvasToolbar::updateDropdownMenu(qreal factor)
 {
   // Get current zoom factor percentage
-  QString zoomFactor = QString::number(int(_canvas->getZoomFactor() * 100)).append(QChar('%'));
+  QString zoomFactor = QString::number(int(factor * 100)).append(QChar('%'));
   //Create list
   QStringList zoomFactorList;
   zoomFactorList << "400%" << "300%" << "200%" << "150%" << "125%" <<

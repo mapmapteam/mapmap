@@ -128,6 +128,9 @@ void MainWindow::handlePaintItemSelectionChanged()
   addMeshAction->setEnabled(paintItemSelected);
   addTriangleAction->setEnabled(paintItemSelected);
   addEllipseAction->setEnabled(paintItemSelected);
+  // Enable some menus and buttons
+  sourceCanvasToolbar->enableZoomToolBar(paintItemSelected);
+  sourceMenu->setEnabled(paintItemSelected);
 
   // Update canvases.
   updateCanvases();
@@ -135,18 +138,6 @@ void MainWindow::handlePaintItemSelectionChanged()
 
 void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
 {
-//  if (mappingList->selectedItems().empty())
-//  {
-//    removeCurrentMapping();
-//    /* Disable some menus and buttons when
-//     * no mapping was selected  */
-//    sourceCanvas->enableZoomToolBar(false);
-//    sourceMenu->setEnabled(false);
-//    destinationCanvas->enableZoomToolBar(false);
-//    destinationMenu->setEnabled(false);
-//  }
-//  else
-//  {
   // Set current paint and mappings.
   uid mappingId = mappingListModel->getItemId(index);
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
@@ -154,12 +145,6 @@ void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
   // Set current mapping and paint
   setCurrentMapping(mappingId);
   setCurrentPaint(paintId);
-  // Enable some menus and buttons
-  sourceCanvasToolbar->enableZoomToolBar(true);
-  sourceMenu->setEnabled(true);
-  destinationCanvasToolbar->enableZoomToolBar(true);
-  destinationMenu->setEnabled(true);
-//  }
 
   // Update canvases.
   updateCanvases();
@@ -179,18 +164,6 @@ void MainWindow::handleMappingItemChanged(const QModelIndex &index)
   mapping->setVisible(index.data(Qt::CheckStateRole).toBool());
   mapping->setSolo(index.data(Qt::CheckStateRole+1).toBool());
   mapping->setLocked(index.data(Qt::CheckStateRole+2).toBool());
-
-/*
-  uid mappingId = mappingListModel->getItemId(index);
-  // Toggle visibility of mapping depending on checkbox of item.
-  setMappingVisible(mappingId, index.data(Qt::CheckStateRole).toBool());
-  // Toggle mapping solo mode
-  setMappingSolo(mappingId, index.data(Qt::CheckStateRole + 1).toBool());
-  // Toggle mapping lock state
-  setMappingLocked(mappingId, index.data(Qt::CheckStateRole + 2).toBool());
-  // Set mapping name if changed
-  renameMapping(mappingId, index.data(Qt::EditRole).toString());
-*/
  }
 
 void MainWindow::handleMappingIndexesMoved()
@@ -1815,8 +1788,8 @@ void MainWindow::createActions()
   displayZoomToolAction->setChecked(true);
   displayZoomToolAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(displayZoomToolAction);
-  connect(displayZoomToolAction, SIGNAL(toggled(bool)), sourceCanvas, SLOT(showZoomToolBar(bool)));
-  connect(displayZoomToolAction, SIGNAL(toggled(bool)), destinationCanvas, SLOT(showZoomToolBar(bool)));
+  connect(displayZoomToolAction, SIGNAL(toggled(bool)), sourceCanvasToolbar, SLOT(showZoomToolBar(bool)));
+  connect(displayZoomToolAction, SIGNAL(toggled(bool)), destinationCanvasToolbar, SLOT(showZoomToolBar(bool)));
 
   // Toggle show/hide menuBar
   showMenuBarAction = new QAction(tr("&Menu Bar"), this);
@@ -2707,10 +2680,6 @@ void MainWindow::updateCanvases()
   sourceCanvas->update();
   destinationCanvas->update();
   outputWindow->getCanvas()->update();
-
-//  // Update position of zoom toolbar
-//  sourceCanvasToolbar->updateZoomToolbar();
-//  destinationCanvasToolbar->updateZoomToolbar();
 
   // Update statut bar
   updateStatusBar();
