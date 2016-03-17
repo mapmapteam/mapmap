@@ -38,6 +38,16 @@ protected:
 public:
   virtual ~Serializable() {}
 
+  /// Returns the "cleaned" classname ie. without the namespace prefix.
+  QString cleanClassName() const;
+
+  /*
+   * Used for file loading/saving. File save uses a "clean" version of the classname that
+   * removes the namespace prefix (mmp::) to avoid useless repetitions in the saved file.
+   */
+  static QString classNameRealToClean(const QString& realClassName);
+  static QString classNameCleanToReal(const QString& cleanClassName);
+
   virtual void read(const QDomElement& obj);
   virtual void write(QDomElement& obj);
 

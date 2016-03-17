@@ -21,6 +21,24 @@
 
 MM_BEGIN_NAMESPACE
 
+QString Serializable::cleanClassName() const
+{
+  return classNameRealToClean(metaObject()->className());
+}
+
+QString Serializable::classNameRealToClean(const QString& realClassName)
+{
+  Q_ASSERT(realClassName.startsWith(MM::NAMESPACE_PREFIX));
+  // Removes the NAMESPACE:: prefix.
+  return realClassName.right( realClassName.size() - MM::NAMESPACE_PREFIX.size() );
+}
+
+QString Serializable::classNameCleanToReal(const QString& cleanClassName)
+{
+  Q_ASSERT(!cleanClassName.startsWith(MM::NAMESPACE_PREFIX));
+  return MM::NAMESPACE_PREFIX + cleanClassName;
+}
+
 void Serializable::read(const QDomElement& obj)
 {
   QList<QString> attributeNames = _propertiesAttributes();
@@ -75,7 +93,7 @@ void Serializable::write(QDomElement& obj)
   QList<QString> specialNames   = _propertiesSpecial();
 
   // Write up classname.
-  obj.setAttribute("className", metaObject()->className());
+  obj.setAttribute(ProjectLabels::CLASS_NAME, cleanClassName());
 
   // Fill up properties.
   int count = metaObject()->propertyCount();

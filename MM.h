@@ -36,6 +36,9 @@
   MM_BEGIN_NAMESPACE class name; MM_END_NAMESPACE \
   using MM_PREPEND_NAMESPACE(name);
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
 MM_BEGIN_NAMESPACE
 
 /**
@@ -54,6 +57,7 @@ public:
   static const QString FILE_EXTENSION;
   static const QString VIDEO_FILES_FILTER;
   static const QString IMAGE_FILES_FILTER;
+  static const QString NAMESPACE_PREFIX;
 
   // GUI.
   static const int DEFAULT_WINDOW_WIDTH = 640;

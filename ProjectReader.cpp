@@ -112,7 +112,7 @@ void ProjectReader::parseProject(const QDomElement& project)
 
 Paint::ptr ProjectReader::parsePaint(const QDomElement& paintElem)
 {
-  QString className = paintElem.attribute(ProjectLabels::CLASS_NAME);
+  QString className = Serializable::classNameCleanToReal(paintElem.attribute(ProjectLabels::CLASS_NAME));
   int id            = paintElem.attribute(ProjectLabels::ID, QString::number(NULL_UID)).toInt();
 
   qDebug() << "Found paint with classname: " << className << endl;
@@ -145,7 +145,7 @@ Paint::ptr ProjectReader::parsePaint(const QDomElement& paintElem)
 Mapping::ptr ProjectReader::parseMapping(const QDomElement& mappingElem)
 {
   // Get attributes.
-  QString className = mappingElem.attribute(ProjectLabels::CLASS_NAME);
+  QString className = Serializable::classNameCleanToReal(mappingElem.attribute(ProjectLabels::CLASS_NAME));
   int id            = mappingElem.attribute(ProjectLabels::ID, QString::number(NULL_UID)).toInt();
 
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);

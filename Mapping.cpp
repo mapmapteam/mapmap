@@ -128,7 +128,7 @@ void Mapping::_readShape(const QDomElement& obj, bool isOutput)
 
   QDomElement shapeObj = obj.firstChildElement(tag);
 
-  QString className = shapeObj.attribute(ProjectLabels::CLASS_NAME);
+  QString className = Serializable::classNameCleanToReal(shapeObj.attribute(ProjectLabels::CLASS_NAME));
 
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
   if (metaObject)
