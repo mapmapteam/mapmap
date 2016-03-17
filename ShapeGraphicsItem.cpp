@@ -229,16 +229,15 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
                                     const QStyleOptionGraphicsItem *option)
 {
   Q_UNUSED(option);
+  QSharedPointer<Texture> texture = _texture.toStrongRef();
   painter->beginNativePainting();
 
-  QSharedPointer<Texture> texture = _texture.toStrongRef();
+  // Project source texture and sent it to destination.
+  texture->update();
 
   // Only works for similar shapes.
   // TODO:remettre
   //Q_ASSERT( _inputShape->nVertices() == outputShape->nVertices());
-
-  // Project source texture and sent it to destination.
-  texture->update();
 
   // Allow alpha blending.
   glEnable (GL_BLEND);
@@ -253,8 +252,14 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   if (texture->bitsHaveChanged())
   {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-        texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
-      GL_UNSIGNED_BYTE, texture->getBits());
+                 texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, texture->getBits());
+    // NOTE: We would gain in efficiency if we were able to just update the texture using glTexSubImage2D
+    // See: http://stackoverflow.com/questions/11217121/how-to-manage-memory-with-texture-in-opengl
+//    glTexSubImage2D(GL_TEXTURE_2D,
+//        0, 0,
+//        texture->getWidth(), texture->getHeight(), 0,
+//        GL_RGBA, GL_UNSIGNED_BYTE, texture->getBits());
   }
   texture->unlockMutex();
 
@@ -266,6 +271,7 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   // Set texture color (apply opacity).
   glColor4f(1.0f, 1.0f, 1.0f,
             isOutput() ? getMapping()->getComputedOpacity() : getMapping()->getPaint()->getOpacity());
+
 }
 
 void TextureGraphicsItem::_postPaint(QPainter* painter,

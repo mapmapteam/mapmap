@@ -26,6 +26,14 @@ MM_BEGIN_NAMESPACE
 
 UidAllocator Paint::allocator;
 
+void Texture::update()
+{
+  if (textureId == 0)
+  {
+    glGenTextures(1, &textureId);
+  }
+}
+
 void Texture::read(const QDomElement& obj)
 {
   Paint::read(obj);
@@ -111,6 +119,7 @@ int Video::getHeight() const
 
 void Video::update() {
   _impl->update();
+  Texture::update();
 }
 
 void Video::play()

@@ -135,16 +135,19 @@ protected:
     x(0),
     y(0)
   {
-    glGenTextures(1, &textureId);
   }
 
 public:
   virtual ~Texture() {
+    // TODO: this needs to be fixed: it will not work unless it is executed from within a GL context
+    // see issue #229
     if (textureId != 0)
       glDeleteTextures(1, &textureId);
   }
 
 public:
+  virtual void update();
+
   GLuint getTextureId() const { return textureId; }
   virtual int getWidth() const = 0;
   virtual int getHeight() const = 0;
