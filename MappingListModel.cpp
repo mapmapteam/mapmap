@@ -22,15 +22,7 @@
 MM_BEGIN_NAMESPACE
 
 MappingListModel::MappingListModel(QObject *parent) :
-  QAbstractTableModel(parent)
-{
-
-}
-
-MappingListModel::~MappingListModel()
-{
-
-}
+  QAbstractTableModel(parent) {}
 
 int MappingListModel::rowCount(const QModelIndex &parent) const
 {
@@ -95,6 +87,80 @@ Qt::ItemFlags MappingListModel::flags(const QModelIndex &index) const
 
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable |
       Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+}
+
+Qt::DropActions MappingListModel::supportedDropActions() const
+{
+  return Qt::MoveAction;
+}
+
+#define MIMETYPE QLatin1String("mapping/model.item.list")
+
+QStringList MappingListModel::mimeTypes() const
+{
+  QStringList types;
+  types << MIMETYPE;
+  return types;
+}
+
+QMimeData *MappingListModel::mimeData(const QModelIndexList &indexes) const
+{
+  QMimeData *mimeData = QAbstractTableModel::mimeData(indexes);
+  QByteArray encodeData;
+  QDataStream stream(&encodeData, QIODevice::WriteOnly);
+
+  foreach (QModelIndex index, indexes) {
+    if (index.isValid()) {
+      if (index.column() == MM::HideColumn) {
+        int id = data(index, Qt::UserRole).toInt();
+        stream << id;
+        break; // Just take a first index and go
+      }
+    }
+  }
+
+  mimeData->setData(MIMETYPE, encodeData);
+
+  return mimeData;
+}
+
+bool MappingListModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+  if (!data->hasFormat(MIMETYPE)
+      || column > 0)
+    return false;
+
+  if (action == Qt::IgnoreAction)
+    return true;
+
+  int endRow;
+
+  if (!parent.isValid()) {
+    if (row < 0)
+      endRow = mappingList.size();
+    else
+      endRow = qMin(row, mappingList.size());
+  } else {
+    endRow = parent.row();
+  }
+
+  QByteArray encodeData = data->data(MIMETYPE);
+  QDataStream stream(&encodeData, QIODevice::ReadOnly);
+
+  while (!stream.atEnd()) {
+    int id;
+    stream >> id;
+
+    int rows = getItemRowFromId(id);
+    if (!beginMoveRows(QModelIndex(), rows, rows, QModelIndex(), endRow))
+      continue;
+    mappingList.move(rows, endRow);
+    endMoveRows();
+
+    ++endRow;
+  }
+
+  return true;
 }
 
 bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, int role)

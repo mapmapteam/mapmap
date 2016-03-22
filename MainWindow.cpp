@@ -172,8 +172,7 @@ void MainWindow::handleMappingIndexesMoved()
   QVector<uid> newOrder;
   for (int row=mappingListModel->rowCount()-1; row>=0; row--)
   {
-    int logicalIndex = mappingList->verticalHeader()->logicalIndex(row) ;
-    uid layerId = mappingListModel->getIndexFromRow(logicalIndex).data(Qt::UserRole).toInt();
+    uid layerId = mappingListModel->getIndexFromRow(row).data(Qt::UserRole).toInt();
     newOrder.push_back(layerId);
   }
   mappingManager->reorderMappings(newOrder);
@@ -1309,11 +1308,9 @@ void MainWindow::createLayout()
   mappingList->setSelectionMode(QAbstractItemView::SingleSelection);
   mappingList->setSelectionBehavior(QAbstractItemView::SelectRows);
   mappingList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-  mappingList->verticalHeader()->setMovable(true);
-  mappingList->setDefaultDropAction(Qt::MoveAction);
-  mappingList->setDragDropOverwriteMode(false);
   mappingList->setDragEnabled(true);
-  mappingList->setDragDropMode(QAbstractItemView::InternalMove);
+  mappingList->setAcceptDrops(true);
+  mappingList->setDropIndicatorShown(true);
   mappingList->setEditTriggers(QAbstractItemView::DoubleClicked);
   mappingList->setMinimumHeight(MAPPING_LIST_MINIMUM_HEIGHT);
   mappingList->setContentsMargins(0, 0, 0, 0);
@@ -1323,10 +1320,12 @@ void MainWindow::createLayout()
   mappingList->setModel(mappingListModel);
   mappingList->setItemDelegate(mappingItemDelegate);
   // Pimp Mapping table widget
+  mappingList->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+  mappingList->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   mappingList->horizontalHeader()->setStretchLastSection(true);
   mappingList->setShowGrid(false);
   mappingList->horizontalHeader()->hide();
-//  mappingList->verticalHeader()->hide();
+  mappingList->verticalHeader()->hide();
   mappingList->setMouseTracking(true);// Important
 
   // Create property panel.
@@ -2506,8 +2505,6 @@ void MainWindow::addMappingItem(uid mappingId)
   // Add item to layerList widget.
   mappingListModel->addItem(icon, label, mappingId);
   mappingListModel->updateModel();
-  mappingList->resizeRowsToContents();
-  mappingList->resizeColumnsToContents();
   setCurrentMapping(mappingId);
 
   // Disable Test signal when add Shapes
@@ -2803,15 +2800,13 @@ void MainWindow::connectProjectWidgets()
 
   connect(mappingList, SIGNAL(activated(const QModelIndex&)),
           this,        SLOT(handleMappingItemSelected(const QModelIndex&)));
-
-//  connect(mappingList,  SIGNAL(indexesMoved(const QModelIndexList&)),
-//          this,                 SLOT(handleMappingIndexesMoved()));
-  connect(mappingList->verticalHeader(),  SIGNAL(sectionMoved(int, int, int)),
+          
+  connect(mappingListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
           this,                 SLOT(handleMappingIndexesMoved()));
-//  connect(mappingListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
-//          this,                 SLOT(handleMappingIndexesMoved()));
+          
   connect(mappingItemDelegate, SIGNAL(itemDuplicated(uid)),
           this, SLOT(duplicateMapping(uid)));
+          
   connect(mappingItemDelegate, SIGNAL(itemRemoved(uid)),
           this, SLOT(deleteMapping(uid)));
 }
@@ -2838,15 +2833,14 @@ void MainWindow::disconnectProjectWidgets()
 
   disconnect(mappingList, SIGNAL(activated(const QModelIndex&)),
           this,        SLOT(handleMappingItemSelected(const QModelIndex&)));
-
-//  disconnect(mappingList,  SIGNAL(indexesMoved(const QModelIndexList&)),
-//          this,                 SLOT(handleMappingIndexesMoved()));
-
-//  disconnect(mappingListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
-//          this,                 SLOT(handleMappingIndexesMoved()));
+          
+  disconnect(mappingListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
+          this,                 SLOT(handleMappingIndexesMoved()));
+          
   disconnect(mappingItemDelegate, SIGNAL(itemDuplicated(uid)),
           this, SLOT(duplicateMapping(uid)));
-  disconnect(mappingItemDelegate, SIGNAL(itemRemoved(uid)),
+          
+  connect(mappingItemDelegate, SIGNAL(itemRemoved(uid)),
           this, SLOT(deleteMapping(uid)));
 }
 

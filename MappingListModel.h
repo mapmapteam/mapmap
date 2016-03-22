@@ -24,7 +24,7 @@
 #include <QList>
 #include <QIcon>
 #include <QDebug>
-#include <QItemSelectionModel>
+#include <QMimeData>
 
 #include "MM.h"
 
@@ -38,14 +38,21 @@ class MappingListModel : public QAbstractTableModel
 
 public:
   MappingListModel(QObject *parent = 0);
-  ~MappingListModel();
+  ~MappingListModel() {}
 
-  int rowCount(const QModelIndex & parent = QModelIndex()) const;
-  int columnCount(const QModelIndex & parent = QModelIndex()) const;
-  QVariant data(const QModelIndex &index, int role) const;
-  Qt::ItemFlags flags(const QModelIndex &index) const;
+  int rowCount(const QModelIndex & parent = QModelIndex()) const Q_DECL_OVERRIDE;
+  int columnCount(const QModelIndex & parent = QModelIndex()) const Q_DECL_OVERRIDE;
+  QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
 
-  bool setData(const QModelIndex &index, const QVariant &value, int role);
+  Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
+  Qt::DropActions supportedDropActions() const Q_DECL_OVERRIDE;
+
+  QStringList mimeTypes() const Q_DECL_OVERRIDE;
+  QMimeData *mimeData(const QModelIndexList &indexes) const Q_DECL_OVERRIDE;
+  bool dropMimeData(const QMimeData *data, Qt::DropAction action,
+                        int row, int column, const QModelIndex &parent) Q_DECL_OVERRIDE;
+
+  bool setData(const QModelIndex &index, const QVariant &value, int role) Q_DECL_OVERRIDE;
 
   void removeItem(int index);
   void addItem(const QIcon &icon, const QString &name, int id);
