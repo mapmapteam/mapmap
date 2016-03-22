@@ -308,77 +308,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
   videoTimer->start();
 }
 
-bool MainWindow::eventFilter(QObject *obj, QEvent *event)
-{
-  bool eventKey = false;
-  if (event->type() == QEvent::KeyPress)
-  {
-    QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-    eventKey = true;
-    // Menubar shortcut
-    if (keyEvent->modifiers() == Qt::CTRL)
-    {
-      switch (keyEvent->key()) {
-      case Qt::Key_N:
-        newFile();
-        break;
-      case Qt::Key_O:
-        open();
-        break;
-      case Qt::Key_S:
-        save();
-        break;
-      case Qt::Key_Q:
-        close();
-        break;
-      case Qt::Key_M:
-        addMesh();
-        break;
-      case Qt::Key_T:
-        addTriangle();
-        break;
-      case Qt::Key_E:
-        addEllipse();
-        break;
-      case Qt::Key_W:
-        outputWindow->setVisible(true);
-        break;
-      case Qt::Key_R:
-        rewind();
-        break;
-      case Qt::Key_Z:
-        undoStack->undo();
-        break;
-      }
-    }
-    else if (keyEvent->matches(QKeySequence::Redo))
-    {
-      undoStack->redo();
-    }
-    else if (keyEvent->key() == Qt::Key_Escape)
-      outputWindow->close();
-    else if (keyEvent->key() == Qt::Key_Space)
-    {
-      if (_isPlaying)
-      {
-        pause();
-      }
-      else
-      {
-        play();
-      }
-    }
-    eventKey = false;
-
-    return eventKey;
-  }
-  else
-  {
-    // standard event processing
-    return QObject::eventFilter(obj, event);
-  }
-}
-
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
 #ifdef Q_OS_OSX // On Mac OS X
@@ -1364,7 +1293,6 @@ void MainWindow::createLayout()
 
   outputWindow = new OutputGLWindow(this, destinationCanvas);
   outputWindow->installEventFilter(destinationCanvas);
-  outputWindow->installEventFilter(this);
 
   // Source scene changed -> change destination.
   connect(sourceCanvas->scene(), SIGNAL(changed(const QList<QRectF>&)),
