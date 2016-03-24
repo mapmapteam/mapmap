@@ -77,7 +77,7 @@ MainWindow::MainWindow()
   startOscReceiver();
 
   // Defaults.
-  //setWindowIcon(QIcon(":/images/icon.png"));
+  setWindowIcon(QIcon(":/mapmap-logo"));
   setCurrentFile("");
 
   // Create and start timer.

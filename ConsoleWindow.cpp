@@ -51,6 +51,8 @@ ConsoleWindow::ConsoleWindow(QWidget *parent) : QMainWindow(parent)
 
   // Set window title
   setWindowTitle(tr("Message Log Output - Mapmap"));
+  // Set window icon
+  setWindowIcon(QIcon(":/mapmap-logo"));
   // Set main widget
   setCentralWidget(_console);
 }
