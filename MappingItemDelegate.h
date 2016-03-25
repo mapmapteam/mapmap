@@ -52,6 +52,7 @@ public:
                             const QModelIndex &index) const Q_DECL_OVERRIDE;
 
 signals:
+  void itemContextMenuRequested(const QPoint &pos);
   void itemDuplicated(uid itemId);
   void itemRemoved(uid itemId);
 

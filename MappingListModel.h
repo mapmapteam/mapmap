@@ -65,9 +65,6 @@ public:
   uid getItemId(const QModelIndex &index) const;
   QModelIndex getIndexFromId(uid id) const;
 
-public slots:
-  void setVisibility(const QModelIndex &index);
-
 private:
   struct MappingItem {
     int id;

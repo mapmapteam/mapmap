@@ -188,15 +188,6 @@ void MainWindow::handlePaintItemSelected(QListWidgetItem* item)
   currentSelectedItem = item;
 }
 
-void MainWindow::handleMappingItemSelected(const QModelIndex &index)
-{
-  if (index.isValid()) {
-    if (index.column() == MM::HideColumn) {
-      mappingListModel->setVisibility(index);
-    }
-  }
-}
-
 void MainWindow::handlePaintChanged(Paint::ptr paint) {
   // Change currently selected item.
   uid curMappingId = getCurrentMappingId();
@@ -1850,7 +1841,8 @@ void MainWindow::createMappingContextMenu()
   outputWindow->setContextMenuPolicy(Qt::CustomContextMenu);
 
   // Context Menu Connexions
-  connect(mappingList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
+  connect(mappingItemDelegate, SIGNAL(itemContextMenuRequested(const QPoint&)),
+          this, SLOT(showMappingContextMenu(const QPoint&)), Qt::QueuedConnection);
   connect(destinationCanvas, SIGNAL(shapeContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
   connect(outputWindow->getCanvas(), SIGNAL(shapeContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
 }
@@ -2643,7 +2635,7 @@ void MainWindow::enableStickyVertices(bool value)
 
 void MainWindow::showMappingContextMenu(const QPoint &point)
 {
-  QWidget *objectSender = dynamic_cast<QWidget*>(sender());
+  QWidget *objectSender = static_cast<QWidget*>(sender());
   uid mappingId = currentMappingItemId();
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
 
@@ -2652,8 +2644,12 @@ void MainWindow::showMappingContextMenu(const QPoint &point)
   mappingHideAction->setChecked(!mapping->isVisible());
   mappingSoloAction->setChecked(mapping->isSolo());
 
-  if (objectSender != NULL && mappingListModel->rowCount() > 0)
-    mappingContextMenu->exec(objectSender->mapToGlobal(point));
+  if (objectSender != NULL) {
+    if (sender() == mappingItemDelegate) // XXX: The item delegate is not a widget
+      mappingContextMenu->exec(mappingList->mapToGlobal(point));
+    else
+      mappingContextMenu->exec(objectSender->mapToGlobal(point));
+  }
 }
 
 void MainWindow::showPaintContextMenu(const QPoint &point)
@@ -2722,12 +2718,6 @@ void MainWindow::connectProjectWidgets()
 
   connect(mappingListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
           this,        SLOT(handleMappingItemChanged(QModelIndex)));
-
-  connect(mappingList, SIGNAL(pressed(QModelIndex)),
-          this,        SLOT(handleMappingItemSelected(const QModelIndex&)));
-
-  connect(mappingList, SIGNAL(activated(const QModelIndex&)),
-          this,        SLOT(handleMappingItemSelected(const QModelIndex&)));
           
   connect(mappingListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
           this,                 SLOT(handleMappingIndexesMoved()));
@@ -2755,12 +2745,6 @@ void MainWindow::disconnectProjectWidgets()
 
   disconnect(mappingListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
           this,        SLOT(handleMappingItemChanged(QModelIndex)));
-
-  disconnect(mappingList, SIGNAL(pressed(QModelIndex)),
-          this,        SLOT(handleMappingItemSelected(const QModelIndex&)));
-
-  disconnect(mappingList, SIGNAL(activated(const QModelIndex&)),
-          this,        SLOT(handleMappingItemSelected(const QModelIndex&)));
           
   disconnect(mappingListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
           this,                 SLOT(handleMappingIndexesMoved()));

@@ -263,11 +263,4 @@ uid MappingListModel::getItemId(const QModelIndex &index) const
   return mappingList.at(index.row()).id;
 }
 
-void MappingListModel::setVisibility(const QModelIndex &index)
-{
-  if (index.isValid() && index.column() == MM::HideColumn) {
-    setData(index, !(mappingList.at(index.row()).isVisible), Qt::CheckStateRole);
-  }
-}
-
 MM_END_NAMESPACE

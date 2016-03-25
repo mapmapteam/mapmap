@@ -165,6 +165,7 @@ bool MappingItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, 
   int x = rect.x();
   int y = rect.y();
 
+  QRect hideButtonRect = QRect(x + 4, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
   QRect soloButtonRect = QRect(x + 10, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
   QRect lockButtonRect = QRect(x + 40, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
   QRect duplicateButtonRect = QRect(x + 70, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
@@ -176,22 +177,32 @@ bool MappingItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, 
 
   if (event->type() == QEvent::MouseButtonPress) {
 
-    if (index.column() == MM::GroupButtonColum) {
+    if (mouseEvent->buttons() & Qt::LeftButton && index.isValid()) {
+      if (index.column() == MM::HideColumn) {
+        if (hideButtonRect.contains(mouseEvent->pos()))
+          model->setData(index, !(index.data(Qt::CheckStateRole).toBool()), Qt::CheckStateRole);
+      }
+      if (index.column() == MM::GroupButtonColum) {
 
-      if (soloButtonRect.contains(mouseEvent->pos()))
-        model->setData(index, !(index.data(Qt::CheckStateRole + 1).toBool()), Qt::CheckStateRole + 1);
+        if (soloButtonRect.contains(mouseEvent->pos()))
+          model->setData(index, !(index.data(Qt::CheckStateRole + 1).toBool()), Qt::CheckStateRole + 1);
 
-      if (lockButtonRect.contains(mouseEvent->pos()))
-        model->setData(index, !(index.data(Qt::CheckStateRole + 2).toBool()), Qt::CheckStateRole + 2);
+        if (lockButtonRect.contains(mouseEvent->pos()))
+          model->setData(index, !(index.data(Qt::CheckStateRole + 2).toBool()), Qt::CheckStateRole + 2);
 
-      if (duplicateButtonRect.contains(mouseEvent->pos()))
-        emit itemDuplicated(index.data(Qt::UserRole).toInt());
+        if (duplicateButtonRect.contains(mouseEvent->pos()))
+          emit itemDuplicated(index.data(Qt::UserRole).toInt());
 
-      if (deleteButtonRect.contains(mouseEvent->pos()))
-        emit itemRemoved(index.data(Qt::UserRole).toInt());
+        if (deleteButtonRect.contains(mouseEvent->pos()))
+          emit itemRemoved(index.data(Qt::UserRole).toInt());
+      }
     }
+
+    if (mouseEvent->buttons() & Qt::RightButton && index.isValid())
+      emit itemContextMenuRequested(mouseEvent->pos());
   }
-  return false;
+
+  return QAbstractItemDelegate::editorEvent(event, model, option, index);
 }
 
 MM_END_NAMESPACE

@@ -117,7 +117,6 @@ private slots:
   void handleMappingItemChanged(const QModelIndex &index);
   void handleMappingIndexesMoved();
   void handlePaintItemSelected(QListWidgetItem* item);
-  void handleMappingItemSelected(const QModelIndex &index);
   void handlePaintChanged(Paint::ptr paint);
 
   void mappingPropertyChanged(uid id, QString propertyName, QVariant value);
