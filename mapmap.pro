@@ -178,22 +178,27 @@ mac {
 # Windows-specific:
 win32 {
   DEFINES += WIN32
-  INCLUDEPATH += C:/gstreamer/1.0/x86/lib/gstreamer-1.0/include \
-    C:/gstreamer/1.0/x86/include/glib-2.0 \
-    C:/gstreamer/1.0/x86/lib/glib-2.0/include \
-    C:/gstreamer/1.0/x86/include/gstreamer-1.0
-  LIBS += -LC:/gstreamer/1.0/x86/lib \
-    -lgstapp-1.0 \
-    -lgstbase-1.0 \
-    -lgstpbutils-1.0 \
-    -lgstreamer-1.0 \
-    -lgobject-2.0 \
-    -lglib-2.0 \
+  TARGET = Mapmap
+  GST_HOME = $$quote(C:\gstreamer\1.0\x86)
+  isEmpty(GST_HOME) {
+    message(\"C:\gstreamer\1.0\x86\" not detected ...)
+  }
+
+  INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \
+    $${GST_HOME}/include/glib-2.0 \
+    $${GST_HOME}/lib/glib-2.0/include \
+    $${GST_HOME}/include/gstreamer-1.0
+
+  LIBS += $${GST_HOME}/lib/gstapp-1.0.lib \
+    $${GST_HOME}/lib/gstbase-1.0.lib \
+    $${GST_HOME}/lib/gstpbutils-1.0.lib \
+    $${GST_HOME}/lib/gstreamer-1.0.lib \
+    $${GST_HOME}/lib/gobject-2.0.lib \
+    $${GST_HOME}/lib/glib-2.0.lib \
     -lopengl32
 
-  # Add console to the CONFIG to see debug messages printed in 
-  # the console on Windows
-  CONFIG += console
+  RC_FILE = mapmap_resource.rc
+
   QMAKE_CXXFLAGS += -D_USE_MATH_DEFINES
 }
 
