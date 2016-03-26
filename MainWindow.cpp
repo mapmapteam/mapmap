@@ -130,6 +130,7 @@ void MainWindow::handlePaintItemSelectionChanged()
   addEllipseAction->setEnabled(paintItemSelected);
   // Enable some menus and buttons
   sourceCanvasToolbar->enableZoomToolBar(paintItemSelected);
+  destinationCanvasToolbar->enableZoomToolBar(paintItemSelected);
   sourceMenu->setEnabled(paintItemSelected);
 
   // Update canvases.
