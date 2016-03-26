@@ -79,3 +79,7 @@ prototypes/qgraphicsview
 contrib/qtpropertybrowser.new
 contrib/pblazasm-read-only
 trash
+
+# Windows
+*.Debug
+*.Release
