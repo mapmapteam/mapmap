@@ -1631,7 +1631,7 @@ void MainWindow::createActions()
   connect(outputFullScreenAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
   // When closing the GL output window or hit ESC key, uncheck the action in menu.
 //  connect(outputWindow, SIGNAL(closed()), outputFullScreenAction, SLOT(toggle()));
-  connect(QApplication::desktop(), SIGNAL(screenCountChanged(int)), this, SLOT(updateOutputAction(int)));
+  connect(QApplication::desktop(), SIGNAL(screenCountChanged(int)), outputWindow, SLOT(updateScreenCount(int)));
   // Create hiden action for closing output window
   QAction *closeOutput = new QAction(tr("Close output"), this);
   closeOutput->setShortcut(Qt::Key_Escape);

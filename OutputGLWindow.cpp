@@ -65,10 +65,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
 {
   if (fullscreen)
   {
-    // Check if user is on multiple screen (always pre
-    int screen = _getPreferredScreen();
-    //Move window to second screen before fullscreening it.
-    setGeometry(QApplication::desktop()->screenGeometry(screen));
+    _updateToPreferredScreen();
 #ifdef Q_OS_LINUX
     // The problem related to the full screen on linux seems to be resolved with Qt 5.5 on Debian.
     // However this still seems to be needed on Ubuntu 15.10.
@@ -82,6 +79,21 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   {
     hide();
   }
+}
+
+void OutputGLWindow::updateScreenCount(int nScreens)
+{
+  Q_UNUSED(nScreens);
+  // Untested.
+  _updateToPreferredScreen();
+}
+
+void OutputGLWindow::_updateToPreferredScreen()
+{
+  // Check if user is on multiple screen (always pre
+  int screen = _getPreferredScreen();
+  //Move window to second screen before fullscreening it.
+  setGeometry(QApplication::desktop()->screenGeometry(screen));
 }
 
 

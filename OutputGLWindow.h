@@ -46,9 +46,9 @@ public:
 
 public slots:
   void setFullScreen(bool fullScreen);
+  void updateScreenCount(int nScreens);
   void setDisplayCrosshair(bool crosshair);
   void setDisplayTestSignal(bool displayTestSignal);
-
 
 signals:
   void closed();
@@ -63,6 +63,7 @@ private:
   int _getPreferredScreen() const {
     return QApplication::desktop()->screenCount()-1;
   }
+  void _updateToPreferredScreen();
 };
 
 MM_END_NAMESPACE
