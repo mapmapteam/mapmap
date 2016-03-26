@@ -89,44 +89,32 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   if (fullscreen)
   {
     // Check if user is on multiple screen
-    if (QApplication::desktop()->screenCount() > 1)
-    {
-      // Hide cursor
-      setCursorVisible(!fullscreen);
-      // Activate crosshair in fullscreen mode.
-      // should be only drawn if the controls should be shown
-      canvas->setDisplayCrosshair(fullscreen && canvas->getMainWindow()->displayControls());
-      //Move window to second screen before fullscreening it.
-      setGeometry(QApplication::desktop()->screenGeometry(1));
-      //The problem related to the full screen on linux seems to be resolved
-      // with Qt 5.5 at least on Debian but define macro anyway
+    int screen = (QApplication::desktop()->screenCount() > 1 ? 1 : 0);
+    // Hide cursor
+    setCursorVisible(!fullscreen);
+    // Activate crosshair in fullscreen mode.
+    // should be only drawn if the controls should be shown
+    canvas->setDisplayCrosshair(fullscreen && canvas->getMainWindow()->displayControls());
+    //Move window to second screen before fullscreening it.
+    setGeometry(QApplication::desktop()->screenGeometry(screen));
+    //The problem related to the full screen on linux seems to be resolved
+    // with Qt 5.5 at least on Debian but define macro anyway
 #ifdef Q_OS_LINUX
-      setWindowFlags(Qt::Window);
-      setVisible(true);
-      setWindowState( windowState() ^ Qt::WindowFullScreen );
-      show();
+    setWindowFlags(Qt::Window);
+    setVisible(true);
+    setWindowState( windowState() ^ Qt::WindowFullScreen );
+    show();
 #else
     showFullScreen();
 #endif
-    }
-    else
-    {
-      show();
-    }
   }
   else
   {
-    if (QApplication::desktop()->screenCount() > 1) {
 #ifdef Q_OS_LINUX
-      setWindowFlags( windowFlags() & ~Qt::Window );
+    setWindowFlags( windowFlags() & ~Qt::Window );
 #else
     showNormal();
 #endif
-    }
-    else
-    {
-      hide();
-    }
   }
 }
 

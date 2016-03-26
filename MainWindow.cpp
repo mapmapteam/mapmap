@@ -1625,7 +1625,6 @@ void MainWindow::createActions()
   outputFullScreenAction->setCheckable(true);
   // Don't be displayed by default
   outputFullScreenAction->setChecked(false);
-  outputFullScreenAction->setEnabled(QApplication::desktop()->screenCount() > 1);
   outputFullScreenAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(outputFullScreenAction);
   // Manage fullscreen/modal show of GL output window.
@@ -2910,10 +2909,12 @@ void MainWindow::pollOscInterface()
 
 void MainWindow::updateOutputAction(int screen)
 {
-  if (screen > 1)
-    outputFullScreenAction->setEnabled(true);
-  else
-    outputFullScreenAction->setEnabled(false);
+  // Change window (untested).
+  if (outputWindow->isFullScreen())
+  {
+    outputWindow->setFullScreen(false);
+    outputWindow->setFullScreen(true);
+  }
 }
 
 // void MainWindow::applyOscCommand(const QVariantList& command)
