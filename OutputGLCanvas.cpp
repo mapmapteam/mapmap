@@ -32,6 +32,13 @@ OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QG
   // Disable scrollbars.
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+  setSceneRectToViewportGeometry();
+}
+
+void OutputGLCanvas::setSceneRectToViewportGeometry()
+{
+  setSceneRect(viewport()->geometry());
 }
 
 void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
@@ -103,6 +110,7 @@ void OutputGLCanvas::_drawTestSignal(QPainter* painter)
 
 void OutputGLCanvas::resizeGL(int width, int height)
 {
+  setSceneRectToViewportGeometry();
 }
 
 void OutputGLCanvas::wheelEvent(QWheelEvent *event)

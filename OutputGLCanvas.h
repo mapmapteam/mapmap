@@ -33,6 +33,9 @@ public:
   OutputGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
   virtual ~OutputGLCanvas() {}
 
+  // Adjust viewable scene to correspond to absolute coordinates.
+  void setSceneRectToViewportGeometry();
+
   void setDisplayCrosshair(bool displayCrosshair) {
     _displayCrosshair = displayCrosshair;
   }
