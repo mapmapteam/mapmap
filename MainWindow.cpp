@@ -1958,11 +1958,19 @@ void MainWindow::readSettings()
   if (settings.contains("displayOutputWindow"))
   {
     outputFullScreenAction->setChecked(settings.value("displayOutputWindow").toBool());
+    outputWindow->setFullScreen(outputFullScreenAction->isChecked());
   }
   if (settings.contains("displayTestSignal"))
   {
     outputFullScreenAction->setChecked(settings.value("displayTestSignal").toBool());
+    enableTestSignal(displayTestSignalAction->isChecked());
   }
+  if (settings.contains("displayControls"))
+  {
+    displayControlsAction->setChecked(settings.value("displayControls").toBool());
+    outputWindow->setDisplayCrosshair(displayControlsAction->isChecked());
+  }
+
   config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 
   // Update Recent files and video
