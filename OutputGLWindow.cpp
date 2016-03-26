@@ -100,16 +100,7 @@ void OutputGLWindow::_updateToPreferredScreen()
 void OutputGLWindow::setDisplayCrosshair(bool crosshair)
 {
   canvas->setDisplayCrosshair(crosshair);
-
-  if (crosshair)
-  {
-//    this->setCursor(Qt::ArrowCursor);
-    setCursor(Qt::BlankCursor);
-  }
-  else
-  {
-    setCursor(Qt::ArrowCursor);
-  }
+  setCursor( crosshair ? Qt::BlankCursor : Qt::ArrowCursor );
 }
 
 void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
