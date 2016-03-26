@@ -49,8 +49,6 @@ public slots:
   void setDisplayCrosshair(bool crosshair);
   void setDisplayTestSignal(bool displayTestSignal);
 
-protected:
-  void closeEvent(QCloseEvent* event);
 
 signals:
   void closed();

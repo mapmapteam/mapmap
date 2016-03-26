@@ -61,13 +61,6 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) 
 //
 //}
 
-
-void OutputGLWindow::closeEvent(QCloseEvent *event)
-{
-  emit closed();
-  event->accept();
-}
-
 void OutputGLWindow::setFullScreen(bool fullscreen)
 {
   if (fullscreen)
