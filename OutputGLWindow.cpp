@@ -38,7 +38,7 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) 
   layout->addWidget(canvas);
   setLayout(layout);
 
-  _pointerIsVisible = true;
+  setDisplayCrosshair(false); // default
 }
 
 //OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
@@ -61,21 +61,11 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) 
 //
 //}
 
-void OutputGLWindow::setCursorVisible(bool visible)
 {
-  _pointerIsVisible = visible;
 
-  if (_pointerIsVisible)
   {
-    this->setCursor(Qt::ArrowCursor);
-    _pointerIsVisible = true;
   }
   else
-  {
-    this->setCursor(Qt::ArrowCursor);
-    this->setCursor(Qt::BlankCursor);
-    _pointerIsVisible = false;
-  }
 }
 
 void OutputGLWindow::closeEvent(QCloseEvent *event)
@@ -115,6 +105,19 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
 #else
     showNormal();
 #endif
+
+void OutputGLWindow::setDisplayCrosshair(bool crosshair)
+{
+  canvas->setDisplayCrosshair(crosshair);
+
+  if (crosshair)
+  {
+//    this->setCursor(Qt::ArrowCursor);
+    setCursor(Qt::BlankCursor);
+  }
+  else
+  {
+    setCursor(Qt::ArrowCursor);
   }
 }
 

@@ -46,6 +46,7 @@ public:
 
 public slots:
   void setFullScreen(bool fullScreen);
+  void setDisplayCrosshair(bool crosshair);
   void setDisplayTestSignal(bool displayTestSignal);
 
 protected:
@@ -57,12 +58,10 @@ signals:
 public:
   MapperGLCanvas* getCanvas() const { return canvas; }
   void setPointerHasMoved();
-  void setCursorVisible(bool visible);
 
 private:
   OutputGLCanvas* canvas;
 
-  bool _pointerIsVisible;
 };
 
 MM_END_NAMESPACE

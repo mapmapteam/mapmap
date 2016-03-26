@@ -1651,6 +1651,7 @@ void MainWindow::createActions()
   addAction(displayControlsAction);
   // Manage show/hide of canvas controls.
   connect(displayControlsAction, SIGNAL(toggled(bool)), this, SLOT(enableDisplayControls(bool)));
+  connect(displayControlsAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setDisplayCrosshair(bool)));
 
   // Toggle sticky vertices
   stickyVerticesAction = new QAction(tr("&Sticky Vertices"), this);
@@ -1991,6 +1992,7 @@ void MainWindow::writeSettings()
   settings.setValue("outputWindow", outputWindow->saveGeometry());
   settings.setValue("displayOutputWindow", outputFullScreenAction->isChecked());
   settings.setValue("displayTestSignal", displayTestSignalAction->isChecked());
+  settings.setValue("displayControls", displayControlsAction->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
   settings.setValue("displayUndoStack", displayUndoStackAction->isChecked());
   settings.setValue("zoomToolBar", displayZoomToolAction->isChecked());
