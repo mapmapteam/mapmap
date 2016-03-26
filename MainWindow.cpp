@@ -1637,7 +1637,7 @@ void MainWindow::createActions()
   closeOutput->setShortcut(Qt::Key_Escape);
   closeOutput->setShortcutContext(Qt::ApplicationShortcut);
   addAction(closeOutput);
-  connect(closeOutput, SIGNAL(triggered(bool)), outputWindow, SLOT(close()));
+  connect(closeOutput, SIGNAL(triggered(bool)), this, SLOT(exitFullScreen()));
 
   // Toggle display of canvas controls.
   displayControlsAction = new QAction(tr("&Display Canvas Controls"), this);
@@ -2927,14 +2927,9 @@ void MainWindow::pollOscInterface()
 #endif
 }
 
-void MainWindow::updateOutputAction(int screen)
+void MainWindow::exitFullScreen()
 {
-  // Change window (untested).
-  if (outputWindow->isFullScreen())
-  {
-    outputWindow->setFullScreen(false);
-    outputWindow->setFullScreen(true);
-  }
+  outputFullScreenAction->setChecked(false);
 }
 
 // void MainWindow::applyOscCommand(const QVariantList& command)

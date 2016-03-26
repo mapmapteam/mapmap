@@ -129,7 +129,7 @@ private slots:
   // Other.
   void windowModified();
   void pollOscInterface();
-  void updateOutputAction(int screen);
+  void exitFullScreen();
 
 public slots:
 

@@ -61,12 +61,6 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) 
 //
 //}
 
-{
-
-  {
-  }
-  else
-}
 
 void OutputGLWindow::closeEvent(QCloseEvent *event)
 {
