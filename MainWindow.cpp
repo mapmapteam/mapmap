@@ -1737,7 +1737,7 @@ void MainWindow::createMenus()
 #endif
 
   // File
-  fileMenu = menuBar->addMenu(tr("&File"));
+  fileMenu = menuBar->addMenu(tr("File"));
   fileMenu->addAction(newAction);
   fileMenu->addAction(openAction);
   fileMenu->addAction(saveAction);
@@ -1765,7 +1765,7 @@ void MainWindow::createMenus()
 
 
   // Edit.
-  editMenu = menuBar->addMenu(tr("&Edit"));
+  editMenu = menuBar->addMenu(tr("Edit"));
   // Undo & Redo menu
   editMenu->addAction(undoAction);
   editMenu->addAction(redoAction);
@@ -1786,7 +1786,7 @@ void MainWindow::createMenus()
   editMenu->addAction(preferencesAction);
 
   // View.
-  viewMenu = menuBar->addMenu(tr("&View"));
+  viewMenu = menuBar->addMenu(tr("View"));
   // Toolbars menu
   toolBarsMenu = viewMenu->addMenu(tr("Toolbars"));
 #ifdef Q_OS_LINUX
@@ -1807,17 +1807,17 @@ void MainWindow::createMenus()
   viewMenu->addAction(outputFullScreenAction);
 
   // Run.
-  playbackMenu = menuBar->addMenu(tr("&Playback"));
+  playbackMenu = menuBar->addMenu(tr("Playback"));
   playbackMenu->addAction(playAction);
   playbackMenu->addAction(pauseAction);
   playbackMenu->addAction(rewindAction);
 
   // Tools
-  toolsMenu = menuBar->addMenu(tr("&Tools"));
+  toolsMenu = menuBar->addMenu(tr("Tools"));
   toolsMenu->addAction(openConsoleAction);
 
   // Help.
-  helpMenu = menuBar->addMenu(tr("&Help"));
+  helpMenu = menuBar->addMenu(tr("Help"));
   helpMenu->addAction(aboutAction);
   //  helpMenu->addAction(aboutQtAction);
 
