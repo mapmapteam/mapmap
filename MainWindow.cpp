@@ -1962,7 +1962,7 @@ void MainWindow::readSettings()
   }
   if (settings.contains("displayTestSignal"))
   {
-    outputFullScreenAction->setChecked(settings.value("displayTestSignal").toBool());
+    displayTestSignalAction->setChecked(settings.value("displayTestSignal").toBool());
     enableTestSignal(displayTestSignalAction->isChecked());
   }
   if (settings.contains("displayControls"))
