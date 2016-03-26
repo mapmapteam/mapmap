@@ -103,16 +103,6 @@ void OutputGLCanvas::_drawTestSignal(QPainter* painter)
 
 void OutputGLCanvas::resizeGL(int width, int height)
 {
-  int side_length = width;
-  if (height < width)
-  {
-    side_length = height;
-  }
-
-  (void) side_length; // to get rid of warnings
-  // TODO: reload SVG with the new size
-  // TODO: _svg_test_signal.load(":/test-signal");
-  // TODO: _brush_test_signal(_svg_test_signal)
 }
 
 void OutputGLCanvas::wheelEvent(QWheelEvent *event)
