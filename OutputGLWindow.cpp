@@ -118,4 +118,11 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   }
 }
 
+void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
+{
+  canvas->setDisplayTestSignal(displayTestSignal);
+  canvas->update();
+}
+
+
 MM_END_NAMESPACE

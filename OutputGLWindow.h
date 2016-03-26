@@ -46,6 +46,7 @@ public:
 
 public slots:
   void setFullScreen(bool fullScreen);
+  void setDisplayTestSignal(bool displayTestSignal);
 
 protected:
   void closeEvent(QCloseEvent* event);

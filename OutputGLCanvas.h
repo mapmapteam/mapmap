@@ -36,10 +36,14 @@ public:
   // Adjust viewable scene to correspond to absolute coordinates.
   void setSceneRectToViewportGeometry();
 
+public:
   void setDisplayCrosshair(bool displayCrosshair) {
     _displayCrosshair = displayCrosshair;
   }
 
+  void setDisplayTestSignal(bool displayTestSignal) {
+    _displayTestSignal = displayTestSignal;
+  }
   // Draws foreground (displays crosshair if needed).
   void drawForeground(QPainter *painter , const QRectF &rect);
 
@@ -47,6 +51,7 @@ private:
   void _drawTestSignal(QPainter* painter);
 
   bool _displayCrosshair;
+  bool _displayTestSignal;
   QImage _svg_test_signal;
   QBrush _brush_test_signal;
 

@@ -52,7 +52,6 @@ MainWindow::MainWindow()
   // Editing toggles.
   _displayControls = true;
   _stickyVertices = true;
-  _displayTestSignal = false;
   _displayUndoStack = false;
   _showMenuBar = true; // Show menubar by default
 
@@ -1672,11 +1671,12 @@ void MainWindow::createActions()
   displayTestSignalAction->setToolTip(tr("Display test signal"));
   displayTestSignalAction->setIconVisibleInMenu(false);
   displayTestSignalAction->setCheckable(true);
-  displayTestSignalAction->setChecked(_displayTestSignal);
+  displayTestSignalAction->setChecked(false);
   displayTestSignalAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(displayTestSignalAction);
   // Manage show/hide of test signal
-  connect(displayTestSignalAction, SIGNAL(toggled(bool)), this, SLOT(enableTestSignal(bool)));
+  connect(displayTestSignalAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setDisplayTestSignal(bool)));
+//  connect(displayTestSignalAction, SIGNAL(toggled(bool)), this, SLOT(update()));
 
   // Toggle display of Undo Stack
   displayUndoStackAction = new QAction(tr("Display &Undo Stack"), this);
@@ -2610,7 +2610,6 @@ void MainWindow::enableDisplayControls(bool display)
 
 void MainWindow::enableTestSignal(bool enable)
 {
-  _displayTestSignal = enable;
   updateCanvases();
 }
 

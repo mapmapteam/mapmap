@@ -26,6 +26,7 @@ MM_BEGIN_NAMESPACE
 OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget* shareWidget, QGraphicsScene* scene)
 : MapperGLCanvas(mainWindow, true, parent, shareWidget, scene),
   _displayCrosshair(false),
+  _displayTestSignal(false),
   _svg_test_signal(":/test-signal"),
   _brush_test_signal(_svg_test_signal)
 {
@@ -43,7 +44,7 @@ void OutputGLCanvas::setSceneRectToViewportGeometry()
 
 void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 {
-  if (getMainWindow()->displayTestSignal())
+  if (_displayTestSignal)
   {
     glPushMatrix();
     painter->translate(rect.x(), rect.y());

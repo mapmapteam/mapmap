@@ -431,9 +431,6 @@ private:
   // True iff we are displaying the controls.
   bool _displayControls;
 
-  // True iff we are displaying the test signal (grid)
-  bool _displayTestSignal;
-
   // True iff we want vertices to stick to each other.
   bool _stickyVertices;
 
@@ -486,9 +483,6 @@ public:
 
   /// Returns true iff we should display the controls.
   bool displayControls() const { return _displayControls; }
-
-  /// Returns true iff we should display the test signal
-  bool displayTestSignal() const { return _displayTestSignal; }
 
   /// Returns true iff we want vertices to stick to each other.
   bool stickyVertices() const { return _stickyVertices; }
