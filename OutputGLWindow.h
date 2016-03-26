@@ -62,6 +62,9 @@ public:
 private:
   OutputGLCanvas* canvas;
 
+  int _getPreferredScreen() const {
+    return QApplication::desktop()->screenCount()-1;
+  }
 };
 
 MM_END_NAMESPACE

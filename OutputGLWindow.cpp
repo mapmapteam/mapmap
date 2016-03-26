@@ -78,33 +78,25 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
 {
   if (fullscreen)
   {
-    // Check if user is on multiple screen
-    int screen = (QApplication::desktop()->screenCount() > 1 ? 1 : 0);
-    // Hide cursor
-    setCursorVisible(!fullscreen);
-    // Activate crosshair in fullscreen mode.
-    // should be only drawn if the controls should be shown
-    canvas->setDisplayCrosshair(fullscreen && canvas->getMainWindow()->displayControls());
+    // Check if user is on multiple screen (always pre
+    int screen = _getPreferredScreen();
     //Move window to second screen before fullscreening it.
     setGeometry(QApplication::desktop()->screenGeometry(screen));
-    //The problem related to the full screen on linux seems to be resolved
-    // with Qt 5.5 at least on Debian but define macro anyway
 #ifdef Q_OS_LINUX
+    // The problem related to the full screen on linux seems to be resolved with Qt 5.5 on Debian.
+    // However this still seems to be needed on Ubuntu 15.10.
+    // Fix source:
+    // http://stackoverflow.com/questions/12645880/fullscreen-for-qdialog-from-within-mainwindow-only-working-sometimes
     setWindowFlags(Qt::Window);
-    setVisible(true);
-    setWindowState( windowState() ^ Qt::WindowFullScreen );
-    show();
-#else
-    showFullScreen();
 #endif
+    showFullScreen();
   }
   else
   {
-#ifdef Q_OS_LINUX
-    setWindowFlags( windowFlags() & ~Qt::Window );
-#else
-    showNormal();
-#endif
+    hide();
+  }
+}
+
 
 void OutputGLWindow::setDisplayCrosshair(bool crosshair)
 {
