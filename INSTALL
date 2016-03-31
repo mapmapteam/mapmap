@@ -45,6 +45,13 @@ Install extra packages if you want to build the documentation::
       graphviz \
       rst2pdf
 
+Arch Linux
+~~~~~~~~~~
+
+Install basic development tools fot Qt projects, GStreamer 1.0 and liblo for OSC support::
+
+sudo pacman -S qt5-tools liblo gstreamer
+
 To edit translations
 --------------------
 You might need to update the files::
@@ -97,4 +104,3 @@ MapMap should then work.
 If the appearance of the window of the OSC port number in the preferences seem corrupted, you might want to reset MapMap's preferences::
 
   rm -f ~/Library/Preferences/info.mapmap.MapMap.plist
-
