@@ -58,7 +58,7 @@ html/
 .qmake.stash
 Info.plist
 *.xcodeproj/
-*.pro.user*
+*.pro*user*
 *.app
 DMGVERSION.txt
 *.db
