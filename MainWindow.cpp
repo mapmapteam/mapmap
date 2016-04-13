@@ -1904,10 +1904,8 @@ void MainWindow::createToolBars()
   // Add toolbars.
   addToolBar(Qt::TopToolBarArea, mainToolBar);
 
-  // XXX: style hack on Windows
-#ifdef WIN32
-  mainToolBar->setStyleSheet("border-color: #272a36;");
-#endif
+  // XXX: style hack
+  mainToolBar->setStyleSheet("border-bottom: solid 5px #272a36;");
 }
 
 void MainWindow::createStatusBar()
@@ -1938,11 +1936,6 @@ void MainWindow::createStatusBar()
   statusBar()->addPermanentWidget(mousePosLabel, 3);
   statusBar()->addPermanentWidget(sourceZoomLabel, 1);
   statusBar()->addPermanentWidget(destinationZoomLabel, 1);
-
-  // XXX: style hack on Windows
-#ifdef WIN32
-  statusBar()->setStyleSheet("background: #FFF;");
-#endif
 
   // Update the status bar
   updateStatusBar();

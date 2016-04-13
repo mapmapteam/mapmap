@@ -87,22 +87,32 @@ QWidget#zoom-toolbox {
     background-color: #272a36;
 }
 
+QTabWidget::pane {
+    border: 1px solid #FFF;
+}
+
+QTabWidget::tab-bar {
+    bottom: 0px;
+}
+
+QStatusBar {
+    background: #FFF;
+}
+
 QStatusBar::item {
     border: 0px solid black;
 }
 
-/*
- QListView::item:selected:!active {
-     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                 stop: 0 #ABAFE5, stop: 1 #8588B2);
- }
+QSplitter::handle:horizontal {
+    width: 5px;
+    background-color: #323541;
+}
 
- QListView::item:selected:active {
-     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                 stop: 0 #6a6ea9, stop: 1 #888dd9);
- }
+QSplitter::handle:vertical {
+    height: 5px;
+    background-color: #323541;
+}
 
- QListView::item:hover {
-                                 stop: 0 #FAFBFE, stop: 1 #DCDEF1);
-     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
- }*/
+QComboBox QAbstractItemView {
+    background: #FFF;
+}
