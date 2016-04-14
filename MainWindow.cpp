@@ -1715,6 +1715,35 @@ void MainWindow::createActions()
   showMenuBarAction->setCheckable(true);
   showMenuBarAction->setChecked(_showMenuBar);
   connect(showMenuBarAction, SIGNAL(toggled(bool)), this, SLOT(showMenuBar(bool)));
+
+  // Perspectives
+  // Main perspective (Source + destination)
+  mainViewAction = new QAction(tr("Main Perspective"), this);
+  mainViewAction->setCheckable(true);
+  mainViewAction->setChecked(true);
+  mainViewAction->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_1);
+  mainViewAction->setToolTip(tr("Switch to the Main perspective."));
+  connect(mainViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setVisible(bool)));
+  connect(mainViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setVisible(bool)));
+  // Source Only
+  sourceViewAction = new QAction(tr("Source Perspective"), this);
+  sourceViewAction->setCheckable(true);
+  sourceViewAction->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_2);
+  sourceViewAction->setToolTip(tr("Switch to the Source perspective."));
+  connect(sourceViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setVisible(bool)));
+  connect(sourceViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setHidden(bool)));
+  // Destination Only
+  destViewAction = new QAction(tr("Destination Perspective"), this);
+  destViewAction->setCheckable(true);
+  destViewAction->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_3);
+  destViewAction->setToolTip(tr("Switch to the Destination perspective."));
+  connect(destViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setHidden(bool)));
+  connect(destViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setVisible(bool)));
+  // Groups all actions
+  perspectiveActionGroup = new QActionGroup(this);
+  perspectiveActionGroup->addAction(mainViewAction);
+  perspectiveActionGroup->addAction(sourceViewAction);
+  perspectiveActionGroup->addAction(destViewAction);
 }
 
 void MainWindow::startFullScreen()
@@ -1737,7 +1766,7 @@ void MainWindow::createMenus()
 #endif
 
   // File
-  fileMenu = menuBar->addMenu(tr("File"));
+  fileMenu = menuBar->addMenu(tr("&File"));
   fileMenu->addAction(newAction);
   fileMenu->addAction(openAction);
   fileMenu->addAction(saveAction);
@@ -1765,18 +1794,18 @@ void MainWindow::createMenus()
 
 
   // Edit.
-  editMenu = menuBar->addMenu(tr("Edit"));
+  editMenu = menuBar->addMenu(tr("&Edit"));
   // Undo & Redo menu
   editMenu->addAction(undoAction);
   editMenu->addAction(redoAction);
   editMenu->addSeparator();
   // Source canvas menu
-  sourceMenu = editMenu->addMenu(tr("Source"));
+  sourceMenu = editMenu->addMenu(tr("&Source"));
   sourceMenu->setEnabled(false);
   sourceMenu->addAction(deletePaintAction);
   sourceMenu->addAction(renamePaintAction);
   // Destination canvas menu
-  destinationMenu = editMenu->addMenu(tr("Destination"));
+  destinationMenu = editMenu->addMenu(tr("&Destination"));
   destinationMenu->setEnabled(false);
   destinationMenu->addAction(cloneMappingAction);
   destinationMenu->addAction(deleteMappingAction);
@@ -1786,7 +1815,7 @@ void MainWindow::createMenus()
   editMenu->addAction(preferencesAction);
 
   // View.
-  viewMenu = menuBar->addMenu(tr("View"));
+  viewMenu = menuBar->addMenu(tr("&View"));
   // Toolbars menu
   toolBarsMenu = viewMenu->addMenu(tr("Toolbars"));
 #ifdef Q_OS_LINUX
@@ -1807,17 +1836,23 @@ void MainWindow::createMenus()
   viewMenu->addAction(outputFullScreenAction);
 
   // Run.
-  playbackMenu = menuBar->addMenu(tr("Playback"));
+  playbackMenu = menuBar->addMenu(tr("&Playback"));
   playbackMenu->addAction(playAction);
   playbackMenu->addAction(pauseAction);
   playbackMenu->addAction(rewindAction);
 
   // Tools
-  toolsMenu = menuBar->addMenu(tr("Tools"));
+  toolsMenu = menuBar->addMenu(tr("&Tools"));
   toolsMenu->addAction(openConsoleAction);
 
+  // Window
+  windowMenu = menuBar->addMenu(tr("&Window"));
+  windowMenu->addAction(mainViewAction);
+  windowMenu->addAction(sourceViewAction);
+  windowMenu->addAction(destViewAction);
+
   // Help.
-  helpMenu = menuBar->addMenu(tr("Help"));
+  helpMenu = menuBar->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAction);
   //  helpMenu->addAction(aboutQtAction);
 
