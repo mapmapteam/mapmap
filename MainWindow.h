@@ -192,7 +192,7 @@ public slots:
   void duplicateMapping(uid mappingId);
 
   /// Deletes/removes a paint and all associated mappigns.
-  void deletePaint(uid paintId, bool replace);
+  void deletePaint(uid paintId, bool replace = false);
 
   /// Updates all canvases.
   void updateCanvases();

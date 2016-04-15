@@ -649,7 +649,7 @@ void MainWindow::deleteItem()
     else if (isPaintTabSelected) //currentSelectedItem->listWidget() == paintList)
     {
       // Delete paint.
-      deletePaint( getItemId(*paintList->currentItem()), false );
+      undoStack->push(new RemovePaintCommand(this, getItemId(*paintList->currentItem())));
       //currentSelectedItem = NULL;
     }
     else
@@ -730,7 +730,7 @@ void MainWindow::deletePaintItem()
 {
   if(currentSelectedItem)
   {
-    deletePaint(getItemId(*paintList->currentItem()), false);
+    undoStack->push(new RemovePaintCommand(this, getItemId(*paintList->currentItem())));
   }
   else
   {
@@ -851,7 +851,7 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
     uid id = mappingManager->addPaint(paint);
 
     // Add paint widget item.
-    addPaintItem(id, paint->getIcon(), paint->getName());
+    undoStack->push(new AddPaintCommand(this, id, paint->getIcon(), paint->getName()));
     return id;
   }
 }
@@ -874,7 +874,7 @@ uid MainWindow::createColorPaint(uid paintId, QColor color)
     uid id = mappingManager->addPaint(paint);
 
     // Add paint widget item.
-    addPaintItem(id, paint->getIcon(), paint->getName());
+    undoStack->push(new AddPaintCommand(this, id, paint->getIcon(), paint->getName()));
 
     return id;
   }
