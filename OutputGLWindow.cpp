@@ -71,7 +71,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
     // However this still seems to be needed on Ubuntu 15.10.
     // Fix source:
     // http://stackoverflow.com/questions/12645880/fullscreen-for-qdialog-from-within-mainwindow-only-working-sometimes
-    setWindowFlags(Qt::Window);
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 #endif
     showFullScreen();
   }
