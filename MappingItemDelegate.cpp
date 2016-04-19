@@ -31,85 +31,125 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 {
   painter->setRenderHint(QPainter::Antialiasing);
 
-  if (index.isValid()) {
+  if (index.isValid())
+  {
     QRect rect = option.rect;
     int x = rect.x();
     int y = rect.y();
 
     if (option.state & QStyle::State_Selected)
+    {
       painter->fillRect(rect, MM::DARK_GRAY);
+    }
 
-    if (index.column() == MM::HideColumn) {
+    if (index.column() == MM::HideColumn)
+    {
       bool isVisible = index.model()->data(index, Qt::CheckStateRole).toBool();
-      if (isVisible) {
+      if (isVisible)
+      {
         QStyleOptionToolButton mappingMuteButton;
         mappingMuteButton.state |= QStyle::State_Enabled;
-        mappingMuteButton.rect = QRect(x + 4, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+        mappingMuteButton.rect = QRect(x + 4, y + 12,
+                MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
         mappingMuteButton.icon = QIcon(":/visible-mapping");
-        mappingMuteButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+        mappingMuteButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
+                MM::MAPPING_LIST_ICON_SIZE);
 
         QApplication::style()->drawControl(
               QStyle::CE_ToolButtonLabel, &mappingMuteButton, painter);
       }
     }
 
-    if(index.column() == MM::IconAndNameColum) {
+    if (index.column() == MM::IconAndNameColum)
+    {
       // Draw Icon
-      QIcon mappingIcon = qvariant_cast<QIcon>(index.model()->data(index, Qt::DecorationRole));
+      QIcon mappingIcon = qvariant_cast<QIcon>(index.model()->data(index,
+                  Qt::DecorationRole));
       QPixmap iconPixmap = mappingIcon.pixmap(24, 24);
       QRect iconRect(x + 5, y, 24, rect.height());
       QApplication::style()->drawItemPixmap(painter, iconRect,
-                                            Qt::AlignLeft | Qt::AlignVCenter, iconPixmap);
+              Qt::AlignLeft | Qt::AlignVCenter, iconPixmap);
 
       // Draw Text
       QString mappingName = index.model()->data(index, Qt::DisplayRole).toString();
       QRect textRect(x + 40, y, rect.width() - 40, rect.height());
       QPalette textColor = QPalette(MM::WHITE);
 
-      QApplication::style()->drawItemText(painter, textRect, Qt::AlignLeft | Qt::AlignVCenter,
-                                          textColor, true, mappingName, QPalette::Window);
+      QApplication::style()->drawItemText(painter, textRect,
+              Qt::AlignLeft | Qt::AlignVCenter,
+              textColor, true, mappingName, QPalette::Window);
     }
 
-    if (index.column() == MM::GroupButtonColum) {
-     bool isSolo = index.model()->data(index, Qt::CheckStateRole + 1).toBool();
-     bool isLocked = index.model()->data(index, Qt::CheckStateRole + 2).toBool();
-      // Create Buttons
+    if (index.column() == MM::GroupButtonColum)
+    {
+      bool isSolo = index.model()->data(index, Qt::CheckStateRole + 1).toBool();
+      bool isLocked = index.model()->data(index, Qt::CheckStateRole + 2).toBool();
+
+      // Create all mappings buttons:
+      // solo button
       QStyleOptionToolButton mappingSoloButton;
       mappingSoloButton.state |= QStyle::State_Enabled;
-      mappingSoloButton.rect = QRect(x + 10, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+      mappingSoloButton.rect = QRect(x + 10, y + 12,
+              MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
       mappingSoloButton.icon = QIcon(":/solo-mapping");
-      mappingSoloButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+      mappingSoloButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
+              MM::MAPPING_LIST_ICON_SIZE);
+      mappingSoloButton.text = tr("Solo mapping");
+      //TODO: show tooltip
+      //mappingSoloButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
+      // lock button
       QStyleOptionToolButton mappingLockButton;
       mappingLockButton.state |= QStyle::State_Enabled;
-      mappingLockButton.rect = QRect(x + 40, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+      mappingLockButton.rect = QRect(x + 40, y + 12, MM::MAPPING_LIST_ICON_SIZE,
+              MM::MAPPING_LIST_ICON_SIZE);
       mappingLockButton.icon = QIcon(":/lock-mapping");
-      mappingLockButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+      mappingLockButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
+              MM::MAPPING_LIST_ICON_SIZE);
+      mappingLockButton.text = tr("Lock mapping");
+      //TODO: show tooltip
+      //mappingLockButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
+      // duplicate button
       QStyleOptionToolButton mappingDuplicateButton;
       mappingDuplicateButton.state |= QStyle::State_Enabled;
-      mappingDuplicateButton.rect = QRect(x + 70, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+      mappingDuplicateButton.rect = QRect(x + 70, y + 12,
+              MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
       mappingDuplicateButton.icon = QIcon(":/duplicate-mapping");
-      mappingDuplicateButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+      mappingDuplicateButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
+              MM::MAPPING_LIST_ICON_SIZE);
+      mappingDuplicateButton.text = tr("Duplicate mapping");
+      //TODO: show tooltip
+      //mappingDuplicateButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
+      // delete button
       QStyleOptionToolButton mappingDeleteButton;
       mappingDeleteButton.state |= QStyle::State_Enabled;
-      mappingDeleteButton.rect = QRect(x + 100, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+      mappingDeleteButton.rect = QRect(x + 100, y + 12,
+              MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
       mappingDeleteButton.icon = QIcon(":/delete-mapping");
-      mappingDeleteButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+      mappingDeleteButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
+              MM::MAPPING_LIST_ICON_SIZE);
+      mappingDeleteButton.text = tr("Delete mapping");
+      //TODO: show tooltip
+      //mappingDeleteButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
-      if (isSolo) {
+      if (isSolo)
+      {
         QPainterPath mappingSoloPanel;
-        mappingSoloPanel.addRoundedRect(mappingSoloButton.rect.adjusted(-2, -2, 2, 2), 4, 4);
+        mappingSoloPanel.addRoundedRect(mappingSoloButton.rect.adjusted(
+              -2, -2, 2, 2), 4, 4);
         painter->setPen(QPen()); // No pen
         painter->fillPath(mappingSoloPanel, MM::DARK_BLUE);
         painter->drawPath(mappingSoloPanel);
       }
-      QApplication::style()->drawControl(
-            QStyle::CE_ToolButtonLabel, &mappingSoloButton, painter);
-      if (isLocked) {
+      QApplication::style()->drawControl( QStyle::CE_ToolButtonLabel,
+              &mappingSoloButton, painter);
+      if (isLocked)
+      {
         QPainterPath mappingLockPanel;
-        mappingLockPanel.addRoundedRect(QRectF(mappingLockButton.rect.adjusted(-2, -2, 2, 2)), 4, 4);
+        mappingLockPanel.addRoundedRect(QRectF(mappingLockButton.rect.adjusted(
+              -2, -2, 2, 2)), 4, 4);
         painter->setPen(QPen()); // No pen
         painter->fillPath(mappingLockPanel, MM::DARK_BLUE);
         painter->drawPath(mappingLockPanel);
@@ -120,22 +160,28 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
             QStyle::CE_ToolButtonLabel, &mappingDuplicateButton, painter);
       QApplication::style()->drawControl(
             QStyle::CE_ToolButtonLabel, &mappingDeleteButton, painter);
-
     }
-  } else {
+  }
+  else
+  {
     QStyledItemDelegate::paint(painter, option, index);
   }
 }
 
-QWidget *MappingItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget *MappingItemDelegate::createEditor(QWidget *parent,
+        const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-  if (index.column() == MM::IconAndNameColum) {
+  if (index.column() == MM::IconAndNameColum)
+  {
     QLineEdit *editor = new QLineEdit(parent);
     editor->setFixedHeight(option.rect.height());
     editor->setContentsMargins(option.rect.x() + 4, 0, 0, 0);
     return editor;
-  } else
+  }
+  else
+  {
     return 0;
+  }
 }
 
 void MappingItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
@@ -152,56 +198,75 @@ void MappingItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *mode
   model->setData(index, nameEdit->text(), Qt::EditRole);
 }
 
-void MappingItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void MappingItemDelegate::updateEditorGeometry(QWidget *editor,
+        const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
   Q_UNUSED(index);
   editor->setGeometry(option.rect);
 }
 
-bool MappingItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
+bool MappingItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
+        const QStyleOptionViewItem &option, const QModelIndex &index)
 {
   QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
   QRect rect = option.rect;
   int x = rect.x();
   int y = rect.y();
 
-  QRect hideButtonRect = QRect(x + 4, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
-  QRect soloButtonRect = QRect(x + 10, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
-  QRect lockButtonRect = QRect(x + 40, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
-  QRect duplicateButtonRect = QRect(x + 70, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
-  QRect deleteButtonRect = QRect(x + 100, y + 12, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+  QRect hideButtonRect = QRect(x + 4, y + 12, MM::MAPPING_LIST_ICON_SIZE,
+          MM::MAPPING_LIST_ICON_SIZE);
+  QRect soloButtonRect = QRect(x + 10, y + 12, MM::MAPPING_LIST_ICON_SIZE,
+          MM::MAPPING_LIST_ICON_SIZE);
+  QRect lockButtonRect = QRect(x + 40, y + 12, MM::MAPPING_LIST_ICON_SIZE,
+          MM::MAPPING_LIST_ICON_SIZE);
+  QRect duplicateButtonRect = QRect(x + 70, y + 12, MM::MAPPING_LIST_ICON_SIZE,
+          MM::MAPPING_LIST_ICON_SIZE);
+  QRect deleteButtonRect = QRect(x + 100, y + 12, MM::MAPPING_LIST_ICON_SIZE,
+          MM::MAPPING_LIST_ICON_SIZE);
 
-  if (event->type() == QEvent::MouseMove) {
+  if (event->type() == QEvent::MouseMove)
+  {
     // TODO: handle tooltip
   }
-
-  if (event->type() == QEvent::MouseButtonPress) {
-
-    if (mouseEvent->buttons() & Qt::LeftButton && index.isValid()) {
-      if (index.column() == MM::HideColumn) {
+  else if (event->type() == QEvent::MouseButtonPress)
+  {
+    if (mouseEvent->buttons() & Qt::LeftButton && index.isValid())
+    {
+      if (index.column() == MM::HideColumn)
+      {
         if (hideButtonRect.contains(mouseEvent->pos()))
-          model->setData(index, !(index.data(Qt::CheckStateRole).toBool()), Qt::CheckStateRole);
+        {
+          model->setData(index, !(index.data(Qt::CheckStateRole).toBool()),
+                  Qt::CheckStateRole);
+        }
       }
-      if (index.column() == MM::GroupButtonColum) {
-
+      if (index.column() == MM::GroupButtonColum)
+      {
         if (soloButtonRect.contains(mouseEvent->pos()))
-          model->setData(index, !(index.data(Qt::CheckStateRole + 1).toBool()), Qt::CheckStateRole + 1);
-
-        if (lockButtonRect.contains(mouseEvent->pos()))
-          model->setData(index, !(index.data(Qt::CheckStateRole + 2).toBool()), Qt::CheckStateRole + 2);
-
-        if (duplicateButtonRect.contains(mouseEvent->pos()))
+        {
+          model->setData(index, !(index.data(Qt::CheckStateRole + 1).toBool()),
+                  Qt::CheckStateRole + 1);
+        }
+        else if (lockButtonRect.contains(mouseEvent->pos()))
+        {
+          model->setData(index, !(index.data(Qt::CheckStateRole + 2).toBool()),
+                  Qt::CheckStateRole + 2);
+        }
+        else if (duplicateButtonRect.contains(mouseEvent->pos()))
+        {
           emit itemDuplicated(index.data(Qt::UserRole).toInt());
-
-        if (deleteButtonRect.contains(mouseEvent->pos()))
+        }
+        else if (deleteButtonRect.contains(mouseEvent->pos()))
+        {
           emit itemRemoved(index.data(Qt::UserRole).toInt());
+        }
       }
     }
-
-    if (mouseEvent->buttons() & Qt::RightButton && index.isValid())
+    else if (mouseEvent->buttons() & Qt::RightButton && index.isValid())
+    {
       emit itemContextMenuRequested(mouseEvent->pos());
+    }
   }
-
   return QAbstractItemDelegate::editorEvent(event, model, option, index);
 }
 

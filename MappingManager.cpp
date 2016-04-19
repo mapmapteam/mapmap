@@ -35,17 +35,19 @@ QMap<uid, Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr paint)
   for (QVector<Mapping::ptr>::const_iterator it = mappingVector.begin(); it != mappingVector.end(); ++it)
   {
     if ((*it)->getPaint() == paint)
+    {
       paintMappings[(*it)->getId()] = *it;
+    }
   }
   return paintMappings;
 }
 
 QMap<uid, Mapping::ptr> MappingManager::getPaintMappingsById(uid paintId) const
 {
-  return getPaintMappings( paintMap[paintId] );
+  return getPaintMappings(paintMap[paintId]);
 }
 
-uid MappingManager::addPaint(Paint::ptr paint )
+uid MappingManager::addPaint(Paint::ptr paint)
 {
   paintVector.push_back(paint);
   paintMap[paint->getId()] = paint;
@@ -62,35 +64,42 @@ bool MappingManager::removePaint(uid paintId)
     QMap<uid, Mapping::ptr> paintMappings = getPaintMappings(paint);
     for (QMap<uid, Mapping::ptr>::const_iterator it = paintMappings.constBegin();
          it != paintMappings.constEnd(); ++it)
+    {
       removeMapping(it.key());
+    }
 
     // Remove paint.
     int idx = paintVector.lastIndexOf(paint);
-    Q_ASSERT( idx != -1 );
+    Q_ASSERT(idx != -1);
     paintVector.remove(idx);
     paintMap.remove(paintId);
-
     return true;
   }
-
-  return false;
+  else
+  {
+    return false;
+  }
 }
 
-bool MappingManager::replacePaintMappings(Paint::ptr oldpaint, Paint::ptr newpaint)
+bool MappingManager::replacePaintMappings(Paint::ptr oldpaint,
+        Paint::ptr newpaint)
 {
   // Make sure the paint to which this paint refers to exists in the manager.
   if (oldpaint && newpaint)
   {
     QMap<uid, Mapping::ptr> paintMappings = getPaintMappings(oldpaint);
     for (QMap<uid, Mapping::ptr>::const_iterator it = paintMappings.constBegin();
-         it != paintMappings.constEnd(); ++it) {
+         it != paintMappings.constEnd(); ++it)
+    {
       Mapping::ptr mapping = it.value();
       mapping->setPaint(newpaint);
     }
     return true;
   }
-
-  return false;
+  else
+  {
+    return false;
+  }
 }
 
 uid MappingManager::addMapping(Mapping::ptr mapping)
@@ -117,8 +126,10 @@ bool MappingManager::removeMapping(uid mappingId)
 
     return true;
   }
-
-  return false;
+  else
+  {
+    return false;
+  }
 }
 
 QVector<Mapping::ptr> MappingManager::getVisibleMappings() const
@@ -127,7 +138,8 @@ QVector<Mapping::ptr> MappingManager::getVisibleMappings() const
 
   // First pass: check if one of the mappings is in solo mode.
   bool hasSolo = false;
-  for (QVector<Mapping::ptr>::const_iterator it = mappingVector.begin(); it != mappingVector.end(); ++it)
+  for (QVector<Mapping::ptr>::const_iterator it = mappingVector.begin();
+          it != mappingVector.end(); ++it)
   {
     if ((*it)->isSolo())
     {
@@ -137,11 +149,15 @@ QVector<Mapping::ptr> MappingManager::getVisibleMappings() const
   }
 
   // Second pass: fill the visible vector.
-  for (QVector<Mapping::ptr>::const_iterator it = mappingVector.begin(); it != mappingVector.end(); ++it)
+  for (QVector<Mapping::ptr>::const_iterator it = mappingVector.begin();
+          it != mappingVector.end(); ++it)
   {
     // Solo has priority over invisible (mute)
-    if ( (hasSolo && (*it)->isSolo() && (*it)->isVisible()) || (!hasSolo && (*it)->isVisible()) )
+    if ( (hasSolo && (*it)->isSolo() && (*it)->isVisible()) ||
+            (! hasSolo && (*it)->isVisible()) )
+    {
       visible.push_back(*it);
+    }
   }
 
   return visible;
@@ -152,19 +168,27 @@ bool MappingManager::mappingIsVisible(Mapping::ptr mapping) const
 {
   // Solo mappings are always visible.
   if (mapping->isSolo())
+  {
     return true;
+  }
 
   // Non-solo invisible mappings are always invisible.
-  else if (!mapping->isVisible())
+  else if (! mapping->isVisible())
+  {
     return false;
+  }
 
-  // Mapping is non-solo yet visible: check if another mapping is solo (which would thus make it invisible).
+  // Mapping is non-solo yet visible: check if another mapping is solo
+  // (which would thus make it invisible).
   else
   {
-    for (QVector<Mapping::ptr>::const_iterator it = mappingVector.begin(); it != mappingVector.end(); ++it)
+    for (QVector<Mapping::ptr>::const_iterator it = mappingVector.begin();
+            it != mappingVector.end(); ++it)
     {
       if ((*it)->isSolo())
+      {
         return false;
+      }
     }
 
     // Mapping is non-solo yet visible and there are no solo mappings.
@@ -178,12 +202,13 @@ void MappingManager::reorderMappings(QVector<uid> mappingIds)
   Q_ASSERT( mappingIds.size() == mappingVector.size() );
   mappingVector.clear();
   int depth = 0;
-  for (QVector<uid>::iterator it = mappingIds.begin(); it != mappingIds.end(); ++it)
+  for (QVector<uid>::iterator it = mappingIds.begin();
+          it != mappingIds.end(); ++it)
   {
     // Uid should be a key of the mappingMap.
     Q_ASSERT( mappingMap.contains(*it) );
     // Makes sure the uids are not repeated.
-    Q_ASSERT( !mappingVector.contains(mappingMap[*it]) );
+    Q_ASSERT( ! mappingVector.contains(mappingMap[*it]) );
     // Adds the mapping at the right place in the vector.
     Mapping::ptr mapping = mappingMap[*it];
     mapping->setDepth(depth);

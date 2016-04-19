@@ -162,8 +162,8 @@ void MainWindow::handleMappingItemChanged(const QModelIndex &index)
   // Change properties.
   mapping->setName(index.data(Qt::EditRole).toString());
   mapping->setVisible(index.data(Qt::CheckStateRole).toBool());
-  mapping->setSolo(index.data(Qt::CheckStateRole+1).toBool());
-  mapping->setLocked(index.data(Qt::CheckStateRole+2).toBool());
+  mapping->setSolo(index.data(Qt::CheckStateRole + 1).toBool());
+  mapping->setLocked(index.data(Qt::CheckStateRole + 2).toBool());
  }
 
 void MainWindow::handleMappingIndexesMoved()
@@ -188,7 +188,8 @@ void MainWindow::handlePaintItemSelected(QListWidgetItem* item)
   currentSelectedItem = item;
 }
 
-void MainWindow::handlePaintChanged(Paint::ptr paint) {
+void MainWindow::handlePaintChanged(Paint::ptr paint)
+{
   // Change currently selected item.
   uid curMappingId = getCurrentMappingId();
   removeCurrentMapping();
@@ -196,7 +197,8 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
 
   uid paintId = mappingManager->getPaintId(paint);
 
-  if (paint->getType() == "media") {
+  if (paint->getType() == "media")
+  {
     QSharedPointer<Video> media = qSharedPointerCast<Video>(paint);
     Q_CHECK_PTR(media);
     updatePaintItem(paintId, media->getIcon(), strippedName(media->getUri()));
@@ -206,7 +208,8 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
     //    if (!fileName.isEmpty())
     //      importMediaFile(fileName, paint, false);
   }
-  if (paint->getType() == "image") {
+  if (paint->getType() == "image")
+  {
     QSharedPointer<Image> image = qSharedPointerCast<Image>(paint);
     Q_CHECK_PTR(image);
     updatePaintItem(paintId, image->getIcon(), strippedName(image->getUri()));
@@ -216,7 +219,8 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
     //    if (!fileName.isEmpty())
     //      importMediaFile(fileName, paint, true);
   }
-  else if (paint->getType() == "color") {
+  else if (paint->getType() == "color")
+  {
     // Pop-up color-choosing dialog to choose color paint.
     QSharedPointer<Color> color = qSharedPointerCast<Color>(paint);
     Q_CHECK_PTR(color);
@@ -224,7 +228,9 @@ void MainWindow::handlePaintChanged(Paint::ptr paint) {
   }
 
   if (curMappingId != NULL_UID)
+  {
     setCurrentMapping(curMappingId);
+  }
 }
 
 void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant value)
@@ -242,11 +248,17 @@ void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant v
   if (mapping == getCurrentMapping())
   {
     if (propertyName == "solo")
+    {
       mappingSoloAction->setChecked(value.toBool());
+    }
     else if (propertyName == "locked")
+    {
       mappingLockedAction->setChecked(value.toBool());
+    }
     else if (propertyName == "visible")
+    {
       mappingHideAction->setChecked(!value.toBool());
+    }
   }
 
   // Send to list items.
@@ -1537,7 +1549,7 @@ void MainWindow::createActions()
   //renamePaintAction->setShortcut(Qt::Key_F2);
   renamePaintAction->setToolTip(tr("Rename item"));
   renamePaintAction->setIconVisibleInMenu(false);
-  mappingSoloAction->setShortcutContext(Qt::ApplicationShortcut);
+  renamePaintAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(renamePaintAction);
   connect(renamePaintAction, SIGNAL(triggered()), this, SLOT(renamePaintItem()));
 
