@@ -26,7 +26,9 @@
 
 MM_BEGIN_NAMESPACE
 
-MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* parent, const QGLWidget * shareWidget, QGraphicsScene* scene)
+MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
+        bool isOutput, QWidget* parent, const QGLWidget * shareWidget,
+        QGraphicsScene* scene)
   : QGraphicsView(parent),
     _mainWindow(mainWindow),
     _isOutput(isOutput),
@@ -69,7 +71,9 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* p
 MShape::ptr MapperGLCanvas::getShapeFromMapping(Mapping::ptr mapping)
 {
   if (mapping.isNull())
+  {
     return MShape::ptr();
+  }
   else
   {
     return (isOutput() ? mapping->getShape() : mapping->getInputShape());
@@ -85,7 +89,9 @@ QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getCurrentShapeGraphicsItem()
 {
   Mapping::ptr mapping = MainWindow::instance()->getCurrentMapping();
   if (mapping.isNull())
+  {
     return QSharedPointer<ShapeGraphicsItem>();
+  }
   else
   {
     MappingGui::ptr mappingGui = MainWindow::instance()->getMappingGuiByMappingId(mapping->getId());
@@ -108,7 +114,9 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
       {
         QList<int> selected;
         if (hasActiveVertex())
+        {
           selected.push_back(getActiveVertexIndex());
+        }
         item->getControlPainter()->paint(painter, this, selected);
       }
     }
@@ -149,13 +157,14 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   if (event->buttons() & Qt::MiddleButton)
   {
     // NOTE: This is a trick code to implement scroll hand drag using the middle button.
-    QMouseEvent releaseEvent(QEvent::MouseButtonRelease, event->pos(), event->globalPos(), Qt::LeftButton, 0, event->modifiers());
+    QMouseEvent releaseEvent(QEvent::MouseButtonRelease, event->pos(),
+            event->globalPos(), Qt::LeftButton, 0, event->modifiers());
     QGraphicsView::mouseReleaseEvent(&releaseEvent);
     setDragMode(QGraphicsView::ScrollHandDrag);
 
     // We need to pretend it is actually the left button that was pressed!
     QMouseEvent fakeEvent(event->type(), event->pos(), event->globalPos(),
-                          Qt::LeftButton, event->buttons() | Qt::LeftButton, event->modifiers());
+            Qt::LeftButton, event->buttons() | Qt::LeftButton, event->modifiers());
     QGraphicsView::mousePressEvent(&fakeEvent);
   }
 
@@ -191,7 +200,9 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   }
 
   if (mousePressedOnSomething)
+  {
     return;
+  }
 
   // Check for shape selection.
   if (event->buttons() & (Qt::LeftButton | Qt::RightButton)) // Add Right click for context menu
@@ -201,7 +212,8 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     // Possibility of changing shape in output by clicking on it.
     MappingManager manager = getMainWindow()->getMappingManager();
     QVector<Mapping::ptr> mappings = manager.getVisibleMappings();
-    for (QVector<Mapping::ptr>::const_iterator it = mappings.end() - 1; it >= mappings.begin(); --it)
+    for (QVector<Mapping::ptr>::const_iterator it = mappings.end() - 1;
+            it >= mappings.begin(); --it)
     {
       MShape::ptr shape = getShapeFromMapping(*it);
 
@@ -250,7 +262,9 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   }
 
   if (mousePressedOnSomething)
+  {
     return;
+  }
 
   // Deactivate.
   deselectAll();
@@ -263,8 +277,10 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
   // Wrap-up dragging the scene with middle button.
   if (event->buttons() & Qt::MiddleButton)
   {
-    QMouseEvent fakeEvent(event->type(), event->pos(), event->globalPos(),
-        Qt::LeftButton, event->buttons() & ~Qt::LeftButton, event->modifiers());
+    QMouseEvent fakeEvent(
+            event->type(), event->pos(), event->globalPos(),
+            Qt::LeftButton, event->buttons() & ~Qt::LeftButton,
+            event->modifiers());
     QGraphicsView::mouseReleaseEvent(&fakeEvent);
     setDragMode(QGraphicsView::NoDrag);
     setCursor(Qt::ArrowCursor);
@@ -280,13 +296,17 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
 
     // Stick to vertices.
     if (xOr(_mainWindow->stickyVertices(), (event->modifiers() & Qt::ShiftModifier)))
+    {
       _glueVertex(&p);
+    }
 
-    undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::RELEASE, _activeVertex, p));
+    undoStack->push(new MoveVertexCommand(this,
+                TransformShapeCommand::RELEASE, _activeVertex, p));
   }
   else if (_shapeGrabbed)
   {
-    undoStack->push(new TranslateShapeCommand(this, TransformShapeCommand::RELEASE, QPointF()));
+    undoStack->push(new TranslateShapeCommand(this,
+                TransformShapeCommand::RELEASE, QPointF()));
   }
   _vertexGrabbed = false;
   _shapeGrabbed = false;
@@ -317,9 +337,12 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 
       // Stick to vertices.
       if (xOr(_mainWindow->stickyVertices(), (event->modifiers() & Qt::ShiftModifier)))
+      {
         _glueVertex(&p);
+      }
 
-      undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::FREE, _activeVertex, p));
+      undoStack->push(new MoveVertexCommand(this,
+                  TransformShapeCommand::FREE, _activeVertex, p));
     }
   }
 
@@ -336,9 +359,9 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
         _shapeFirstGrab = false;
       }
     }
-
     QPointF diff = scenePos - mapToScene(lastMousePos);
-    undoStack->push(new TranslateShapeCommand(this, TransformShapeCommand::FREE, diff));
+    undoStack->push(new TranslateShapeCommand(this,
+                TransformShapeCommand::FREE, diff));
   }
 
   // Window translation action
@@ -368,34 +391,45 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   {
     MShape::ptr shape = getCurrentShape();
     QPoint pos = mapFromScene(shape->getVertex(_activeVertex));
-
     handledKey = true;
 
-    if (event->modifiers() & Qt::ShiftModifier) {
-
+    if (event->modifiers() & Qt::ShiftModifier)
+    {
       // SHIFT + directional keys allow move with large steps
       if (event->key() == Qt::Key_Up)
+      {
         pos.ry() -= MM::VERTEX_MOVES_STEP;
+      }
       else if (event->key() == Qt::Key_Down)
+      {
         pos.ry() += MM::VERTEX_MOVES_STEP;
+      }
       else if (event->key() == Qt::Key_Right)
+      {
         pos.rx() += MM::VERTEX_MOVES_STEP;
+      }
       else if (event->key() == Qt::Key_Left)
+      {
         pos.rx() -= MM::VERTEX_MOVES_STEP;
-
+      }
       // SHIFT+Space to switch between vertex
-      else if (event->key() == Qt::Key_Space) {
+      else if (event->key() == Qt::Key_Space)
+      {
         if (shape)
+        {
           _activeVertex = (_activeVertex + 1) % shape->nVertices();
+        }
         pos = shape->getVertex(_activeVertex).toPoint(); // reset to new vertex
       }
-
       else
+      {
         handledKey = false;
+      }
     }
     else
     {
-      switch (event->key()) {
+      switch (event->key())
+      {
       case Qt::Key_Up:
         pos.ry()--;
         break;
@@ -415,44 +449,70 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
     }
 
     if (handledKey)
+    {
       // Enable to Undo and Redo when arrow keys move the position of vertices
-      undoStack->push(new MoveVertexCommand(this, TransformShapeCommand::STEP, _activeVertex, mapToScene(pos)));
+      undoStack->push(new MoveVertexCommand(this,
+                  TransformShapeCommand::STEP, _activeVertex, mapToScene(pos)));
+    }
   }
-
-  else {
+  else
+  {
     // Take scroll bar current coordinate
     int scrollX = this->horizontalScrollBar()->value();
     int scrollY = this->verticalScrollBar()->value();
 
     handledKey = true;
     if (event->matches(QKeySequence::Undo))
+    {
       undoStack->undo();
+    }
     else if (event->matches(QKeySequence::Redo))
+    {
       undoStack->redo();
+    }
     // Case 1: zoom in with CTRL++
     else if (event->matches(QKeySequence::ZoomIn))
+    {
       increaseZoomLevel();
+    }
     else if (event->matches(QKeySequence::ZoomOut))
+    {
       decreaseZoomLevel();
-    else if (event->modifiers() & Qt::ControlModifier) {
-      if(event->key() == Qt::Key_0)
+    }
+    else if (event->modifiers() & Qt::ControlModifier)
+    {
+      if (event->key() == Qt::Key_0)
+      {
         resetZoomLevel();
+      }
       // Case 2: zoom in with CTRL+=
       else if (event->key() == Qt::Key_Equal ||
                // Case 3: zoom in with CTRL+SHIFT++
                (event->modifiers() & Qt::ShiftModifier && event->key() == Qt::Key_Plus))
-          increaseZoomLevel();
+      {
+        increaseZoomLevel();
+      }
     }
     else if(event->key() == Qt::Key_Up)
+    {
       scrollY -= 50;
+    }
     else if(event->key() == Qt::Key_Down)
+    {
       scrollY += 50;
+    }
     else if(event->key() == Qt::Key_Right)
+    {
       scrollX += 50;
+    }
     else if(event->key() == Qt::Key_Left)
+    {
       scrollX -= 50;
+    }
     else
+    {
       handledKey = false;
+    }
 
     // Set scroll bar new value
     this->verticalScrollBar()->setValue(scrollY);
@@ -460,7 +520,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
   }
 
   // Defer unhandled keys to parent.
-  if (!handledKey)
+  if (! handledKey)
   {
     QWidget::keyPressEvent(event);
   }

@@ -64,6 +64,7 @@ private:
     return QApplication::desktop()->screenCount()-1;
   }
   void _updateToPreferredScreen();
+  bool _is_fullscreen;
 };
 
 MM_END_NAMESPACE

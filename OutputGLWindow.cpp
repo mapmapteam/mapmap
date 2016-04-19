@@ -39,6 +39,7 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) 
   setLayout(layout);
 
   setDisplayCrosshair(false); // default
+  this->_is_fullscreen = false;
 }
 
 //OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
@@ -79,6 +80,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   {
     hide();
   }
+  this->_is_fullscreen = fullscreen;
 }
 
 void OutputGLWindow::updateScreenCount(int nScreens)
@@ -100,7 +102,7 @@ void OutputGLWindow::_updateToPreferredScreen()
 void OutputGLWindow::setDisplayCrosshair(bool crosshair)
 {
   canvas->setDisplayCrosshair(crosshair);
-  setCursor( crosshair ? Qt::BlankCursor : Qt::ArrowCursor );
+  setCursor(crosshair || this->_is_fullscreen ? Qt::BlankCursor : Qt::ArrowCursor);
 }
 
 void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
