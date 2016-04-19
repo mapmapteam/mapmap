@@ -24,6 +24,7 @@ Release/
 *.png
 # except icons files
 !resources/images/icons/*
+!resources/images/icons/small/*
 *.tar
 *.rar
 *.qm
