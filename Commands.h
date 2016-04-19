@@ -37,6 +37,22 @@ enum CommandId {
 class MainWindow;
 class MapperGLCanvas;
 
+class AddPaintCommand : public QUndoCommand
+{
+public:
+  explicit AddPaintCommand(MainWindow *mainWindow, uid paintId, const QIcon &icon, const QString &name, QUndoCommand *parent = 0);
+
+  void undo() Q_DECL_OVERRIDE;
+  void redo() Q_DECL_OVERRIDE;
+
+private:
+  MainWindow *_mainWindow;
+  Paint::ptr _paint;
+  uid _paintId;
+  QIcon _icon;
+  QString _name;
+};
+
 class AddShapesCommand : public QUndoCommand
 {
 public:
@@ -111,6 +127,20 @@ protected:
 
 private:
   QPointF _translation;
+};
+
+class RemovePaintCommand : public QUndoCommand
+{
+public:
+  explicit RemovePaintCommand(MainWindow *mainWindow, uid paintId, QUndoCommand *parent = 0);
+
+  void undo() Q_DECL_OVERRIDE;
+  void redo() Q_DECL_OVERRIDE;
+
+private:
+  MainWindow *_mainWindow;
+  Paint::ptr _paint;
+  uid _paintId;
 };
 
 class DeleteMappingCommand : public QUndoCommand

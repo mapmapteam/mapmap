@@ -192,7 +192,7 @@ public slots:
   void duplicateMapping(uid mappingId);
 
   /// Deletes/removes a paint and all associated mappigns.
-  void deletePaint(uid paintId, bool replace);
+  void deletePaint(uid paintId, bool replace = false);
 
   /// Updates all canvases.
   void updateCanvases();
@@ -297,6 +297,7 @@ private:
   QMenu *editMenu;
   QMenu *viewMenu;
   QMenu *toolsMenu;
+  QMenu *windowMenu;
   QMenu *playbackMenu;
   QMenu *helpMenu;
   QMenu *recentFileMenu;
@@ -354,6 +355,11 @@ private:
   QAction *openConsoleAction;
   QAction *showMenuBarAction;
   QAction *showToolBarAction;
+
+  QActionGroup *perspectiveActionGroup;
+  QAction *mainViewAction;
+  QAction *sourceViewAction;
+  QAction *destViewAction;
 
   enum { MaxRecentFiles = 10 };
   enum { MaxRecentVideo = 5 };

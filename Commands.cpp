@@ -26,6 +26,34 @@
 
 MM_BEGIN_NAMESPACE
 
+AddPaintCommand::AddPaintCommand(MainWindow *mainWindow, uid paintId, const QIcon &icon, const QString &name, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  _mainWindow(mainWindow),
+  _paintId(paintId),
+  _icon(icon),
+  _name(name)
+{
+  setText(QObject::tr("Add paint"));
+}
+
+void AddPaintCommand::undo()
+{
+  _paint = _mainWindow->getMappingManager().getPaintById(_paintId);
+  _mainWindow->removePaintItem(_paintId);
+}
+
+void AddPaintCommand::redo()
+{
+  if (!_paint.isNull())
+  {
+    uid lastId = _mainWindow->getMappingManager().addPaint(_paint);
+    _mainWindow->addPaintItem(lastId, _icon, _name);
+  }
+  else {
+    _mainWindow->addPaintItem(_paintId, _icon, _name);
+  }
+}
+
 AddShapesCommand::AddShapesCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent):
   QUndoCommand(parent),
   _mainWindow(mainWindow),
@@ -42,11 +70,11 @@ void AddShapesCommand::undo()
 
 void AddShapesCommand::redo()
 {
-  if(!_mapping.isNull())
-    {
-      uid storedId = _mainWindow->getMappingManager().addMapping(_mapping);
-      _mainWindow->addMappingItem(storedId);
-    }
+  if (!_mapping.isNull())
+  {
+    uid storedId = _mainWindow->getMappingManager().addMapping(_mapping);
+    _mainWindow->addMappingItem(storedId);
+  }
   else
   {
     _mainWindow->addMappingItem(_mappingId);
@@ -163,6 +191,30 @@ void TranslateShapeCommand::_doTransform(MShape::ptr shape)
   shape->translate(_translation);
 }
 
+RemovePaintCommand::RemovePaintCommand(MainWindow *mainWindow, uid paintId, QUndoCommand *parent):
+  QUndoCommand(parent),
+  _mainWindow(mainWindow),
+  _paintId(paintId)
+{
+  setText(QObject::tr("Remove paint"));
+}
+
+void RemovePaintCommand::undo()
+{
+  if (!_paint.isNull())
+  {
+    uid lastId = _mainWindow->getMappingManager().addPaint(_paint);
+    _mainWindow->addPaintItem(lastId, _paint->getIcon(), _paint->getName());
+  }
+}
+
+void RemovePaintCommand::redo()
+{
+  _paint = _mainWindow->getMappingManager().getPaintById(_paintId);
+  _mainWindow->deletePaint(_paintId);
+}
+
+
 
 DeleteMappingCommand::DeleteMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent) :
   QUndoCommand(parent),
@@ -174,11 +226,11 @@ DeleteMappingCommand::DeleteMappingCommand(MainWindow *mainWindow, uid mappingId
 
 void DeleteMappingCommand::undo()
 {
-  if(!_mapping.isNull())
-    {
-      uid storedId = _mainWindow->getMappingManager().addMapping(_mapping);
-      _mainWindow->addMappingItem(storedId);
-    }
+  if (!_mapping.isNull())
+  {
+    uid storedId = _mainWindow->getMappingManager().addMapping(_mapping);
+    _mainWindow->addMappingItem(storedId);
+  }
 }
 
 void DeleteMappingCommand::redo()
