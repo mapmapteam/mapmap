@@ -144,6 +144,9 @@ public slots:
   /// Create or replace a color paint.
   uid createColorPaint(uid paintId, QColor color);
 
+  // TODO: Remove all these unsed fonctions below
+
+  /*======= Start of Unsed fonctions =======*/
   /// Creates a textured mesh.
   uid createMeshTextureMapping(uid mappingId,
                                uid paintId,
@@ -175,6 +178,7 @@ public slots:
   uid createEllipseColorMapping(uid mappingId,
                                 uid paintId,
                                 const QVector<QPointF> &dst);
+  /*======= End of Unsed fonctions =======*/
 
   /// Sets visibility of mapping.
   void setMappingVisible(uid mappingId, bool visible);
