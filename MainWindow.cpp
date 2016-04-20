@@ -1473,7 +1473,7 @@ void MainWindow::createActions()
   addAction(redoAction);
 
   // About.
-  aboutAction = new QAction(tr("&About"), this);
+  aboutAction = new QAction(tr("&About MapMap"), this);
   aboutAction->setToolTip(tr("Show the application's About box"));
   aboutAction->setIconVisibleInMenu(false);
   aboutAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -1631,10 +1631,10 @@ void MainWindow::createActions()
   connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
 
   // Toggle display of output window.
-  outputFullScreenAction = new QAction(tr("&Full Screen"), this);
+  outputFullScreenAction = new QAction(tr("Toggle &Fullscreen"), this);
   outputFullScreenAction->setShortcut(Qt::CTRL + Qt::Key_F);
   outputFullScreenAction->setIcon(QIcon(":/fullscreen"));
-  outputFullScreenAction->setToolTip(tr("Full screen mode"));
+  outputFullScreenAction->setToolTip(tr("Toggle Fullscreen"));
   outputFullScreenAction->setIconVisibleInMenu(false);
   outputFullScreenAction->setCheckable(true);
   // Don't be displayed by default
@@ -1647,14 +1647,14 @@ void MainWindow::createActions()
 //  connect(outputWindow, SIGNAL(closed()), outputFullScreenAction, SLOT(toggle()));
   connect(QApplication::desktop(), SIGNAL(screenCountChanged(int)), outputWindow, SLOT(updateScreenCount(int)));
   // Create hiden action for closing output window
-  QAction *closeOutput = new QAction(tr("Close output"), this);
+  QAction *closeOutput = new QAction(this);
   closeOutput->setShortcut(Qt::Key_Escape);
   closeOutput->setShortcutContext(Qt::ApplicationShortcut);
   addAction(closeOutput);
   connect(closeOutput, SIGNAL(triggered(bool)), this, SLOT(exitFullScreen()));
 
   // Toggle display of canvas controls.
-  displayControlsAction = new QAction(tr("&Display Canvas Controls"), this);
+  displayControlsAction = new QAction(tr("&Display Controls in Output"), this);
   displayControlsAction->setShortcut(Qt::ALT + Qt::Key_C);
   displayControlsAction->setIcon(QIcon(":/control-points"));
   displayControlsAction->setToolTip(tr("Display canvas controls"));
@@ -1680,10 +1680,10 @@ void MainWindow::createActions()
   // Manage sticky vertices
   connect(stickyVerticesAction, SIGNAL(toggled(bool)), this, SLOT(enableStickyVertices(bool)));
 
-  displayTestSignalAction = new QAction(tr("&Display Test Signal"), this);
+  displayTestSignalAction = new QAction(tr("Show &Test Signal"), this);
   displayTestSignalAction->setShortcut(Qt::ALT + Qt::Key_T);
   displayTestSignalAction->setIcon(QIcon(":/control-points"));
-  displayTestSignalAction->setToolTip(tr("Display test signal"));
+  displayTestSignalAction->setToolTip(tr("Show Test signal"));
   displayTestSignalAction->setIconVisibleInMenu(false);
   displayTestSignalAction->setCheckable(true);
   displayTestSignalAction->setChecked(false);
@@ -1758,6 +1758,18 @@ void MainWindow::createActions()
   perspectiveActionGroup->addAction(mainViewAction);
   perspectiveActionGroup->addAction(sourceViewAction);
   perspectiveActionGroup->addAction(destViewAction);
+
+  // Helps
+  // Bug report
+  bugReportAction = new QAction(tr("Report bug..."), this);
+  connect(bugReportAction, SIGNAL(triggered()), this, SLOT(reportBug()));
+  // Support
+  supportAction = new QAction(tr("Technical Support"), this);
+  connect(supportAction, SIGNAL(triggered()), this, SLOT(technicalSupport()));
+  // Documentation
+  docAction = new QAction(tr("Documentation"), this);
+  connect(docAction, SIGNAL(triggered()), this, SLOT(documentation()));
+
 }
 
 void MainWindow::startFullScreen()
@@ -1813,6 +1825,8 @@ void MainWindow::createMenus()
   editMenu->addAction(undoAction);
   editMenu->addAction(redoAction);
   editMenu->addSeparator();
+  editMenu->addAction(stickyVerticesAction);
+  editMenu->addSeparator();
   // Source canvas menu
   sourceMenu = editMenu->addMenu(tr("&Source"));
   sourceMenu->setEnabled(false);
@@ -1829,25 +1843,7 @@ void MainWindow::createMenus()
   editMenu->addAction(preferencesAction);
 
   // View.
-  viewMenu = menuBar->addMenu(tr("&View"));
-  // Toolbars menu
-  toolBarsMenu = viewMenu->addMenu(tr("Toolbars"));
-#ifdef Q_OS_LINUX
-  if (QString(getenv("XDG_CURRENT_DESKTOP")).toLower() != "unity")
-    toolBarsMenu->addAction(showMenuBarAction);
-#endif
-#ifdef Q_OS_WIN
-  toolBarsMenu->addAction(showMenuBarAction);
-#endif
-  viewMenu->addSeparator();
-  viewMenu->addAction(displayControlsAction);
-  viewMenu->addAction(stickyVerticesAction);
-  viewMenu->addAction(displayTestSignalAction);
-  viewMenu->addSeparator();
-  viewMenu->addAction(displayUndoStackAction);
-  viewMenu->addAction(displayZoomToolAction);
-  viewMenu->addSeparator();
-  viewMenu->addAction(outputFullScreenAction);
+  //viewMenu = menuBar->addMenu(tr("&View"));
 
   // Run.
   playbackMenu = menuBar->addMenu(tr("&Playback"));
@@ -1855,19 +1851,46 @@ void MainWindow::createMenus()
   playbackMenu->addAction(pauseAction);
   playbackMenu->addAction(rewindAction);
 
+
+  // Output
+  outputMenu = menuBar->addMenu(tr("&Output"));
+  outputMenu->addAction(outputFullScreenAction);
+  outputMenu->addSeparator();
+  outputMenu->addAction(displayTestSignalAction);
+  outputMenu->addAction(displayControlsAction);
+
   // Tools
   toolsMenu = menuBar->addMenu(tr("&Tools"));
   toolsMenu->addAction(openConsoleAction);
 
   // Window
   windowMenu = menuBar->addMenu(tr("&Window"));
+  // Toolbars menu
+  toolBarsMenu = windowMenu->addMenu(tr("Toolbars"));
+#ifdef Q_OS_LINUX
+  if (QString(getenv("XDG_CURRENT_DESKTOP")).toLower() != "unity")
+    toolBarsMenu->addAction(showMenuBarAction);
+#endif
+#ifdef Q_OS_WIN
+  toolBarsMenu->addAction(showMenuBarAction);
+#endif
+  windowMenu->addSeparator();
+  windowMenu->addAction(displayUndoStackAction);
+  windowMenu->addAction(displayZoomToolAction);
+  windowMenu->addSeparator();
+  // Perspectives
   windowMenu->addAction(mainViewAction);
   windowMenu->addAction(sourceViewAction);
   windowMenu->addAction(destViewAction);
 
   // Help.
   helpMenu = menuBar->addMenu(tr("&Help"));
+  helpMenu->addAction(docAction);
+  helpMenu->addAction(supportAction);
+  helpMenu->addAction(bugReportAction);
+  helpMenu->addSeparator();
   helpMenu->addAction(aboutAction);
+
   //  helpMenu->addAction(aboutQtAction);
 
 }
