@@ -67,6 +67,13 @@ private:
   uid _mappingId;
 };
 
+class DuplicateShapesCommand : public AddShapesCommand
+{
+public:
+  explicit DuplicateShapesCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent = 0);
+
+};
+
 class TransformShapeCommand : public QUndoCommand
 {
 public:

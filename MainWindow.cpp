@@ -1190,8 +1190,10 @@ void MainWindow::duplicateMapping(uid mappingId)
 
   // Create new duplicated mapping item
   Mapping::ptr clonedMapping(mapping);
-  uint cloneId = mappingManager->addMapping(clonedMapping);
-  addMappingItem(cloneId);
+  uid cloneId = mappingManager->addMapping(clonedMapping);
+
+  // Lets the undo-stack handle Undo/Redo the duplication of mapping item.
+  undoStack->push(new DuplicateShapesCommand(this, cloneId));
 }
 
 /// Deletes/removes a paint and all associated mappigns.
