@@ -40,6 +40,7 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) 
 
   setDisplayCrosshair(false); // default
   this->_is_fullscreen = false;
+  _preferredScreen = QApplication::screens().size() - 1;
 }
 
 //OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
@@ -83,17 +84,10 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   this->_is_fullscreen = fullscreen;
 }
 
-void OutputGLWindow::updateScreenCount(int nScreens)
-{
-  Q_UNUSED(nScreens);
-  // Untested.
-  _updateToPreferredScreen();
-}
-
 void OutputGLWindow::_updateToPreferredScreen()
 {
   // Check if user is on multiple screen (always pre
-  int screen = _getPreferredScreen();
+  int screen = _preferredScreen;
   //Move window to second screen before fullscreening it.
   setGeometry(QApplication::desktop()->screenGeometry(screen));
 }
@@ -109,6 +103,14 @@ void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
 {
   canvas->setDisplayTestSignal(displayTestSignal);
   canvas->update();
+}
+
+void OutputGLWindow::setPreferredScreen(int screen)
+{
+  if (screen < QApplication::screens().size())
+    _preferredScreen = screen;
+  else
+    _preferredScreen = QApplication::screens().size() - 1;
 }
 
 

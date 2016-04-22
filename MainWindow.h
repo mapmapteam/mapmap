@@ -109,6 +109,9 @@ private slots:
   void deletePaintItem();
   void renamePaintItem();
   void paintListEditEnd(QWidget* editor);
+  // Output menu
+  void setupOutputScreen();
+  void updateScreenCount();
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
@@ -250,6 +253,8 @@ private:
   void createStatusBar();
   void updateRecentFileActions();
   void updateRecentVideoActions();
+  void updateScreenActions();
+  void addOutputMenuActions();
 
   // Settings.
   void readSettings();
@@ -385,6 +390,10 @@ private:
   QAction *bugReportAction;
   QAction *supportAction;
   QAction *docAction;
+
+  // Screen output action
+  QList<QAction *> screenActions;
+  QActionGroup *screenActionGroup;
 
   // Widgets and layout.
   QTabWidget* contentTab;
