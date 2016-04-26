@@ -25,6 +25,9 @@ HEADERS  = \
     MappingManager.h \
     Maths.h \
     VideoImpl.h \
+    VideoUriDecodeBinImpl.h \
+    VideoV4l2SrcImpl.h \
+    VideoShmSrcImpl.h \
     Mesh.h \
     MetaObjectRegistry.h \
     OscInterface.h \
@@ -64,6 +67,9 @@ SOURCES  = \
     Mapping.cpp \
     MappingManager.cpp \
     VideoImpl.cpp \
+    VideoUriDecodeBinImpl.cpp \
+    VideoV4l2SrcImpl.cpp \
+    VideoShmSrcImpl.cpp \
     Mesh.cpp \
     MetaObjectRegistry.cpp \
     OscInterface.cpp \

@@ -20,6 +20,9 @@
 
 #include "Paint.h"
 #include "VideoImpl.h"
+#include "VideoUriDecodeBinImpl.h"
+#include "VideoV4l2SrcImpl.h"
+#include "VideoShmSrcImpl.h"
 #include <iostream>
 
 MM_BEGIN_NAMESPACE
@@ -79,17 +82,31 @@ Video::Video(int id) : Texture(id),
     _uri(""),
     _impl(NULL)
 {
-  _impl = new VideoImpl(false);
+  _impl = new VideoUriDecodeBinImpl();
   setRate(1);
   setVolume(1);
 }
 
-Video::Video(const QString uri_, bool live, double rate, uid id):
+Video::Video(const QString uri_, VideoType type, double rate, uid id):
     Texture(id),
     _uri(""),
     _impl(NULL)
 {
-  _impl = new VideoImpl(live);
+  switch (type) {
+    case VIDEO_URI:
+      _impl = new VideoUriDecodeBinImpl();
+      break;
+    case VIDEO_WEBCAM:
+      _impl = new VideoV4l2SrcImpl();
+      break;
+    case VIDEO_SHMSRC:
+      _impl = new VideoShmSrcImpl();
+      break;
+    default:
+      fprintf (stderr, "Could not determine type for video source\n ");
+      break;
+  }
+  //_impl = new VideoShmSrcImpl();//V4l2SrcImpl();//UriDecodeBinImpl();
   setRate(rate);
   setVolume(1);
   setUri(uri_);

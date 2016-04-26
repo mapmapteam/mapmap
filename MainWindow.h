@@ -55,6 +55,7 @@
 
 MM_BEGIN_NAMESPACE
 
+
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
  */
@@ -149,7 +150,7 @@ public slots:
   bool clearProject();
 
   /// Create or replace a media paint (or image).
-  uid createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage, bool live=false, double rate=1.0);
+  uid createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage, VideoType type, double rate=1.0);
 
   /// Create or replace a color paint.
   uid createColorPaint(uid paintId, QColor color);
