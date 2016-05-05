@@ -360,17 +360,16 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       }
     }
     QPointF diff = scenePos - mapToScene(lastMousePos);
-    undoStack->push(new TranslateShapeCommand(this,
-                TransformShapeCommand::FREE, diff));
+    undoStack->push(new TranslateShapeCommand(this, TransformShapeCommand::FREE, diff));
   }
 
   // Window translation action
-  else if (event->buttons() & Qt::MiddleButton)
+  else if ((event->buttons() & Qt::MiddleButton) ||
+           ((event->modifiers() & Qt::ShiftModifier) && (event->buttons() & Qt::LeftButton)))
   {
     QPointF diff = event->pos() - lastMousePos;
     QGraphicsView* view = scene()->views().first();
     view->translate(diff.x(), diff.y());
-//    view->update();
   }
 
   // Reset last mouse position.
@@ -488,7 +487,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
       // Case 2: zoom in with CTRL+=
       else if (event->key() == Qt::Key_Equal ||
                // Case 3: zoom in with CTRL+SHIFT++
-               (event->modifiers() & Qt::ShiftModifier && event->key() == Qt::Key_Plus))
+          ((event->modifiers() & Qt::ShiftModifier) && event->key() == Qt::Key_Plus))
       {
         increaseZoomLevel();
       }
@@ -636,11 +635,11 @@ void MapperGLCanvas::resetZoomLevel()
 void MapperGLCanvas::fitShapeInView()
 {
   // Get first of the list of all the views
-  QGraphicsView* view = scene()->views().first();
   // Scales the view matrix
-  view->fitInView(this->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
+  fitInView(getCurrentShapeGraphicsItem()->boundingRect(), Qt::KeepAspectRatio);
+  centerOn(getCurrentShapeGraphicsItem()->boundingRect().center());
   // Get the horizontal scaling factor
-  _scalingFactor = view->matrix().m11();
+  _scalingFactor = matrix().m11();
 
   // Adapt shape
   _shapeIsAdapted = true;
