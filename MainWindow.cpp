@@ -2276,29 +2276,31 @@ void MainWindow::updateRecentVideoActions()
 
 void MainWindow:: updateScreenActions()
 {
-  // Add new action for each screen
-  foreach (QScreen *screen, QApplication::screens()) {
-    QString actionLabel = tr("%1 - %2x%3")
-        .arg(screen->name())
-        .arg(QString::number(screen->size().width()))
-        .arg(QString::number(screen->size().height()));
-    if (screen == QApplication::primaryScreen())
-      actionLabel.append(" - Primary");
-    QAction *action = new QAction(actionLabel, this);
-    screenActions.append(action);
-    action->setData(screenActions.count() - 1);
-  }
+  if (QApplication::screens().count() > 1) {
+    // Add new action for each screen
+    foreach (QScreen *screen, QApplication::screens()) {
+      QString actionLabel = tr("%1 - %2x%3")
+          .arg(screen->name())
+          .arg(QString::number(screen->size().width()))
+          .arg(QString::number(screen->size().height()));
+      if (screen == QApplication::primaryScreen())
+        actionLabel.append(" - Primary");
+      QAction *action = new QAction(actionLabel, this);
+      screenActions.append(action);
+      action->setData(screenActions.count() - 1);
+    }
 
-  // Configure actions
-  screenActionGroup = new QActionGroup(this);
-  int preferredScreen = outputWindow->getPreferredScreen();
-  foreach (QAction *action, screenActions) {
-    action->setCheckable(true);
-    if (action == screenActions.at(preferredScreen))
-      action->setChecked(true);
+    // Configure actions
+    screenActionGroup = new QActionGroup(this);
+    int preferredScreen = outputWindow->getPreferredScreen();
+    foreach (QAction *action, screenActions) {
+      action->setCheckable(true);
+      if (action == screenActions.at(preferredScreen))
+        action->setChecked(true);
 
-    connect(action, SIGNAL(triggered()), this, SLOT(setupOutputScreen()));
-    screenActionGroup->addAction(action);
+      connect(action, SIGNAL(triggered()), this, SLOT(setupOutputScreen()));
+      screenActionGroup->addAction(action);
+    }
   }
 }
 
