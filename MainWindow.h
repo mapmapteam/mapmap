@@ -109,6 +109,9 @@ private slots:
   void deletePaintItem();
   void renamePaintItem();
   void paintListEditEnd(QWidget* editor);
+  // Output menu
+  void setupOutputScreen();
+  void updateScreenCount();
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();
@@ -130,6 +133,16 @@ private slots:
   void windowModified();
   void pollOscInterface();
   void exitFullScreen();
+
+  // Some help links
+  void documentation() { QDesktopServices::openUrl(
+          QUrl("http://mapmap.info/tiki-index.php?page=Documentation#section-documentation")); }
+  // Technical support
+  void technicalSupport() { QDesktopServices::openUrl(
+          QUrl("http://mapmap.info/tiki-index.php?page=HomePage#section-support")); }
+  // Report an issues
+  void reportBug() { QDesktopServices::openUrl(
+          QUrl("https://github.com/mapmapteam/mapmap/issues/new")); }
 
 public slots:
 
@@ -240,6 +253,8 @@ private:
   void createStatusBar();
   void updateRecentFileActions();
   void updateRecentVideoActions();
+  void updateScreenActions();
+  void addOutputMenuActions();
 
   // Settings.
   void readSettings();
@@ -299,8 +314,9 @@ private:
   // Menu actions.
   QMenu *fileMenu;
   QMenu *editMenu;
-  QMenu *viewMenu;
+  //QMenu *viewMenu;
   QMenu *toolsMenu;
+  QMenu *outputMenu;
   QMenu *windowMenu;
   QMenu *playbackMenu;
   QMenu *helpMenu;
@@ -369,6 +385,15 @@ private:
   enum { MaxRecentVideo = 5 };
   QAction *recentFileActions[MaxRecentFiles];
   QAction *recentVideoActions[MaxRecentVideo];
+
+  // help actions
+  QAction *bugReportAction;
+  QAction *supportAction;
+  QAction *docAction;
+
+  // Screen output action
+  QList<QAction *> screenActions;
+  QActionGroup *screenActionGroup;
 
   // Widgets and layout.
   QTabWidget* contentTab;

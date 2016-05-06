@@ -776,6 +776,33 @@ void MainWindow::paintListEditEnd(QWidget *editor)
   renamePaint(getItemId(*paintList->currentItem()), name);
 }
 
+void MainWindow::setupOutputScreen()
+{
+  QAction *actionSender = qobject_cast<QAction *>(sender());
+
+  if (actionSender)
+    outputWindow->setPreferredScreen(actionSender->data().toInt());
+  // If want that the changes take effect immediatelly
+  // when the output is in fullscreen mode
+  if (outputFullScreenAction->isChecked()) {
+    // XXX: Close and reopen // It's not the best way to do
+    outputFullScreenAction->toggle();
+    outputFullScreenAction->trigger();
+  }
+}
+
+void MainWindow::updateScreenCount()
+{
+  // Clear action list before
+  if (!screenActions.isEmpty())
+    screenActions.clear();
+  // Refresh screen action
+  updateScreenActions();
+  // Update Output menu
+  outputMenu->clear();
+  addOutputMenuActions();
+}
+
 void MainWindow::openRecentFile()
 {
   QAction *action = qobject_cast<QAction *>(sender());
@@ -1190,8 +1217,10 @@ void MainWindow::duplicateMapping(uid mappingId)
 
   // Create new duplicated mapping item
   Mapping::ptr clonedMapping(mapping);
-  uint cloneId = mappingManager->addMapping(clonedMapping);
-  addMappingItem(cloneId);
+  uid cloneId = mappingManager->addMapping(clonedMapping);
+
+  // Lets the undo-stack handle Undo/Redo the duplication of mapping item.
+  undoStack->push(new DuplicateShapesCommand(this, cloneId));
 }
 
 /// Deletes/removes a paint and all associated mappigns.
@@ -1471,7 +1500,7 @@ void MainWindow::createActions()
   addAction(redoAction);
 
   // About.
-  aboutAction = new QAction(tr("&About"), this);
+  aboutAction = new QAction(tr("&About MapMap"), this);
   aboutAction->setToolTip(tr("Show the application's About box"));
   aboutAction->setIconVisibleInMenu(false);
   aboutAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -1629,10 +1658,10 @@ void MainWindow::createActions()
   connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
 
   // Toggle display of output window.
-  outputFullScreenAction = new QAction(tr("&Full Screen"), this);
+  outputFullScreenAction = new QAction(tr("Toggle &Fullscreen"), this);
   outputFullScreenAction->setShortcut(Qt::CTRL + Qt::Key_F);
   outputFullScreenAction->setIcon(QIcon(":/fullscreen"));
-  outputFullScreenAction->setToolTip(tr("Full screen mode"));
+  outputFullScreenAction->setToolTip(tr("Toggle Fullscreen"));
   outputFullScreenAction->setIconVisibleInMenu(false);
   outputFullScreenAction->setCheckable(true);
   // Don't be displayed by default
@@ -1641,18 +1670,16 @@ void MainWindow::createActions()
   addAction(outputFullScreenAction);
   // Manage fullscreen/modal show of GL output window.
   connect(outputFullScreenAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
-  // When closing the GL output window or hit ESC key, uncheck the action in menu.
-//  connect(outputWindow, SIGNAL(closed()), outputFullScreenAction, SLOT(toggle()));
-  connect(QApplication::desktop(), SIGNAL(screenCountChanged(int)), outputWindow, SLOT(updateScreenCount(int)));
+  connect(QApplication::desktop(), SIGNAL(screenCountChanged(int)), this, SLOT(updateScreenCount()));
   // Create hiden action for closing output window
-  QAction *closeOutput = new QAction(tr("Close output"), this);
+  QAction *closeOutput = new QAction(this);
   closeOutput->setShortcut(Qt::Key_Escape);
   closeOutput->setShortcutContext(Qt::ApplicationShortcut);
   addAction(closeOutput);
   connect(closeOutput, SIGNAL(triggered(bool)), this, SLOT(exitFullScreen()));
 
   // Toggle display of canvas controls.
-  displayControlsAction = new QAction(tr("&Display Canvas Controls"), this);
+  displayControlsAction = new QAction(tr("&Display Controls in Output"), this);
   displayControlsAction->setShortcut(Qt::ALT + Qt::Key_C);
   displayControlsAction->setIcon(QIcon(":/control-points"));
   displayControlsAction->setToolTip(tr("Display canvas controls"));
@@ -1678,10 +1705,10 @@ void MainWindow::createActions()
   // Manage sticky vertices
   connect(stickyVerticesAction, SIGNAL(toggled(bool)), this, SLOT(enableStickyVertices(bool)));
 
-  displayTestSignalAction = new QAction(tr("&Display Test Signal"), this);
+  displayTestSignalAction = new QAction(tr("Show &Test Signal"), this);
   displayTestSignalAction->setShortcut(Qt::ALT + Qt::Key_T);
   displayTestSignalAction->setIcon(QIcon(":/control-points"));
-  displayTestSignalAction->setToolTip(tr("Display test signal"));
+  displayTestSignalAction->setToolTip(tr("Show Test signal"));
   displayTestSignalAction->setIconVisibleInMenu(false);
   displayTestSignalAction->setCheckable(true);
   displayTestSignalAction->setChecked(false);
@@ -1756,6 +1783,20 @@ void MainWindow::createActions()
   perspectiveActionGroup->addAction(mainViewAction);
   perspectiveActionGroup->addAction(sourceViewAction);
   perspectiveActionGroup->addAction(destViewAction);
+
+  // Helps
+  // Bug report
+  bugReportAction = new QAction(tr("Report bug..."), this);
+  connect(bugReportAction, SIGNAL(triggered()), this, SLOT(reportBug()));
+  // Support
+  supportAction = new QAction(tr("Technical Support"), this);
+  connect(supportAction, SIGNAL(triggered()), this, SLOT(technicalSupport()));
+  // Documentation
+  docAction = new QAction(tr("Documentation"), this);
+  connect(docAction, SIGNAL(triggered()), this, SLOT(documentation()));
+
+  // All available screen as action
+  updateScreenActions();
 }
 
 void MainWindow::startFullScreen()
@@ -1811,6 +1852,8 @@ void MainWindow::createMenus()
   editMenu->addAction(undoAction);
   editMenu->addAction(redoAction);
   editMenu->addSeparator();
+  editMenu->addAction(stickyVerticesAction);
+  editMenu->addSeparator();
   // Source canvas menu
   sourceMenu = editMenu->addMenu(tr("&Source"));
   sourceMenu->setEnabled(false);
@@ -1826,32 +1869,17 @@ void MainWindow::createMenus()
   // Preferences
   editMenu->addAction(preferencesAction);
 
-  // View.
-  viewMenu = menuBar->addMenu(tr("&View"));
-  // Toolbars menu
-  toolBarsMenu = viewMenu->addMenu(tr("Toolbars"));
-#ifdef Q_OS_LINUX
-  if (QString(getenv("XDG_CURRENT_DESKTOP")).toLower() != "unity")
-    toolBarsMenu->addAction(showMenuBarAction);
-#endif
-#ifdef Q_OS_WIN
-  toolBarsMenu->addAction(showMenuBarAction);
-#endif
-  viewMenu->addSeparator();
-  viewMenu->addAction(displayControlsAction);
-  viewMenu->addAction(stickyVerticesAction);
-  viewMenu->addAction(displayTestSignalAction);
-  viewMenu->addSeparator();
-  viewMenu->addAction(displayUndoStackAction);
-  viewMenu->addAction(displayZoomToolAction);
-  viewMenu->addSeparator();
-  viewMenu->addAction(outputFullScreenAction);
-
-  // Run.
+  // Playback.
   playbackMenu = menuBar->addMenu(tr("&Playback"));
   playbackMenu->addAction(playAction);
   playbackMenu->addAction(pauseAction);
   playbackMenu->addAction(rewindAction);
+
+
+  // Output
+  outputMenu = menuBar->addMenu(tr("&Output"));
+  // Add actions
+  addOutputMenuActions();
 
   // Tools
   toolsMenu = menuBar->addMenu(tr("&Tools"));
@@ -1859,13 +1887,31 @@ void MainWindow::createMenus()
 
   // Window
   windowMenu = menuBar->addMenu(tr("&Window"));
+  // Toolbars menu
+  toolBarsMenu = windowMenu->addMenu(tr("Toolbars"));
+#ifdef Q_OS_LINUX
+  if (QString(getenv("XDG_CURRENT_DESKTOP")).toLower() != "unity")
+    toolBarsMenu->addAction(showMenuBarAction);
+#endif
+#ifdef Q_OS_WIN
+  toolBarsMenu->addAction(showMenuBarAction);
+#endif
+  windowMenu->addAction(displayUndoStackAction);
+  windowMenu->addAction(displayZoomToolAction);
+  windowMenu->addSeparator();
+  // Perspectives
   windowMenu->addAction(mainViewAction);
   windowMenu->addAction(sourceViewAction);
   windowMenu->addAction(destViewAction);
 
   // Help.
   helpMenu = menuBar->addMenu(tr("&Help"));
+  helpMenu->addAction(docAction);
+  helpMenu->addAction(supportAction);
+  helpMenu->addAction(bugReportAction);
+  helpMenu->addSeparator();
   helpMenu->addAction(aboutAction);
+
   //  helpMenu->addAction(aboutQtAction);
 
 }
@@ -2226,6 +2272,45 @@ void MainWindow::updateRecentVideoActions()
   {
     emptyRecentVideos->setVisible(false);
   }
+}
+
+void MainWindow:: updateScreenActions()
+{
+  if (QApplication::screens().count() > 1) {
+    // Add new action for each screen
+    foreach (QScreen *screen, QApplication::screens()) {
+      QString actionLabel = tr("%1 - %2x%3")
+          .arg(screen->name())
+          .arg(QString::number(screen->size().width()))
+          .arg(QString::number(screen->size().height()));
+      if (screen == QApplication::primaryScreen())
+        actionLabel.append(" - Primary");
+      QAction *action = new QAction(actionLabel, this);
+      screenActions.append(action);
+      action->setData(screenActions.count() - 1);
+    }
+
+    // Configure actions
+    screenActionGroup = new QActionGroup(this);
+    int preferredScreen = outputWindow->getPreferredScreen();
+    foreach (QAction *action, screenActions) {
+      action->setCheckable(true);
+      if (action == screenActions.at(preferredScreen))
+        action->setChecked(true);
+
+      connect(action, SIGNAL(triggered()), this, SLOT(setupOutputScreen()));
+      screenActionGroup->addAction(action);
+    }
+  }
+}
+
+void MainWindow::addOutputMenuActions()
+{
+  outputMenu->addAction(outputFullScreenAction);
+  outputMenu->addActions(screenActions);
+  outputMenu->addSeparator();
+  outputMenu->addAction(displayTestSignalAction);
+  outputMenu->addAction(displayControlsAction);
 }
 
 void MainWindow::clearRecentFileList()

@@ -46,7 +46,6 @@ public:
 
 public slots:
   void setFullScreen(bool fullScreen);
-  void updateScreenCount(int nScreens);
   void setDisplayCrosshair(bool crosshair);
   void setDisplayTestSignal(bool displayTestSignal);
 
@@ -57,14 +56,15 @@ public:
   MapperGLCanvas* getCanvas() const { return canvas; }
   void setPointerHasMoved();
 
+  int getPreferredScreen() const { return _preferredScreen; }
+  void setPreferredScreen(int screen);
+
 private:
   OutputGLCanvas* canvas;
 
-  int _getPreferredScreen() const {
-    return QApplication::desktop()->screenCount()-1;
-  }
   void _updateToPreferredScreen();
   bool _is_fullscreen;
+  int _preferredScreen;
 };
 
 MM_END_NAMESPACE

@@ -81,6 +81,11 @@ void AddShapesCommand::redo()
   }
 }
 
+DuplicateShapesCommand::DuplicateShapesCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent):
+  AddShapesCommand(mainWindow, cloneId, parent)
+{
+  setText(QObject::tr("Duplicate mapping"));
+}
 
 TransformShapeCommand::TransformShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, QUndoCommand* parent)
   : QUndoCommand(parent),
