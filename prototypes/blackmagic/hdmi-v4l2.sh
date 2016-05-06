@@ -9,7 +9,16 @@
 
 GST_DEBUG=2 \
 LANG=C \
-sudo gst-launch-1.0 -v decklinksrc mode=3 connection=5 ! \
-    videoconvert ! \
-    xvimagesink
+gst-launch-1.0 decklinksrc mode=11 connection=0 audio-input=3 ! \
+    video/x-raw,format=UYVY,width=1920,height=1080,framerate=30000/1001,interlace-mode=interleaved ! \
+    queue ! xvimagesink
+
+# v4l2sink device=/dev/video1 sync=false
+
+
 # sync=false
+# gst-launch-1.0 -v decklinksrc mode=18 connection=1 ! \
+#     videoconvert ! \
+#     queue ! \
+#     xvimagesink
+# 

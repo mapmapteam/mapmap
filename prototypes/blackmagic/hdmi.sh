@@ -7,9 +7,10 @@
 # Direct link:
 # https://www.blackmagicdesign.com/support/download/f73ee77fdd384b5286fe86a46d20d045/Linux
 
-GST_DEBUG=2 \
+GST_DEBUG=4 \
 LANG=C \
-sudo gst-launch-1.0 -v decklinksrc mode=3 connection=5 ! \
+gst-launch-1.0 -v decklinksrc mode=18 connection=1 ! \
     videoconvert ! \
+    queue ! \
     xvimagesink
 # sync=false
