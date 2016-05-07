@@ -103,7 +103,7 @@ updateqm.commands = $$QMAKE_LRELEASE ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${Q
 updateqm.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += updateqm
 PRE_TARGETDEPS += compiler_updateqm_make_all
-system(lrelease mapmap.pro) # Run lrelease
+system($$QMAKE_LRELEASE mapmap.pro) # Run lrelease
 
 # Add the docs target:
 docs.depends = $(HEADERS) $(SOURCES)
