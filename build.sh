@@ -3,7 +3,7 @@
 # On Mac, install it from http://qt-project.org/downloads
 # set -o verbose
 
-qtversion=5.5
+QT_VERSION=5.5
 
 do_create_dmg() {
     if [ -f DMGVERSION.txt ]
@@ -53,10 +53,10 @@ if [[ $unamestr == "Darwin" ]]; then
     #export QMAKE_CFLAGS_PPC_64
     #export QMAKESPEC=macx-g++
     #export QMAKESPEC=macx-xcode
-    qtbindir=~/Qt/${qtversion}/clang_64/bin/
-    PATH=$PATH:${qtbindir}
+    QT_BIN_DIR=~/Qt/${QT_VERSION}/clang_64/bin/
+    PATH=$PATH:${QT_BIN_DIR}
+    APP="MapMap.app"
     gstreamer="GStreamer.framework/Versions/1.0/lib/GStreamer"
-    app="MapMap.app"
 
     # XXX
     #$qmake5 -config release -spec macx-llvm
@@ -67,22 +67,27 @@ if [[ $unamestr == "Darwin" ]]; then
 
     # build program
     echo "Building program ..."
-    qmake -config release
+    ${QT_BIN_DIR}/qmake -config release
     make -j4
     
     # Bundle Qt frameworks in app using macdeployqt
     echo "Bundling Qt ..."
-    macdeployqt $app
+    ${QT_BIN_DIR}/macdeployqt $APP
     
     # Bundle GStreamer framework in app
-    echo "Bundling GStreamer ..."
-    cp -R /Library/Frameworks/GStreamer.framework ${app}/Contents/Frameworks/
-    install_name_tool -id @executable_path/../Frameworks/${gstreamer} ${app}/Contents/Frameworks/${gstreamer}
-    install_name_tool -change /Library/Frameworks/${gstreamer} @executable_path/../Frameworks/${gstreamer} ${app}/Contents/MacOs/MapMap
+    #echo "Bundling GStreamer ..."
+    cp -r /Library/Frameworks/GStreamer.framework ${APP}/Contents/Frameworks/
+    osxrelocator ${APP}/Contents/Frameworks/GStreamer.framework/Versions/Current/lib /Library/Frameworks/GStreamer.framework/ @executable_path/../Frameworks/GStreamer.framework/ -r
+    osxrelocator ${APP}/Contents/Frameworks/GStreamer.framework/Versions/Current/libexec /Library/Frameworks/GStreamer.framework/ @executable_path/../Frameworks/GStreamer.framework/ -r
+    osxrelocator ${APP}/Contents/Frameworks/GStreamer.framework/Versions/Current/bin /Library/Frameworks/GStreamer.framework/ @executable_path/../Frameworks/GStreamer.framework/ -r
+    osxrelocator ${APP}/Contents/MacOS /Library/Frameworks/GStreamer.framework/ @executable_path/../Frameworks/GStreamer.framework/ -r
+
+    #install_name_tool -id @executable_path/../Frameworks/${gstreamer} ${APP}/Contents/Frameworks/${gstreamer}
+    #install_name_tool -change /Library/Frameworks/${gstreamer} @executable_path/../Frameworks/${gstreamer} ${APP}/Contents/MacOs/MapMap
     
     # do_fix_qt_plugins_in_app
-    echo "Creating DMG ..."
-    do_create_dmg
+    #echo "Creating DMG ..."
+    #do_create_dmg
 elif [[ $unamestr == "Linux" ]]; then
     qmake
     make -j4

@@ -23,11 +23,11 @@ MM_USE_NAMESPACE
 static void set_env_vars_if_needed()
 {
 #ifdef __MACOSX_CORE__
-  std::cout << "OS X detected. Set environment for GStreamer support." << std::endl;
-  if (0 == setenv("GST_PLUGIN_PATH", "/Library/Frameworks/GStreamer.framework/Libraries", 1))
+  std::cout << "OS X detected. Set environment for GStreamer support." << std::endl;  
+/*  if (0 == setenv("GST_PLUGIN_PATH", "/Library/Frameworks/GStreamer.framework/Libraries", 1))
       std::cout << " * GST_PLUGIN_PATH=/Library/Frameworks/GStreamer.framework/Libraries" << std::endl;
   if (0 == setenv("GST_DEBUG", "2", 1))
-      std::cout << " * GST_DEBUG=2" << std::endl;
+      std::cout << " * GST_DEBUG=2" << std::endl;*/
   //setenv("LANG", "C", 1);
 #endif // __MACOSX_CORE__
 }
@@ -84,6 +84,22 @@ int main(int argc, char *argv[])
   initRegistry();
 
   MainApplication app(argc, argv);
+  
+#ifdef __MACOSX_CORE__
+  std::cout << "OS X detected. Set environment for GStreamer support." << std::endl;  
+/*  if (0 == setenv("GST_PLUGIN_PATH", "/Library/Frameworks/GStreamer.framework/Libraries", 1))
+      std::cout << " * GST_PLUGIN_PATH=/Library/Frameworks/GStreamer.framework/Libraries" << std::endl;
+  if (0 == setenv("GST_DEBUG", "2", 1))
+      std::cout << " * GST_DEBUG=2" << std::endl;*/
+  //setenv("LANG", "C", 1);
+#endif // __MACOSX_CORE__
+
+  putenv("GST_PLUGIN_SYSTEM_PATH=/Users/rustines/Documents/workspace/mapmap/MapMap.app/Contents/Frameworks/GStreamer.framework/Versions/Current/lib/gstreamer-1.0");
+  putenv("GST_PLUGIN_SCANNER=/Users/rustines/Documents/workspace/mapmap/MapMap.app//Contents/Frameworks/GStreamer.framework/Versions/Current/libexec/gstreamer-1.0/gst-plugin-scanner");
+  putenv("GTK_PATH=/Users/rustines/Documents/workspace/mapmap/MapMap.app//Contents/Frameworks/GStreamer.framework/Versions/Current/");
+  putenv("GIO_EXTRA_MODULES=/Users/rustines/Documents/workspace/mapmap/MapMap.app//Contents/Frameworks/GStreamer.framework/Versions/Current/lib/gio/modules");
+
+  qDebug() << app.applicationDirPath() << endl;
 
 #if USING_QT_5
   QCommandLineParser parser;
