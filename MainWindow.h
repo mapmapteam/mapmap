@@ -515,6 +515,7 @@ public:
   OutputGLWindow* getOutputWindow() const { return outputWindow; }
   MapperGLCanvas* getSourceCanvas() const { return sourceCanvas; }
   MapperGLCanvas* getDestinationCanvas() const { return destinationCanvas; }
+  int getPreferredScreen() const { return outputWindow->getPreferredScreen(); }
 
   /// Returns true iff we should display the controls.
   bool displayControls() const { return _displayControls; }
