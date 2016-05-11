@@ -24,7 +24,6 @@ HEADERS  = \
     Mapping.h \
     MappingManager.h \
     Maths.h \
-    VideoImpl.h \
     Mesh.h \
     MetaObjectRegistry.h \
     OscInterface.h \
@@ -46,7 +45,8 @@ HEADERS  = \
     ShapeGraphicsItem.h \
     Triangle.h \
     UidAllocator.h \
-    Util.h
+    Util.h \
+    VideoImpl.h
 
 SOURCES  = \
     Commands.cpp \
@@ -63,7 +63,6 @@ SOURCES  = \
     MapperGLCanvasToolbar.cpp \
     Mapping.cpp \
     MappingManager.cpp \
-    VideoImpl.cpp \
     Mesh.cpp \
     MetaObjectRegistry.cpp \
     OscInterface.cpp \
@@ -83,7 +82,8 @@ SOURCES  = \
     ShapeGraphicsItem.cpp \
     UidAllocator.cpp \
     Util.cpp \
-    main.cpp
+    VideoImpl.cpp \
+    main.cpp \
 
 
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
