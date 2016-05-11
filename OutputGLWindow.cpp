@@ -93,7 +93,7 @@ void OutputGLWindow::updateScreenCount(int nScreens)
 void OutputGLWindow::_updateToPreferredScreen()
 {
   // Check if user is on multiple screen (always pre
-  int screen = _getPreferredScreen();
+  int screen = getPreferredScreen();
   //Move window to second screen before fullscreening it.
   setGeometry(QApplication::desktop()->screenGeometry(screen));
 }
@@ -109,6 +109,10 @@ void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
 {
   canvas->setDisplayTestSignal(displayTestSignal);
   canvas->update();
+}
+
+int OutputGLWindow::getPreferredScreen() {
+  return QApplication::desktop()->screenCount()-1;
 }
 
 

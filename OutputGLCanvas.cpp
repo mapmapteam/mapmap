@@ -60,8 +60,19 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     // Display crosshair cursor.
     if (_displayCrosshair)
     {
+#ifdef Q_OS_OSX
+      QPoint globalCursorPos = QCursor::pos();
+      int mouseScreen = QApplication::desktop()->screenNumber(globalCursorPos);
+      QRect mouseScreenGeometry = QApplication::desktop()->screen(mouseScreen)->geometry();
+      QPoint localCursorPos = globalCursorPos - mouseScreenGeometry.topLeft();
+      QPointF cursorPosition = mapToScene(localCursorPos);
+      qDebug() << "Cursor pos " << globalCursorPos << " " << cursorPosition << " " << localCursorPos << mouseScreen << endl;
+      if (rect.contains(cursorPosition) && OutputGLWindow::getPreferredScreen() == mouseScreen)
+//      qDebug() << "Cursor pos " << mapToScene(mapFromGlobal(QCursor::pos(QApplication::screens()[1])));
+#else
       QPointF cursorPosition = mapToScene(mapFromGlobal(cursor().pos()));// - rect.topLeft();//(QCursor::pos());///*this->mapFromGlobal(*/QCursor::pos()/*)*/;
       if (rect.contains(cursorPosition))
+#endif
       {
         painter->setPen(MM::CONTROL_COLOR);
         painter->drawLine(cursorPosition.x(), rect.y(), cursorPosition.x(), rect.height());

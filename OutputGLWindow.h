@@ -57,12 +57,11 @@ public:
   MapperGLCanvas* getCanvas() const { return canvas; }
   void setPointerHasMoved();
 
+  static int getPreferredScreen();
+
 private:
   OutputGLCanvas* canvas;
 
-  int _getPreferredScreen() const {
-    return QApplication::desktop()->screenCount()-1;
-  }
   void _updateToPreferredScreen();
   bool _is_fullscreen;
 };
