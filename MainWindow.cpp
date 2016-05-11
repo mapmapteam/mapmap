@@ -337,6 +337,25 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 #endif
 }
 
+bool MainWindow::eventFilter(QObject *object, QEvent *event)
+{
+  QMenu *menu = static_cast<QMenu*>(object);
+
+  if (menu && (event->type() == QEvent::MouseButtonPress
+      || event->type() == QEvent::MouseButtonDblClick))
+  {
+    QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+    // Disable right click on context menu actions
+    if (mouseEvent->buttons() & Qt::RightButton) {
+      mouseEvent->ignore();
+      return true;
+    }
+    return false;
+  }
+
+  return QMainWindow::eventFilter(object, event);
+}
+
 void MainWindow::setOutputWindowFullScreen(bool enable)
 {
   outputWindow->setFullScreen(enable);
@@ -1920,6 +1939,7 @@ void MainWindow::createMappingContextMenu()
 {
   // Context menu.
   mappingContextMenu = new QMenu(this);
+  mappingContextMenu->installEventFilter(this);
 
   // Add different Action
   mappingContextMenu->addAction(cloneMappingAction);
@@ -1945,6 +1965,7 @@ void MainWindow::createPaintContextMenu()
 {
   // Paint Context Menu
   paintContextMenu = new QMenu(this);
+  paintContextMenu->installEventFilter(this);
 
   // Add Actions
   paintContextMenu->addAction(deletePaintAction);
