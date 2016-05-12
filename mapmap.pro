@@ -46,7 +46,10 @@ HEADERS  = \
     Triangle.h \
     UidAllocator.h \
     Util.h \
-    VideoImpl.h
+    VideoImpl.h \
+    VideoUriDecodeBinImpl.h \
+    VideoV4l2SrcImpl.h \
+    VideoShmSrcImpl.h \
 
 SOURCES  = \
     Commands.cpp \
@@ -83,7 +86,10 @@ SOURCES  = \
     UidAllocator.cpp \
     Util.cpp \
     VideoImpl.cpp \
-    main.cpp \
+    VideoUriDecodeBinImpl.cpp \
+    VideoV4l2SrcImpl.cpp \
+    VideoShmSrcImpl.cpp \
+    main.cpp
 
 
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)

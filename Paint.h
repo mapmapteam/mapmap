@@ -39,6 +39,12 @@
 
 MM_BEGIN_NAMESPACE
 
+typedef enum {
+  VIDEO_URI,
+  VIDEO_WEBCAM,
+  VIDEO_SHMSRC
+} VideoType;
+
 /**
  * A Paint is a style that can be applied when drawing potentially any shape.
  * 
@@ -250,7 +256,7 @@ public:
 
 public:
   Q_INVOKABLE Video(int id=NULL_UID);
-  Video(const QString uri_, bool live, double rate, uid id=NULL_UID);
+  Video(const QString uri_, VideoType type, double rate, uid id=NULL_UID);
   virtual ~Video();
   const QString getUri() const
   {

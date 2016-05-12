@@ -467,7 +467,7 @@ void MainWindow::importMedia()
   // Check if file is image or not
   // according to file extension
   if (!fileName.isEmpty()) {
-    if (MM::IMAGE_FILES_FILTER.contains(QFileInfo(fileName).suffix(), Qt::CaseInsensitive))
+    if (!QFileInfo(fileName).suffix().isEmpty() && MM::IMAGE_FILES_FILTER.contains(QFileInfo(fileName).suffix(), Qt::CaseInsensitive))
       importMediaFile(fileName, true);
     else
       importMediaFile(fileName, false);
@@ -881,7 +881,7 @@ bool MainWindow::clearProject()
 }
 
 uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
-                                 bool isImage, bool live, double rate)
+                                 bool isImage, VideoType type, double rate)
 {
   // Cannot create image with already existing id.
   if (Paint::getUidAllocator().exists(paintId))
@@ -890,14 +890,14 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
   else
   {
     // Check if file exists before
-    if (! fileExists(uri))
-      uri = locateMediaFile(uri, isImage);
+    //if (! fileExists(uri))
+      //uri = locateMediaFile(uri, isImage);
 
     Texture* tex = 0;
     if (isImage)
       tex = new Image(uri, paintId);
     else {
-      tex = new Video(uri, live, rate, paintId);
+      tex = new Video(uri, type, rate, paintId);
     }
 
     // Create new image with corresponding ID.
@@ -2378,14 +2378,19 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
 {
   QFile file(fileName);
   QDir currentDir;
+  VideoType type = VIDEO_URI;
 
   if (!fileSupported(fileName, isImage))
     return false;
 
-  bool live = false;
+  if (fileName.contains(QString("/dev/video"))) {
+    type = VIDEO_WEBCAM;
+  }
+
   if (!file.open(QIODevice::ReadOnly)) {
-    if (file.isSequential())
-      live = true;
+    if (file.isSequential()) {
+      type = VIDEO_SHMSRC;
+    }
     else {
       QMessageBox::warning(this, tr("MapMap Project"),
                            tr("Cannot read file %1:\n%2.")
@@ -2398,7 +2403,7 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   // Add media file to model.
-  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, isImage, live);
+  uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, isImage, type);
 
   // Initialize position (center).
   QSharedPointer<Video> media = qSharedPointerCast<Video>(mappingManager->getPaintById(mediaId));
