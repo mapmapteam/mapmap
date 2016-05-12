@@ -82,6 +82,15 @@ void ConsoleWindow::createMenu()
   fileMenu->addAction(quitAction);
 }
 
+void ConsoleWindow::writeLogFile(const QString &message)
+{
+  QString logFilePath = QDir(QDir::tempPath()).filePath("mapmap.log");
+  QFile logFile(logFilePath);
+  logFile.open(QIODevice::Append);
+  QTextStream stream(&logFile);
+  stream << message << endl;
+}
+
 void ConsoleWindow::printMessage(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
   // Message
@@ -119,6 +128,9 @@ void ConsoleWindow::printMessage(QtMsgType type, const QMessageLogContext &conte
   }
   // Print in console
   _console->appendHtml(output);
+
+  // Write also on log file
+  writeLogFile(output.remove(QRegExp("<[^>]*>")));
 }
 
 void ConsoleWindow::closeEvent(QCloseEvent *event)
