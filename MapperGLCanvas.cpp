@@ -123,7 +123,8 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
           if (it.key() != mid)
           {
             ShapeGraphicsItem::ptr paintMappingItem = getShapeGraphicsItemFromMapping(it.value());
-            paintMappingItem->getControlPainter()->paintShape(painter, this, false);
+            if (paintMappingItem)
+              paintMappingItem->getControlPainter()->paintShape(painter, this, false);
           }
         }
       }
