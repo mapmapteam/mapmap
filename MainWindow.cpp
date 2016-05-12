@@ -46,6 +46,9 @@ MainWindow::MainWindow()
   _hasCurrentMapping = false;
   currentSelectedItem = NULL;
 
+  // Frames per second.
+  _framesPerSecond = (-1);
+
   // Play state.
   _isPlaying = false;
 
@@ -82,8 +85,8 @@ MainWindow::MainWindow()
 
   // Create and start timer.
   videoTimer = new QTimer(this);
-  videoTimer->setInterval( int( 1000 / MM::FRAMES_PER_SECOND ) );
   connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateCanvases()));
+  setFramesPerSecond(MM::DEFAULT_FRAMES_PER_SECOND);
   videoTimer->start();
 
   // Start playing by default.
@@ -2828,6 +2831,12 @@ void MainWindow::enableDisplayControls(bool display)
 {
   _displayControls = display;
   updateCanvases();
+}
+
+void MainWindow::setFramesPerSecond(qreal fps)
+{
+  _framesPerSecond = qMax(fps, 0.0);
+  videoTimer->setInterval( int( 1000 / _framesPerSecond ) );
 }
 
 void MainWindow::enableDisplayPaintControls(bool display)

@@ -117,6 +117,11 @@ int main(int argc, char *argv[])
   QCommandLineOption localeOption(QStringList() << "l" << "lang", "Use language <lang>.", "lang", "en");
   parser.addOption(localeOption);
 
+  // --frame-rate option
+  QCommandLineOption frameRateOption(QStringList() << "r" << "frame-rate",
+    "Use a framerate of <frame-rate> per second.", "frame-rate", QString::number(MM::DEFAULT_FRAMES_PER_SECOND));
+  parser.addOption(frameRateOption);
+
   // Positional argument: file
   parser.addPositionalArgument("file", "Load project from that file.");
 
@@ -204,6 +209,13 @@ int main(int argc, char *argv[])
   {
     win->setOscPort(oscPortNumberValue);
   }
+
+  bool optionOk;
+  qreal fps = parser.value("frame-rate").toDouble(&optionOk);
+  if (optionOk)
+    win->setFramesPerSecond(fps);
+  else
+    qFatal("Invalid option <frame-rate>.");
 
 #endif
 

@@ -57,7 +57,7 @@ const qreal MM::VERTEX_LOCKED_RADIUS = 6;
 const qreal MM::VERTEX_SELECT_STROKE_WIDTH = 1;
 
 // Time.
-const qreal MM::FRAMES_PER_SECOND = 29.97f;
+const qreal MM::DEFAULT_FRAMES_PER_SECOND = 29.97f;
 
 // Zoom.
 const qreal MM::ZOOM_FACTOR = 1.4f;

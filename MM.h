@@ -95,7 +95,7 @@ public:
   static const qreal VERTEX_SELECT_STROKE_WIDTH;
 
   // Time.
-  static const qreal FRAMES_PER_SECOND;
+  static const qreal DEFAULT_FRAMES_PER_SECOND;
 
   // Zoom.
   static const qreal ZOOM_FACTOR;

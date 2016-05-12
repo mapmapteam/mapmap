@@ -217,6 +217,7 @@ public slots:
   void updateCanvases();
 
   // Editing toggles.
+  void setFramesPerSecond(qreal fps);
   void enableDisplayControls(bool display);
   void enableDisplayPaintControls(bool display);
   void enableStickyVertices(bool display);
@@ -464,6 +465,9 @@ private:
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
 
+  // Number of frames per second.
+  qreal _framesPerSecond;
+
   // True iff the play button is currently pressed.
   bool _isPlaying;
 
@@ -522,6 +526,9 @@ public:
   OutputGLWindow* getOutputWindow() const { return outputWindow; }
   MapperGLCanvas* getSourceCanvas() const { return sourceCanvas; }
   MapperGLCanvas* getDestinationCanvas() const { return destinationCanvas; }
+
+  /// Returns the number of frames per second.
+  qreal framesPerSecond() const { return _framesPerSecond; }
 
   /// Returns true iff MapMap is currently playing (ie. not in pause).
   bool isPlaying() const { return _isPlaying; }
