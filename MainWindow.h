@@ -26,6 +26,7 @@
   #include <QtWidgets>
 #endif
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QVariant>
 #include <QMap>
 #include <QMessageLogger>
@@ -215,6 +216,12 @@ public slots:
 
   /// Updates all canvases.
   void updateCanvases();
+
+  /**
+   * This function is triggered framesPerSeconds() times per second. It makes sure
+   * the image is refreshed (updateCanvases()) and performs other necessary operations.
+   */
+  void processFrame();
 
   // Editing toggles.
   void setFramesPerSecond(qreal fps);
@@ -489,6 +496,7 @@ private:
   QListWidgetItem* currentSelectedItem;
   QModelIndex currentSelectedIndex;
   QTimer *videoTimer;
+  QElapsedTimer *systemTimer;
 
   PreferencesDialog* _preferences_dialog;
 
@@ -501,7 +509,7 @@ private:
   QLabel *undoLabel;
   QLabel *currentMessageLabel;
   QLabel *mousePosLabel;
-
+  QLabel *trueFramesPerSecondsLabel;
 
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////

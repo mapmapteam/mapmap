@@ -85,9 +85,13 @@ MainWindow::MainWindow()
 
   // Create and start timer.
   videoTimer = new QTimer(this);
-  connect(videoTimer, SIGNAL(timeout()), this, SLOT(updateCanvases()));
+  connect(videoTimer, SIGNAL(timeout()), this, SLOT(processFrame()));
   setFramesPerSecond(MM::DEFAULT_FRAMES_PER_SECOND);
   videoTimer->start();
+
+  // Create elapsed timer.
+  systemTimer = new QElapsedTimer;
+  systemTimer->start();
 
   // Start playing by default.
   play();
@@ -103,6 +107,7 @@ MainWindow::~MainWindow()
 #ifdef HAVE_OSC
   delete osc_timer;
 #endif // ifdef
+  delete systemTimer;
 }
 
 void MainWindow::handlePaintItemSelectionChanged()
@@ -2063,6 +2068,10 @@ void MainWindow::createStatusBar()
   mousePosLabel = new QLabel(statusBar());
   mousePosLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   mousePosLabel->setContentsMargins(2, 0, 0, 0);
+  // FPS.
+  trueFramesPerSecondsLabel = new QLabel(statusBar());
+  trueFramesPerSecondsLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  trueFramesPerSecondsLabel->setContentsMargins(2, 0, 0, 0);
 
   // Add permanently into the statut bar
   statusBar()->addPermanentWidget(currentMessageLabel, 5);
@@ -2070,6 +2079,7 @@ void MainWindow::createStatusBar()
   statusBar()->addPermanentWidget(mousePosLabel, 3);
   statusBar()->addPermanentWidget(sourceZoomLabel, 1);
   statusBar()->addPermanentWidget(destinationZoomLabel, 1);
+  statusBar()->addPermanentWidget(trueFramesPerSecondsLabel, 1);
 
   // Update the status bar
   updateStatusBar();
@@ -2787,6 +2797,24 @@ MainWindow* MainWindow::instance() {
 
 void MainWindow::updateCanvases()
 {
+  // Update scenes.
+  sourceCanvas->scene()->update();
+  destinationCanvas->scene()->update();
+
+  // Update canvases.
+  sourceCanvas->update();
+  destinationCanvas->update();
+  outputWindow->getCanvas()->update();
+
+  // Update statut bar
+  updateStatusBar();
+}
+
+void MainWindow::processFrame()
+{
+  // Number of frames processed (restarted every second).
+  static unsigned int nFrames = 0;
+
   // Pause all paints that are not visible.
   if (isPlaying())
   {
@@ -2814,17 +2842,20 @@ void MainWindow::updateCanvases()
     }
   }
 
-  // Update scenes.
-  sourceCanvas->scene()->update();
-  destinationCanvas->scene()->update();
-
   // Update canvases.
-  sourceCanvas->update();
-  destinationCanvas->update();
-  outputWindow->getCanvas()->update();
+  updateCanvases();
 
-  // Update statut bar
-  updateStatusBar();
+  // Update true FPS.
+  nFrames++;
+  if (nFrames > framesPerSecond())
+  {
+    // This is the real time needed to process one second.
+    qreal trueFramesPerSecond = nFrames / systemTimer->restart() * 1000.0;
+    trueFramesPerSecondsLabel->setText(
+        "FPS: " + QString::number(trueFramesPerSecond, 'f', 2) + " / " +
+        QString::number(framesPerSecond()  , 'f', 2));
+    nFrames = 0;
+  }
 }
 
 void MainWindow::enableDisplayControls(bool display)
