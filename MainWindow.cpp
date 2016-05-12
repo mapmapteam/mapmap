@@ -2409,7 +2409,7 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
   QSharedPointer<Video> media = qSharedPointerCast<Video>(mappingManager->getPaintById(mediaId));
   Q_CHECK_PTR(media);
 
-  if (_isPlaying)
+  if (isPlaying())
     media->play();
   else
     media->pause();
@@ -2446,7 +2446,7 @@ bool MainWindow::addColorPaint(const QColor& color)
   Q_CHECK_PTR(colorPaint);
 
   // Does not do anything...
-  if (_isPlaying)
+  if (isPlaying())
     colorPaint->play();
   else
     colorPaint->pause();
@@ -2784,6 +2784,33 @@ MainWindow* MainWindow::instance() {
 
 void MainWindow::updateCanvases()
 {
+  // Pause all paints that are not visible.
+  if (isPlaying())
+  {
+    QVector<Paint::ptr> visiblePaints = mappingManager->getVisiblePaints();
+    for (int i=0; i<mappingManager->nPaints(); i++)
+    {
+      Paint::ptr paint = mappingManager->getPaint(i);
+      if (visiblePaints.contains(paint))
+      {
+        paint->play();
+      }
+      else
+      {
+        paint->pause();
+      }
+    }
+  }
+
+  // Pause everyone.
+  else
+  {
+    for (int i=0; i<mappingManager->nPaints(); i++)
+    {
+      mappingManager->getPaint(i)->pause();
+    }
+  }
+
   // Update scenes.
   sourceCanvas->scene()->update();
   destinationCanvas->scene()->update();

@@ -108,6 +108,9 @@ public:
   /// Returns true iff the mapping is visible.
   bool mappingIsVisible(Mapping::ptr mapping) const;
 
+  /// Returns the list of visible paints (ie. paints for which at least one mapping is visible).
+  QVector<Paint::ptr> getVisiblePaints() const;
+
   void clearAll();
 };
 

@@ -523,6 +523,9 @@ public:
   MapperGLCanvas* getSourceCanvas() const { return sourceCanvas; }
   MapperGLCanvas* getDestinationCanvas() const { return destinationCanvas; }
 
+  /// Returns true iff MapMap is currently playing (ie. not in pause).
+  bool isPlaying() const { return _isPlaying; }
+
   /// Returns true iff we should display the controls.
   bool displayControls() const { return _displayControls; }
 

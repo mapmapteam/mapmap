@@ -196,6 +196,21 @@ bool MappingManager::mappingIsVisible(Mapping::ptr mapping) const
   }
 }
 
+/// Returns the list of visible paints (ie. paints for which at least one mapping is visible).
+QVector<Paint::ptr> MappingManager::getVisiblePaints() const
+{
+  QVector<Paint::ptr> visiblePaints;
+  QVector<Mapping::ptr> visibleMappings = getVisibleMappings();
+  for (QVector<Mapping::ptr>::const_iterator it = visibleMappings.begin();
+          it != visibleMappings.end(); ++it)
+  {
+    Paint::ptr paint((*it)->getPaint());
+    if (!visiblePaints.contains(paint))
+      visiblePaints.push_back(paint);
+  }
+  return visiblePaints;
+}
+
 void MappingManager::reorderMappings(QVector<uid> mappingIds)
 {
   // Both vector needs to have the same size.
