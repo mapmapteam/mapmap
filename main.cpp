@@ -110,7 +110,8 @@ int main(int argc, char *argv[])
   parser.addOption(resetSettingsOption);
 
   // --osc-port option
-  QCommandLineOption oscPortOption(QStringList() << "p" << "osc-port", "Use OSC port number <osc-port>.", "osc-port", "");
+  QCommandLineOption oscPortOption(QStringList() << "p" << "osc-port",
+    "Use OSC port number <osc-port>.", "osc-port", QString::number(MM::DEFAULT_OSC_PORT));
   parser.addOption(oscPortOption);
 
   // --lang option
@@ -204,11 +205,7 @@ int main(int argc, char *argv[])
     win->loadFile(projectFileValue);
   }
 
-  QString oscPortNumberValue = parser.value("osc-port");
-  if (oscPortNumberValue != "")
-  {
-    win->setOscPort(oscPortNumberValue);
-  }
+  win->setOscPort(parser.value("osc-port"));
 
   bool optionOk;
   qreal fps = parser.value("frame-rate").toDouble(&optionOk);

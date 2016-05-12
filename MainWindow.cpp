@@ -2113,7 +2113,7 @@ void MainWindow::readSettings()
  //   outputWindow->setDisplayCrosshair(displayPaintControlsAction->isChecked());
   }
 
-  config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
+  config_osc_receive_port = settings.value("osc_receive_port", MM::DEFAULT_OSC_PORT).toInt();
 
   // Update Recent files and video
   updateRecentFileActions();
@@ -3107,9 +3107,18 @@ void MainWindow::startOscReceiver()
 #endif
 }
 
-bool MainWindow::setOscPort(int portNumber)
+bool MainWindow::setOscPort(int port)
 {
-  return this->setOscPort(QString::number(portNumber));
+  if (port <= 1023 || port > 65535)
+  {
+    qWarning() << "OSC port is out of range: " << port << endl;
+    return false;
+  }
+
+  config_osc_receive_port = port;
+  startOscReceiver();
+
+  return true;
 }
 
 int MainWindow::getOscPort() const
@@ -3119,20 +3128,15 @@ int MainWindow::getOscPort() const
 
 bool MainWindow::setOscPort(QString portNumber)
 {
-  if (Util::isNumeric(portNumber))
+  bool ok;
+  int port = portNumber.toInt(&ok);
+  if (ok)
   {
-    int port = portNumber.toInt();
-    if (port <= 1023 || port > 65535)
-    {
-      std::cout << "OSC port is out of range: " << portNumber.toInt() << std::endl;
-      return false;
-    }
-    config_osc_receive_port = port;
-    startOscReceiver();
+    return setOscPort(port);
   }
   else
   {
-    std::cout << "OSC port is not a number: " << portNumber.toInt() << std::endl;
+    qWarning() << "OSC port is not a number: " << portNumber << endl;
     return false;
   }
   return true;
