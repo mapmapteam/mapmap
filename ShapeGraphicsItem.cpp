@@ -149,6 +149,32 @@ void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
 }
 
+MeshColorGraphicsItem::MeshColorGraphicsItem(Mapping::ptr mapping, bool output)
+: PolygonColorGraphicsItem(mapping, output)
+{
+  _controlPainter.reset(new MeshControlPainter(this));
+}
+
+void MeshColorGraphicsItem::_doPaint(QPainter *painter,
+                                     const QStyleOptionGraphicsItem *option)
+{
+  Q_UNUSED(option);
+
+  Mesh* mesh = static_cast<Mesh*>(_shape.data());
+  QVector<QVector<Quad::ptr> > quads = mesh->getQuads2d();
+
+  // Go through the mesh quad by quad.
+  for (int x = 0; x < mesh->nHorizontalQuads(); x++)
+  {
+    for (int y = 0; y < mesh->nVerticalQuads(); y++)
+    {
+      Quad::ptr quad = quads[x][y];
+
+      painter->drawPolygon(mapFromScene(quad->toPolygon()));
+    }
+  }
+}
+
 EllipseColorGraphicsItem::EllipseColorGraphicsItem(Mapping::ptr mapping, bool output)
   : ColorGraphicsItem(mapping, output) {
     _controlPainter.reset(new EllipseControlPainter(this));

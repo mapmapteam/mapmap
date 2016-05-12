@@ -56,7 +56,7 @@ Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight);
 Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight);
 Ellipse* createEllipseForTexture(Texture* texture, int frameWidth, int frameHeight);
 
-Quad* createQuadForColor(int frameWidth, int frameHeight);
+Mesh* createMeshForColor(int frameWidth, int frameHeight);
 Triangle* createTriangleForColor(int frameWidth, int frameHeight);
 Ellipse* createEllipseForColor(int frameWidth, int frameHeight);
 

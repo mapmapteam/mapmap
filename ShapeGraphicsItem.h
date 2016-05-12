@@ -138,6 +138,21 @@ protected:
                         const QStyleOptionGraphicsItem *option);
 };
 
+/**
+ * Graphics item for textured color.
+ */
+class MeshColorGraphicsItem : public PolygonColorGraphicsItem
+{
+public:
+  MeshColorGraphicsItem(Mapping::ptr mapping, bool output=true);
+  virtual ~MeshColorGraphicsItem(){}
+
+protected:
+  virtual void _doPaint(QPainter *painter,
+                        const QStyleOptionGraphicsItem *option);
+
+};
+
 /// Graphics item for colored polygons (eg. quad, triangle).
 class EllipseColorGraphicsItem : public ColorGraphicsItem
 {

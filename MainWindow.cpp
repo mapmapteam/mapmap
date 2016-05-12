@@ -509,7 +509,7 @@ void MainWindow::addMesh()
   Mapping* mappingPtr;
   if (paint->getType() == "color")
   {
-    MShape::ptr outputQuad = MShape::ptr(Util::createQuadForColor(sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputQuad = MShape::ptr(Util::createMeshForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputQuad);
   }
   else
@@ -1199,7 +1199,7 @@ void MainWindow::duplicateMapping(uid mappingId)
   // Code below need to be improved it's feel like duplicated
   if (paint->getType() == "color") // Color paint
   {
-    if (shapeType == "quad")
+    if (shapeType == "mesh")
       shapePtr = MShape::ptr(new Quad(shape->getVertex(0), shape->getVertex(1),
                                       shape->getVertex(2), shape->getVertex(3)));
 
@@ -1231,7 +1231,7 @@ void MainWindow::duplicateMapping(uid mappingId)
   }
 
   // Scaling of duplicated mapping
-  if (shapeType == "quad" || shapeType == "mesh")
+  if (shapeType == "mesh")
     shapePtr->translate(QPointF(20, 20));
   else
     shapePtr->translate(QPointF(0, 20));
@@ -1613,11 +1613,11 @@ void MainWindow::createActions()
   addAction(preferencesAction);
   connect(preferencesAction, SIGNAL(triggered()), this, SLOT(preferences()));
 
-  // Add quad/mesh.
-  addMeshAction = new QAction(tr("Add Quad/&Mesh"), this);
+  // Add mesh.
+  addMeshAction = new QAction(tr("Add &Mesh"), this);
   addMeshAction->setShortcut(Qt::CTRL + Qt::Key_M);
   addMeshAction->setIcon(QIcon(":/add-mesh"));
-  addMeshAction->setToolTip(tr("Add quad/mesh"));
+  addMeshAction->setToolTip(tr("Add mesh"));
   addMeshAction->setIconVisibleInMenu(false);
   addMeshAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(addMeshAction);
@@ -2562,12 +2562,12 @@ void MainWindow::addMappingItem(uid mappingId)
       mapper = MappingGui::ptr(new TriangleTextureMappingGui(textureMapping));
   }
   // Mesh
-  else if (shapeType == "mesh" || shapeType == "quad")
+  else if (shapeType == "mesh")
   {
-    label = QString(shapeType == "mesh" ? "Mesh %1" : "Quad %1").arg(mappingId);
+    label = QString("Mesh %1").arg(mappingId);
     icon = QIcon(":/shape-mesh");
     if (paintType == "color")
-      mapper = MappingGui::ptr(new PolygonColorMappingGui(mapping));
+      mapper = MappingGui::ptr(new MeshColorMappingGui(mapping));
     else
       mapper = MappingGui::ptr(new MeshTextureMappingGui(textureMapping));
   }

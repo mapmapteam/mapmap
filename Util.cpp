@@ -120,11 +120,9 @@ Ellipse* createEllipseForTexture(Texture* texture, int frameWidth,
   );
 }
 
-
-
-Quad* createQuadForColor(int frameWidth, int frameHeight)
+Mesh* createMeshForColor(int frameWidth, int frameHeight)
 {
-  return new Quad(
+  return new Mesh(
     QPointF(frameWidth / 4, frameHeight / 4),
     QPointF(frameWidth * 3 / 4, frameHeight / 4),
     QPointF(frameWidth * 3 / 4, frameHeight * 3/ 4),
