@@ -59,6 +59,7 @@ public:
 
   MShape::ptr getShapeFromMapping(Mapping::ptr mapping);
   MShape::ptr getCurrentShape();
+  QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMapping(Mapping::ptr mapping);
   QSharedPointer<ShapeGraphicsItem> getCurrentShapeGraphicsItem();
 
 //  QSize sizeHint() const;

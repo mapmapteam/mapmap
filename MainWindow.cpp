@@ -51,6 +51,7 @@ MainWindow::MainWindow()
 
   // Editing toggles.
   _displayControls = true;
+  _displayPaintControls = true;
   _stickyVertices = true;
   _displayUndoStack = false;
   _showMenuBar = true; // Show menubar by default
@@ -361,7 +362,8 @@ void MainWindow::setOutputWindowFullScreen(bool enable)
   outputWindow->setFullScreen(enable);
   // setCheckState
   displayControlsAction->setChecked(enable);
-}
+  displayPaintControlsAction->setChecked(enable);
+ }
 
 void MainWindow::newFile()
 {
@@ -1698,7 +1700,7 @@ void MainWindow::createActions()
   connect(closeOutput, SIGNAL(triggered(bool)), this, SLOT(exitFullScreen()));
 
   // Toggle display of canvas controls.
-  displayControlsAction = new QAction(tr("&Display Controls in Output"), this);
+  displayControlsAction = new QAction(tr("&Display Controls"), this);
   displayControlsAction->setShortcut(Qt::ALT + Qt::Key_C);
   displayControlsAction->setIcon(QIcon(":/control-points"));
   displayControlsAction->setToolTip(tr("Display canvas controls"));
@@ -1710,6 +1712,21 @@ void MainWindow::createActions()
   // Manage show/hide of canvas controls.
   connect(displayControlsAction, SIGNAL(toggled(bool)), this, SLOT(enableDisplayControls(bool)));
   connect(displayControlsAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setDisplayCrosshair(bool)));
+
+  // Toggle display of canvas controls.
+  displayPaintControlsAction = new QAction(tr("&Display Controls of Mappings of a Paint"), this);
+  //displayPaintControlsAction->setShortcut(Qt::ALT + Qt::Key_C);
+  displayPaintControlsAction->setIcon(QIcon(":/control-points"));
+  displayPaintControlsAction->setToolTip(tr("Display all canvas controls related to current paint"));
+  displayPaintControlsAction->setIconVisibleInMenu(false);
+  displayPaintControlsAction->setCheckable(true);
+  displayPaintControlsAction->setChecked(_displayPaintControls);
+  displayPaintControlsAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(displayPaintControlsAction);
+  // Manage show/hide of canvas controls.
+  connect(displayPaintControlsAction, SIGNAL(toggled(bool)), this, SLOT(enableDisplayPaintControls(bool)));
+//  connect(displayPaintControlsAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setDisplayCrosshair(bool)));
+  connect(displayControlsAction, SIGNAL(toggled(bool)), displayPaintControlsAction, SLOT(setEnabled(bool)));
 
   // Toggle sticky vertices
   stickyVerticesAction = new QAction(tr("&Sticky Vertices"), this);
@@ -2087,6 +2104,11 @@ void MainWindow::readSettings()
     displayControlsAction->setChecked(settings.value("displayControls").toBool());
     outputWindow->setDisplayCrosshair(displayControlsAction->isChecked());
   }
+  if (settings.contains("displayAllControls"))
+  {
+    displayPaintControlsAction->setChecked(settings.value("displayAllControls").toBool());
+ //   outputWindow->setDisplayCrosshair(displayPaintControlsAction->isChecked());
+  }
 
   config_osc_receive_port = settings.value("osc_receive_port", 12345).toInt();
 
@@ -2118,6 +2140,7 @@ void MainWindow::writeSettings()
   settings.setValue("displayOutputWindow", outputFullScreenAction->isChecked());
   settings.setValue("displayTestSignal", displayTestSignalAction->isChecked());
   settings.setValue("displayControls", displayControlsAction->isChecked());
+  settings.setValue("displayAllControls", displayPaintControlsAction->isChecked());
   settings.setValue("osc_receive_port", config_osc_receive_port);
   settings.setValue("displayUndoStack", displayUndoStackAction->isChecked());
   settings.setValue("zoomToolBar", displayZoomToolAction->isChecked());
@@ -2332,6 +2355,7 @@ void MainWindow::addOutputMenuActions()
   outputMenu->addSeparator();
   outputMenu->addAction(displayTestSignalAction);
   outputMenu->addAction(displayControlsAction);
+  outputMenu->addAction(displayPaintControlsAction);
 }
 
 void MainWindow::clearRecentFileList()
@@ -2773,6 +2797,13 @@ void MainWindow::enableDisplayControls(bool display)
   _displayControls = display;
   updateCanvases();
 }
+
+void MainWindow::enableDisplayPaintControls(bool display)
+{
+  _displayPaintControls = display;
+  updateCanvases();
+}
+
 
 void MainWindow::enableTestSignal(bool enable)
 {

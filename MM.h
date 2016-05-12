@@ -77,6 +77,7 @@ public:
   static const QColor DARK_RED;
 
   static const QColor CONTROL_COLOR;
+  static const QColor CONTROL_COLOR_NON_SELECTED;
   static const QColor CONTROL_LOCKED_COLOR;
   static const QBrush VERTEX_BACKGROUND;
   static const QBrush VERTEX_SELECTED_BACKGROUND;

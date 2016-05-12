@@ -217,6 +217,7 @@ public slots:
 
   // Editing toggles.
   void enableDisplayControls(bool display);
+  void enableDisplayPaintControls(bool display);
   void enableStickyVertices(bool display);
   void enableTestSignal(bool enable);
   void displayUndoStack(bool display);
@@ -369,6 +370,7 @@ private:
 
   QAction *outputFullScreenAction;
   QAction *displayControlsAction;
+  QAction *displayPaintControlsAction;
   QAction *displayTestSignalAction;
   QAction *stickyVerticesAction;
   QAction *displayUndoStackAction;
@@ -467,6 +469,9 @@ private:
   // True iff we are displaying the controls.
   bool _displayControls;
 
+  // True iff we are displaying the borders of all controls of all shapes related to a paint.
+  bool _displayPaintControls;
+
   // True iff we want vertices to stick to each other.
   bool _stickyVertices;
 
@@ -519,6 +524,9 @@ public:
 
   /// Returns true iff we should display the controls.
   bool displayControls() const { return _displayControls; }
+
+  /// Returns true iff we should display all of the shapes related to a paint.
+  bool displayPaintControls() const { return _displayPaintControls; }
 
   /// Returns true iff we want vertices to stick to each other.
   bool stickyVertices() const { return _stickyVertices; }

@@ -85,9 +85,8 @@ MShape::ptr MapperGLCanvas::getCurrentShape()
   return getShapeFromMapping(MainWindow::instance()->getCurrentMapping());
 }
 
-QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getCurrentShapeGraphicsItem()
+QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getShapeGraphicsItemFromMapping(Mapping::ptr mapping)
 {
-  Mapping::ptr mapping = MainWindow::instance()->getCurrentMapping();
   if (mapping.isNull())
   {
     return QSharedPointer<ShapeGraphicsItem>();
@@ -99,6 +98,11 @@ QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getCurrentShapeGraphicsItem()
   }
 }
 
+QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getCurrentShapeGraphicsItem()
+{
+  return getShapeGraphicsItemFromMapping(_mainWindow->getCurrentMapping());
+}
+
 // Draws foreground (displays crosshair if needed).
 void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 {
@@ -108,6 +112,22 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     uid mid = _mainWindow->getCurrentMappingId();
     if (mid != NULL_UID)
     {
+
+      // Display other controls.
+      if (_mainWindow->displayPaintControls())
+      {
+        QMap<uid, Mapping::ptr> paintMappings = _mainWindow->getMappingManager().getPaintMappings( _mainWindow->getCurrentPaint() );
+        for (QMap<uid, Mapping::ptr>::const_iterator it = paintMappings.constBegin();
+            it != paintMappings.constEnd(); ++it)
+        {
+          if (it.key() != mid)
+          {
+            ShapeGraphicsItem::ptr paintMappingItem = getShapeGraphicsItemFromMapping(it.value());
+            paintMappingItem->getControlPainter()->paintShape(painter, this, false);
+          }
+        }
+      }
+
       // Use current shape graphics item to draw controls.
       ShapeGraphicsItem::ptr item = getCurrentShapeGraphicsItem();
       if (item)
@@ -119,6 +139,7 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
         }
         item->getControlPainter()->paint(painter, this, selected);
       }
+
     }
   }
 }
