@@ -73,6 +73,8 @@ public:
   static const QColor BLUE_GRAY;
   static const QColor DARK_GRAY;
   static const QColor DARK_BLUE;
+  static const QColor LIGHT_RED;
+  static const QColor DARK_RED;
 
   static const QColor CONTROL_COLOR;
   static const QColor CONTROL_LOCKED_COLOR;
