@@ -101,7 +101,8 @@ int main(int argc, char *argv[])
   parser.addOption(fullscreenOption);
 
   // --file option
-  QCommandLineOption fileOption(QStringList() << "f" << "file", "Load project from <file>.", "file", "");
+  QCommandLineOption fileOption(QStringList() << "f" << "file",
+    "Load project from <file>.", "file", "");
   parser.addOption(fileOption);
 
   // --reset-settings option
@@ -115,7 +116,8 @@ int main(int argc, char *argv[])
   parser.addOption(oscPortOption);
 
   // --lang option
-  QCommandLineOption localeOption(QStringList() << "l" << "lang", "Use language <lang>.", "lang", "en");
+  QCommandLineOption localeOption(QStringList() << "l" << "lang",
+    "Use language <lang>.", "lang", "en");
   parser.addOption(localeOption);
 
   // --frame-rate option
