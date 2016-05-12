@@ -687,10 +687,11 @@ void MapperGLCanvas::setZoomFromMenu(const QString &text)
 void MapperGLCanvas::_glueVertex(QPointF* p)
 {
   MappingManager manager = MainWindow::instance()->getMappingManager();
+  MShape::ptr currentShape = getCurrentShape();
   for (int i = 0; i < manager.nMappings(); i++)
   {
-    MShape *shape = manager.getMapping(i)->getShape().data();
-    if (shape && shape != getCurrentShape())
+    MShape::ptr shape = getShapeFromMapping(manager.getMapping(i));
+    if (shape && shape != currentShape)
     {
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)
       {
