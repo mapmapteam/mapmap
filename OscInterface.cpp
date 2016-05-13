@@ -202,14 +202,13 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
           paints.push_back(main_window.getMappingManager().getPaintById(id));
         }
         // Process all paints.
-        pathIsValid = true;
         iterator = next(iterator.second);
         foreach (Paint::ptr elem, paints)
         {
           if (iterator.first == OSC_REWIND)
             elem->rewind();
           else
-            pathIsValid &= setElementProperty(elem, iterator.first, command.at(3));
+            pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
         }
       }
       else if (iterator.first == OSC_MAPPING)
@@ -224,11 +223,10 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
           mappings.push_back(main_window.getMappingManager().getMappingById(id));
         }
         // Process all mappings.
-        pathIsValid = true;
         iterator = next(iterator.second);
         foreach (Mapping::ptr elem, mappings)
         {
-          pathIsValid &= setElementProperty(elem, iterator.first, command.at(3));
+          pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
         }
       }
       else if (iterator.first == OSC_PLAY)
