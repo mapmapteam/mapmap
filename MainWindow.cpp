@@ -190,6 +190,9 @@ void MainWindow::handleMappingIndexesMoved()
 
   // Update canvases according to new order.
   updateCanvases();
+
+  // Update playing state.
+  updatePlayingState();
 }
 
 void MainWindow::handlePaintItemSelected(QListWidgetItem* item)
