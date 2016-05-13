@@ -85,7 +85,7 @@ public:
 
   /// Pauses playback.
   virtual void pause() {
-    _doPlay();
+    _doPause();
     _isPlaying = false;
   }
 
