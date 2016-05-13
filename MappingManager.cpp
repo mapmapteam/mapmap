@@ -42,6 +42,27 @@ QMap<uid, Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr paint)
   return paintMappings;
 }
 
+
+Paint::ptr MappingManager::getPaintByName(QString name)
+{
+  return _getElementByName(paintVector, name);
+}
+
+QVector<Paint::ptr> MappingManager::getPaintsByNameRegExp(QString namePattern)
+{
+  return _getElementsByNameRegExp(paintVector, namePattern);
+}
+
+Mapping::ptr MappingManager::getMappingByName(QString name)
+{
+  return _getElementByName(mappingVector, name);
+}
+
+QVector<Mapping::ptr> MappingManager::getMappingsByNameRegExp(QString namePattern)
+{
+  return _getElementsByNameRegExp(mappingVector, namePattern);
+}
+
 QMap<uid, Mapping::ptr> MappingManager::getPaintMappingsById(uid paintId) const
 {
   return getPaintMappings(paintMap[paintId]);
