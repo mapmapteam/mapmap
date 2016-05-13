@@ -2878,16 +2878,10 @@ void MainWindow::updatePlayingState()
       if (visiblePaints.contains(paint))
       {
         paint->play();
-        updatePaintItem(paint->getId(), paint->getIcon(), paint->getName());
       }
       else
       {
         paint->pause();
-        QPixmap pixmap = paint->getIcon().pixmap(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
-        QPainter painter(&pixmap);
-        painter.setPen(QPen(QColor(255, 0, 0, 128), 4));
-        painter.drawLine(0, 0, pixmap.width(), pixmap.height());
-        updatePaintItem(paint->getId(), pixmap, paint->getName());
       }
     }
   }
@@ -2900,6 +2894,14 @@ void MainWindow::updatePlayingState()
       mappingManager->getPaint(i)->pause();
     }
   }
+
+  // Update all paint items with correct icon.
+  for (int i=0; i<mappingManager->nPaints(); i++)
+  {
+    Paint::ptr paint = mappingManager->getPaint(i);
+    updatePaintItem(paint->getId(), getPaintIcon(paint), paint->getName());
+  }
+
 }
 
 void MainWindow::enableDisplayControls(bool display)
@@ -3002,6 +3004,20 @@ void MainWindow::rewind()
 QString MainWindow::strippedName(const QString &fullFileName)
 {
   return QFileInfo(fullFileName).fileName();
+}
+
+const QIcon MainWindow::getPaintIcon(Paint::ptr paint)
+{
+  if (paint->isPlaying())
+    return paint->getIcon();
+  else
+  {
+    QPixmap pixmap = paint->getIcon().pixmap(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+    QPainter painter(&pixmap);
+    painter.setPen(QPen(QColor(255, 0, 0, 128), 4));
+    painter.drawLine(0, 0, pixmap.width(), pixmap.height());
+    return QIcon(pixmap);
+  }
 }
 
 void MainWindow::connectProjectWidgets()

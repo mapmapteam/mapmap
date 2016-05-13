@@ -310,6 +310,9 @@ public:
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
 
+  // Returns the paint icon depending on play/pause state.
+  static const QIcon getPaintIcon(Paint::ptr paint);
+
 private:
   // Connects/disconnects project-specific widgets (paints and mappings).
   void connectProjectWidgets();
