@@ -249,7 +249,11 @@ public:
 
   virtual bool bitsHaveChanged() const { return bitsChanged; }
 
-  virtual QIcon getIcon() const { return QIcon(QPixmap::fromImage(_image)); }
+  virtual QIcon getIcon() const
+  {
+    return QIcon(QPixmap::fromImage(_image).scaled(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE,
+                                                   Qt::IgnoreAspectRatio));
+  }
 };
 
 class VideoImpl; // forward declaration

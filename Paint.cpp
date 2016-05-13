@@ -277,7 +277,8 @@ bool Video::_generateThumbnail()
     }
 
   // Generate icon.
-  _icon = QIcon(QPixmap::fromImage(thumbnail));
+  _icon = QIcon(QPixmap::fromImage(thumbnail).scaled(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE,
+                                                     Qt::IgnoreAspectRatio));
 
   // Reset movie.
   _impl->resetMovie();
