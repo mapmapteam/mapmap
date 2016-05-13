@@ -436,10 +436,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
       // SHIFT+Space to switch between vertex
       else if (event->key() == Qt::Key_Space)
       {
-        if (shape)
-        {
-          _activeVertex = (_activeVertex + 1) % shape->nVertices();
-        }
+        _activeVertex = (_activeVertex + 1) % shape->nVertices();
         pos = shape->getVertex(_activeVertex).toPoint(); // reset to new vertex
       }
       else
