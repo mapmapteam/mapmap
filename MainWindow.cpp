@@ -256,7 +256,11 @@ void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant v
   // Send to actions.
   if (mapping == getCurrentMapping())
   {
-    if (propertyName == "solo")
+    if (propertyName == "visible")
+    {
+      mappingHideAction->setChecked(!value.toBool());
+    }
+    else if (propertyName == "solo")
     {
       mappingSoloAction->setChecked(value.toBool());
     }
@@ -264,15 +268,27 @@ void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant v
     {
       mappingLockedAction->setChecked(value.toBool());
     }
-    else if (propertyName == "visible")
-    {
-      mappingHideAction->setChecked(!value.toBool());
-    }
   }
 
   // Send to list items.
+  const QModelIndex& index = mappingListModel->getIndexFromId(mapping->getId());
   if (propertyName == "name")
-    mappingListModel->getIndexFromId(id).data(Qt::EditRole).setValue(mapping->getName());
+  {
+    mappingListModel->setData(index, mapping->getName(), Qt::EditRole);
+  }
+  else if (propertyName == "visible")
+  {
+    mappingListModel->setData(index, mapping->isVisible(), Qt::CheckStateRole);
+  }
+  else if (propertyName == "solo")
+  {
+    mappingListModel->setData(index, mapping->isSolo(), Qt::CheckStateRole + 1);
+  }
+  else if (propertyName == "locked")
+  {
+    mappingListModel->setData(index, mapping->isLocked(), Qt::CheckStateRole + 2);
+  }
+
 }
 
 void MainWindow::paintPropertyChanged(uid id, QString propertyName, QVariant value)
