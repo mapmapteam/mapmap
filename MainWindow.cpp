@@ -173,6 +173,8 @@ void MainWindow::handleMappingItemChanged(const QModelIndex &index)
   mapping->setVisible(index.data(Qt::CheckStateRole).toBool());
   mapping->setSolo(index.data(Qt::CheckStateRole + 1).toBool());
   mapping->setLocked(index.data(Qt::CheckStateRole + 2).toBool());
+
+  updatePlayingState();
  }
 
 void MainWindow::handleMappingIndexesMoved()
@@ -240,6 +242,8 @@ void MainWindow::handlePaintChanged(Paint::ptr paint)
   {
     setCurrentMapping(curMappingId);
   }
+
+  updatePlayingState();
 }
 
 void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant value)
@@ -289,6 +293,7 @@ void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant v
     mappingListModel->setData(index, mapping->isLocked(), Qt::CheckStateRole + 2);
   }
 
+  updatePlayingState();
 }
 
 void MainWindow::paintPropertyChanged(uid id, QString propertyName, QVariant value)
@@ -307,6 +312,8 @@ void MainWindow::paintPropertyChanged(uid id, QString propertyName, QVariant val
   QListWidgetItem* paintItem = getItemFromId(*paintList, id);
   if (propertyName == "name")
     paintItem->setText(paint->getName());
+
+  updatePlayingState();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -2541,6 +2548,9 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
 
   // Window was modified.
   windowModified();
+
+  // Update playing state.
+  updatePlayingState();
 }
 
 void MainWindow::updatePaintItem(uid paintId, const QIcon& icon, const QString& name) {
@@ -2662,6 +2672,9 @@ void MainWindow::addMappingItem(uid mappingId)
 
   // Window was modified.
   windowModified();
+
+  // Update playing state.
+  updatePlayingState();
 }
 
 void MainWindow::removeMappingItem(uid mappingId)
@@ -2694,6 +2707,9 @@ void MainWindow::removeMappingItem(uid mappingId)
 
   // Window was modified.
   windowModified();
+
+  // Update playing state.
+  updatePlayingState();
 }
 
 void MainWindow::removePaintItem(uid paintId)
@@ -2735,6 +2751,9 @@ void MainWindow::removePaintItem(uid paintId)
   windowModified();
   // Build mapping!
   // FIXME: mapping->build(); // I removed this 2014-04-25
+
+  // Update playing state.
+  updatePlayingState();
 }
 
 void MainWindow::clearWindow()
@@ -2831,33 +2850,6 @@ void MainWindow::processFrame()
   // Number of frames processed (restarted every second).
   static unsigned int nFrames = 0;
 
-  // Pause all paints that are not visible.
-  if (isPlaying())
-  {
-    QVector<Paint::ptr> visiblePaints = mappingManager->getVisiblePaints();
-    for (int i=0; i<mappingManager->nPaints(); i++)
-    {
-      Paint::ptr paint = mappingManager->getPaint(i);
-      if (visiblePaints.contains(paint))
-      {
-        paint->play();
-      }
-      else
-      {
-        paint->pause();
-      }
-    }
-  }
-
-  // Pause everyone.
-  else
-  {
-    for (int i=0; i<mappingManager->nPaints(); i++)
-    {
-      mappingManager->getPaint(i)->pause();
-    }
-  }
-
   // Update canvases.
   updateCanvases();
 
@@ -2871,6 +2863,42 @@ void MainWindow::processFrame()
         "FPS: " + QString::number(trueFramesPerSecond, 'f', 2) + " / " +
         QString::number(framesPerSecond()  , 'f', 2));
     nFrames = 0;
+  }
+}
+
+void MainWindow::updatePlayingState()
+{
+  // Pause all paints that are not visible.
+  if (isPlaying())
+  {
+    QVector<Paint::ptr> visiblePaints = mappingManager->getVisiblePaints();
+    for (int i=0; i<mappingManager->nPaints(); i++)
+    {
+      Paint::ptr paint = mappingManager->getPaint(i);
+      if (visiblePaints.contains(paint))
+      {
+        paint->play();
+        updatePaintItem(paint->getId(), paint->getIcon(), paint->getName());
+      }
+      else
+      {
+        paint->pause();
+        QPixmap pixmap = paint->getIcon().pixmap(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+        QPainter painter(&pixmap);
+        painter.setPen(QPen(QColor(255, 0, 0, 128), 4));
+        painter.drawLine(0, 0, pixmap.width(), pixmap.height());
+        updatePaintItem(paint->getId(), pixmap, paint->getName());
+      }
+    }
+  }
+
+  // Pause everyone.
+  else
+  {
+    for (int i=0; i<mappingManager->nPaints(); i++)
+    {
+      mappingManager->getPaint(i)->pause();
+    }
   }
 }
 
@@ -2951,9 +2979,7 @@ void MainWindow::play()
   pauseAction->setVisible(true);
   _isPlaying = true;
 
-  // Start all paints.
-  for (int i=0; i<mappingManager->nPaints(); i++)
-    mappingManager->getPaint(i)->play();
+  updatePlayingState();
 }
 
 void MainWindow::pause()
@@ -2963,9 +2989,7 @@ void MainWindow::pause()
   pauseAction->setVisible(false);
   _isPlaying = false;
 
-  // Pause all paints.
-  for (int i=0; i<mappingManager->nPaints(); i++)
-    mappingManager->getPaint(i)->pause();
+  updatePlayingState();
 }
 
 void MainWindow::rewind()

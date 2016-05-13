@@ -57,7 +57,9 @@ void Texture::write(QDomElement& obj)
   _writeNode(obj, "y", QString::number(getY()));
 }
 
-Paint::Paint(uid id) : Element(id, &allocator)
+Paint::Paint(uid id)
+  : Element(id, &allocator),
+    _isPlaying(false)
 {
 }
 
@@ -137,16 +139,6 @@ int Video::getHeight() const
 void Video::update() {
   _impl->update();
   Texture::update();
-}
-
-void Video::play()
-{
-  _impl->setPlayState(true);
-}
-
-void Video::pause()
-{
-  _impl->setPlayState(false);
 }
 
 void Video::rewind()
@@ -236,6 +228,16 @@ bool Video::setUri(const QString &uri)
 
   // Return success.
   return true;
+}
+
+void Video::_doPlay()
+{
+  _impl->setPlayState(true);
+}
+
+void Video::_doPause()
+{
+  _impl->setPlayState(false);
 }
 
 bool Video::_generateThumbnail()

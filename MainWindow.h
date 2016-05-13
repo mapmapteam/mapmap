@@ -223,6 +223,12 @@ public slots:
    */
   void processFrame();
 
+  /**
+   * Performs operations related to the playing state, such as making sure to play only paints
+   * that are visible.
+   */
+  void updatePlayingState();
+
   // Editing toggles.
   void setFramesPerSecond(qreal fps);
   void enableDisplayControls(bool display);

@@ -74,11 +74,20 @@ public:
   /// This method should be called at each call of draw().
   virtual void update() {}
 
+  /// Is the paint currently playing?
+  virtual bool isPlaying() const { return _isPlaying; }
+
   /// Starts playback.
-  virtual void play() {}
+  virtual void play() {
+    _doPlay();
+    _isPlaying = true;
+  }
 
   /// Pauses playback.
-  virtual void pause() {}
+  virtual void pause() {
+    _doPlay();
+    _isPlaying = false;
+  }
 
   /// Rewinds.
   virtual void rewind() {}
@@ -90,6 +99,13 @@ public:
   virtual void unlockMutex() {}
 
   virtual QString getType() const = 0;
+
+protected:
+  virtual void _doPlay() {}
+  virtual void _doPause() {}
+
+private:
+  bool _isPlaying;
 };
 
 class Color : public Paint
@@ -266,10 +282,6 @@ public:
   virtual void build();
   virtual void update();
 
-  /// Starts playback.
-  virtual void play();
-  /// Pauses playback.
-  virtual void pause();
   /// Rewinds.
   virtual void rewind();
 
@@ -310,6 +322,12 @@ public:
   virtual QIcon getIcon() const { return _icon; }
 
 protected:
+
+  /// Starts playback.
+  virtual void _doPlay();
+
+  /// Pauses playback.
+  virtual void _doPause();
 
   // Try to generate a thumbnail from currently loaded movie.
   bool _generateThumbnail();
