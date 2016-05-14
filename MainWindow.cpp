@@ -2660,7 +2660,7 @@ void MainWindow::addMappingItem(uid mappingId)
   contentTab->setCurrentWidget(mappingSplitter);
 
   // Add item to layerList widget.
-  mappingListModel->addItem(icon, label, mappingId);
+  mappingListModel->addItem(mapping, icon, label);
   mappingListModel->updateModel();
   setCurrentMapping(mappingId);
 

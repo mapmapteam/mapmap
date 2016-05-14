@@ -60,10 +60,10 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
     return QVariant(mappingList.at(index.row()).id);
     break;
   case Qt::EditRole:
-    return QVariant(mappingList.at(index.row()).name);
+    return QVariant(mappingList.at(index.row()).label);
     break;
   case Qt::DisplayRole:
-    return QVariant(mappingList.at(index.row()).name);
+    return QVariant(mappingList.at(index.row()).label);
     break;
   case Qt::DecorationRole:
     return mappingList.at(index.row()).icon;
@@ -193,8 +193,8 @@ bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, 
   }
 
   if (role == Qt::EditRole && index.column() == MM::IconAndNameColum) {
-    if (mappingList[index.row()].name != value.toString()) {
-      mappingList[index.row()].name = value.toString();
+    if (mappingList[index.row()].label != value.toString()) {
+      mappingList[index.row()].label = value.toString();
       emit dataChanged(index, index);
       return true;
     }
@@ -209,16 +209,16 @@ void MappingListModel::removeItem(int index)
   mappingList.erase(it + index);
 }
 
-void MappingListModel::addItem(const QIcon &icon, const QString &name, int id)
+void MappingListModel::addItem(Mapping::ptr mapping, const QIcon &icon, const QString &label)
 {
   MappingItem item;
 
+  item.id = mapping->getId();
   item.icon = icon;
-  item.name = name;
-  item.isVisible = true;
-  item.isLocked = false;
-  item.isSolo = false;
-  item.id = id;
+  item.label = label;
+  item.isVisible = mapping->isVisible();
+  item.isLocked = mapping->isLocked();
+  item.isSolo = mapping->isSolo();
   mappingList.insert(0, item);
 }
 
