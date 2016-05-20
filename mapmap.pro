@@ -4,7 +4,10 @@ TEMPLATE = app
 VERSION = 0.4.1
 TARGET = mapmap
 QT += gui opengl xml core
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets core
+greaterThan(QT_MAJOR_VERSION, 4) {
+  QT -= gui # using widgets instead gui in Qt5
+  QT += widgets multimedia
+}
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
 HEADERS  = \
@@ -120,11 +123,11 @@ QMAKE_EXTRA_TARGETS += docs
 unix:!mac {
   DEFINES += UNIX
   CONFIG += link_pkgconfig
-  INCLUDE_PATH += 
+  INCLUDE_PATH +=
   PKGCONFIG += \
     gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-pbutils-1.0 \
     liblo \
-    gl x11 
+    gl x11
   QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-result -Wno-unused-parameter \
                             -Wno-unused-variable -Wno-switch -Wno-comment \
                             -Wno-unused-but-set-variable
@@ -138,7 +141,7 @@ unix:!mac {
   iconfile.files = resources/images/logo/mapmap.svg
   iconfile.path = /usr/share/icons/hicolor/scalable/apps
   INSTALLS += iconfile
-  mimetypesfile.files = resources/texts/mapmap.xml 
+  mimetypesfile.files = resources/texts/mapmap.xml
   mimetypesfile.path = /usr/share/mime/packages
   INSTALLS += mimetypesfile
 
@@ -151,7 +154,7 @@ unix:!mac {
 # updatemimeappdefault.commands='grep mapmap.desktop /usr/share/applications/defaults.list >/dev/null|| sudo echo "application/mapmap=mapmap.desktop;" >> /usr/share/applications/defaults.list'
 # INSTALLS += updatemimeappdefault
 # -------------------------
-  
+
   # Add the docs target:
   docs.depends = $(HEADERS) $(SOURCES)
   docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -

@@ -24,6 +24,7 @@
 #include <QtGui>
 #if QT_VERSION >= 0x050000
   #include <QtWidgets>
+  #include <QCameraInfo>
 #endif
 #include <QTimer>
 #include <QElapsedTimer>
@@ -91,6 +92,7 @@ private slots:
   bool save();
   bool saveAs();
   void importMedia();
+  void openCameraDevice();
   void addColor();
   void about();
   void updateStatusBar();
@@ -357,6 +359,7 @@ private:
   QAction *newAction;
   QAction *openAction;
   QAction *importMediaAction;
+  QAction *openCameraAction;
   QAction *addColorAction;
   QAction *saveAction;
   QAction *saveAsAction;

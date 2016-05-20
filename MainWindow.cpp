@@ -469,7 +469,7 @@ bool MainWindow::saveAs()
 
   if (fileName.isEmpty())
     return false;
-  
+
   if (! fileName.endsWith(MM::FILE_EXTENSION))
   {
     std::cout << "filename doesn't end with expected extension: " <<
@@ -506,6 +506,47 @@ void MainWindow::importMedia()
     else
       importMediaFile(fileName, false);
   }
+}
+
+void MainWindow::openCameraDevice()
+{
+  QString device;
+  QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
+
+  if (cameras.count() > 1)
+  {
+    QStringList devicesList;
+    QMap<QString, QString> devices;
+
+    foreach (const QCameraInfo &cameraInfo, cameras)
+    {
+      devicesList << cameraInfo.description();
+      devices.insert(cameraInfo.description(), cameraInfo.deviceName());
+    }
+
+    bool ok;
+    QString deviceName = QInputDialog::getItem(this, tr("Available camera"),
+                                               tr("Select camera"), devicesList, 0, false, &ok);
+
+    if (ok && !deviceName.isEmpty())
+    {
+      if (devices.contains(deviceName))
+        device = devices.value(deviceName);
+    }
+  }
+
+  else if (QCameraInfo::defaultCamera().isNull())
+  {
+    QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
+  }
+
+  else
+  {
+    device = QCameraInfo::defaultCamera().deviceName();
+  }
+
+  if (!device.isEmpty())
+    importMediaFile(device, false);
 }
 
 void MainWindow::addColor()
@@ -779,7 +820,7 @@ void MainWindow::renameMapping(uid mappingId, const QString &name)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
   Q_CHECK_PTR(mapping);
-  
+
   if (!mapping.isNull()) {
     QModelIndex index = mappingListModel->getIndexFromId(mappingId);
     mappingListModel->setData(index, name, Qt::EditRole);
@@ -1521,6 +1562,16 @@ void MainWindow::createActions()
   addAction(importMediaAction);
   connect(importMediaAction, SIGNAL(triggered()), this, SLOT(importMedia()));
 
+  // Open camera.
+  openCameraAction = new QAction(tr("Open &Camera Device..."), this);
+  openCameraAction->setShortcut(Qt::CTRL + Qt::Key_C);
+  openCameraAction->setIcon(QIcon(":/add-image"));
+  openCameraAction->setIconVisibleInMenu(false);
+  openCameraAction->setToolTip(tr("Choose your camera device..."));
+  openCameraAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(openCameraAction);
+  connect(openCameraAction, SIGNAL(triggered()), this, SLOT(openCameraDevice()));
+
   // Add color.
   addColorAction = new QAction(tr("Add &Color Paint..."), this);
   addColorAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_A);
@@ -1896,6 +1947,7 @@ void MainWindow::createMenus()
   fileMenu->addAction(saveAsAction);
   fileMenu->addSeparator();
   fileMenu->addAction(importMediaAction);
+  fileMenu->addAction(openCameraAction);
   fileMenu->addAction(addColorAction);
 
   // Recent file separator
@@ -2037,6 +2089,7 @@ void MainWindow::createToolBars()
   mainToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
   mainToolBar->setMovable(false);
   mainToolBar->addAction(importMediaAction);
+  mainToolBar->addAction(openCameraAction);
   mainToolBar->addAction(addColorAction);
 
   mainToolBar->addSeparator();
@@ -2120,7 +2173,7 @@ void MainWindow::readSettings()
   // settings present since 0.1.0:
   restoreGeometry(settings.value("geometry").toByteArray());
   restoreState(settings.value("windowState").toByteArray());
-  
+
   mainSplitter->restoreState(settings.value("mainSplitter").toByteArray());
   paintSplitter->restoreState(settings.value("paintSplitter").toByteArray());
   mappingSplitter->restoreState(settings.value("mappingSplitter").toByteArray());
@@ -2170,7 +2223,7 @@ void MainWindow::writeSettings()
 
   settings.setValue("geometry", saveGeometry());
   settings.setValue("windowState", saveState());
-  
+
   settings.setValue("mainSplitter", mainSplitter->saveState());
   settings.setValue("paintSplitter", paintSplitter->saveState());
   settings.setValue("mappingSplitter", mappingSplitter->saveState());
@@ -3045,13 +3098,13 @@ void MainWindow::connectProjectWidgets()
 
   connect(mappingListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
           this,        SLOT(handleMappingItemChanged(QModelIndex)));
-          
+
   connect(mappingListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
           this,                 SLOT(handleMappingIndexesMoved()));
-          
+
   connect(mappingItemDelegate, SIGNAL(itemDuplicated(uid)),
           this, SLOT(duplicateMapping(uid)));
-          
+
   connect(mappingItemDelegate, SIGNAL(itemRemoved(uid)),
           this, SLOT(deleteMapping(uid)));
 }
@@ -3072,13 +3125,13 @@ void MainWindow::disconnectProjectWidgets()
 
   disconnect(mappingListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
           this,        SLOT(handleMappingItemChanged(QModelIndex)));
-          
+
   disconnect(mappingListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
           this,                 SLOT(handleMappingIndexesMoved()));
-          
+
   disconnect(mappingItemDelegate, SIGNAL(itemDuplicated(uid)),
           this, SLOT(duplicateMapping(uid)));
-          
+
   connect(mappingItemDelegate, SIGNAL(itemRemoved(uid)),
           this, SLOT(deleteMapping(uid)));
 }
