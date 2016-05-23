@@ -68,6 +68,9 @@ public:
   static const int ZOOM_TOOLBAR_BUTTON_SIZE = 32;
   static const int MAPPING_LIST_ICON_SIZE = 16;
 
+  // OSC
+  static const int DEFAULT_OSC_PORT = 12345;
+
   // Style.
   static const QColor WHITE;
   static const QColor BLUE_GRAY;
@@ -95,7 +98,7 @@ public:
   static const qreal VERTEX_SELECT_STROKE_WIDTH;
 
   // Time.
-  static const qreal FRAMES_PER_SECOND;
+  static const qreal DEFAULT_FRAMES_PER_SECOND;
 
   // Zoom.
   static const qreal ZOOM_FACTOR;

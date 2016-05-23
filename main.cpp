@@ -101,7 +101,8 @@ int main(int argc, char *argv[])
   parser.addOption(fullscreenOption);
 
   // --file option
-  QCommandLineOption fileOption(QStringList() << "f" << "file", "Load project from <file>.", "file", "");
+  QCommandLineOption fileOption(QStringList() << "f" << "file",
+    "Load project from <file>.", "file", "");
   parser.addOption(fileOption);
 
   // --reset-settings option
@@ -110,12 +111,19 @@ int main(int argc, char *argv[])
   parser.addOption(resetSettingsOption);
 
   // --osc-port option
-  QCommandLineOption oscPortOption(QStringList() << "p" << "osc-port", "Use OSC port number <osc-port>.", "osc-port", "");
+  QCommandLineOption oscPortOption(QStringList() << "p" << "osc-port",
+    "Use OSC port number <osc-port>.", "osc-port", "");
   parser.addOption(oscPortOption);
 
   // --lang option
-  QCommandLineOption localeOption(QStringList() << "l" << "lang", "Use language <lang>.", "lang", "en");
+  QCommandLineOption localeOption(QStringList() << "l" << "lang",
+    "Use language <lang>.", "lang", "en");
   parser.addOption(localeOption);
+
+  // --frame-rate option
+  QCommandLineOption frameRateOption(QStringList() << "r" << "frame-rate",
+    "Use a framerate of <frame-rate> per second.", "frame-rate", QString::number(MM::DEFAULT_FRAMES_PER_SECOND));
+  parser.addOption(frameRateOption);
 
   // Positional argument: file
   parser.addPositionalArgument("file", "Load project from that file.");
@@ -199,11 +207,16 @@ int main(int argc, char *argv[])
     win->loadFile(projectFileValue);
   }
 
-  QString oscPortNumberValue = parser.value("osc-port");
-  if (oscPortNumberValue != "")
-  {
-    win->setOscPort(oscPortNumberValue);
-  }
+  QString oscPortValue = parser.value("osc-port");
+  if (oscPortValue != "")
+    win->setOscPort(oscPortValue);
+
+  bool optionOk;
+  qreal fps = parser.value("frame-rate").toDouble(&optionOk);
+  if (optionOk)
+    win->setFramesPerSecond(fps);
+  else
+    qFatal("Invalid option <frame-rate>.");
 
 #endif
 

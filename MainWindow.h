@@ -24,8 +24,10 @@
 #include <QtGui>
 #if QT_VERSION >= 0x050000
   #include <QtWidgets>
+  #include <QCameraInfo>
 #endif
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QVariant>
 #include <QMap>
 #include <QMessageLogger>
@@ -54,6 +56,7 @@
 #include "PaintGui.h"
 
 MM_BEGIN_NAMESPACE
+
 
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
@@ -89,6 +92,7 @@ private slots:
   bool save();
   bool saveAs();
   void importMedia();
+  void openCameraDevice();
   void addColor();
   void about();
   void updateStatusBar();
@@ -153,7 +157,7 @@ public slots:
   bool clearProject();
 
   /// Create or replace a media paint (or image).
-  uid createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage, bool live=false, double rate=1.0);
+  uid createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage, VideoType type, double rate=1.0);
 
   /// Create or replace a color paint.
   uid createColorPaint(uid paintId, QColor color);
@@ -215,7 +219,20 @@ public slots:
   /// Updates all canvases.
   void updateCanvases();
 
+  /**
+   * This function is triggered framesPerSeconds() times per second. It makes sure
+   * the image is refreshed (updateCanvases()) and performs other necessary operations.
+   */
+  void processFrame();
+
+  /**
+   * Performs operations related to the playing state, such as making sure to play only paints
+   * that are visible.
+   */
+  void updatePlayingState();
+
   // Editing toggles.
+  void setFramesPerSecond(qreal fps);
   void enableDisplayControls(bool display);
   void enableDisplayPaintControls(bool display);
   void enableStickyVertices(bool display);
@@ -295,6 +312,9 @@ public:
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
 
+  // Returns the paint icon depending on play/pause state.
+  static const QIcon getPaintIcon(Paint::ptr paint);
+
 private:
   // Connects/disconnects project-specific widgets (paints and mappings).
   void connectProjectWidgets();
@@ -339,6 +359,7 @@ private:
   QAction *newAction;
   QAction *openAction;
   QAction *importMediaAction;
+  QAction *openCameraAction;
   QAction *addColorAction;
   QAction *saveAction;
   QAction *saveAsAction;
@@ -463,6 +484,9 @@ private:
   bool _hasCurrentMapping;
   bool _hasCurrentPaint;
 
+  // Number of frames per second.
+  qreal _framesPerSecond;
+
   // True iff the play button is currently pressed.
   bool _isPlaying;
 
@@ -484,6 +508,7 @@ private:
   QListWidgetItem* currentSelectedItem;
   QModelIndex currentSelectedIndex;
   QTimer *videoTimer;
+  QElapsedTimer *systemTimer;
 
   PreferencesDialog* _preferences_dialog;
 
@@ -496,7 +521,7 @@ private:
   QLabel *undoLabel;
   QLabel *currentMessageLabel;
   QLabel *mousePosLabel;
-
+  QLabel *trueFramesPerSecondsLabel;
 
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
@@ -521,6 +546,12 @@ public:
   OutputGLWindow* getOutputWindow() const { return outputWindow; }
   MapperGLCanvas* getSourceCanvas() const { return sourceCanvas; }
   MapperGLCanvas* getDestinationCanvas() const { return destinationCanvas; }
+
+  /// Returns the number of frames per second.
+  qreal framesPerSecond() const { return _framesPerSecond; }
+
+  /// Returns true iff MapMap is currently playing (ie. not in pause).
+  bool isPlaying() const { return _isPlaying; }
 
   /// Returns true iff we should display the controls.
   bool displayControls() const { return _displayControls; }

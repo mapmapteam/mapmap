@@ -79,9 +79,7 @@ void PreferencesDialog::resetValues()
 
 void PreferencesDialog::accept_cb()
 {
-  std::cout << "Values:" <<
-    " osc port=" << _osc_port_numbox->value() <<
-    std::endl;
+  qDebug() << "Values:" << " osc port=" << _osc_port_numbox->value() << endl;
   this->_main_window->setOscPort(this->_osc_port_numbox->value());
   this->setResult(QMessageBox::Ok);
   this->close();
