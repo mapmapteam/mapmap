@@ -39,6 +39,12 @@
 
 MM_BEGIN_NAMESPACE
 
+typedef enum {
+  VIDEO_URI,
+  VIDEO_WEBCAM,
+  VIDEO_SHMSRC
+} VideoType;
+
 /**
  * A Paint is a style that can be applied when drawing potentially any shape.
  * 
@@ -68,11 +74,20 @@ public:
   /// This method should be called at each call of draw().
   virtual void update() {}
 
+  /// Is the paint currently playing?
+  virtual bool isPlaying() const { return _isPlaying; }
+
   /// Starts playback.
-  virtual void play() {}
+  virtual void play() {
+    _doPlay();
+    _isPlaying = true;
+  }
 
   /// Pauses playback.
-  virtual void pause() {}
+  virtual void pause() {
+    _doPause();
+    _isPlaying = false;
+  }
 
   /// Rewinds.
   virtual void rewind() {}
@@ -84,6 +99,13 @@ public:
   virtual void unlockMutex() {}
 
   virtual QString getType() const = 0;
+
+protected:
+  virtual void _doPlay() {}
+  virtual void _doPause() {}
+
+private:
+  bool _isPlaying;
 };
 
 class Color : public Paint
@@ -227,7 +249,11 @@ public:
 
   virtual bool bitsHaveChanged() const { return bitsChanged; }
 
-  virtual QIcon getIcon() const { return QIcon(QPixmap::fromImage(_image)); }
+  virtual QIcon getIcon() const
+  {
+    return QIcon(QPixmap::fromImage(_image).scaled(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE,
+                                                   Qt::IgnoreAspectRatio));
+  }
 };
 
 class VideoImpl; // forward declaration
@@ -250,7 +276,7 @@ public:
 
 public:
   Q_INVOKABLE Video(int id=NULL_UID);
-  Video(const QString uri_, bool live, double rate, uid id=NULL_UID);
+  Video(const QString uri_, VideoType type, double rate, uid id=NULL_UID);
   virtual ~Video();
   const QString getUri() const
   {
@@ -260,10 +286,6 @@ public:
   virtual void build();
   virtual void update();
 
-  /// Starts playback.
-  virtual void play();
-  /// Pauses playback.
-  virtual void pause();
   /// Rewinds.
   virtual void rewind();
 
@@ -304,6 +326,12 @@ public:
   virtual QIcon getIcon() const { return _icon; }
 
 protected:
+
+  /// Starts playback.
+  virtual void _doPlay();
+
+  /// Pauses playback.
+  virtual void _doPause();
 
   // Try to generate a thumbnail from currently loaded movie.
   bool _generateThumbnail();

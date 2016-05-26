@@ -20,6 +20,9 @@
 
 #include "Paint.h"
 #include "VideoImpl.h"
+#include "VideoUriDecodeBinImpl.h"
+#include "VideoV4l2SrcImpl.h"
+#include "VideoShmSrcImpl.h"
 #include <iostream>
 
 MM_BEGIN_NAMESPACE
@@ -54,7 +57,9 @@ void Texture::write(QDomElement& obj)
   _writeNode(obj, "y", QString::number(getY()));
 }
 
-Paint::Paint(uid id) : Element(id, &allocator)
+Paint::Paint(uid id)
+  : Element(id, &allocator),
+    _isPlaying(false)
 {
 }
 
@@ -79,17 +84,31 @@ Video::Video(int id) : Texture(id),
     _uri(""),
     _impl(NULL)
 {
-  _impl = new VideoImpl(false);
+  _impl = new VideoUriDecodeBinImpl();
   setRate(1);
   setVolume(1);
 }
 
-Video::Video(const QString uri_, bool live, double rate, uid id):
+Video::Video(const QString uri_, VideoType type, double rate, uid id):
     Texture(id),
     _uri(""),
     _impl(NULL)
 {
-  _impl = new VideoImpl(live);
+  switch (type) {
+    case VIDEO_URI:
+      _impl = new VideoUriDecodeBinImpl();
+      break;
+    case VIDEO_WEBCAM:
+      _impl = new VideoV4l2SrcImpl();
+      break;
+    case VIDEO_SHMSRC:
+      _impl = new VideoShmSrcImpl();
+      break;
+    default:
+      fprintf (stderr, "Could not determine type for video source\n ");
+      break;
+  }
+  //_impl = new VideoShmSrcImpl();//V4l2SrcImpl();//UriDecodeBinImpl();
   setRate(rate);
   setVolume(1);
   setUri(uri_);
@@ -120,16 +139,6 @@ int Video::getHeight() const
 void Video::update() {
   _impl->update();
   Texture::update();
-}
-
-void Video::play()
-{
-  _impl->setPlayState(true);
-}
-
-void Video::pause()
-{
-  _impl->setPlayState(false);
 }
 
 void Video::rewind()
@@ -221,6 +230,16 @@ bool Video::setUri(const QString &uri)
   return true;
 }
 
+void Video::_doPlay()
+{
+  _impl->setPlayState(true);
+}
+
+void Video::_doPause()
+{
+  _impl->setPlayState(false);
+}
+
 bool Video::_generateThumbnail()
 {
   static QFileIconProvider provider;
@@ -258,7 +277,8 @@ bool Video::_generateThumbnail()
     }
 
   // Generate icon.
-  _icon = QIcon(QPixmap::fromImage(thumbnail));
+  _icon = QIcon(QPixmap::fromImage(thumbnail).scaled(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE,
+                                                     Qt::IgnoreAspectRatio));
 
   // Reset movie.
   _impl->resetMovie();

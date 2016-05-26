@@ -62,6 +62,9 @@ private:
   void createActions();
   void createMenu();
 
+  // Write log file
+  void writeLogFile(const QString &message);
+
   // Actions
   QAction *quitAction;
 

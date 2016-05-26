@@ -436,10 +436,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
       // SHIFT+Space to switch between vertex
       else if (event->key() == Qt::Key_Space)
       {
-        if (shape)
-        {
-          _activeVertex = (_activeVertex + 1) % shape->nVertices();
-        }
+        _activeVertex = (_activeVertex + 1) % shape->nVertices();
         pos = shape->getVertex(_activeVertex).toPoint(); // reset to new vertex
       }
       else
@@ -687,10 +684,11 @@ void MapperGLCanvas::setZoomFromMenu(const QString &text)
 void MapperGLCanvas::_glueVertex(QPointF* p)
 {
   MappingManager manager = MainWindow::instance()->getMappingManager();
+  MShape::ptr currentShape = getCurrentShape();
   for (int i = 0; i < manager.nMappings(); i++)
   {
-    MShape *shape = manager.getMapping(i)->getShape().data();
-    if (shape && shape != getCurrentShape())
+    MShape::ptr shape = getShapeFromMapping(manager.getMapping(i));
+    if (shape && shape != currentShape)
     {
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)
       {

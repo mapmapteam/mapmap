@@ -42,6 +42,27 @@ QMap<uid, Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr paint)
   return paintMappings;
 }
 
+
+Paint::ptr MappingManager::getPaintByName(QString name)
+{
+  return _getElementByName(paintVector, name);
+}
+
+QVector<Paint::ptr> MappingManager::getPaintsByNameRegExp(QString namePattern)
+{
+  return _getElementsByNameRegExp(paintVector, namePattern);
+}
+
+Mapping::ptr MappingManager::getMappingByName(QString name)
+{
+  return _getElementByName(mappingVector, name);
+}
+
+QVector<Mapping::ptr> MappingManager::getMappingsByNameRegExp(QString namePattern)
+{
+  return _getElementsByNameRegExp(mappingVector, namePattern);
+}
+
 QMap<uid, Mapping::ptr> MappingManager::getPaintMappingsById(uid paintId) const
 {
   return getPaintMappings(paintMap[paintId]);
@@ -194,6 +215,21 @@ bool MappingManager::mappingIsVisible(Mapping::ptr mapping) const
     // Mapping is non-solo yet visible and there are no solo mappings.
     return true;
   }
+}
+
+/// Returns the list of visible paints (ie. paints for which at least one mapping is visible).
+QVector<Paint::ptr> MappingManager::getVisiblePaints() const
+{
+  QVector<Paint::ptr> visiblePaints;
+  QVector<Mapping::ptr> visibleMappings = getVisibleMappings();
+  for (QVector<Mapping::ptr>::const_iterator it = visibleMappings.begin();
+          it != visibleMappings.end(); ++it)
+  {
+    Paint::ptr paint((*it)->getPaint());
+    if (!visiblePaints.contains(paint))
+      visiblePaints.push_back(paint);
+  }
+  return visiblePaints;
 }
 
 void MappingManager::reorderMappings(QVector<uid> mappingIds)
