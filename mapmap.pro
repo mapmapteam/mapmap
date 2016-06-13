@@ -189,10 +189,14 @@ mac {
 win32 {
   DEFINES += WIN32
   TARGET = Mapmap
-  GST_HOME = $$quote(C:\gstreamer\1.0\x86)
+  GST_HOME = $$quote($$(GSTREAMER_1_0_ROOT_X86))
   isEmpty(GST_HOME) {
-    message(\"C:\gstreamer\1.0\x86\" not detected ...)
+    message(\"GSTREAMER_1_0_ROOT_X86\" not detected ...)
   }
+  else {
+    message(\"GSTREAMER_1_0_ROOT_X86\" detected in \"$${GST_HOME}\")
+  }
+#  DESTDIR = ../../Mapmap # Just for packaging
 
   INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \
     $${GST_HOME}/include/glib-2.0 \
@@ -207,8 +211,9 @@ win32 {
     $${GST_HOME}/lib/glib-2.0.lib \
     -lopengl32
 
-  RC_FILE = mapmap_resource.rc
+  CONFIG += release
 
+  RC_FILE = mapmap_resource.rc
   QMAKE_CXXFLAGS += -D_USE_MATH_DEFINES
 }
 
