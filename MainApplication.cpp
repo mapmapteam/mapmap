@@ -25,6 +25,15 @@ MM_BEGIN_NAMESPACE
 MainApplication::MainApplication(int &argc, char *argv[])
   : QApplication(argc, argv)
 {
+#ifdef Q_OS_WIN
+  // Set GStreamer plugins path on Windows
+  QString pluginPath = QCoreApplication::applicationDirPath() + "/plugins";
+  QString libPath = QCoreApplication::applicationDirPath() + "/lib";
+
+  _putenv_s("GST_PLUGIN_PATH", pluginPath.toLocal8Bit());
+  _putenv_s("PATH", libPath.toLocal8Bit());
+#endif
+
   // Initialize GStreamer.
   gst_init (NULL, NULL);
 
