@@ -25,7 +25,7 @@
 #include <QApplication>
 #include <QDebug>
 #include "MM.h"
-#include "PreferencesDialog.h"
+#include <QSettings>
 
 MM_BEGIN_NAMESPACE
 

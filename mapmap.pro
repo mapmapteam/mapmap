@@ -187,7 +187,7 @@ win32 {
   else {
     message(\"GSTREAMER_1_0_ROOT_X86\" detected in \"$${GST_HOME}\")
   }
-#  DESTDIR = ../../Mapmap # Just for packaging
+  DESTDIR = ../../Mapmap # Just for packaging
 
   INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \
     $${GST_HOME}/include/glib-2.0 \

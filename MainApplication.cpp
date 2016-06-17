@@ -32,6 +32,9 @@ MainApplication::MainApplication(int &argc, char *argv[])
 
   _putenv_s("GST_PLUGIN_PATH", pluginPath.toLocal8Bit());
   _putenv_s("PATH", libPath.toLocal8Bit());
+
+  // Set settings default format
+  QSettings::setDefaultFormat(QSettings::IniFormat);
 #endif
 
   // Initialize GStreamer.
