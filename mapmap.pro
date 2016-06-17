@@ -3,7 +3,7 @@ TEMPLATE = app
 # Always use major.minor.micro version number format
 VERSION = 0.4.1
 TARGET = mapmap
-QT += gui opengl xml core
+QT += gui opengl xml core network
 greaterThan(QT_MAJOR_VERSION, 4) {
   QT -= gui # using widgets instead gui in Qt5
   QT += widgets multimedia
@@ -36,7 +36,7 @@ HEADERS  = \
     Paint.h \
     PaintGui.h \
     Polygon.h \
-    PreferencesDialog.h \
+    PreferenceDialog.h \
     ProjectLabels.h \
     ProjectReader.h \
     ProjectWriter.h \
@@ -78,7 +78,7 @@ SOURCES  = \
     Paint.cpp \
     PaintGui.cpp \
     Polygon.cpp \
-    PreferencesDialog.cpp \
+    PreferenceDialog.cpp \
     ProjectLabels.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
@@ -98,8 +98,11 @@ SOURCES  = \
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
 include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
 
-TRANSLATIONS = resources/texts/mapmap_fr.ts
-RESOURCES = mapmap.qrc
+TRANSLATIONS = \
+    translations/mapmap_en.ts \
+    translations/mapmap_fr.ts
+RESOURCES = mapmap.qrc \
+    translations/translation.qrc
 
 # Manage lrelease (for translations)
 isEmpty(QMAKE_LRELEASE) {
@@ -189,10 +192,14 @@ mac {
 win32 {
   DEFINES += WIN32
   TARGET = Mapmap
-  GST_HOME = $$quote(C:\gstreamer\1.0\x86)
+  GST_HOME = $$quote($$(GSTREAMER_1_0_ROOT_X86))
   isEmpty(GST_HOME) {
-    message(\"C:\gstreamer\1.0\x86\" not detected ...)
+    message(\"GSTREAMER_1_0_ROOT_X86\" not detected ...)
   }
+  else {
+    message(\"GSTREAMER_1_0_ROOT_X86\" detected in \"$${GST_HOME}\")
+  }
+#  DESTDIR = ../../Mapmap # Just for packaging
 
   INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \
     $${GST_HOME}/include/glib-2.0 \
@@ -207,8 +214,9 @@ win32 {
     $${GST_HOME}/lib/glib-2.0.lib \
     -lopengl32
 
-  RC_FILE = mapmap_resource.rc
+  CONFIG += release
 
+  RC_FILE = mapmap_resource.rc
   QMAKE_CXXFLAGS += -D_USE_MATH_DEFINES
 }
 

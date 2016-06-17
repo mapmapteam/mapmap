@@ -3,6 +3,7 @@
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2014 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +20,7 @@
  */
 
 #include "MainWindow.h"
+#include "PreferenceDialog.h"
 #include "Commands.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
@@ -95,9 +97,6 @@ MainWindow::MainWindow()
 
   // Start playing by default.
   play();
-
-  // after readSettings():
-  _preferences_dialog = new PreferencesDialog(this, this);
 }
 
 MainWindow::~MainWindow()
@@ -362,7 +361,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
   }
 #endif
-#ifdef Q_OS_WIN
+#ifdef Q_OS_WIN32
   if (event->modifiers() & Qt::AltModifier) {
     if (!_showMenuBar) {
       menuBar()->setHidden(!menuBar()->isHidden());
@@ -434,11 +433,6 @@ void MainWindow::open()
 
   // Restart video playback. XXX Hack
   videoTimer->start();
-}
-
-void MainWindow::preferences()
-{
-  this->_preferences_dialog->show();
 }
 
 bool MainWindow::save()
@@ -731,7 +725,7 @@ void MainWindow::showMenuBar(bool shown)
   if (currentDesktop != "unity")
     menuBar()->setVisible(shown);
 #endif
-#ifdef Q_OS_WIN // On Windows
+#ifdef Q_OS_WIN32 // On Windows
     menuBar()->setVisible(shown);
 #endif
 }
@@ -1419,6 +1413,9 @@ void MainWindow::createLayout()
   destinationLayout->addWidget(destinationCanvasToolbar, 0, Qt::AlignRight);
   destinationPanel->setLayout(destinationLayout);
 
+  // Preferences dialog
+  _preferenceDialog = new PreferenceDialog(this);
+
   outputWindow = new OutputGLWindow(this, destinationCanvas);
   outputWindow->installEventFilter(destinationCanvas);
 
@@ -1696,7 +1693,7 @@ void MainWindow::createActions()
   //preferencesAction->setIconVisibleInMenu(false);
   preferencesAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(preferencesAction);
-  connect(preferencesAction, SIGNAL(triggered()), this, SLOT(preferences()));
+  connect(preferencesAction, SIGNAL(triggered()), _preferenceDialog, SLOT(exec()));
 
   // Add mesh.
   addMeshAction = new QAction(tr("Add &Mesh"), this);
@@ -2015,7 +2012,7 @@ void MainWindow::createMenus()
   if (QString(getenv("XDG_CURRENT_DESKTOP")).toLower() != "unity")
     toolBarsMenu->addAction(showMenuBarAction);
 #endif
-#ifdef Q_OS_WIN
+#ifdef Q_OS_WIN32
   toolBarsMenu->addAction(showMenuBarAction);
 #endif
   windowMenu->addAction(displayUndoStackAction);
@@ -2086,7 +2083,6 @@ void MainWindow::createPaintContextMenu()
 void MainWindow::createToolBars()
 {
   mainToolBar = addToolBar(tr("&Toolbar"));
-  mainToolBar->setIconSize(QSize(MM::TOP_TOOLBAR_ICON_SIZE, MM::TOP_TOOLBAR_ICON_SIZE));
   mainToolBar->setMovable(false);
   mainToolBar->addAction(importMediaAction);
   mainToolBar->addAction(openCameraAction);
@@ -2168,7 +2164,7 @@ void MainWindow::readSettings()
 {
   // FIXME: for each setting that is new since the first release in the major version number branch,
   // make sure it exists before reading its value.
-  QSettings settings("MapMap", "MapMap");
+  QSettings settings;
 
   // settings present since 0.1.0:
   restoreGeometry(settings.value("geometry").toByteArray());
@@ -2181,45 +2177,31 @@ void MainWindow::readSettings()
   outputWindow->restoreGeometry(settings.value("outputWindow").toByteArray());
 
   // new in 0.1.2:
-  if (settings.contains("displayOutputWindow"))
-  {
-    outputFullScreenAction->setChecked(settings.value("displayOutputWindow").toBool());
-    outputWindow->setFullScreen(outputFullScreenAction->isChecked());
-  }
-  if (settings.contains("displayTestSignal"))
-  {
-    displayTestSignalAction->setChecked(settings.value("displayTestSignal").toBool());
-    enableTestSignal(displayTestSignalAction->isChecked());
-  }
-  if (settings.contains("displayControls"))
-  {
-    displayControlsAction->setChecked(settings.value("displayControls").toBool());
-    outputWindow->setDisplayCrosshair(displayControlsAction->isChecked());
-  }
-  if (settings.contains("displayAllControls"))
-  {
-    displayPaintControlsAction->setChecked(settings.value("displayAllControls").toBool());
- //   outputWindow->setDisplayCrosshair(displayPaintControlsAction->isChecked());
-  }
-
-  config_osc_receive_port = settings.value("osc_receive_port", MM::DEFAULT_OSC_PORT).toInt();
+  outputFullScreenAction->setChecked(settings.value("displayOutputWindow", MM::DISPLAY_OUTPUT_WINDOW).toBool());
+  displayTestSignalAction->setChecked(settings.value("displayTestSignal", MM::DISPLAY_TEST_SIGNAL).toBool());
+  displayControlsAction->setChecked(settings.value("displayControls", MM::DISPLAY_CONTROLS).toBool());
+  oscListeningPort = settings.value("oscListeningPort", MM::DEFAULT_OSC_PORT).toInt();
 
   // Update Recent files and video
   updateRecentFileActions();
   updateRecentVideoActions();
 
   // new in 0.3.2
-  if (settings.contains("displayUndoStack"))
-    displayUndoStackAction->setChecked(settings.value("displayUndoStack").toBool());
-  if (settings.contains("zoomToolBar"))
-    displayZoomToolAction->setChecked(settings.value("zoomToolBar").toBool());
-  if (settings.contains("showMenuBar"))
-    showMenuBarAction->setChecked(settings.value("showMenuBar").toBool());
+  displayUndoStackAction->setChecked(settings.value("displayUndoStack", MM::DISPLAY_UNDO_STACK).toBool());
+  displayZoomToolAction->setChecked(settings.value("zoomToolBar", MM::DISPLAY_ZOOM_TOOLBAR).toBool());
+  showMenuBarAction->setChecked(settings.value("showMenuBar", MM::DISPLAY_MENU_BAR).toBool());
+
+  // New in 0.4.1
+   displayPaintControlsAction->setChecked(settings.value("displayAllControls", MM::DISPLAY_ALL_CONTROLS).toBool());
+   stickyVerticesAction->setChecked(settings.value("stickyVertices", MM::STICKY_VERTICES).toBool());
+   // Set toolbar icon size
+   int toolBarIconSize = settings.value("toolbarIconSize", MM::TOOLBAR_ICON_SIZE).toInt();
+   mainToolBar->setIconSize(QSize(toolBarIconSize, toolBarIconSize));
 }
 
 void MainWindow::writeSettings()
 {
-  QSettings settings("MapMap", "MapMap");
+  QSettings settings;
 
   settings.setValue("geometry", saveGeometry());
   settings.setValue("windowState", saveState());
@@ -2233,10 +2215,11 @@ void MainWindow::writeSettings()
   settings.setValue("displayTestSignal", displayTestSignalAction->isChecked());
   settings.setValue("displayControls", displayControlsAction->isChecked());
   settings.setValue("displayAllControls", displayPaintControlsAction->isChecked());
-  settings.setValue("osc_receive_port", config_osc_receive_port);
+  settings.setValue("oscListeningPort", oscListeningPort);
   settings.setValue("displayUndoStack", displayUndoStackAction->isChecked());
   settings.setValue("zoomToolBar", displayZoomToolAction->isChecked());
   settings.setValue("showMenuBar", showMenuBarAction->isChecked());
+  settings.setValue("stickyVertices", stickyVerticesAction->isChecked());
 }
 
 bool MainWindow::okToContinue()
@@ -2717,9 +2700,6 @@ void MainWindow::addMappingItem(uid mappingId)
   mappingListModel->updateModel();
   setCurrentMapping(mappingId);
 
-  // Disable Test signal when add Shapes
-  enableTestSignal(false);
-
   // Add items to scenes.
   if (mapper->getInputGraphicsItem())
     sourceCanvas->scene()->addItem(mapper->getInputGraphicsItem().data());
@@ -2878,12 +2858,12 @@ QString MainWindow::locateMediaFile(const QString &uri, bool isImage)
   return url;
 }
 
-MainWindow* MainWindow::instance() {
-  static MainWindow* inst = 0;
-  if (!inst) {
-    inst = new MainWindow;
+MainWindow* MainWindow::window() {
+  static MainWindow* instance = 0;
+  if (!instance) {
+    instance = new MainWindow;
   }
-  return inst;
+  return instance;
 }
 
 void MainWindow::updateCanvases()
@@ -2975,12 +2955,6 @@ void MainWindow::setFramesPerSecond(qreal fps)
 void MainWindow::enableDisplayPaintControls(bool display)
 {
   _displayPaintControls = display;
-  updateCanvases();
-}
-
-
-void MainWindow::enableTestSignal(bool enable)
-{
   updateCanvases();
 }
 
@@ -3231,7 +3205,7 @@ void MainWindow::removeCurrentMapping() {
 void MainWindow::startOscReceiver()
 {
 #ifdef HAVE_OSC
-  int port = config_osc_receive_port;
+  int port = oscListeningPort;
   std::ostringstream os;
   os << port;
 #if QT_VERSION >= 0x050500
@@ -3258,7 +3232,7 @@ bool MainWindow::setOscPort(int port)
     return false;
   }
 
-  config_osc_receive_port = port;
+  oscListeningPort = port;
   startOscReceiver();
 
   return true;
@@ -3266,7 +3240,7 @@ bool MainWindow::setOscPort(int port)
 
 int MainWindow::getOscPort() const
 {
-  return config_osc_receive_port;
+  return oscListeningPort;
 }
 
 bool MainWindow::setOscPort(QString portNumber)

@@ -2,6 +2,7 @@
  * MM.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2015 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +31,7 @@ const QString MM::FILE_EXTENSION = "mmp";
 const QString MM::VIDEO_FILES_FILTER = "*.mov *.mp4 *.avi *.ogg *.ogv *.mpeg *.mpeg1 *.mpeg4 *.mpg *.mpg2 *.mp2 *.mjpq *.mjp *.wmv *sock";
 const QString MM::IMAGE_FILES_FILTER = "*.jpg *.jpeg *.gif *.png *.tiff *.tif *.bmp";
 const QString MM::NAMESPACE_PREFIX = QString("%1::").arg(TOSTRING(MM_NAMESPACE));
+const QString MM::SUPPORTED_LANGUAGES = "en, fr";
 
 const QColor MM::WHITE("#f6f5f5");
 const QColor MM::BLUE_GRAY("#323541");
@@ -63,5 +65,8 @@ const qreal MM::DEFAULT_FRAMES_PER_SECOND = 29.97f;
 const qreal MM::ZOOM_FACTOR = 1.4f;
 const qreal MM::ZOOM_MIN    = 0.1f;
 const qreal MM::ZOOM_MAX    = 5.0f;
+
+// Default values
+const QString MM::DEFAULT_LANGUAGE = "en";
 
 MM_END_NAMESPACE

@@ -104,3 +104,33 @@ MapMap should then work.
 If the appearance of the window of the OSC port number in the preferences seem corrupted, you might want to reset MapMap's preferences::
 
   rm -f ~/Library/Preferences/info.mapmap.MapMap.plist
+
+Build for release on Windows
+----------------------------
+- Download gstreamer-x86 runtime& devel 
+https://gstreamer.freedesktop.org/data/pkg/windows/1.7.91/gstreamer-1.0-x86-1.7.91.msi https://gstreamer.freedesktop.org/data/pkg/windows/1.7.91/gstreamer-1.0-devel-x86-1.7.91.msi
+
+
+- Choose complete option during installation process wizard
+- Build Mapmap with Qt Creator (qmake, build release)
+- Add the bin directory of your Qt installation (e.g. e.g. C:\Qt\Qt5.6.0\5.6\mingw49_32\bin) to the PATH variable
+- Open Windows console then run the following command:
+	windeployqt --release --no-translations --no-system-d3d-compiler <path-to-app-binary>
+
+- Copy the followings DLL into the target folder together with Mapmap.exe
+	libffi-6.dll libgobject-2.0-0.dll libgstbase-1.0-0.dll libgsttag-1.0-0.dll liborc-0.4-0.dll 
+	libglib-2.0-0.dll libgstapp-1.0-0.dll 	libgstpbutils-1.0-0.dll libgstvideo-1.0-0.dll libz.dll 
+	libgmodule-2.0-0.dll libgstaudio-1.0-0.dll libgstreamer-1.0-0.dll libintl-8.dll
+- Copy all DLL files of the Gstreamer's bin folder (e.g. C:) into a new folder named 'lib' in the target folder together with mapmap.exe
+
+- Copy all DLL files of the Gstreamer's plugin folder into a new folder named 'plugins' in parallel of lib folder
+
+
+- Remove lib\libopenh264.dll, lib\libSoundTouch-0.dll, lib\libtag.dll
+
+- Run Mapamp.exe
+
+
+
+
+
