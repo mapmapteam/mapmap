@@ -27,7 +27,7 @@
 
 MM_BEGIN_NAMESPACE
 
-// #define VIDEO_IMPL_VERBOSE
+#define VIDEO_IMPL_VERBOSE
 
 // -------- private implementation of VideoImpl -------
 
@@ -391,7 +391,7 @@ bool VideoImpl::loadMovie(const QString& filename)
       !_appsink0 || !_audioqueue0 || !_audioconvert0 || !_audioresample0 ||
       !_audiovolume0 || !_audiosink0)
   {
-    g_printerr ("Not all elements could be created.\n");
+    g_printerr ("1:Not all elements could be created.\n");
 
     if (! _pipeline) g_printerr("_pipeline");
     if (! _queue0) g_printerr("_queue0");
@@ -413,7 +413,7 @@ bool VideoImpl::loadMovie(const QString& filename)
   {
     if (! _shmsrc0 || ! _gdpdepay0)
     {
-      g_printerr ("Not all elements could be created.\n");
+      g_printerr ("2:Not all elements could be created.\n");
       if (! _shmsrc0) g_printerr("_shmsrc0");
       if (! _gdpdepay0) g_printerr("_gdpdepay0");
       unloadMovie();
@@ -424,7 +424,7 @@ bool VideoImpl::loadMovie(const QString& filename)
   {
     if (! _uridecodebin0)
     {
-      g_printerr ("Not all elements could be created.\n");
+      g_printerr ("3:Not all elements could be created.\n");
       if (! _uridecodebin0) g_printerr("_uridecodebin0");
       unloadMovie();
       return -1;

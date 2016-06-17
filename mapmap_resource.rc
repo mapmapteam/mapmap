@@ -21,12 +21,12 @@ VS_VERSION_INFO VERSIONINFO
 		BEGIN
 			BLOCK "040904b0"
 			BEGIN
-				VALUE "CompanyName", "\0"
-				VALUE "FileDescription", "\0"
+                                VALUE "CompanyName", "Mapmap Team\0"
+                                VALUE "FileDescription", "MapMap\0"
 				VALUE "FileVersion", "0.4.0.0\0"
 				VALUE "LegalCopyright", "\0"
 				VALUE "OriginalFilename", "Mapmap.exe\0"
-				VALUE "ProductName", "Mapmap\0"
+                                VALUE "ProductName", "MapMap\0"
 				VALUE "ProductVersion", "0.4.0.0\0"
 			END
 		END
@@ -36,4 +36,6 @@ VS_VERSION_INFO VERSIONINFO
 		END
 	END
 /* End of Version info */
+
+IDI_ICON1               ICON    DISCARDABLE     "resources/images/logo/mapmap.ico"
 
