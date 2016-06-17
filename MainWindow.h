@@ -3,6 +3,7 @@
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2014 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +42,6 @@
 #endif
 
 #include "OutputGLWindow.h"
-#include "PreferencesDialog.h"
 #include "ConsoleWindow.h"
 
 #include "MappingManager.h"
@@ -57,6 +57,7 @@
 
 MM_BEGIN_NAMESPACE
 
+class PreferenceDialog;
 
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
@@ -88,7 +89,6 @@ private slots:
   // File menu.
   void newFile();
   void open();
-  void preferences();
   bool save();
   bool saveAs();
   void importMedia();
@@ -236,7 +236,6 @@ public slots:
   void enableDisplayControls(bool display);
   void enableDisplayPaintControls(bool display);
   void enableStickyVertices(bool display);
-  void enableTestSignal(bool enable);
   void displayUndoStack(bool display);
 
   // Show Mapping Context Menu
@@ -307,7 +306,7 @@ public:
   // Locate the file not found
   QString locateMediaFile(const QString& uri, bool isImage);
 
-  static MainWindow* instance();
+  static MainWindow* window();
 
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
@@ -469,7 +468,7 @@ private:
 #ifdef HAVE_OSC
   OscInterface::ptr osc_interface;
 #endif
-  int config_osc_receive_port;
+  int oscListeningPort;
   QTimer *osc_timer;
 
   // View.
@@ -510,7 +509,7 @@ private:
   QTimer *videoTimer;
   QElapsedTimer *systemTimer;
 
-  PreferencesDialog* _preferences_dialog;
+  PreferenceDialog* _preferenceDialog;
 
   // UndoStack
   QUndoStack *undoStack;
@@ -560,7 +559,7 @@ public:
   bool displayPaintControls() const { return _displayPaintControls; }
 
   /// Returns true iff we want vertices to stick to each other.
-  bool stickyVertices() const { return _stickyVertices; }
+  bool isStickyVertices() const { return _stickyVertices; }
 
   // Use the same undoStack for whole program
   QUndoStack* getUndoStack() const { return undoStack; }

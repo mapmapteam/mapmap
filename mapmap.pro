@@ -3,7 +3,7 @@ TEMPLATE = app
 # Always use major.minor.micro version number format
 VERSION = 0.4.1
 TARGET = mapmap
-QT += gui opengl xml core
+QT += gui opengl xml core network
 greaterThan(QT_MAJOR_VERSION, 4) {
   QT -= gui # using widgets instead gui in Qt5
   QT += widgets multimedia
@@ -36,7 +36,7 @@ HEADERS  = \
     Paint.h \
     PaintGui.h \
     Polygon.h \
-    PreferencesDialog.h \
+    PreferenceDialog.h \
     ProjectLabels.h \
     ProjectReader.h \
     ProjectWriter.h \
@@ -78,7 +78,7 @@ SOURCES  = \
     Paint.cpp \
     PaintGui.cpp \
     Polygon.cpp \
-    PreferencesDialog.cpp \
+    PreferenceDialog.cpp \
     ProjectLabels.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
@@ -98,8 +98,11 @@ SOURCES  = \
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
 include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
 
-TRANSLATIONS = resources/texts/mapmap_fr.ts
-RESOURCES = mapmap.qrc
+TRANSLATIONS = \
+    translations/mapmap_en.ts \
+    translations/mapmap_fr.ts
+RESOURCES = mapmap.qrc \
+    translations/translation.qrc
 
 # Manage lrelease (for translations)
 isEmpty(QMAKE_LRELEASE) {

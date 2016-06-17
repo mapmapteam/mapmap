@@ -3,6 +3,7 @@
  *
  * (c) 2014 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2014 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2016 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +26,16 @@ MM_BEGIN_NAMESPACE
 MainApplication::MainApplication(int &argc, char *argv[])
   : QApplication(argc, argv)
 {
-#ifdef Q_OS_WIN
+#ifdef Q_OS_WIN32
   // Set GStreamer plugins path on Windows
   QString pluginPath = QCoreApplication::applicationDirPath() + "/plugins";
   QString libPath = QCoreApplication::applicationDirPath() + "/lib";
 
   _putenv_s("GST_PLUGIN_PATH", pluginPath.toLocal8Bit());
   _putenv_s("PATH", libPath.toLocal8Bit());
+
+  // Set settings default format
+  QSettings::setDefaultFormat(QSettings::IniFormat);
 #endif
 
   // Initialize GStreamer.

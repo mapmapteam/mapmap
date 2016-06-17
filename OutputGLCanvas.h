@@ -3,6 +3,7 @@
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2014 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,11 +51,16 @@ public:
 
 private:
   void _drawTestSignal(QPainter* painter);
+  void _drawPALTestCard(QPainter *painter);
+  void _drawNTSCTestCard(QPainter *painter);
+
+  void _drawResolutionText(QPainter *painter, const QRect &rect, int fontSize);
 
   bool _displayCrosshair;
   bool _displayTestSignal;
   QImage _svg_test_signal;
   QBrush _brush_test_signal;
+  QImage _palTestCard;
 
 protected:
   // overriden from QGlWidget:

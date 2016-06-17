@@ -3,6 +3,7 @@
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2016 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,7 +92,7 @@ void Mapping::read(const QDomElement& obj)
 
   // Read paint.
   int paintId = obj.attribute("paintId").toInt();
-  setPaint(MainWindow::instance()->getMappingManager().getPaintById(paintId));
+  setPaint(MainWindow::window()->getMappingManager().getPaintById(paintId));
 
   // Read output shape.
   _readShape(obj, true);
