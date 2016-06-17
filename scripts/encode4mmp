@@ -1,0 +1,28 @@
+#!/bin/sh
+# A script to convert files to a "safe" format suitable for MapMap.
+# It supports either one of these options:
+# 1) <input> <output>
+# 2) -m _result.mov *.{mov,mp4}
+
+FORMAT="mjpeg"
+if [ $# -lt 2 ];
+then
+  echo "Syntax: $(basename $0) [-m <suffix> [<inputfile1> <inputfile2>...] | <inputfile> <outputfile>]"
+  echo "   -m : many mode (suffix follows)"
+  exit 1
+fi
+
+echo $1
+if [ $1 = "-m" ];
+then
+  suffix=$2
+  for file in ${3+"$@"}
+  do
+    echo "Processing file: $file"
+    output="$file$suffix"
+    ffmpeg -i $file -vcodec $FORMAT -acodec copy $output
+  done
+else
+  ffmpeg -i $1 -vcodec $FORMAT -acodec copy $2
+fi
+

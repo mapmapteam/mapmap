@@ -3,6 +3,7 @@
  *
  * (c) 2014 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2014 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2016 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +26,7 @@
 #include <QApplication>
 #include <QDebug>
 #include "MM.h"
-#include "PreferencesDialog.h"
+#include <QSettings>
 
 MM_BEGIN_NAMESPACE
 

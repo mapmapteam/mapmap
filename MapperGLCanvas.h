@@ -2,6 +2,7 @@
  * MapperGLCanvas.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2014 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,6 +60,7 @@ public:
 
   MShape::ptr getShapeFromMapping(Mapping::ptr mapping);
   MShape::ptr getCurrentShape();
+  QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMapping(Mapping::ptr mapping);
   QSharedPointer<ShapeGraphicsItem> getCurrentShapeGraphicsItem();
 
 //  QSize sizeHint() const;
@@ -195,7 +197,7 @@ public slots:
 
 protected:
   // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
-  void _glueVertex(QPointF* p);
+  void _snapVertex(QPointF* p);
 
 public:
   static const int NO_VERTEX = -1;

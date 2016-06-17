@@ -72,17 +72,6 @@ QString VideoImpl::getUri() const
   return _uri;
 }
 
-bool VideoImpl::getAttached()
-{
-  return _attached;
-}
-
-void VideoImpl::setAttached(bool attach)
-{
-  _attached = attach;
-}
-
-
 void VideoImpl::setRate(double rate)
 {
   if (rate == 0)
@@ -175,8 +164,7 @@ GstFlowReturn VideoImpl::gstNewSampleCallback(GstElement*, VideoImpl *p)
   // For live sources, video dimensions have not been set, because
   // gstPadAddedCallback is never called. Fix dimensions from first sample /
   // caps we receive.
-  if (p->_isSharedMemorySource &&
-      ( p->_width  == -1 ||
+  if (( p->_width  == -1 ||
         p->_height == -1)) {
     GstCaps *caps = gst_sample_get_caps(sample);
     GstStructure *structure;
@@ -206,12 +194,12 @@ GstFlowReturn VideoImpl::gstNewSampleCallback(GstElement*, VideoImpl *p)
   return GST_FLOW_OK;
 }
 
-VideoImpl::VideoImpl(bool live) :
+VideoImpl::VideoImpl() :
 _bus(NULL),
 _pipeline(NULL),
-_uridecodebin0(NULL),
 _queue0(NULL),
 _videoconvert0(NULL),
+capsfilter0(NULL),
 _appsink0(NULL),
 _audioqueue0(NULL),
 _audioconvert0(NULL),
@@ -228,13 +216,11 @@ _duration(0),
 _data(NULL),
 _seekEnabled(false),
 _rate(1.0),
-_isSharedMemorySource(live),
-_attached(false),
 _movieReady(false),
 _playState(false),
 _uri("")
 {
-  _pollSource = NULL;
+
   _mutexLocker = new QMutexLocker(&_mutex);
 }
 
@@ -269,17 +255,11 @@ void VideoImpl::freeResources()
   }
 
   // Reset pipeline elements.
-  _uridecodebin0 = NULL;
   _queue0 = NULL;
   _videoconvert0 = NULL;
   _appsink0 = NULL;
 
-  // Unref the shmsrc poller.
-  if (_pollSource)
-  {
-     g_source_unref(_pollSource);
-     _pollSource = NULL;
-  }
+
 
   qDebug() << "Freeing remaining samples/buffers" << endl;
 
@@ -311,325 +291,6 @@ void VideoImpl::resetMovie()
     qDebug() << "Seeking not enabled: reloading the movie" << endl;
     loadMovie(_uri);
   }
-}
-
-gboolean 
-gstPollShmsrc (void *user_data)
-{
-  VideoImpl *p = (VideoImpl*) user_data;
-  if (g_file_test(p->getUri().toUtf8().constData(), G_FILE_TEST_EXISTS) &&
-    ! p->getAttached())
-  {
-    if (! p->setPlayState(true))
-    {
-      qDebug() << "tried to attach, but starting pipeline failed!" << endl;
-      return false;
-    }
-    p->setAttached(true);
-  }
-  return true;
-}
-
-bool VideoImpl::loadMovie(const QString& filename)
-{
-  // Verify if file exists.
-  const gchar* filetestpath = (const gchar*) filename.toUtf8().constData();
-  if (FALSE == g_file_test(filetestpath, G_FILE_TEST_EXISTS))
-  {
-      qDebug() << "File " << filename << " does not exist" << endl;
-      return false;
-  }
-
-  qDebug() << "Opening movie: " << filename << ".";
-
-  // Assign URI.
-  _uri = filename;
-
-  // Free previously allocated structures
-  unloadMovie();
-
-  // Initialize GStreamer.
-  GstElement *capsfilter0 = NULL;
-  GstElement *videoscale0 = NULL;
-
-  // Create the elements.
-  if (_isSharedMemorySource)
-  {
-    _shmsrc0 = gst_element_factory_make ("shmsrc", "shmsrc0");
-    _gdpdepay0 = gst_element_factory_make ("gdpdepay", "gdpdepay0");
-    _pollSource = g_timeout_source_new (500);
-    g_source_set_callback (_pollSource, 
-        gstPollShmsrc, 
-        this, 
-        NULL);
-    g_source_attach (_pollSource, g_main_context_default());
-    g_source_unref (_pollSource);
-  }
-  else {
-    _uridecodebin0 = gst_element_factory_make ("uridecodebin", "uridecodebin0");
-  }
-  _queue0 = gst_element_factory_make ("queue", "queue0");
-  _videoconvert0 = gst_element_factory_make ("videoconvert", "videoconvert0");
-  videoscale0 = gst_element_factory_make ("videoscale", "videoscale0");
-  capsfilter0 = gst_element_factory_make ("capsfilter", "capsfilter0");
-  _appsink0 = gst_element_factory_make ("appsink", "appsink0");
-
-  // Prepare handler data.
-  _videoIsConnected = false;
-
-  _audioqueue0 = gst_element_factory_make ("queue", "audioqueue0");
-  _audioconvert0 = gst_element_factory_make ("audioconvert", "audioconvert0");
-  _audioresample0 = gst_element_factory_make ("audioresample", "audioresample0");
-  _audiovolume0 = gst_element_factory_make ("volume", "audiovolume0");
-  _audiosink0 = gst_element_factory_make ("autoaudiosink", "audiosink0");
-
-  // Create the empty pipeline.
-  _pipeline = gst_pipeline_new ( "video-source-pipeline" );
-
-  if (!_pipeline ||
-      !_queue0 || !_videoconvert0 || ! videoscale0 || ! capsfilter0 ||
-      !_appsink0 || !_audioqueue0 || !_audioconvert0 || !_audioresample0 ||
-      !_audiovolume0 || !_audiosink0)
-  {
-    g_printerr ("Not all elements could be created.\n");
-
-    if (! _pipeline) g_printerr("_pipeline");
-    if (! _queue0) g_printerr("_queue0");
-    if (! _videoconvert0) g_printerr("_videoconvert0");
-    if (! videoscale0) g_printerr("videoscale0");
-    if (! capsfilter0) g_printerr("capsfilter0");
-    if (! _appsink0) g_printerr("_appsink0");
-    if (! _audioqueue0) g_printerr("_audioqueue0");
-    if (! _audioconvert0) g_printerr("_audioconvert0");
-    if (! _audioresample0) g_printerr("_audioresample0");
-    if (! _audiovolume0) g_printerr("_audiovolume0");
-    if (! _audiosink0) g_printerr("_audiosink0");
-
-    unloadMovie();
-    return -1;
-  }
-  
-  if (_isSharedMemorySource)
-  {
-    if (! _shmsrc0 || ! _gdpdepay0)
-    {
-      g_printerr ("Not all elements could be created.\n");
-      if (! _shmsrc0) g_printerr("_shmsrc0");
-      if (! _gdpdepay0) g_printerr("_gdpdepay0");
-      unloadMovie();
-      return -1;
-    }
-  }
-  else
-  {
-    if (! _uridecodebin0)
-    {
-      g_printerr ("Not all elements could be created.\n");
-      if (! _uridecodebin0) g_printerr("_uridecodebin0");
-      unloadMovie();
-      return -1;
-    }
-  }
-
-  // Build the pipeline. Note that we are NOT linking the source at this
-  // point. We will do it later.
-  gst_bin_add_many (GST_BIN (_pipeline),
-    _isSharedMemorySource ? _shmsrc0 : _uridecodebin0, _queue0,
-    _videoconvert0, videoscale0, capsfilter0, _appsink0,
-//    _audioqueue0, _audioconvert0, _audioresample0, _audiovolume0, _audiosink0,
-    NULL);
-
-  // special case for shmsrc
-  if (_isSharedMemorySource)
-  {
-    gst_bin_add (GST_BIN(_pipeline), _gdpdepay0);
-    if (! gst_element_link_many (_shmsrc0, _gdpdepay0, _queue0, NULL))
-    {
-      g_printerr ("Could not link shmsrc, deserializer and video queue.\n");
-    }
-  }
-  // link uridecodebin -> queue will be performed by callback
-
-  if (! gst_element_link_many (_queue0, _videoconvert0, capsfilter0, videoscale0, _appsink0, NULL))
-  {
-    qDebug() << "Could not link video queue, colorspace converter, caps filter, scaler and app sink." << endl;
-    unloadMovie();
-    return false;
-  }
-
-//  if (! gst_element_link_many (_audioqueue0, _audioconvert0, _audioresample0,
-//        _audiovolume0, _audiosink0, NULL))
-//  {
-//    g_printerr ("Could not link audio queue, converter, resampler and audio sink.\n");
-//    unloadMovie();
-//    return false;
-//  }
-
-  // Process URI.
-  QByteArray ba = filename.toLocal8Bit();
-  gchar *filename_tmp = g_strdup((gchar*) filename.toUtf8().constData());
-  gchar* uri = (gchar*) filename.toUtf8().constData();
-  if (! _isSharedMemorySource &&
-      ! gst_uri_is_valid(uri))
-  {
-    // Try to convert filename to URI.
-    GError* error = NULL;
-    qDebug() << "Calling gst_filename_to_uri : " << uri << endl;
-    uri = gst_filename_to_uri(filename_tmp, &error);
-    if (error)
-    {
-      qDebug() << "Filename to URI error: " << error->message << endl;
-      g_clear_error(&error);
-      gst_object_unref (uri);
-      freeResources();
-      return false;
-    }
-  }
-  g_free(filename_tmp);
-
-  if (_isSharedMemorySource)
-  {
-    uri =  (gchar*) ba.data();
-  }
-
-  // Set URI to be played.
-  qDebug() << "URI for uridecodebin: " << uri << endl;
-  // FIXME: sometimes it's just the path to the directory that is given, not the file itself.
-
-  // Connect to the pad-added signal
-  if (! _isSharedMemorySource)
-  {
-    // Extract meta info.
-    GError* error = NULL;
-    GstDiscoverer* discoverer = gst_discoverer_new(5*GST_SECOND, &error);
-    if (!discoverer)
-    {
-      qDebug() << "Error creating discoverer: " << error->message << endl;
-      g_clear_error (&error);
-      return false;
-    }
-
-    GstDiscovererInfo* info = gst_discoverer_discover_uri(discoverer, uri, &error);
-
-    if (!info)
-    {
-      qDebug() << "Error getting discoverer info: " << error->message << endl;
-      g_clear_error (&error);
-      return false;
-    }
-
-    GstDiscovererResult result = gst_discoverer_info_get_result(info);
-
-    switch (result) {
-      case GST_DISCOVERER_URI_INVALID:
-        qDebug()<< "Invalid URI '" << uri << "'" << endl;
-        break;
-      case GST_DISCOVERER_ERROR:
-        qDebug()<< "Discoverer error: " << error->message << endl;
-        break;
-      case GST_DISCOVERER_TIMEOUT:
-        qDebug() << "Timeout" << endl;
-        break;
-      case GST_DISCOVERER_BUSY:
-        qDebug() << "Busy" << endl;
-        break;
-      case GST_DISCOVERER_MISSING_PLUGINS:{
-        const GstStructure *s;
-        gchar *str;
-
-        s = gst_discoverer_info_get_misc (info);
-        str = gst_structure_to_string (s);
-
-        qDebug() << "Missing plugins: " << str << endl;
-        g_free (str);
-        break;
-      }
-      case GST_DISCOVERER_OK:
-        qDebug() << "Discovered '" << uri << "'" << endl;
-        break;
-    }
-
-    g_clear_error (&error);
-
-    if (result != GST_DISCOVERER_OK) {
-      qDebug() << "This URI cannot be played" << endl;
-      return false;
-    }
-
-    // Gather info from video.
-    GList *videoStreams = gst_discoverer_info_get_video_streams (info);
-    if (!videoStreams)
-    {
-      qDebug() << "This URI does not contain any video streams" << endl;
-      return false;
-    }
-
-    // Retrieve meta-info.
-    _width = gst_discoverer_video_info_get_width((GstDiscovererVideoInfo*)videoStreams->data);
-    _height = gst_discoverer_video_info_get_height((GstDiscovererVideoInfo*)videoStreams->data);
-    _duration = gst_discoverer_info_get_duration(info);
-    _seekEnabled = gst_discoverer_info_get_seekable(info);
-
-    // Free everything.
-    g_object_unref(discoverer);
-    gst_discoverer_info_unref(info);
-    gst_discoverer_stream_info_list_free(videoStreams);
-
-    // Connect pad signal.
-    g_signal_connect (_uridecodebin0, "pad-added", G_CALLBACK (VideoImpl::gstPadAddedCallback), this);
-
-    // Set uri of decoder.
-    g_object_set (_uridecodebin0, "uri", uri, NULL);
-  }
-  else
-  {
-    //qDebug() << "LIVE mode" << uri;
-    g_object_set (_shmsrc0, "socket-path", uri, NULL);
-    g_object_set (_shmsrc0, "is-live", TRUE, NULL);
-    _videoIsConnected = true;
-  }
-  g_free(uri);
-
-  // Configure audio appsink.
-  // TODO: change from mono to stereo
-//  gchar* audioCapsText = g_strdup_printf ("audio/x-raw-float,channels=1,rate=%d,signed=(boolean)true,width=%d,depth=%d,endianness=BYTE_ORDER",
-//                                          Engine::signalInfo().sampleRate(), (int)(sizeof(Signal_T)*8), (int)(sizeof(Signal_T)*8) );
-//  GstCaps* audioCaps = gst_caps_from_string (audioCapsText);
-//  g_object_set (_audioSink, "emit-signals", TRUE,
-//                            "caps", audioCaps,
-////                            "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
-////                            "drop", TRUE,         // ... other buffers are dropped
-//                            NULL);
-//  g_signal_connect (_audioSink, "new-buffer", G_CALLBACK (VideoImpl::gstNewAudioBufferCallback), &_newAudioBufferHandlerData);
-//  gst_caps_unref (audioCaps);
-//  g_free (audioCapsText);
-
-
-  // Configure video appsink.
-  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA");
-  g_object_set (capsfilter0, "caps", videoCaps, NULL);
-  g_object_set (_appsink0, "emit-signals", TRUE,
-                            "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
-                            "drop", TRUE,         // ... other buffers are dropped
-                            "sync", TRUE,
-                            NULL);
-  g_signal_connect (_appsink0, "new-sample", G_CALLBACK (VideoImpl::gstNewSampleCallback), this);
-  gst_caps_unref (videoCaps);
-
-//  g_object_set (_audiovolume0, "mute", false, NULL);
-//  g_object_set (_audiovolume0, "volume", 0.0, NULL);
-
-  // Listen to the bus.
-  _bus = gst_element_get_bus (_pipeline);
-
-  // Start playing.
-  if (! _isSharedMemorySource &&
-      ! setPlayState(true))
-  {
-    return false;
-  }
-
-  return true;
 }
 
 void VideoImpl::update()
@@ -766,13 +427,12 @@ void VideoImpl::_checkMessages()
         g_clear_error(&err);
         g_free(debug_info);
 
-        if (!_isSharedMemorySource)
+        if (!isLive())
         {
           _terminate = true;
         }
         else
         {
-          _attached = false;
           gst_element_set_state (_pipeline, GST_STATE_PAUSED);
           gst_element_set_state (_pipeline, GST_STATE_NULL);
           gst_element_set_state (_pipeline, GST_STATE_READY);
@@ -924,100 +584,6 @@ void VideoImpl::_freeCurrentSample() {
   _currentFrameSample = NULL;
   _currentFrameBuffer = NULL;
   _data = NULL;
-}
-
-/**
- * FIXME: remove GOTO
- */
-void VideoImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* p)
-{
-  (void)src; //Unused
-#ifdef VIDEO_IMPL_VERBOSE
-#ifndef Q_OS_OSX
-  // NOTE: This line was causing a problem on Mac OSX: it caused the software to freeze when loading a new movie.
-  qDebug() << "Received new pad '" << GST_PAD_NAME(newPad) << "' from '" << GST_ELEMENT_NAME (src) << "'." << endl;
-#endif
-#endif
-
-  GstPad *sinkPad = NULL;
-
-  // Check the new pad's type.
-  GstCaps *newPadCaps = gst_pad_query_caps (newPad, NULL);
-  GstStructure *newPadStruct = gst_caps_get_structure (newPadCaps, 0);
-  const gchar *newPadType   = gst_structure_get_name (newPadStruct);
-  gchar *newPadStructStr = gst_structure_to_string(newPadStruct);
-#ifdef VIDEO_IMPL_VERBOSE
-  qDebug() << "Structure is " << newPadStructStr << "." << endl;
-#endif
-  g_free(newPadStructStr);
-
-  // Check for video pads.
-  if (g_str_has_prefix (newPadType, "video/x-raw"))
-  {
-    sinkPad = gst_element_get_static_pad (p->_queue0, "sink");
-    gst_structure_get_int(newPadStruct, "width",  &p->_width);
-    gst_structure_get_int(newPadStruct, "height", &p->_height);
-  }
-
-  // Check for audio pads.
-  else if (g_str_has_prefix (newPadType, "audio/x-raw"))
-  {
-    sinkPad = gst_element_get_static_pad (p->_audioqueue0, "sink");
-  }
-
-  // Other types: ignore.
-  else {
-    qDebug() << "  It has type '" << newPadType << "' which is not raw audio/video: ignored." << endl;
-    goto exit;
-  }
-
-  // If our converter is already linked, we have nothing to do here.
-  if (gst_pad_is_linked (sinkPad))
-  {
-    // Best prefixes.
-    if (g_str_has_prefix (newPadType, "audio/x-raw-float") ||
-        g_str_has_prefix (newPadType, "video/x-raw-int") )
-    {
-      qDebug() << "  Found a better pad." << endl;
-      GstPad* oldPad = gst_pad_get_peer(sinkPad);
-      gst_pad_unlink(oldPad, sinkPad);
-      g_object_unref(oldPad);
-    }
-    else
-    {
-#ifdef VIDEO_IMPL_VERBOSE
-      qDebug() << "  We are already linked: ignoring." << endl;
-#endif
-      goto exit;
-    }
-  }
-
-  // Attempt the link.
-  if (GST_PAD_LINK_FAILED (gst_pad_link (newPad, sinkPad)))
-  {
-#ifdef VIDEO_IMPL_VERBOSE
-    qDebug() << "  Type is '" << newPadType << "' but link failed." << endl;
-#endif // ifdef
-    goto exit;
-  } else {
-    p->_videoIsConnected = true;
-#ifdef VIDEO_IMPL_VERBOSE
-    qDebug() << "  Link succeeded (type '" << newPadType << "')." << endl;
-#endif // ifdef
-  }
-
-exit:
-  // Unreference the new pad's caps, if we got them.
-  if (newPadCaps != NULL)
-  {
-    gst_caps_unref (newPadCaps);
-  }
-
-  // Unreference the sink pad.
-  if (sinkPad != NULL)
-  {
-    gst_object_unref (sinkPad);
-  }
 }
 
 void VideoImpl::lockMutex()

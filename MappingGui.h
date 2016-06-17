@@ -136,6 +136,21 @@ public:
   virtual ~PolygonColorMappingGui() {}
 };
 
+class MeshColorMappingGui : public PolygonColorMappingGui
+{
+  Q_OBJECT
+
+public:
+  MeshColorMappingGui(Mapping::ptr mapping);
+  virtual ~MeshColorMappingGui() {}
+
+public slots:
+  virtual void setValue(QtProperty* property, const QVariant& value);
+
+private:
+  QtVariantProperty* _meshItem;
+};
+
 class EllipseColorMappingGui : public ColorMappingGui
 {
   Q_OBJECT

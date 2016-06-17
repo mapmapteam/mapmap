@@ -45,13 +45,14 @@ public:
 
   MShape::ptr getShape() const;
 
+  // Just paints the shape (selected=false is for painting shapes in the "background" when the option to display all controls is chosen).
+  virtual void paintShape(QPainter *painter, MapperGLCanvas* canvas, bool selected=true) = 0;
   virtual void paint(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices = QList<int>());
 
 protected:
-  virtual void _paintShape(QPainter *painter, MapperGLCanvas* canvas) = 0;
   virtual void _paintVertices(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices = QList<int>());
 
-  QPen getRescaledShapeStroke(MapperGLCanvas* canvas, bool innerStroke=false);
+  QPen getRescaledShapeStroke(MapperGLCanvas* canvas, bool selected=true, bool innerStroke=false);
 
   ShapeGraphicsItem* _shapeItem;
 };
@@ -63,8 +64,7 @@ public:
   PolygonControlPainter(ShapeGraphicsItem* shapeItem) : ShapeControlPainter(shapeItem) {}
   virtual ~PolygonControlPainter() {}
 
-protected:
-  virtual void _paintShape(QPainter *painter, MapperGLCanvas* canvas);
+  virtual void paintShape(QPainter *painter, MapperGLCanvas* canvas, bool selected=true);
 };
 
 /// Control painter for ellipses.
@@ -74,8 +74,7 @@ public:
   EllipseControlPainter(ShapeGraphicsItem* shapeItem) : ShapeControlPainter(shapeItem) {}
   virtual ~EllipseControlPainter() {}
 
-protected:
-  virtual void _paintShape(QPainter *painter, MapperGLCanvas* canvas);
+  virtual void paintShape(QPainter *painter, MapperGLCanvas* canvas, bool selected=true);
 };
 
 /// Control painter for meshes.
@@ -85,8 +84,7 @@ public:
   MeshControlPainter(ShapeGraphicsItem* shapeItem) : ShapeControlPainter(shapeItem) {}
   virtual ~MeshControlPainter() {}
 
-protected:
-  virtual void _paintShape(QPainter *painter, MapperGLCanvas* canvas);
+  virtual void paintShape(QPainter *painter, MapperGLCanvas* canvas, bool selected=true);
 };
 
 MM_END_NAMESPACE

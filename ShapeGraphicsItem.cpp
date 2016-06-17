@@ -3,6 +3,7 @@
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2016 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,16 +33,16 @@ ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
 
 MapperGLCanvas* ShapeGraphicsItem::getCanvas() const
 {
-  MainWindow* win = MainWindow::instance();
+  MainWindow* win = MainWindow::window();
   return isOutput() ? win->getDestinationCanvas() : win->getSourceCanvas();
 }
 
 bool ShapeGraphicsItem::isMappingCurrent() const {
-  return MainWindow::instance()->getCurrentMappingId() == getMapping()->getId();
+  return MainWindow::window()->getCurrentMappingId() == getMapping()->getId();
 }
 
 bool ShapeGraphicsItem::isMappingVisible() const {
-  return MainWindow::instance()->getMappingManager().mappingIsVisible(getMapping());
+  return MainWindow::window()->getMappingManager().mappingIsVisible(getMapping());
 }
 
 void ShapeGraphicsItem::paint(QPainter *painter,
@@ -147,6 +148,32 @@ void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
   Polygon* poly = static_cast<Polygon*>(_shape.data());
   Q_ASSERT(poly);
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
+}
+
+MeshColorGraphicsItem::MeshColorGraphicsItem(Mapping::ptr mapping, bool output)
+: PolygonColorGraphicsItem(mapping, output)
+{
+  _controlPainter.reset(new MeshControlPainter(this));
+}
+
+void MeshColorGraphicsItem::_doPaint(QPainter *painter,
+                                     const QStyleOptionGraphicsItem *option)
+{
+  Q_UNUSED(option);
+
+  Mesh* mesh = static_cast<Mesh*>(_shape.data());
+  QVector<QVector<Quad::ptr> > quads = mesh->getQuads2d();
+
+  // Go through the mesh quad by quad.
+  for (int x = 0; x < mesh->nHorizontalQuads(); x++)
+  {
+    for (int y = 0; y < mesh->nVerticalQuads(); y++)
+    {
+      Quad::ptr quad = quads[x][y];
+
+      painter->drawPolygon(mapFromScene(quad->toPolygon()));
+    }
+  }
 }
 
 EllipseColorGraphicsItem::EllipseColorGraphicsItem(Mapping::ptr mapping, bool output)
