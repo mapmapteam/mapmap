@@ -189,24 +189,10 @@ void OutputGLCanvas::_drawNTSCTestCard(QPainter* painter)
   const QRect& geo = geometry();
   int width = geo.width();
   int height = geo.height();
-  QList<QColor> colors;
-  QColor white(Qt::white);
-  QColor yellow(Qt::yellow);
-  QColor cyan(Qt::cyan);
-  QColor green(Qt::green);
-  QColor magenta(Qt::magenta);
-  QColor red(Qt::red);
-  QColor blue(Qt::blue);
-  QColor black(Qt::black);
-
-  colors.push_back(white);
-  colors.push_back(yellow);
-  colors.push_back(cyan);
-  colors.push_back(green);
-  colors.push_back(magenta);
-  colors.push_back(red);
-  colors.push_back(blue);
-  colors.push_back(black);
+  QList<QColor> colors = {
+    Qt::white, Qt::yellow, Qt::cyan, Qt::green,
+    Qt::magenta, Qt::red, Qt::blue, Qt::black
+  };
 
   const int bandWidth = width / colors.size();
 
@@ -219,15 +205,6 @@ void OutputGLCanvas::_drawNTSCTestCard(QPainter* painter)
     painter->drawRect(x * bandWidth, 0, bandWidth, height);
   }
 
-  // Create responsive image
-//  QImage image = _palTestCard.scaled(height - (rectSize * 2), height - (rectSize * 2),
-//                                           Qt::KeepAspectRatio, Qt::SmoothTransformation);
-//  // Draw image
-//  int imageX = (width - image.width()) / 2;
-//  int imageY = (height - image.height()) / 2;
-//  int imageWidth = image.width();
-//  int imageHeight = image.height();
-//  painter->drawImage(imageX, imageY, image);
   // Draw text for screen resolution
   int fontSize = height / 30;
   QRect textRect((width / 2) - (fontSize * 3), height / 3, fontSize * 6, fontSize);
