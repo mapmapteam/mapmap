@@ -115,7 +115,7 @@ https://gstreamer.freedesktop.org/data/pkg/windows/1.7.91/gstreamer-1.0-x86-1.7.
 - Build Mapmap with Qt Creator (qmake, build release)
 - Add the bin directory of your Qt installation (e.g. e.g. C:\Qt\Qt5.6.0\5.6\mingw49_32\bin) to the PATH variable
 - Open Windows console then run the following command:
-	windeployqt --release --no-translations --no-system-d3d-compiler <path-to-app-binary>
+	windeployqt --release --no-system-d3d-compiler <path-to-app-binary>
 
 - Copy the followings DLL into the target folder together with Mapmap.exe
 	libffi-6.dll libgobject-2.0-0.dll libgstbase-1.0-0.dll libgsttag-1.0-0.dll liborc-0.4-0.dll 
