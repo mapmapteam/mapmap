@@ -148,8 +148,10 @@ void PreferenceDialog::refreshCurrentIP()
 {
   foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
     if (address.protocol() == QAbstractSocket::IPv4Protocol
-        && address != QHostAddress(QHostAddress::LocalHost))
+        && address != QHostAddress(QHostAddress::LocalHost)) {
       _machineAddressLabel->setText(address.toString());
+      break;
+    }
   }
 }
 

@@ -147,8 +147,13 @@ int main(int argc, char *argv[])
   {
     QLocale::setDefault(QLocale(lang));
     QTranslator qtTranslator;
+#ifdef Q_OS_WIN32
+    qtTranslator.load(QString("qt_%1").arg(lang),
+                      QApplication::applicationDirPath().append("/translations"));
+#else
     qtTranslator.load(QString("qtbase_%1").arg(lang),
                       QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+#endif
     app.installTranslator(&qtTranslator);
 
     QTranslator localization;
