@@ -137,7 +137,6 @@ void MainWindow::handlePaintItemSelectionChanged()
   addEllipseAction->setEnabled(paintItemSelected);
   // Enable some menus and buttons
   sourceCanvasToolbar->enableZoomToolBar(paintItemSelected);
-  destinationCanvasToolbar->enableZoomToolBar(paintItemSelected);
   sourceMenu->setEnabled(paintItemSelected);
 
   // Update canvases.
@@ -153,6 +152,9 @@ void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
   // Set current mapping and paint
   setCurrentMapping(mappingId);
   setCurrentPaint(paintId);
+  // Enable destination zoom toolbar buttons and avoid loop
+  if (!destinationCanvasToolbar->buttonsAreEnable())
+   destinationCanvasToolbar->enableZoomToolBar(true);
 
   // Update canvases.
   updateCanvases();
