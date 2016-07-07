@@ -1266,38 +1266,25 @@ void MainWindow::duplicateMapping(uid mappingId)
   QString shapeType = shape->getType();
 
   // Code below need to be improved it's feel like duplicated
+
+
+  MShape::ptr inputShape = mappingPtr->getInputShape();
+
+  if (shapeType == "mesh")
+    shapePtr = MShape::ptr(new Mesh(shape->getVertex(0), shape->getVertex(1),
+                                    shape->getVertex(3), shape->getVertex(2)));
+
+  if (shapeType == "triangle")
+    shapePtr = MShape::ptr(new Triangle(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2)));
+
+  if (shapeType == "ellipse")
+    shapePtr = MShape::ptr(new Ellipse(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2),
+                                       shape->getVertex(3), shape->getVertex(4)));
+
   if (paint->getType() == "color") // Color paint
-  {
-    if (shapeType == "mesh")
-      shapePtr = MShape::ptr(new Quad(shape->getVertex(0), shape->getVertex(1),
-                                      shape->getVertex(2), shape->getVertex(3)));
-
-    if (shapeType == "triangle")
-      shapePtr = MShape::ptr(new Triangle(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2)));
-
-    if (shapeType == "ellipse")
-      shapePtr = MShape::ptr(new Ellipse(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2),
-                                         shape->getVertex(3)));
-
     mapping = new ColorMapping(paint, shapePtr);
-  }
   else // Or Texture Paint
-  {
-    MShape::ptr inputShape = mappingPtr->getInputShape();
-
-    if (shapeType == "mesh")
-      shapePtr = MShape::ptr(new Mesh(shape->getVertex(0), shape->getVertex(1),
-                                      shape->getVertex(3), shape->getVertex(2)));
-
-    if (shapeType == "triangle")
-      shapePtr = MShape::ptr(new Triangle(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2)));
-
-    if (shapeType == "ellipse")
-      shapePtr = MShape::ptr(new Ellipse(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2),
-                                         shape->getVertex(3), shape->getVertex(4)));
-
     mapping = new TextureMapping(paint, shapePtr, inputShape);
-  }
 
   // Scaling of duplicated mapping
   if (shapeType == "mesh")
