@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 
   // --lang option
   QCommandLineOption localeOption(QStringList() << "l" << "lang",
-    "Use language <lang>.", "lang", "en");
+    "Use language <lang>.", "lang", "");
   parser.addOption(localeOption);
 
   // --frame-rate option
@@ -139,18 +139,31 @@ int main(int argc, char *argv[])
   }
 
   // IMPORTANT: Translator must be set *before* the MainWindow is created for it to work.
-  QString langValue = parser.value("lang");
-  QTranslator translator;
-  if (translator.load(QString(":/translation-%1").arg(langValue)))
+  QSettings settings;
+  QString lang = parser.value("lang").isEmpty()
+                 ? settings.value("language").toString()
+                 : parser.value("lang");
+  if (MM::SUPPORTED_LANGUAGES.contains(lang))
   {
-    qDebug() << "Setting language to " << langValue << "." << endl;
-    app.installTranslator(&translator);
-    QLocale::setDefault(QLocale(langValue));
+    QLocale::setDefault(QLocale(lang));
+    QTranslator qtTranslator;
+#ifdef Q_OS_WIN32
+    qtTranslator.load(QString("qt_%1").arg(lang),
+                      QApplication::applicationDirPath().append("/translations"));
+#else
+    qtTranslator.load(QString("qtbase_%1").arg(lang),
+                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+#endif
+    app.installTranslator(&qtTranslator);
+
+    QTranslator localization;
+    localization.load(QString(":/mapmap_%1").arg(lang));
+    app.installTranslator(&localization);
   }
-  else if (langValue != "en")
-  {
-    qWarning() << "Unrecognized/unsupported language: " << langValue << "." << endl;
+  else {
+    qWarning() << "Unrecognized/unsupported language: " << lang;
   }
+
 
 #endif // USING_QT_5
 
@@ -174,7 +187,7 @@ int main(int argc, char *argv[])
   I::sleep(1);
 
   // Create window.
-  MainWindow* win = MainWindow::instance();
+  MainWindow* win = MainWindow::window();
   // Add custom font
   int id = QFontDatabase::addApplicationFont(":/base-font");
   QString family = QFontDatabase::applicationFontFamilies(id).at(0);

@@ -75,10 +75,10 @@ if [[ $unamestr == "Darwin" ]]; then
     macdeployqt $app
     
     # Bundle GStreamer framework in app
-    echo "Bundling GStreamer ..."
-    cp -R /Library/Frameworks/GStreamer.framework ${app}/Contents/Frameworks/
-    install_name_tool -id @executable_path/../Frameworks/${gstreamer} ${app}/Contents/Frameworks/${gstreamer}
-    install_name_tool -change /Library/Frameworks/${gstreamer} @executable_path/../Frameworks/${gstreamer} ${app}/Contents/MacOs/MapMap
+    #echo "Bundling GStreamer ..."
+    #cp -R /Library/Frameworks/GStreamer.framework ${app}/Contents/Frameworks/
+    #install_name_tool -id @executable_path/../Frameworks/${gstreamer} ${app}/Contents/Frameworks/${gstreamer}
+    #install_name_tool -change /Library/Frameworks/${gstreamer} @executable_path/../Frameworks/${gstreamer} ${app}/Contents/MacOs/MapMap
     
     # do_fix_qt_plugins_in_app
     echo "Creating DMG ..."

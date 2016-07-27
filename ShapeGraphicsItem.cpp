@@ -3,6 +3,7 @@
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2016 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,16 +33,16 @@ ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
 
 MapperGLCanvas* ShapeGraphicsItem::getCanvas() const
 {
-  MainWindow* win = MainWindow::instance();
+  MainWindow* win = MainWindow::window();
   return isOutput() ? win->getDestinationCanvas() : win->getSourceCanvas();
 }
 
 bool ShapeGraphicsItem::isMappingCurrent() const {
-  return MainWindow::instance()->getCurrentMappingId() == getMapping()->getId();
+  return MainWindow::window()->getCurrentMappingId() == getMapping()->getId();
 }
 
 bool ShapeGraphicsItem::isMappingVisible() const {
-  return MainWindow::instance()->getMappingManager().mappingIsVisible(getMapping());
+  return MainWindow::window()->getMappingManager().mappingIsVisible(getMapping());
 }
 
 void ShapeGraphicsItem::paint(QPainter *painter,

@@ -87,7 +87,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
 void OutputGLWindow::_updateToPreferredScreen()
 {
   // Check if user is on multiple screen (always pre
-  int screen = _preferredScreen;
+  int screen = getPreferredScreen();
   //Move window to second screen before fullscreening it.
   setGeometry(QApplication::desktop()->screenGeometry(screen));
 }

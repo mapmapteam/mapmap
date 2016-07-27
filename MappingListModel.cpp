@@ -39,7 +39,7 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
 {
   if (!index.isValid())
     return QVariant();
-  
+
   switch (role) {
   case Qt::CheckStateRole:
     return mappingList.at(index.row()).isVisible ? Qt::Checked : Qt::Unchecked;
@@ -205,7 +205,7 @@ bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, 
 
 void MappingListModel::removeItem(int index)
 {
-  QList<MappingItem>::iterator it = mappingList.begin();
+  auto it = mappingList.begin();
   mappingList.erase(it + index);
 }
 
@@ -230,8 +230,7 @@ void MappingListModel::updateModel()
 
 void MappingListModel::clear()
 {
-  for (QList<MappingItem>::iterator it = mappingList.end() - 1;
-       it >= mappingList.begin(); --it) {
+  for (auto it = mappingList.end() - 1; it >= mappingList.begin(); --it) {
     mappingList.erase(it);
     updateModel();
   }

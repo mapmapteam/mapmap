@@ -3,6 +3,7 @@
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2014 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,7 +83,7 @@ MShape::ptr MapperGLCanvas::getShapeFromMapping(Mapping::ptr mapping)
 
 MShape::ptr MapperGLCanvas::getCurrentShape()
 {
-  return getShapeFromMapping(MainWindow::instance()->getCurrentMapping());
+  return getShapeFromMapping(MainWindow::window()->getCurrentMapping());
 }
 
 QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getShapeGraphicsItemFromMapping(Mapping::ptr mapping)
@@ -93,7 +94,7 @@ QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getShapeGraphicsItemFromMappin
   }
   else
   {
-    MappingGui::ptr mappingGui = MainWindow::instance()->getMappingGuiByMappingId(mapping->getId());
+    MappingGui::ptr mappingGui = MainWindow::window()->getMappingGuiByMappingId(mapping->getId());
     return (isOutput() ? mappingGui->getGraphicsItem() : mappingGui->getInputGraphicsItem());
   }
 }
@@ -107,9 +108,9 @@ QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getCurrentShapeGraphicsItem()
 void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 {
   Q_UNUSED(rect);
-  if (_mainWindow->displayControls())
+  if (MainWindow::window()->displayControls())
   {
-    uid mid = _mainWindow->getCurrentMappingId();
+    uid mid = MainWindow::window()->getCurrentMappingId();
     if (mid != NULL_UID)
     {
 
@@ -317,9 +318,9 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
     QPointF p = mapToScene(event->pos());
 
     // Stick to vertices.
-    if (xOr(_mainWindow->stickyVertices(), (event->modifiers() & Qt::ShiftModifier)))
+    if (xOr(_mainWindow->isStickyVertices(), (event->modifiers() & Qt::ShiftModifier)))
     {
-      _glueVertex(&p);
+      _snapVertex(&p);
     }
 
     undoStack->push(new MoveVertexCommand(this,
@@ -358,9 +359,9 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       QPointF p = scenePos;
 
       // Stick to vertices.
-      if (xOr(_mainWindow->stickyVertices(), (event->modifiers() & Qt::ShiftModifier)))
+      if (xOr(_mainWindow->isStickyVertices(), (event->modifiers() & Qt::ShiftModifier)))
       {
-        _glueVertex(&p);
+        _snapVertex(&p);
       }
 
       undoStack->push(new MoveVertexCommand(this,
@@ -681,9 +682,11 @@ void MapperGLCanvas::setZoomFromMenu(const QString &text)
   applyZoomToView();
 }
 
-void MapperGLCanvas::_glueVertex(QPointF* p)
+void MapperGLCanvas::_snapVertex(QPointF* p)
 {
-  MappingManager manager = MainWindow::instance()->getMappingManager();
+  QSettings settings;
+  int vertexStickRadius = settings.value("vertexStickRadius", MM::VERTEX_STICK_RADIUS).toInt();
+  MappingManager manager = MainWindow::window()->getMappingManager();
   MShape::ptr currentShape = getCurrentShape();
   for (int i = 0; i < manager.nMappings(); i++)
   {
@@ -693,7 +696,7 @@ void MapperGLCanvas::_glueVertex(QPointF* p)
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)
       {
         const QPointF& v = shape->getVertex(vertex);
-        if (distIsInside(v, *p, MM::VERTEX_STICK_RADIUS))
+        if (distIsInside(v, *p, vertexStickRadius))
         {
           p->setX(v.x());
           p->setY(v.y());

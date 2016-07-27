@@ -36,6 +36,9 @@ public:
 
   void enableZoomToolBar(bool enabled);
 
+  // Return enable statut
+  bool buttonsAreEnable() { return _areEnable; }
+
 public slots:
   // Update and feedback zoom level
   void updateDropdownMenu(qreal factor = 1);
@@ -52,6 +55,8 @@ protected:
   QPushButton* _fitToViewButton;
   // Dropdown menu
   QComboBox* _dropdownMenu;
+
+  bool _areEnable;
 
 };
 
