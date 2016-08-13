@@ -1350,7 +1350,7 @@ void MainWindow::createLayout()
   mappingList->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   mappingList->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   mappingList->horizontalHeader()->setStretchLastSection(true);
-  mappingList->setShowGrid(false);
+  //mappingList->setShowGrid(false);
   mappingList->horizontalHeader()->hide();
   mappingList->verticalHeader()->hide();
   mappingList->setMouseTracking(true);// Important
