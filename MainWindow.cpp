@@ -1255,48 +1255,35 @@ void MainWindow::deleteMapping(uid mappingId)
 void MainWindow::duplicateMapping(uid mappingId)
 {
   // Current Mapping
-  Mapping::ptr mappingPtr = mappingManager->getMappingById(mappingId);
+  Mapping::ptr currentMapping = mappingManager->getMappingById(mappingId);
 
   // Get Mapping Paint and Shape
-  Paint::ptr paint = mappingPtr->getPaint();
-  MShape::ptr shape = mappingPtr->getShape();
+  Paint::ptr paintPtr = currentMapping->getPaint();
+  // Create new shape base on the current
+  MShape *shape = currentMapping->getShape()->clone();
+  qDebug() << "Nb vertices " << shape->nVertices();
   // Temporary shared pointers
-  MShape::ptr shapePtr;
-  // Create new mapping
-  Mapping *mapping;
+  MShape::ptr shapePtr(shape);
+  // Create a new input shape too
+  MShape::ptr inputShape(currentMapping->getInputShape()->clone());
 
-  QString shapeType = shape->getType();
-
-  // Code below need to be improved it's feel like duplicated
-
-
-  MShape::ptr inputShape = mappingPtr->getInputShape();
-
-  if (shapeType == "mesh")
-    shapePtr = MShape::ptr(new Mesh(shape->getVertex(0), shape->getVertex(1),
-                                    shape->getVertex(3), shape->getVertex(2)));
-
-  if (shapeType == "triangle")
-    shapePtr = MShape::ptr(new Triangle(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2)));
-
-  if (shapeType == "ellipse")
-    shapePtr = MShape::ptr(new Ellipse(shape->getVertex(0), shape->getVertex(1), shape->getVertex(2),
-                                       shape->getVertex(3), shape->getVertex(4)));
-
-  if (paint->getType() == "color") // Color paint
-    mapping = new ColorMapping(paint, shapePtr);
+  // Create new duplicated mapping item
+  Mapping::ptr clonedMappingPtr;
+  if (paintPtr->getType() == "color") // Color paint
+    //clonedMapping = new ColorMapping(paintPtr, shapePtr);
+    clonedMappingPtr = Mapping::ptr(new ColorMapping(paintPtr, shapePtr));
   else // Or Texture Paint
-    mapping = new TextureMapping(paint, shapePtr, inputShape);
+    //clonedMapping = new TextureMapping(paintPtr, shapePtr, inputShape);
+    clonedMappingPtr = Mapping::ptr(new TextureMapping(paintPtr, shapePtr, inputShape));
 
-  // Scaling of duplicated mapping
-  if (shapeType == "mesh")
+  // Scale the duplicated shapes
+  if (shape->getType() == "mesh")
     shapePtr->translate(QPointF(20, 20));
   else
     shapePtr->translate(QPointF(0, 20));
 
-  // Create new duplicated mapping item
-  Mapping::ptr clonedMapping(mapping);
-  uid cloneId = mappingManager->addMapping(clonedMapping);
+  // Get duplicated mapping id
+  uid cloneId = mappingManager->addMapping(clonedMappingPtr);
 
   // Lets the undo-stack handle Undo/Redo the duplication of mapping item.
   undoStack->push(new DuplicateShapesCommand(this, cloneId));
