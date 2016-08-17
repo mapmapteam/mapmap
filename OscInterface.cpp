@@ -203,7 +203,7 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
         }
         // Process all paints.
         iterator = next(iterator.second);
-        foreach (Paint::ptr elem, paints)
+        for (Paint::ptr elem: paints)
         {
           if (iterator.first == OSC_REWIND)
             elem->rewind();
@@ -224,7 +224,7 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
         }
         // Process all mappings.
         iterator = next(iterator.second);
-        foreach (Mapping::ptr elem, mappings)
+        for (Mapping::ptr elem: mappings)
         {
           pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
         }

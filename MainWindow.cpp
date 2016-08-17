@@ -331,7 +331,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     // Save settings
     writeSettings();
     // Close all top level widgets
-    foreach (QWidget *widget, QApplication::topLevelWidgets()) {
+    for (QWidget *widget: QApplication::topLevelWidgets()) {
       if (widget != this) { // Avoid recursion
         widget->close();
       }
@@ -514,7 +514,7 @@ void MainWindow::openCameraDevice()
     QStringList devicesList;
     QMap<QString, QString> devices;
 
-    foreach (const QCameraInfo &cameraInfo, cameras)
+    for (const QCameraInfo &cameraInfo: cameras)
     {
       devicesList << cameraInfo.description();
       devices.insert(cameraInfo.description(), cameraInfo.deviceName());
@@ -2373,7 +2373,7 @@ void MainWindow:: updateScreenActions()
 {
   if (QApplication::screens().count() > 1) {
     // Add new action for each screen
-    foreach (QScreen *screen, QApplication::screens()) {
+    for (QScreen *screen: QApplication::screens()) {
       QString actionLabel = tr("%1 - %2x%3")
           .arg(screen->name())
           .arg(QString::number(screen->size().width()))
@@ -2388,7 +2388,7 @@ void MainWindow:: updateScreenActions()
     // Configure actions
     screenActionGroup = new QActionGroup(this);
     int preferredScreen = outputWindow->getPreferredScreen();
-    foreach (QAction *action, screenActions) {
+    for (QAction *action: screenActions) {
       action->setCheckable(true);
       if (action == screenActions.at(preferredScreen))
         action->setChecked(true);

@@ -111,7 +111,7 @@ QMimeData *MappingListModel::mimeData(const QModelIndexList &indexes) const
   QByteArray encodeData;
   QDataStream stream(&encodeData, QIODevice::WriteOnly);
 
-  foreach (QModelIndex index, indexes) {
+  for (QModelIndex index: indexes) {
     if (index.isValid()) {
       if (index.column() == MM::HideColumn) {
         int id = data(index, Qt::UserRole).toInt();
