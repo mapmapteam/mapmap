@@ -28,7 +28,7 @@
     <name>FileEdit</name>
     <message>
         <source>Choose a file</source>
-        <translation>Choisir une fichier</translation>
+        <translation>Choisir un fichier</translation>
     </message>
 </context>
 <context>
@@ -99,7 +99,7 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Error reading mapping project file</source>
-        <translation>Erreur de lecture de projet</translation>
+        <translation>Erreur de lecture du projet</translation>
     </message>
     <message>
         <source>Cannot read file %1:
@@ -119,7 +119,7 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Error saving mapping project</source>
-        <translation>Erreur en sauvegardant le fichier de projet</translation>
+        <translation>Erreur en sauvegardant le fichier du projet</translation>
     </message>
     <message>
         <source>Cannot write file %1:
@@ -168,7 +168,7 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Remove this paint and all its associated mappings?</source>
-        <translation>Effacer cette peinture et tous les mappings qui y sont associés?</translation>
+        <translation>Effacer cette texture et tous les mappings qui y sont associés?</translation>
     </message>
     <message>
         <source>Create a new project</source>
@@ -200,7 +200,7 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Add a color paint...</source>
-        <translation>Ajouter une peinture Couleur...</translation>
+        <translation>Ajouter un panneau de couleur...</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -300,24 +300,24 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Available camera</source>
-        <translation>Cameras disponible</translation>
+        <translation>Cameras disponibles</translation>
     </message>
     <message>
         <source>Select camera</source>
-        <translation>Selectionner camera</translation>
+        <translation>Selectionner une camera</translation>
     </message>
     <message>
         <source>No camera available</source>
-        <translation>Aucun camera disponible</translation>
+        <translation>Aucune camera disponible</translation>
     </message>
     <message>
         <source>You can not use this feature!
 No camera available in your system</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vous ne pouvez pas utiliser cette fonctionnalité. Aucune camera disponible sur ce système</translation>
     </message>
     <message>
         <source>Select Color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisir une couleur</translation>
     </message>
     <message>
         <source>&lt;h2&gt;&lt;img src=&quot;:mapmap-title&quot;/&gt; %1&lt;/h2&gt;&lt;p&gt;Copyright &amp;copy; 2013 %2.&lt;/p&gt;&lt;p&gt;MapMap is a free software for video mapping.&lt;/p&gt;&lt;p&gt;Projection mapping, also known as video mapping and spatial augmented reality, is a projection technology used to turn objects, often irregularly shaped, into a display surface for video projection. These objects may be complex industrial landscapes, such as buildings. By using specialized software, a two or three dimensional object is spatially mapped on the virtual program which mimics the real environment it is to be projected on. The software can interact with a projector to fit any desired image onto the surface of that object. This technique is used by artists and advertisers alike who can add extra dimensions, optical illusions, and notions of movement onto previously static objects. The video is commonly combined with, or triggered by, audio to create an audio-visual narrative.This project was made possible by the support of the International Organization of La Francophonie.&lt;/p&gt;&lt;p&gt;http://mapmap.info&lt;br /&gt;http://www.francophonie.org&lt;/p&gt;</source>
@@ -325,31 +325,31 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Paints</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Textures</translation>
     </message>
     <message>
         <source>Mappings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mappings</translation>
     </message>
     <message>
         <source>No Recents Videos</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pas de vidéos récentes</translation>
     </message>
     <message>
         <source>&amp;Import Media File...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importer un fichier Média ...</translation>
     </message>
     <message>
         <source>Import a video or image file...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importer un fichier vidéo ou image ...</translation>
     </message>
     <message>
         <source>Open &amp;Camera Device...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir la &amp;Camera</translation>
     </message>
     <message>
         <source>Choose your camera device...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisissez la caméra...</translation>
     </message>
     <message>
         <source>Add &amp;Color Paint...</source>
@@ -377,7 +377,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Delete mapping</source>
-        <translation>Supprimer l&apos;élément</translation>
+        <translation>Supprimer le mapping</translation>
     </message>
     <message>
         <source>Rename</source>
@@ -389,7 +389,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Lock mapping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verrouiller le mapping</translation>
     </message>
     <message>
         <source>Lock mapping item</source>
@@ -397,7 +397,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Hide mapping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Masquer le mapping</translation>
     </message>
     <message>
         <source>Hide mapping item</source>
@@ -413,15 +413,15 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Delete paint</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer la texture</translation>
     </message>
     <message>
         <source>&amp;Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Préférences...</translation>
     </message>
     <message>
         <source>Configure preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configurer préférences...</translation>
     </message>
     <message>
         <source>Add &amp;Mesh</source>
@@ -473,11 +473,11 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Show &amp;Test Signal</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afficher le signal de &amp;Test</translation>
     </message>
     <message>
         <source>Show Test signal</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afficher le signal de Test</translation>
     </message>
     <message>
         <source>Display &amp;Undo Stack</source>
@@ -521,27 +521,27 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Report bug...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Signaler un bug...</translation>
     </message>
     <message>
         <source>Technical Support</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Support Technique</translation>
     </message>
     <message>
         <source>Documentation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Documentation</translation>
     </message>
     <message>
         <source>Open Recents Projects</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir les projets récents</translation>
     </message>
     <message>
         <source>Open Recents Videos</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir les vidéos récentes</translation>
     </message>
     <message>
         <source>&amp;Source</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Source</translation>
     </message>
     <message>
         <source>&amp;Destination</source>
