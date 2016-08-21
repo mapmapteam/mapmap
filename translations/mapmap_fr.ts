@@ -168,7 +168,7 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Remove this paint and all its associated mappings?</source>
-        <translation>Effacer cette texture et tous les mappings qui y sont associés?</translation>
+        <translation>Effacer cette peinture et tous les mappings qui y sont associés?</translation>
     </message>
     <message>
         <source>Create a new project</source>
@@ -325,7 +325,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Paints</source>
-        <translation type="unfinished">Textures</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mappings</source>
@@ -413,7 +413,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Delete paint</source>
-        <translation type="unfinished">Supprimer la texture</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Preferences...</source>
