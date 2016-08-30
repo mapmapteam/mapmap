@@ -168,7 +168,7 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Remove this paint and all its associated mappings?</source>
-        <translation>Effacer cette peinture et tous les mappings qui y sont associés?</translation>
+        <translation>Effacer cette source et tous les mappings qui y sont associés?</translation>
     </message>
     <message>
         <source>Create a new project</source>
@@ -196,11 +196,11 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Add &amp;Color paint...</source>
-        <translation type="vanished">Ajouter une peinture &amp;Couleur...</translation>
+        <translation type="vanished">Ajouter une source &amp;Couleur...</translation>
     </message>
     <message>
         <source>Add a color paint...</source>
-        <translation>Ajouter un panneau de couleur...</translation>
+        <translation>Ajouter une source couleur...</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -288,7 +288,7 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Color paint added</source>
-        <translation>Peinture couleur ajoutée</translation>
+        <translation>Source aplat de couleur ajoutée</translation>
     </message>
     <message>
         <source>MapMap files (*.%1)</source>
@@ -325,7 +325,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Paints</source>
-        <translation type="unfinished"></translation>
+        <translation">Sources</translation>
     </message>
     <message>
         <source>Mappings</source>
@@ -353,7 +353,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Add &amp;Color Paint...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter une source &amp;couleur...</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -413,15 +413,15 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Delete paint</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer la source</translation>
     </message>
     <message>
         <source>&amp;Preferences...</source>
-        <translation type="unfinished">&amp;Préférences...</translation>
+        <translation>&amp;Préférences...</translation>
     </message>
     <message>
         <source>Configure preferences...</source>
-        <translation type="unfinished">Configurer préférences...</translation>
+        <translation>Configurer préférences...</translation>
     </message>
     <message>
         <source>Add &amp;Mesh</source>
@@ -441,7 +441,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Rewind</source>
-        <translation type="unfinished"></translation>
+        <translation>Recommencer</translation>
     </message>
     <message>
         <source>Toggle &amp;Fullscreen</source>
@@ -473,15 +473,15 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Show &amp;Test Signal</source>
-        <translation type="unfinished">Afficher le signal de &amp;Test</translation>
+        <translation>Afficher le signal de &amp;Test</translation>
     </message>
     <message>
         <source>Show Test signal</source>
-        <translation type="unfinished">Afficher le signal de Test</translation>
+        <translation>Afficher le signal de Test</translation>
     </message>
     <message>
         <source>Display &amp;Undo Stack</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher la liste des &amp;Undo</translation>
     </message>
     <message>
         <source>Open Conso&amp;le</source>
@@ -489,11 +489,11 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Display &amp;Zoom Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher la barre de contrôle du &amp;Zoom</translation>
     </message>
     <message>
         <source>&amp;Menu Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barre de &amp;Menu</translation>
     </message>
     <message>
         <source>Main Perspective</source>
@@ -808,7 +808,7 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Unsupported paint type: %1.</source>
-        <translation type="vanished">Type de peinture non-supporté: %1</translation>
+        <translation type="vanished">Type de source non-supporté: %1</translation>
     </message>
     <message>
         <source>Cannot create triangle texture mapping</source>
@@ -852,15 +852,15 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Add paint</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter une source</translation>
     </message>
     <message>
         <source>Add mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter un mapping</translation>
     </message>
     <message>
         <source>Duplicate mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Dupliquer un mapping</translation>
     </message>
     <message>
         <source>Move vertex</source>
@@ -872,7 +872,7 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Remove paint</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer la source</translation>
     </message>
     <message>
         <source>Delete mapping</source>
@@ -884,7 +884,7 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Unable to create paint of type &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible de créer une source de type &apos;%1&apos;.</translation>
     </message>
     <message>
         <source>Mapping</source>
@@ -892,7 +892,7 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Opacity (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Opacité (%)</translation>
     </message>
     <message>
         <source>Paint</source>
@@ -908,10 +908,10 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Problem at creation of paint.</source>
-        <translation type="unfinished"></translation>
+        <translation>Problème à la création de la source</translation>
     </message>
     <message>
-        <source>Problem at creation of mapping.</source>
+        <translation>Problème à la création du mapping</translation>
         <translation type="unfinished"></translation>
     </message>
 </context>
