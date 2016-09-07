@@ -418,31 +418,49 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
     if (event->modifiers() & Qt::ShiftModifier)
     {
       // SHIFT + directional keys allow move with large steps
-      if (event->key() == Qt::Key_Up)
+      switch (event->key())
       {
-        pos.ry() -= MM::VERTEX_MOVES_STEP;
-      }
-      else if (event->key() == Qt::Key_Down)
-      {
-        pos.ry() += MM::VERTEX_MOVES_STEP;
-      }
-      else if (event->key() == Qt::Key_Right)
-      {
-        pos.rx() += MM::VERTEX_MOVES_STEP;
-      }
-      else if (event->key() == Qt::Key_Left)
-      {
-        pos.rx() -= MM::VERTEX_MOVES_STEP;
-      }
+      case Qt::Key_Up:
+        pos.ry() -= MM::BigStep;
+        break;
+      case Qt::Key_Down:
+        pos.ry() += MM::BigStep;
+        break;
+      case Qt::Key_Right:
+        pos.rx() += MM::BigStep;
+        break;
+      case Qt::Key_Left:
+        pos.rx() -= MM::BigStep;
+        break;
       // SHIFT+Space to switch between vertex
-      else if (event->key() == Qt::Key_Space)
-      {
+      case Qt::Key_Space:
         _activeVertex = (_activeVertex + 1) % shape->nVertices();
-        pos = shape->getVertex(_activeVertex).toPoint(); // reset to new vertex
-      }
-      else
-      {
+        pos = mapFromScene(shape->getVertex(_activeVertex)); // reset to new vertex
+        break;
+      default:
         handledKey = false;
+        break;
+      }
+    }
+    else if (event->modifiers() & Qt::AltModifier)
+    {
+      switch (event->key())
+      {
+      case Qt::Key_Up:
+        pos.ry() -= MM::SmallStep;
+        break;
+      case Qt::Key_Down:
+        pos.ry() += MM::SmallStep;
+        break;
+      case Qt::Key_Right:
+        pos.rx() += MM::SmallStep;
+        break;
+      case Qt::Key_Left:
+        pos.rx() -= MM::SmallStep;
+        break;
+      default:
+        handledKey = false;
+        break;
       }
     }
     else
@@ -450,16 +468,16 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
       switch (event->key())
       {
       case Qt::Key_Up:
-        pos.ry()--;
+        pos.ry() -= MM::MediumStep;
         break;
       case Qt::Key_Down:
-        pos.ry()++;
+        pos.ry() += MM::MediumStep;
         break;
       case Qt::Key_Right:
-        pos.rx()++;
+        pos.rx() += MM::MediumStep;
         break;
       case Qt::Key_Left:
-        pos.rx()--;
+        pos.rx() -= MM::MediumStep;
         break;
       default:
         handledKey = false;

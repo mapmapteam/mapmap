@@ -124,7 +124,6 @@ public:
   static const int MESH_SUBDIVISION_MAX_DEPTH_EDITING = 4;
   static const int MESH_SUBDIVISION_MAX_DEPTH         = (-1);
   static const int ELLIPSE_N_TRIANGLES = 100; // n triangles used to draw an ellipse
-  static const int VERTEX_MOVES_STEP = 25;
 
   // Enumerations
   enum ItemColumn {
@@ -137,6 +136,13 @@ public:
     Classic,
     PAL,
     NTSC
+  };
+
+  // Enumaration of vertex's differents moving step
+  enum VertexMoveStep {
+    SmallStep = 1,
+    MediumStep = 2,
+    BigStep = 20
   };
 };
 
