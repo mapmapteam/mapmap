@@ -1888,6 +1888,9 @@ void MainWindow::createActions()
   // Documentation
   docAction = new QAction(tr("Documentation"), this);
   connect(docAction, SIGNAL(triggered()), this, SLOT(documentation()));
+  // Send us feedback
+  feedbackAction = new QAction(tr("Submit Feedback..."), this);
+  connect(feedbackAction, SIGNAL(triggered()), this, SLOT(sendFeedback()));
 
   // All available screen as action
   updateScreenActions();
@@ -2002,6 +2005,7 @@ void MainWindow::createMenus()
   // Help.
   helpMenu = menuBar->addMenu(tr("&Help"));
   helpMenu->addAction(docAction);
+  helpMenu->addAction(feedbackAction);
   helpMenu->addAction(supportAction);
   helpMenu->addAction(bugReportAction);
   helpMenu->addSeparator();

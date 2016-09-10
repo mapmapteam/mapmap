@@ -142,6 +142,8 @@ private slots:
   // Some help links
   void documentation() { QDesktopServices::openUrl(
           QUrl("http://mapmap.info/tiki-index.php?page=Documentation#section-documentation")); }
+  // Send us feedback
+  void sendFeedback() { QDesktopServices::openUrl(QUrl("mailto:mapmap-list@mapmap.info")); }
   // Technical support
   void technicalSupport() { QDesktopServices::openUrl(
           QUrl("http://mapmap.info/tiki-index.php?page=HomePage#section-support")); }
@@ -413,6 +415,7 @@ private:
   QAction *bugReportAction;
   QAction *supportAction;
   QAction *docAction;
+  QAction *feedbackAction;
 
   // Screen output action
   QList<QAction *> screenActions;
