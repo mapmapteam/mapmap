@@ -236,7 +236,7 @@ public slots:
   void enableDisplayControls(bool display);
   void enableDisplayPaintControls(bool display);
   void enableStickyVertices(bool display);
-  void displayUndoStack(bool display);
+  void displayUndoHistory(bool display);
 
   // Show Mapping Context Menu
   void showMappingContextMenu(const QPoint &point);
@@ -393,7 +393,7 @@ private:
   QAction *displayPaintControlsAction;
   QAction *displayTestSignalAction;
   QAction *stickyVerticesAction;
-  QAction *displayUndoStackAction;
+  QAction *displayUndoHistoryAction;
   QAction *displayZoomToolAction;
   QAction *openConsoleAction;
   QAction *showMenuBarAction;
@@ -517,7 +517,7 @@ private:
   // Labels for status bar
   QLabel *destinationZoomLabel;
   QLabel *sourceZoomLabel;
-  QLabel *undoLabel;
+  QLabel *lastActionLabel;
   QLabel *currentMessageLabel;
   QLabel *mousePosLabel;
   QLabel *trueFramesPerSecondsLabel;

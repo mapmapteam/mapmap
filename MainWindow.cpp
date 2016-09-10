@@ -712,7 +712,7 @@ void MainWindow::updateStatusBar()
   currentMessageLabel->setText(statusBar()->currentMessage());
   sourceZoomLabel->setText("Source: " + QString::number(int(sourceCanvas->getZoomFactor() * 100)).append(QChar('%')));
   destinationZoomLabel->setText("Destination: " + QString::number(int(destinationCanvas->getZoomFactor() * 100)).append(QChar('%')));
-  undoLabel->setText(undoStack->text(undoStack->count() - 1));
+  lastActionLabel->setText(undoStack->text(undoStack->count() - 1));
 }
 
 void MainWindow::showMenuBar(bool shown)
@@ -1812,15 +1812,15 @@ void MainWindow::createActions()
   connect(displayTestSignalAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setDisplayTestSignal(bool)));
 //  connect(displayTestSignalAction, SIGNAL(toggled(bool)), this, SLOT(update()));
 
-  // Toggle display of Undo Stack
-  displayUndoStackAction = new QAction(tr("Display &Undo Stack"), this);
-  displayUndoStackAction->setShortcut(Qt::ALT + Qt::Key_U);
-  displayUndoStackAction->setCheckable(true);
-  displayUndoStackAction->setChecked(_displayUndoStack);
-  displayUndoStackAction->setShortcutContext(Qt::ApplicationShortcut);
-  addAction(displayUndoStackAction);
-  // Manage show/hide of Undo Stack
-  connect(displayUndoStackAction, SIGNAL(toggled(bool)), this, SLOT(displayUndoStack(bool)));
+  // Toggle display of Undo History
+  displayUndoHistoryAction = new QAction(tr("Display &Undo History"), this);
+  displayUndoHistoryAction->setShortcut(Qt::ALT + Qt::Key_U);
+  displayUndoHistoryAction->setCheckable(true);
+  displayUndoHistoryAction->setChecked(_displayUndoStack);
+  displayUndoHistoryAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(displayUndoHistoryAction);
+  // Manage show/hide of Undo History
+  connect(displayUndoHistoryAction, SIGNAL(toggled(bool)), this, SLOT(displayUndoHistory(bool)));
 
   // Toggle display of Console output
   openConsoleAction = new QAction(tr("Open Conso&le"), this);
@@ -1991,7 +1991,7 @@ void MainWindow::createMenus()
 #ifdef Q_OS_WIN32
   toolBarsMenu->addAction(showMenuBarAction);
 #endif
-  windowMenu->addAction(displayUndoStackAction);
+  windowMenu->addAction(displayUndoHistoryAction);
   windowMenu->addAction(displayZoomToolAction);
   windowMenu->addSeparator();
   // Perspectives
@@ -2107,10 +2107,10 @@ void MainWindow::createStatusBar()
   sourceZoomLabel = new QLabel(statusBar());
   sourceZoomLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   sourceZoomLabel->setContentsMargins(2, 0, 0, 0);
-  // Undoview statut
-  undoLabel = new QLabel(statusBar());
-  undoLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  undoLabel->setContentsMargins(2, 0, 0, 0);
+  // last action taking statut
+  lastActionLabel = new QLabel(statusBar());
+  lastActionLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  lastActionLabel->setContentsMargins(2, 0, 0, 0);
   // Standard message
   currentMessageLabel = new QLabel(statusBar());
   currentMessageLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -2126,7 +2126,7 @@ void MainWindow::createStatusBar()
 
   // Add permanently into the statut bar
   statusBar()->addPermanentWidget(currentMessageLabel, 5);
-  statusBar()->addPermanentWidget(undoLabel, 4);
+  statusBar()->addPermanentWidget(lastActionLabel, 4);
   statusBar()->addPermanentWidget(mousePosLabel, 3);
   statusBar()->addPermanentWidget(sourceZoomLabel, 1);
   statusBar()->addPermanentWidget(destinationZoomLabel, 1);
@@ -2163,7 +2163,7 @@ void MainWindow::readSettings()
   updateRecentVideoActions();
 
   // new in 0.3.2
-  displayUndoStackAction->setChecked(settings.value("displayUndoStack", MM::DISPLAY_UNDO_STACK).toBool());
+  displayUndoHistoryAction->setChecked(settings.value("displayUndoStack", MM::DISPLAY_UNDO_HISTORY).toBool());
   displayZoomToolAction->setChecked(settings.value("zoomToolBar", MM::DISPLAY_ZOOM_TOOLBAR).toBool());
   showMenuBarAction->setChecked(settings.value("showMenuBar", MM::DISPLAY_MENU_BAR).toBool());
 
@@ -2192,7 +2192,7 @@ void MainWindow::writeSettings()
   settings.setValue("displayControls", displayControlsAction->isChecked());
   settings.setValue("displayAllControls", displayPaintControlsAction->isChecked());
   settings.setValue("oscListeningPort", oscListeningPort);
-  settings.setValue("displayUndoStack", displayUndoStackAction->isChecked());
+  settings.setValue("displayUndoStack", displayUndoHistoryAction->isChecked());
   settings.setValue("zoomToolBar", displayZoomToolAction->isChecked());
   settings.setValue("showMenuBar", showMenuBarAction->isChecked());
   settings.setValue("stickyVertices", stickyVerticesAction->isChecked());
@@ -2934,7 +2934,7 @@ void MainWindow::enableDisplayPaintControls(bool display)
   updateCanvases();
 }
 
-void MainWindow::displayUndoStack(bool display)
+void MainWindow::displayUndoHistory(bool display)
 {
   _displayUndoStack = display;
 
@@ -2942,7 +2942,7 @@ void MainWindow::displayUndoStack(bool display)
   undoView = new QUndoView(getUndoStack(), this);
 
   if (display) {
-    contentTab->addTab(undoView, tr("Undo stack"));
+    contentTab->addTab(undoView, tr("Undo history"));
   } else {
     contentTab->removeTab(2);
   }

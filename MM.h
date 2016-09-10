@@ -77,7 +77,7 @@ public:
   static const bool DISPLAY_OUTPUT_WINDOW = false;
   static const bool DISPLAY_CONTROLS = true;
   static const bool DISPLAY_ALL_CONTROLS = true;
-  static const bool DISPLAY_UNDO_STACK = false;
+  static const bool DISPLAY_UNDO_HISTORY = false;
   static const bool DISPLAY_ZOOM_TOOLBAR = true;
   static const bool DISPLAY_MENU_BAR = true;
   static const bool STICKY_VERTICES = true;
