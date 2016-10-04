@@ -77,7 +77,7 @@ public:
   static const bool DISPLAY_OUTPUT_WINDOW = false;
   static const bool DISPLAY_CONTROLS = true;
   static const bool DISPLAY_ALL_CONTROLS = true;
-  static const bool DISPLAY_UNDO_STACK = false;
+  static const bool DISPLAY_UNDO_HISTORY = false;
   static const bool DISPLAY_ZOOM_TOOLBAR = true;
   static const bool DISPLAY_MENU_BAR = true;
   static const bool STICKY_VERTICES = true;
@@ -124,7 +124,6 @@ public:
   static const int MESH_SUBDIVISION_MAX_DEPTH_EDITING = 4;
   static const int MESH_SUBDIVISION_MAX_DEPTH         = (-1);
   static const int ELLIPSE_N_TRIANGLES = 100; // n triangles used to draw an ellipse
-  static const int VERTEX_MOVES_STEP = 25;
 
   // Enumerations
   enum ItemColumn {
@@ -137,6 +136,13 @@ public:
     Classic,
     PAL,
     NTSC
+  };
+
+  // Enumaration of vertex's differents moving step
+  enum VertexMoveStep {
+    SmallStep = 1,
+    MediumStep = 2,
+    BigStep = 20
   };
 };
 

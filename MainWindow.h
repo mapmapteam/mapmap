@@ -142,6 +142,8 @@ private slots:
   // Some help links
   void documentation() { QDesktopServices::openUrl(
           QUrl("http://mapmap.info/tiki-index.php?page=Documentation#section-documentation")); }
+  // Send us feedback
+  void sendFeedback() { QDesktopServices::openUrl(QUrl("mailto:mapmap-list@mapmap.info")); }
   // Technical support
   void technicalSupport() { QDesktopServices::openUrl(
           QUrl("http://mapmap.info/tiki-index.php?page=HomePage#section-support")); }
@@ -236,7 +238,7 @@ public slots:
   void enableDisplayControls(bool display);
   void enableDisplayPaintControls(bool display);
   void enableStickyVertices(bool display);
-  void displayUndoStack(bool display);
+  void displayUndoHistory(bool display);
 
   // Show Mapping Context Menu
   void showMappingContextMenu(const QPoint &point);
@@ -393,7 +395,7 @@ private:
   QAction *displayPaintControlsAction;
   QAction *displayTestSignalAction;
   QAction *stickyVerticesAction;
-  QAction *displayUndoStackAction;
+  QAction *displayUndoHistoryAction;
   QAction *displayZoomToolAction;
   QAction *openConsoleAction;
   QAction *showMenuBarAction;
@@ -413,6 +415,7 @@ private:
   QAction *bugReportAction;
   QAction *supportAction;
   QAction *docAction;
+  QAction *feedbackAction;
 
   // Screen output action
   QList<QAction *> screenActions;
@@ -517,7 +520,7 @@ private:
   // Labels for status bar
   QLabel *destinationZoomLabel;
   QLabel *sourceZoomLabel;
-  QLabel *undoLabel;
+  QLabel *lastActionLabel;
   QLabel *currentMessageLabel;
   QLabel *mousePosLabel;
   QLabel *trueFramesPerSecondsLabel;

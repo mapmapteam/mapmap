@@ -119,7 +119,7 @@ void MapperGLCanvasToolbar::showZoomToolBar(bool visible)
 
 void MapperGLCanvasToolbar::enableZoomToolBar(bool enabled)
 {
-  foreach (QPushButton *button, findChildren<QPushButton *>()) {
+  for (QPushButton *button: findChildren<QPushButton *>()) {
     button->setEnabled(enabled);
   }
   _dropdownMenu->setEnabled(enabled);

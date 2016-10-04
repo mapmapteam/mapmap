@@ -46,9 +46,11 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
     break;
   case Qt::SizeHintRole:
     if (index.column() == MM::HideColumn)
-      return QSize(20, 40);
+      return QSize(24, 40);
     if (index.column() == MM::IconAndNameColum)
-      return QSize(140, 40);
+      return QSize(135, 40);
+    if (index.column() == MM::GroupButtonColum)
+      return QSize(128, 40);
     break;
   case Qt::CheckStateRole + 1:
     return mappingList.at(index.row()).isSolo ? Qt::Checked : Qt::Unchecked;
@@ -109,7 +111,7 @@ QMimeData *MappingListModel::mimeData(const QModelIndexList &indexes) const
   QByteArray encodeData;
   QDataStream stream(&encodeData, QIODevice::WriteOnly);
 
-  foreach (QModelIndex index, indexes) {
+  for (QModelIndex index: indexes) {
     if (index.isValid()) {
       if (index.column() == MM::HideColumn) {
         int id = data(index, Qt::UserRole).toInt();

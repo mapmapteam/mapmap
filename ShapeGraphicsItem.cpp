@@ -415,7 +415,7 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
         }
 
         // Draw all the cached items.
-        foreach (CacheQuadMapping m, item.subQuads)
+        for (CacheQuadMapping m: item.subQuads)
         {
           glBegin(GL_QUADS);
           for (int i = 0; i < outputQuad->nVertices(); i++)

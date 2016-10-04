@@ -132,7 +132,7 @@ void PreferenceDialog::applySettings()
   // Show screen resolution on output
   settings.setValue("showResolution", _showResolutionBox->isChecked());
   // Set preferred test signal pattern
-  foreach (QRadioButton *radio, _radioGroup) {
+  for (QRadioButton *radio: _radioGroup) {
     if (radio->isChecked()) {
       settings.setValue("signalTestCard", _radioGroup.indexOf(radio));
       break;
@@ -146,7 +146,7 @@ void PreferenceDialog::applySettings()
 
 void PreferenceDialog::refreshCurrentIP()
 {
-  foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
+  for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
     if (address.protocol() == QAbstractSocket::IPv4Protocol
         && address != QHostAddress(QHostAddress::LocalHost)) {
       _machineAddressLabel->setText(address.toString());
