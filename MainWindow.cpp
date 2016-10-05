@@ -2464,11 +2464,6 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
   QSharedPointer<Video> media = qSharedPointerCast<Video>(mappingManager->getPaintById(mediaId));
   Q_CHECK_PTR(media);
 
-  if (isPlaying())
-    media->play();
-  else
-    media->pause();
-
   media->setPosition((sourceCanvas->width()  - media->getWidth() ) / 2.0f,
                      (sourceCanvas->height() - media->getHeight()) / 2.0f );
 
@@ -2499,12 +2494,6 @@ bool MainWindow::addColorPaint(const QColor& color)
   // Initialize position (center).
   QSharedPointer<Color> colorPaint = qSharedPointerCast<Color>(mappingManager->getPaintById(colorId));
   Q_CHECK_PTR(colorPaint);
-
-  // Does not do anything...
-  if (isPlaying())
-    colorPaint->play();
-  else
-    colorPaint->pause();
 
   QApplication::restoreOverrideCursor();
 
