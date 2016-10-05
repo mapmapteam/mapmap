@@ -174,8 +174,8 @@ QVector<Mapping::ptr> MappingManager::getVisibleMappings() const
           it != mappingVector.end(); ++it)
   {
     // Solo has priority over invisible (mute)
-    if ( (hasSolo && (*it)->isSolo() && (*it)->isVisible()) ||
-            (! hasSolo && (*it)->isVisible()) )
+    if ( (hasSolo && (*it)->isSolo()) ||
+         (! hasSolo && (*it)->isVisible()) )
     {
       visible.push_back(*it);
     }
