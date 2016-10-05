@@ -189,7 +189,7 @@ public:
     // point. We will do it later.
     gst_bin_add_many (GST_BIN (_pipeline),
         _queue0, _videoconvert0, videoscale0, capsfilter0, _appsink0,
-        //    _audioqueue0, _audioconvert0, _audioresample0, _audiovolume0, _audiosink0,
+        _audioqueue0, _audioconvert0, _audioresample0, _audiovolume0, _audiosink0,
         NULL);
     // special case for shmsrc
     // link uridecodebin -> queue will be performed by callback
@@ -201,25 +201,30 @@ public:
       return false;
     }
 
-    //  if (! gst_element_link_many (_audioqueue0, _audioconvert0, _audioresample0,
-    //        _audiovolume0, _audiosink0, NULL))
-    //  {
-    //    g_printerr ("Could not link audio queue, converter, resampler and audio sink.\n");
-    //    unloadMovie();
-    //    return false;
-    //  }
+    if (! gst_element_link_many (_audioqueue0, _audioconvert0, _audioresample0,
+                                 _audiovolume0, _audiosink0, NULL))
+    {
+      g_printerr ("Could not link audio queue, converter, resampler and audio sink.\n");
+      unloadMovie();
+      return false;
+    }
+    
     // Configure audio appsink.
     // TODO: change from mono to stereo
     //  gchar* audioCapsText = g_strdup_printf ("audio/x-raw-float,channels=1,rate=%d,signed=(boolean)true,width=%d,depth=%d,endianness=BYTE_ORDER",
     //                                          Engine::signalInfo().sampleRate(), (int)(sizeof(Signal_T)*8), (int)(sizeof(Signal_T)*8) );
-    //  GstCaps* audioCaps = gst_caps_from_string (audioCapsText);
-    //  g_object_set (_audioSink, "emit-signals", TRUE,
-    //                            "caps", audioCaps,
-    ////                            "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
-    ////                            "drop", TRUE,         // ... other buffers are dropped
-    //                            NULL);
-    //  g_signal_connect (_audioSink, "new-buffer", G_CALLBACK (VideoImpl::gstNewAudioBufferCallback), &_newAudioBufferHandlerData);
-    //  gst_caps_unref (audioCaps);
+    //GstCaps* audioCaps = gst_caps_from_string (audioCapsText);
+    /*
+    GstCaps* audioCaps = gst_caps_from_string ("audio/xraw-float");
+    g_object_set (_audioSink, "emit-signals", TRUE,
+                              "caps", audioCaps,
+                              "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
+                              "drop", TRUE,         // ... other buffers are dropped
+                              "sync", TRUE,
+                              NULL);
+    g_signal_connect (_audioSink, "new-buffer", G_CALLBACK (VideoImpl::gstNewAudioBufferCallback), this);
+    gst_caps_unref (audioCaps);
+    */
     //  g_free (audioCapsText);
 
 
@@ -236,10 +241,8 @@ public:
     g_signal_connect (_appsink0, "new-sample", G_CALLBACK (VideoImpl::gstNewSampleCallback), this);
     gst_caps_unref (videoCaps);
 
-
-    //  g_object_set (_audiovolume0, "mute", false, NULL);
-    //  g_object_set (_audiovolume0, "volume", 0.0, NULL);
-
+    setVolume(0);
+    
     // Listen to the bus.
     _bus = gst_element_get_bus (_pipeline);
 

@@ -99,7 +99,8 @@ void VideoImpl::setVolume(double volume)
     _volume = volume;
 
     // Set volume element property
-    //g_object_set (_audiovolume0, "volume", _volume, NULL);
+    g_object_set (_audiovolume0, "mute", (_volume <= 0), NULL);
+    g_object_set (_audiovolume0, "volume", _volume, NULL);
   }
 }
 
