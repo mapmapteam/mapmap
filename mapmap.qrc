@@ -35,10 +35,12 @@
         <file alias="visible-mapping">resources/images/icons/small/visible_w.png</file>
         <file alias="duplicate-mapping">resources/images/icons/small/duplicate_w.png</file>
         <file alias="solo-mapping">resources/images/icons/small/solo.png</file>
-
         <file alias="stylesheet">resources/qss/mapmap.qss</file>
         <file alias="console-font">resources/fonts/Hack-Regular.otf</file>
-
-        <file alias="translation-fr">resources/texts/mapmap_fr.qm</file>
+        <file alias="preferences">resources/images/menu/preferences.png</file>
+        <file alias="pal-test-card">resources/images/test-signal/pal-test-signal.svg</file>
+        <file alias="classic-test">resources/images/test-signal/examples/classic-test-card.png</file>
+        <file alias="pal-test">resources/images/test-signal/examples/pal-test-card.png</file>
+        <file alias="ntsc-test">resources/images/test-signal/examples/ntsc-test-card.png</file>
     </qresource>
 </RCC>

@@ -2,6 +2,7 @@
  * ShapeGraphicsItem.h
  *
  * (c) 2015 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2016 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -136,6 +137,21 @@ public:
 protected:
   virtual void _doPaint(QPainter *painter,
                         const QStyleOptionGraphicsItem *option);
+};
+
+/**
+ * Graphics item for textured color.
+ */
+class MeshColorGraphicsItem : public PolygonColorGraphicsItem
+{
+public:
+  MeshColorGraphicsItem(Mapping::ptr mapping, bool output=true);
+  virtual ~MeshColorGraphicsItem(){}
+
+protected:
+  virtual void _doPaint(QPainter *painter,
+                        const QStyleOptionGraphicsItem *option);
+
 };
 
 /// Graphics item for colored polygons (eg. quad, triangle).

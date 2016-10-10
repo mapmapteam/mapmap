@@ -2,6 +2,7 @@
  * MM.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2015 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,23 +59,42 @@ public:
   static const QString VIDEO_FILES_FILTER;
   static const QString IMAGE_FILES_FILTER;
   static const QString NAMESPACE_PREFIX;
+  static const QString SUPPORTED_LANGUAGES;
 
   // GUI.
   static const int DEFAULT_WINDOW_WIDTH = 640;
   static const int DEFAULT_WINDOW_HEIGHT = 480;
-  static const int TOP_TOOLBAR_ICON_SIZE = 48;
-  static const int BOTTOM_TOOLBAR_ICON_SIZE = 32;
+  static const int TOOLBAR_ICON_SIZE = 48;
   static const int ZOOM_TOOLBAR_ICON_SIZE = 22;
   static const int ZOOM_TOOLBAR_BUTTON_SIZE = 32;
   static const int MAPPING_LIST_ICON_SIZE = 16;
+
+  // OSC
+  static const int DEFAULT_OSC_PORT = 12345;
+
+  // Default values
+  static const bool DISPLAY_TEST_SIGNAL = false;
+  static const bool DISPLAY_OUTPUT_WINDOW = false;
+  static const bool DISPLAY_CONTROLS = true;
+  static const bool DISPLAY_ALL_CONTROLS = true;
+  static const bool DISPLAY_UNDO_HISTORY = false;
+  static const bool DISPLAY_ZOOM_TOOLBAR = true;
+  static const bool DISPLAY_MENU_BAR = true;
+  static const bool STICKY_VERTICES = true;
+  static const int DEFAULT_TEST_CARD = 0;
+  static const bool SHOW_OUTPUT_RESOLUTION = true;
+  static const QString DEFAULT_LANGUAGE;
 
   // Style.
   static const QColor WHITE;
   static const QColor BLUE_GRAY;
   static const QColor DARK_GRAY;
   static const QColor DARK_BLUE;
+  static const QColor LIGHT_RED;
+  static const QColor DARK_RED;
 
   static const QColor CONTROL_COLOR;
+  static const QColor CONTROL_COLOR_NON_SELECTED;
   static const QColor CONTROL_LOCKED_COLOR;
   static const QBrush VERTEX_BACKGROUND;
   static const QBrush VERTEX_SELECTED_BACKGROUND;
@@ -92,7 +112,7 @@ public:
   static const qreal VERTEX_SELECT_STROKE_WIDTH;
 
   // Time.
-  static const qreal FRAMES_PER_SECOND;
+  static const qreal DEFAULT_FRAMES_PER_SECOND;
 
   // Zoom.
   static const qreal ZOOM_FACTOR;
@@ -104,13 +124,25 @@ public:
   static const int MESH_SUBDIVISION_MAX_DEPTH_EDITING = 4;
   static const int MESH_SUBDIVISION_MAX_DEPTH         = (-1);
   static const int ELLIPSE_N_TRIANGLES = 100; // n triangles used to draw an ellipse
-  static const int VERTEX_MOVES_STEP = 25;
 
   // Enumerations
   enum ItemColumn {
     HideColumn,
     IconAndNameColum,
     GroupButtonColum
+  };
+
+  enum TestCard {
+    Classic,
+    PAL,
+    NTSC
+  };
+
+  // Enumaration of vertex's differents moving step
+  enum VertexMoveStep {
+    SmallStep = 1,
+    MediumStep = 2,
+    BigStep = 20
   };
 };
 

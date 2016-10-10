@@ -27,6 +27,7 @@
 #include <QMimeData>
 
 #include "MM.h"
+#include "Mapping.h"
 
 MM_BEGIN_NAMESPACE
 
@@ -55,7 +56,7 @@ public:
   bool setData(const QModelIndex &index, const QVariant &value, int role) Q_DECL_OVERRIDE;
 
   void removeItem(int index);
-  void addItem(const QIcon &icon, const QString &name, int id);
+  void addItem(Mapping::ptr mapping, const QIcon &icon, const QString &label);
 
   void updateModel();
   void clear();
@@ -69,7 +70,7 @@ private:
   struct MappingItem {
     int id;
     QIcon icon;
-    QString name;
+    QString label;
     bool isLocked;
     bool isVisible;
     bool isSolo;

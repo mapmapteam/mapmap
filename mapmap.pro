@@ -3,8 +3,11 @@ TEMPLATE = app
 # Always use major.minor.micro version number format
 VERSION = 0.4.1
 TARGET = mapmap
-QT += gui opengl xml core
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets core
+QT += gui opengl xml core network
+greaterThan(QT_MAJOR_VERSION, 4) {
+  QT -= gui # using widgets instead gui in Qt5
+  QT += widgets multimedia
+}
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
 HEADERS  = \
@@ -33,7 +36,7 @@ HEADERS  = \
     Paint.h \
     PaintGui.h \
     Polygon.h \
-    PreferencesDialog.h \
+    PreferenceDialog.h \
     ProjectLabels.h \
     ProjectReader.h \
     ProjectWriter.h \
@@ -46,7 +49,10 @@ HEADERS  = \
     Triangle.h \
     UidAllocator.h \
     Util.h \
-    VideoImpl.h
+    VideoImpl.h \
+    VideoUriDecodeBinImpl.h \
+    VideoV4l2SrcImpl.h \
+    VideoShmSrcImpl.h \
 
 SOURCES  = \
     Commands.cpp \
@@ -72,7 +78,7 @@ SOURCES  = \
     Paint.cpp \
     PaintGui.cpp \
     Polygon.cpp \
-    PreferencesDialog.cpp \
+    PreferenceDialog.cpp \
     ProjectLabels.cpp \
     ProjectReader.cpp \
     ProjectWriter.cpp \
@@ -83,14 +89,20 @@ SOURCES  = \
     UidAllocator.cpp \
     Util.cpp \
     VideoImpl.cpp \
-    main.cpp \
+    VideoUriDecodeBinImpl.cpp \
+    VideoV4l2SrcImpl.cpp \
+    VideoShmSrcImpl.cpp \
+    main.cpp
 
 
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
 include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
 
-TRANSLATIONS = resources/texts/mapmap_fr.ts
-RESOURCES = mapmap.qrc
+TRANSLATIONS = \
+    translations/mapmap_en.ts \
+    translations/mapmap_fr.ts
+RESOURCES = mapmap.qrc \
+    translations/translation.qrc
 
 # Manage lrelease (for translations)
 isEmpty(QMAKE_LRELEASE) {
@@ -103,7 +115,7 @@ updateqm.commands = $$QMAKE_LRELEASE ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${Q
 updateqm.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += updateqm
 PRE_TARGETDEPS += compiler_updateqm_make_all
-system(lrelease mapmap.pro) # Run lrelease
+system($$QMAKE_LRELEASE mapmap.pro) # Run lrelease
 
 # Add the docs target:
 docs.depends = $(HEADERS) $(SOURCES)
@@ -114,11 +126,11 @@ QMAKE_EXTRA_TARGETS += docs
 unix:!mac {
   DEFINES += UNIX
   CONFIG += link_pkgconfig
-  INCLUDE_PATH += 
+  INCLUDE_PATH +=
   PKGCONFIG += \
     gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-pbutils-1.0 \
     liblo \
-    gl x11 
+    gl x11
   QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-result -Wno-unused-parameter \
                             -Wno-unused-variable -Wno-switch -Wno-comment \
                             -Wno-unused-but-set-variable
@@ -132,7 +144,7 @@ unix:!mac {
   iconfile.files = resources/images/logo/mapmap.svg
   iconfile.path = /usr/share/icons/hicolor/scalable/apps
   INSTALLS += iconfile
-  mimetypesfile.files = resources/texts/mapmap.xml 
+  mimetypesfile.files = resources/texts/mapmap.xml
   mimetypesfile.path = /usr/share/mime/packages
   INSTALLS += mimetypesfile
 
@@ -145,7 +157,7 @@ unix:!mac {
 # updatemimeappdefault.commands='grep mapmap.desktop /usr/share/applications/defaults.list >/dev/null|| sudo echo "application/mapmap=mapmap.desktop;" >> /usr/share/applications/defaults.list'
 # INSTALLS += updatemimeappdefault
 # -------------------------
-  
+
   # Add the docs target:
   docs.depends = $(HEADERS) $(SOURCES)
   docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
@@ -180,10 +192,14 @@ mac {
 win32 {
   DEFINES += WIN32
   TARGET = Mapmap
-  GST_HOME = $$quote(C:\gstreamer\1.0\x86)
+  GST_HOME = $$quote($$(GSTREAMER_1_0_ROOT_X86))
   isEmpty(GST_HOME) {
-    message(\"C:\gstreamer\1.0\x86\" not detected ...)
+    message(\"GSTREAMER_1_0_ROOT_X86\" not detected ...)
   }
+  else {
+    message(\"GSTREAMER_1_0_ROOT_X86\" detected in \"$${GST_HOME}\")
+  }
+#  DESTDIR = ../../Mapmap # Just for packaging
 
   INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \
     $${GST_HOME}/include/glib-2.0 \
@@ -198,8 +214,9 @@ win32 {
     $${GST_HOME}/lib/glib-2.0.lib \
     -lopengl32
 
-  RC_FILE = mapmap_resource.rc
+  CONFIG += release
 
+  RC_FILE = mapmap_resource.rc
   QMAKE_CXXFLAGS += -D_USE_MATH_DEFINES
 }
 

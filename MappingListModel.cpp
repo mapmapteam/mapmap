@@ -39,16 +39,18 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
 {
   if (!index.isValid())
     return QVariant();
-  
+
   switch (role) {
   case Qt::CheckStateRole:
     return mappingList.at(index.row()).isVisible ? Qt::Checked : Qt::Unchecked;
     break;
   case Qt::SizeHintRole:
     if (index.column() == MM::HideColumn)
-      return QSize(20, 40);
+      return QSize(24, 40);
     if (index.column() == MM::IconAndNameColum)
-      return QSize(140, 40);
+      return QSize(135, 40);
+    if (index.column() == MM::GroupButtonColum)
+      return QSize(128, 40);
     break;
   case Qt::CheckStateRole + 1:
     return mappingList.at(index.row()).isSolo ? Qt::Checked : Qt::Unchecked;
@@ -60,10 +62,10 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
     return QVariant(mappingList.at(index.row()).id);
     break;
   case Qt::EditRole:
-    return QVariant(mappingList.at(index.row()).name);
+    return QVariant(mappingList.at(index.row()).label);
     break;
   case Qt::DisplayRole:
-    return QVariant(mappingList.at(index.row()).name);
+    return QVariant(mappingList.at(index.row()).label);
     break;
   case Qt::DecorationRole:
     return mappingList.at(index.row()).icon;
@@ -109,7 +111,7 @@ QMimeData *MappingListModel::mimeData(const QModelIndexList &indexes) const
   QByteArray encodeData;
   QDataStream stream(&encodeData, QIODevice::WriteOnly);
 
-  foreach (QModelIndex index, indexes) {
+  for (QModelIndex index: indexes) {
     if (index.isValid()) {
       if (index.column() == MM::HideColumn) {
         int id = data(index, Qt::UserRole).toInt();
@@ -193,8 +195,8 @@ bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, 
   }
 
   if (role == Qt::EditRole && index.column() == MM::IconAndNameColum) {
-    if (mappingList[index.row()].name != value.toString()) {
-      mappingList[index.row()].name = value.toString();
+    if (mappingList[index.row()].label != value.toString()) {
+      mappingList[index.row()].label = value.toString();
       emit dataChanged(index, index);
       return true;
     }
@@ -205,20 +207,20 @@ bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, 
 
 void MappingListModel::removeItem(int index)
 {
-  QList<MappingItem>::iterator it = mappingList.begin();
+  auto it = mappingList.begin();
   mappingList.erase(it + index);
 }
 
-void MappingListModel::addItem(const QIcon &icon, const QString &name, int id)
+void MappingListModel::addItem(Mapping::ptr mapping, const QIcon &icon, const QString &label)
 {
   MappingItem item;
 
+  item.id = mapping->getId();
   item.icon = icon;
-  item.name = name;
-  item.isVisible = true;
-  item.isLocked = false;
-  item.isSolo = false;
-  item.id = id;
+  item.label = label;
+  item.isVisible = mapping->isVisible();
+  item.isLocked = mapping->isLocked();
+  item.isSolo = mapping->isSolo();
   mappingList.insert(0, item);
 }
 
@@ -230,8 +232,7 @@ void MappingListModel::updateModel()
 
 void MappingListModel::clear()
 {
-  for (QList<MappingItem>::iterator it = mappingList.end() - 1;
-       it >= mappingList.begin(); --it) {
+  for (auto it = mappingList.end() - 1; it >= mappingList.begin(); --it) {
     mappingList.erase(it);
     updateModel();
   }

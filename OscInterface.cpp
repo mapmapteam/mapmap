@@ -222,17 +222,42 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
       iterator = next(iterator.second);
       if (iterator.first == OSC_PAINT)
       {
-        // Find paint.
-        int id = command.at(2).toInt();
-        Paint::ptr elem = main_window.getMappingManager().getPaintById(id);
-        pathIsValid = setElementProperty(elem, next(iterator.second).first, command.at(3));
+        // Find paint (or paints).
+        QVector<Paint::ptr> paints;
+        if (command.at(2).type() == QVariant::String)
+          paints = main_window.getMappingManager().getPaintsByNameRegExp(command.at(2).toString());
+        else
+        {
+          int id = command.at(2).toInt();
+          paints.push_back(main_window.getMappingManager().getPaintById(id));
+        }
+        // Process all paints.
+        iterator = next(iterator.second);
+        for (Paint::ptr elem: paints)
+        {
+          if (iterator.first == OSC_REWIND)
+            elem->rewind();
+          else
+            pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
+        }
       }
       else if (iterator.first == OSC_MAPPING)
       {
-        // Find mapping.
-        int id = command.at(2).toInt();
-        Mapping::ptr elem = main_window.getMappingManager().getMappingById(id);
-        pathIsValid = setElementProperty(elem, next(iterator.second).first, command.at(3));
+        // Find mapping (or mappings).
+        QVector<Mapping::ptr> mappings;
+        if (command.at(2).type() == QVariant::String)
+          mappings = main_window.getMappingManager().getMappingsByNameRegExp(command.at(2).toString());
+        else
+        {
+          int id = command.at(2).toInt();
+          mappings.push_back(main_window.getMappingManager().getMappingById(id));
+        }
+        // Process all mappings.
+        iterator = next(iterator.second);
+        for (Mapping::ptr elem: mappings)
+        {
+          pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
+        }
       }
       else if (iterator.first == OSC_PLAY)
       {

@@ -81,6 +81,12 @@ public:
   /// Returns paint with given uid.
   Paint::ptr getPaintById(uid id) { return paintMap[id]; }
 
+  /// Returns mapping with given name (first match).
+  Paint::ptr getPaintByName(QString name);
+
+  /// Returns all mappings with given regexp.
+  QVector<Paint::ptr> getPaintsByNameRegExp(QString namePattern);
+
   /// Adds a mapping and returns its uid.
   uid addMapping(Mapping::ptr mapping);
 
@@ -99,6 +105,12 @@ public:
   /// Returns mapping with given uid.
   Mapping::ptr getMappingById(uid id) { return mappingMap[id]; }
 
+  /// Returns mapping with given name (first match).
+  Mapping::ptr getMappingByName(QString name);
+
+  /// Returns all mappings with given regexp.
+  QVector<Mapping::ptr> getMappingsByNameRegExp(QString namePattern);
+
   /// Reorders the mappings according to given list of uids. QVector needs to
   void reorderMappings(QVector<uid> mappingIds);
 
@@ -108,7 +120,40 @@ public:
   /// Returns true iff the mapping is visible.
   bool mappingIsVisible(Mapping::ptr mapping) const;
 
+  /// Returns the list of visible paints (ie. paints for which at least one mapping is visible).
+  QVector<Paint::ptr> getVisiblePaints() const;
+
   void clearAll();
+
+private:
+  template<class T>
+  QSharedPointer<T> _getElementByName(const QVector<QSharedPointer<T> >& vector, QString name)
+  {
+    for (QSharedPointer<T> it: vector)
+    {
+      if (it->getName() == name)
+      {
+        return it;
+      }
+    }
+    // Nothing found.
+    return QSharedPointer<T>();
+  }
+
+  template<class T>
+  QVector<QSharedPointer<T> > _getElementsByNameRegExp(const QVector<QSharedPointer<T> >& vector, QString namePattern)
+  {
+    QVector<QSharedPointer<T> > matchedElems;
+    QRegExp regExp(namePattern, Qt::CaseSensitive, QRegExp::Wildcard);
+    for (QSharedPointer<T> it: vector)
+    {
+      if (regExp.exactMatch(it->getName()))
+      {
+        matchedElems.push_back(it);
+      }
+    }
+    return matchedElems;
+  }
 };
 
 MM_END_NAMESPACE
