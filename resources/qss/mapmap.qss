@@ -5,38 +5,58 @@ Dark gray: #323541 (darker: #00020E lighter: #4C4F5B)
 Darker gray: #272a36
 */
 
-QMainWindow
-{
-/*  background-color: #f6f5f5;*/
+/*Windows and dialog background*/
+QMainWindow, QDialog, QToolTip {
   background-color: #272a36;
-  border-radius: 10px;
 }
 
-/*QToolButton {
+/*General font color*/
+QFrame, QLabel,
+QToolTip, QMenu,
+QCheckBox, QGroupBox::title {
   color: #f6f5f5;
 }
-*/
 
+QTextBrowser {
+  background: #323541;
+  border: none;
+  padding: 10px;
+}
+
+/*Standard button*/
+QPushButton {
+  min-height: 20px;
+  padding: 5px 32px;
+  border-radius: 2px;
+  color: #f6f5f5;
+  background-color: #323541;
+  border: 1px solid #4C4F5B;
+}
+
+QPushButton:pressed,
+QPushButton::hover,
+QPushButton::checked {
+  background-color: #272a36;
+}
+
+/*Tool buttons*/
 QToolButton::hover, QToolButton::checked {
   background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
-                                      stop: 0 #0c0927, stop: 1 #00020E);
+                                    stop: 0 #0c0927, stop: 1 #00020E);
   border-radius: 10px;
 }
 
 QToolButton::checked:hover {
   background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
-                                      stop: 0 #0c0927, stop: 1 #191C28);
+                                    stop: 0 #0c0927, stop: 1 #191C28);
   border-radius: 10px;
 }
 
 QToolBar::separator:horizontal {
-/*  background-color: #272a36;
-  width: 3px;
-  color: #f6f5f5;
-/*  image: url(:/separator); */
   width: 64;
 }
 
+/*List item*/
 QListView, QTableView {
   background-color: #323541;
   border: 1px solid #323541;
@@ -54,16 +74,19 @@ QListView::item:selected {
   background: #272a36;
 }
 
+/*Supress border style on GraphicsView and Plaintext*/
 QGraphicsView,
 QPlainTextEdit {
   border-style: none;
 }
 
+/*Zoom toolbar button begin*/
 QPushButton#zoom-in,
 QPushButton#zoom-out,
 QPushButton#reset-zoom,
 QPushButton#zoom-fit {
     background-color: rgba(0, 0, 0, 0%);
+    border: none;
 }
 
 QPushButton:hover#zoom-in, QPushButton:checked#zoom-in,
@@ -71,8 +94,8 @@ QPushButton:hover#zoom-out, QPushButton:checked#zoom-out,
 QPushButton:hover#reset-zoom, QPushButton:checked#reset-zoom,
 QPushButton:hover#zoom-fit, QPushButton:checked#zoom-fit {
     background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
-                                    stop: 0 #0c0927, stop: 1 #191C28);
-    border-radius: 2px;
+                                      stop: 0 #0c0927, stop: 1 #191C28);
+    border-radius: 3px;
     border: none;
 }
 
@@ -86,33 +109,198 @@ QPushButton:pressed#zoom-fit {
 QWidget#zoom-toolbox {
     background-color: #272a36;
 }
+/*Zoom toolbar button end*/
 
+/*Tab Widget*/
 QTabWidget::pane {
-    border: 1px solid #FFF;
+    border: 1px solid #4C4F5B;
 }
 
 QTabWidget::tab-bar {
-    bottom: 0px;
+  bottom: 0px;
 }
 
-QStatusBar {
-    background: #FFF;
+QTabBar::tab {
+  background: #323541;
+  color: #f6f5f5;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  border: 1px solid #272a36;
+  border-bottom: 0px;
+  padding: 5px 4px;
 }
 
-QStatusBar::item {
-    border: 0px solid black;
+QTabBar::tab:selected {
+  background: #272a36;
+  border: 1px solid #4C4F5B;
+  border-bottom: 0px;
 }
 
+QTabBar::tab:hover {
+  background: #272a36;
+}
+
+/*Splitters*/
 QSplitter::handle:horizontal {
     width: 5px;
-    background-color: #323541;
+    background: #323541;
 }
 
 QSplitter::handle:vertical {
     height: 5px;
-    background-color: #323541;
+    background: #323541;
 }
 
 QComboBox QAbstractItemView {
-    background: #FFF;
+    background: #323541;
+    border: 1px solid #4C4F5B;
+    selection-background-color: lightgray;
+}
+
+/*Menu */
+QMenu {
+  background: #323541;
+}
+
+QMenu::item:disabled {
+  color: #4C4F5B;
+}
+
+QMenu::item:selected {
+  background: #272a36;
+}
+
+QMenu::separator {
+    height: 15px;
+    background: #323541;
+}
+
+QMenu::indicator {
+/*  width: 16px;*/
+/*  height: 16px;*/
+}
+
+/* non-exclusive indicator = check box style indicator (see QActionGroup::setExclusive) */
+QMenu::indicator:non-exclusive:unchecked {
+/*    image: url(:/resources/images/checkbox/checkbox-unchecked.png);*/
+}
+
+QMenu::indicator:non-exclusive:unchecked:selected {
+/*    image: url(:/resources/images/checkbox/checkbox-unchecked-focused.svg);*/
+}
+
+QMenu::indicator:non-exclusive:checked {
+/*    image: url(:/resources/images/checkbox/checkbox-checked.png);*/
+}
+
+QMenu::indicator:non-exclusive:checked:selected {
+/*    image: url(:/resources/images/checkbox/checkbox-checked-focused.png);*/
+}
+
+/* exclusive indicator = radio button style indicator (see QActionGroup::setExclusive) */
+QMenu::indicator:exclusive:unchecked {
+/*    image: url(:/);*/
+}
+
+QMenu::indicator:exclusive:unchecked:selected {
+/*    image: url(:/);*/
+}
+
+QMenu::indicator:exclusive:checked {
+/*    image: url(:/);*/
+}
+
+QMenu::indicator:exclusive:checked:selected {
+/*    image: url(:/);*/
+}
+
+/*Menubar*/
+QMenuBar {
+  background: #323541;
+}
+
+QMenuBar::item {
+    padding: 3px 6px;
+    background: transparent;
+    color: #f6f5f5;
+}
+
+QMenuBar::item:selected,
+QMenuBar::item:pressed {
+  background: #272a36;
+}
+
+/*Statut bar*/
+QStatusBar {
+  background: #323541;
+  color: #f6f5f5;
+}
+
+QStatusBar::item {
+    border: 0px;
+}
+
+/*Check boxes*/
+QCheckBox {
+    spacing: 5px;
+    color:
+}
+
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+}
+
+QCheckBox::indicator:unchecked {
+    image: url(:/resources/images/checkbox/checkbox-unchecked.png);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(:/resources/images/checkbox/checkbox-unchecked-focused.png);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(:/resources/images/checkbox/checkbox-unchecked-focused.png);
+}
+
+QCheckBox::indicator:checked {
+    image: url(:/resources/images/checkbox/checkbox-checked.png);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(:/resources/images/checkbox/checkbox-checked-focused.png);
+}
+
+QCheckBox::indicator:checked:pressed {
+    image: url(:/resources/images/checkbox/checkbox-checked-focused.png);
+}
+
+QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
+}
+
+QRadioButton::indicator::unchecked {
+/*    image: url(:/);*/
+    color: #f6f5f5;
+}
+
+QRadioButton::indicator:unchecked:hover {
+/*    image: url(:/);*/
+}
+
+QRadioButton::indicator:unchecked:pressed {
+/*    image: url(:/);*/
+}
+
+QRadioButton::indicator::checked {
+/*    image: url(:/);*/
+}
+
+QRadioButton::indicator:checked:hover {
+/*    image: url(:/);*/
+}
+
+QRadioButton::indicator:checked:pressed {
+/*    image: url(:/);*/
 }
