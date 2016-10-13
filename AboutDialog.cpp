@@ -26,7 +26,8 @@ MM_BEGIN_NAMESPACE
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 {
   // Defines fixed size
-  setFixedSize(ABOUT_WINDOW_WIDTH, ABOUT_WINDOW_HEIGHT);
+  resize(ABOUT_WINDOW_WIDTH, ABOUT_WINDOW_HEIGHT);
+  setMinimumSize(ABOUT_WINDOW_WIDTH, ABOUT_WINDOW_HEIGHT);
 
   // Set title
   setWindowTitle(tr("About %1").arg(MM::APPLICATION_NAME));
@@ -36,26 +37,27 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 
   // Set icon label
   _iconLabel = new QLabel;
-  _iconLabel->setPixmap(QPixmap(":/mapmap-logo").scaled(64, 64));
-  _mainLayout->addWidget(_iconLabel, 0, 0, 1, 1, Qt::AlignCenter);
+  _iconLabel->setPixmap(QPixmap(":/mapmap-logo").scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+  _iconLabel->setContentsMargins(0, 20, 0, 20);
+  _mainLayout->addWidget(_iconLabel, 0, 0, 1, 1, Qt::AlignRight);
   // Set title label
   _textLabel = new QLabel;
-  _textLabel->setPixmap(QPixmap(":/mapmap-title"));
-  _mainLayout->addWidget(_textLabel, 0, 1, 1, 1);
+  _textLabel->setPixmap(QPixmap(":/mapmap-title-light").scaled(200, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+  _mainLayout->addWidget(_textLabel, 0, 2);
   // Set version label
   _versionLabel = new QLabel;
   _versionLabel->setText(QString("<h2> %1 </h2>").arg(MM::VERSION));
-  _versionLabel->setContentsMargins(7, 0, 0, 7);
-  _mainLayout->addWidget(_versionLabel, 0, 2, 1, 1, Qt::AlignBottom);
+  _versionLabel->setContentsMargins(7, 20, 0, 0);
+  _mainLayout->addWidget(_versionLabel, 0, 3);
 
   // Add tab widget
   _tabWidget = new QTabWidget;
-  _mainLayout->addWidget(_tabWidget, 1, 0, 1, 3);
+  _mainLayout->addWidget(_tabWidget, 1, 0, 1, 4);
 
   // Close button
   _buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
   connect(_buttonBox, SIGNAL(rejected()), this, SLOT(close()));
-  _mainLayout->addWidget(_buttonBox, 2, 0, 1, 3);
+  _mainLayout->addWidget(_buttonBox, 2, 0, 1, 4);
 
   // Create and fill different tabs
   createAboutTab();
@@ -75,7 +77,7 @@ void AboutDialog::createAboutTab()
 {
   _aboutTextBrowser = new QTextBrowser;
   _aboutTextBrowser->setOpenExternalLinks(true);
-  QString aboutText;
+
   // Software description
   QString aboutSoftwareText = "<p>" + tr("MapMap is a free/open source video mapping software.") + "</p>";
   // Copyright and software owners
@@ -92,6 +94,7 @@ void AboutDialog::createAboutTab()
   QString projectWebsiteText = "<p>" + tr("See the ") + QString("<a href=\"%1\">").arg(MM::ORGANIZATION_DOMAIN) +
                                                  tr("%1 website").arg(MM::APPLICATION_NAME) + "</a> for more information on this software.</p>";
   // Append texts
+  QString aboutText;
   aboutText.append(aboutSoftwareText);
   aboutText.append(copyrightText);
   aboutText.append(licenseNoticeText);
@@ -120,6 +123,18 @@ void AboutDialog::createLibrairiesTab()
 {
   _librariesTextBrowser = new QTextBrowser;
   _librariesTextBrowser->setOpenExternalLinks(true);
+
+  QString qtVersionText = QString("<h4>Qt %1</h4>").arg(QT_VERSION_STR);
+  QString gstreamerVersionText = QString("<h4>%1</h4>").arg(gst_version_string());
+  //QString libloVersionText = QString("<h4>%1</h4>").arg(lo_version('str', 0, 0, 0, 0, 0, 0, 0, 0));
+
+  QString librairiesText;
+  librairiesText.append(qtVersionText);
+  librairiesText.append(gstreamerVersionText);
+  //librairiesText.append(libloVersionText);
+
+  // Set librairies main text
+  _librariesTextBrowser->setText(librairiesText);
 
   _tabWidget->addTab(_librariesTextBrowser, tr("Librairies"));
 }

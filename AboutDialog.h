@@ -22,6 +22,9 @@
 
 #include <QDialog>
 
+#include <gst/gst.h>
+#include "lo/lo.h"
+
 #include "GuiForward.h"
 #include "MM.h"
 
@@ -57,8 +60,8 @@ private:
   QDialogButtonBox *_buttonBox;
 
   // Constantes
-  static const int ABOUT_WINDOW_WIDTH = 540;
-  static const int ABOUT_WINDOW_HEIGHT = 720;
+  static const int ABOUT_WINDOW_WIDTH = 560;
+  static const int ABOUT_WINDOW_HEIGHT = 640;
 
 };
 
