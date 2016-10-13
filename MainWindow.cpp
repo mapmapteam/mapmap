@@ -507,6 +507,7 @@ void MainWindow::importMedia()
 
 void MainWindow::openCameraDevice()
 {
+#if QT_VERSION >= 0x050500
   QString device;
   QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
 
@@ -544,6 +545,9 @@ void MainWindow::openCameraDevice()
 
   if (!device.isEmpty())
     importMediaFile(device, false);
+#else
+    QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
+#endif
 }
 
 void MainWindow::addColor()
