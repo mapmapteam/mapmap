@@ -175,44 +175,44 @@ QMenu::separator {
     background: #323541;
 }
 
-QMenu::indicator {
-/*  width: 16px;*/
-/*  height: 16px;*/
-}
+/*QMenu::indicator {
+  width: 16px;
+  height: 16px;
+}*/
 
 /* non-exclusive indicator = check box style indicator (see QActionGroup::setExclusive) */
-QMenu::indicator:non-exclusive:unchecked {
-/*    image: url(:/resources/images/checkbox/checkbox-unchecked.png);*/
+/*QMenu::indicator:non-exclusive:unchecked {
+    image: url(:/resources/images/checkbox/checkbox-unchecked.png);
 }
 
 QMenu::indicator:non-exclusive:unchecked:selected {
-/*    image: url(:/resources/images/checkbox/checkbox-unchecked-focused.svg);*/
+    image: url(:/resources/images/checkbox/checkbox-unchecked-focused.svg);
 }
 
 QMenu::indicator:non-exclusive:checked {
-/*    image: url(:/resources/images/checkbox/checkbox-checked.png);*/
+    image: url(:/resources/images/checkbox/checkbox-checked.png);
 }
 
 QMenu::indicator:non-exclusive:checked:selected {
-/*    image: url(:/resources/images/checkbox/checkbox-checked-focused.png);*/
-}
+    image: url(:/resources/images/checkbox/checkbox-checked-focused.png);
+}*/
 
 /* exclusive indicator = radio button style indicator (see QActionGroup::setExclusive) */
-QMenu::indicator:exclusive:unchecked {
-/*    image: url(:/);*/
+/*QMenu::indicator:exclusive:unchecked {
+    image: url(:/);
 }
 
 QMenu::indicator:exclusive:unchecked:selected {
-/*    image: url(:/);*/
+    image: url(:/);
 }
 
 QMenu::indicator:exclusive:checked {
-/*    image: url(:/);*/
+    image: url(:/);
 }
 
 QMenu::indicator:exclusive:checked:selected {
-/*    image: url(:/);*/
-}
+    image: url(:/);
+}*/
 
 /*Menubar*/
 QMenuBar {
@@ -241,7 +241,7 @@ QStatusBar::item {
 }
 
 /*Check boxes*/
-QCheckBox {
+/*QCheckBox {
     spacing: 5px;
     color:
 }
@@ -273,34 +273,33 @@ QCheckBox::indicator:checked:hover {
 
 QCheckBox::indicator:checked:pressed {
     image: url(:/resources/images/checkbox/checkbox-checked-focused.png);
-}
+}*/
 
-QRadioButton::indicator {
+/*QRadioButton::indicator {
     width: 16px;
     height: 16px;
 }
 
 QRadioButton::indicator::unchecked {
-/*    image: url(:/);*/
-    color: #f6f5f5;
+    image: url(:/);
 }
 
 QRadioButton::indicator:unchecked:hover {
-/*    image: url(:/);*/
+    image: url(:/);
 }
 
 QRadioButton::indicator:unchecked:pressed {
-/*    image: url(:/);*/
+    image: url(:/);
 }
 
 QRadioButton::indicator::checked {
-/*    image: url(:/);*/
+    image: url(:/);
 }
 
 QRadioButton::indicator:checked:hover {
-/*    image: url(:/);*/
+    image: url(:/);
 }
 
 QRadioButton::indicator:checked:pressed {
-/*    image: url(:/);*/
-}
+    image: url(:/);
+}*/
