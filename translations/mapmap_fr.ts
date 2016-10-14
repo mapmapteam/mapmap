@@ -325,7 +325,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Paints</source>
-        <translation">Sources</translation>
+        <translation>Sources</translation>
     </message>
     <message>
         <source>Mappings</source>
