@@ -11,8 +11,7 @@ QMainWindow, QDialog, QToolTip {
 }
 
 /*General font color*/
-QFrame, QLabel,
-QToolTip, QMenu,
+QLabel, QToolTip, QMenu,
 QCheckBox, QGroupBox::title {
   color: #f6f5f5;
 }
