@@ -23,7 +23,7 @@
 #define MAIN_WINDOW_H_
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= 0x050500
   #include <QtWidgets>
   #include <QCameraInfo>
 #endif
@@ -58,6 +58,7 @@
 MM_BEGIN_NAMESPACE
 
 class PreferenceDialog;
+class AboutDialog;
 
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
@@ -505,8 +506,10 @@ private:
   QModelIndex currentSelectedIndex;
   QTimer *videoTimer;
   QElapsedTimer *systemTimer;
-
+  // Preference dialog
   PreferenceDialog* _preferenceDialog;
+  // About dialog
+  AboutDialog *_aboutDialog;
 
   // UndoStack
   QUndoStack *undoStack;

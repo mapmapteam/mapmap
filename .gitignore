@@ -22,6 +22,7 @@ Release/
 *.mov
 *.ogg
 *.png
+
 # except icons files
 !resources/images/icons/*
 !resources/images/icons/small/*
@@ -54,7 +55,7 @@ qrc_*.cpp
 # Folders not to be included
 html/
 
-# Mac
+# Mac OS X / MacOS
 .DS_Store
 .qmake.stash
 Info.plist
@@ -63,6 +64,8 @@ Info.plist
 *.app
 DMGVERSION.txt
 *.db
+MapMap-*.*.*-*
+MapMap-*.*.*-*.dmg
 
 # Created by git.
 *.BACKUP.*

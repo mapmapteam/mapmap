@@ -21,6 +21,7 @@
 
 #include "MainWindow.h"
 #include "PreferenceDialog.h"
+#include "AboutDialog.h"
 #include "Commands.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
@@ -506,6 +507,7 @@ void MainWindow::importMedia()
 
 void MainWindow::openCameraDevice()
 {
+#if QT_VERSION >= 0x050500
   QString device;
   QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
 
@@ -543,6 +545,9 @@ void MainWindow::openCameraDevice()
 
   if (!device.isEmpty())
     importMediaFile(device, false);
+#else
+    QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
+#endif
 }
 
 void MainWindow::addColor()
@@ -676,27 +681,31 @@ void MainWindow::about()
   // Stop video playback to avoid lags. XXX Hack
   videoTimer->stop();
 
-  // Pop-up about dialog.
-  QMessageBox::about(this, tr("About MapMap"),
-                     tr("<h2><img src=\":mapmap-title\"/> %1</h2>"
-                        "<p>Copyright &copy; 2013 %2.</p>"
-                        "<p>MapMap is a free software for video mapping.</p>"
-                        "<p>Projection mapping, also known as video mapping and spatial augmented reality, "
-                        "is a projection technology used to turn objects, often irregularly shaped, into "
-                        "a display surface for video projection. These objects may be complex industrial "
-                        "landscapes, such as buildings. By using specialized software, a two or three "
-                        "dimensional object is spatially mapped on the virtual program which mimics the "
-                        "real environment it is to be projected on. The software can interact with a "
-                        "projector to fit any desired image onto the surface of that object. This "
-                        "technique is used by artists and advertisers alike who can add extra dimensions, "
-                        "optical illusions, and notions of movement onto previously static objects. The "
-                        "video is commonly combined with, or triggered by, audio to create an "
-                        "audio-visual narrative."
-                        "This project was made possible by the support of the International Organization of "
-                        "La Francophonie.</p>"
-                        "<p>http://mapmap.info<br />"
-                        "http://www.francophonie.org</p>"
-                        ).arg(MM::VERSION, MM::COPYRIGHT_OWNERS));
+//  // Pop-up about dialog.
+//  QMessageBox::about(this, tr("About MapMap"),
+//                     tr("<h2><img src=\":mapmap-title\"/> %1</h2>"
+//                        "<p>Copyright &copy; 2013 %2.</p>"
+//                        "<p>MapMap is a free software for video mapping.</p>"
+//                        "<p>Projection mapping, also known as video mapping and spatial augmented reality, "
+//                        "is a projection technology used to turn objects, often irregularly shaped, into "
+//                        "a display surface for video projection. These objects may be complex industrial "
+//                        "landscapes, such as buildings. By using specialized software, a two or three "
+//                        "dimensional object is spatially mapped on the virtual program which mimics the "
+//                        "real environment it is to be projected on. The software can interact with a "
+//                        "projector to fit any desired image onto the surface of that object. This "
+//                        "technique is used by artists and advertisers alike who can add extra dimensions, "
+//                        "optical illusions, and notions of movement onto previously static objects. The "
+//                        "video is commonly combined with, or triggered by, audio to create an "
+//                        "audio-visual narrative."
+//                        "This project was made possible by the support of the International Organization of "
+//                        "La Francophonie.</p>"
+//                        "<p>http://mapmap.info<br />"
+//                        "http://www.francophonie.org</p>"
+//                        ).arg(MM::VERSION, MM::COPYRIGHT_OWNERS));
+
+  _aboutDialog = new AboutDialog(this);
+  _aboutDialog->setAttribute(Qt::WA_DeleteOnClose); // Important for ressource management
+  _aboutDialog->show();
 
   // Restart video playback. XXX Hack
   videoTimer->start();

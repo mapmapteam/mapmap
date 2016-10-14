@@ -66,7 +66,9 @@ int OscInterface::pong_cb(const char *path, const char * /*types*/,
     lo_arg ** /*argv*/, int /*argc*/, void * /*data*/, void *user_data) {
   OscInterface* context = static_cast<OscInterface*>(user_data);
   if (context->is_verbose())
+  {
     qDebug() << "Got " << path;
+  }
   return 0;
 }
 
@@ -74,23 +76,30 @@ int OscInterface::pong_cb(const char *path, const char * /*types*/,
  * Handles /ping. Does nothing.
  */
 int OscInterface::ping_cb(const char *path, const char * /*types*/,
-    lo_arg ** /*argv*/, int /*argc*/, void * /*data*/, void *user_data) {
+    lo_arg ** /*argv*/, int /*argc*/, void * /*data*/, void *user_data)
+{
   OscInterface* context = static_cast<OscInterface*>(user_data);
   if (context->is_verbose())
+  {
     qDebug() << "Got " << path;
+  }
   return 0;
 }
 
-void OscInterface::push_command(QVariantList command) {
+void OscInterface::push_command(QVariantList command)
+{
   messaging_queue_.push(command);
 }
 
-void OscInterface::consume_commands(MainWindow &main_window) {
+void OscInterface::consume_commands(MainWindow &main_window)
+{
   bool success = true;
-  while (success) {
+  while (success)
+  {
     QVariantList command;
     success = messaging_queue_.try_pop(command);
-    if (success) {
+    if (success)
+    {
       //if (is_verbose())
       // std::cout << __FUNCTION__ << ": apply " <<
       //     command.first().toString().toStdString() << std::endl;
@@ -99,8 +108,10 @@ void OscInterface::consume_commands(MainWindow &main_window) {
   }
 }
 
-void OscInterface::start() {
-  if (receiving_enabled_) {
+void OscInterface::start()
+{
+  if (receiving_enabled_)
+  {
     // start a thread to try and subscribe us
     receiver_.listen(); // start listening in separate thread
   }
@@ -109,15 +120,18 @@ void OscInterface::start() {
 // catch any incoming messages and display them. returning 1 means that the
 // message has not been fully handled and the server should try other methods
 int OscInterface::genericHandler(const char *path, const char *types,
-    lo_arg **argv, int argc, void * /*data*/, void * user_data) {
+    lo_arg **argv, int argc, void * /*data*/, void * user_data)
+{
   OscInterface* context = static_cast<OscInterface*>(user_data);
   QVariantList message;
 
   message.append(QVariant(QString(path)));
   message.append(QVariant(QString(types)));
 
-  for (int i = 0; i < argc; ++i) {
-    switch (types[i]) {
+  for (int i = 0; i < argc; ++i)
+  {
+    switch (types[i])
+    {
     case 'i':
       message.append(QVariant(argv[i]->i));
       break;
@@ -144,15 +158,24 @@ int OscInterface::genericHandler(const char *path, const char *types,
   return 0; // handled
 }
 
-static void printCommand(QVariantList &command) {
-  for (int i = 0; i < command.size(); ++i) {
-    if (command.at(i).type() == QVariant::Int) {
+static void printCommand(QVariantList &command)
+{
+  for (int i = 0; i < command.size(); ++i)
+  {
+    if (command.at(i).type() == QVariant::Int)
+    {
       qDebug() << command.at(i).toInt() << " ";
-    } else if (command.at(i).type() == QVariant::Double) {
+    }
+    else if (command.at(i).type() == QVariant::Double)
+    {
       qDebug() << command.at(i).toDouble() << " ";
-    } else if (command.at(i).type() == QVariant::String) {
+    }
+    else if (command.at(i).type() == QVariant::String)
+    {
       qDebug() << command.at(i).toString() << " ";
-    } else {
+    }
+    else
+    {
       qDebug() << "(?) ";
     }
   }
@@ -163,18 +186,25 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
   Q_UNUSED(main_window);
   bool VERBOSE = true;
 
-  if (VERBOSE) {
+  if (VERBOSE)
+  {
     std::cout << "OscInterface::applyOscCommand: Receive OSC: " << std::endl;
     printCommand(command);
   }
 
   // The two first QVariant objects are: path, typeTags
   if (command.size() < 2)
+  {
     return;
+  }
   if (command.at(0).type() != QVariant::String)
+  {
     return;
+  }
   if (command.at(1).type() != QVariant::String)
+  {
     return;
+  }
 
   QString path     = command.at(0).toString();
   QString typetags = command.at(1).toString();
@@ -248,7 +278,7 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
     }
   }
 
-  if (!pathIsValid)
+  if (! pathIsValid)
   {
     qDebug() << "Path could not be processed: " << path << endl;
     printCommand(command);
@@ -260,18 +290,25 @@ QPair<QString,QString> OscInterface::next(const QString& path)
 {
   int idx = path.indexOf('/');
   if (idx >= 0)
+  {
     return QPair<QString,QString>(path.left(idx), path.right(path.size()-idx-1));
+  }
   else
+  {
     return QPair<QString,QString>(path, "");
-
+  }
 }
 
 bool OscInterface::setElementProperty(const QSharedPointer<Element>& elem, const QString& property, const QVariant& value)
 {
   if (elem.isNull())
+  {
     return false;
+  }
   else
+  {
     return elem->setProperty(property.toUtf8().data(), value);
+  }
 }
 
 MM_END_NAMESPACE
