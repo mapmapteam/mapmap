@@ -2,6 +2,59 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <location filename="../AboutDialog.cpp" line="33"/>
+        <source>About %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../AboutDialog.cpp" line="82"/>
+        <source>MapMap is a free/open source video mapping software.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../AboutDialog.cpp" line="84"/>
+        <source>Copyright &amp;copy; 2013 %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../AboutDialog.cpp" line="94"/>
+        <source>See the </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../AboutDialog.cpp" line="95"/>
+        <source>%1 website</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../AboutDialog.cpp" line="107"/>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../AboutDialog.cpp" line="119"/>
+        <source>Changelog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../AboutDialog.cpp" line="139"/>
+        <source>Librairies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../AboutDialog.cpp" line="151"/>
+        <source>Contributors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../AboutDialog.cpp" line="163"/>
+        <source>License</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ConsoleWindow</name>
     <message>
         <location filename="../ConsoleWindow.cpp" line="53"/>
@@ -53,524 +106,538 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../MainWindow.cpp" line="427"/>
+        <location filename="../MainWindow.cpp" line="430"/>
         <source>Open project</source>
         <translation>Open project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="429"/>
-        <location filename="../MainWindow.cpp" line="459"/>
+        <location filename="../MainWindow.cpp" line="432"/>
+        <location filename="../MainWindow.cpp" line="462"/>
         <source>MapMap files (*.%1)</source>
         <translation>MapMap files (*.%1)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="458"/>
+        <location filename="../MainWindow.cpp" line="461"/>
         <source>Save project</source>
         <translation>Save project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="487"/>
+        <location filename="../MainWindow.cpp" line="490"/>
         <source>Import media source file</source>
         <translation>Import media source file</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="489"/>
+        <location filename="../MainWindow.cpp" line="492"/>
         <source>Media files (%1 %2);;All files (*)</source>
         <translation>Media files (%1 %2);;All files (*)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="522"/>
+        <location filename="../MainWindow.cpp" line="526"/>
         <source>Available camera</source>
         <translation>Available camera</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="523"/>
+        <location filename="../MainWindow.cpp" line="527"/>
         <source>Select camera</source>
         <translation>Select camera</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="534"/>
+        <location filename="../MainWindow.cpp" line="538"/>
+        <location filename="../MainWindow.cpp" line="549"/>
         <source>No camera available</source>
         <translation>No camera available</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="534"/>
+        <location filename="../MainWindow.cpp" line="538"/>
+        <location filename="../MainWindow.cpp" line="549"/>
         <source>You can not use this feature!
 No camera available in your system</source>
         <translation>You can not use this feature!
 No camera available in your system</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="555"/>
+        <location filename="../MainWindow.cpp" line="562"/>
         <source>Select Color</source>
         <translation>Select Color</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="678"/>
         <source>About MapMap</source>
-        <translation>About MapMap</translation>
+        <translation type="vanished">About MapMap</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="679"/>
         <source>&lt;h2&gt;&lt;img src=&quot;:mapmap-title&quot;/&gt; %1&lt;/h2&gt;&lt;p&gt;Copyright &amp;copy; 2013 %2.&lt;/p&gt;&lt;p&gt;MapMap is a free software for video mapping.&lt;/p&gt;&lt;p&gt;Projection mapping, also known as video mapping and spatial augmented reality, is a projection technology used to turn objects, often irregularly shaped, into a display surface for video projection. These objects may be complex industrial landscapes, such as buildings. By using specialized software, a two or three dimensional object is spatially mapped on the virtual program which mimics the real environment it is to be projected on. The software can interact with a projector to fit any desired image onto the surface of that object. This technique is used by artists and advertisers alike who can add extra dimensions, optical illusions, and notions of movement onto previously static objects. The video is commonly combined with, or triggered by, audio to create an audio-visual narrative.This project was made possible by the support of the International Organization of La Francophonie.&lt;/p&gt;&lt;p&gt;http://mapmap.info&lt;br /&gt;http://www.francophonie.org&lt;/p&gt;</source>
-        <translation>&lt;h2&gt;&lt;img src=&quot;:mapmap-title&quot;/&gt; %1&lt;/h2&gt;&lt;p&gt;Copyright &amp;copy; 2013 %2.&lt;/p&gt;&lt;p&gt;MapMap is a free software for video mapping.&lt;/p&gt;&lt;p&gt;Projection mapping, also known as video mapping and spatial augmented reality, is a projection technology used to turn objects, often irregularly shaped, into a display surface for video projection. These objects may be complex industrial landscapes, such as buildings. By using specialized software, a two or three dimensional object is spatially mapped on the virtual program which mimics the real environment it is to be projected on. The software can interact with a projector to fit any desired image onto the surface of that object. This technique is used by artists and advertisers alike who can add extra dimensions, optical illusions, and notions of movement onto previously static objects. The video is commonly combined with, or triggered by, audio to create an audio-visual narrative.This project was made possible by the support of the International Organization of La Francophonie.&lt;/p&gt;&lt;p&gt;http://mapmap.info&lt;br /&gt;http://www.francophonie.org&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;h2&gt;&lt;img src=&quot;:mapmap-title&quot;/&gt; %1&lt;/h2&gt;&lt;p&gt;Copyright &amp;copy; 2013 %2.&lt;/p&gt;&lt;p&gt;MapMap is a free software for video mapping.&lt;/p&gt;&lt;p&gt;Projection mapping, also known as video mapping and spatial augmented reality, is a projection technology used to turn objects, often irregularly shaped, into a display surface for video projection. These objects may be complex industrial landscapes, such as buildings. By using specialized software, a two or three dimensional object is spatially mapped on the virtual program which mimics the real environment it is to be projected on. The software can interact with a projector to fit any desired image onto the surface of that object. This technique is used by artists and advertisers alike who can add extra dimensions, optical illusions, and notions of movement onto previously static objects. The video is commonly combined with, or triggered by, audio to create an audio-visual narrative.This project was made possible by the support of the International Organization of La Francophonie.&lt;/p&gt;&lt;p&gt;http://mapmap.info&lt;br /&gt;http://www.francophonie.org&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1323"/>
-        <location filename="../MainWindow.cpp" line="1472"/>
-        <location filename="../MainWindow.cpp" line="2229"/>
+        <location filename="../MainWindow.cpp" line="1308"/>
+        <location filename="../MainWindow.cpp" line="1457"/>
+        <location filename="../MainWindow.cpp" line="2218"/>
         <source>MapMap</source>
         <translation>MapMap</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1324"/>
+        <location filename="../MainWindow.cpp" line="1309"/>
         <source>Remove this paint and all its associated mappings?</source>
         <translation>Remove this paint and all its associated mappings?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1450"/>
+        <location filename="../MainWindow.cpp" line="1435"/>
         <source>Paints</source>
         <translation>Paints</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1451"/>
+        <location filename="../MainWindow.cpp" line="1436"/>
         <source>Mappings</source>
         <translation>Mappings</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1486"/>
+        <location filename="../MainWindow.cpp" line="1471"/>
         <source>&amp;New</source>
         <translation>&amp;New</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1489"/>
+        <location filename="../MainWindow.cpp" line="1474"/>
         <source>Create a new project</source>
         <translation>Create a new project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1496"/>
+        <location filename="../MainWindow.cpp" line="1481"/>
         <source>&amp;Open...</source>
         <translation>&amp;Open...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1499"/>
+        <location filename="../MainWindow.cpp" line="1484"/>
         <source>Open an existing project</source>
         <translation>Open an existing project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1506"/>
+        <location filename="../MainWindow.cpp" line="1491"/>
         <source>&amp;Save</source>
         <translation>&amp;Save</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1509"/>
+        <location filename="../MainWindow.cpp" line="1494"/>
         <source>Save the project</source>
         <translation>Save the project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1516"/>
+        <location filename="../MainWindow.cpp" line="1501"/>
         <source>Save &amp;As...</source>
         <translation>Save &amp;As...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1519"/>
+        <location filename="../MainWindow.cpp" line="1504"/>
         <source>Save the project as...</source>
         <translation>Save the project as...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1548"/>
+        <location filename="../MainWindow.cpp" line="1533"/>
         <source>No Recents Videos</source>
         <translation>No Recents Videos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1553"/>
+        <location filename="../MainWindow.cpp" line="1538"/>
         <source>&amp;Import Media File...</source>
         <translation>&amp;Import Media File...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1556"/>
+        <location filename="../MainWindow.cpp" line="1541"/>
         <source>Import a video or image file...</source>
         <translation>Import a video or image file...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1563"/>
+        <location filename="../MainWindow.cpp" line="1548"/>
         <source>Open &amp;Camera Device...</source>
         <translation>Open &amp;Camera Device...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1567"/>
+        <location filename="../MainWindow.cpp" line="1552"/>
         <source>Choose your camera device...</source>
         <translation>Choose your camera device...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1573"/>
+        <location filename="../MainWindow.cpp" line="1558"/>
         <source>Add &amp;Color Paint...</source>
         <translation>Add &amp;Color Paint...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1576"/>
+        <location filename="../MainWindow.cpp" line="1561"/>
         <source>Add a color paint...</source>
         <translation>Add a color paint...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1583"/>
+        <location filename="../MainWindow.cpp" line="1568"/>
         <source>E&amp;xit</source>
         <translation>E&amp;xit</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1585"/>
+        <location filename="../MainWindow.cpp" line="1570"/>
         <source>Exit the application</source>
         <translation>Exit the application</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1592"/>
+        <location filename="../MainWindow.cpp" line="1577"/>
         <source>&amp;Undo</source>
         <translation>&amp;Undo</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1599"/>
+        <location filename="../MainWindow.cpp" line="1584"/>
         <source>&amp;Redo</source>
         <translation>&amp;Redo</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1606"/>
+        <location filename="../MainWindow.cpp" line="1591"/>
         <source>&amp;About MapMap</source>
         <translation>&amp;About MapMap</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1607"/>
+        <location filename="../MainWindow.cpp" line="1592"/>
         <source>Show the application&apos;s About box</source>
         <translation>Show the application&apos;s About box</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1614"/>
+        <location filename="../MainWindow.cpp" line="1599"/>
         <source>Duplicate</source>
         <translation>Duplicate</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1616"/>
+        <location filename="../MainWindow.cpp" line="1601"/>
         <source>Duplicate item</source>
         <translation>Duplicate item</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1623"/>
+        <location filename="../MainWindow.cpp" line="1608"/>
         <source>Delete mapping</source>
         <translation>Delete mapping</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1625"/>
-        <location filename="../MainWindow.cpp" line="1673"/>
+        <location filename="../MainWindow.cpp" line="1610"/>
+        <location filename="../MainWindow.cpp" line="1658"/>
         <source>Delete item</source>
         <translation>Delete item</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1632"/>
-        <location filename="../MainWindow.cpp" line="1680"/>
+        <location filename="../MainWindow.cpp" line="1617"/>
+        <location filename="../MainWindow.cpp" line="1665"/>
         <source>Rename</source>
         <translation>Rename</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1634"/>
-        <location filename="../MainWindow.cpp" line="1682"/>
+        <location filename="../MainWindow.cpp" line="1619"/>
+        <location filename="../MainWindow.cpp" line="1667"/>
         <source>Rename item</source>
         <translation>Rename item</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1641"/>
+        <location filename="../MainWindow.cpp" line="1626"/>
         <source>Lock mapping</source>
         <translation>Lock mapping</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1642"/>
+        <location filename="../MainWindow.cpp" line="1627"/>
         <source>Lock mapping item</source>
         <translation>Lock mapping item</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1651"/>
+        <location filename="../MainWindow.cpp" line="1636"/>
         <source>Hide mapping</source>
         <translation>Hide mapping</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1652"/>
+        <location filename="../MainWindow.cpp" line="1637"/>
         <source>Hide mapping item</source>
         <translation>Hide mapping item</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1661"/>
+        <location filename="../MainWindow.cpp" line="1646"/>
         <source>Solo mapping</source>
         <translation>Solo mapping</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1662"/>
+        <location filename="../MainWindow.cpp" line="1647"/>
         <source>solo mapping item</source>
         <translation>solo mapping item</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1671"/>
+        <location filename="../MainWindow.cpp" line="1656"/>
         <source>Delete paint</source>
         <translation>Delete paint</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1689"/>
+        <location filename="../MainWindow.cpp" line="1674"/>
         <source>&amp;Preferences...</source>
         <translation>&amp;Preferences...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1692"/>
+        <location filename="../MainWindow.cpp" line="1677"/>
         <source>Configure preferences...</source>
         <translation>Configure preferences...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1699"/>
+        <location filename="../MainWindow.cpp" line="1684"/>
         <source>Add &amp;Mesh</source>
         <translation>Add &amp;Mesh</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1702"/>
+        <location filename="../MainWindow.cpp" line="1687"/>
         <source>Add mesh</source>
         <translation>Add mesh</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1710"/>
+        <location filename="../MainWindow.cpp" line="1695"/>
         <source>Add &amp;Triangle</source>
         <translation>Add &amp;Triangle</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1713"/>
+        <location filename="../MainWindow.cpp" line="1698"/>
         <source>Add triangle</source>
         <translation>Add triangle</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1721"/>
+        <location filename="../MainWindow.cpp" line="1706"/>
         <source>Add &amp;Ellipse</source>
         <translation>Add &amp;Ellipse</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1724"/>
+        <location filename="../MainWindow.cpp" line="1709"/>
         <source>Add ellipse</source>
         <translation>Add ellipse</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1732"/>
-        <location filename="../MainWindow.cpp" line="1735"/>
+        <location filename="../MainWindow.cpp" line="1717"/>
+        <location filename="../MainWindow.cpp" line="1720"/>
         <source>Play</source>
         <translation>Play</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1743"/>
-        <location filename="../MainWindow.cpp" line="1746"/>
+        <location filename="../MainWindow.cpp" line="1728"/>
+        <location filename="../MainWindow.cpp" line="1731"/>
         <source>Pause</source>
         <translation>Pause</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1754"/>
-        <location filename="../MainWindow.cpp" line="1757"/>
+        <location filename="../MainWindow.cpp" line="1739"/>
+        <location filename="../MainWindow.cpp" line="1742"/>
         <source>Rewind</source>
         <translation>Rewind</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1764"/>
+        <location filename="../MainWindow.cpp" line="1749"/>
         <source>Toggle &amp;Fullscreen</source>
         <translation>Toggle &amp;Fullscreen</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1767"/>
+        <location filename="../MainWindow.cpp" line="1752"/>
         <source>Toggle Fullscreen</source>
         <translation>Toggle Fullscreen</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1785"/>
+        <location filename="../MainWindow.cpp" line="1770"/>
         <source>&amp;Display Controls</source>
         <translation>&amp;Display Controls</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1788"/>
+        <location filename="../MainWindow.cpp" line="1773"/>
         <source>Display canvas controls</source>
         <translation>Display canvas controls</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1799"/>
+        <location filename="../MainWindow.cpp" line="1784"/>
         <source>&amp;Display Controls of Mappings of a Paint</source>
         <translation>&amp;Display Controls of Mappings of a Paint</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1802"/>
+        <location filename="../MainWindow.cpp" line="1787"/>
         <source>Display all canvas controls related to current paint</source>
         <translation>Display all canvas controls related to current paint</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1814"/>
+        <location filename="../MainWindow.cpp" line="1799"/>
         <source>&amp;Sticky Vertices</source>
         <translation>&amp;Sticky Vertices</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1817"/>
+        <location filename="../MainWindow.cpp" line="1802"/>
         <source>Enable sticky vertices</source>
         <translation>Enable sticky vertices</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1826"/>
+        <location filename="../MainWindow.cpp" line="1811"/>
         <source>Show &amp;Test Signal</source>
         <translation>Show &amp;Test Signal</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1829"/>
+        <location filename="../MainWindow.cpp" line="1814"/>
         <source>Show Test signal</source>
         <translation>Show Test signal</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1840"/>
-        <source>Display &amp;Undo Stack</source>
-        <translation>Display &amp;Undo Stack</translation>
+        <location filename="../MainWindow.cpp" line="1825"/>
+        <source>Display &amp;Undo History</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1850"/>
+        <location filename="../MainWindow.cpp" line="2947"/>
+        <source>Undo history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display &amp;Undo Stack</source>
+        <translation type="vanished">Display &amp;Undo Stack</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="1835"/>
         <source>Open Conso&amp;le</source>
         <translation>Open Conso&amp;le</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1861"/>
+        <location filename="../MainWindow.cpp" line="1846"/>
         <source>Display &amp;Zoom Toolbar</source>
         <translation>Display &amp;Zoom Toolbar</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1871"/>
+        <location filename="../MainWindow.cpp" line="1856"/>
         <source>&amp;Menu Bar</source>
         <translation>&amp;Menu Bar</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1878"/>
+        <location filename="../MainWindow.cpp" line="1863"/>
         <source>Main Perspective</source>
         <translation>Main Perspective</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1882"/>
+        <location filename="../MainWindow.cpp" line="1867"/>
         <source>Switch to the Main perspective.</source>
         <translation>Switch to the Main perspective.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1886"/>
+        <location filename="../MainWindow.cpp" line="1871"/>
         <source>Source Perspective</source>
         <translation>Source Perspective</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1889"/>
+        <location filename="../MainWindow.cpp" line="1874"/>
         <source>Switch to the Source perspective.</source>
         <translation>Switch to the Source perspective.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1893"/>
+        <location filename="../MainWindow.cpp" line="1878"/>
         <source>Destination Perspective</source>
         <translation>Destination Perspective</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1896"/>
+        <location filename="../MainWindow.cpp" line="1881"/>
         <source>Switch to the Destination perspective.</source>
         <translation>Switch to the Destination perspective.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1907"/>
+        <location filename="../MainWindow.cpp" line="1892"/>
         <source>Report bug...</source>
         <translation>Report bug...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1910"/>
+        <location filename="../MainWindow.cpp" line="1895"/>
         <source>Technical Support</source>
         <translation>Technical Support</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1913"/>
+        <location filename="../MainWindow.cpp" line="1898"/>
         <source>Documentation</source>
         <translation>Documentation</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1940"/>
+        <location filename="../MainWindow.cpp" line="1901"/>
+        <source>Submit Feedback...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="1928"/>
         <source>&amp;File</source>
         <translation>&amp;File</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1952"/>
+        <location filename="../MainWindow.cpp" line="1940"/>
         <source>Open Recents Projects</source>
         <translation>Open Recents Projects</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1958"/>
+        <location filename="../MainWindow.cpp" line="1946"/>
         <source>Open Recents Videos</source>
         <translation>Open Recents Videos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1969"/>
+        <location filename="../MainWindow.cpp" line="1957"/>
         <source>&amp;Edit</source>
         <translation>&amp;Edit</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1977"/>
+        <location filename="../MainWindow.cpp" line="1965"/>
         <source>&amp;Source</source>
         <translation>&amp;Source</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1982"/>
+        <location filename="../MainWindow.cpp" line="1970"/>
         <source>&amp;Destination</source>
         <translation>&amp;Destination</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1992"/>
+        <location filename="../MainWindow.cpp" line="1980"/>
         <source>&amp;Playback</source>
         <translation>&amp;Playback</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1999"/>
+        <location filename="../MainWindow.cpp" line="1987"/>
         <source>&amp;Output</source>
         <translation>&amp;Output</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2004"/>
+        <location filename="../MainWindow.cpp" line="1992"/>
         <source>&amp;Tools</source>
         <translation>&amp;Tools</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2008"/>
+        <location filename="../MainWindow.cpp" line="1996"/>
         <source>&amp;Window</source>
         <translation>&amp;Window</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2010"/>
+        <location filename="../MainWindow.cpp" line="1998"/>
         <source>Toolbars</source>
         <translation>Toolbars</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2027"/>
+        <location filename="../MainWindow.cpp" line="2015"/>
         <source>&amp;Help</source>
         <translation>&amp;Help</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2085"/>
+        <location filename="../MainWindow.cpp" line="2074"/>
         <source>&amp;Toolbar</source>
         <translation>&amp;Toolbar</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2230"/>
+        <location filename="../MainWindow.cpp" line="2219"/>
         <source>The document has been modified.
 Do you want to save your changes?</source>
         <translation>The document has been modified.
 Do you want to save your changes?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2252"/>
-        <location filename="../MainWindow.cpp" line="2266"/>
+        <location filename="../MainWindow.cpp" line="2241"/>
+        <location filename="../MainWindow.cpp" line="2255"/>
         <source>Error reading mapping project file</source>
         <translation>Error reading mapping project file</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2253"/>
-        <location filename="../MainWindow.cpp" line="2471"/>
+        <location filename="../MainWindow.cpp" line="2242"/>
+        <location filename="../MainWindow.cpp" line="2460"/>
         <source>Cannot read file %1:
 %2.</source>
         <translation>Cannot read file %1:
 %2.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2267"/>
+        <location filename="../MainWindow.cpp" line="2256"/>
         <source>Parse error in file %1:
 
 %2</source>
@@ -579,110 +646,109 @@ Do you want to save your changes?</translation>
 %2</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2274"/>
+        <location filename="../MainWindow.cpp" line="2263"/>
         <source>File loaded</source>
         <translation>File loaded</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2286"/>
+        <location filename="../MainWindow.cpp" line="2275"/>
         <source>Error saving mapping project</source>
         <translation>Error saving mapping project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2287"/>
+        <location filename="../MainWindow.cpp" line="2276"/>
         <source>Cannot write file %1:
 %2.</source>
         <translation>Cannot write file %1:
 %2.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2297"/>
+        <location filename="../MainWindow.cpp" line="2286"/>
         <source>File saved</source>
         <translation>File saved</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2309"/>
+        <location filename="../MainWindow.cpp" line="2298"/>
         <source>Untitled</source>
         <translation>Untitled</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2324"/>
+        <location filename="../MainWindow.cpp" line="2313"/>
         <source>%1[*] - %2</source>
         <translation>%1[*] - %2</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2324"/>
-        <location filename="../MainWindow.cpp" line="2470"/>
+        <location filename="../MainWindow.cpp" line="2313"/>
+        <location filename="../MainWindow.cpp" line="2459"/>
         <source>MapMap Project</source>
         <translation>MapMap Project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2347"/>
-        <location filename="../MainWindow.cpp" line="2379"/>
+        <location filename="../MainWindow.cpp" line="2336"/>
+        <location filename="../MainWindow.cpp" line="2368"/>
         <source>&amp;%1 %2</source>
         <translation>&amp;%1 %2</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2364"/>
+        <location filename="../MainWindow.cpp" line="2353"/>
         <source>Clear List</source>
         <translation>Clear List</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2367"/>
+        <location filename="../MainWindow.cpp" line="2356"/>
         <source>No Recents Projects</source>
         <translation>No Recents Projects</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2401"/>
+        <location filename="../MainWindow.cpp" line="2390"/>
         <source>%1 - %2x%3</source>
         <translation>%1 - %2x%3</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2507"/>
+        <location filename="../MainWindow.cpp" line="2491"/>
         <source>File imported</source>
         <translation>File imported</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2531"/>
+        <location filename="../MainWindow.cpp" line="2509"/>
         <source>Color paint added</source>
         <translation>Color paint added</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2823"/>
+        <location filename="../MainWindow.cpp" line="2801"/>
         <source>Warning</source>
         <translation>Warning</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2824"/>
+        <location filename="../MainWindow.cpp" line="2802"/>
         <source>The following file is not supported: %1</source>
         <translation>The following file is not supported: %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2845"/>
+        <location filename="../MainWindow.cpp" line="2823"/>
         <source>Cannot load movie</source>
         <translation>Cannot load movie</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2846"/>
+        <location filename="../MainWindow.cpp" line="2824"/>
         <source>Unable to use the file « %1 » 
 The original file is not found. Will you locate?</source>
         <translation>Unable to use the file « %1 » 
 The original file is not found. Will you locate?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2852"/>
+        <location filename="../MainWindow.cpp" line="2830"/>
         <source>Locate file « %1 »</source>
         <translation>Locate file « %1 »</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2854"/>
+        <location filename="../MainWindow.cpp" line="2832"/>
         <source>%1 files (%2)</source>
         <translation>%1 files (%2)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2969"/>
         <source>Undo stack</source>
-        <translation>Undo stack</translation>
+        <translation type="vanished">Undo stack</translation>
     </message>
 </context>
 <context>
@@ -711,22 +777,22 @@ The original file is not found. Will you locate?</translation>
 <context>
     <name>MappingItemDelegate</name>
     <message>
-        <location filename="../MappingItemDelegate.cpp" line="97"/>
+        <location filename="../MappingItemDelegate.cpp" line="99"/>
         <source>Solo mapping</source>
         <translation>Solo mapping</translation>
     </message>
     <message>
-        <location filename="../MappingItemDelegate.cpp" line="109"/>
+        <location filename="../MappingItemDelegate.cpp" line="111"/>
         <source>Lock mapping</source>
         <translation>Lock mapping</translation>
     </message>
     <message>
-        <location filename="../MappingItemDelegate.cpp" line="121"/>
+        <location filename="../MappingItemDelegate.cpp" line="123"/>
         <source>Duplicate mapping</source>
         <translation>Duplicate mapping</translation>
     </message>
     <message>
-        <location filename="../MappingItemDelegate.cpp" line="133"/>
+        <location filename="../MappingItemDelegate.cpp" line="135"/>
         <source>Delete mapping</source>
         <translation>Delete mapping</translation>
     </message>
@@ -739,132 +805,141 @@ The original file is not found. Will you locate?</translation>
         <translation>Preferences</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="157"/>
+        <location filename="../PreferenceDialog.cpp" line="166"/>
         <source>Large</source>
         <translation>Large</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="158"/>
+        <location filename="../PreferenceDialog.cpp" line="167"/>
         <source>Medium</source>
         <translation>Medium</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="159"/>
+        <location filename="../PreferenceDialog.cpp" line="168"/>
         <source>Small</source>
         <translation>Small</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="163"/>
+        <location filename="../PreferenceDialog.cpp" line="172"/>
+        <source>Language (requires restart)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../PreferenceDialog.cpp" line="176"/>
         <source>Toolbar icon size (requires restart)</source>
         <translation>Toolbar icon size (requires restart)</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="177"/>
+        <location filename="../PreferenceDialog.cpp" line="191"/>
         <source>Enable Sticky vertices</source>
         <translation>Enable Sticky vertices</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="190"/>
+        <location filename="../PreferenceDialog.cpp" line="204"/>
         <source>Sensitivity</source>
         <translation>Sensitivity</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="192"/>
+        <location filename="../PreferenceDialog.cpp" line="206"/>
         <source>Vertex</source>
         <translation>Vertex</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="201"/>
+        <location filename="../PreferenceDialog.cpp" line="215"/>
         <source>Shape</source>
         <translation>Shape</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="204"/>
+        <location filename="../PreferenceDialog.cpp" line="218"/>
         <source>Layers</source>
         <translation>Layers</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="218"/>
+        <location filename="../PreferenceDialog.cpp" line="232"/>
         <source>Show resolution on output</source>
         <translation>Show resolution on output</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="220"/>
+        <location filename="../PreferenceDialog.cpp" line="234"/>
         <source>Classic test card</source>
         <translation>Classic test card</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="221"/>
+        <location filename="../PreferenceDialog.cpp" line="235"/>
         <source>PAL test card</source>
         <translation>PAL test card</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="222"/>
+        <location filename="../PreferenceDialog.cpp" line="236"/>
         <source>NTSC test card</source>
         <translation>NTSC test card</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="271"/>
+        <location filename="../PreferenceDialog.cpp" line="285"/>
         <source>Send OSC messages</source>
         <translation>Send OSC messages</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="281"/>
+        <location filename="../PreferenceDialog.cpp" line="300"/>
         <source>to machine</source>
         <translation>to machine</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="290"/>
+        <location filename="../PreferenceDialog.cpp" line="301"/>
         <source>at port</source>
         <translation>at port</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="294"/>
+        <location filename="../PreferenceDialog.cpp" line="305"/>
         <source>Listen OSC messages</source>
         <translation>Listen OSC messages</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="303"/>
+        <location filename="../PreferenceDialog.cpp" line="314"/>
         <source>on port</source>
         <translation>on port</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="306"/>
+        <location filename="../PreferenceDialog.cpp" line="317"/>
         <source>Refresh</source>
         <translation>Refresh</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="316"/>
+        <location filename="../PreferenceDialog.cpp" line="327"/>
         <source>Local IP</source>
         <translation>Local IP</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="328"/>
+        <location filename="../PreferenceDialog.cpp" line="338"/>
         <source>OSC Setup</source>
         <translation>OSC Setup</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="341"/>
-        <source>Apparence</source>
-        <translation>Apparence</translation>
+        <location filename="../PreferenceDialog.cpp" line="351"/>
+        <source>Interface</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="344"/>
+        <source>Apparence</source>
+        <translation type="vanished">Apparence</translation>
+    </message>
+    <message>
+        <location filename="../PreferenceDialog.cpp" line="354"/>
         <source>Mapping &amp; Shape</source>
         <translation>Mapping &amp; Shape</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="347"/>
+        <location filename="../PreferenceDialog.cpp" line="357"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="350"/>
+        <location filename="../PreferenceDialog.cpp" line="360"/>
         <source>Controls</source>
         <translation>Controls</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="353"/>
+        <location filename="../PreferenceDialog.cpp" line="363"/>
         <source>Advanced</source>
         <translation>Advanced</translation>
     </message>
@@ -907,12 +982,12 @@ The original file is not found. Will you locate?</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../Mapping.cpp" line="140"/>
+        <location filename="../Mapping.cpp" line="141"/>
         <source>Problem at creation of shape.</source>
         <translation>Problem at creation of shape.</translation>
     </message>
     <message>
-        <location filename="../Mapping.cpp" line="156"/>
+        <location filename="../Mapping.cpp" line="157"/>
         <location filename="../ProjectReader.cpp" line="140"/>
         <location filename="../ProjectReader.cpp" line="169"/>
         <source>Unable to create paint of type &apos;%1&apos;.</source>
@@ -983,12 +1058,12 @@ Line %2, column %3</translation>
         <translation>Problem at creation of mapping.</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="178"/>
+        <location filename="../main.cpp" line="184"/>
         <source>Initiating program...</source>
         <translation>Initiating program...</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="233"/>
+        <location filename="../main.cpp" line="239"/>
         <source>Done.</source>
         <translation>Done.</translation>
     </message>

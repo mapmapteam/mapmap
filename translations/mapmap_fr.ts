@@ -2,6 +2,49 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <source>About %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MapMap is a free/open source video mapping software.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copyright &amp;copy; 2013 %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>See the </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 website</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changelog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Librairies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contributors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ConsoleWindow</name>
     <message>
         <source>Message Log Output - Mapmap</source>
@@ -46,7 +89,7 @@
     <name>MainWindow</name>
     <message>
         <source>About MapMap</source>
-        <translation>À propos de MapMap</translation>
+        <translation type="vanished">À propos de MapMap</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -320,10 +363,6 @@ No camera available in your system</source>
         <translation type="unfinished">Choisir une couleur</translation>
     </message>
     <message>
-        <source>&lt;h2&gt;&lt;img src=&quot;:mapmap-title&quot;/&gt; %1&lt;/h2&gt;&lt;p&gt;Copyright &amp;copy; 2013 %2.&lt;/p&gt;&lt;p&gt;MapMap is a free software for video mapping.&lt;/p&gt;&lt;p&gt;Projection mapping, also known as video mapping and spatial augmented reality, is a projection technology used to turn objects, often irregularly shaped, into a display surface for video projection. These objects may be complex industrial landscapes, such as buildings. By using specialized software, a two or three dimensional object is spatially mapped on the virtual program which mimics the real environment it is to be projected on. The software can interact with a projector to fit any desired image onto the surface of that object. This technique is used by artists and advertisers alike who can add extra dimensions, optical illusions, and notions of movement onto previously static objects. The video is commonly combined with, or triggered by, audio to create an audio-visual narrative.This project was made possible by the support of the International Organization of La Francophonie.&lt;/p&gt;&lt;p&gt;http://mapmap.info&lt;br /&gt;http://www.francophonie.org&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Paints</source>
         <translation>Sources</translation>
     </message>
@@ -481,7 +520,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Display &amp;Undo Stack</source>
-        <translation>Afficher la liste des &amp;Undo</translation>
+        <translation type="vanished">Afficher la liste des &amp;Undo</translation>
     </message>
     <message>
         <source>Open Conso&amp;le</source>
@@ -613,7 +652,15 @@ The original file is not found. Will you locate?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Undo stack</source>
+        <source>Display &amp;Undo History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Submit Feedback...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo history</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -644,15 +691,15 @@ The original file is not found. Will you locate?</source>
     </message>
     <message>
         <source>Lock mapping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verrouiller le mapping</translation>
     </message>
     <message>
         <source>Duplicate mapping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dupliquer un mapping</translation>
     </message>
     <message>
         <source>Delete mapping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer le mapping</translation>
     </message>
 </context>
 <context>
@@ -746,10 +793,6 @@ The original file is not found. Will you locate?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Apparence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mapping &amp; Shape</source>
         <translation type="unfinished"></translation>
     </message>
@@ -763,6 +806,14 @@ The original file is not found. Will you locate?</source>
     </message>
     <message>
         <source>Advanced</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Language (requires restart)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -876,7 +927,7 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Delete mapping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer le mapping</translation>
     </message>
     <message>
         <source>Problem at creation of shape.</source>
@@ -911,7 +962,11 @@ Ligne %2, colonne %3</translation>
         <translation>Problème à la création de la source</translation>
     </message>
     <message>
-        <translation>Problème à la création du mapping</translation>
+        <source></source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Problem at creation of mapping.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1053,7 +1108,7 @@ Ligne %2, colonne %3</translation>
     <name>QtFontEditWidget</name>
     <message>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">...</translation>
     </message>
     <message>
         <source>Select Font</source>

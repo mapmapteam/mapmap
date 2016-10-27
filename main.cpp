@@ -140,12 +140,13 @@ int main(int argc, char *argv[])
 
   // IMPORTANT: Translator must be set *before* the MainWindow is created for it to work.
   QSettings settings;
+  // Get language from command line or user settings
   QString lang = parser.value("lang").isEmpty()
                  ? settings.value("language").toString()
                  : parser.value("lang");
   if (MM::SUPPORTED_LANGUAGES.contains(lang))
   {
-    QLocale::setDefault(QLocale(lang));
+    //QLocale::setDefault(QLocale(lang));
     QTranslator qtTranslator;
 #ifdef Q_OS_WIN32
     qtTranslator.load(QString("qt_%1").arg(lang),
@@ -156,9 +157,9 @@ int main(int argc, char *argv[])
 #endif
     app.installTranslator(&qtTranslator);
 
-    QTranslator localization;
-    localization.load(QString(":/mapmap_%1").arg(lang));
-    app.installTranslator(&localization);
+    QTranslator appTranslator;
+    appTranslator.load(QString("translations/mapmap_%1").arg(lang));
+    app.installTranslator(&appTranslator);
   }
   else {
     qWarning() << "Unrecognized/unsupported language: " << lang;
