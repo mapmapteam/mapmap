@@ -1778,7 +1778,7 @@ void MainWindow::createActions()
   addAction(displayControlsAction);
   // Manage show/hide of canvas controls.
   connect(displayControlsAction, SIGNAL(toggled(bool)), this, SLOT(enableDisplayControls(bool)));
-  connect(displayControlsAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setDisplayCrosshair(bool)));
+  connect(displayControlsAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setCanvasDisplayCrosshair(bool)));
 
   // Toggle display of canvas controls.
   displayPaintControlsAction = new QAction(tr("&Display Controls of Mappings of a Paint"), this);
