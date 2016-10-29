@@ -2171,6 +2171,7 @@ void MainWindow::readSettings()
   outputFullScreenAction->setChecked(settings.value("displayOutputWindow", MM::DISPLAY_OUTPUT_WINDOW).toBool());
   displayTestSignalAction->setChecked(settings.value("displayTestSignal", MM::DISPLAY_TEST_SIGNAL).toBool());
   displayControlsAction->setChecked(settings.value("displayControls", MM::DISPLAY_CONTROLS).toBool());
+  outputWindow->setCanvasDisplayCrosshair(settings.value("displayControls", MM::DISPLAY_CONTROLS).toBool());
   oscListeningPort = settings.value("oscListeningPort", MM::DEFAULT_OSC_PORT).toInt();
 
   // Update Recent files and video

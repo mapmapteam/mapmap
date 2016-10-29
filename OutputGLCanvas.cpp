@@ -91,9 +91,18 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
       if (rect.contains(cursorPosition))
 #endif
       {
+//        painter->setPen(MM::CONTROL_COLOR);
+//        painter->drawLine(cursorPosition.x(), rect.y(), cursorPosition.x(), rect.height());
+//        painter->drawLine(rect.x(), cursorPosition.y(), rect.width(), cursorPosition.y());
+        // Draw crosshair line
+        painter->setPen(MM::CROSSHAIR_STROKE);
+        painter->setBrush(MM::CONTROL_COLOR);
+        painter->drawRect(cursorPosition.x() - 2, rect.y(), 4, rect.height());
+        painter->drawRect(rect.x(), cursorPosition.y() - 2, rect.width(), 4);
+        // Draw crosshair pointer
         painter->setPen(MM::CONTROL_COLOR);
-        painter->drawLine(cursorPosition.x(), rect.y(), cursorPosition.x(), rect.height());
-        painter->drawLine(rect.x(), cursorPosition.y(), rect.width(), cursorPosition.y());
+        painter->setBrush(MM::CROSSHAIR_STROKE);
+        painter->drawRect(cursorPosition.x() - 10, cursorPosition.y() - 10, 20, 20);
       }
     }
   }
