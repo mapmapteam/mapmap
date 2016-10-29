@@ -39,6 +39,8 @@ public:
   // Return enable statut
   bool buttonsAreEnable() { return _areEnable; }
 
+  void setToolbarTitle(const QString &title) { _titleLabel->setText(title); }
+
 public slots:
   // Update and feedback zoom level
   void updateDropdownMenu(qreal factor = 1);
@@ -47,7 +49,8 @@ public slots:
 
 protected:
   MapperGLCanvas* _canvas;
-
+  // Labels
+  QLabel *_titleLabel;
   // Buttons for toolbox layout
   QPushButton* _zoomInButton;
   QPushButton* _zoomOutButton;

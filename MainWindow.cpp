@@ -1376,6 +1376,7 @@ void MainWindow::createLayout()
   sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
   sourceCanvasToolbar = new MapperGLCanvasToolbar(sourceCanvas, this);
+  sourceCanvasToolbar->setToolbarTitle(tr("Source"));
   QVBoxLayout* sourceLayout = new QVBoxLayout;
   sourcePanel = new QWidget(this);
 
@@ -1390,6 +1391,7 @@ void MainWindow::createLayout()
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
   destinationCanvasToolbar = new MapperGLCanvasToolbar(destinationCanvas, this);
+  destinationCanvasToolbar->setToolbarTitle(tr("Destination"));
   QVBoxLayout* destinationLayout = new QVBoxLayout;
   destinationPanel = new QWidget(this);
 
