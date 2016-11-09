@@ -47,9 +47,9 @@ typedef enum {
 
 /**
  * A Paint is a style that can be applied when drawing potentially any shape.
- * 
+ *
  * Defines the way to draw any shape.
- * There must be a MappingGui that implements this paint for every shape 
+ * There must be a MappingGui that implements this paint for every shape
  * so that this shape might be drawn with it.
  */
 class Paint : public Element
@@ -135,7 +135,7 @@ public:
 
 /**
  * Paint that uses an OpenGL texture to paint on potentially any MappingGui.
- * 
+ *
  * This video texture is actually an OpenGL texture.
  */
 class Texture : public Paint
@@ -278,11 +278,10 @@ public:
   Q_INVOKABLE Video(int id=NULL_UID);
   Video(const QString uri_, VideoType type, double rate, uid id=NULL_UID);
   virtual ~Video();
-  const QString getUri() const
-  {
-    return _uri;
-  }
+
+  const QString getUri() const { return _uri; }
   bool setUri(const QString &uri);
+
   virtual void build();
   virtual void update();
 
@@ -295,10 +294,8 @@ public:
   /// Unlocks mutex (default = no effect).
   virtual void unlockMutex();
 
-  virtual QString getType() const
-  {
-    return "media";
-  }
+  virtual QString getType() const { return "media"; }
+  
   virtual int getWidth() const;
   virtual int getHeight() const;
 
