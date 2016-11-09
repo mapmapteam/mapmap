@@ -247,10 +247,10 @@ public slots:
   void showPaintContextMenu(const QPoint &point);
 
   /// Start playback.
-  void play();
+  void play(bool updatePlayPauseActions=true);
 
   /// Pause playback.
-  void pause();
+  void pause(bool updatePlayPauseActions=true);
 
   /// Reset playback.
   void rewind();

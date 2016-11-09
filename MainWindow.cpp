@@ -324,7 +324,7 @@ void MainWindow::paintPropertyChanged(uid id, QString propertyName, QVariant val
 void MainWindow::closeEvent(QCloseEvent *event)
 {
   // Stop video playback to avoid lags. XXX Hack
-  videoTimer->stop();
+  pause(false);
 
   // Popup dialog allowing the user to save before closing.
   if (okToContinue())
@@ -345,7 +345,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
   }
 
   // Restart video playback. XXX Hack
-  videoTimer->start();
+  play(false);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -404,7 +404,7 @@ void MainWindow::setOutputWindowFullScreen(bool enable)
 void MainWindow::newFile()
 {
   // Stop video playback to avoid lags. XXX Hack
-  videoTimer->stop();
+  pause(false);
 
   // Popup dialog allowing the user to save before creating a new file.
   if (okToContinue())
@@ -415,13 +415,13 @@ void MainWindow::newFile()
   }
 
   // Restart video playback. XXX Hack
-  videoTimer->start();
+  play(false);
 }
 
 void MainWindow::open()
 {
   // Stop video playback to avoid lags. XXX Hack
-  videoTimer->stop();
+  pause(false);
 
   // Popup dialog allowing the user to save before opening a new file.
   if (okToContinue())
@@ -435,7 +435,7 @@ void MainWindow::open()
   }
 
   // Restart video playback. XXX Hack
-  videoTimer->start();
+  play(false);
 }
 
 bool MainWindow::save()
@@ -454,7 +454,7 @@ bool MainWindow::save()
 bool MainWindow::saveAs()
 {
   // Stop video playback to avoid lags. XXX Hack
-  videoTimer->stop();
+  pause(false);
 
   // Popul file dialog to choose filename.
   QString fileName = QFileDialog::getSaveFileName(this,
@@ -462,7 +462,7 @@ bool MainWindow::saveAs()
                                                   tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
 
   // Restart video playback. XXX Hack
-  videoTimer->start();
+  play(false);
 
   if (fileName.isEmpty())
     return false;
@@ -482,7 +482,7 @@ bool MainWindow::saveAs()
 void MainWindow::importMedia()
 {
   // Stop video playback to avoid lags. XXX Hack
-  videoTimer->stop();
+  pause(false);
 
   // Pop-up file-choosing dialog to choose media file.
   // TODO: restrict the type of files that can be imported
@@ -493,7 +493,7 @@ void MainWindow::importMedia()
                                                   .arg(MM::VIDEO_FILES_FILTER)
                                                   .arg(MM::IMAGE_FILES_FILTER));
   // Restart video playback. XXX Hack
-  videoTimer->start();
+  play(false);
 
   // Check if file is image or not
   // according to file extension
@@ -553,7 +553,7 @@ void MainWindow::openCameraDevice()
 void MainWindow::addColor()
 {
   // Stop video playback to avoid lags. XXX Hack
-  videoTimer->stop();
+  pause(false);
 
   // Pop-up color-choosing dialog to choose color paint.
   // FIXME: we use a static variable to store the last chosen color
@@ -568,7 +568,7 @@ void MainWindow::addColor()
   }
 
   // Restart video playback. XXX Hack
-  videoTimer->start();
+  play(false);
 }
 
 void MainWindow::addMesh()
@@ -679,7 +679,7 @@ void MainWindow::addEllipse()
 void MainWindow::about()
 {
   // Stop video playback to avoid lags. XXX Hack
-  videoTimer->stop();
+  pause(false);
 
 //  // Pop-up about dialog.
 //  QMessageBox::about(this, tr("About MapMap"),
@@ -708,7 +708,7 @@ void MainWindow::about()
   _aboutDialog->show();
 
   // Restart video playback. XXX Hack
-  videoTimer->start();
+  play(false);
 }
 
 void MainWindow::updateStatusBar()
@@ -2985,21 +2985,28 @@ void MainWindow::showPaintContextMenu(const QPoint &point)
     paintContextMenu->exec(objectSender->mapToGlobal(point));
 }
 
-void MainWindow::play()
+void MainWindow::play(bool updatePlayPauseActions)
 {
   // Update buttons.
-  playAction->setVisible(false);
-  pauseAction->setVisible(true);
+  if (updatePlayPauseActions)
+  {
+    playAction->setVisible(false);
+    pauseAction->setVisible(true);
+  }
+
   _isPlaying = true;
 
   updatePlayingState();
 }
 
-void MainWindow::pause()
+void MainWindow::pause(bool updatePlayPauseActions)
 {
   // Update buttons.
-  playAction->setVisible(true);
-  pauseAction->setVisible(false);
+  if (updatePlayPauseActions)
+  {
+    playAction->setVisible(true);
+    pauseAction->setVisible(false);
+  }
   _isPlaying = false;
 
   updatePlayingState();
