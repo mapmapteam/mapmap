@@ -1376,6 +1376,7 @@ void MainWindow::createLayout()
   sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
   sourceCanvasToolbar = new MapperGLCanvasToolbar(sourceCanvas, this);
+  sourceCanvasToolbar->setToolbarTitle(tr("Source"));
   QVBoxLayout* sourceLayout = new QVBoxLayout;
   sourcePanel = new QWidget(this);
 
@@ -1390,6 +1391,7 @@ void MainWindow::createLayout()
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
   destinationCanvasToolbar = new MapperGLCanvasToolbar(destinationCanvas, this);
+  destinationCanvasToolbar->setToolbarTitle(tr("Destination"));
   QVBoxLayout* destinationLayout = new QVBoxLayout;
   destinationPanel = new QWidget(this);
 
@@ -1778,7 +1780,7 @@ void MainWindow::createActions()
   addAction(displayControlsAction);
   // Manage show/hide of canvas controls.
   connect(displayControlsAction, SIGNAL(toggled(bool)), this, SLOT(enableDisplayControls(bool)));
-  connect(displayControlsAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setDisplayCrosshair(bool)));
+  connect(displayControlsAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setCanvasDisplayCrosshair(bool)));
 
   // Toggle display of canvas controls.
   displayPaintControlsAction = new QAction(tr("&Display Controls of Mappings of a Paint"), this);
@@ -1860,25 +1862,25 @@ void MainWindow::createActions()
 
   // Perspectives
   // Main perspective (Source + destination)
-  mainViewAction = new QAction(tr("Main Perspective"), this);
+  mainViewAction = new QAction(tr("Main Layout"), this);
   mainViewAction->setCheckable(true);
   mainViewAction->setChecked(true);
-  mainViewAction->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_1);
-  mainViewAction->setToolTip(tr("Switch to the Main perspective."));
+  mainViewAction->setShortcut(Qt::CTRL + Qt::Key_1);
+  mainViewAction->setToolTip(tr("Switch to the Main layout."));
   connect(mainViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setVisible(bool)));
   connect(mainViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setVisible(bool)));
   // Source Only
-  sourceViewAction = new QAction(tr("Source Perspective"), this);
+  sourceViewAction = new QAction(tr("Source Layout"), this);
   sourceViewAction->setCheckable(true);
-  sourceViewAction->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_2);
-  sourceViewAction->setToolTip(tr("Switch to the Source perspective."));
+  sourceViewAction->setShortcut(Qt::CTRL + Qt::Key_2);
+  sourceViewAction->setToolTip(tr("Switch to the Source layout."));
   connect(sourceViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setVisible(bool)));
   connect(sourceViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setHidden(bool)));
   // Destination Only
-  destViewAction = new QAction(tr("Destination Perspective"), this);
+  destViewAction = new QAction(tr("Destination Layout"), this);
   destViewAction->setCheckable(true);
-  destViewAction->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_3);
-  destViewAction->setToolTip(tr("Switch to the Destination perspective."));
+  destViewAction->setShortcut(Qt::CTRL + Qt::Key_3);
+  destViewAction->setToolTip(tr("Switch to the Destination layout."));
   connect(destViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setHidden(bool)));
   connect(destViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setVisible(bool)));
   // Groups all actions
@@ -2169,6 +2171,7 @@ void MainWindow::readSettings()
   outputFullScreenAction->setChecked(settings.value("displayOutputWindow", MM::DISPLAY_OUTPUT_WINDOW).toBool());
   displayTestSignalAction->setChecked(settings.value("displayTestSignal", MM::DISPLAY_TEST_SIGNAL).toBool());
   displayControlsAction->setChecked(settings.value("displayControls", MM::DISPLAY_CONTROLS).toBool());
+  outputWindow->setCanvasDisplayCrosshair(settings.value("displayControls", MM::DISPLAY_CONTROLS).toBool());
   oscListeningPort = settings.value("oscListeningPort", MM::DEFAULT_OSC_PORT).toInt();
 
   // Update Recent files and video

@@ -43,9 +43,12 @@ void MapperGLCanvasToolbar::createZoomToolsLayout()
   // Create zoom tool bar
   setObjectName("zoom-toolbox");
 
-  // Create vertical layout for widgets
-  QHBoxLayout* buttonsLayout = new QHBoxLayout;
-  buttonsLayout->setContentsMargins(0, 0, 5, 0);
+  // Create label for title
+  _titleLabel = new QLabel;
+
+  // Create horizontale layout for widgets
+  QHBoxLayout* toolbarLayout = new QHBoxLayout;
+  toolbarLayout->setContentsMargins(0, 0, 5, 0);
   // Create buttons
   // Zoom In button
   _zoomInButton = new QPushButton;
@@ -96,15 +99,16 @@ void MapperGLCanvasToolbar::createZoomToolsLayout()
   connect(_dropdownMenu, SIGNAL(activated(QString)), _canvas, SLOT(setZoomFromMenu(QString)));
 
   // Add widgets into layout
-  buttonsLayout->addWidget(_zoomInButton);
-  buttonsLayout->addWidget(_zoomOutButton);
-  buttonsLayout->addWidget(_resetZoomButton);
-  buttonsLayout->addWidget(_fitToViewButton);
-  buttonsLayout->addWidget(separator);
-  buttonsLayout->addWidget(_dropdownMenu);
+  toolbarLayout->addWidget(_titleLabel);
+  toolbarLayout->addWidget(_zoomInButton);
+  toolbarLayout->addWidget(_zoomOutButton);
+  toolbarLayout->addWidget(_resetZoomButton);
+  toolbarLayout->addWidget(_fitToViewButton);
+  toolbarLayout->addWidget(separator);
+  toolbarLayout->addWidget(_dropdownMenu);
 
   // Insert layout in widget
-  setLayout(buttonsLayout);
+  setLayout(toolbarLayout);
 
   connect(_canvas, SIGNAL(zoomFactorChanged(qreal)), this, SLOT(updateDropdownMenu(qreal)));
 }

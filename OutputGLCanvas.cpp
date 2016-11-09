@@ -27,10 +27,7 @@ MM_BEGIN_NAMESPACE
 OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget* shareWidget, QGraphicsScene* scene)
 : MapperGLCanvas(mainWindow, true, parent, shareWidget, scene),
   _displayCrosshair(false),
-  _displayTestSignal(false),
-  _svg_test_signal(":/test-signal"),
-  _brush_test_signal(_svg_test_signal),
-  _palTestCard(":/pal-test-card")
+  _displayTestSignal(false)
 {
   // Disable scrollbars.
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -53,10 +50,11 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     int testCard = settings.value("signalTestCard", MM::DEFAULT_TEST_CARD).toInt();
     glPushMatrix();
     painter->translate(rect.x(), rect.y());
+    painter->setRenderHint(QPainter::Antialiasing);
     painter->save();
     switch (testCard) {
     case MM::Classic:
-      _drawTestSignal(painter);
+      _drawClassicTestSignal(painter);
       break;
     case MM::PAL:
       _drawPALTestCard(painter);
@@ -91,16 +89,25 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
       if (rect.contains(cursorPosition))
 #endif
       {
+//        painter->setPen(MM::CONTROL_COLOR);
+//        painter->drawLine(cursorPosition.x(), rect.y(), cursorPosition.x(), rect.height());
+//        painter->drawLine(rect.x(), cursorPosition.y(), rect.width(), cursorPosition.y());
+        // Draw crosshair line
+        painter->setPen(MM::CROSSHAIR_STROKE);
+        painter->setBrush(MM::CONTROL_COLOR);
+        painter->drawRect(cursorPosition.x() - 2, rect.y(), 4, rect.height());
+        painter->drawRect(rect.x(), cursorPosition.y() - 2, rect.width(), 4);
+        // Draw crosshair pointer
         painter->setPen(MM::CONTROL_COLOR);
-        painter->drawLine(cursorPosition.x(), rect.y(), cursorPosition.x(), rect.height());
-        painter->drawLine(rect.x(), cursorPosition.y(), rect.width(), cursorPosition.y());
+        painter->setBrush(MM::CROSSHAIR_STROKE);
+        painter->drawRect(cursorPosition.x() - 10, cursorPosition.y() - 10, 20, 20);
       }
     }
   }
 
 }
 
-void OutputGLCanvas::_drawTestSignal(QPainter* painter)
+void OutputGLCanvas::_drawClassicTestSignal(QPainter* painter)
 {
   const QRect& geo = geometry();
   int width = geo.width();
@@ -127,12 +134,12 @@ void OutputGLCanvas::_drawTestSignal(QPainter* painter)
   }
 
   // Create responsive image
-  QImage image = _svg_test_signal.scaled(height, height, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  int imageX = (width - image.width()) / 2;
-  int imageY = (height - image.height()) / 2;
+  _classicTestCard = QImage(":/test-signal").scaled(height, height, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  int imageX = (width - _classicTestCard.width()) / 2;
+  int imageY = (height - _classicTestCard.height()) / 2;
 
   // Draw the image.
-  painter->drawImage(imageX, imageY, image);
+  painter->drawImage(imageX, imageY, _classicTestCard);
 }
 
 void OutputGLCanvas::_drawPALTestCard(QPainter* painter)
@@ -170,17 +177,17 @@ void OutputGLCanvas::_drawPALTestCard(QPainter* painter)
   }
 
   // Create responsive image
-  QImage image = _palTestCard.scaled(height - (rectSize * 2), height - (rectSize * 2),
+  _palTestCard = QImage(":/pal-test-card").scaled(height - (rectSize * 2), height - (rectSize * 2),
                                            Qt::KeepAspectRatio, Qt::SmoothTransformation);
   // Draw image
-  int imageX = (width - image.width()) / 2;
-  int imageY = (height - image.height()) / 2;
-  int imageWidth = image.width();
-  int imageHeight = image.height();
-  painter->drawImage(imageX, imageY, image);
+  int imageX = (width - _palTestCard.width()) / 2;
+  int imageY = (height - _palTestCard.height()) / 2;
+  int imageHeight = _palTestCard.height();
+  painter->drawImage(imageX, imageY, _palTestCard);
+
   // Draw text for screen resolution
-  int fontSize = imageHeight / 20;
-  QRect textRect((width / 2) - (fontSize * 3), imageY + (imageHeight / 13), fontSize * 6, fontSize);
+  int fontSize = imageHeight / 18;
+  QRect textRect((width / 2) - (fontSize * 3), imageY + (imageHeight / 19), fontSize * 6, fontSize);
   _drawResolutionText(painter, textRect, fontSize);
 }
 
@@ -189,24 +196,19 @@ void OutputGLCanvas::_drawNTSCTestCard(QPainter* painter)
   const QRect& geo = geometry();
   int width = geo.width();
   int height = geo.height();
-  QList<QColor> colors = {
-    Qt::white, Qt::yellow, Qt::cyan, Qt::green,
-    Qt::magenta, Qt::red, Qt::blue, Qt::black
-  };
 
-  const int bandWidth = width / colors.size();
+  // Create image
+  _ntscTestCard = QImage(":/ntsc-test-card").scaled(width, height);
 
-  painter->setPen(Qt::NoPen);
+  // Draw backgroung image
+  painter->drawImage(geo.x(), geo.y(), _ntscTestCard);
+  // Draw logo
+  QImage mapmapLogo = QImage(":/mapmap-logo-with-border").scaled(width, height / 15, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  painter->drawImage((width - mapmapLogo.width()) / 2, height / 4, mapmapLogo);
 
-  // Draw checkerboard pattern.
-  for (int x = 0; x < width / bandWidth; x++)
-  {
-    painter->setBrush(colors.at(x));
-    painter->drawRect(x * bandWidth, 0, bandWidth, height);
-  }
 
   // Draw text for screen resolution
-  int fontSize = height / 30;
+  int fontSize = height / 21;
   QRect textRect((width / 2) - (fontSize * 3), height / 3, fontSize * 6, fontSize);
   _drawResolutionText(painter, textRect, fontSize);
 }
@@ -220,6 +222,7 @@ void OutputGLCanvas::_drawResolutionText(QPainter *painter, const QRect &rect, i
     painter->fillRect(rect, Qt::black);
     QFont font = painter->font();
     font.setPixelSize(fontSize);
+    font.setBold(true);
     painter->setFont(font);
     painter->setPen(Qt::white);
     painter->drawText(rect, Qt::AlignCenter,

@@ -46,7 +46,7 @@ public:
 
 public slots:
   void setFullScreen(bool fullScreen);
-  void setDisplayCrosshair(bool crosshair);
+  void setCanvasDisplayCrosshair(bool crosshair);
   void setDisplayTestSignal(bool displayTestSignal);
 
 signals:

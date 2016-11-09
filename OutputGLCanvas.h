@@ -50,7 +50,7 @@ public:
   }
 
 private:
-  void _drawTestSignal(QPainter* painter);
+  void _drawClassicTestSignal(QPainter* painter);
   void _drawPALTestCard(QPainter *painter);
   void _drawNTSCTestCard(QPainter *painter);
 
@@ -58,9 +58,10 @@ private:
 
   bool _displayCrosshair;
   bool _displayTestSignal;
-  QImage _svg_test_signal;
+  QImage _classicTestCard;
   QBrush _brush_test_signal;
   QImage _palTestCard;
+  QImage _ntscTestCard;
 
 protected:
   // overriden from QGlWidget:

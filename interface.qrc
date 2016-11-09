@@ -44,5 +44,7 @@
         <file alias="pal-test">resources/images/test-signal/examples/pal-test-card.png</file>
         <file alias="ntsc-test">resources/images/test-signal/examples/ntsc-test-card.png</file>
         <file>resources/images/checkbox/checkbox-unchecked.png</file>
+        <file alias="ntsc-test-card">resources/images/test-signal/ntsc-test-signal.svg</file>
+        <file alias="mapmap-logo-with-border">resources/images/logo/mapmap-wide-with-border.svg</file>
     </qresource>
 </RCC>

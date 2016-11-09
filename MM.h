@@ -93,6 +93,7 @@ public:
   static const QColor LIGHT_RED;
   static const QColor DARK_RED;
 
+  static const QColor CROSSHAIR_STROKE;
   static const QColor CONTROL_COLOR;
   static const QColor CONTROL_COLOR_NON_SELECTED;
   static const QColor CONTROL_LOCKED_COLOR;

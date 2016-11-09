@@ -38,7 +38,7 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) 
   layout->addWidget(canvas);
   setLayout(layout);
 
-  setDisplayCrosshair(false); // default
+  setCanvasDisplayCrosshair(false); // default
   this->_is_fullscreen = false;
   _preferredScreen = QApplication::screens().size() - 1;
 }
@@ -93,10 +93,11 @@ void OutputGLWindow::_updateToPreferredScreen()
 }
 
 
-void OutputGLWindow::setDisplayCrosshair(bool crosshair)
+void OutputGLWindow::setCanvasDisplayCrosshair(bool crosshair)
 {
   canvas->setDisplayCrosshair(crosshair);
   setCursor(crosshair || this->_is_fullscreen ? Qt::BlankCursor : Qt::ArrowCursor);
+  qDebug() << "Crosshair " << crosshair;
 }
 
 void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
