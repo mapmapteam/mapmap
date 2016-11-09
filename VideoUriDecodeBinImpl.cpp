@@ -69,13 +69,12 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
   // Check for audio pads.
   else if (isAudioPad)
   {
-    if (p->audioIsSupported())
-      sinkPad = gst_element_get_static_pad (p->_audioqueue0, "sink");
-    else if (!p->createAudioComponents())
+    if (!p->createAudioComponents())
     {
       qWarning() << "Problem creating audio components." << endl;
       goto exit;
     }
+    sinkPad = gst_element_get_static_pad (p->_audioqueue0, "sink");
   }
 
   // Other types: ignore.
@@ -263,7 +262,7 @@ bool VideoUriDecodeBinImpl::loadMovie(const QString& path) {
   g_object_set (_uridecodebin0, "uri", uri, NULL);
 
   setPlayState(true);
-  
+
   return true;
 }
 

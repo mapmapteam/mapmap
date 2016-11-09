@@ -306,6 +306,10 @@ void VideoImpl::resetMovie()
 
 bool VideoImpl::createVideoComponents()
 {
+  // Already supported?
+  if (videoIsSupported())
+    return true;
+
   // Create the video elements.
   _queue0 = gst_element_factory_make ("queue", "queue0");
   _videoconvert0 = gst_element_factory_make ("videoconvert", "videoconvert0");
@@ -356,6 +360,10 @@ bool VideoImpl::createVideoComponents()
 
 bool VideoImpl::createAudioComponents()
 {
+  // Already supported?
+  if (audioIsSupported())
+    return true;
+
   // Create the audio elements.
   _audioqueue0 = gst_element_factory_make ("queue", "audioqueue0");
   _audioconvert0 = gst_element_factory_make ("audioconvert", "audioconvert0");
