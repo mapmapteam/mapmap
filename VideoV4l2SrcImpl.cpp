@@ -38,13 +38,12 @@ bool VideoV4l2SrcImpl::loadMovie(const QString& path) {
   VideoImpl::loadMovie(path);
 
   _v4l2src0 = gst_element_factory_make("v4l2src", NULL);
-  _videoIsConnected = false;
 
   if ( !_v4l2src0)
   {
-    g_printerr ("Not all elements could be created.\n");
+    qWarning() << "Not all elements could be created." << endl;
     unloadMovie();
-    return -1;
+    return (-1);
   }
 
   // Build the pipeline. Note that we are NOT linking the source at this
@@ -62,7 +61,7 @@ bool VideoV4l2SrcImpl::loadMovie(const QString& path) {
 
   // Configure video appsink.
   GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA,width=640,height=480");
-  g_object_set (capsfilter0, "caps", videoCaps, NULL);
+  g_object_set (_capsfilter0, "caps", videoCaps, NULL);
   gst_caps_unref (videoCaps);
 
   // Retrieve meta-info.
@@ -70,7 +69,6 @@ bool VideoV4l2SrcImpl::loadMovie(const QString& path) {
   _height = 480;
   //_duration = ;
   _seekEnabled = false;
-
 
   setPlayState(true);
   return TRUE;

@@ -46,7 +46,7 @@ void VideoShmSrcImpl::setAttached(bool attach)
   _attached = attach;
 }
 
-gboolean 
+gboolean
 gstPollShmsrc (void *user_data)
 {
   VideoShmSrcImpl *p = (VideoShmSrcImpl*) user_data;
@@ -71,16 +71,16 @@ bool VideoShmSrcImpl::loadMovie(const QString& path) {
   _gdpdepay0 = gst_element_factory_make ("gdpdepay", "gdpdepay0");
   _pollSource = g_timeout_source_new (500);
 
-  g_source_set_callback (_pollSource, 
-      gstPollShmsrc, 
-      this, 
+  g_source_set_callback (_pollSource,
+      gstPollShmsrc,
+      this,
       NULL);
   g_source_attach (_pollSource, g_main_context_default());
   g_source_unref (_pollSource);
 
   if (! _shmsrc0 || ! _gdpdepay0)
   {
-    g_printerr ("Not all elements could be created.\n");
+    qWarning() << "Not all elements could be created." << endl;
     if (! _shmsrc0) g_printerr("_shmsrc0");
     if (! _gdpdepay0) g_printerr("_gdpdepay0");
     unloadMovie();
@@ -90,7 +90,7 @@ bool VideoShmSrcImpl::loadMovie(const QString& path) {
   gst_bin_add_many (GST_BIN(_pipeline), _shmsrc0, _gdpdepay0, NULL);
   if (! gst_element_link_many (_shmsrc0, _gdpdepay0, _queue0, NULL))
   {
-    g_printerr ("Could not link shmsrc, deserializer and video queue.\n");
+    qWarning() << "Could not link shmsrc, deserializer and video queue." << endl;
   }
 
   QByteArray ba = path.toLocal8Bit();

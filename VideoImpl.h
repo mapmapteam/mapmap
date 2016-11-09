@@ -112,6 +112,9 @@ public:
 
   bool videoIsConnected() const { return _videoIsConnected; }
   void videoConnect() { _videoIsConnected = true; }
+  bool audioIsConnected() const { return _audioIsConnected; }
+  void audioConnect() { _audioIsConnected = true; }
+  bool audioIsSupported() const { return _audioqueue0 != NULL; }
 
   /**
    * Performs regular updates (checks if movie is ready and checks messages).
@@ -121,137 +124,11 @@ public:
 
   /**
    * Loads a new video stream
-   * 
+   *
    * Creates a new GStreamer pipeline, opens a movie, webcam or shmsrc socket,
    * depending on subclass.
    */
-  virtual bool loadMovie(const QString& filename) {
-    // Verify if file exists.
-    const gchar* filetestpath = (const gchar*) filename.toUtf8().constData();
-    if (FALSE == g_file_test(filetestpath, G_FILE_TEST_EXISTS))
-    {
-      qDebug() << "File " << filename << " does not exist" << endl;
-      return false;
-    }
-
-    qDebug() << "Opening movie: " << filename << ".";
-
-    // Assign URI.
-    _uri = filename;
-
-    // Free previously allocated structures
-    unloadMovie();
-
-    // Initialize GStreamer.
-
-    GstElement *videoscale0 = NULL;
-
-    // Create the elements.
-    _queue0 = gst_element_factory_make ("queue", "queue0");
-    _videoconvert0 = gst_element_factory_make ("videoconvert", "videoconvert0");
-    videoscale0 = gst_element_factory_make ("videoscale", "videoscale0");
-    capsfilter0 = gst_element_factory_make ("capsfilter", "capsfilter0");
-    _appsink0 = gst_element_factory_make ("appsink", "appsink0");
-
-    // Prepare handler data.
-    _videoIsConnected = false;
-
-    _audioqueue0 = gst_element_factory_make ("queue", "audioqueue0");
-    _audioconvert0 = gst_element_factory_make ("audioconvert", "audioconvert0");
-    _audioresample0 = gst_element_factory_make ("audioresample", "audioresample0");
-    _audiovolume0 = gst_element_factory_make ("volume", "audiovolume0");
-    _audiosink0 = gst_element_factory_make ("autoaudiosink", "audiosink0");
-
-    // Create the empty pipeline.
-    _pipeline = gst_pipeline_new ( "video-source-pipeline" );
-    if (!_pipeline ||
-        !_queue0 || !_videoconvert0 || ! videoscale0 || ! capsfilter0 ||
-        !_appsink0 || !_audioqueue0 || !_audioconvert0 || !_audioresample0 ||
-        !_audiovolume0 || !_audiosink0)
-    {
-      g_printerr ("Not all elements could be created.\n");
-      if (! _pipeline) g_printerr("_pipeline");
-      if (! _queue0) g_printerr("_queue0");
-      if (! _videoconvert0) g_printerr("_videoconvert0");
-      if (! videoscale0) g_printerr("videoscale0");
-      if (! capsfilter0) g_printerr("capsfilter0");
-      if (! _appsink0) g_printerr("_appsink0");
-      if (! _audioqueue0) g_printerr("_audioqueue0");
-      if (! _audioconvert0) g_printerr("_audioconvert0");
-      if (! _audioresample0) g_printerr("_audioresample0");
-      if (! _audiovolume0) g_printerr("_audiovolume0");
-      if (! _audiosink0) g_printerr("_audiosink0");
-      unloadMovie();
-      return -1;
-    }
-
-    // Build the pipeline. Note that we are NOT linking the source at this
-    // point. We will do it later.
-    gst_bin_add_many (GST_BIN (_pipeline),
-        _queue0, _videoconvert0, videoscale0, capsfilter0, _appsink0,
-        _audioqueue0, _audioconvert0, _audioresample0, _audiovolume0, _audiosink0,
-        NULL);
-    // special case for shmsrc
-    // link uridecodebin -> queue will be performed by callback
-
-    if (! gst_element_link_many (_queue0, _videoconvert0, capsfilter0, videoscale0, _appsink0, NULL))
-    {
-      qDebug() << "Could not link video queue, colorspace converter, caps filter, scaler and app sink." << endl;
-      unloadMovie();
-      return false;
-    }
-
-    if (! gst_element_link_many (_audioqueue0, _audioconvert0, _audioresample0,
-                                 _audiovolume0, _audiosink0, NULL))
-    {
-      g_printerr ("Could not link audio queue, converter, resampler and audio sink.\n");
-      unloadMovie();
-      return false;
-    }
-    
-    // Configure audio appsink.
-    // TODO: change from mono to stereo
-    //  gchar* audioCapsText = g_strdup_printf ("audio/x-raw-float,channels=1,rate=%d,signed=(boolean)true,width=%d,depth=%d,endianness=BYTE_ORDER",
-    //                                          Engine::signalInfo().sampleRate(), (int)(sizeof(Signal_T)*8), (int)(sizeof(Signal_T)*8) );
-    //GstCaps* audioCaps = gst_caps_from_string (audioCapsText);
-    /*
-    GstCaps* audioCaps = gst_caps_from_string ("audio/xraw-float");
-    g_object_set (_audioSink, "emit-signals", TRUE,
-                              "caps", audioCaps,
-                              "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
-                              "drop", TRUE,         // ... other buffers are dropped
-                              "sync", TRUE,
-                              NULL);
-    g_signal_connect (_audioSink, "new-buffer", G_CALLBACK (VideoImpl::gstNewAudioBufferCallback), this);
-    gst_caps_unref (audioCaps);
-    */
-    //  g_free (audioCapsText);
-
-
-    // Configure video appsink.
-    GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA");
-    g_object_set (capsfilter0, "caps", videoCaps, NULL);
-
-    g_object_set (_appsink0, "emit-signals", TRUE,
-        "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
-        "drop", TRUE,         // ... other buffers are dropped
-        "sync", TRUE,
-        NULL);
-
-    g_signal_connect (_appsink0, "new-sample", G_CALLBACK (VideoImpl::gstNewSampleCallback), this);
-    gst_caps_unref (videoCaps);
-
-    setVolume(0);
-    
-    // Listen to the bus.
-    _bus = gst_element_get_bus (_pipeline);
-
-    // Start playing.
-
-    return true;
-  }
-  //virtual GstElement *buildPipeline(Element sink) = 0;
-  //virtual void loadMovie(const QString& filename) = 0;
+  virtual bool loadMovie(const QString& filename);
 
   bool setPlayState(bool play);
   bool getPlayState() const { return _playState; }
@@ -270,6 +147,9 @@ public:
   void resetMovie();
 
 protected:
+  virtual bool createVideoComponents();
+  virtual bool createAudioComponents();
+
   void unloadMovie();
   void freeResources();
 
@@ -295,6 +175,8 @@ private:
 
   void _freeCurrentSample();
 
+  void _freeElement(GstElement** element);
+
 public:
   // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
   static GstFlowReturn gstNewSampleCallback(GstElement*, VideoImpl *p);
@@ -313,31 +195,32 @@ public:
   /// Wait until first data samples are available (blocking).
   bool waitForNextBits(int timeout, const uchar** bits=0);
 
-  // FIXME these should be private, accessed my subclasses
+protected:
   int _width;
   int _height;
-//  bool _isSeekable;
+
   guint64 _duration; // duration (in nanoseconds) (unused for now)
+
   bool _videoIsConnected;
-  GstElement *_queue0;
-  GstElement *_audioqueue0;
-  GstElement *_pipeline;
-  GstElement *capsfilter0;
+  bool _audioIsConnected;
   bool _seekEnabled;
 
-private:
-  //locals
+  GstElement *_pipeline;
 
-  // gstreamer elements
-  GstBus *_bus;
-
+  GstElement *_queue0;
+  GstElement *_capsfilter0;
+  GstElement *_videoscale0;
   GstElement *_videoconvert0;
   GstElement *_appsink0;
 
+  GstElement *_audioqueue0;
   GstElement *_audioconvert0;
   GstElement *_audioresample0;
   GstElement *_audiovolume0;
   GstElement *_audiosink0;
+
+  // gstreamer elements
+  GstBus *_bus;
 
   /**
    * Temporary contains the image data of the last frame.
@@ -350,9 +233,6 @@ private:
   /**
    * Contains meta informations about current file.
    */
-
-
-
 
   /// Raw image data of the last video frame.
   uchar *_data;
