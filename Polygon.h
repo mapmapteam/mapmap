@@ -52,6 +52,10 @@ protected:
 
   /// Makes sure vertex v as the i-th point of polygon stays inside the polygon.
   static void _constrainVertex(const QPolygonF& polygon, int i, QPointF& v);
+
+  // Parameters used to constrain vertex.
+  static qreal _CONSTRAIN_VERTEX_SEGMENT_ELONGATION;
+  static qreal _CONSTRAIN_VERTEX_INTERSECTION_PULLAWAY;
 };
 
 MM_END_NAMESPACE

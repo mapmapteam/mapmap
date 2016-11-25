@@ -36,6 +36,12 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
   if (polygon.size() <= 3)
     return;
 
+  // Save original vertex.
+  QPointF originalV = polygon.at(i);
+
+  // Line between original and new point (for later use during intersection check).
+  QLineF  originalToNew(originalV, v);
+
   // Look at the two adjunct segments to vertex i and see if they
   // intersect with any non-adjacent segments.
 
@@ -54,7 +60,7 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
     QPointF p2 = seg.p2();
     // Create small vector pointing in same direction as segment.
     QVector2D vec(p2 - p1);
-    vec *= 10.0 / vec.length();
+    vec *= _CONSTRAIN_VERTEX_SEGMENT_ELONGATION / vec.length();
     QPointF diff = vec.toPointF();
     // Use it to elongate segment slightly.
     seg.setP1( p1 - diff);
@@ -75,10 +81,15 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
           j != wrapAround(idx+1, segments.size()))
       {
         QPointF intersection;
-        if (segments[idx].intersect(segments[j], &intersection) == QLineF::BoundedIntersection)
+        if (segments[idx].intersect(segments[j], &intersection) == QLineF::BoundedIntersection ||
+            originalToNew.intersect(segments[j], &intersection) == QLineF::BoundedIntersection)
         {
           // Rearrange segments with new position at intersection point.
-          v = intersection;
+          // Create small vector pointing in same direction as segment.
+          QVector2D vec(intersection - originalV);
+          vec *= _CONSTRAIN_VERTEX_INTERSECTION_PULLAWAY / vec.length();
+          QPointF diff = vec.toPointF();
+          v = intersection - diff;
           segments[prev] = QLineF(polygon.at(prev), v);
           segments[i]    = QLineF(v, polygon.at(next));
         }
@@ -86,6 +97,9 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
     }
   }
 }
+
+qreal Polygon::_CONSTRAIN_VERTEX_SEGMENT_ELONGATION    = 10.0;
+qreal Polygon::_CONSTRAIN_VERTEX_INTERSECTION_PULLAWAY = 20.0;
 
 QVector<QLineF> Polygon::_getSegments() const
 {
