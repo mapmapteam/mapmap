@@ -32,7 +32,7 @@ void Polygon::setVertex(int i, const QPointF& v)
 
 void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
 {
-  // Weird, but nothing to do.
+  // Nothing to do (eg. triangles).
   if (polygon.size() <= 3)
     return;
 
