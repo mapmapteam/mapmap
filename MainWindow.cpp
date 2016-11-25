@@ -1268,28 +1268,29 @@ void MainWindow::duplicateMapping(uid mappingId)
 
   // Get Mapping Paint and Shape
   Paint::ptr paintPtr = currentMapping->getPaint();
+
   // Create new shape base on the current
-  MShape *shape = currentMapping->getShape()->clone();
-  qDebug() << "Nb vertices " << shape->nVertices();
-  // Temporary shared pointers
-  MShape::ptr shapePtr(shape);
+  MShape::ptr shape(currentMapping->getShape()->clone());
+
   // Create a new input shape too
-  MShape::ptr inputShape(currentMapping->getInputShape()->clone());
+  MShape::ptr inputShape;
+  if (currentMapping->hasInputShape())
+    inputShape.reset(currentMapping->getInputShape()->clone());
 
   // Create new duplicated mapping item
   Mapping::ptr clonedMappingPtr;
   if (paintPtr->getType() == "color") // Color paint
     //clonedMapping = new ColorMapping(paintPtr, shapePtr);
-    clonedMappingPtr = Mapping::ptr(new ColorMapping(paintPtr, shapePtr));
+    clonedMappingPtr = Mapping::ptr(new ColorMapping(paintPtr, shape));
   else // Or Texture Paint
     //clonedMapping = new TextureMapping(paintPtr, shapePtr, inputShape);
-    clonedMappingPtr = Mapping::ptr(new TextureMapping(paintPtr, shapePtr, inputShape));
+    clonedMappingPtr = Mapping::ptr(new TextureMapping(paintPtr, shape, inputShape));
 
   // Scale the duplicated shapes
   if (shape->getType() == "mesh")
-    shapePtr->translate(QPointF(20, 20));
+    shape->translate(QPointF(20, 20));
   else
-    shapePtr->translate(QPointF(0, 20));
+    shape->translate(QPointF(0, 20));
 
   // Get duplicated mapping id
   uid cloneId = mappingManager->addMapping(clonedMappingPtr);
