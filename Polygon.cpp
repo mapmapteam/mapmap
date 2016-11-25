@@ -49,11 +49,16 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
   // We now stretch segments a little bit to cope with approximation errors.
   for (QVector<QLineF>::Iterator it = segments.begin(); it != segments.end(); ++it)
   {
-    QLineF& seg = *it;
+    QLineF&   seg = *it;
     QPointF p1 = seg.p1();
     QPointF p2 = seg.p2();
-    seg.setP1( p1 + (p1 - p2) * 0.35f);
-    seg.setP2( p2 + (p2 - p1) * 0.35f);
+    // Create small vector pointing in same direction as segment.
+    QVector2D vec(p2 - p1);
+    vec *= 10.0 / vec.length();
+    QPointF diff = vec.toPointF();
+    // Use it to elongate segment slightly.
+    seg.setP1( p1 - diff);
+    seg.setP2( p2 + diff);
   }
 
   // For each adjunct segment.
