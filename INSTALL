@@ -54,7 +54,17 @@ Arch Linux
 
 Install basic development tools fot Qt projects, GStreamer 1.0 and liblo for OSC support::
 
-sudo pacman -S qt5-tools liblo gstreamer
+sudo pacman -S qt5-tools qt5-multimedia liblo gstreamer
+
+Install GStreamer 1.0 libraries and plugins::
+
+sudo pacman -S gst-libav \
+               gstreamer-vaapi \
+               gst-plugins-bad \
+               gst-plugins-base \
+               gst-plugins-base-libs \
+               gst-plugins-good \
+               gst-plugins-ugly
 
 To edit translations
 --------------------
