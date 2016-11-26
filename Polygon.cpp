@@ -99,7 +99,7 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
 }
 
 qreal Polygon::_CONSTRAIN_VERTEX_SEGMENT_ELONGATION    = 10.0;
-qreal Polygon::_CONSTRAIN_VERTEX_INTERSECTION_PULLAWAY = 20.0;
+qreal Polygon::_CONSTRAIN_VERTEX_INTERSECTION_PULLAWAY = 30.0;
 
 QVector<QLineF> Polygon::_getSegments() const
 {
