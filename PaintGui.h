@@ -120,6 +120,7 @@ public slots:
 protected:
   QSharedPointer<Image> image;
   QtVariantProperty* _imageFileItem;
+  QtVariantProperty* _imageRateItem;
 };
 
 class VideoGui : public TextureGui {

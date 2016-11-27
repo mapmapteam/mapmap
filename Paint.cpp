@@ -68,6 +68,29 @@ Paint::~Paint()
   allocator.free(getId());
 }
 
+Image::Image(int id)
+  : Texture(id),
+    _rate(0),
+    _currentFrame(0),
+    _currentFrameReal(0.0),
+    _prevTime(0),
+    _bits(0)
+  {
+    setRate(1.0);
+  }
+
+Image::Image(const QString uri_, uid id)
+  : Texture(id),
+    _rate(0),
+    _currentFrame(-1),
+    _currentFrameReal(0.0),
+    _prevTime(0),
+    _bits(0)
+  {
+    setUri(uri_);
+    setRate(1.0);
+  }
+
 bool Image::setUri(const QString &uri)
 {
   if (uri != _uri)
@@ -76,7 +99,73 @@ bool Image::setUri(const QString &uri)
     build();
     _emitPropertyChanged("uri");
   }
-  return !_image.isNull();
+  return !_images.isEmpty();
+}
+
+void Image::build()
+{
+  QImageReader reader(_uri);
+  _images.clear();
+  for (int i=0; i<reader.imageCount(); i++)
+    _images.push_back(
+        QGLWidget::convertToGLFormat(reader.read())
+          .mirrored(true, false)
+          .transformed(QTransform().rotate(180))
+      );
+
+  rewind();
+//    _image = QGLWidget::convertToGLFormat(QImage(_uri)).mirrored(true, false).transformed(QTransform().rotate(180));
+}
+
+void Image::update()
+{
+  if (isAnimation() && isPlaying())
+  {
+    qreal currentTime = _elapsedTime();
+    qreal diffTime = (currentTime - _prevTime) * _rate;
+
+    _currentFrameReal += diffTime * MM::DEFAULT_FRAMES_PER_SECOND;
+    _currentFrameReal = wrapAround(_currentFrameReal, (qreal)_images.size());
+
+    uint nextFrame = (int)_currentFrameReal;
+    if (nextFrame != _currentFrame)
+    {
+      _currentFrame = nextFrame;
+      _bits = _images[_currentFrame].bits();
+      bitsChanged = true;
+    }
+
+    _prevTime = currentTime;
+  }
+}
+
+void Image::rewind()
+{
+  if (isAnimation())
+  {
+    _currentFrame     = 0;
+    _currentFrameReal = 0.0;
+    _prevTime         = 0;
+    _timer.start();
+  }
+  _bits = _images[0].bits();
+  bitsChanged = true;
+}
+
+const uchar* Image::getBits() {
+  return _bits;
+}
+
+void Image::setRate(double rate)
+{
+  if (_rate != rate) {
+    _rate = rate;
+  }
+}
+
+void Image::_doPlay()
+{
+  _prevTime = _timer.elapsedTime();
 }
 
 /* Implementation of the Video class */
