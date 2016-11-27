@@ -104,6 +104,7 @@ bool Image::setUri(const QString &uri)
 
 void Image::build()
 {
+  // Read all images.
   QImageReader reader(_uri);
   _images.clear();
   for (int i=0; i<reader.imageCount(); i++)
@@ -114,20 +115,22 @@ void Image::build()
       );
 
   rewind();
-//    _image = QGLWidget::convertToGLFormat(QImage(_uri)).mirrored(true, false).transformed(QTransform().rotate(180));
 }
 
 void Image::update()
 {
   if (isAnimation() && isPlaying())
   {
+    // Compute the interval of time since last call to update().
     qreal currentTime = _elapsedTime();
-    qreal diffTime = (currentTime - _prevTime) * _rate;
+    qreal diffTime = currentTime - _prevTime;
 
-    _currentFrameReal += diffTime * MM::DEFAULT_FRAMES_PER_SECOND;
+    // Update next frame.
+    _currentFrameReal += diffTime * _rate * MM::DEFAULT_FRAMES_PER_SECOND;
     _currentFrameReal = wrapAround(_currentFrameReal, (qreal)_images.size());
-
     uint nextFrame = (int)_currentFrameReal;
+
+    // If frame changed, update image bits pointer.
     if (nextFrame != _currentFrame)
     {
       _currentFrame = nextFrame;
@@ -135,12 +138,14 @@ void Image::update()
       bitsChanged = true;
     }
 
+    // Reset previous time.
     _prevTime = currentTime;
   }
 }
 
 void Image::rewind()
 {
+  // Reset/restart everything.
   if (isAnimation())
   {
     _currentFrame     = 0;
@@ -148,7 +153,7 @@ void Image::rewind()
     _prevTime         = 0;
     _timer.start();
   }
-  _bits = _images[0].bits();
+  _bits = _images.isEmpty() ? 0 : _images[0].bits();
   bitsChanged = true;
 }
 
@@ -158,14 +163,12 @@ const uchar* Image::getBits() {
 
 void Image::setRate(double rate)
 {
-  if (_rate != rate) {
-    _rate = rate;
-  }
+  _rate = rate;
 }
 
 void Image::_doPlay()
 {
-  _prevTime = _timer.elapsedTime();
+  _prevTime = _elapsedTime();
 }
 
 /* Implementation of the Video class */
