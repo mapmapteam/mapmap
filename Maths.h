@@ -34,7 +34,18 @@ inline qreal degreesToRadians(qreal degrees) { return degrees / 180.0f * M_PI; }
 inline qreal radiansToDegrees(qreal radians) { return radians / M_PI * 180.0f; }
 
 /// Wrap value around ie. wrapAround(-1, 3) ==> 2
-inline int wrapAround(int index, int max) { return (index + max) % max; }
+inline int wrapAround(int index, int max)
+{
+  while (index < 0) index += max;
+  return index % max;
+}
+
+inline qreal wrapAround(qreal index, qreal max)
+{
+  while (index < 0)    index += max;
+  while (index >= max) index -= max;
+  return index;
+}
 
 /// Square of x.
 inline qreal sq(qreal x) { return x*x; }
