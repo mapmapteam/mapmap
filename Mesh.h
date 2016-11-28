@@ -101,6 +101,7 @@ public:
   int nHorizontalQuads() const { return _nColumns-1; }
   int nVerticalQuads() const { return _nRows-1; }
 
+  void copyFrom(const MShape& shape);
 
 protected:
   int _nColumns;
