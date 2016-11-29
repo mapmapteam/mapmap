@@ -296,20 +296,20 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Available camera</source>
-        <translation type="vanished">Cameras disponibles</translation>
+        <translation type="vanished">Caméras disponibles</translation>
     </message>
     <message>
         <source>Select camera</source>
-        <translation type="vanished">Selectionner une camera</translation>
+        <translation type="vanished">Sélectionner une caméra</translation>
     </message>
     <message>
         <source>No camera available</source>
-        <translation type="vanished">Aucune camera disponible</translation>
+        <translation type="vanished">Aucune caméra disponible</translation>
     </message>
     <message>
         <source>You can not use this feature!
 No camera available in your system</source>
-        <translation type="obsolete">Vous ne pouvez pas utiliser cette fonctionnalité. Aucune camera disponible sur ce système</translation>
+        <translation type="obsolete">Vous ne pouvez pas utiliser cette fonctionnalité. Aucune caméra disponible sur ce système</translation>
     </message>
     <message>
         <source>Select Color</source>
@@ -329,7 +329,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>&amp;Import Media File...</source>
-        <translation type="obsolete">Importer un fichier Média ...</translation>
+        <translation type="obsolete">Importer un fichier média ...</translation>
     </message>
     <message>
         <source>Import a video or image file...</source>
@@ -337,7 +337,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Open &amp;Camera Device...</source>
-        <translation type="obsolete">Ouvrir la &amp;Camera</translation>
+        <translation type="obsolete">Ouvrir la &amp;caméra</translation>
     </message>
     <message>
         <source>Choose your camera device...</source>
@@ -401,7 +401,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Rewind</source>
-        <translation type="vanished">Recommencer</translation>
+        <translation type="vanished">Rembobiner</translation>
     </message>
     <message>
         <source>Show &amp;Test Signal</source>
@@ -1078,20 +1078,20 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Available camera</source>
-        <translation type="unfinished">Cameras disponibles</translation>
+        <translation type="unfinished">Caméras disponibles</translation>
     </message>
     <message>
         <source>Select camera</source>
-        <translation type="unfinished">Selectionner une camera</translation>
+        <translation type="unfinished">Selectionner une caméra</translation>
     </message>
     <message>
         <source>No camera available</source>
-        <translation type="unfinished">Aucune camera disponible</translation>
+        <translation type="unfinished">Aucune caméra disponible</translation>
     </message>
     <message>
         <source>You can not use this feature!
 No camera available in your system</source>
-        <translation type="unfinished">Vous ne pouvez pas utiliser cette fonctionnalité. Aucune camera disponible sur ce système</translation>
+        <translation type="unfinished">Vous ne pouvez pas utiliser cette fonctionnalité. Aucune caméra disponible sur ce système</translation>
     </message>
     <message>
         <source>Select Color</source>
@@ -1159,7 +1159,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>&amp;Import Media File...</source>
-        <translation type="unfinished">Importer un fichier Média ...</translation>
+        <translation type="unfinished">Importer un fichier média ...</translation>
     </message>
     <message>
         <source>Import a video or image file...</source>
@@ -1167,7 +1167,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Open &amp;Camera Device...</source>
-        <translation type="unfinished">Ouvrir la &amp;Camera</translation>
+        <translation type="unfinished">Ouvrir la &amp;caméra</translation>
     </message>
     <message>
         <source>Choose your camera device...</source>
@@ -1299,39 +1299,39 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Rewind</source>
-        <translation type="unfinished">Recommencer</translation>
+        <translation type="unfinished">Rembobiner</translation>
     </message>
     <message>
         <source>Toggle &amp;Fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Plein écran</translation>
     </message>
     <message>
         <source>Toggle Fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Plein écran</translation>
     </message>
     <message>
         <source>&amp;Display Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les points de contrôle</translation>
     </message>
     <message>
         <source>Display canvas controls</source>
-        <translation type="unfinished">Afficher les contrôles du canevas</translation>
+        <translation>Afficher les points de contrôle du canevas</translation>
     </message>
     <message>
         <source>&amp;Display Controls of Mappings of a Paint</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les points de contrôle des mappings d'une source</translation>
     </message>
     <message>
         <source>Display all canvas controls related to current paint</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher tous les points de contrôle du canevas lié à la source actuelle</translation>
     </message>
     <message>
         <source>&amp;Sticky Vertices</source>
-        <translation type="unfinished"></translation>
+        <translation>Sommets collants</translation>
     </message>
     <message>
         <source>Enable sticky vertices</source>
-        <translation type="unfinished"></translation>
+        <translation>Activer les sommets collants</translation>
     </message>
     <message>
         <source>Show &amp;Test Signal</source>
