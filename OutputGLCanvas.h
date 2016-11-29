@@ -24,7 +24,7 @@
 
 #include "MapperGLCanvas.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class OutputGLCanvas: public MapperGLCanvas
 {
@@ -71,6 +71,6 @@ protected:
   void mouseMoveEvent(QMouseEvent *event);
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* OutputGLCanvas_H_ */

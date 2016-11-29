@@ -38,7 +38,7 @@
 #include "Element.h"
 #include "Maths.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 typedef enum {
   VIDEO_URI,
@@ -365,6 +365,6 @@ protected:
   VideoImpl *_impl;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* PAINT_H_ */

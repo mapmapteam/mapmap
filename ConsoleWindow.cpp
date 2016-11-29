@@ -20,7 +20,7 @@
 #include "ConsoleWindow.h"
 #include <QtWidgets>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 ConsoleWindow* ConsoleWindow::instance = NULL;
 
@@ -153,4 +153,4 @@ ConsoleWindow::~ConsoleWindow()
   kill();
 }
 
-MM_END_NAMESPACE
+}

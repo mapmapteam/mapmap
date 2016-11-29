@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstdio>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 bool OscReceiver::server_is_ok_ = true;
 
@@ -76,6 +76,6 @@ std::string OscReceiver::toString() const {
   return "port:" + port_;
 }
 
-MM_END_NAMESPACE
+}
 
 #endif // HAVE_OSC

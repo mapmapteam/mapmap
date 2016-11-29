@@ -25,7 +25,7 @@
 #include "MM.h"
 #include <cmath>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /// Converts from degrees to radians.
 inline qreal degreesToRadians(qreal degrees) { return degrees / 180.0f * M_PI; }
@@ -73,6 +73,6 @@ inline bool xOr(bool a, bool b) {
   return (a && !b) || (!a && b);
 }
 
-MM_END_NAMESPACE
+}
 
 #endif /* MATH_H_ */

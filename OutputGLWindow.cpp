@@ -23,7 +23,7 @@
 
 #include "MainWindow.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) : QDialog(parent)
 {
@@ -115,4 +115,4 @@ void OutputGLWindow::setPreferredScreen(int screen)
 }
 
 
-MM_END_NAMESPACE
+}

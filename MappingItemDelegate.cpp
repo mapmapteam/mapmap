@@ -19,7 +19,7 @@
 
 #include "MappingItemDelegate.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 MappingItemDelegate::MappingItemDelegate(QObject *parent) :
   QStyledItemDelegate(parent)
@@ -273,4 +273,4 @@ bool MappingItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
   return QAbstractItemDelegate::editorEvent(event, model, option, index);
 }
 
-MM_END_NAMESPACE
+}

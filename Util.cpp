@@ -26,7 +26,7 @@
 #include <iostream>
 #include <QRegExp>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 namespace Util {
 
@@ -217,4 +217,4 @@ bool isNumeric(const QString& text)
 
 } // end of namespace
 
-MM_END_NAMESPACE
+}

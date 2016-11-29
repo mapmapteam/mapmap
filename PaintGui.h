@@ -42,7 +42,7 @@
 #include "variantmanager.h"
 #include "variantfactory.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /**
  * The view components corresponding to a Paint (which is the model) in the interface.
@@ -142,6 +142,6 @@ protected:
 //  QtVariantProperty* _mediaReverseItem;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* PAINTGUI_H_ */

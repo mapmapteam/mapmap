@@ -25,7 +25,7 @@
 #include "VideoShmSrcImpl.h"
 #include <iostream>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 UidAllocator Paint::allocator;
 
@@ -378,4 +378,4 @@ bool Video::_generateThumbnail()
   return true;
 }
 
-MM_END_NAMESPACE
+}

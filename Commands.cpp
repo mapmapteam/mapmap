@@ -24,7 +24,7 @@
 
 #include "Commands.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 AddPaintCommand::AddPaintCommand(MainWindow *mainWindow, uid paintId, const QIcon &icon, const QString &name, QUndoCommand *parent) :
   QUndoCommand(parent),
@@ -245,4 +245,4 @@ void DeleteMappingCommand::redo()
   _mainWindow->deleteMapping(_mappingId);
 }
 
-MM_END_NAMESPACE
+}

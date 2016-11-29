@@ -23,7 +23,7 @@
 #include "MM.h"
 #include "MapperGLCanvas.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class MapperGLCanvasToolbar : public QWidget {
   Q_OBJECT
@@ -63,6 +63,6 @@ protected:
 
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* MAPPERGLCANVASTOOLBAR_H_ */

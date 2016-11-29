@@ -19,7 +19,7 @@
 
 #include "Ellipse.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 void Ellipse::sanitize()
 {
@@ -149,4 +149,4 @@ void Ellipse::setVertex(int i, const QPointF& v)
   sanitize();
 }
 
-MM_END_NAMESPACE
+}

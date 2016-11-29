@@ -25,7 +25,7 @@
 #include <QUndoCommand>
 #include "MM.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 enum CommandId {
   CMD_KEY_MOVE_VERTEX,
@@ -164,6 +164,6 @@ private:
   uid _mappingId;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* COMMANDS_H_ */

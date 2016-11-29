@@ -19,7 +19,7 @@
 
 #include "Polygon.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 void Polygon::setVertex(int i, const QPointF& v)
 {
@@ -125,4 +125,4 @@ QPolygonF Polygon::toPolygon() const
   return polygon;
 }
 
-MM_END_NAMESPACE
+}

@@ -20,7 +20,7 @@
 
 #include "MM.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 const QString MM::APPLICATION_NAME = "MapMap";
 const QString MM::VERSION = "0.4.1";
@@ -70,4 +70,4 @@ const qreal MM::ZOOM_MAX    = 5.0f;
 // Default values
 const QString MM::DEFAULT_LANGUAGE = "en";
 
-MM_END_NAMESPACE
+}

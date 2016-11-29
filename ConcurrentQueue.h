@@ -33,7 +33,7 @@
 #include <QWaitCondition>
 #include "MM.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 template<typename Data>
 class ConcurrentQueue
@@ -85,6 +85,6 @@ class ConcurrentQueue
         }
 };
 
-MM_END_NAMESPACE
+}
 
 #endif // _CONCURRENT_QUEUE_H_

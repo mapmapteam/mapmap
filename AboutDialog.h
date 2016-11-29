@@ -28,7 +28,7 @@
 #include "GuiForward.h"
 #include "MM.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class AboutDialog : public QDialog
 {
@@ -65,6 +65,6 @@ private:
 
 };
 
-MM_END_NAMESPACE
+}
 
 #endif // ABOUTDIALOG_H

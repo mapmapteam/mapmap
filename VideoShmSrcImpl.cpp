@@ -26,7 +26,7 @@
 #include <cstring>
 #include <iostream>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 VideoShmSrcImpl::VideoShmSrcImpl() :
 _shmsrc0(NULL),
@@ -115,4 +115,4 @@ VideoShmSrcImpl::~VideoShmSrcImpl()
   }
 }
 
-MM_END_NAMESPACE
+}

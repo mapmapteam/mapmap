@@ -20,7 +20,7 @@
 #include "ProjectWriter.h"
 #include <sstream>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 ProjectWriter::ProjectWriter(MainWindow *window) :
     _window(window)
@@ -65,4 +65,4 @@ bool ProjectWriter::writeFile(QIODevice *device)
   return true;
 }
 
-MM_END_NAMESPACE
+}

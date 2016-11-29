@@ -23,7 +23,7 @@
 #include <iostream>
 #include <sstream>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 uid UidAllocator::allocate()
 {
@@ -67,4 +67,4 @@ bool UidAllocator::exists(uid id) const
   return ( std::find(_ids.begin(), _ids.end(), id) != _ids.end() );
 }
 
-MM_END_NAMESPACE
+}

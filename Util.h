@@ -32,7 +32,7 @@
 #include "Paint.h"
 #include <QString>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /**
  * @namespace Util Useful functions.
@@ -95,6 +95,6 @@ bool isNumeric(const QString& text);
 
 } // end of namespace
 
-MM_END_NAMESPACE
+}
 
 #endif /* UTIL_H_ */

@@ -30,7 +30,7 @@
 
 #include "MM.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 typedef int uid;
 
@@ -61,6 +61,6 @@ protected:
                    const QStyleOptionViewItem &option, const QModelIndex &index) Q_DECL_OVERRIDE;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif // MAPPINGITEMDELEGATE_H

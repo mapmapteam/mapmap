@@ -26,7 +26,7 @@
 #include <cstring>
 #include <iostream>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 VideoV4l2SrcImpl::VideoV4l2SrcImpl() :
 _v4l2src0(NULL)
@@ -77,4 +77,4 @@ bool VideoV4l2SrcImpl::loadMovie(const QString& path) {
 VideoV4l2SrcImpl::~VideoV4l2SrcImpl()
 {
 }
-MM_END_NAMESPACE
+}

@@ -21,7 +21,7 @@
 
 #include "Shape.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /**
  * This class represents a simple polygon (ie. the control points are vertices).
@@ -58,6 +58,6 @@ protected:
   static qreal _CONSTRAIN_VERTEX_INTERSECTION_PULLAWAY;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* POLYGON_H_ */

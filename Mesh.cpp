@@ -19,7 +19,7 @@
 
 #include "Mesh.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 Mesh::Mesh() : Quad() {
   // Create dummy points (will be all overwritten later on by load/save).
@@ -490,4 +490,4 @@ void Mesh::_reorderVertices()
   vertices = newVertices;
 }
 
-MM_END_NAMESPACE
+}

@@ -26,7 +26,7 @@
 #include <cstring>
 #include <iostream>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 VideoUriDecodeBinImpl::VideoUriDecodeBinImpl() :
 _uridecodebin0(NULL)
@@ -270,4 +270,4 @@ VideoUriDecodeBinImpl::~VideoUriDecodeBinImpl()
 {
 }
 
-MM_END_NAMESPACE
+}

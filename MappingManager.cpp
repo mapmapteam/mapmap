@@ -21,7 +21,7 @@
 #include "MappingManager.h"
 #include <iostream>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 MappingManager::MappingManager()
 {
@@ -266,4 +266,4 @@ void MappingManager::clearAll()
   mappingMap.clear();
 }
 
-MM_END_NAMESPACE
+}

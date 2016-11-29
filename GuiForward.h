@@ -31,8 +31,8 @@ class QDialogButtonBox;
 class QString;
 
 // MapMap Gui
-MM_BEGIN_NAMESPACE
+namespace mmp {
 class AboutDialog;
-MM_END_NAMESPACE
+}
 
 #endif // GUIFORWARD_H

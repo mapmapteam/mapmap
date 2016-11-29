@@ -27,7 +27,7 @@
 
 #include "MainWindow.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class PreferenceDialog : public QDialog
 {
@@ -119,6 +119,6 @@ private:
   static const int LIST_ITEM_HEIGHT = 36;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* PREFERENCESDIALOG_H_ */

@@ -25,7 +25,7 @@
 #include <QList>
 #include "MM.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class MetaObjectRegistry {
 private:
@@ -53,6 +53,6 @@ public:
 
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* METAOBJECTREGISTRY_H_ */

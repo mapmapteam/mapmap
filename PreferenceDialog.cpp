@@ -21,7 +21,7 @@
 
 #include "PreferenceDialog.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 PreferenceDialog::PreferenceDialog(QWidget* parent) :
     QDialog(parent)
@@ -414,4 +414,4 @@ void PreferenceDialog::createLanguageList()
 }
 
 
-MM_END_NAMESPACE
+}

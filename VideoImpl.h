@@ -43,7 +43,7 @@
 #include <GL/gl.h>
 #endif
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /**
  * Private declaration of the video player.
@@ -276,6 +276,6 @@ private:
   static const int MAX_SAMPLES_IN_BUFFER_QUEUES = 30;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* ifndef */

@@ -29,7 +29,7 @@
 #include "MM.h"
 #include "Mapping.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 typedef int uid;
 
@@ -79,6 +79,6 @@ private:
   QList<MappingItem> mappingList;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif // MAPPINGLISTMODEL_H

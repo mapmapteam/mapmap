@@ -46,7 +46,7 @@
 
 #include "VideoImpl.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class VideoV4l2SrcImpl : public VideoImpl 
 {
@@ -60,6 +60,6 @@ class VideoV4l2SrcImpl : public VideoImpl
   GstElement *_v4l2src0;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* ifndef */

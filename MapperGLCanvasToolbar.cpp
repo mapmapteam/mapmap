@@ -19,7 +19,7 @@
 
 #include "MapperGLCanvasToolbar.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 MapperGLCanvasToolbar::MapperGLCanvasToolbar(MapperGLCanvas* canvas, QWidget* parent)
   : QWidget(parent),
@@ -150,4 +150,4 @@ void MapperGLCanvasToolbar::updateDropdownMenu(qreal factor)
   _dropdownMenu->setCurrentText(zoomFactor);
 }
 
-MM_END_NAMESPACE
+}

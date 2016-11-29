@@ -38,7 +38,7 @@
 
 #include "MappingGui.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class MainWindow;
 class ShapeGraphicsItem;
@@ -203,6 +203,6 @@ public:
   static const int NO_VERTEX = -1;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* MAPPERGLCANVAS_H_ */

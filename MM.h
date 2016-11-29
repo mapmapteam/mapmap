@@ -40,7 +40,7 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /**
  * This class is a placeholder for predefined static variables that can be used
@@ -147,8 +147,6 @@ public:
   };
 };
 
-MM_END_NAMESPACE
+}
 
 #endif
-
-

@@ -25,7 +25,7 @@
 #include "MainWindow.h"
 #include "Commands.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
         bool isOutput, QWidget* parent, const QGLWidget * shareWidget,
@@ -724,4 +724,4 @@ void MapperGLCanvas::_snapVertex(QPointF* p)
   }
 }
 
-MM_END_NAMESPACE
+}

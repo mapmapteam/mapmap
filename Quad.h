@@ -23,7 +23,7 @@
 
 #include "Polygon.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /**
  * Four-vertex shape.
@@ -53,6 +53,6 @@ protected:
 };
 
 
-MM_END_NAMESPACE
+}
 
 #endif /* QUAD_H_ */

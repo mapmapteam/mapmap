@@ -28,7 +28,7 @@
 #include <sstream>
 #include <string>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 MainWindow::MainWindow()
 {
@@ -3321,4 +3321,4 @@ void MainWindow::quitMapMap()
   close();
 }
 
-MM_END_NAMESPACE
+}

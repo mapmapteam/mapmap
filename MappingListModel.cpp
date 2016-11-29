@@ -19,7 +19,7 @@
 
 #include "MappingListModel.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 MappingListModel::MappingListModel(QObject *parent) :
   QAbstractTableModel(parent) {}
@@ -264,4 +264,4 @@ uid MappingListModel::getItemId(const QModelIndex &index) const
   return mappingList.at(index.row()).id;
 }
 
-MM_END_NAMESPACE
+}

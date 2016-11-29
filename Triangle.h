@@ -23,7 +23,7 @@
 
 #include "Polygon.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /**
  * Triangle shape.
@@ -49,6 +49,6 @@ protected:
 };
 
 
-MM_END_NAMESPACE
+}
 
 #endif /* TRIANGLE_H_ */

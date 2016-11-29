@@ -7,7 +7,7 @@
 #include "MM.h"
 #define CONFIG_DEBUG
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /**
  * General-purpose wrapper around liblo to receive OSC messages.
@@ -41,7 +41,7 @@ private:
   static void error(int num, const char *msg, const char *path);
 };
 
-MM_END_NAMESPACE
+}
 
 #endif // HAVE_OSC
 

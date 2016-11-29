@@ -21,7 +21,7 @@
 
 #include <QtWidgets>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 {
@@ -163,4 +163,4 @@ void AboutDialog::createLicenseTab()
   _tabWidget->addTab(_licenseTextBrowser, tr("License"));
 }
 
-MM_END_NAMESPACE
+}

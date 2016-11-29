@@ -55,7 +55,7 @@
 
 #include "PaintGui.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class PreferenceDialog;
 class AboutDialog;
@@ -587,6 +587,6 @@ public:
   static const int OUTPUT_WINDOW_MINIMUM_HEIGHT = 270;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* MAIN_WINDOW_H_ */
