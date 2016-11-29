@@ -1717,8 +1717,9 @@ void MainWindow::createActions()
   addEllipseAction->setEnabled(false);
 
   // Play.
+  const QKeySequence PLAY_PAUSE_KEY_SEQUENCE = Qt::CTRL + Qt::SHIFT + Qt::Key_P;
   playAction = new QAction(tr("Play"), this);
-  playAction->setShortcut(Qt::Key_Space);
+  playAction->setShortcut(PLAY_PAUSE_KEY_SEQUENCE);
   playAction->setIcon(QIcon(":/play"));
   playAction->setToolTip(tr("Play"));
   playAction->setIconVisibleInMenu(false);
@@ -1729,7 +1730,7 @@ void MainWindow::createActions()
 
   // Pause.
   pauseAction = new QAction(tr("Pause"), this);
-  pauseAction->setShortcut(Qt::Key_Space);
+  pauseAction->setShortcut(PLAY_PAUSE_KEY_SEQUENCE);
   pauseAction->setIcon(QIcon(":/pause"));
   pauseAction->setToolTip(tr("Pause"));
   pauseAction->setIconVisibleInMenu(false);
