@@ -144,10 +144,12 @@ int main(int argc, char *argv[])
   QString lang = parser.value("lang").isEmpty()
                  ? settings.value("language").toString()
                  : parser.value("lang");
+
+  QTranslator qtTranslator;
+  QTranslator appTranslator;
   if (MM::SUPPORTED_LANGUAGES.contains(lang))
   {
     //QLocale::setDefault(QLocale(lang));
-    QTranslator qtTranslator;
 #ifdef Q_OS_WIN32
     qtTranslator.load(QString("qt_%1").arg(lang),
                       QApplication::applicationDirPath().append("/translations"));
@@ -157,7 +159,6 @@ int main(int argc, char *argv[])
 #endif
     app.installTranslator(&qtTranslator);
 
-    QTranslator appTranslator;
     appTranslator.load(QString("translations/mapmap_%1").arg(lang));
     app.installTranslator(&appTranslator);
   }
@@ -257,4 +258,3 @@ int main(int argc, char *argv[])
   delete win;
   return result;
 }
-
