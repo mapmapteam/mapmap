@@ -12,7 +12,8 @@ QMainWindow, QDialog, QToolTip {
 
 /*General font color*/
 QLabel, QToolTip, QMenu,
-QCheckBox, QGroupBox::title {
+QCheckBox, QGroupBox::title,
+QTextBrowser {
   color: #f6f5f5;
 }
 
@@ -116,7 +117,7 @@ QTabWidget::pane {
 }
 
 QTabWidget::tab-bar {
-  bottom: 0px;
+  bottom: -1px;
 }
 
 QTabBar::tab {
@@ -127,12 +128,14 @@ QTabBar::tab {
   border: 1px solid #272a36;
   border-bottom: 0px;
   padding: 5px 4px;
+  bottom: 1px;
 }
 
 QTabBar::tab:selected {
-  background: #272a36;
   border: 1px solid #4C4F5B;
   border-bottom: 0px;
+  bottom: -1px;
+  padding-bottom: 9px;
 }
 
 QTabBar::tab:hover {
