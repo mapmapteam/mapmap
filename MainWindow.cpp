@@ -1814,7 +1814,7 @@ void MainWindow::createActions()
 
   displayTestSignalAction = new QAction(tr("Show &Test Signal"), this);
   displayTestSignalAction->setShortcut(Qt::ALT + Qt::Key_T);
-  displayTestSignalAction->setIcon(QIcon(":/control-points"));
+  displayTestSignalAction->setIcon(QIcon(":/toggle-test-signal"));
   displayTestSignalAction->setToolTip(tr("Show Test signal"));
   displayTestSignalAction->setIconVisibleInMenu(false);
   displayTestSignalAction->setCheckable(true);
