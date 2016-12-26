@@ -302,7 +302,7 @@ void PreferenceDialog::createControlsPage()
 
   _listenMessageBox = new QCheckBox;
   _listenMessageBox->setFont(bold);
-  _listenMessageBox->setText(tr("Listen OSC messages"));
+  _listenMessageBox->setText(tr("Listen to OSC messages"));
   _listenMessageBox->setChecked(true); // TODO: Give the choice to the user
 
   _listenPortNumber = new QSpinBox;
