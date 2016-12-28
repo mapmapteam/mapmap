@@ -2003,6 +2003,20 @@ void MainWindow::createMenus()
 
   // Window
   windowMenu = menuBar->addMenu(tr("&Window"));
+
+  // Perspectives
+  windowMenu->addAction(mainViewAction);
+  windowMenu->addAction(sourceViewAction);
+  windowMenu->addAction(destViewAction);
+  windowMenu->addSeparator();
+
+  // Tools.
+  windowMenu->addAction(displayUndoHistoryAction);
+  windowMenu->addAction(openConsoleAction);
+  windowMenu->addSeparator();
+
+  // Menus/toolbars.
+  windowMenu->addAction(displayZoomToolAction);
 #ifdef Q_OS_LINUX
   if (QString(getenv("XDG_CURRENT_DESKTOP")).toLower() != "unity")
     windowMenu->addAction(showMenuBarAction);
@@ -2010,16 +2024,6 @@ void MainWindow::createMenus()
 #ifdef Q_OS_WIN32
   windowMenu->addAction(showMenuBarAction);
 #endif
-  windowMenu->addAction(displayUndoHistoryAction);
-  windowMenu->addAction(displayZoomToolAction);
-  windowMenu->addSeparator();
-  // Perspectives
-  windowMenu->addAction(mainViewAction);
-  windowMenu->addAction(sourceViewAction);
-  windowMenu->addAction(destViewAction);
-  // Console
-  windowMenu->addSeparator();
-  windowMenu->addAction(openConsoleAction);
 
   // Help.
   helpMenu = menuBar->addMenu(tr("&Help"));
