@@ -269,7 +269,7 @@ private:
   void updateRecentFileActions();
   void updateRecentVideoActions();
   void updateScreenActions();
-  void addOutputMenuActions();
+  void addOutputsMenuActions();
 
   // Settings.
   void readSettings();
@@ -332,9 +332,9 @@ private:
   // Menu actions.
   QMenu *fileMenu;
   QMenu *editMenu;
-  //QMenu *viewMenu;
   QMenu *toolsMenu;
-  QMenu *outputMenu;
+  QMenu *viewMenu;
+  QMenu *outputsMenu;
   QMenu *windowMenu;
   QMenu *playbackMenu;
   QMenu *helpMenu;

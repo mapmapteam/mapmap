@@ -34,12 +34,15 @@ MainWindow::MainWindow()
 {
   // Create model.
 #if QT_VERSION >= 0x050500
-  QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: " << (Video::hasVideoSupport() ? "yes" : "no");
+  QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: " <<
+      (Video::hasVideoSupport() ? "yes" : "no");
 #else
-  QMessageLogger(__FILE__, __LINE__, 0).debug() << "Video support: " << (Video::hasVideoSupport() ? "yes" : "no");
+  QMessageLogger(__FILE__, __LINE__, 0).debug() << "Video support: " <<
+      (Video::hasVideoSupport() ? "yes" : "no");
 #endif
 
   mappingManager = new MappingManager;
+
 
   // Initialize internal variables.
   currentPaintId = NULL_UID;
@@ -895,13 +898,13 @@ void MainWindow::setupOutputScreen()
 void MainWindow::updateScreenCount()
 {
   // Clear action list before
-  if (!screenActions.isEmpty())
-    screenActions.clear();
+  screenActions.clear();
   // Refresh screen action
   updateScreenActions();
   // Update Output menu
-  outputMenu->clear();
-  addOutputMenuActions();
+  outputsMenu->clear();
+  outputsMenu->addActions(screenActions);
+  //addOutputsMenuActions();
 }
 
 void MainWindow::openRecentFile()
@@ -1893,20 +1896,22 @@ void MainWindow::createActions()
 
   // Helps
   // Bug report
-  bugReportAction = new QAction(tr("Report bug..."), this);
+  bugReportAction = new QAction(tr("Report an issue"), this);
   connect(bugReportAction, SIGNAL(triggered()), this, SLOT(reportBug()));
   // Support
-  supportAction = new QAction(tr("Technical Support"), this);
+  supportAction = new QAction(tr("Technical support"), this);
   connect(supportAction, SIGNAL(triggered()), this, SLOT(technicalSupport()));
   // Documentation
   docAction = new QAction(tr("Documentation"), this);
   connect(docAction, SIGNAL(triggered()), this, SLOT(documentation()));
   // Send us feedback
-  feedbackAction = new QAction(tr("Submit Feedback..."), this);
+  feedbackAction = new QAction(tr("Submit feedback via email"), this);
   connect(feedbackAction, SIGNAL(triggered()), this, SLOT(sendFeedback()));
 
   // All available screen as action
   updateScreenActions();
+  outputsMenu->addActions(screenActions);
+  //addOutputsMenuActions();
 }
 
 void MainWindow::startFullScreen()
@@ -1942,20 +1947,21 @@ void MainWindow::createMenus()
   // Recent file separator
   separatorAction = fileMenu->addSeparator();
   recentFileMenu = fileMenu->addMenu(tr("Open Recents Projects"));
-  for (int i = 0; i < MaxRecentFiles; ++i)
+  for (int i = 0; i < MaxRecentFiles; ++i) {
     recentFileMenu->addAction(recentFileActions[i]);
+  }
   recentFileMenu->addAction(clearRecentFileActions);
 
   // Recent import video
   recentVideoMenu = fileMenu->addMenu(tr("Open Recents Videos"));
   recentVideoMenu->addAction(emptyRecentVideos);
-  for (int i = 0; i < MaxRecentVideo; ++i)
+  for (int i = 0; i < MaxRecentVideo; ++i) {
     recentVideoMenu->addAction(recentVideoActions[i]);
+  }
 
   // Exit
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
-
 
   // Edit.
   editMenu = menuBar->addMenu(tr("&Edit"));
@@ -1980,21 +1986,25 @@ void MainWindow::createMenus()
   // Preferences
   editMenu->addAction(preferencesAction);
 
+  // Output
+  viewMenu = menuBar->addMenu(tr("&View"));
+
+  viewMenu->addAction(outputFullScreenAction);
+  //viewMenu->addActions(screenActions);
+  viewMenu->addSeparator();
+  viewMenu->addAction(displayTestSignalAction);
+  viewMenu->addAction(displayControlsAction);
+  viewMenu->addAction(displayPaintControlsAction);
+  viewMenu->addSeparator();
+  outputsMenu = viewMenu->addMenu(tr("&Outputs"));
+  //addOutputsMenuActions(); // At this point, the Outputs menu options have already been created
+  outputsMenu->addActions(screenActions);
+
   // Playback.
-  playbackMenu = menuBar->addMenu(tr("&Playback"));
+  playbackMenu = viewMenu->addMenu(tr("&Playback"));
   playbackMenu->addAction(playAction);
   playbackMenu->addAction(pauseAction);
   playbackMenu->addAction(rewindAction);
-
-
-  // Output
-  outputMenu = menuBar->addMenu(tr("&Output"));
-  // Add actions
-  addOutputMenuActions();
-
-  // Tools
-  toolsMenu = menuBar->addMenu(tr("&Tools"));
-  toolsMenu->addAction(openConsoleAction);
 
   // Window
   windowMenu = menuBar->addMenu(tr("&Window"));
@@ -2014,6 +2024,9 @@ void MainWindow::createMenus()
   windowMenu->addAction(mainViewAction);
   windowMenu->addAction(sourceViewAction);
   windowMenu->addAction(destViewAction);
+  // Console
+  windowMenu->addSeparator();
+  windowMenu->addAction(openConsoleAction);
 
   // Help.
   helpMenu = menuBar->addMenu(tr("&Help"));
@@ -2025,7 +2038,6 @@ void MainWindow::createMenus()
   helpMenu->addAction(aboutAction);
 
   //  helpMenu->addAction(aboutQtAction);
-
 }
 
 void MainWindow::createMappingContextMenu()
@@ -2196,10 +2208,8 @@ void MainWindow::readSettings()
 void MainWindow::writeSettings()
 {
   QSettings settings;
-
   settings.setValue("geometry", saveGeometry());
   settings.setValue("windowState", saveState());
-
   settings.setValue("mainSplitter", mainSplitter->saveState());
   settings.setValue("paintSplitter", paintSplitter->saveState());
   settings.setValue("mappingSplitter", mappingSplitter->saveState());
@@ -2387,7 +2397,7 @@ void MainWindow::updateRecentVideoActions()
   }
 }
 
-void MainWindow:: updateScreenActions()
+void MainWindow::updateScreenActions()
 {
   if (QApplication::screens().count() > 1) {
     // Add new action for each screen
@@ -2396,8 +2406,9 @@ void MainWindow:: updateScreenActions()
           .arg(screen->name())
           .arg(QString::number(screen->size().width()))
           .arg(QString::number(screen->size().height()));
-      if (screen == QApplication::primaryScreen())
+      if (screen == QApplication::primaryScreen()) {
         actionLabel.append(" - Primary");
+      }
       QAction *action = new QAction(actionLabel, this);
       screenActions.append(action);
       action->setData(screenActions.count() - 1);
@@ -2408,23 +2419,17 @@ void MainWindow:: updateScreenActions()
     int preferredScreen = outputWindow->getPreferredScreen();
     for (QAction *action: screenActions) {
       action->setCheckable(true);
-      if (action == screenActions.at(preferredScreen))
+      if (action == screenActions.at(preferredScreen)) {
         action->setChecked(true);
-
+      }
       connect(action, SIGNAL(triggered()), this, SLOT(setupOutputScreen()));
       screenActionGroup->addAction(action);
     }
   }
 }
 
-void MainWindow::addOutputMenuActions()
+void MainWindow::addOutputsMenuActions()
 {
-  outputMenu->addAction(outputFullScreenAction);
-  outputMenu->addActions(screenActions);
-  outputMenu->addSeparator();
-  outputMenu->addAction(displayTestSignalAction);
-  outputMenu->addAction(displayControlsAction);
-  outputMenu->addAction(displayPaintControlsAction);
 }
 
 void MainWindow::clearRecentFileList()
