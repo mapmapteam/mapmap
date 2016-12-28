@@ -526,7 +526,7 @@ void MainWindow::openCameraDevice()
     }
 
     bool ok;
-    QString deviceName = QInputDialog::getItem(this, tr("Available camera"),
+    QString deviceName = QInputDialog::getItem(this, tr("Camera device"),
                                                tr("Select camera"), devicesList, 0, false, &ok);
 
     if (ok && !deviceName.isEmpty())
@@ -2401,7 +2401,7 @@ void MainWindow::updateScreenActions()
         .arg(QString::number(screen->size().width()))
         .arg(QString::number(screen->size().height()));
     if (screen == QApplication::primaryScreen()) {
-      actionLabel.append(" - Primary");
+      actionLabel.append(tr(" - Primary"));
     }
     QAction *action = new QAction(actionLabel, this);
     screenActions.append(action);
@@ -2820,13 +2820,13 @@ QString MainWindow::locateMediaFile(const QString &uri, bool isImage)
   // Show a warning and offer to locate the file
   QMessageBox::warning(this,
                        tr("Cannot load movie"),
-                       tr("Unable to use the file « %1 » \n"
-                          "The original file is not found. Will you locate?")
+                       tr("Unable to use file %1.\n"
+                          "The original file is not found. Please locate.")
                        .arg(filename));
 
   // Set the new uri
   url = QFileDialog::getOpenFileName(this,
-                                     tr("Locate file « %1 »").arg(filename),
+                                     tr("Locate file %1").arg(filename),
                                      directory,
                                      tr("%1 files (%2)")
                                      .arg(mediaType)
