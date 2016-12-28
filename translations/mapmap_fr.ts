@@ -977,47 +977,47 @@ Ligne %2, colonne %3</translation>
     <name>mmp::AboutDialog</name>
     <message>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>À propos de %1</translation>
     </message>
     <message>
         <source>MapMap is a free/open source video mapping software.</source>
-        <translation type="unfinished"></translation>
+        <translation>MapMap est un logiciel libre de mapping vidéo</translation>
     </message>
     <message>
         <source>Copyright &amp;copy; 2013 %1.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>See the </source>
-        <translation type="unfinished"></translation>
+        <translation>Voir le</translation>
     </message>
     <message>
         <source>%1 website</source>
-        <translation type="unfinished"></translation>
+        <translation>site web de %1</translation>
     </message>
     <message>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>À propos</translation>
     </message>
     <message>
         <source>Changelog</source>
-        <translation type="unfinished"></translation>
+        <translation>Changements</translation>
     </message>
     <message>
         <source>Contributors</source>
-        <translation type="unfinished"></translation>
+        <translation>Contributeurs</translation>
     </message>
     <message>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licence</translation>
     </message>
     <message>
         <source>Libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>Librairies</translation>
     </message>
     <message>
         <source>OSC</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
