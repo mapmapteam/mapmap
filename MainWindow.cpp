@@ -2399,32 +2399,30 @@ void MainWindow::updateRecentVideoActions()
 
 void MainWindow::updateScreenActions()
 {
-  if (QApplication::screens().count() > 1) {
-    // Add new action for each screen
-    for (QScreen *screen: QApplication::screens()) {
-      QString actionLabel = tr("%1 - %2x%3")
-          .arg(screen->name())
-          .arg(QString::number(screen->size().width()))
-          .arg(QString::number(screen->size().height()));
-      if (screen == QApplication::primaryScreen()) {
-        actionLabel.append(" - Primary");
-      }
-      QAction *action = new QAction(actionLabel, this);
-      screenActions.append(action);
-      action->setData(screenActions.count() - 1);
+  // Add new action for each screen
+  for (QScreen *screen: QApplication::screens()) {
+    QString actionLabel = tr("%1 - %2x%3")
+        .arg(screen->name())
+        .arg(QString::number(screen->size().width()))
+        .arg(QString::number(screen->size().height()));
+    if (screen == QApplication::primaryScreen()) {
+      actionLabel.append(" - Primary");
     }
+    QAction *action = new QAction(actionLabel, this);
+    screenActions.append(action);
+    action->setData(screenActions.count() - 1);
+  }
 
-    // Configure actions
-    screenActionGroup = new QActionGroup(this);
-    int preferredScreen = outputWindow->getPreferredScreen();
-    for (QAction *action: screenActions) {
-      action->setCheckable(true);
-      if (action == screenActions.at(preferredScreen)) {
-        action->setChecked(true);
-      }
-      connect(action, SIGNAL(triggered()), this, SLOT(setupOutputScreen()));
-      screenActionGroup->addAction(action);
+  // Configure actions
+  screenActionGroup = new QActionGroup(this);
+  int preferredScreen = outputWindow->getPreferredScreen();
+  for (QAction *action: screenActions) {
+    action->setCheckable(true);
+    if (action == screenActions.at(preferredScreen)) {
+      action->setChecked(true);
     }
+    connect(action, SIGNAL(triggered()), this, SLOT(setupOutputScreen()));
+    screenActionGroup->addAction(action);
   }
 }
 
