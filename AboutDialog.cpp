@@ -69,6 +69,8 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
   createContributorsTab();
   // License
   createLicenseTab();
+
+  createOscTab();
 }
 
 void AboutDialog::createAboutTab()
@@ -158,6 +160,18 @@ void AboutDialog::createLicenseTab()
   _licenseTextBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(licenseFile.readAll()));
 
   _tabWidget->addTab(_licenseTextBrowser, tr("License"));
+}
+
+void AboutDialog::createOscTab()
+{
+
+  QTextBrowser *
+  oscBrowser = new QTextBrowser;
+  oscBrowser->setOpenExternalLinks(true);
+  QFile oscFile(":/osc_html");
+  oscFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  oscBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(oscFile.readAll()));
+  _tabWidget->addTab(oscBrowser, tr("OSC"));
 }
 
 }
