@@ -2003,14 +2003,12 @@ void MainWindow::createMenus()
 
   // Window
   windowMenu = menuBar->addMenu(tr("&Window"));
-  // Toolbars menu
-  toolBarsMenu = windowMenu->addMenu(tr("Toolbars"));
 #ifdef Q_OS_LINUX
   if (QString(getenv("XDG_CURRENT_DESKTOP")).toLower() != "unity")
-    toolBarsMenu->addAction(showMenuBarAction);
+    windowMenu->addAction(showMenuBarAction);
 #endif
 #ifdef Q_OS_WIN32
-  toolBarsMenu->addAction(showMenuBarAction);
+  windowMenu->addAction(showMenuBarAction);
 #endif
   windowMenu->addAction(displayUndoHistoryAction);
   windowMenu->addAction(displayZoomToolAction);
@@ -2113,7 +2111,7 @@ void MainWindow::createToolBars()
 
   // Toggle show/hide of toolbar
   showToolBarAction = mainToolBar->toggleViewAction();
-  toolBarsMenu->addAction(showToolBarAction);
+  windowMenu->addAction(showToolBarAction);
 
   // Add toolbars.
   addToolBar(Qt::TopToolBarArea, mainToolBar);

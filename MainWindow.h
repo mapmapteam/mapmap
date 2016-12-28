@@ -346,7 +346,6 @@ private:
   // Some menus when need to be separated
   QMenu *sourceMenu;
   QMenu *destinationMenu;
-  QMenu *toolBarsMenu;
 
   // Toolbar.
   QToolBar *mainToolBar;
