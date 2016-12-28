@@ -1428,10 +1428,12 @@ void MainWindow::createLayout()
 
   // Create layout.
   paintSplitter = new QSplitter(Qt::Vertical);
+  paintSplitter->setChildrenCollapsible(false);
   paintSplitter->addWidget(paintList);
   paintSplitter->addWidget(paintPropertyPanel);
 
   mappingSplitter = new QSplitter(Qt::Vertical);
+  mappingSplitter->setChildrenCollapsible(false);
   mappingSplitter->addWidget(mappingList);
   mappingSplitter->addWidget(mappingPropertyPanel);
 
