@@ -211,16 +211,16 @@ void PreferenceDialog::createMappingPage()
 
   vertexGroupBox->setLayout(vertexLayout);
 
-  // Shape
-  QGroupBox *shapeGroupBox = new QGroupBox(tr("Shape"));
-
-  // Mapping
-  QGroupBox *layerGroupBox = new QGroupBox(tr("Layers"));
+  // // Shape
+  // QGroupBox *shapeGroupBox = new QGroupBox(tr("Shape"));
+  //
+  // // Mapping
+  // QGroupBox *layerGroupBox = new QGroupBox(tr("Layers"));
 
   QVBoxLayout *pageLayout = new QVBoxLayout;
   pageLayout->addWidget(vertexGroupBox);
-  pageLayout->addWidget(shapeGroupBox);
-  pageLayout->addWidget(layerGroupBox);
+  // pageLayout->addWidget(shapeGroupBox);
+  // pageLayout->addWidget(layerGroupBox);
 
   _mappingPage->setLayout(pageLayout);
 }
@@ -280,25 +280,25 @@ void PreferenceDialog::createControlsPage()
   QRegExpValidator *ipValidator = new QRegExpValidator(rx);
   QMargins margins(40, 0, 0, 0);
 
-  _sendMessageBox = new QCheckBox;
-  _sendMessageBox->setFont(bold);
-  _sendMessageBox->setText(tr("Send OSC messages"));
-  _sendMessageBox->setEnabled(false); // Disable until supported
-
-  _sendAddressEdit = new QLineEdit;
-  _sendAddressEdit->setValidator(ipValidator);
-  _sendAddressEdit->setEnabled(false); // Disable until supported
-
-  _sendPortNumber = new QSpinBox;
-  _sendPortNumber->setRange(1024, 65534);
-  _sendPortNumber->setFixedWidth(120);
-  _sendPortNumber->setEnabled(false); // Disable until supported
-
-  QFormLayout *sendMessageForm = new QFormLayout;
-  sendMessageForm->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
-  sendMessageForm->setContentsMargins(margins);
-  sendMessageForm->addRow(tr("to machine"), _sendAddressEdit);
-  sendMessageForm->addRow(tr("at port"), _sendPortNumber);
+  // _sendMessageBox = new QCheckBox;
+  // _sendMessageBox->setFont(bold);
+  // _sendMessageBox->setText(tr("Send OSC messages"));
+  // _sendMessageBox->setEnabled(false); // Disable until supported
+  //
+  // _sendAddressEdit = new QLineEdit;
+  // _sendAddressEdit->setValidator(ipValidator);
+  // _sendAddressEdit->setEnabled(false); // Disable until supported
+  //
+  // _sendPortNumber = new QSpinBox;
+  // _sendPortNumber->setRange(1024, 65534);
+  // _sendPortNumber->setFixedWidth(120);
+  // _sendPortNumber->setEnabled(false); // Disable until supported
+  //
+  // QFormLayout *sendMessageForm = new QFormLayout;
+  // sendMessageForm->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
+  // sendMessageForm->setContentsMargins(margins);
+  // sendMessageForm->addRow(tr("to machine"), _sendAddressEdit);
+  // sendMessageForm->addRow(tr("at port"), _sendPortNumber);
 
   _listenMessageBox = new QCheckBox;
   _listenMessageBox->setFont(bold);
@@ -327,8 +327,8 @@ void PreferenceDialog::createControlsPage()
   listenAddressForm->addRow(tr("Local IP"), listenAddressLayout);
 
   QVBoxLayout *oscLayout = new QVBoxLayout;
-  oscLayout->addWidget(_sendMessageBox, 1);
-  oscLayout->addLayout(sendMessageForm, 4);
+  // oscLayout->addWidget(_sendMessageBox, 1);
+  // oscLayout->addLayout(sendMessageForm, 4);
   oscLayout->addWidget(_listenMessageBox, 1);
   oscLayout->addLayout(listenPortForm, 1);
   oscLayout->addLayout(listenAddressForm, 3);
