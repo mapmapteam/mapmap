@@ -1,45 +1,59 @@
 # Currently supported commands
 
-## Paints
-Paint ids are numbered from 1 to N.
+General rules:
 
-- /mapmap/paint/name ,is <id> <name>        Change name of paint.
-- /mapmap/paint/opacity ,if <id> <opacity>  Change opacity of paint. Range: [0,1]
+ - Paint and mapping ids are numbered starting from 1.
+ - On/off properties such as *solo*, *visible* and *lock* are set using 1 (on) or 0 (off)
+ - Percentage properties such as *opacity* and *volume* are set using a real-value in the [0, 1] range.
+
+## Paints
+
+Rename: `/mapmap/paint/name ,is <id> <name>`  
+Adjust opacity: `/mapmap/paint/opacity ,if <id> <opacity>`
 
 ### Color paint
 
-- /mapmap/paint/color ,is <id> <color>      Change color of paint. (eg. "#ff0000")
+Adjust color (eg. "#ff0000"): `/mapmap/paint/color ,is <id> <color>`
 
 ### Image/Video paint
 
-- /mapmap/paint/rate ,if <id> <rate>        Change rate (speed) of paint Range: [0,1]
-- /mapmap/paint/uri ,is <id> <uri>          Change URI of paint. (eg. file:///home/example/example.mov)
-- /mapmap/paint/volume ,if <id> <volume>    Change audio volume of paint. Range: [0,1]
-- /mapmap/paint/rewind ,i <id>              Rewind paint
+Change URI (eg. "file:///path/to/clip.mov"): `/mapmap/paint/uri ,is <id> <uri>`  
+Change rate (speed) (*): `/mapmap/paint/rate ,if <id> <rate>`  
+Adjust audio volume: `/mapmap/paint/volume ,if <id> <volume>`  
+Rewind: `/mapmap/paint/rewind ,i <id>`
+ 
+(*) 1 = same speed, 0.5 = half speed, 2 = double speed
 
 ## Mappings
-Mappings are numbered from 1 to N.
 
-- /mapmap/mapping/depth ,ii <id> <depth>      Change depth of mapping. (layer order)
-- /mapmap/mapping/locked ,ii <id> <locked>    Change lock status of mapping (0 or 1)
-- /mapmap/mapping/name ,is <id> <name>        Change name of mapping
-- /mapmap/mapping/opacity ,if <id> <opacity>  Change opacity of mapping. Range: [0,1]
-- /mapmap/mapping/solo ,ii <id> <solo>        Change solo status of mapping (0 or 1)
-- /mapmap/mapping/visible ,ii <id> <visible>  Change visibility status of mapping (0 or 1)
+Rename: `/mapmap/mapping/name ,is <id> <name>`  
+Adjust opacity: `/mapmap/mapping/opacity ,if <id> <opacity>`  
+Set visibility status: `/mapmap/mapping/visible ,ii <id> <visible>`  
+Set solo status: `/mapmap/mapping/solo ,ii <id> <solo>`  
+Set lock status: `/mapmap/mapping/locked ,ii <id> <locked>`  
+Adjust depth (layer order): `/mapmap/mapping/depth ,ii <id> <depth>`
 
 ## Regular expressions
-Alternatively to ids, one can use a string pattern describing a regexp over the paint or mapping names. The regular expression follows a [simple "file globbing" / wildcard syntax](http://doc.qt.io/qt-5/qregexp.html#wildcard-matching). It is case-sensitive.
 
-Examples:
+Paint and mapping ids are hard to remember and manipulate. Alternatively, one can use a string pattern describing a regexp over the paint or mapping names. The regular expression follows a [simple "file globbing" / wildcard syntax](http://doc.qt.io/qt-5/qregexp.html#wildcard-matching). It is case-sensitive.
 
-- /mapmap/paint/opacity ,sf movie.mov 0.1   Change opacity of paint named "movie.mov" to 0.1 (10%)
-- /mapmap/paint/opacity ,sf "movie_*" 0.5   Change opacity of all paints whose name begins by "movie_" to 0.5 (50%)
-- /mapmap/paint/rewind ,s "*.mov"           Rewind all .mov paints
-- /mapmap/mapping/solo ,s "mesh_[0-9]" 1    Sets all mappings that begin with "mesh_" followed by a single digit to solo mode
+### Examples
+
+Change opacity of paint named "movie.mov" to 0.1 (10%):  
+`/mapmap/paint/opacity ,sf "movie.mov" 0.1`
+
+Change opacity of all paints whose name begins by "movie-" to 0.5 (50%):  
+`/mapmap/paint/opacity ,sf "movie-*" 0.5`
+
+Rewind all .mov paints:  
+`/mapmap/paint/rewind ,s "*.mov"`
+
+Set all mappings that begin with "mesh-" followed by a single digit to solo mode:  
+`/mapmap/mapping/solo ,s "mesh-[0-9]" 1`
 
 ## Playback
 
-- /mapmap/pause                 Stop playback
-- /mapmap/play                  Start playback
-- /mapmap/quit                  Quit MapMap
-- /mapmap/rewind                Rewind/reset
+Pause: `/mapmap/pause`  
+Play: `/mapmap/play`  
+Rewind/reset: `/mapmap/rewind`  
+Quit: `/mapmap/quit`
