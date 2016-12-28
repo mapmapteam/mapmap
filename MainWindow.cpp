@@ -1984,27 +1984,20 @@ void MainWindow::createMenus()
   // Preferences
   editMenu->addAction(preferencesAction);
 
-  // Output
+  // View.
   viewMenu = menuBar->addMenu(tr("&View"));
 
   viewMenu->addAction(outputFullScreenAction);
-  //viewMenu->addActions(screenActions);
-  viewMenu->addSeparator();
   viewMenu->addAction(displayTestSignalAction);
   viewMenu->addAction(displayControlsAction);
   viewMenu->addAction(displayPaintControlsAction);
-  viewMenu->addSeparator();
-  viewMenu->addAction(outputFullScreenAction);
   outputScreenMenu = viewMenu->addMenu(tr("&Output screen"));
   outputScreenMenu->addActions(screenActions);
-
   viewMenu->addSeparator();
-
   // Playback.
-  playbackMenu = viewMenu->addMenu(tr("&Playback"));
-  playbackMenu->addAction(playAction);
-  playbackMenu->addAction(pauseAction);
-  playbackMenu->addAction(rewindAction);
+  viewMenu->addAction(playAction);
+  viewMenu->addAction(pauseAction);
+  viewMenu->addAction(rewindAction);
 
   // Window
   windowMenu = menuBar->addMenu(tr("&Window"));

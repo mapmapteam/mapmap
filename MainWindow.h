@@ -338,7 +338,6 @@ private:
 
   // Sub-menus.
   QMenu *outputScreenMenu;
-  QMenu *playbackMenu;
   QMenu *recentFileMenu;
   QMenu *recentVideoMenu;
   QMenu *mappingContextMenu;
