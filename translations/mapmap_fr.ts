@@ -1347,7 +1347,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Display &amp;Undo History</source>
-        <translation>Afficher l&apos;historique des annulations</translation>
+        <translation>Afficher l&apos;historique des opérations</translation>
     </message>
     <message>
         <source>Open Conso&amp;le</source>
@@ -1542,7 +1542,7 @@ The original file is not found. Will you locate?</source>
     </message>
     <message>
         <source>Undo history</source>
-        <translation>Historique des annulations</translation>
+        <translation>Historique</translation>
     </message>
     <message>
         <source>Camera device</source>
