@@ -37,6 +37,7 @@ Files
 * TODO: You can put things to do there, or use https://github.com/mapmapteam/mapmap, or https://www.pivotaltracker.com/s/projects/954570/
 * images/: Images part of the GUI.
 * prototypes/ : Contains prototypes. Please ask the project maintainer before removing some of these.
+* docs/informations/*.md Markdown files to generate the About dialog
 
 Code management with Git
 ------------------------
@@ -59,6 +60,7 @@ Make a release
   * PROJECT_NUMBER in Doxyfile
 * Edit NEWS - update with the news for the release you are about to make
 * Run ./scripts/update-changelog.sh and commit the changes
+* Maybe update the docs/informations/osc.md file and run scripts/update-osc.sh and commit the changes
 * Maybe update the docs/informations/CONTRIBUTORS.md file and run scripts/update-contributors.sh and commit the changes
 * run make
 * run ./sh_build_doc.sh

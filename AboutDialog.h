@@ -46,6 +46,7 @@ private:
   void createLibrariesTab();
   void createContributorsTab();
   void createLicenseTab();
+  void createOscTab();
 
   QGridLayout *_mainLayout;
   QLabel *_iconLabel;

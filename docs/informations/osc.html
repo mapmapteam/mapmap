@@ -1,0 +1,60 @@
+<h1>Currently supported commands</h1>
+
+<h2>Paints</h2>
+
+<p>Paint ids are numbered from 1 to N.</p>
+
+<ul>
+<li>/mapmap/paint/name ,is <id> <name>        Change name of paint.</li>
+<li>/mapmap/paint/opacity ,if <id> <opacity>  Change opacity of paint. Range: [0,1]</li>
+</ul>
+
+<h3>Color paint</h3>
+
+<ul>
+<li>/mapmap/paint/color ,is <id> <color>      Change color of paint. (eg. "#ff0000")</li>
+</ul>
+
+<h3>Image/Video paint</h3>
+
+<ul>
+<li>/mapmap/paint/rate ,if <id> <rate>        Change rate (speed) of paint Range: [0,1]</li>
+<li>/mapmap/paint/uri ,is <id> <uri>          Change URI of paint. (eg. file:///home/example/example.mov)</li>
+<li>/mapmap/paint/volume ,if <id> <volume>    Change audio volume of paint. Range: [0,1]</li>
+<li>/mapmap/paint/rewind ,i <id>              Rewind paint</li>
+</ul>
+
+<h2>Mappings</h2>
+
+<p>Mappings are numbered from 1 to N.</p>
+
+<ul>
+<li>/mapmap/mapping/depth ,ii <id> <depth>      Change depth of mapping. (layer order)</li>
+<li>/mapmap/mapping/locked ,ii <id> <locked>    Change lock status of mapping (0 or 1)</li>
+<li>/mapmap/mapping/name ,is <id> <name>        Change name of mapping</li>
+<li>/mapmap/mapping/opacity ,if <id> <opacity>  Change opacity of mapping. Range: [0,1]</li>
+<li>/mapmap/mapping/solo ,ii <id> <solo>        Change solo status of mapping (0 or 1)</li>
+<li>/mapmap/mapping/visible ,ii <id> <visible>  Change visibility status of mapping (0 or 1)</li>
+</ul>
+
+<h2>Regular expressions</h2>
+
+<p>Alternatively to ids, one can use a string pattern describing a regexp over the paint or mapping names. The regular expression follows a <a href="http://doc.qt.io/qt-5/qregexp.html#wildcard-matching">simple "file globbing" / wildcard syntax</a>. It is case-sensitive.</p>
+
+<p>Examples:</p>
+
+<ul>
+<li>/mapmap/paint/opacity ,sf movie.mov 0.1   Change opacity of paint named "movie.mov" to 0.1 (10%)</li>
+<li>/mapmap/paint/opacity ,sf "movie<em>*" 0.5   Change opacity of all paints whose name begins by "movie</em>" to 0.5 (50%)</li>
+<li>/mapmap/paint/rewind ,s "*.mov"           Rewind all .mov paints</li>
+<li>/mapmap/mapping/solo ,s "mesh<em>[0-9]" 1    Sets all mappings that begin with "mesh</em>" followed by a single digit to solo mode</li>
+</ul>
+
+<h2>Playback</h2>
+
+<ul>
+<li>/mapmap/pause                 Stop playback</li>
+<li>/mapmap/play                  Start playback</li>
+<li>/mapmap/quit                  Quit MapMap</li>
+<li>/mapmap/rewind                Rewind/reset</li>
+</ul>
