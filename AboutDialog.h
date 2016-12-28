@@ -43,7 +43,7 @@ public slots:
 private:
   void createAboutTab();
   void createChangelogTab();
-  void createLibrairiesTab();
+  void createLibrariesTab();
   void createContributorsTab();
   void createLicenseTab();
 
