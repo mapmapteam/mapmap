@@ -334,10 +334,10 @@ private:
   QMenu *editMenu;
   QMenu *toolsMenu;
   QMenu *viewMenu;
-  QMenu *outputsMenu;
   QMenu *windowMenu;
   QMenu *playbackMenu;
   QMenu *helpMenu;
+  QMenu *outputScreenMenu;
   QMenu *recentFileMenu;
   QMenu *recentVideoMenu;
   QMenu *mappingContextMenu;

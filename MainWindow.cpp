@@ -902,8 +902,8 @@ void MainWindow::updateScreenCount()
   // Refresh screen action
   updateScreenActions();
   // Update Output menu
-  outputsMenu->clear();
-  outputsMenu->addActions(screenActions);
+  outputScreenMenu->clear();
+  outputScreenMenu->addActions(screenActions);
 }
 
 void MainWindow::openRecentFile()
@@ -1909,7 +1909,7 @@ void MainWindow::createActions()
 
   // All available screen as action
   updateScreenActions();
-//  outputsMenu->addActions(screenActions);
+//  outputScreenMenu->addActions(screenActions);
 }
 
 void MainWindow::startFullScreen()
@@ -1995,8 +1995,8 @@ void MainWindow::createMenus()
   viewMenu->addAction(displayPaintControlsAction);
   viewMenu->addSeparator();
   viewMenu->addAction(outputFullScreenAction);
-  outputsMenu = viewMenu->addMenu(tr("&Output screen"));
-  outputsMenu->addActions(screenActions);
+  outputScreenMenu = viewMenu->addMenu(tr("&Output screen"));
+  outputScreenMenu->addActions(screenActions);
 
   viewMenu->addSeparator();
 
