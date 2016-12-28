@@ -1,175 +1,110 @@
-<h2>MapMap Versions History - Release Notes</h2>
+<h1>Release notes for MapMap</h1>
 
-<h3>v0.4.1 - 2016-04-??</h3>
-
-<h4>Added</h4>
+<h2>2016-04-?? - MapMap 0.4.1</h2>
 
 <ul>
-<li>Enable display of controls of mappings related to current paint</li>
-<li>Warping (meshes) instead quads for color mappings</li>
-<li>Integrated true FPS in the status bar</li>
-<li>Allow OSC message addressing of paints and mappings by names through regular expressions.</li>
-<li>Paints that are currently not visible are shown in interface with a red bar on them.</li>
-<li>Support live camera input on mappings</li>
+<li>to do</li>
 </ul>
 
-<h4>Changed</h4>
+<h2>2016-04-19 - MapMap 0.4.0</h2>
 
 <ul>
-<li>Finely choose on which display to output</li>
-<li>Help menu improvements</li>
-<li>Make the duplication of mapping {Undo, Redo}able</li>
-<li>Pause paints that are not visible anyway</li>
-<li>Frame rate is now an option that can be specified on the command line.</li>
-<li>Support for OSC message: rewind individual paint</li>
-</ul>
-
-<h4>Fixed</h4>
-
-<ul>
-<li>Disable right click on context menu actions</li>
-<li>when loading project solo/visible/locked were not activated in the mapping list widgets.</li>
-</ul>
-
-<h3>v0.4.0 - 2016-04-19</h3>
-
-<h4>Added</h4>
-
-<ul>
-<li>Zoom toolbar</li>
-<li>Console window
-<ul>
-<li>Display logging output in a console and be able to turn it on and off</li>
-</ul></li>
+<li>Add zoom toolbar</li>
+<li>Add console window</li>
+<li>Fix #179: Paints and mappings renamings are now saved in file</li>
+<li>Fix #162: Zooming in the destination canvas changes the size of controls in output window.</li>
+<li>Fix #154: Problem with some video files: shape is size of single point</li>
+<li>Can rename paints and mappings via OSC</li>
+<li>Can rename paints and mappings with double click</li>
+<li>Fix #156: White rectangle around the fullscreen window</li>
+<li>Fix #152: The software frozen when we load a project and the video files are not found</li>
 <li>Abled to locate the video files if is not found when load a project</li>
-<li>Ellipse conical projection</li>
-<li>OSC support on OSX</li>
-<li>Delete a mapping with the <code>Delete</code> key</li>
-<li><code>Solo</code>, <code>Lock</code>, <code>Visible</code>, <code>Duplicate</code> and <code>Delete</code> buttons on mapping list</li>
-<li>Switch between Destination+Source, Destination-Only and Source-Only views</li>
-<li>Support UTF-8 characters</li>
-<li>Add LICENSE file</li>
-</ul>
-
-<h4>Changed</h4>
-
-<ul>
-<li>Be able to rename a Paint</li>
-<li>Rename paints and mappings via OSC</li>
-<li>Add OSC support for play, pause, and rewind</li>
-<li>Rename paints and mappings with double click</li>
-<li>Improve Test signal
-<ul>
-<li>Center the test signal (use all the available space)</li>
-</ul></li>
+<li>Fix #149: Deleting a mapping actually deletes a paint when the paint tab is chosen</li>
+<li>Improve Test signal</li>
+<li>Enhancement #117: Ellipse conical projection</li>
 <li>Performance improvements</li>
-<li>Show/Hide the "Undo Stack" tab</li>
-<li>Main toolbar improvements
-<ul>
-<li>Show/Hide the main toolbar</li>
-</ul></li>
-<li>More informations on statut bar</li>
-<li>Hide cursor when canvas controls are inactive</li>
-<li>Add/Remove paint are Undo/Redo able</li>
-<li>Automatically move output screen to secondary screen</li>
-<li>Remove implicit shortcuts for menus (they were conflicting with other ALT+ based shortcuts).</li>
-<li>Reorder mappings by drag &amp; drop</li>
-<li>Introduction of namespace</li>
-<li>Add option on the commandline to force language</li>
-</ul>
-
-<h4>Fixed</h4>
-
-<ul>
-<li>Paints and mappings renamings are now saved in file</li>
-<li>Zooming in the destination canvas changes the size of controls in output window</li>
-<li>Problem with some video files: shape is size of single point</li>
-<li>White rectangle around the fullscreen window</li>
-<li>The software frozen when we load a project and the video files are not found</li>
-<li>Deleting a mapping actually deletes a paint when the paint tab is chosen</li>
 <li>OSC general bug fixes</li>
-<li>Program just freezes when importing corrupted video file</li>
-<li>Ctrl-Q quit the application</li>
-<li>ESC key would not work properly to exit full screen</li>
-<li>Flickering video images when loading from the commandline</li>
-<li>Window geometry not preserved after quit (On Ubuntu 15.10)</li>
+<li>OSC support on OSX</li>
+<li>Done #174: Be able to rename a Paint</li>
+<li>Done #72: Be able to name paints and mappings - for OSC controls</li>
+<li>Center the test signal #97 (must use all the space available)</li>
+<li>Fix #159: Program just freezes when importing corrupted video file</li>
+<li>Done #145: The user doesn't need to see the undo stack</li>
+<li>Done #40: Ctrl-Q should quit the application</li>
+<li>Done #183: Display logging output in a console and be able to turn it on and off</li>
+<li>Done #203: The toolbar can be shown or hidden at will by the user</li>
+<li>Done #147: Be able to delete a mapping with the delete key #147 (tested on Ubuntu)</li>
+<li>Done #184: Make sure names support UTF-8 characters</li>
+<li>Done #201 UX Design document: implement main toolbar improvements</li>
+<li>Add solo/lock/mute/delete/duplicate mapping icons</li>
+<li>Hide cursor when canvas controls are not shown</li>
+<li>Can undo or redo Add/Remove paint</li>
+<li>Implement #240 Allow easy switch between destination+source, destination-only and source-only views</li>
+<li>Automatically move output screen to secondary screen</li>
+<li>Fix bug: ESC key would not work properly to exit full screen.</li>
+<li>Remove implicit shortcuts for menus (they were conflicting with other ALT+ based shortcuts).</li>
+<li>Fix: It should be possible to have an output window when using a single screen (closes #209</li>
+<li>Add LICENSE</li>
+<li>Can reorder mapping by drag &amp; drop</li>
+<li>Fix: Flickering video images when loading from the commandline (closes #218).</li>
+<li>Introduction of namespace</li>
+<li>Add OSC support for play, pause, and rewind.</li>
+<li>Fix: On Ubuntu 15.10 : window geometry not preserved after quit (closes #227).</li>
+<li>Add option on the commandline to force language.</li>
 <li>Fix error in mapmap.pro related to translations.</li>
 <li>Fix blocking bug on OSX: program was freezing when move was loaded</li>
+<li>Implemented new feature: holding the shift key while moving a vertex temporarily inverts stick</li>
 </ul>
 
-<h3>v0.3.1 - 2015-10-30</h3>
-
-<h4>Fixed</h4>
+<h2>2015-10-30 - MapMap 0.3.1</h2>
 
 <ul>
-<li>Splash screen does not show when installed</li>
-<li>Stylesheet is not applied when the app is installed on Linux</li>
-<li>Video playback is broken</li>
-<li>OSC not working on OS X</li>
+<li>Fix #138: splash screen does not show when installed</li>
+<li>Fix #139: Stylesheet is not applied when the app is installed on Linux</li>
+<li>Fix #135: Video playback is broken</li>
+<li>Fix #103: OSC not working on OS X</li>
 </ul>
 
-<h3>v0.3.0 - 2015-07-17</h3>
-
-<h4>Added</h4>
+<h2>2015-07-17 - MapMap 0.3.0</h2>
 
 <ul>
-<li>Zoom and scroll/drag in editor windows</li>
-<li>Transparency support for both paint and mapping</li>
-<li>Undo/Redo Moving vertex or shape and Add mapping actions</li>
-</ul>
-
-<h4>Changed</h4>
-
-<ul>
+<li>Add zoom and scroll/drag in editor windows</li>
+<li>Add transparency support for both paint and mapping</li>
 <li>Use native color dialog</li>
-</ul>
-
-<h4>Fixed</h4>
-
-<ul>
+<li>Undo/redo move and add actions</li>
 <li>Fix perspective-correct textures in quads</li>
 </ul>
 
-<h3>v0.2.0 - 2014-12-28</h3>
-
-<h4>Added</h4>
+<h2>2014-12-28 - MapMap 0.2.0</h2>
 
 <ul>
-<li>Add <code>--file</code>, <code>--osc-port</code> and <code>--reset-settings</code> options in command line</li>
-<li>A crosshair cursor in fullscreen mode.</li>
-<li>Logo title in about dialog.</li>
-<li>Change OSC port number via the new preference dialog.</li>
-<li>Speed rate for playback.</li>
-<li>Recent files and videos menu items.</li>
-<li>Test signal image.</li>
-</ul>
-
-<h4>Changed</h4>
-
-<ul>
-<li>Control mapping visibility from OSC</li>
-<li>Port to Qt5.</li>
+<li>Add --file option.</li>
+<li>Add --osc-port option.</li>
+<li>Add --reset-settings option.</li>
+<li>Add crosshair cursor in fullscreen mode.</li>
+<li>Add logo title in about dialog.</li>
+<li>Can change OSC port via the new preference dialog.</li>
+<li>Control mapping visibility from OSC (ticket #43)</li>
 <li>File chooser now remembers last used directory.</li>
+<li>Port to Qt5.</li>
+<li>Recent files and videos menu items.</li>
 <li>Select a shape with a click.</li>
 <li>Select individual vertex and move it with the arrow keys.</li>
-<li>Videos plays by default at startup</li>
+<li>Speed rate for playback.</li>
+<li>Test signal image.</li>
+<li>Videos plays by default at startup.</li>
+<li>Fix: Add missing MM.h</li>
+<li>Fix: Check for a valid OSC port number.</li>
+<li>Fix: Fix fullscreen on GNOME</li>
+<li>Fix: Fix main splitter proportions</li>
+<li>Fix: Fix memory leak with the GStreamer pipeline manager.</li>
+<li>Fix: Hide cursor in output window.</li>
+<li>Fix: Press escape to toggle fullscreen.</li>
+<li>Fix: Save fullscreen setting.</li>
+<li>Fix: Save visibility of mappings.</li>
 </ul>
 
-<h4>Fixed</h4>
-
-<ul>
-<li>Add missing MM.h</li>
-<li>Check for a valid OSC port number.</li>
-<li>Fix fullscreen on GNOME</li>
-<li>Fix main splitter proportions</li>
-<li>Fix memory leak with the GStreamer pipeline manager.</li>
-<li>Hide cursor in output window.</li>
-<li>Press escape to toggle fullscreen.</li>
-<li>Save fullscreen setting.</li>
-<li>Save visibility of mappings.</li>
-</ul>
-
-<h3>v0.1.1 - 2014-07-07</h3>
+<h2>2014-07-07 - MapMap 0.1.1</h2>
 
 <ul>
 <li>Fix packaging on OS X 10.9.3.</li>
@@ -184,9 +119,7 @@
 <li>Append file extension if none is provided.</li>
 </ul>
 
-<h3>v0.1.0 - 2014-04-30</h3>
-
-<h4>Features</h4>
+<h2>2014-04-30 - MapMap 0.1.0</h2>
 
 <ul>
 <li>Initial release.</li>
