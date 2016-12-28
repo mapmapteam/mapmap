@@ -1305,17 +1305,22 @@ Line %2, column %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../AboutDialog.cpp" line="139"/>
-        <source>Librairies</source>
+        <location filename="../AboutDialog.cpp" line="138"/>
+        <source>Libraries</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../AboutDialog.cpp" line="151"/>
+        <location filename="../AboutDialog.cpp" line="174"/>
+        <source>OSC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../AboutDialog.cpp" line="150"/>
         <source>Contributors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../AboutDialog.cpp" line="163"/>
+        <location filename="../AboutDialog.cpp" line="162"/>
         <source>License</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1369,531 +1374,566 @@ Line %2, column %3</translation>
 <context>
     <name>mmp::MainWindow</name>
     <message>
-        <location filename="../MainWindow.cpp" line="430"/>
+        <location filename="../MainWindow.cpp" line="433"/>
         <source>Open project</source>
         <translation type="unfinished">Open project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="432"/>
-        <location filename="../MainWindow.cpp" line="462"/>
+        <location filename="../MainWindow.cpp" line="435"/>
+        <location filename="../MainWindow.cpp" line="465"/>
         <source>MapMap files (*.%1)</source>
         <translation type="unfinished">MapMap files (*.%1)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="461"/>
+        <location filename="../MainWindow.cpp" line="464"/>
         <source>Save project</source>
         <translation type="unfinished">Save project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="490"/>
+        <location filename="../MainWindow.cpp" line="493"/>
         <source>Import media source file</source>
         <translation type="unfinished">Import media source file</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="492"/>
+        <location filename="../MainWindow.cpp" line="495"/>
         <source>Media files (%1 %2);;All files (*)</source>
         <translation type="unfinished">Media files (%1 %2);;All files (*)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="526"/>
         <source>Available camera</source>
-        <translation type="unfinished">Available camera</translation>
+        <translation type="obsolete">Available camera</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="527"/>
+        <location filename="../MainWindow.cpp" line="529"/>
+        <source>Camera device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="530"/>
         <source>Select camera</source>
         <translation type="unfinished">Select camera</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="538"/>
-        <location filename="../MainWindow.cpp" line="549"/>
+        <location filename="../MainWindow.cpp" line="541"/>
+        <location filename="../MainWindow.cpp" line="552"/>
         <source>No camera available</source>
         <translation type="unfinished">No camera available</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="538"/>
-        <location filename="../MainWindow.cpp" line="549"/>
+        <location filename="../MainWindow.cpp" line="541"/>
+        <location filename="../MainWindow.cpp" line="552"/>
         <source>You can not use this feature!
 No camera available in your system</source>
         <translation type="unfinished">You can not use this feature!
 No camera available in your system</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="562"/>
+        <location filename="../MainWindow.cpp" line="565"/>
         <source>Select Color</source>
         <translation type="unfinished">Select Color</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1309"/>
-        <location filename="../MainWindow.cpp" line="1460"/>
-        <location filename="../MainWindow.cpp" line="2222"/>
+        <location filename="../MainWindow.cpp" line="1311"/>
+        <location filename="../MainWindow.cpp" line="1464"/>
+        <location filename="../MainWindow.cpp" line="2228"/>
         <source>MapMap</source>
         <translation type="unfinished">MapMap</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1310"/>
+        <location filename="../MainWindow.cpp" line="1312"/>
         <source>Remove this paint and all its associated mappings?</source>
         <translation type="unfinished">Remove this paint and all its associated mappings?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1380"/>
+        <location filename="../MainWindow.cpp" line="1382"/>
         <source>Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1395"/>
+        <location filename="../MainWindow.cpp" line="1397"/>
         <source>Destination</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1438"/>
+        <location filename="../MainWindow.cpp" line="1442"/>
         <source>Paints</source>
         <translation type="unfinished">Paints</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1439"/>
+        <location filename="../MainWindow.cpp" line="1443"/>
         <source>Mappings</source>
         <translation type="unfinished">Mappings</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1474"/>
+        <location filename="../MainWindow.cpp" line="1478"/>
         <source>&amp;New</source>
         <translation type="unfinished">&amp;New</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1477"/>
+        <location filename="../MainWindow.cpp" line="1481"/>
         <source>Create a new project</source>
         <translation type="unfinished">Create a new project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1484"/>
+        <location filename="../MainWindow.cpp" line="1488"/>
         <source>&amp;Open...</source>
         <translation type="unfinished">&amp;Open...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1487"/>
+        <location filename="../MainWindow.cpp" line="1491"/>
         <source>Open an existing project</source>
         <translation type="unfinished">Open an existing project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1494"/>
+        <location filename="../MainWindow.cpp" line="1498"/>
         <source>&amp;Save</source>
         <translation type="unfinished">&amp;Save</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1497"/>
+        <location filename="../MainWindow.cpp" line="1501"/>
         <source>Save the project</source>
         <translation type="unfinished">Save the project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1504"/>
+        <location filename="../MainWindow.cpp" line="1508"/>
         <source>Save &amp;As...</source>
         <translation type="unfinished">Save &amp;As...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1507"/>
+        <location filename="../MainWindow.cpp" line="1511"/>
         <source>Save the project as...</source>
         <translation type="unfinished">Save the project as...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1536"/>
+        <location filename="../MainWindow.cpp" line="1540"/>
         <source>No Recents Videos</source>
         <translation type="unfinished">No Recents Videos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1541"/>
+        <location filename="../MainWindow.cpp" line="1545"/>
         <source>&amp;Import Media File...</source>
         <translation type="unfinished">&amp;Import Media File...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1544"/>
+        <location filename="../MainWindow.cpp" line="1548"/>
         <source>Import a video or image file...</source>
         <translation type="unfinished">Import a video or image file...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1551"/>
+        <location filename="../MainWindow.cpp" line="1555"/>
         <source>Open &amp;Camera Device...</source>
         <translation type="unfinished">Open &amp;Camera Device...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1555"/>
+        <location filename="../MainWindow.cpp" line="1559"/>
         <source>Choose your camera device...</source>
         <translation type="unfinished">Choose your camera device...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1561"/>
+        <location filename="../MainWindow.cpp" line="1565"/>
         <source>Add &amp;Color Paint...</source>
         <translation type="unfinished">Add &amp;Color Paint...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1564"/>
+        <location filename="../MainWindow.cpp" line="1568"/>
         <source>Add a color paint...</source>
         <translation type="unfinished">Add a color paint...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1571"/>
+        <location filename="../MainWindow.cpp" line="1575"/>
         <source>E&amp;xit</source>
         <translation type="unfinished">E&amp;xit</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1573"/>
+        <location filename="../MainWindow.cpp" line="1577"/>
         <source>Exit the application</source>
         <translation type="unfinished">Exit the application</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1580"/>
+        <location filename="../MainWindow.cpp" line="1584"/>
         <source>&amp;Undo</source>
         <translation type="unfinished">&amp;Undo</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1587"/>
+        <location filename="../MainWindow.cpp" line="1591"/>
         <source>&amp;Redo</source>
         <translation type="unfinished">&amp;Redo</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1594"/>
+        <location filename="../MainWindow.cpp" line="1598"/>
         <source>&amp;About MapMap</source>
         <translation type="unfinished">&amp;About MapMap</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1595"/>
+        <location filename="../MainWindow.cpp" line="1599"/>
         <source>Show the application&apos;s About box</source>
         <translation type="unfinished">Show the application&apos;s About box</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1602"/>
+        <location filename="../MainWindow.cpp" line="1606"/>
         <source>Duplicate</source>
         <translation type="unfinished">Duplicate</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1604"/>
+        <location filename="../MainWindow.cpp" line="1608"/>
         <source>Duplicate item</source>
         <translation type="unfinished">Duplicate item</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1611"/>
+        <location filename="../MainWindow.cpp" line="1615"/>
         <source>Delete mapping</source>
         <translation type="unfinished">Delete mapping</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1613"/>
-        <location filename="../MainWindow.cpp" line="1661"/>
+        <location filename="../MainWindow.cpp" line="1617"/>
+        <location filename="../MainWindow.cpp" line="1665"/>
         <source>Delete item</source>
         <translation type="unfinished">Delete item</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1620"/>
-        <location filename="../MainWindow.cpp" line="1668"/>
+        <location filename="../MainWindow.cpp" line="1624"/>
+        <location filename="../MainWindow.cpp" line="1672"/>
         <source>Rename</source>
         <translation type="unfinished">Rename</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1622"/>
-        <location filename="../MainWindow.cpp" line="1670"/>
+        <location filename="../MainWindow.cpp" line="1626"/>
+        <location filename="../MainWindow.cpp" line="1674"/>
         <source>Rename item</source>
         <translation type="unfinished">Rename item</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1629"/>
+        <location filename="../MainWindow.cpp" line="1633"/>
         <source>Lock mapping</source>
         <translation type="unfinished">Lock mapping</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1630"/>
+        <location filename="../MainWindow.cpp" line="1634"/>
         <source>Lock mapping item</source>
         <translation type="unfinished">Lock mapping item</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1639"/>
+        <location filename="../MainWindow.cpp" line="1643"/>
         <source>Hide mapping</source>
         <translation type="unfinished">Hide mapping</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1640"/>
+        <location filename="../MainWindow.cpp" line="1644"/>
         <source>Hide mapping item</source>
         <translation type="unfinished">Hide mapping item</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1649"/>
+        <location filename="../MainWindow.cpp" line="1653"/>
         <source>Solo mapping</source>
         <translation type="unfinished">Solo mapping</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1650"/>
+        <location filename="../MainWindow.cpp" line="1654"/>
         <source>solo mapping item</source>
         <translation type="unfinished">solo mapping item</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1659"/>
+        <location filename="../MainWindow.cpp" line="1663"/>
         <source>Delete paint</source>
         <translation type="unfinished">Delete paint</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1677"/>
+        <location filename="../MainWindow.cpp" line="1681"/>
         <source>&amp;Preferences...</source>
         <translation type="unfinished">&amp;Preferences...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1680"/>
+        <location filename="../MainWindow.cpp" line="1684"/>
         <source>Configure preferences...</source>
         <translation type="unfinished">Configure preferences...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1687"/>
+        <location filename="../MainWindow.cpp" line="1691"/>
         <source>Add &amp;Mesh</source>
         <translation type="unfinished">Add &amp;Mesh</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1690"/>
+        <location filename="../MainWindow.cpp" line="1694"/>
         <source>Add mesh</source>
         <translation type="unfinished">Add mesh</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1698"/>
+        <location filename="../MainWindow.cpp" line="1702"/>
         <source>Add &amp;Triangle</source>
         <translation type="unfinished">Add &amp;Triangle</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1701"/>
+        <location filename="../MainWindow.cpp" line="1705"/>
         <source>Add triangle</source>
         <translation type="unfinished">Add triangle</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1709"/>
+        <location filename="../MainWindow.cpp" line="1713"/>
         <source>Add &amp;Ellipse</source>
         <translation type="unfinished">Add &amp;Ellipse</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1712"/>
+        <location filename="../MainWindow.cpp" line="1716"/>
         <source>Add ellipse</source>
         <translation type="unfinished">Add ellipse</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1720"/>
-        <location filename="../MainWindow.cpp" line="1723"/>
+        <location filename="../MainWindow.cpp" line="1725"/>
+        <location filename="../MainWindow.cpp" line="1728"/>
         <source>Play</source>
         <translation type="unfinished">Play</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1731"/>
-        <location filename="../MainWindow.cpp" line="1734"/>
+        <location filename="../MainWindow.cpp" line="1736"/>
+        <location filename="../MainWindow.cpp" line="1739"/>
         <source>Pause</source>
         <translation type="unfinished">Pause</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1742"/>
-        <location filename="../MainWindow.cpp" line="1745"/>
+        <location filename="../MainWindow.cpp" line="1747"/>
+        <location filename="../MainWindow.cpp" line="1750"/>
         <source>Rewind</source>
         <translation type="unfinished">Rewind</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1752"/>
+        <location filename="../MainWindow.cpp" line="1757"/>
         <source>Toggle &amp;Fullscreen</source>
         <translation type="unfinished">Toggle &amp;Fullscreen</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1755"/>
+        <location filename="../MainWindow.cpp" line="1760"/>
         <source>Toggle Fullscreen</source>
         <translation type="unfinished">Toggle Fullscreen</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1773"/>
+        <location filename="../MainWindow.cpp" line="1778"/>
         <source>&amp;Display Controls</source>
         <translation type="unfinished">&amp;Display Controls</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1776"/>
+        <location filename="../MainWindow.cpp" line="1781"/>
         <source>Display canvas controls</source>
         <translation type="unfinished">Display canvas controls</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1787"/>
+        <location filename="../MainWindow.cpp" line="1792"/>
         <source>&amp;Display Controls of Mappings of a Paint</source>
         <translation type="unfinished">&amp;Display Controls of Mappings of a Paint</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1790"/>
+        <location filename="../MainWindow.cpp" line="1795"/>
         <source>Display all canvas controls related to current paint</source>
         <translation type="unfinished">Display all canvas controls related to current paint</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1802"/>
+        <location filename="../MainWindow.cpp" line="1807"/>
         <source>&amp;Sticky Vertices</source>
         <translation type="unfinished">&amp;Sticky Vertices</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1805"/>
+        <location filename="../MainWindow.cpp" line="1810"/>
         <source>Enable sticky vertices</source>
         <translation type="unfinished">Enable sticky vertices</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1814"/>
+        <location filename="../MainWindow.cpp" line="1819"/>
         <source>Show &amp;Test Signal</source>
         <translation type="unfinished">Show &amp;Test Signal</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1817"/>
+        <location filename="../MainWindow.cpp" line="1822"/>
         <source>Show Test signal</source>
         <translation type="unfinished">Show Test signal</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1828"/>
+        <location filename="../MainWindow.cpp" line="1833"/>
         <source>Display &amp;Undo History</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1838"/>
+        <location filename="../MainWindow.cpp" line="1843"/>
         <source>Open Conso&amp;le</source>
         <translation type="unfinished">Open Conso&amp;le</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1849"/>
+        <location filename="../MainWindow.cpp" line="1854"/>
         <source>Display &amp;Zoom Toolbar</source>
         <translation type="unfinished">Display &amp;Zoom Toolbar</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1859"/>
+        <location filename="../MainWindow.cpp" line="1864"/>
         <source>&amp;Menu Bar</source>
         <translation type="unfinished">&amp;Menu Bar</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1866"/>
+        <location filename="../MainWindow.cpp" line="1871"/>
         <source>Main Layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1870"/>
+        <location filename="../MainWindow.cpp" line="1875"/>
         <source>Switch to the Main layout.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1874"/>
+        <location filename="../MainWindow.cpp" line="1879"/>
         <source>Source Layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1877"/>
+        <location filename="../MainWindow.cpp" line="1882"/>
         <source>Switch to the Source layout.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1881"/>
+        <location filename="../MainWindow.cpp" line="1886"/>
         <source>Destination Layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1884"/>
+        <location filename="../MainWindow.cpp" line="1889"/>
         <source>Switch to the Destination layout.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1895"/>
+        <location filename="../MainWindow.cpp" line="1900"/>
+        <source>Report an issue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="1903"/>
+        <source>Technical support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="1909"/>
+        <source>Submit feedback via email</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="1990"/>
+        <source>&amp;View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="1996"/>
+        <source>&amp;Output screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="2404"/>
+        <source> - Primary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="2823"/>
+        <source>Unable to use file %1.
+The original file is not found. Please locate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="2829"/>
+        <source>Locate file %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Report bug...</source>
-        <translation type="unfinished">Report bug...</translation>
+        <translation type="obsolete">Report bug...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1898"/>
         <source>Technical Support</source>
-        <translation type="unfinished">Technical Support</translation>
+        <translation type="obsolete">Technical Support</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1901"/>
+        <location filename="../MainWindow.cpp" line="1906"/>
         <source>Documentation</source>
         <translation type="unfinished">Documentation</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1904"/>
-        <source>Submit Feedback...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.cpp" line="1931"/>
+        <location filename="../MainWindow.cpp" line="1937"/>
         <source>&amp;File</source>
         <translation type="unfinished">&amp;File</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1943"/>
+        <location filename="../MainWindow.cpp" line="1949"/>
         <source>Open Recents Projects</source>
         <translation type="unfinished">Open Recents Projects</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1949"/>
+        <location filename="../MainWindow.cpp" line="1956"/>
         <source>Open Recents Videos</source>
         <translation type="unfinished">Open Recents Videos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1960"/>
+        <location filename="../MainWindow.cpp" line="1967"/>
         <source>&amp;Edit</source>
         <translation type="unfinished">&amp;Edit</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1968"/>
+        <location filename="../MainWindow.cpp" line="1975"/>
         <source>&amp;Source</source>
         <translation type="unfinished">&amp;Source</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1973"/>
+        <location filename="../MainWindow.cpp" line="1980"/>
         <source>&amp;Destination</source>
         <translation type="unfinished">&amp;Destination</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1983"/>
         <source>&amp;Playback</source>
-        <translation type="unfinished">&amp;Playback</translation>
+        <translation type="obsolete">&amp;Playback</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1990"/>
         <source>&amp;Output</source>
-        <translation type="unfinished">&amp;Output</translation>
+        <translation type="obsolete">&amp;Output</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1995"/>
         <source>&amp;Tools</source>
-        <translation type="unfinished">&amp;Tools</translation>
+        <translation type="obsolete">&amp;Tools</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1999"/>
+        <location filename="../MainWindow.cpp" line="2005"/>
         <source>&amp;Window</source>
         <translation type="unfinished">&amp;Window</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2001"/>
+        <location filename="../MainWindow.cpp" line="2007"/>
         <source>Toolbars</source>
         <translation type="unfinished">Toolbars</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2018"/>
+        <location filename="../MainWindow.cpp" line="2027"/>
         <source>&amp;Help</source>
         <translation type="unfinished">&amp;Help</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2077"/>
+        <location filename="../MainWindow.cpp" line="2085"/>
         <source>&amp;Toolbar</source>
         <translation type="unfinished">&amp;Toolbar</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2223"/>
+        <location filename="../MainWindow.cpp" line="2229"/>
         <source>The document has been modified.
 Do you want to save your changes?</source>
         <translation type="unfinished">The document has been modified.
 Do you want to save your changes?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2245"/>
-        <location filename="../MainWindow.cpp" line="2259"/>
+        <location filename="../MainWindow.cpp" line="2251"/>
+        <location filename="../MainWindow.cpp" line="2265"/>
         <source>Error reading mapping project file</source>
         <translation type="unfinished">Error reading mapping project file</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2246"/>
-        <location filename="../MainWindow.cpp" line="2464"/>
+        <location filename="../MainWindow.cpp" line="2252"/>
+        <location filename="../MainWindow.cpp" line="2459"/>
         <source>Cannot read file %1:
 %2.</source>
         <translation type="unfinished">Cannot read file %1:
 %2.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2260"/>
+        <location filename="../MainWindow.cpp" line="2266"/>
         <source>Parse error in file %1:
 
 %2</source>
@@ -1902,108 +1942,106 @@ Do you want to save your changes?</translation>
 %2</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2267"/>
+        <location filename="../MainWindow.cpp" line="2273"/>
         <source>File loaded</source>
         <translation type="unfinished">File loaded</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2279"/>
+        <location filename="../MainWindow.cpp" line="2285"/>
         <source>Error saving mapping project</source>
         <translation type="unfinished">Error saving mapping project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2280"/>
+        <location filename="../MainWindow.cpp" line="2286"/>
         <source>Cannot write file %1:
 %2.</source>
         <translation type="unfinished">Cannot write file %1:
 %2.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2290"/>
+        <location filename="../MainWindow.cpp" line="2296"/>
         <source>File saved</source>
         <translation type="unfinished">File saved</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2302"/>
+        <location filename="../MainWindow.cpp" line="2308"/>
         <source>Untitled</source>
         <translation type="unfinished">Untitled</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2317"/>
+        <location filename="../MainWindow.cpp" line="2323"/>
         <source>%1[*] - %2</source>
         <translation type="unfinished">%1[*] - %2</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2317"/>
-        <location filename="../MainWindow.cpp" line="2463"/>
+        <location filename="../MainWindow.cpp" line="2323"/>
+        <location filename="../MainWindow.cpp" line="2458"/>
         <source>MapMap Project</source>
         <translation type="unfinished">MapMap Project</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2340"/>
-        <location filename="../MainWindow.cpp" line="2372"/>
+        <location filename="../MainWindow.cpp" line="2346"/>
+        <location filename="../MainWindow.cpp" line="2378"/>
         <source>&amp;%1 %2</source>
         <translation type="unfinished">&amp;%1 %2</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2357"/>
+        <location filename="../MainWindow.cpp" line="2363"/>
         <source>Clear List</source>
         <translation type="unfinished">Clear List</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2360"/>
+        <location filename="../MainWindow.cpp" line="2366"/>
         <source>No Recents Projects</source>
         <translation type="unfinished">No Recents Projects</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2394"/>
+        <location filename="../MainWindow.cpp" line="2399"/>
         <source>%1 - %2x%3</source>
         <translation type="unfinished">%1 - %2x%3</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2495"/>
+        <location filename="../MainWindow.cpp" line="2490"/>
         <source>File imported</source>
         <translation type="unfinished">File imported</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2513"/>
+        <location filename="../MainWindow.cpp" line="2508"/>
         <source>Color paint added</source>
         <translation type="unfinished">Color paint added</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2805"/>
+        <location filename="../MainWindow.cpp" line="2800"/>
         <source>Warning</source>
         <translation type="unfinished">Warning</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2806"/>
+        <location filename="../MainWindow.cpp" line="2801"/>
         <source>The following file is not supported: %1</source>
         <translation type="unfinished">The following file is not supported: %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2827"/>
+        <location filename="../MainWindow.cpp" line="2822"/>
         <source>Cannot load movie</source>
         <translation type="unfinished">Cannot load movie</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2828"/>
         <source>Unable to use the file « %1 » 
 The original file is not found. Will you locate?</source>
-        <translation type="unfinished">Unable to use the file « %1 » 
+        <translation type="obsolete">Unable to use the file « %1 » 
 The original file is not found. Will you locate?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2834"/>
         <source>Locate file « %1 »</source>
-        <translation type="unfinished">Locate file « %1 »</translation>
+        <translation type="obsolete">Locate file « %1 »</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2836"/>
+        <location filename="../MainWindow.cpp" line="2831"/>
         <source>%1 files (%2)</source>
         <translation type="unfinished">%1 files (%2)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2951"/>
+        <location filename="../MainWindow.cpp" line="2946"/>
         <source>Undo history</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2102,14 +2140,17 @@ The original file is not found. Will you locate?</translation>
         <translation type="unfinished">Vertex</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="215"/>
-        <source>Shape</source>
-        <translation type="unfinished">Shape</translation>
+        <location filename="../PreferenceDialog.cpp" line="305"/>
+        <source>Listen to OSC messages</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="218"/>
+        <source>Shape</source>
+        <translation type="obsolete">Shape</translation>
+    </message>
+    <message>
         <source>Layers</source>
-        <translation type="unfinished">Layers</translation>
+        <translation type="obsolete">Layers</translation>
     </message>
     <message>
         <location filename="../PreferenceDialog.cpp" line="232"/>
@@ -2132,24 +2173,20 @@ The original file is not found. Will you locate?</translation>
         <translation type="unfinished">NTSC test card</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="285"/>
         <source>Send OSC messages</source>
-        <translation type="unfinished">Send OSC messages</translation>
+        <translation type="obsolete">Send OSC messages</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="300"/>
         <source>to machine</source>
-        <translation type="unfinished">to machine</translation>
+        <translation type="obsolete">to machine</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="301"/>
         <source>at port</source>
-        <translation type="unfinished">at port</translation>
+        <translation type="obsolete">at port</translation>
     </message>
     <message>
-        <location filename="../PreferenceDialog.cpp" line="305"/>
         <source>Listen OSC messages</source>
-        <translation type="unfinished">Listen OSC messages</translation>
+        <translation type="obsolete">Listen OSC messages</translation>
     </message>
     <message>
         <location filename="../PreferenceDialog.cpp" line="314"/>
