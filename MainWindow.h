@@ -269,7 +269,6 @@ private:
   void updateRecentFileActions();
   void updateRecentVideoActions();
   void updateScreenActions();
-  void addOutputsMenuActions();
 
   // Settings.
   void readSettings();
@@ -335,13 +334,16 @@ private:
   QMenu *toolsMenu;
   QMenu *viewMenu;
   QMenu *windowMenu;
-  QMenu *playbackMenu;
   QMenu *helpMenu;
+
+  // Sub-menus.
   QMenu *outputScreenMenu;
+  QMenu *playbackMenu;
   QMenu *recentFileMenu;
   QMenu *recentVideoMenu;
   QMenu *mappingContextMenu;
   QMenu *paintContextMenu;
+
   // Some menus when need to be separated
   QMenu *sourceMenu;
   QMenu *destinationMenu;
