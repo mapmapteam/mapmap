@@ -98,7 +98,7 @@ private:
   // Controls widgets
   // OSC
   QWidget *_oscWidget;
-  QCheckBox *_sendMessageBox;
+//  QCheckBox *_sendMessageBox;
   QCheckBox *_listenMessageBox;
   QLineEdit *_sendAddressEdit;
   QSpinBox *_sendPortNumber;
