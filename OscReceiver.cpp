@@ -31,7 +31,7 @@ void OscReceiver::addHandler(const char *path, const char *types,
 
 void OscReceiver::listen() {
   if (server_is_ok_) {
-    int lo_fd = lo_server_get_socket_fd(server_);
+    int lo_fd = lo_server_get_socket_fd(lo_server_thread_get_server(server_));
     if (lo_fd == 0) {
       std::cout << "OSC port " << port_ << " is already in use." << std::endl;
     } else {
