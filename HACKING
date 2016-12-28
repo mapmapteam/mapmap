@@ -5,6 +5,8 @@ Build software, doc and the translations
 ----------------------------------------
 See INSTALL.
 
+You will need to install markdown to build some of the documentation that comes with the software.
+
 Coding style
 ------------
 * indent with 2 spaces
@@ -56,6 +58,8 @@ Make a release
   * VERSION in mapmap.pro
   * PROJECT_NUMBER in Doxyfile
 * Edit NEWS - update with the news for the release you are about to make
+* Run ./scripts/update-changelog.sh and commit the changes
+* Maybe update the docs/informations/CONTRIBUTORS.md file and run scripts/update-contributors.sh and commit the changes
 * run make
 * run ./sh_build_doc.sh
 * merge to master, or to the major.minor branch

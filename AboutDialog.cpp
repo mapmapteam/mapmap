@@ -63,14 +63,12 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
   createAboutTab();
   // Changelog  Tab
   createChangelogTab();
-  // Librairies
-  createLibrairiesTab();
+  // Libraries
+  createLibrariesTab();
   // Contributors
   createContributorsTab();
   // License
   createLicenseTab();
-
-
 }
 
 void AboutDialog::createAboutTab()
@@ -119,7 +117,7 @@ void AboutDialog::createChangelogTab()
   _tabWidget->addTab(_changelogTextBrowser, tr("Changelog"));
 }
 
-void AboutDialog::createLibrairiesTab()
+void AboutDialog::createLibrariesTab()
 {
   _librariesTextBrowser = new QTextBrowser;
   _librariesTextBrowser->setOpenExternalLinks(true);
@@ -135,8 +133,7 @@ void AboutDialog::createLibrairiesTab()
 
   // Set librairies main text
   _librariesTextBrowser->setText(librairiesText);
-
-  _tabWidget->addTab(_librariesTextBrowser, tr("Librairies"));
+  _tabWidget->addTab(_librariesTextBrowser, tr("Libraries"));
 }
 
 void AboutDialog::createContributorsTab()

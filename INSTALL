@@ -147,5 +147,3 @@ https://gstreamer.freedesktop.org/data/pkg/windows/1.7.91/gstreamer-1.0-x86-1.7.
 - Remove lib\libopenh264.dll, lib\libSoundTouch-0.dll, lib\libtag.dll
 
 - Run Mapamp.exe
-
-
