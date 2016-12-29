@@ -1435,7 +1435,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Toolbars</source>
-        <translation>Barres de menu</translation>
+        <translation type="vanished">Barres de menu</translation>
     </message>
     <message>
         <source>&amp;Help</source>
@@ -1657,7 +1657,7 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     </message>
     <message>
         <source>Vertex</source>
-        <translation>Sommet</translation>
+        <translation type="vanished">Sommet</translation>
     </message>
     <message>
         <source>Shape</source>
@@ -1709,7 +1709,7 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     </message>
     <message>
         <source>Mapping &amp; Shape</source>
-        <translation>Mappings et formes</translation>
+        <translation type="vanished">Mappings et formes</translation>
     </message>
     <message>
         <source>Output</source>
@@ -1726,6 +1726,14 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     <message>
         <source>Listen to OSC messages</source>
         <translation>Écouter les messages OSC</translation>
+    </message>
+    <message>
+        <source>Vertices</source>
+        <translation type="unfinished">Sommets</translation>
+    </message>
+    <message>
+        <source>Mappings</source>
+        <translation type="unfinished">Mappings</translation>
     </message>
 </context>
 <context>

@@ -203,7 +203,7 @@ void PreferenceDialog::createMappingPage()
   stickRadiusForm->setContentsMargins(marginLeft);
   stickRadiusForm->addRow(tr("Sensitivity"), _stickyRadiusBox);
 
-  QGroupBox *vertexGroupBox = new QGroupBox(tr("Vertex"));
+  QGroupBox *vertexGroupBox = new QGroupBox(tr("Vertices"));
 
   QVBoxLayout *vertexLayout = new QVBoxLayout;
   vertexLayout->addWidget(_stickyVerticesBox);
@@ -212,7 +212,7 @@ void PreferenceDialog::createMappingPage()
   vertexGroupBox->setLayout(vertexLayout);
 
   // // Shape
-  // QGroupBox *shapeGroupBox = new QGroupBox(tr("Shape"));
+  // QGroupBox *shapeGroupBox = new QGroupBox(tr("Shapes"));
   //
   // // Mapping
   // QGroupBox *layerGroupBox = new QGroupBox(tr("Layers"));
@@ -351,7 +351,7 @@ void PreferenceDialog::createPreferencesList()
   QListWidgetItem *interfaceItem = new QListWidgetItem(QIcon(":/add-color"), tr("Interface"));
 
   // Mapping & Shape Item
-  QListWidgetItem *shapeItem = new QListWidgetItem(QIcon(":/control-points"), tr("Mapping & Shape"));
+  QListWidgetItem *shapeItem = new QListWidgetItem(QIcon(":/control-points"), tr("Mappings"));
 
   // Output Item
   QListWidgetItem *outputItem = new QListWidgetItem(QIcon(":/output-window"), tr("Output"));
