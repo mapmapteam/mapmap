@@ -68,15 +68,7 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
 {
   _setFullScreen(fullscreen);
   _isFullScreen = fullscreen;
-
-void OutputGLWindow::_updateToPreferredScreen()
-{
-  // Check if user is on multiple screen (always pre
-  int screen = getPreferredScreen();
-  //Move window to second screen before fullscreening it.
-  setGeometry(QApplication::desktop()->screenGeometry(screen));
 }
-
 
 void OutputGLWindow::setCanvasDisplayCrosshair(bool crosshair)
 {
@@ -100,6 +92,14 @@ void OutputGLWindow::setPreferredScreen(int screen)
   _preferredScreen = qBound(screen, 0, QApplication::screens().size() - 1);
 }
 
+
+void OutputGLWindow::_updateToPreferredScreen()
+{
+  // Check if user is on multiple screen (always pre
+  int screen = getPreferredScreen();
+  //Move window to second screen before fullscreening it.
+  setGeometry(QApplication::desktop()->screenGeometry(screen));
+}
 
 void OutputGLWindow::_setFullScreen(bool fullscreen)
 {
