@@ -82,7 +82,6 @@ void OutputGLWindow::setCanvasDisplayCrosshair(bool crosshair)
 {
   canvas->setDisplayCrosshair(crosshair);
   setCursor(crosshair || this->_isFullScreen ? Qt::BlankCursor : Qt::ArrowCursor);
-  qDebug() << "Crosshair " << crosshair;
 }
 
 void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)

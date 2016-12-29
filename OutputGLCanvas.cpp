@@ -81,7 +81,7 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
       QRect mouseScreenGeometry = QApplication::desktop()->screen(mouseScreen)->geometry();
       QPoint localCursorPos = globalCursorPos - mouseScreenGeometry.topLeft();
       QPointF cursorPosition = mapToScene(localCursorPos);
-      qDebug() << "Cursor pos " << globalCursorPos << " " << cursorPosition << " " << localCursorPos << mouseScreen << endl;
+//      qDebug() << "Cursor pos " << globalCursorPos << " " << cursorPosition << " " << localCursorPos << mouseScreen << endl;
       if (rect.contains(cursorPosition) && getMainWindow()->getPreferredScreen() == mouseScreen)
 //      qDebug() << "Cursor pos " << mapToScene(mapFromGlobal(QCursor::pos(QApplication::screens()[1])));
 #else
