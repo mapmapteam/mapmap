@@ -97,10 +97,7 @@ void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
 
 void OutputGLWindow::setPreferredScreen(int screen)
 {
-  if (screen < QApplication::screens().size())
-    _preferredScreen = screen;
-  else
-    _preferredScreen = QApplication::screens().size() - 1;
+  _preferredScreen = qBound(screen, 0, QApplication::screens().size() - 1);
 }
 
 
