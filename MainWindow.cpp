@@ -3255,6 +3255,7 @@ void MainWindow::pollOscInterface()
 void MainWindow::exitFullScreen()
 {
   outputFullScreenAction->setChecked(false);
+  displayTestSignalAction->setChecked(false);
 }
 
 // void MainWindow::applyOscCommand(const QVariantList& command)
