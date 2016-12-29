@@ -88,6 +88,11 @@ void OutputGLWindow::setCanvasDisplayCrosshair(bool crosshair)
 void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
 {
   canvas->setDisplayTestSignal(displayTestSignal);
+
+  // Force fullscreen if needed.
+  if (!_isFullScreen)
+    _setFullScreen(displayTestSignal);
+
   canvas->update();
 }
 
