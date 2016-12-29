@@ -63,7 +63,11 @@ private:
   OutputGLCanvas* canvas;
 
   void _updateToPreferredScreen();
-  bool _is_fullscreen;
+
+  // Actually sets window to fullscreen (without affecting _isFullScreen).
+  void _setFullScreen(bool fullscreen);
+  
+  bool _isFullScreen;
   int _preferredScreen;
 };
 
