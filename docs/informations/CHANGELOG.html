@@ -1,9 +1,114 @@
 <h1>Release notes for MapMap</h1>
 
-<h2>2016-04-?? - MapMap 0.4.1</h2>
+<h2>2017-01-01 - MapMap 0.5.0</h2>
 
 <ul>
-<li>to do</li>
+<li>Fix bug: it was impossible to get out of test signal mode by pressing ESC.</li>
+<li>Reorganize _updateToPreferredScreen().</li>
+<li>Rewrite constraining of screen no in setPreferredScreen(int).</li>
+<li>Bug fix: force fullscreen on output window if test signal is activated (closes #304).</li>
+<li>Added a <em>setFullScreen() method + renamed _is</em>fullscreen to _isFullScreen (camelCase).</li>
+<li>Put some order in the view menu.</li>
+<li>Remove toolbars sub-menu.</li>
+<li>Fix all french language files for 0.5 (closes #219).</li>
+<li>Thread-safe access OSC server to prevent crashes (not fully tested) (closes #307).</li>
+<li>Prevent property browsers from disappearing by making splitters' children non-collapsible.</li>
+<li>Fix #305 merge menus</li>
+<li>Fix #274: Document OSC within the software</li>
+<li>Comment-out unused elements in preferences.</li>
+<li>Remove playback menu and reorganize items in View menu.</li>
+<li>Fix #310: Document how to generate doc with markdown + delete CHANGELOG.md that was a duplicate</li>
+<li>Minor reorganization of sub-menu declarations.</li>
+<li>Rename outputsMenu for outputScreenMenu (more appropriate).</li>
+<li>Fix bug: outputs menu was empty when only one screen.</li>
+<li>Integrate outputs menu into view menu.</li>
+<li>Fix #303: Update list of contributors by hand</li>
+<li>Fix icons for test signal.</li>
+<li>Change vertices background to make them visible on white layers</li>
+<li>Stylesheet improvements</li>
+<li>Changed play/pause key sequence from spacebar to CTRL-SHIFT-P (closes #292)</li>
+<li>update translation files (closes #278).</li>
+<li>Fix potential bug: translators were declared out of scope.</li>
+<li>Fix bug: duplicating a mesh resulted in crash (closes #298).</li>
+<li>Implement support for animated GIFs (closes #291, closes #189).</li>
+<li>Update install instructions on ArchLinux (closes #269) and Ubuntu</li>
+<li>Add support for webm file type.</li>
+<li>Increase pull-away parameter cause it was still possible to bring vertex outside of opposite corners in quads.</li>
+<li>Update INSTALL information to allow detection of cameras on Ubuntu</li>
+<li>Fix bug: it was possible to cross through an opposing vertex in a quad. - Used constants instead of magic numbers to control the vertex constraining procedure.</li>
+<li>Fix bug: moving quad vertices around glued vertices in impractical ways to the edges.</li>
+<li>Fix bug: duplicating a color mapping resulted in segfault.</li>
+<li>Bug fix: audio was not stopping when opening dialog (eg. save as, open, import media, etc.)</li>
+<li>Fixed bug: in some cases the video was blank because of bad audio connection.</li>
+<li>Fix problems with video files without audio codec not working properly (closes #280) - Cleanup and refactoring</li>
+<li>Test cards pattern improvements</li>
+<li>Change crosshair style for more visibility on light mapping</li>
+<li>Add toolbar title for  source and destination canvas</li>
+<li>Change "perspective" word to "layout" and their shortcut to avoid conflicts with some OS</li>
+<li>Cosmetic changes</li>
+<li>Trying to fix translation but still not working</li>
+<li>Fixed style problem: on Ubuntu, text was white-on-white in property browser</li>
+<li>Fixed typo in translations</li>
+<li>Added mention of 15.04 in INSTALL</li>
+<li>Comment checkbox and radio (for later still not working)</li>
+<li>Look n feel improvements</li>
+<li>Add librairies to about dialog</li>
+<li>About Dialog Improvements</li>
+<li>Add about projection mapping resource</li>
+<li>Make release notes accesible for users</li>
+<li>Make a script to generate contributors from the git logs</li>
+<li>Add Gui class forwarding file</li>
+<li>Change mapmap resource file name and add new documentation resource file</li>
+<li>Remove old useless code from ancient OSC-support system.</li>
+<li>Fix bug: Hiding a solo-ed mapping was stopping playback.</li>
+<li>Reintegrate audio support (works on Linux).</li>
+<li>Fix bug: New paints were automatically started (play()) when added, thus invalidating the feature that non-visible paints do not play.</li>
+<li>Add "Send feedback" to help menu</li>
+<li>Update "Undo stack" to "Undo history"</li>
+<li>Improve vertices movement shortcuts</li>
+<li>Always align mapping layers buttons on the right side</li>
+<li>Cosmetic changes in duplicate mapping function</li>
+<li>Bug Fix: Clicking the zoom toolbars button of the output panel while there is no mesh present will crash the software.</li>
+<li>Bug Fix: Crash when try to duplicate color mapping</li>
+<li>Fix some bugs about Windows release</li>
+<li>Improve preferences dialog</li>
+<li>Changes for Windows packaging</li>
+<li>Implement camera on user interface</li>
+<li>Bug fix: when loading project solo/visible/locked were not activated in the mapping list widgets.</li>
+<li>Bug fix: when moving layers around video would pause.</li>
+<li>Cleanup in code related to display of paint icons in list widgets.</li>
+<li>Adjustments in paint icons (make sure they are always square with the right dimensions).</li>
+<li>Fixed bug: main pause button was not working anymore.</li>
+<li>New feature: Paints that are currently not visible are shown in interface with a red bar on them.</li>
+<li>Small fix: Switch between vertex with Shift+Space keys</li>
+<li>Fix bug: OSC messages that change solo, visible, locked status of mappings were not changed in the GUI.</li>
+<li>Small fix: path is valid for regexp if at least one element was valid</li>
+<li>Allow OSC message addressing of paints and mappings by names through regular expressions.</li>
+<li>encode4mmp: more doc + fix shebang syntax</li>
+<li>Add support for OSC message: rewind individual paint.</li>
+<li>Fix problem with OSC port being overriden by default settings even after changing it in preferences.</li>
+<li>Integrate true FPS in the status bar.</li>
+<li>Fix bug: vertices were not sticking correctly on source.</li>
+<li>Cleanup in main.cpp options.</li>
+<li>Some cleanup related to OSC.</li>
+<li>Frame rate is now an option that can be specified on the commandline.</li>
+<li>Pause paints that are not visible anyway.</li>
+<li>Create meshes instead of quads for color mappings (closes #150).</li>
+<li>Write log to file</li>
+<li>Fixed bug introduced by paint control option (segfaulted with color paints).</li>
+<li>Increased the sticky radius a bit.</li>
+<li>Fixed bug introduced by paint control option (segfaulted with color paints).</li>
+<li>Refactor videoimpl</li>
+<li>Enable display of controls of mappings related to current paint (closes #142).</li>
+<li>Improved look of locked color.</li>
+<li>Added script to automatically convert videos to PhotoJPEG (a good format for MapMap).</li>
+<li>Disable right click on context menu actions</li>
+<li>more decklink prototypes</li>
+<li>Don't need screen actions on single screen mode</li>
+<li>Merge MapperGLCanvas.cpp</li>
+<li>Allow to finely choose on which display to output</li>
+<li>improving the menu and adding some useful link</li>
+<li>Make the duplication of mapping undoable and redoable.</li>
 </ul>
 
 <h2>2016-04-19 - MapMap 0.4.0</h2>
