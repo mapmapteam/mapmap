@@ -20,7 +20,7 @@ if [[ $unamestr == "Darwin" ]]; then
 elif [[ $unamestr == "Linux" ]]; then
     qmake-qt4
     make
-    lrelease mapmap_fr.ts
+    lrelease translations/mapmap_fr.ts
+    lrelease translations/mapmap_en.ts
 fi
-
 
