@@ -1,6 +1,10 @@
 Release notes for MapMap
 ========================
 
+2017-0?-?? - MapMap 0.5.1
+-------------------------
+* in progress
+
 2017-01-01 - MapMap 0.5.0
 -------------------------
 * Fix bug: it was impossible to get out of test signal mode by pressing ESC.
