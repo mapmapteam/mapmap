@@ -1552,6 +1552,7 @@ void MainWindow::createActions()
   connect(importMediaAction, SIGNAL(triggered()), this, SLOT(importMedia()));
 
   // Open camera.
+#ifdef Q_OS_LINUX
   openCameraAction = new QAction(tr("Open &Camera Device..."), this);
   openCameraAction->setShortcut(Qt::CTRL + Qt::Key_C);
   openCameraAction->setIcon(QIcon(":/add-image"));
@@ -1560,6 +1561,7 @@ void MainWindow::createActions()
   openCameraAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(openCameraAction);
   connect(openCameraAction, SIGNAL(triggered()), this, SLOT(openCameraDevice()));
+#endif
 
   // Add color.
   addColorAction = new QAction(tr("Add &Color Paint..."), this);
