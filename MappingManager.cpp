@@ -21,7 +21,7 @@
 #include "MappingManager.h"
 #include <iostream>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 MappingManager::MappingManager()
 {
@@ -174,8 +174,8 @@ QVector<Mapping::ptr> MappingManager::getVisibleMappings() const
           it != mappingVector.end(); ++it)
   {
     // Solo has priority over invisible (mute)
-    if ( (hasSolo && (*it)->isSolo() && (*it)->isVisible()) ||
-            (! hasSolo && (*it)->isVisible()) )
+    if ( (hasSolo && (*it)->isSolo()) ||
+         (! hasSolo && (*it)->isVisible()) )
     {
       visible.push_back(*it);
     }
@@ -266,4 +266,4 @@ void MappingManager::clearAll()
   mappingMap.clear();
 }
 
-MM_END_NAMESPACE
+}

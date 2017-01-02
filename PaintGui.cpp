@@ -19,7 +19,7 @@
 
 #include <PaintGui.h>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 PaintGui::PaintGui(Paint::ptr paint)
   : _paint(paint)
@@ -123,12 +123,26 @@ _imageFileItem = _variantManager->addProperty(VariantManager::filePathTypeId(),
 _imageFileItem->setAttribute("filter", tr("Image files (%1);;All files (*)").arg(MM::IMAGE_FILES_FILTER));
 _imageFileItem->setValue(image->getUri());
 
-_topItem->addSubProperty(_imageFileItem);
+  _imageRateItem = _variantManager->addProperty(QVariant::Double,
+                                                tr("Speed (%)"));
+  // we need to save it because the call to setAttribute will set it to minimum
+  double rate = image->getRate()*100;
+  _imageRateItem->setAttribute("decimals", 1);
+  _imageRateItem->setValue(rate);
+
+  _topItem->addSubProperty(_imageFileItem);
+  _topItem->addSubProperty(_imageRateItem);
 }
 
 void ImageGui::setValue(QtProperty* property, const QVariant& value) {
   if (property == _imageFileItem) {
     image->setUri(value.toString());
+    emit valueChanged(_paint);
+  }
+  else if (property == _imageRateItem)
+  {
+    //double rateSign = (media->getRate() <= 0 ? -1 : +1);
+    image->setRate(value.toDouble()/100.0);
     emit valueChanged(_paint);
   }
   else
@@ -139,6 +153,8 @@ void ImageGui::setValue(QString propertyName, QVariant value)
 {
   if (propertyName == "uri")
     _imageFileItem->setValue(value);
+  else if (propertyName == "rate")
+    _imageRateItem->setValue(value.toDouble()*100);
   else
     TextureGui::setValue(propertyName, value);
 }
@@ -161,7 +177,7 @@ VideoGui::VideoGui(Paint::ptr paint)
   double rate = media->getRate()*100;
   _mediaRateItem->setAttribute("decimals", 1);
   _mediaRateItem->setValue(rate);
-  
+
   _mediaVolumeItem = _variantManager->addProperty(QVariant::Double,
                                                 tr("Volume (%)"));
   double volume = media->getVolume()*100;
@@ -220,4 +236,4 @@ void VideoGui::setValue(QString propertyName, QVariant value)
     TextureGui::setValue(propertyName, value);
 }
 
-MM_END_NAMESPACE
+}

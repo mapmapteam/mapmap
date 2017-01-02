@@ -19,7 +19,7 @@
 
 #include "MetaObjectRegistry.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 MetaObjectRegistry& MetaObjectRegistry::instance()
 {
@@ -33,4 +33,4 @@ const QMetaObject* MetaObjectRegistry::getMetaObject(QString className) const
   return (it == metaObjectLookup.constEnd() ? 0 : *it);
 }
 
-MM_END_NAMESPACE
+}

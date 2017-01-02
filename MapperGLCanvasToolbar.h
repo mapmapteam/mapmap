@@ -23,7 +23,7 @@
 #include "MM.h"
 #include "MapperGLCanvas.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class MapperGLCanvasToolbar : public QWidget {
   Q_OBJECT
@@ -36,6 +36,11 @@ public:
 
   void enableZoomToolBar(bool enabled);
 
+  // Return enable statut
+  bool buttonsAreEnable() { return _areEnable; }
+
+  void setToolbarTitle(const QString &title) { _titleLabel->setText(title); }
+
 public slots:
   // Update and feedback zoom level
   void updateDropdownMenu(qreal factor = 1);
@@ -44,7 +49,8 @@ public slots:
 
 protected:
   MapperGLCanvas* _canvas;
-
+  // Labels
+  QLabel *_titleLabel;
   // Buttons for toolbox layout
   QPushButton* _zoomInButton;
   QPushButton* _zoomOutButton;
@@ -53,8 +59,10 @@ protected:
   // Dropdown menu
   QComboBox* _dropdownMenu;
 
+  bool _areEnable;
+
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* MAPPERGLCANVASTOOLBAR_H_ */

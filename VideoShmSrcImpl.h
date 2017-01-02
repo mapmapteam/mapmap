@@ -46,7 +46,7 @@
 
 #include "VideoImpl.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class VideoShmSrcImpl : public VideoImpl 
 {
@@ -69,5 +69,5 @@ class VideoShmSrcImpl : public VideoImpl
   bool _attached;
 };
 
-MM_END_NAMESPACE
+}
 #endif /* ifndef */

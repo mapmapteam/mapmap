@@ -32,7 +32,7 @@
 #include "ConcurrentQueue.h"
 #include "OscReceiver.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class MainWindow;
 class Element;
@@ -99,7 +99,7 @@ private:
   bool setElementProperty(const QSharedPointer<Element>& elem, const QString& property, const QVariant& value);
 };
 
-MM_END_NAMESPACE
+}
 
 #endif // HAVE_OSC
 

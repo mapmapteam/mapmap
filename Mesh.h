@@ -23,7 +23,7 @@
 
 #include "Quad.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class Mesh : public Quad
 {
@@ -101,6 +101,7 @@ public:
   int nHorizontalQuads() const { return _nColumns-1; }
   int nVerticalQuads() const { return _nRows-1; }
 
+  void copyFrom(const MShape& shape);
 
 protected:
   int _nColumns;
@@ -123,6 +124,6 @@ protected:
   virtual MShape* _create() const { return new Mesh(); }
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* MESH_H_ */

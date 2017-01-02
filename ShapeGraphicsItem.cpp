@@ -23,7 +23,7 @@
 
 #include "MainWindow.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
   : _mapping(mapping), _output(output)
@@ -415,7 +415,7 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
         }
 
         // Draw all the cached items.
-        foreach (CacheQuadMapping m, item.subQuads)
+        for (CacheQuadMapping m: item.subQuads)
         {
           glBegin(GL_QUADS);
           for (int i = 0; i < outputQuad->nVertices(); i++)
@@ -632,4 +632,4 @@ void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   }
 }
 
-MM_END_NAMESPACE
+}

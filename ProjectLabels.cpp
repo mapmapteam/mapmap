@@ -19,7 +19,7 @@
 
 #include "ProjectLabels.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 const char* ProjectLabels::CLASS_NAME  = "className";
 const char* ProjectLabels::PAINTS      = "paints";
@@ -30,4 +30,4 @@ const char* ProjectLabels::NAME        = "name";
 const char* ProjectLabels::SOURCE      = "source";
 const char* ProjectLabels::DESTINATION = "destination";
 
-MM_END_NAMESPACE
+}

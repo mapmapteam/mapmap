@@ -20,7 +20,7 @@
 
 #include "MappingGui.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 MappingGui::MappingGui(Mapping::ptr mapping)
   : _mapping(mapping),
@@ -428,4 +428,4 @@ EllipseTextureMappingGui::EllipseTextureMappingGui(QSharedPointer<TextureMapping
   _inputGraphicsItem.reset(new EllipseTextureGraphicsItem(_mapping, false));
 }
 
-MM_END_NAMESPACE
+}

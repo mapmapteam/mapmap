@@ -21,7 +21,7 @@
 
 #include "PreferenceDialog.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 PreferenceDialog::PreferenceDialog(QWidget* parent) :
     QDialog(parent)
@@ -132,7 +132,7 @@ void PreferenceDialog::applySettings()
   // Show screen resolution on output
   settings.setValue("showResolution", _showResolutionBox->isChecked());
   // Set preferred test signal pattern
-  foreach (QRadioButton *radio, _radioGroup) {
+  for (QRadioButton *radio: _radioGroup) {
     if (radio->isChecked()) {
       settings.setValue("signalTestCard", _radioGroup.indexOf(radio));
       break;
@@ -146,7 +146,7 @@ void PreferenceDialog::applySettings()
 
 void PreferenceDialog::refreshCurrentIP()
 {
-  foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
+  for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
     if (address.protocol() == QAbstractSocket::IPv4Protocol
         && address != QHostAddress(QHostAddress::LocalHost)) {
       _machineAddressLabel->setText(address.toString());
@@ -203,7 +203,7 @@ void PreferenceDialog::createMappingPage()
   stickRadiusForm->setContentsMargins(marginLeft);
   stickRadiusForm->addRow(tr("Sensitivity"), _stickyRadiusBox);
 
-  QGroupBox *vertexGroupBox = new QGroupBox(tr("Vertex"));
+  QGroupBox *vertexGroupBox = new QGroupBox(tr("Vertices"));
 
   QVBoxLayout *vertexLayout = new QVBoxLayout;
   vertexLayout->addWidget(_stickyVerticesBox);
@@ -211,16 +211,16 @@ void PreferenceDialog::createMappingPage()
 
   vertexGroupBox->setLayout(vertexLayout);
 
-  // Shape
-  QGroupBox *shapeGroupBox = new QGroupBox(tr("Shape"));
-
-  // Mapping
-  QGroupBox *layerGroupBox = new QGroupBox(tr("Layers"));
+  // // Shape
+  // QGroupBox *shapeGroupBox = new QGroupBox(tr("Shapes"));
+  //
+  // // Mapping
+  // QGroupBox *layerGroupBox = new QGroupBox(tr("Layers"));
 
   QVBoxLayout *pageLayout = new QVBoxLayout;
   pageLayout->addWidget(vertexGroupBox);
-  pageLayout->addWidget(shapeGroupBox);
-  pageLayout->addWidget(layerGroupBox);
+  // pageLayout->addWidget(shapeGroupBox);
+  // pageLayout->addWidget(layerGroupBox);
 
   _mappingPage->setLayout(pageLayout);
 }
@@ -280,29 +280,29 @@ void PreferenceDialog::createControlsPage()
   QRegExpValidator *ipValidator = new QRegExpValidator(rx);
   QMargins margins(40, 0, 0, 0);
 
-  _sendMessageBox = new QCheckBox;
-  _sendMessageBox->setFont(bold);
-  _sendMessageBox->setText(tr("Send OSC messages"));
-  _sendMessageBox->setEnabled(false); // Disable until supported
-
-  _sendAddressEdit = new QLineEdit;
-  _sendAddressEdit->setValidator(ipValidator);
-  _sendAddressEdit->setEnabled(false); // Disable until supported
-
-  _sendPortNumber = new QSpinBox;
-  _sendPortNumber->setRange(1024, 65534);
-  _sendPortNumber->setFixedWidth(120);
-  _sendPortNumber->setEnabled(false); // Disable until supported
-
-  QFormLayout *sendMessageForm = new QFormLayout;
-  sendMessageForm->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
-  sendMessageForm->setContentsMargins(margins);
-  sendMessageForm->addRow(tr("to machine"), _sendAddressEdit);
-  sendMessageForm->addRow(tr("at port"), _sendPortNumber);
+  // _sendMessageBox = new QCheckBox;
+  // _sendMessageBox->setFont(bold);
+  // _sendMessageBox->setText(tr("Send OSC messages"));
+  // _sendMessageBox->setEnabled(false); // Disable until supported
+  //
+  // _sendAddressEdit = new QLineEdit;
+  // _sendAddressEdit->setValidator(ipValidator);
+  // _sendAddressEdit->setEnabled(false); // Disable until supported
+  //
+  // _sendPortNumber = new QSpinBox;
+  // _sendPortNumber->setRange(1024, 65534);
+  // _sendPortNumber->setFixedWidth(120);
+  // _sendPortNumber->setEnabled(false); // Disable until supported
+  //
+  // QFormLayout *sendMessageForm = new QFormLayout;
+  // sendMessageForm->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
+  // sendMessageForm->setContentsMargins(margins);
+  // sendMessageForm->addRow(tr("to machine"), _sendAddressEdit);
+  // sendMessageForm->addRow(tr("at port"), _sendPortNumber);
 
   _listenMessageBox = new QCheckBox;
   _listenMessageBox->setFont(bold);
-  _listenMessageBox->setText(tr("Listen OSC messages"));
+  _listenMessageBox->setText(tr("Listen to OSC messages"));
   _listenMessageBox->setChecked(true); // TODO: Give the choice to the user
 
   _listenPortNumber = new QSpinBox;
@@ -327,8 +327,8 @@ void PreferenceDialog::createControlsPage()
   listenAddressForm->addRow(tr("Local IP"), listenAddressLayout);
 
   QVBoxLayout *oscLayout = new QVBoxLayout;
-  oscLayout->addWidget(_sendMessageBox, 1);
-  oscLayout->addLayout(sendMessageForm, 4);
+  // oscLayout->addWidget(_sendMessageBox, 1);
+  // oscLayout->addLayout(sendMessageForm, 4);
   oscLayout->addWidget(_listenMessageBox, 1);
   oscLayout->addLayout(listenPortForm, 1);
   oscLayout->addLayout(listenAddressForm, 3);
@@ -351,7 +351,7 @@ void PreferenceDialog::createPreferencesList()
   QListWidgetItem *interfaceItem = new QListWidgetItem(QIcon(":/add-color"), tr("Interface"));
 
   // Mapping & Shape Item
-  QListWidgetItem *shapeItem = new QListWidgetItem(QIcon(":/control-points"), tr("Mapping & Shape"));
+  QListWidgetItem *shapeItem = new QListWidgetItem(QIcon(":/control-points"), tr("Mappings"));
 
   // Output Item
   QListWidgetItem *outputItem = new QListWidgetItem(QIcon(":/output-window"), tr("Output"));
@@ -414,4 +414,4 @@ void PreferenceDialog::createLanguageList()
 }
 
 
-MM_END_NAMESPACE
+}

@@ -33,7 +33,7 @@
 
 #include "MetaObjectRegistry.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 // TODO: replace by ProjectAttribute
 //#include "ProjectWriter.h"
@@ -201,6 +201,6 @@ public:
   }
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* MAPPING_H_ */

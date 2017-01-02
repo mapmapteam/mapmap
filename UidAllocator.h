@@ -36,7 +36,7 @@ typedef int uid;
 /// Represents a UID that does not refer to any entity.
 #define NULL_UID (0)
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /**
  * Allocates uids for instances by appending an incremental number to a given string.
@@ -55,6 +55,6 @@ private:
   std::vector<uid> _ids;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif // ifndef

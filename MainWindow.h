@@ -23,7 +23,7 @@
 #define MAIN_WINDOW_H_
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= 0x050500
   #include <QtWidgets>
   #include <QCameraInfo>
 #endif
@@ -55,9 +55,10 @@
 
 #include "PaintGui.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class PreferenceDialog;
+class AboutDialog;
 
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
@@ -142,6 +143,8 @@ private slots:
   // Some help links
   void documentation() { QDesktopServices::openUrl(
           QUrl("http://mapmap.info/tiki-index.php?page=Documentation#section-documentation")); }
+  // Send us feedback
+  void sendFeedback() { QDesktopServices::openUrl(QUrl("mailto:mapmap-list@mapmap.info")); }
   // Technical support
   void technicalSupport() { QDesktopServices::openUrl(
           QUrl("http://mapmap.info/tiki-index.php?page=HomePage#section-support")); }
@@ -236,7 +239,7 @@ public slots:
   void enableDisplayControls(bool display);
   void enableDisplayPaintControls(bool display);
   void enableStickyVertices(bool display);
-  void displayUndoStack(bool display);
+  void displayUndoHistory(bool display);
 
   // Show Mapping Context Menu
   void showMappingContextMenu(const QPoint &point);
@@ -244,19 +247,13 @@ public slots:
   void showPaintContextMenu(const QPoint &point);
 
   /// Start playback.
-  void play();
+  void play(bool updatePlayPauseActions=true);
 
   /// Pause playback.
-  void pause();
+  void pause(bool updatePlayPauseActions=true);
 
   /// Reset playback.
   void rewind();
-
-public:
-  bool setTextureUri(int texture_id, const std::string &uri);
-  bool setTextureRate(int texture_id, double rate);
-  bool setTextureVolume(int texture_id, double volume);
-  void setTexturePlayState(int texture_id, bool played);
 
 private:
   // Internal methods. //////////////////////////////////////////////////////////////////////////////////////
@@ -272,7 +269,6 @@ private:
   void updateRecentFileActions();
   void updateRecentVideoActions();
   void updateScreenActions();
-  void addOutputMenuActions();
 
   // Settings.
   void readSettings();
@@ -335,20 +331,21 @@ private:
   // Menu actions.
   QMenu *fileMenu;
   QMenu *editMenu;
-  //QMenu *viewMenu;
   QMenu *toolsMenu;
-  QMenu *outputMenu;
+  QMenu *viewMenu;
   QMenu *windowMenu;
-  QMenu *playbackMenu;
   QMenu *helpMenu;
+
+  // Sub-menus.
+  QMenu *outputScreenMenu;
   QMenu *recentFileMenu;
   QMenu *recentVideoMenu;
   QMenu *mappingContextMenu;
   QMenu *paintContextMenu;
+
   // Some menus when need to be separated
   QMenu *sourceMenu;
   QMenu *destinationMenu;
-  QMenu *toolBarsMenu;
 
   // Toolbar.
   QToolBar *mainToolBar;
@@ -393,7 +390,7 @@ private:
   QAction *displayPaintControlsAction;
   QAction *displayTestSignalAction;
   QAction *stickyVerticesAction;
-  QAction *displayUndoStackAction;
+  QAction *displayUndoHistoryAction;
   QAction *displayZoomToolAction;
   QAction *openConsoleAction;
   QAction *showMenuBarAction;
@@ -413,6 +410,7 @@ private:
   QAction *bugReportAction;
   QAction *supportAction;
   QAction *docAction;
+  QAction *feedbackAction;
 
   // Screen output action
   QList<QAction *> screenActions;
@@ -508,8 +506,10 @@ private:
   QModelIndex currentSelectedIndex;
   QTimer *videoTimer;
   QElapsedTimer *systemTimer;
-
+  // Preference dialog
   PreferenceDialog* _preferenceDialog;
+  // About dialog
+  AboutDialog *_aboutDialog;
 
   // UndoStack
   QUndoStack *undoStack;
@@ -517,7 +517,7 @@ private:
   // Labels for status bar
   QLabel *destinationZoomLabel;
   QLabel *sourceZoomLabel;
-  QLabel *undoLabel;
+  QLabel *lastActionLabel;
   QLabel *currentMessageLabel;
   QLabel *mousePosLabel;
   QLabel *trueFramesPerSecondsLabel;
@@ -587,6 +587,6 @@ public:
   static const int OUTPUT_WINDOW_MINIMUM_HEIGHT = 270;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* MAIN_WINDOW_H_ */

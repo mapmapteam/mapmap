@@ -25,7 +25,7 @@
 #include "VideoShmSrcImpl.h"
 #include <iostream>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 UidAllocator Paint::allocator;
 
@@ -68,6 +68,29 @@ Paint::~Paint()
   allocator.free(getId());
 }
 
+Image::Image(int id)
+  : Texture(id),
+    _rate(0),
+    _currentFrame(0),
+    _currentFrameReal(0.0),
+    _prevTime(0),
+    _bits(0)
+  {
+    setRate(1.0);
+  }
+
+Image::Image(const QString uri_, uid id)
+  : Texture(id),
+    _rate(0),
+    _currentFrame(-1),
+    _currentFrameReal(0.0),
+    _prevTime(0),
+    _bits(0)
+  {
+    setUri(uri_);
+    setRate(1.0);
+  }
+
 bool Image::setUri(const QString &uri)
 {
   if (uri != _uri)
@@ -76,7 +99,76 @@ bool Image::setUri(const QString &uri)
     build();
     _emitPropertyChanged("uri");
   }
-  return !_image.isNull();
+  return !_images.isEmpty();
+}
+
+void Image::build()
+{
+  // Read all images.
+  QImageReader reader(_uri);
+  _images.clear();
+  for (int i=0; i<reader.imageCount(); i++)
+    _images.push_back(
+        QGLWidget::convertToGLFormat(reader.read())
+          .mirrored(true, false)
+          .transformed(QTransform().rotate(180))
+      );
+
+  rewind();
+}
+
+void Image::update()
+{
+  if (isAnimation() && isPlaying())
+  {
+    // Compute the interval of time since last call to update().
+    qreal currentTime = _elapsedTime();
+    qreal diffTime = currentTime - _prevTime;
+
+    // Update next frame.
+    _currentFrameReal += diffTime * _rate * MM::DEFAULT_FRAMES_PER_SECOND;
+    _currentFrameReal = wrapAround(_currentFrameReal, (qreal)_images.size());
+    uint nextFrame = (int)_currentFrameReal;
+
+    // If frame changed, update image bits pointer.
+    if (nextFrame != _currentFrame)
+    {
+      _currentFrame = nextFrame;
+      _bits = _images[_currentFrame].bits();
+      bitsChanged = true;
+    }
+
+    // Reset previous time.
+    _prevTime = currentTime;
+  }
+}
+
+void Image::rewind()
+{
+  // Reset/restart everything.
+  if (isAnimation())
+  {
+    _currentFrame     = 0;
+    _currentFrameReal = 0.0;
+    _prevTime         = 0;
+    _timer.start();
+  }
+  _bits = _images.isEmpty() ? 0 : _images[0].bits();
+  bitsChanged = true;
+}
+
+const uchar* Image::getBits() {
+  return _bits;
+}
+
+void Image::setRate(double rate)
+{
+  _rate = rate;
+}
+
+void Image::_doPlay()
+{
+  _prevTime = _elapsedTime();
 }
 
 /* Implementation of the Video class */
@@ -286,4 +378,4 @@ bool Video::_generateThumbnail()
   return true;
 }
 
-MM_END_NAMESPACE
+}

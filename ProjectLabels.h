@@ -22,7 +22,7 @@
 
 #include "MM.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class ProjectLabels {
 public:
@@ -38,6 +38,6 @@ public:
   static const char* SOURCE;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* PROJECTLABELS_H_ */

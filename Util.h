@@ -32,7 +32,7 @@
 #include "Paint.h"
 #include <QString>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /**
  * @namespace Util Useful functions.
@@ -49,9 +49,17 @@ void correctGlTexCoord(GLfloat x, GLfloat y);
  */
 void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint);
 
+/**
+ * Maps a number from a range to another.
+ */
 float map_float(float value, float istart, float istop, float ostart, float ostop);
+
+/**
+ * Maps a number from a range to another.
+ */
 int map_int(int value, int istart, int istop, int ostart, int ostop);
 
+// FIXME: these texture/color/drawing utilities should be moved to another file
 Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight);
 Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight);
 Ellipse* createEllipseForTexture(Texture* texture, int frameWidth, int frameHeight);
@@ -66,13 +74,27 @@ void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected,
  * Checks if a file exists or not.
  */
 bool fileExists(const QString& filename);
+
+/**
+ * Erases a file if it exists.
+ * @return True if it deleted it.
+ */
 bool eraseFile(const QString& filename);
+
+/**
+ * Erases MapMap's user settings file.
+ * It should be located in ~/.config/MapMap/MapMap.conf
+ */
 bool eraseSettings();
 
+/**
+ * Checks if a string is a number.
+ * @return True if it is a valid number.
+ */
 bool isNumeric(const QString& text);
 
 } // end of namespace
 
-MM_END_NAMESPACE
+}
 
 #endif /* UTIL_H_ */

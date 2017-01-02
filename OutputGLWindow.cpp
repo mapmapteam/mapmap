@@ -23,7 +23,7 @@
 
 #include "MainWindow.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) : QDialog(parent)
 {
@@ -38,8 +38,9 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) 
   layout->addWidget(canvas);
   setLayout(layout);
 
-  setDisplayCrosshair(false); // default
-  this->_is_fullscreen = false;
+  setCanvasDisplayCrosshair(false); // default
+
+  _isFullScreen = false;
   _preferredScreen = QApplication::screens().size() - 1;
 }
 
@@ -65,6 +66,43 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) 
 
 void OutputGLWindow::setFullScreen(bool fullscreen)
 {
+  _setFullScreen(fullscreen);
+  _isFullScreen = fullscreen;
+}
+
+void OutputGLWindow::setCanvasDisplayCrosshair(bool crosshair)
+{
+  canvas->setDisplayCrosshair(crosshair);
+  setCursor(crosshair || this->_isFullScreen ? Qt::BlankCursor : Qt::ArrowCursor);
+}
+
+void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
+{
+  canvas->setDisplayTestSignal(displayTestSignal);
+
+  // Force fullscreen if needed.
+  if (!_isFullScreen)
+    _setFullScreen(displayTestSignal);
+
+  canvas->update();
+}
+
+void OutputGLWindow::setPreferredScreen(int screen)
+{
+  _preferredScreen = qBound(screen, 0, QApplication::screens().size() - 1);
+}
+
+
+void OutputGLWindow::_updateToPreferredScreen()
+{
+  // Check if user is on multiple screen (always pre
+  int screen = getPreferredScreen();
+  //Move window to second screen before fullscreening it.
+  setGeometry(QApplication::desktop()->screenGeometry(screen));
+}
+
+void OutputGLWindow::_setFullScreen(bool fullscreen)
+{
   if (fullscreen)
   {
     _updateToPreferredScreen();
@@ -81,37 +119,6 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
   {
     hide();
   }
-  this->_is_fullscreen = fullscreen;
 }
 
-void OutputGLWindow::_updateToPreferredScreen()
-{
-  // Check if user is on multiple screen (always pre
-  int screen = getPreferredScreen();
-  //Move window to second screen before fullscreening it.
-  setGeometry(QApplication::desktop()->screenGeometry(screen));
 }
-
-
-void OutputGLWindow::setDisplayCrosshair(bool crosshair)
-{
-  canvas->setDisplayCrosshair(crosshair);
-  setCursor(crosshair || this->_is_fullscreen ? Qt::BlankCursor : Qt::ArrowCursor);
-}
-
-void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
-{
-  canvas->setDisplayTestSignal(displayTestSignal);
-  canvas->update();
-}
-
-void OutputGLWindow::setPreferredScreen(int screen)
-{
-  if (screen < QApplication::screens().size())
-    _preferredScreen = screen;
-  else
-    _preferredScreen = QApplication::screens().size() - 1;
-}
-
-
-MM_END_NAMESPACE

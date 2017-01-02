@@ -12,18 +12,20 @@ Build it::
 
   ./build.sh
 
-Ubuntu 13.10 and 14.04 LTS
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Ubuntu 13.10, 14.04, 15.04 and 16.04 LTS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Install basic development tools fot Qt projects, plus liblo for OSC support::
 
   sudo apt-get install -y \
       liblo-dev \
       qttools5-dev-tools \
-      qt5-default
+      qt5-default \
+      qtmultimedia5-dev \
+      libqt5multimedia5-plugins
 
 
-Install GStreamer 1.0 libraries and plugins:
+Install GStreamer 1.0 libraries and plugins::
 
   sudo apt-get install -y \
       libgstreamer1.0-dev \
@@ -31,6 +33,7 @@ Install GStreamer 1.0 libraries and plugins:
       gstreamer1.0-gnonlin \
       gstreamer1.0-plugins-bad \
       gstreamer1.0-libav \
+      gstreamer1.0-vaapi \
       gstreamer1.0-plugins-base \
       gstreamer1.0-plugins-base-apps \
       gstreamer1.0-plugins-good \
@@ -43,14 +46,25 @@ Install extra packages if you want to build the documentation::
   sudo apt-get install -y \
       doxygen \
       graphviz \
-      rst2pdf
+      rst2pdf \
+      markdown
 
 Arch Linux
 ~~~~~~~~~~
 
 Install basic development tools fot Qt projects, GStreamer 1.0 and liblo for OSC support::
 
-sudo pacman -S qt5-tools liblo gstreamer
+sudo pacman -S qt5-tools qt5-multimedia liblo gstreamer
+
+Install GStreamer 1.0 libraries and plugins::
+
+sudo pacman -S gst-libav \
+               gstreamer-vaapi \
+               gst-plugins-bad \
+               gst-plugins-base \
+               gst-plugins-base-libs \
+               gst-plugins-good \
+               gst-plugins-ugly
 
 To edit translations
 --------------------
@@ -94,16 +108,20 @@ DMGVERSION.txt should be created automatically with "1" as its contents. Update 
 
 Use on OS X
 -----------
-Users can simply the following two packages:
-
+Download GStreamer from:
 http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64-packages.dmg
 http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64.pkg
 
-MapMap should then work.
+Download MapMap.dmg, decompress the app and copy it to /Applications.
 
 If the appearance of the window of the OSC port number in the preferences seem corrupted, you might want to reset MapMap's preferences::
 
   rm -f ~/Library/Preferences/info.mapmap.MapMap.plist
+
+To print debugging informations, launch it from the Terminal app like this::
+
+  GST_PLUGIN_PATH=/Library/Frameworks/GStreamer.framework/Libraries GST_DEBUG=2 /Applications/MapMap.app/Contents/MacOS/MapMap
+
 
 Build for release on Windows
 ----------------------------
@@ -129,8 +147,3 @@ https://gstreamer.freedesktop.org/data/pkg/windows/1.7.91/gstreamer-1.0-x86-1.7.
 - Remove lib\libopenh264.dll, lib\libSoundTouch-0.dll, lib\libtag.dll
 
 - Run Mapamp.exe
-
-
-
-
-

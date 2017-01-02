@@ -22,7 +22,7 @@
 #include "Mapping.h"
 #include "MainWindow.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 UidAllocator Mapping::allocator;
 
@@ -168,4 +168,4 @@ void Mapping::_writeShape(QDomElement& obj, bool isOutput)
   obj.appendChild(shapeObj);
 }
 
-MM_END_NAMESPACE
+}

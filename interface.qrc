@@ -7,6 +7,7 @@
         <file alias="fullscreen">resources/images/icons/fullscreen_w.png</file>
         <file alias="output-window">resources/images/icons/nofullscreen_w.png</file>
         <file alias="control-points">resources/images/icons/ctrl2_w.png</file>
+        <file alias="toggle-test-signal">resources/images/icons/test_signal_w.png</file>
         <file alias="add-video">resources/images/icons/add_movie_w.png</file>
         <file alias="add-image">resources/images/icons/add_img_w.png</file>
         <file alias="add-color">resources/images/icons/add_paint_w.png</file>
@@ -21,6 +22,7 @@
         <file alias="shape-ellipse">resources/images/shapes/add_circle.png</file>
         <file alias="shape-polygon">resources/images/shapes/add_circle.png</file>
         <file alias="mapmap-title">resources/images/logo/logomapmap.png</file>
+        <file alias="mapmap-title-light">resources/images/logo/logomapmap-light.png</file>
         <file alias="mapmap-logo">resources/images/logo/mapmap-logo.png</file>
         <file alias="mapmap-splash">resources/images/logo/splash.png</file>
         <file alias="logo-title">resources/fonts/DroidSans.otf</file>
@@ -42,5 +44,8 @@
         <file alias="classic-test">resources/images/test-signal/examples/classic-test-card.png</file>
         <file alias="pal-test">resources/images/test-signal/examples/pal-test-card.png</file>
         <file alias="ntsc-test">resources/images/test-signal/examples/ntsc-test-card.png</file>
+        <file>resources/images/checkbox/checkbox-unchecked.png</file>
+        <file alias="ntsc-test-card">resources/images/test-signal/ntsc-test-signal.svg</file>
+        <file alias="mapmap-logo-with-border">resources/images/logo/mapmap-wide-with-border.svg</file>
     </qresource>
 </RCC>

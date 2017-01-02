@@ -45,7 +45,7 @@
 
 #include "VideoImpl.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class VideoUriDecodeBinImpl : public VideoImpl 
 {
@@ -61,6 +61,6 @@ class VideoUriDecodeBinImpl : public VideoImpl
   //bool _videoIsConnected;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* ifndef */

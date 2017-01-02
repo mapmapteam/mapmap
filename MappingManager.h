@@ -27,7 +27,7 @@
 #include "Paint.h"
 #include "Mapping.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /**
  * This is a container class for all the paints and mappings ie. the main model object that allows
@@ -129,7 +129,7 @@ private:
   template<class T>
   QSharedPointer<T> _getElementByName(const QVector<QSharedPointer<T> >& vector, QString name)
   {
-    foreach (QSharedPointer<T> it, vector)
+    for (QSharedPointer<T> it: vector)
     {
       if (it->getName() == name)
       {
@@ -145,7 +145,7 @@ private:
   {
     QVector<QSharedPointer<T> > matchedElems;
     QRegExp regExp(namePattern, Qt::CaseSensitive, QRegExp::Wildcard);
-    foreach (QSharedPointer<T> it, vector)
+    for (QSharedPointer<T> it: vector)
     {
       if (regExp.exactMatch(it->getName()))
       {
@@ -156,6 +156,6 @@ private:
   }
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* MAPPINGMANAGER_H_ */

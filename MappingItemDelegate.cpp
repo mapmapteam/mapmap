@@ -19,7 +19,7 @@
 
 #include "MappingItemDelegate.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 MappingItemDelegate::MappingItemDelegate(QObject *parent) :
   QStyledItemDelegate(parent)
@@ -84,12 +84,14 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     {
       bool isSolo = index.model()->data(index, Qt::CheckStateRole + 1).toBool();
       bool isLocked = index.model()->data(index, Qt::CheckStateRole + 2).toBool();
+      // Here is need to always align button on right side
+      int buttonX = rect.width() + x;
 
       // Create all mappings buttons:
       // solo button
       QStyleOptionToolButton mappingSoloButton;
       mappingSoloButton.state |= QStyle::State_Enabled;
-      mappingSoloButton.rect = QRect(x + 10, y + 12,
+      mappingSoloButton.rect = QRect(buttonX - 118, y + 12,
               MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
       mappingSoloButton.icon = QIcon(":/solo-mapping");
       mappingSoloButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
@@ -101,7 +103,7 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
       // lock button
       QStyleOptionToolButton mappingLockButton;
       mappingLockButton.state |= QStyle::State_Enabled;
-      mappingLockButton.rect = QRect(x + 40, y + 12, MM::MAPPING_LIST_ICON_SIZE,
+      mappingLockButton.rect = QRect(buttonX - 88, y + 12, MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
       mappingLockButton.icon = QIcon(":/lock-mapping");
       mappingLockButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
@@ -113,7 +115,7 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
       // duplicate button
       QStyleOptionToolButton mappingDuplicateButton;
       mappingDuplicateButton.state |= QStyle::State_Enabled;
-      mappingDuplicateButton.rect = QRect(x + 70, y + 12,
+      mappingDuplicateButton.rect = QRect(buttonX - 58, y + 12,
               MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
       mappingDuplicateButton.icon = QIcon(":/duplicate-mapping");
       mappingDuplicateButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
@@ -125,7 +127,7 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
       // delete button
       QStyleOptionToolButton mappingDeleteButton;
       mappingDeleteButton.state |= QStyle::State_Enabled;
-      mappingDeleteButton.rect = QRect(x + 100, y + 12,
+      mappingDeleteButton.rect = QRect(buttonX - 28, y + 12,
               MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
       mappingDeleteButton.icon = QIcon(":/delete-mapping");
       mappingDeleteButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
@@ -212,16 +214,17 @@ bool MappingItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
   QRect rect = option.rect;
   int x = rect.x();
   int y = rect.y();
+  int buttonX = rect.width() + x;
 
   QRect hideButtonRect = QRect(x + 4, y + 12, MM::MAPPING_LIST_ICON_SIZE,
           MM::MAPPING_LIST_ICON_SIZE);
-  QRect soloButtonRect = QRect(x + 10, y + 12, MM::MAPPING_LIST_ICON_SIZE,
+  QRect soloButtonRect = QRect(buttonX - 118, y + 12, MM::MAPPING_LIST_ICON_SIZE,
           MM::MAPPING_LIST_ICON_SIZE);
-  QRect lockButtonRect = QRect(x + 40, y + 12, MM::MAPPING_LIST_ICON_SIZE,
+  QRect lockButtonRect = QRect(buttonX - 88, y + 12, MM::MAPPING_LIST_ICON_SIZE,
           MM::MAPPING_LIST_ICON_SIZE);
-  QRect duplicateButtonRect = QRect(x + 70, y + 12, MM::MAPPING_LIST_ICON_SIZE,
+  QRect duplicateButtonRect = QRect(buttonX - 58, y + 12, MM::MAPPING_LIST_ICON_SIZE,
           MM::MAPPING_LIST_ICON_SIZE);
-  QRect deleteButtonRect = QRect(x + 100, y + 12, MM::MAPPING_LIST_ICON_SIZE,
+  QRect deleteButtonRect = QRect(buttonX - 28, y + 12, MM::MAPPING_LIST_ICON_SIZE,
           MM::MAPPING_LIST_ICON_SIZE);
 
   if (event->type() == QEvent::MouseMove)
@@ -270,4 +273,4 @@ bool MappingItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
   return QAbstractItemDelegate::editorEvent(event, model, option, index);
 }
 
-MM_END_NAMESPACE
+}

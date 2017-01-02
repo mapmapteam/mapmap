@@ -20,7 +20,7 @@
 
 #include "ShapeControlPainter.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 
 ShapeControlPainter::ShapeControlPainter(ShapeGraphicsItem* shapeItem)
@@ -108,4 +108,4 @@ void MeshControlPainter::paintShape(QPainter *painter, MapperGLCanvas* canvas, b
   painter->drawPolygon(_shapeItem->mapFromScene(mesh->toPolygon()));
 }
 
-MM_END_NAMESPACE
+}

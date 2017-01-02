@@ -27,7 +27,7 @@
 
 #include "MainWindow.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class PreferenceDialog : public QDialog
 {
@@ -98,7 +98,7 @@ private:
   // Controls widgets
   // OSC
   QWidget *_oscWidget;
-  QCheckBox *_sendMessageBox;
+//  QCheckBox *_sendMessageBox;
   QCheckBox *_listenMessageBox;
   QLineEdit *_sendAddressEdit;
   QSpinBox *_sendPortNumber;
@@ -119,6 +119,6 @@ private:
   static const int LIST_ITEM_HEIGHT = 36;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* PREFERENCESDIALOG_H_ */

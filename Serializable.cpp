@@ -19,7 +19,7 @@
 
 #include "Serializable.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 QString Serializable::cleanClassName() const
 {
@@ -147,4 +147,4 @@ void Serializable::_writeNode(QDomElement& obj, const QString& nodeName, const Q
 
 
 
-MM_END_NAMESPACE
+}

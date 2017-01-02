@@ -19,7 +19,7 @@
 
 #include "Mesh.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 Mesh::Mesh() : Quad() {
   // Create dummy points (will be all overwritten later on by load/save).
@@ -450,6 +450,27 @@ QVector< QVector<Quad::ptr> > Mesh::getQuads2d() const
   return quads2d;
 }
 
+void Mesh::copyFrom(const MShape& shape)
+{
+  // This will copy vertices.
+  MShape::copyFrom(shape);
+
+  // Cast to mesh.
+  const Mesh* mesh = static_cast<const Mesh*>(&shape);
+  Q_ASSERT(mesh);
+
+  _nColumns = mesh->_nColumns;
+  _nRows    = mesh->_nRows;
+
+  // Deep copy vertices2d.
+  _vertices2d.resize(_nColumns);
+  for (int i=0; i<_nColumns; i++)
+  {
+    _vertices2d[i].resize(_nRows);
+    qCopy(mesh->_vertices2d[i].begin(), mesh->_vertices2d[i].end(), _vertices2d[i].begin());
+  }
+}
+
 void Mesh::_reorderVertices()
 {
   // Populate new vertices vector.
@@ -469,4 +490,4 @@ void Mesh::_reorderVertices()
   vertices = newVertices;
 }
 
-MM_END_NAMESPACE
+}

@@ -26,7 +26,7 @@
 #include <cstring>
 #include <iostream>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 VideoUriDecodeBinImpl::VideoUriDecodeBinImpl() :
 _uridecodebin0(NULL)
@@ -35,7 +35,7 @@ _uridecodebin0(NULL)
 
 void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoUriDecodeBinImpl* p)
 {
-  (void)src; //Unused
+  Q_UNUSED(src);
 #ifdef VIDEO_IMPL_VERBOSE
 #ifndef Q_OS_OSX
   // NOTE: This line was causing a problem on Mac OSX: it caused the software to freeze when loading a new movie.
@@ -55,8 +55,11 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
 #endif
   g_free(newPadStructStr);
 
+  bool isVideoPad = g_str_has_prefix (newPadType, "video/x-raw");
+  bool isAudioPad = g_str_has_prefix (newPadType, "audio/x-raw");
+
   // Check for video pads.
-  if (g_str_has_prefix (newPadType, "video/x-raw"))
+  if (isVideoPad)
   {
     sinkPad = gst_element_get_static_pad (p->_queue0, "sink");
     gst_structure_get_int(newPadStruct, "width",  &p->_width);
@@ -64,8 +67,13 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
   }
 
   // Check for audio pads.
-  else if (g_str_has_prefix (newPadType, "audio/x-raw"))
+  else if (isAudioPad)
   {
+    if (!p->createAudioComponents())
+    {
+      qWarning() << "Problem creating audio components." << endl;
+      goto exit;
+    }
     sinkPad = gst_element_get_static_pad (p->_audioqueue0, "sink");
   }
 
@@ -75,12 +83,12 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
     goto exit;
   }
 
+
   // If our converter is already linked, we have nothing to do here.
   if (gst_pad_is_linked (sinkPad))
   {
     // Best prefixes.
-    if (g_str_has_prefix (newPadType, "audio/x-raw-float") ||
-        g_str_has_prefix (newPadType, "video/x-raw-int") )
+    if (isVideoPad || isAudioPad)
     {
       qDebug() << "  Found a better pad." << endl;
       GstPad* oldPad = gst_pad_get_peer(sinkPad);
@@ -103,8 +111,15 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
     qDebug() << "  Type is '" << newPadType << "' but link failed." << endl;
 #endif // ifdef
     goto exit;
-  } else {
-    p->videoConnect();
+  }
+  else
+  {
+    if (isVideoPad)
+      p->videoConnect();
+    else if (isAudioPad)
+      p->audioConnect();
+    else
+      qWarning() << "Error: this pad is neither valid audio or video." << endl;
 #ifdef VIDEO_IMPL_VERBOSE
     qDebug() << "  Link succeeded (type '" << newPadType << "')." << endl;
 #endif // ifdef
@@ -128,13 +143,12 @@ bool VideoUriDecodeBinImpl::loadMovie(const QString& path) {
   VideoImpl::loadMovie(path);
 
   _uridecodebin0 = gst_element_factory_make("uridecodebin", NULL);
-  _videoIsConnected = false;
 
   if ( !_uridecodebin0)
   {
-    g_printerr ("Not all elements could be created.\n");
+    qWarning() << "Not all elements could be created." << endl;
     unloadMovie();
-    return -1;
+    return (-1);
   }
 
   // Build the pipeline. Note that we are NOT linking the source at this
@@ -164,97 +178,96 @@ bool VideoUriDecodeBinImpl::loadMovie(const QString& path) {
   }
   g_free(filename_tmp);
 
-  // Connect to the pad-added signal
-    // Extract meta info.
-    GError* error = NULL;
-    GstDiscoverer* discoverer = gst_discoverer_new(5*GST_SECOND, &error);
-    if (!discoverer)
-    {
-      qDebug() << "Error creating discoverer: " << error->message << endl;
-      g_clear_error (&error);
-      return false;
-    }
-
-    GstDiscovererInfo* info = gst_discoverer_discover_uri(discoverer, uri, &error);
-
-    if (!info)
-    {
-      qDebug() << "Error getting discoverer info: " << error->message << endl;
-      g_clear_error (&error);
-      return false;
-    }
-
-    GstDiscovererResult result = gst_discoverer_info_get_result(info);
-
-    switch (result) {
-      case GST_DISCOVERER_URI_INVALID:
-        qDebug()<< "Invalid URI '" << uri << "'" << endl;
-        break;
-      case GST_DISCOVERER_ERROR:
-        qDebug()<< "Discoverer error: " << error->message << endl;
-        break;
-      case GST_DISCOVERER_TIMEOUT:
-        qDebug() << "Timeout" << endl;
-        break;
-      case GST_DISCOVERER_BUSY:
-        qDebug() << "Busy" << endl;
-        break;
-      case GST_DISCOVERER_MISSING_PLUGINS:{
-        const GstStructure *s;
-        gchar *str;
-
-        s = gst_discoverer_info_get_misc (info);
-        str = gst_structure_to_string (s);
-
-        qDebug() << "Missing plugins: " << str << endl;
-        g_free (str);
-        break;
-      }
-      case GST_DISCOVERER_OK:
-        qDebug() << "Discovered '" << uri << "'" << endl;
-        break;
-    }
-
+// Connect to the pad-added signal
+  // Extract meta info.
+  GError* error = NULL;
+  GstDiscoverer* discoverer = gst_discoverer_new(5*GST_SECOND, &error);
+  if (!discoverer)
+  {
+    qDebug() << "Error creating discoverer: " << error->message << endl;
     g_clear_error (&error);
+    return false;
+  }
 
-    if (result != GST_DISCOVERER_OK) {
-      qDebug() << "This URI cannot be played" << endl;
-      return false;
+  GstDiscovererInfo* info = gst_discoverer_discover_uri(discoverer, uri, &error);
+
+  if (!info)
+  {
+    qDebug() << "Error getting discoverer info: " << error->message << endl;
+    g_clear_error (&error);
+    return false;
+  }
+
+  GstDiscovererResult result = gst_discoverer_info_get_result(info);
+
+  switch (result) {
+    case GST_DISCOVERER_URI_INVALID:
+      qDebug()<< "Invalid URI '" << uri << "'" << endl;
+      break;
+    case GST_DISCOVERER_ERROR:
+      qDebug()<< "Discoverer error: " << error->message << endl;
+      break;
+    case GST_DISCOVERER_TIMEOUT:
+      qDebug() << "Timeout" << endl;
+      break;
+    case GST_DISCOVERER_BUSY:
+      qDebug() << "Busy" << endl;
+      break;
+    case GST_DISCOVERER_MISSING_PLUGINS:{
+      const GstStructure *s;
+      gchar *str;
+
+      s = gst_discoverer_info_get_misc (info);
+      str = gst_structure_to_string (s);
+
+      qDebug() << "Missing plugins: " << str << endl;
+      g_free (str);
+      break;
     }
+    case GST_DISCOVERER_OK:
+      qDebug() << "Discovered '" << uri << "'" << endl;
+      break;
+  }
 
-    // Gather info from video.
-    GList *videoStreams = gst_discoverer_info_get_video_streams (info);
-    if (!videoStreams)
-    {
-      qDebug() << "This URI does not contain any video streams" << endl;
-      return false;
-    }
+  g_clear_error (&error);
 
-    // Retrieve meta-info.
-    _width = gst_discoverer_video_info_get_width((GstDiscovererVideoInfo*)videoStreams->data);
-    _height = gst_discoverer_video_info_get_height((GstDiscovererVideoInfo*)videoStreams->data);
-    _duration = gst_discoverer_info_get_duration(info);
-    _seekEnabled = gst_discoverer_info_get_seekable(info);
+  if (result != GST_DISCOVERER_OK) {
+    qDebug() << "This URI cannot be played" << endl;
+    return false;
+  }
 
-    // Free everything.
-    g_object_unref(discoverer);
-    gst_discoverer_info_unref(info);
-    gst_discoverer_stream_info_list_free(videoStreams);
+  // Gather info from video.
+  GList *videoStreams = gst_discoverer_info_get_video_streams (info);
+  if (!videoStreams)
+  {
+    qDebug() << "This URI does not contain any video streams" << endl;
+    return false;
+  }
 
-    // Connect pad signal.
-    g_signal_connect (_uridecodebin0, "pad-added", G_CALLBACK (VideoUriDecodeBinImpl::gstPadAddedCallback), this);
+  // Retrieve meta-info.
+  _width = gst_discoverer_video_info_get_width((GstDiscovererVideoInfo*)videoStreams->data);
+  _height = gst_discoverer_video_info_get_height((GstDiscovererVideoInfo*)videoStreams->data);
+  _duration = gst_discoverer_info_get_duration(info);
+  _seekEnabled = gst_discoverer_info_get_seekable(info);
 
-    // Set uri of decoder.
-    g_object_set (_uridecodebin0, "uri", uri, NULL);
+  // Free everything.
+  g_object_unref(discoverer);
+  gst_discoverer_info_unref(info);
+  gst_discoverer_stream_info_list_free(videoStreams);
 
+  // Connect pad signal.
+  g_signal_connect (_uridecodebin0, "pad-added", G_CALLBACK (VideoUriDecodeBinImpl::gstPadAddedCallback), this);
 
+  // Set uri of decoder.
+  g_object_set (_uridecodebin0, "uri", uri, NULL);
 
-    setPlayState(true);
-    return TRUE;
+  setPlayState(true);
+
+  return true;
 }
 
 VideoUriDecodeBinImpl::~VideoUriDecodeBinImpl()
 {
 }
 
-MM_END_NAMESPACE
+}

@@ -28,7 +28,7 @@
 #include "MM.h"
 #include <QSettings>
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class MainApplication : public QApplication
 {
@@ -39,6 +39,6 @@ public:
   bool notify(QObject *receiver, QEvent *event);
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* MAINAPPLICATION_H_ */

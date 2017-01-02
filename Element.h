@@ -30,7 +30,7 @@
 #include <QEvent>
 Q_DECLARE_METATYPE(uid)
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class Element : public Serializable
 {
@@ -84,6 +84,6 @@ private:
   UidAllocator* _allocator;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* MOBJECT_H_ */

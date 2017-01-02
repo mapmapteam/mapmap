@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="changelog">informations/CHANGELOG.html</file>
+        <file alias="license">informations/LICENSE</file>
+        <file alias="license-short">informations/LICENSE_SHORT.txt</file>
+        <file alias="projection-mapping">informations/MAPPING</file>
+        <file alias="contributors">informations/CONTRIBUTORS.html</file>
+        <file alias="osc_html">informations/osc.html</file>
+    </qresource>
+</RCC>

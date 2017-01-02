@@ -27,7 +27,7 @@
 #include "MetaObjectRegistry.h"
 #include "ProjectLabels.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class ProjectReader
 {
@@ -46,4 +46,4 @@ private:
     MainWindow *_window;
 };
 
-MM_END_NAMESPACE
+}

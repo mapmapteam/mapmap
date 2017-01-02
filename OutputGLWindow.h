@@ -26,7 +26,7 @@
 #include <QTimer>
 #include "OutputGLCanvas.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 // TODO: add SLOT for mySetVisible
 // TODO: Maybe improve support for Ubuntu: http://stackoverflow.com/questions/12645880/fullscreen-for-qdialog-from-within-mainwindow-only-working-sometimes
@@ -46,7 +46,7 @@ public:
 
 public slots:
   void setFullScreen(bool fullScreen);
-  void setDisplayCrosshair(bool crosshair);
+  void setCanvasDisplayCrosshair(bool crosshair);
   void setDisplayTestSignal(bool displayTestSignal);
 
 signals:
@@ -63,10 +63,14 @@ private:
   OutputGLCanvas* canvas;
 
   void _updateToPreferredScreen();
-  bool _is_fullscreen;
+
+  // Actually sets window to fullscreen (without affecting _isFullScreen).
+  void _setFullScreen(bool fullscreen);
+  
+  bool _isFullScreen;
   int _preferredScreen;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* OutputGLWINDOW_H_ */

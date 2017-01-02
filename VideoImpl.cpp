@@ -25,9 +25,7 @@
 #include <cstring>
 #include <iostream>
 
-MM_BEGIN_NAMESPACE
-
-// #define VIDEO_IMPL_VERBOSE
+namespace mmp {
 
 // -------- private implementation of VideoImpl -------
 
@@ -99,7 +97,13 @@ void VideoImpl::setVolume(double volume)
     _volume = volume;
 
     // Set volume element property
-    //g_object_set (_audiovolume0, "volume", _volume, NULL);
+    if (audioIsSupported())
+    {
+      g_object_set (_audiovolume0, "mute", (_volume <= 0), NULL);
+      g_object_set (_audiovolume0, "volume", _volume, NULL);
+    }
+    else
+      qWarning() << "Cannot change volume cause this video does not support audio." << endl;
   }
 }
 
@@ -195,17 +199,18 @@ GstFlowReturn VideoImpl::gstNewSampleCallback(GstElement*, VideoImpl *p)
 }
 
 VideoImpl::VideoImpl() :
-_bus(NULL),
 _pipeline(NULL),
 _queue0(NULL),
 _videoconvert0(NULL),
-capsfilter0(NULL),
+_capsfilter0(NULL),
+_videoscale0(NULL),
 _appsink0(NULL),
 _audioqueue0(NULL),
 _audioconvert0(NULL),
 _audioresample0(NULL),
 _audiovolume0(NULL),
 _audiosink0(NULL),
+_bus(NULL),
 _currentFrameSample(NULL),
 _currentFrameBuffer(NULL),
 _bitsChanged(false),
@@ -220,7 +225,6 @@ _movieReady(false),
 _playState(false),
 _uri("")
 {
-
   _mutexLocker = new QMutexLocker(&_mutex);
 }
 
@@ -243,23 +247,29 @@ void VideoImpl::freeResources()
   // Free resources.
   if (_bus)
   {
-    gst_object_unref (_bus);
+    gst_object_unref (GST_OBJECT(_bus));
     _bus = NULL;
   }
 
   if (_pipeline)
   {
     gst_element_set_state (_pipeline, GST_STATE_NULL);
-    gst_object_unref (_pipeline);
+    gst_object_unref (GST_OBJECT(_pipeline));
     _pipeline = NULL;
   }
 
-  // Reset pipeline elements.
-  _queue0 = NULL;
-  _videoconvert0 = NULL;
-  _appsink0 = NULL;
+  // Free all components.
+  _freeElement(&_queue0);
+  _freeElement(&_capsfilter0);
+  _freeElement(&_videoscale0);
+  _freeElement(&_videoconvert0);
+  _freeElement(&_appsink0);
 
-
+  _freeElement(&_audioqueue0);
+  _freeElement(&_audioconvert0);
+  _freeElement(&_audioresample0);
+  _freeElement(&_audiovolume0);
+  _freeElement(&_audiosink0);
 
   qDebug() << "Freeing remaining samples/buffers" << endl;
 
@@ -271,6 +281,7 @@ void VideoImpl::freeResources()
   _width = _height = (-1);
   _duration = 0;
   _videoIsConnected = false;
+  _audioIsConnected = false;
 }
 
 void VideoImpl::resetMovie()
@@ -291,6 +302,119 @@ void VideoImpl::resetMovie()
     qDebug() << "Seeking not enabled: reloading the movie" << endl;
     loadMovie(_uri);
   }
+}
+
+bool VideoImpl::createVideoComponents()
+{
+  // Already supported?
+  if (videoIsSupported())
+    return true;
+
+  // Create the video elements.
+  _queue0 = gst_element_factory_make ("queue", "queue0");
+  _videoconvert0 = gst_element_factory_make ("videoconvert", "videoconvert0");
+  _videoscale0 = gst_element_factory_make ("videoscale", "videoscale0");
+  _capsfilter0 = gst_element_factory_make ("capsfilter", "capsfilter0");
+  _appsink0 = gst_element_factory_make ("appsink", "appsink0");
+
+  // Verify that they were created.
+  if (!_queue0 || !_videoconvert0 || ! _videoscale0 || ! _capsfilter0 || !_appsink0)
+  {
+    qWarning() << "Not all video elements could be created." << endl;
+    if (! _pipeline) g_printerr("_pipeline");
+    if (! _queue0) g_printerr("_queue0");
+    if (! _videoconvert0) g_printerr("_videoconvert0");
+    if (! _videoscale0) g_printerr("videoscale0");
+    if (! _capsfilter0) g_printerr("capsfilter0");
+    if (! _appsink0) g_printerr("_appsink0");
+    return false;
+  }
+
+  // Add them to pipeline.
+  gst_bin_add_many (GST_BIN (_pipeline),
+                    _queue0, _videoconvert0, _videoscale0, _capsfilter0, _appsink0,
+                    NULL);
+
+  // Link.
+  if (! gst_element_link_many (_queue0, _videoconvert0, _capsfilter0, _videoscale0, _appsink0, NULL))
+  {
+    qWarning() << "Could not link video queue, colorspace converter, caps filter, scaler and app sink." << endl;
+    return false;
+  }
+
+  // Configure video appsink.
+  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA");
+  g_object_set (_capsfilter0, "caps", videoCaps, NULL);
+
+  g_object_set (_appsink0, "emit-signals", TRUE,
+                           "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
+                           "drop", TRUE,         // ... other buffers are dropped
+                           "sync", TRUE,
+                           NULL);
+
+  g_signal_connect (_appsink0, "new-sample", G_CALLBACK (VideoImpl::gstNewSampleCallback), this);
+  gst_caps_unref (videoCaps);
+
+  return true;
+}
+
+bool VideoImpl::createAudioComponents()
+{
+  // Already supported?
+  if (audioIsSupported())
+    return true;
+
+  // Create the audio elements.
+  _audioqueue0 = gst_element_factory_make ("queue", "audioqueue0");
+  _audioconvert0 = gst_element_factory_make ("audioconvert", "audioconvert0");
+  _audioresample0 = gst_element_factory_make ("audioresample", "audioresample0");
+  _audiovolume0 = gst_element_factory_make ("volume", "audiovolume0");
+  _audiosink0 = gst_element_factory_make ("autoaudiosink", "audiosink0");
+
+  // Verify that they were created.
+  if (!_audioqueue0 || !_audioconvert0 || !_audioresample0 || !_audiovolume0 || !_audiosink0)
+  {
+    qDebug() << "Not all audio elements could be created." << endl;
+    if (! _audioqueue0) g_printerr("_audioqueue0");
+    if (! _audioconvert0) g_printerr("_audioconvert0");
+    if (! _audioresample0) g_printerr("_audioresample0");
+    if (! _audiovolume0) g_printerr("_audiovolume0");
+    if (! _audiosink0) g_printerr("_audiosink0");
+    return false;
+  }
+
+  // Add them to pipeline.
+  gst_bin_add_many (GST_BIN (_pipeline),
+                    _audioqueue0, _audioconvert0, _audioresample0, _audiovolume0, _audiosink0,
+                    NULL);
+
+  // Link.
+  if (! gst_element_link_many (_audioqueue0, _audioconvert0, _audioresample0,
+                               _audiovolume0, _audiosink0, NULL))
+  {
+    qDebug() << "Could not link audio queue, converter, resampler and audio sink." << endl;
+    return false;
+  }
+
+  // Configure audio appsink.
+  // TODO: change from mono to stereo
+  //  gchar* audioCapsText = g_strdup_printf ("audio/x-raw-float,channels=1,rate=%d,signed=(boolean)true,width=%d,depth=%d,endianness=BYTE_ORDER",
+  //                                          Engine::signalInfo().sampleRate(), (int)(sizeof(Signal_T)*8), (int)(sizeof(Signal_T)*8) );
+  //GstCaps* audioCaps = gst_caps_from_string (audioCapsText);
+  /*
+  GstCaps* audioCaps = gst_caps_from_string ("audio/xraw-float");
+  g_object_set (_audioSink, "emit-signals", TRUE,
+  "caps", audioCaps,
+  "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
+  "drop", TRUE,         // ... other buffers are dropped
+  "sync", TRUE,
+  NULL);
+  g_signal_connect (_audioSink, "new-buffer", G_CALLBACK (VideoImpl::gstNewAudioBufferCallback), this);
+  gst_caps_unref (audioCaps);
+  */
+  //  g_free (audioCapsText);
+
+  return true;
 }
 
 void VideoImpl::update()
@@ -315,6 +439,54 @@ void VideoImpl::update()
   // Check gstreamer messages on bus.
   _checkMessages();
 }
+
+ bool VideoImpl::loadMovie(const QString& filename) {
+   // Verify if file exists.
+   const gchar* filetestpath = (const gchar*) filename.toUtf8().constData();
+   if (FALSE == g_file_test(filetestpath, G_FILE_TEST_EXISTS))
+   {
+     qDebug() << "File " << filename << " does not exist" << endl;
+     return false;
+   }
+
+   qDebug() << "Opening movie: " << filename << ".";
+
+   // Assign URI.
+   _uri = filename;
+
+   // Free previously allocated structures
+   unloadMovie();
+
+   // Prepare handler data.
+   _videoIsConnected = false;
+   _audioIsConnected = false;
+
+   // Create the empty pipeline.
+   _pipeline = gst_pipeline_new ( "video-source-pipeline" );
+   if (!_pipeline)
+   {
+     qWarning() << "Pipeline could not be created." << endl;
+     unloadMovie();
+     return (-1);
+   }
+
+   // Create and link video components.
+   if (!createVideoComponents())
+   {
+     qWarning() << "Video components could not be initialized." << endl;
+     unloadMovie();
+     return (-1);
+   }
+
+   //setVolume(0);
+
+   // Listen to the bus.
+   _bus = gst_element_get_bus (_pipeline);
+
+   // Start playing.
+
+   return true;
+ }
 
 bool VideoImpl::setPlayState(bool play)
 {
@@ -586,6 +758,14 @@ void VideoImpl::_freeCurrentSample() {
   _data = NULL;
 }
 
+void VideoImpl::_freeElement(GstElement** element)
+{
+  if (*element)
+  {
+    *element = NULL;
+  }
+}
+
 void VideoImpl::lockMutex()
 {
   _mutexLocker->relock();
@@ -615,4 +795,4 @@ bool VideoImpl::waitForNextBits(int timeout, const uchar** bits)
   return false;
 }
 
-MM_END_NAMESPACE
+}

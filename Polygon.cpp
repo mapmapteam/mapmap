@@ -19,7 +19,7 @@
 
 #include "Polygon.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 void Polygon::setVertex(int i, const QPointF& v)
 {
@@ -32,9 +32,15 @@ void Polygon::setVertex(int i, const QPointF& v)
 
 void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
 {
-  // Weird, but nothing to do.
+  // Nothing to do (eg. triangles).
   if (polygon.size() <= 3)
     return;
+
+  // Save original vertex.
+  QPointF originalV = polygon.at(i);
+
+  // Line between original and new point (for later use during intersection check).
+  QLineF  originalToNew(originalV, v);
 
   // Look at the two adjunct segments to vertex i and see if they
   // intersect with any non-adjacent segments.
@@ -49,11 +55,16 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
   // We now stretch segments a little bit to cope with approximation errors.
   for (QVector<QLineF>::Iterator it = segments.begin(); it != segments.end(); ++it)
   {
-    QLineF& seg = *it;
+    QLineF&   seg = *it;
     QPointF p1 = seg.p1();
     QPointF p2 = seg.p2();
-    seg.setP1( p1 + (p1 - p2) * 0.35f);
-    seg.setP2( p2 + (p2 - p1) * 0.35f);
+    // Create small vector pointing in same direction as segment.
+    QVector2D vec(p2 - p1);
+    vec *= _CONSTRAIN_VERTEX_SEGMENT_ELONGATION / vec.length();
+    QPointF diff = vec.toPointF();
+    // Use it to elongate segment slightly.
+    seg.setP1( p1 - diff);
+    seg.setP2( p2 + diff);
   }
 
   // For each adjunct segment.
@@ -70,10 +81,15 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
           j != wrapAround(idx+1, segments.size()))
       {
         QPointF intersection;
-        if (segments[idx].intersect(segments[j], &intersection) == QLineF::BoundedIntersection)
+        if (segments[idx].intersect(segments[j], &intersection) == QLineF::BoundedIntersection ||
+            originalToNew.intersect(segments[j], &intersection) == QLineF::BoundedIntersection)
         {
           // Rearrange segments with new position at intersection point.
-          v = intersection;
+          // Create small vector pointing in same direction as segment.
+          QVector2D vec(intersection - originalV);
+          vec *= _CONSTRAIN_VERTEX_INTERSECTION_PULLAWAY / vec.length();
+          QPointF diff = vec.toPointF();
+          v = intersection - diff;
           segments[prev] = QLineF(polygon.at(prev), v);
           segments[i]    = QLineF(v, polygon.at(next));
         }
@@ -81,6 +97,9 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
     }
   }
 }
+
+qreal Polygon::_CONSTRAIN_VERTEX_SEGMENT_ELONGATION    = 10.0;
+qreal Polygon::_CONSTRAIN_VERTEX_INTERSECTION_PULLAWAY = 30.0;
 
 QVector<QLineF> Polygon::_getSegments() const
 {
@@ -106,4 +125,4 @@ QPolygonF Polygon::toPolygon() const
   return polygon;
 }
 
-MM_END_NAMESPACE
+}

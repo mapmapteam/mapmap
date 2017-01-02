@@ -36,8 +36,9 @@
 #endif
 
 #include "Element.h"
+#include "Maths.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 typedef enum {
   VIDEO_URI,
@@ -47,9 +48,9 @@ typedef enum {
 
 /**
  * A Paint is a style that can be applied when drawing potentially any shape.
- * 
+ *
  * Defines the way to draw any shape.
- * There must be a MappingGui that implements this paint for every shape 
+ * There must be a MappingGui that implements this paint for every shape
  * so that this shape might be drawn with it.
  */
 class Paint : public Element
@@ -135,7 +136,7 @@ public:
 
 /**
  * Paint that uses an OpenGL texture to paint on potentially any MappingGui.
- * 
+ *
  * This video texture is actually an OpenGL texture.
  */
 class Texture : public Paint
@@ -215,45 +216,66 @@ class Image : public Texture
 
   Q_PROPERTY(QString uri READ getUri WRITE setUri)
 
+  Q_PROPERTY(double rate READ getRate WRITE setRate)
+
 protected:
   QString _uri;
-  QImage _image;
+  QVector<QImage> _images;
+  double _rate;
+
+  uint  _currentFrame;
+  qreal _currentFrameReal;
+  qreal _prevTime;
+
+  uchar* _bits;
+
+  QElapsedTimer _timer;
 
 public:
-  Q_INVOKABLE Image(int id=NULL_UID) : Texture(id) {}
-  Image(const QString uri_, uid id=NULL_UID) :
-    Texture(id)
-  {
-    setUri(uri_);
-  }
+  Q_INVOKABLE Image(int id=NULL_UID);
+  Image(const QString uri_, uid id=NULL_UID);
 
   virtual ~Image() {}
 
-  virtual void build() {
-    _image = QGLWidget::convertToGLFormat(QImage(_uri)).mirrored(true, false).transformed(QTransform().rotate(180));
-    bitsChanged = true;
-  }
+  virtual void build();
+  virtual void update();
+
+  /// Rewinds.
+  virtual void rewind();
 
   const QString getUri() const { return _uri; }
   bool setUri(const QString &uri);
 
   virtual QString getType() const { return "image"; }
 
-  virtual int getWidth() const { return _image.width(); }
-  virtual int getHeight() const { return _image.height(); }
+  bool isAnimation() const { return (_images.size() > 1); }
 
-  virtual const uchar* getBits() {
-    bitsChanged = false;
-    return _image.bits();
-  }
+  virtual int getWidth() const  { return (_images.isEmpty() ? 0 : _images[0].width()); }
+  virtual int getHeight() const { return (_images.isEmpty() ? 0 : _images[0].height()); }
+
+  virtual const uchar* getBits();
 
   virtual bool bitsHaveChanged() const { return bitsChanged; }
 
   virtual QIcon getIcon() const
   {
-    return QIcon(QPixmap::fromImage(_image).scaled(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE,
+    return QIcon(QPixmap::fromImage(_images[0]).scaled(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE,
                                                    Qt::IgnoreAspectRatio));
   }
+
+  /// Sets playback rate (in %). Negative values mean reverse playback.
+  virtual void setRate(double rate);
+
+  /// Returns playback rate.
+  double getRate() const { return _rate; }
+
+protected:
+
+  /// Starts playback.
+  virtual void _doPlay();
+
+  /// Current elapsed time in seconds.
+  qreal _elapsedTime() const { return _timer.elapsed() / 1000.0; }
 };
 
 class VideoImpl; // forward declaration
@@ -278,11 +300,10 @@ public:
   Q_INVOKABLE Video(int id=NULL_UID);
   Video(const QString uri_, VideoType type, double rate, uid id=NULL_UID);
   virtual ~Video();
-  const QString getUri() const
-  {
-    return _uri;
-  }
+
+  const QString getUri() const { return _uri; }
   bool setUri(const QString &uri);
+
   virtual void build();
   virtual void update();
 
@@ -295,10 +316,8 @@ public:
   /// Unlocks mutex (default = no effect).
   virtual void unlockMutex();
 
-  virtual QString getType() const
-  {
-    return "media";
-  }
+  virtual QString getType() const { return "media"; }
+
   virtual int getWidth() const;
   virtual int getHeight() const;
 
@@ -346,6 +365,6 @@ protected:
   VideoImpl *_impl;
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* PAINT_H_ */

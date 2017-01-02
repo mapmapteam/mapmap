@@ -1,0 +1,61 @@
+<h1>Currently supported commands</h1>
+
+<p>General rules:</p>
+
+<ul>
+<li>Paint and mapping ids are numbered starting from 1.</li>
+<li>On/off properties such as <em>solo</em>, <em>visible</em> and <em>lock</em> are set using 1 (on) or 0 (off)</li>
+<li>Percentage properties such as <em>opacity</em> and <em>volume</em> are set using a real-value in the [0, 1] range.</li>
+</ul>
+
+<h2>Paints</h2>
+
+<p>Rename: <code>/mapmap/paint/name ,is &lt;id&gt; &lt;name&gt;</code> <br />
+Adjust opacity: <code>/mapmap/paint/opacity ,if &lt;id&gt; &lt;opacity&gt;</code></p>
+
+<h3>Color paint</h3>
+
+<p>Adjust color (eg. "#ff0000"): <code>/mapmap/paint/color ,is &lt;id&gt; &lt;color&gt;</code></p>
+
+<h3>Image/Video paint</h3>
+
+<p>Change rate (speed) (*): <code>/mapmap/paint/rate ,if &lt;id&gt; &lt;rate&gt;</code> <br />
+Change URI (eg. "file:///path/to/clip.mov"): <code>/mapmap/paint/uri ,is &lt;id&gt; &lt;uri&gt;</code> <br />
+Adjust audio volume: <code>/mapmap/paint/volume ,if &lt;id&gt; &lt;volume&gt;</code> <br />
+Rewind: <code>/mapmap/paint/rewind ,i &lt;id&gt;</code></p>
+
+<p>(*) 1 = same speed, 0.5 = half speed, 2 = double speed</p>
+
+<h2>Mappings</h2>
+
+<p>Rename: <code>/mapmap/mapping/name ,is &lt;id&gt; &lt;name&gt;</code> <br />
+Adjust opacity: <code>/mapmap/mapping/opacity ,if &lt;id&gt; &lt;opacity&gt;</code> <br />
+Set visibility status: <code>/mapmap/mapping/visible ,ii &lt;id&gt; &lt;visible&gt;</code> <br />
+Set solo status: <code>/mapmap/mapping/solo ,ii &lt;id&gt; &lt;solo&gt;</code> <br />
+Set lock status: <code>/mapmap/mapping/locked ,ii &lt;id&gt; &lt;locked&gt;</code> <br />
+Adjust depth (layer order): <code>/mapmap/mapping/depth ,ii &lt;id&gt; &lt;depth&gt;</code></p>
+
+<h2>Regular expressions</h2>
+
+<p>Paint and mapping ids are hard to remember and manipulate. Alternatively, one can use a string pattern describing a regexp over the paint or mapping names. The regular expression follows a <a href="http://doc.qt.io/qt-5/qregexp.html#wildcard-matching">simple "file globbing" / wildcard syntax</a>. It is case-sensitive.</p>
+
+<h3>Examples</h3>
+
+<p>Change opacity of paint named "movie.mov" to 0.1 (10%): <br />
+<code>/mapmap/paint/opacity ,sf movie.mov 0.1</code></p>
+
+<p>Change opacity of all paints whose name begins by "movie-" to 0.5 (50%): <br />
+<code>/mapmap/paint/opacity ,sf "movie-*" 0.5</code></p>
+
+<p>Rewind all .mov paints: <br />
+<code>/mapmap/paint/rewind ,s "*.mov"</code></p>
+
+<p>Set all mappings that begin with "mesh-" followed by a single digit to solo mode: <br />
+<code>/mapmap/mapping/solo ,s "mesh-[0-9]" 1</code></p>
+
+<h2>Playback</h2>
+
+<p>Pause: <code>/mapmap/pause</code> <br />
+Play: <code>/mapmap/play</code> <br />
+Rewind/reset: <code>/mapmap/rewind</code> <br />
+Quit: <code>/mapmap/quit</code></p>

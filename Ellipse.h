@@ -23,7 +23,7 @@
 
 #include "Shape.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 class Ellipse : public MShape
 {
@@ -144,6 +144,6 @@ protected:
 //  }
 };
 
-MM_END_NAMESPACE
+}
 
 #endif /* ELLIPSE_H_ */

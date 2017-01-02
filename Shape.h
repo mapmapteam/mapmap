@@ -40,7 +40,7 @@
 #include "Maths.h"
 #include "Serializable.h"
 
-MM_BEGIN_NAMESPACE
+namespace mmp {
 
 /**
  * Shape represented by a series of control points.
@@ -137,6 +137,6 @@ protected:
 };
 
 
-MM_END_NAMESPACE
+}
 
 #endif /* SHAPE_H_ */

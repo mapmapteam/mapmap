@@ -1,7 +1,7 @@
 CONFIG  += qt debug c++11
 TEMPLATE = app
 # Always use major.minor.micro version number format
-VERSION = 0.4.1
+VERSION = 0.5.1
 TARGET = mapmap
 QT += gui opengl xml core network
 greaterThan(QT_MAJOR_VERSION, 4) {
@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
 HEADERS  = \
+    AboutDialog.h \
     Commands.h \
     ConcurrentQueue.h \
     ConsoleWindow.h \
@@ -53,8 +54,10 @@ HEADERS  = \
     VideoUriDecodeBinImpl.h \
     VideoV4l2SrcImpl.h \
     VideoShmSrcImpl.h \
+    GuiForward.h
 
 SOURCES  = \
+    AboutDialog.cpp \
     Commands.cpp \
     ConsoleWindow.cpp \
     Element.cpp \
@@ -101,8 +104,10 @@ include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
 TRANSLATIONS = \
     translations/mapmap_en.ts \
     translations/mapmap_fr.ts
-RESOURCES = mapmap.qrc \
-    translations/translation.qrc
+RESOURCES = \
+    translations/translation.qrc \
+    docs/documentation.qrc \
+    interface.qrc
 
 # Manage lrelease (for translations)
 isEmpty(QMAKE_LRELEASE) {
