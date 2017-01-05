@@ -148,6 +148,7 @@ private:
   MainWindow *_mainWindow;
   Paint::ptr _paint;
   uid _paintId;
+  QMap<uid, Mapping::ptr> _paintMappings; // saves mappings associated with paint
 };
 
 class DeleteMappingCommand : public QUndoCommand

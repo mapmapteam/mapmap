@@ -199,7 +199,8 @@ void TranslateShapeCommand::_doTransform(MShape::ptr shape)
 RemovePaintCommand::RemovePaintCommand(MainWindow *mainWindow, uid paintId, QUndoCommand *parent):
   QUndoCommand(parent),
   _mainWindow(mainWindow),
-  _paintId(paintId)
+  _paintId(paintId),
+  _paintMappings()
 {
   setText(QObject::tr("Remove paint"));
 }
@@ -208,15 +209,28 @@ void RemovePaintCommand::undo()
 {
   if (!_paint.isNull())
   {
-    uid lastId = _mainWindow->getMappingManager().addPaint(_paint);
+    MappingManager& mappingManager = _mainWindow->getMappingManager();
+    uid lastId = mappingManager.addPaint(_paint);
     _mainWindow->addPaintItem(lastId, _paint->getIcon(), _paint->getName());
+
+    // Add all mappings associated with paint.
+    QMap<uid, Mapping::ptr> paintMappings = mappingManager.getPaintMappings(_paint);
+    for (QMap<uid, Mapping::ptr>::const_iterator it = _paintMappings.constBegin();
+         it != _paintMappings.constEnd(); ++it) {
+      uid mid = mappingManager.addMapping( it.value() );
+      Q_ASSERT( mid == it.key() );
+      _mainWindow->addMappingItem(mid);
+    }
   }
 }
 
 void RemovePaintCommand::redo()
 {
-  _paint = _mainWindow->getMappingManager().getPaintById(_paintId);
-  _mainWindow->deletePaint(_paintId);
+   MappingManager& mappingManager = _mainWindow->getMappingManager();
+   bool deleteWithoutPrompt = (!_paint.isNull());
+  _paint = mappingManager.getPaintById(_paintId);
+  _paintMappings = mappingManager.getPaintMappings(_paint);
+  _mainWindow->deletePaint(_paintId, deleteWithoutPrompt);
 }
 
 
