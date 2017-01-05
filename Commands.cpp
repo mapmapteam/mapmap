@@ -227,7 +227,7 @@ void RemovePaintCommand::undo()
 void RemovePaintCommand::redo()
 {
    MappingManager& mappingManager = _mainWindow->getMappingManager();
-   bool deleteWithoutPrompt = (!_paint.isNull());
+   bool deleteWithoutPrompt = (!_paint.isNull()); // to avoid the pop-up window when redoing after undoing
   _paint = mappingManager.getPaintById(_paintId);
   _paintMappings = mappingManager.getPaintMappings(_paint);
   _mainWindow->deletePaint(_paintId, deleteWithoutPrompt);
