@@ -789,9 +789,9 @@ void MainWindow::duplicateMappingItem()
 
 void MainWindow::deleteMappingItem()
 {
-  if (currentSelectedIndex.isValid())
+  if (hasCurrentMapping())
   {
-    undoStack->push(new DeleteMappingCommand(this, currentMappingItemId()));
+    undoStack->push(new DeleteMappingCommand(this, getCurrentMappingId()));
   }
   else
   {
@@ -844,9 +844,9 @@ void MainWindow::renameMapping(uid mappingId, const QString &name)
 
 void MainWindow::deletePaintItem()
 {
-  if(currentSelectedItem)
+  if(hasCurrentPaint())
   {
-    undoStack->push(new RemovePaintCommand(this, getItemId(*paintList->currentItem())));
+    undoStack->push(new RemovePaintCommand(this, getCurrentPaintId()));
   }
   else
   {
@@ -2714,10 +2714,15 @@ void MainWindow::removeMappingItem(uid mappingId)
   // Update list.
   mappingListModel->updateModel();
 
-  int nextSelectedRow = row == mappingListModel->rowCount() ? row - 1 : row;
-  QModelIndex index = mappingListModel->getIndexFromRow(nextSelectedRow);
-  mappingList->selectionModel()->select(index, QItemSelectionModel::Select);
-  mappingList->setCurrentIndex(index);
+  if (mappingListModel->rowCount() == 0)
+    removeCurrentMapping();
+  else
+  {
+    int nextSelectedRow = row == mappingListModel->rowCount() ? row - 1 : row;
+    QModelIndex index = mappingListModel->getIndexFromRow(nextSelectedRow);
+    mappingList->selectionModel()->select(index, QItemSelectionModel::Select);
+    mappingList->setCurrentIndex(index);
+  }
 
   // Update everything.
   updateCanvases();
