@@ -606,7 +606,7 @@ void MainWindow::addMesh()
   uint mappingId = mappingManager->addMapping(mapping);
 
   // Lets the undo-stack handle Undo/Redo the adding of mapping item.
-  undoStack->push(new AddShapesCommand(this, mappingId));
+  undoStack->push(new AddMappingCommand(this, mappingId));
 }
 
 void MainWindow::addTriangle()
@@ -641,7 +641,7 @@ void MainWindow::addTriangle()
   uint mappingId = mappingManager->addMapping(mapping);
 
   // Lets undo-stack handle Undo/Redo the adding of mapping item.
-  undoStack->push(new AddShapesCommand(this, mappingId));
+  undoStack->push(new AddMappingCommand(this, mappingId));
 }
 
 void MainWindow::addEllipse()
@@ -676,7 +676,7 @@ void MainWindow::addEllipse()
   uint mappingId = mappingManager->addMapping(mapping);
 
   // Lets undo-stack handle Undo/Redo the adding of mapping item.
-  undoStack->push(new AddShapesCommand(this, mappingId));
+  undoStack->push(new AddMappingCommand(this, mappingId));
 }
 
 void MainWindow::about()
@@ -1298,7 +1298,7 @@ void MainWindow::duplicateMapping(uid mappingId)
   uid cloneId = mappingManager->addMapping(clonedMappingPtr);
 
   // Lets the undo-stack handle Undo/Redo the duplication of mapping item.
-  undoStack->push(new DuplicateShapesCommand(this, cloneId));
+  undoStack->push(new DuplicateMappingCommand(this, cloneId));
 }
 
 /// Deletes/removes a paint and all associated mappigns.

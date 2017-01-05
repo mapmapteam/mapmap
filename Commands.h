@@ -53,10 +53,10 @@ private:
   QString _name;
 };
 
-class AddShapesCommand : public QUndoCommand
+class AddMappingCommand : public QUndoCommand
 {
 public:
-  explicit AddShapesCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent = 0);
+  explicit AddMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent = 0);
 
   void undo() Q_DECL_OVERRIDE;
   void redo() Q_DECL_OVERRIDE;
@@ -67,10 +67,10 @@ private:
   uid _mappingId;
 };
 
-class DuplicateShapesCommand : public AddShapesCommand
+class DuplicateMappingCommand : public AddMappingCommand
 {
 public:
-  explicit DuplicateShapesCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent = 0);
+  explicit DuplicateMappingCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent = 0);
 
 };
 

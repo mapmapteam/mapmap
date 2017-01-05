@@ -54,7 +54,7 @@ void AddPaintCommand::redo()
   }
 }
 
-AddShapesCommand::AddShapesCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent):
+AddMappingCommand::AddMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent):
   QUndoCommand(parent),
   _mainWindow(mainWindow),
   _mappingId(mappingId)
@@ -62,13 +62,13 @@ AddShapesCommand::AddShapesCommand(MainWindow *mainWindow, uid mappingId, QUndoC
   setText(QObject::tr("Add mapping"));
 }
 
-void AddShapesCommand::undo()
+void AddMappingCommand::undo()
 {
   _mapping = _mainWindow->getMappingManager().getMappingById(_mappingId);
   _mainWindow->deleteMapping(_mappingId);
 }
 
-void AddShapesCommand::redo()
+void AddMappingCommand::redo()
 {
   if (!_mapping.isNull())
   {
@@ -81,8 +81,8 @@ void AddShapesCommand::redo()
   }
 }
 
-DuplicateShapesCommand::DuplicateShapesCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent):
-  AddShapesCommand(mainWindow, cloneId, parent)
+DuplicateMappingCommand::DuplicateMappingCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent):
+  AddMappingCommand(mainWindow, cloneId, parent)
 {
   setText(QObject::tr("Duplicate mapping"));
 }
