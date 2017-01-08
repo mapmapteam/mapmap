@@ -126,7 +126,7 @@ To print debugging informations, launch it from the Terminal app like this::
 Build for release on Windows
 ----------------------------
 - Download gstreamer-x86 runtime& devel 
-https://gstreamer.freedesktop.org/data/pkg/windows/1.7.91/gstreamer-1.0-x86-1.7.91.msi https://gstreamer.freedesktop.org/data/pkg/windows/1.7.91/gstreamer-1.0-devel-x86-1.7.91.msi
+https://gstreamer.freedesktop.org/data/pkg/windows/1.10.2/gstreamer-1.0-x86-1.10.2.msi https://gstreamer.freedesktop.org/data/pkg/windows/1.10.2/gstreamer-1.0-devel-x86-1.10.2.msi
 
 
 - Choose complete option during installation process wizard
