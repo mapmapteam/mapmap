@@ -139,9 +139,9 @@ https://gstreamer.freedesktop.org/data/pkg/windows/1.10.2/gstreamer-1.0-x86-1.10
 	libffi-6.dll libgobject-2.0-0.dll libgstbase-1.0-0.dll libgsttag-1.0-0.dll liborc-0.4-0.dll 
 	libglib-2.0-0.dll libgstapp-1.0-0.dll 	libgstpbutils-1.0-0.dll libgstvideo-1.0-0.dll libz.dll 
 	libgmodule-2.0-0.dll libgstaudio-1.0-0.dll libgstreamer-1.0-0.dll libintl-8.dll
-- Copy all DLL files of the Gstreamer's bin folder (e.g. C:) into a new folder named 'lib' in the target folder together with mapmap.exe
+- Copy all DLL files of the Gstreamer's bin folder (e.g. C:\gstreamer\1.0\x86\bin) into a new folder named 'lib' in the target folder together with mapmap.exe
 
-- Copy all DLL files of the Gstreamer's plugin folder into a new folder named 'plugins' in parallel of lib folder
+- Copy all DLL files of the Gstreamer's plugin folder (e.g. C:\gstreamer\1.0\x86\lib\gstreamer-1.0) into a new folder named 'plugins' in parallel of lib folder
 
 
 - Remove lib\libopenh264.dll, lib\libSoundTouch-0.dll, lib\libtag.dll
