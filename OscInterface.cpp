@@ -237,26 +237,32 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
         {
           if (iterator.first == OSC_REWIND)
             elem->rewind();
-          else
+          else if (command.size() >= 2)
             pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
         }
       }
       else if (iterator.first == OSC_MAPPING)
       {
         // Find mapping (or mappings).
-        QVector<Mapping::ptr> mappings;
-        if (command.at(2).type() == QVariant::String)
-          mappings = main_window.getMappingManager().getMappingsByNameRegExp(command.at(2).toString());
-        else
+        if (command.size() >= 2)
         {
-          int id = command.at(2).toInt();
-          mappings.push_back(main_window.getMappingManager().getMappingById(id));
-        }
-        // Process all mappings.
-        iterator = next(iterator.second);
-        for (Mapping::ptr elem: mappings)
-        {
-          pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
+          QVector<Mapping::ptr> mappings;
+          if (command.at(2).type() == QVariant::String)
+            mappings = main_window.getMappingManager().getMappingsByNameRegExp(command.at(2).toString());
+          else
+          {
+            int id = command.at(2).toInt();
+            main_window.getMappingManager().getMappingById(id);
+            Mapping::ptr mapping = main_window.getMappingManager().getMappingById(id);
+            if (!mapping.isNull())
+              mappings.push_back(mapping);
+          }
+          // Process all mappings.
+          iterator = next(iterator.second);
+          for (Mapping::ptr elem: mappings)
+          {
+            pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
+          }
         }
       }
       else if (iterator.first == OSC_PLAY)
