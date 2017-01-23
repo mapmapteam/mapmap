@@ -220,31 +220,44 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
     {
       // Check type.
       iterator = next(iterator.second);
+
+      // Paint.
       if (iterator.first == OSC_PAINT)
       {
-        // Find paint (or paints).
-        QVector<Paint::ptr> paints;
-        if (command.at(2).type() == QVariant::String)
-          paints = main_window.getMappingManager().getPaintsByNameRegExp(command.at(2).toString());
-        else
+        // Find mapping (or mappings).
+        if (command.size() >= 3)
         {
-          int id = command.at(2).toInt();
-          paints.push_back(main_window.getMappingManager().getPaintById(id));
-        }
-        // Process all paints.
-        iterator = next(iterator.second);
-        for (Paint::ptr elem: paints)
-        {
-          if (iterator.first == OSC_REWIND)
-            elem->rewind();
-          else if (command.size() >= 2)
-            pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
+          // Find paint (or paints).
+          QVector<Paint::ptr> paints;
+          if (command.at(2).type() == QVariant::String)
+            paints = main_window.getMappingManager().getPaintsByNameRegExp(command.at(2).toString());
+          else
+          {
+            int id = command.at(2).toInt();
+            paints.push_back(main_window.getMappingManager().getPaintById(id));
+          }
+          // Process all paints.
+          iterator = next(iterator.second);
+          for (Paint::ptr elem: paints)
+          {
+            // Rewind.
+            if (iterator.first == OSC_REWIND)
+            {
+              elem->rewind();
+              pathIsValid = true;
+            }
+            // Property setting (eg. opacity)
+            else if (command.size() >= 4)
+              pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
+          }
         }
       }
+
+      // Mapping.
       else if (iterator.first == OSC_MAPPING)
       {
         // Find mapping (or mappings).
-        if (command.size() >= 2)
+        if (command.size() >= 3)
         {
           QVector<Mapping::ptr> mappings;
           if (command.at(2).type() == QVariant::String)
@@ -257,14 +270,19 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
             if (!mapping.isNull())
               mappings.push_back(mapping);
           }
-          // Process all mappings.
-          iterator = next(iterator.second);
-          for (Mapping::ptr elem: mappings)
+          // Process all mappings (set property).
+          if (command.size() >= 4)
           {
-            pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
+            iterator = next(iterator.second);
+            for (Mapping::ptr elem: mappings)
+            {
+              pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
+            }
           }
         }
       }
+
+      // Play / pause / rewind / quit.
       else if (iterator.first == OSC_PLAY)
       {
         main_window.play();
