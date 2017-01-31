@@ -126,6 +126,7 @@ void AboutDialog::createLibrariesTab()
 
   QString qtVersionText = QString("<h4>Qt %1</h4>").arg(QT_VERSION_STR);
   QString gstreamerVersionText = QString("<h4>%1</h4>").arg(gst_version_string());
+  // TODO: ifdef HAVE_OSC
   //QString libloVersionText = QString("<h4>%1</h4>").arg(lo_version('str', 0, 0, 0, 0, 0, 0, 0, 0));
 
   QString librairiesText;
