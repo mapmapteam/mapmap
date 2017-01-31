@@ -3,7 +3,7 @@
 # On Mac, install it from http://qt-project.org/downloads
 # set -o verbose
 
-qtversion=5.5
+qtversion=5.8
 
 do_create_dmg() {
     if [ -f DMGVERSION.txt ]
