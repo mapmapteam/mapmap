@@ -97,7 +97,7 @@ SOURCES  = \
     VideoShmSrcImpl.cpp \
     main.cpp
 
-
+# FIXME: that file doesn't exist
 include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
 include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
 
@@ -128,7 +128,7 @@ docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
 QMAKE_EXTRA_TARGETS += docs
 
 # Linux-specific:
-unix:!mac {
+unix:!macx {
   DEFINES += UNIX
   CONFIG += link_pkgconfig
   INCLUDE_PATH +=
@@ -153,15 +153,15 @@ unix:!mac {
   mimetypesfile.path = /usr/share/mime/packages
   INSTALLS += mimetypesfile
 
-# REQUIRES ROOT PRIVILEDGES: (does not comply to the standards of Debian)
-# -------------------------
-# updatemimetypes.path = /usr/share/mime/packages
-# updatemimetypes.commands = update-mime-database /usr/share/mime
-# INSTALLS += updatemimetypes
-# updatemimeappdefault.path = /usr/share/applications
-# updatemimeappdefault.commands='grep mapmap.desktop /usr/share/applications/defaults.list >/dev/null|| sudo echo "application/mapmap=mapmap.desktop;" >> /usr/share/applications/defaults.list'
-# INSTALLS += updatemimeappdefault
-# -------------------------
+  # REQUIRES ROOT PRIVILEDGES: (does not comply to the standards of Debian)
+  # -------------------------
+  # updatemimetypes.path = /usr/share/mime/packages
+  # updatemimetypes.commands = update-mime-database /usr/share/mime
+  # INSTALLS += updatemimetypes
+  # updatemimeappdefault.path = /usr/share/applications
+  # updatemimeappdefault.commands='grep mapmap.desktop /usr/share/applications/defaults.list >/dev/null|| sudo echo "application/mapmap=mapmap.desktop;" >> /usr/share/applications/defaults.list'
+  # INSTALLS += updatemimeappdefault
+  # -------------------------
 
   # Add the docs target:
   docs.depends = $(HEADERS) $(SOURCES)
@@ -169,12 +169,12 @@ unix:!mac {
   QMAKE_EXTRA_TARGETS += docs
 }
 
-# Mac OS X-specific:
-mac {
+# macOS-specific:
+macx {
   TARGET = MapMap
   DEFINES += MACOSX
   QMAKE_CXXFLAGS += -D__MACOSX_CORE__
-  QMAKE_CXXFLAGS += -stdlib=libstdc++
+  QMAKE_CXXFLAGS += -stdlib=libc++
   INCLUDEPATH += /Library/Frameworks/GStreamer.framework/Versions/1.0/Headers
   LIBS += -F /Library/Frameworks/ -framework GStreamer
   LIBS += -framework OpenGL -framework GLUT
@@ -188,9 +188,10 @@ mac {
   # CONFIG += link_pkgconfig
   # PKGCONFIG += lo
 
-  LIBS += -L/usr/local/lib -llo
-  INCLUDEPATH += /usr/local/include
-  QMAKE_CXXFLAGS += -DHAVE_OSC
+  # FIXME: No OSC for now:
+  # LIBS += -L/usr/local/lib -llo
+  # INCLUDEPATH += /usr/local/include
+  # QMAKE_CXXFLAGS += -DHAVE_OSC
 }
 
 # Windows-specific:
@@ -204,7 +205,7 @@ win32 {
   else {
     message(\"GSTREAMER_1_0_ROOT_X86\" detected in \"$${GST_HOME}\")
   }
-#  DESTDIR = ../../Mapmap # Just for packaging
+  #  DESTDIR = ../../Mapmap # Just for packaging
 
   INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \
     $${GST_HOME}/include/glib-2.0 \
@@ -239,4 +240,3 @@ message("MapMap version: $${VERSION}")
 # message("The project contains the following files: $${SOURCES} $${HEADERS}}")
 # message("To create a tarball, run `make tarball`")
 # message("To build the documentation, run `make docs`")
-

@@ -23,7 +23,9 @@
 #include <QDialog>
 
 #include <gst/gst.h>
+#ifdef HAVE_OSC
 #include "lo/lo.h"
+#endif
 
 #include "GuiForward.h"
 #include "MM.h"
