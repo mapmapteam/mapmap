@@ -24,6 +24,7 @@ Release/
 *.png
 
 # except icons files
+!resources/images/mapmap.iconset/*
 !resources/images/icons/*
 !resources/images/icons/small/*
 *.tar
@@ -51,6 +52,7 @@ moc_*.cpp
 prototypes/gst/
 qrc_*.cpp
 *.moc
+moc_predefs.h
 
 # Folders not to be included
 html/
