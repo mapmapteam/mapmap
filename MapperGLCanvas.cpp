@@ -46,6 +46,9 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
   setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing |
                  QPainter::HighQualityAntialiasing | QPainter::SmoothPixmapTransform);
 
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
   setResizeAnchor(AnchorViewCenter);
   setInteractive(true);
 
