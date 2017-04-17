@@ -49,6 +49,9 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
+  this->horizontalScrollBar()->setRange(0, 1000);
+  this->verticalScrollBar()->setRange(0, 1000);
+
   setResizeAnchor(AnchorViewCenter);
   setInteractive(true);
 
@@ -594,20 +597,35 @@ void MapperGLCanvas::wheelEvent(QWheelEvent *event)
 #else
   int deltaLevel = event->delta() / 120;
 #endif
+  bool control_is_pressed = event->modifiers().testFlag(Qt::ControlModifier);
+  bool shift_is_pressed = event->modifiers().testFlag(Qt::ShiftModifier);
 
-  if (deltaLevel > 0)
-  {
-    // Increase zoom level
-    increaseZoomLevel(deltaLevel);
+  if (control_is_pressed) { // control is pressed: zoom
+    // zoom in or out:
+    if (deltaLevel > 0) {
+      // Increase zoom level
+      increaseZoomLevel(deltaLevel);
+    } else {
+      // Decrease zoom level
+      decreaseZoomLevel(-deltaLevel);
+    }
+    // Accept wheel scrolling event.
+    event->accept();
+  } else { // control is not pressed: scroll
+     if (shift_is_pressed) { // shift is pressed: pans horizontally
+       QScrollBar* const scrollbar = this->horizontalScrollBar();
+     } else { // shift is not pressed: scrolls vertically
+       QScrollBar* const scrollbar = this->verticalScrollBar();
+     }
+     // FIXME: scrolling with the mouse doesn't currently work
+     int scroll = scrollbar->value();
+     if (deltaLevel > 0) {
+       scrollbar->setValue(scroll + 50);
+     } else {
+       scrollbar->setValue(scroll - 50);
+     }
+     event->accept();
   }
-  else
-  {
-    // Decrease zoom level
-    decreaseZoomLevel(-deltaLevel);
-  }
-
-  // Accept wheel scrolling event.
-  event->accept();
 }
 
 bool MapperGLCanvas::eventFilter(QObject *target, QEvent *event)
