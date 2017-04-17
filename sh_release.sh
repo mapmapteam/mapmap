@@ -3,6 +3,8 @@
 # On Mac, install it from http://qt-project.org/downloads
 
 unamestr=$(uname)
+cd $(dirname $0)
+cd src/mapmap
 
 if [[ $unamestr == "Darwin" ]]; then
     MAKE_CFLAGS_X86_64+="-Xarch_x86_64 -mmacosx-version-min=10.7"
