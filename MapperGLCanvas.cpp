@@ -612,10 +612,11 @@ void MapperGLCanvas::wheelEvent(QWheelEvent *event)
     // Accept wheel scrolling event.
     event->accept();
   } else { // control is not pressed: scroll
+     QScrollBar* scrollbar;
      if (shift_is_pressed) { // shift is pressed: pans horizontally
-       QScrollBar* const scrollbar = this->horizontalScrollBar();
+       scrollbar = this->horizontalScrollBar();
      } else { // shift is not pressed: scrolls vertically
-       QScrollBar* const scrollbar = this->verticalScrollBar();
+       scrollbar = this->verticalScrollBar();
      }
      // FIXME: scrolling with the mouse doesn't currently work
      int scroll = scrollbar->value();

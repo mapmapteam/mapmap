@@ -30,7 +30,6 @@ Install GStreamer 1.0 libraries and plugins::
   sudo apt-get install -y \
       libgstreamer1.0-dev \
       libgstreamer-plugins-base1.0-dev \
-      gstreamer1.0-gnonlin \
       gstreamer1.0-plugins-bad \
       gstreamer1.0-libav \
       gstreamer1.0-vaapi \
@@ -84,7 +83,7 @@ NOTE: This has been tested on OS X 10.11 (El Capitan).
 Install tools and dependencies:
 
 1) Install the Apple Developer Tools
-  - You need to register with a credit card in the Apple Store in order to download it (no need to pay, but Apple needs your soul).
+  - You need to register with a credit card in the Apple Store in order to download it (no need to pay, but Apple requires your credit card number).
 2) Install Qt5
   - You can get the open source version from http://www.qt.io/download-open-source/
   - Run the installer and choose the default location (which should be ~/Qt).
