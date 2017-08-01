@@ -10,6 +10,12 @@ Install the dependencies. (see below)
 
 Build it::
 
+  cd src/mapmap
+  qmake mapmap.pro
+  make
+
+Alternatively::
+
   ./build.sh
 
 Ubuntu 13.10, 14.04, 15.04 and 16.04 LTS
@@ -69,6 +75,7 @@ To edit translations
 --------------------
 You might need to update the files::
   
+  cd src/mapmap
   lupdate mapmap.pro 
 
 Then, do this::

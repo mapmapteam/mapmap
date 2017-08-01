@@ -51,6 +51,9 @@ moc_*.cpp
 prototypes/gst/
 qrc_*.cpp
 *.moc
+src/*/mocs/
+src/*/objs/
+src/*/qrc/
 
 # Folders not to be included
 html/
