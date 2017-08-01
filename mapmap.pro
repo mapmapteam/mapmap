@@ -1,105 +1,16 @@
-CONFIG  += qt debug c++11
-TEMPLATE = app
+CONFIG += c++11
+
 # Always use major.minor.micro version number format
 VERSION = 0.5.1
 TARGET = mapmap
-QT += gui opengl xml core network
-greaterThan(QT_MAJOR_VERSION, 4) {
-  QT -= gui # using widgets instead gui in Qt5
-  QT += widgets multimedia
-}
+
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
 
-HEADERS  = \
-    AboutDialog.h \
-    Commands.h \
-    ConcurrentQueue.h \
-    ConsoleWindow.h \
-    Element.h \
-    Ellipse.h \
-    MM.h \
-    MainApplication.h \
-    MainWindow.h \
-    MappingGui.h \
-    MappingItemDelegate.h \
-    MappingListModel.h \
-    MapperGLCanvas.h \
-    MapperGLCanvasToolbar.h \
-    Mapping.h \
-    MappingManager.h \
-    Maths.h \
-    Mesh.h \
-    MetaObjectRegistry.h \
-    OscInterface.h \
-    OscReceiver.h \
-    OutputGLCanvas.h \
-    OutputGLWindow.h \
-    Paint.h \
-    PaintGui.h \
-    Polygon.h \
-    PreferenceDialog.h \
-    ProjectLabels.h \
-    ProjectReader.h \
-    ProjectWriter.h \
-    Quad.h \
-    Serializable.h \
-    Shape.h \
-    Shapes.h \
-    ShapeControlPainter.h \
-    ShapeGraphicsItem.h \
-    Triangle.h \
-    UidAllocator.h \
-    Util.h \
-    VideoImpl.h \
-    VideoUriDecodeBinImpl.h \
-    VideoV4l2SrcImpl.h \
-    VideoShmSrcImpl.h \
-    GuiForward.h
-
-SOURCES  = \
-    AboutDialog.cpp \
-    Commands.cpp \
-    ConsoleWindow.cpp \
-    Element.cpp \
-    Ellipse.cpp \
-    MM.cpp \
-    MainApplication.cpp \
-    MainWindow.cpp \
-    MappingGui.cpp \
-    MappingItemDelegate.cpp \
-    MappingListModel.cpp \
-    MapperGLCanvas.cpp \
-    MapperGLCanvasToolbar.cpp \
-    Mapping.cpp \
-    MappingManager.cpp \
-    Mesh.cpp \
-    MetaObjectRegistry.cpp \
-    OscInterface.cpp \
-    OscReceiver.cpp \
-    OutputGLCanvas.cpp \
-    OutputGLWindow.cpp \
-    Paint.cpp \
-    PaintGui.cpp \
-    Polygon.cpp \
-    PreferenceDialog.cpp \
-    ProjectLabels.cpp \
-    ProjectReader.cpp \
-    ProjectWriter.cpp \
-    Serializable.cpp \
-    Shape.cpp \
-    ShapeControlPainter.cpp \
-    ShapeGraphicsItem.cpp \
-    UidAllocator.cpp \
-    Util.cpp \
-    VideoImpl.cpp \
-    VideoUriDecodeBinImpl.cpp \
-    VideoV4l2SrcImpl.cpp \
-    VideoShmSrcImpl.cpp \
-    main.cpp
-
-# FIXME: that file doesn't exist
-include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
-include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
+include(src/core/core.pri)
+include(src/shape/shape.pri)
+include(src/gui/gui.pri)
+include(src/control/control.pri)
+include(src/app/app.pri)
 
 TRANSLATIONS = \
     translations/mapmap_en.ts \
@@ -107,7 +18,7 @@ TRANSLATIONS = \
 RESOURCES = \
     translations/translation.qrc \
     docs/documentation.qrc \
-    interface.qrc
+    resources/interface.qrc
 
 # Manage lrelease (for translations)
 isEmpty(QMAKE_LRELEASE) {
@@ -122,24 +33,13 @@ QMAKE_EXTRA_COMPILERS += updateqm
 PRE_TARGETDEPS += compiler_updateqm_make_all
 system($$QMAKE_LRELEASE mapmap.pro) # Run lrelease
 
-# Add the docs target:
-docs.depends = $(HEADERS) $(SOURCES)
-docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
-QMAKE_EXTRA_TARGETS += docs
+## Add the docs target:
+#docs.depends = $(HEADERS) $(SOURCES)
+#docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
+#QMAKE_EXTRA_TARGETS += docs
 
-# Linux-specific:
+ Linux-specific:
 unix:!macx {
-  DEFINES += UNIX
-  CONFIG += link_pkgconfig
-  INCLUDE_PATH +=
-  PKGCONFIG += \
-    gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-pbutils-1.0 \
-    liblo \
-    gl x11
-  QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-result -Wno-unused-parameter \
-                            -Wno-unused-variable -Wno-switch -Wno-comment \
-                            -Wno-unused-but-set-variable
-  QMAKE_CXXFLAGS += -DHAVE_OSC
   mapmapfile.files = mapmap
   mapmapfile.path = /usr/bin
   INSTALLS += mapmapfile
@@ -207,22 +107,22 @@ win32 {
   }
   #  DESTDIR = ../../Mapmap # Just for packaging
 
-  INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \
-    $${GST_HOME}/include/glib-2.0 \
-    $${GST_HOME}/lib/glib-2.0/include \
-    $${GST_HOME}/include/gstreamer-1.0
+#  INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \
+#    $${GST_HOME}/include/glib-2.0 \
+#    $${GST_HOME}/lib/glib-2.0/include \
+#    $${GST_HOME}/include/gstreamer-1.0
 
-  LIBS += $${GST_HOME}/lib/gstapp-1.0.lib \
-    $${GST_HOME}/lib/gstbase-1.0.lib \
-    $${GST_HOME}/lib/gstpbutils-1.0.lib \
-    $${GST_HOME}/lib/gstreamer-1.0.lib \
-    $${GST_HOME}/lib/gobject-2.0.lib \
-    $${GST_HOME}/lib/glib-2.0.lib \
-    -lopengl32
+#  LIBS += $${GST_HOME}/lib/gstapp-1.0.lib \
+#    $${GST_HOME}/lib/gstbase-1.0.lib \
+#    $${GST_HOME}/lib/gstpbutils-1.0.lib \
+#    $${GST_HOME}/lib/gstreamer-1.0.lib \
+#    $${GST_HOME}/lib/gobject-2.0.lib \
+#    $${GST_HOME}/lib/glib-2.0.lib \
+#    -lopengl32
 
   CONFIG += release
 
-  RC_FILE = mapmap_resource.rc
+  RC_FILE = resources/windows_resource.rc
   QMAKE_CXXFLAGS += -D_USE_MATH_DEFINES
 }
 
