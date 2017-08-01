@@ -31,7 +31,6 @@
 #include <queue>
 #include <QMutex>
 #include <QWaitCondition>
-#include "MM.h"
 
 namespace mmp {
 
