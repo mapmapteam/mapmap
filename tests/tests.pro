@@ -12,5 +12,5 @@ SOURCES = TestMaths.cpp
 
 HEADERS = TestMaths.h
 
-INCLUDEPATH += $$PWD/../mapmap/
+INCLUDEPATH += $$PWD/../src/
 
