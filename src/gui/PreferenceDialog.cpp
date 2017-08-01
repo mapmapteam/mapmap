@@ -78,7 +78,10 @@ void PreferenceDialog::closeEvent(QCloseEvent *event)
 
 void PreferenceDialog::accept()
 {
+  // Save settings
   applySettings();
+  // send signal for changes
+  emit settingSaved();
   QDialog::accept();
 }
 

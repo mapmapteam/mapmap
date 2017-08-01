@@ -152,6 +152,8 @@ private slots:
   void reportBug() { QDesktopServices::openUrl(
           QUrl("https://github.com/mapmapteam/mapmap/issues/new")); }
 
+  void applySettings();
+
 public slots:
 
   // CRUD.

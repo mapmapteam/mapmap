@@ -46,6 +46,7 @@ protected:
 
 signals:
   void closed();
+  void settingSaved();
 
 private slots:
   void accept();

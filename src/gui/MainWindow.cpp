@@ -2961,6 +2961,7 @@ void MainWindow::displayUndoHistory(bool display)
 void MainWindow::enableStickyVertices(bool value)
 {
   _stickyVertices = value;
+  settings.setValue("stickyVertices", _stickyVertices);
 }
 
 void MainWindow::showMappingContextMenu(const QPoint &point)
@@ -3074,6 +3075,8 @@ void MainWindow::connectProjectWidgets()
 
   connect(mappingItemDelegate, SIGNAL(itemRemoved(uid)),
           this, SLOT(deleteMapping(uid)));
+
+  connect(_preferenceDialog, SIGNAL(settingSaved()), this, SLOT(applySettings()));
 }
 
 void MainWindow::disconnectProjectWidgets()
@@ -3099,8 +3102,10 @@ void MainWindow::disconnectProjectWidgets()
   disconnect(mappingItemDelegate, SIGNAL(itemDuplicated(uid)),
           this, SLOT(duplicateMapping(uid)));
 
-  connect(mappingItemDelegate, SIGNAL(itemRemoved(uid)),
+  disconnect(mappingItemDelegate, SIGNAL(itemRemoved(uid)),
           this, SLOT(deleteMapping(uid)));
+
+  disconnect(_preferenceDialog, SIGNAL(settingSaved()), this, SLOT(applySettings()));
 }
 
 uid MainWindow::getItemId(const QListWidgetItem& item)
@@ -3263,6 +3268,11 @@ void MainWindow::exitFullScreen()
 {
   outputFullScreenAction->setChecked(false);
   displayTestSignalAction->setChecked(false);
+}
+
+void MainWindow::applySettings()
+{
+  stickyVerticesAction->setChecked(settings.value("stickyVertices").toBool());
 }
 
 // void MainWindow::applyOscCommand(const QVariantList& command)
