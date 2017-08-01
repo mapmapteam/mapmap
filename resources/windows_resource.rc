@@ -37,5 +37,5 @@ VS_VERSION_INFO VERSIONINFO
 	END
 /* End of Version info */
 
-IDI_ICON1               ICON    DISCARDABLE     "resources/images/logo/mapmap.ico"
+IDI_ICON1               ICON    DISCARDABLE     "images/logo/mapmap.ico"
 
