@@ -4,7 +4,6 @@
 # set -o verbose
 
 cd $(dirname $0)
-cd src/mapmap
 
 qtversion=5.8
 
