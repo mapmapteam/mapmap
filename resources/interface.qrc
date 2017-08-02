@@ -50,5 +50,9 @@
         <file>images/checkbox/checkbox-checked-focused.png</file>
         <file>images/checkbox/checkbox-unchecked.png</file>
         <file>images/checkbox/checkbox-unchecked-focused.png</file>
+        <file>images/checkbox/radio-checked.png</file>
+        <file>images/checkbox/radio-checked-focused.png</file>
+        <file>images/checkbox/radio-unchecked.png</file>
+        <file>images/checkbox/radio-unchecked-focused.png</file>
     </qresource>
 </RCC>

@@ -185,39 +185,37 @@ QMenu::separator {
 QMenu::indicator {
  padding-left: 2px;
 }
-
+/* Check box menu */
 QMenu::indicator:non-exclusive:unchecked {
-    border: none;
-    image: url(://images/checkbox/checkbox-unchecked-focused.png);
-}
-
-QMenu::indicator:non-exclusive:unchecked:selected {
     image: url(://images/checkbox/checkbox-unchecked.png);
 }
 
-QMenu::indicator:non-exclusive:checked {
-    image: url(://images/checkbox/checkbox-checked-focused.png);
+QMenu::indicator:non-exclusive:unchecked:selected {
+    image: url(://images/checkbox/checkbox-unchecked-focused.png);
 }
 
-QMenu::indicator:non-exclusive:checked:selected {
+QMenu::indicator:non-exclusive:checked {
     image: url(://images/checkbox/checkbox-checked.png);
 }
 
-/* exclusive indicator = radio button style indicator (see QActionGroup::setExclusive) */
-/*QMenu::indicator:exclusive:unchecked {
-    image: url(:/);
+QMenu::indicator:non-exclusive:checked:selected {
+    image: url(://images/checkbox/checkbox-checked-focused.png);
+}
+/* Radio button */
+QMenu::indicator:exclusive:unchecked {
+    image: url(://images/checkbox/radio-unchecked.png);
 }
 
 QMenu::indicator:exclusive:unchecked:selected {
-    image: url(:/);
+    image: url(://images/checkbox/radio-unchecked-focused.png);
 }
 
 QMenu::indicator:exclusive:checked {
-    image: url(:/);
+    image: url(://images/checkbox/radio-checked.png);
 }
 
 QMenu::indicator:exclusive:checked:selected {
-    image: url(:/);
+    image: url(://images/checkbox/radio-checked-focused.png);
 }
 
 /*Menubar*/
@@ -252,51 +250,45 @@ QCheckBox {
 }
 
 QCheckBox::indicator:unchecked {
-    image: url(://images/checkbox/checkbox-unchecked.png);
+    image: url(://images/checkbox/checkbox-unchecked-focused.png);
 }
 
 QCheckBox::indicator:unchecked:hover,
 QCheckBox::indicator:unchecked:pressed {
-    image: url(://images/checkbox/checkbox-unchecked-focused.png);
+    image: url(://images/checkbox/checkbox-unchecked.png);
 }
 
 QCheckBox::indicator:checked {
-    image: url(://images/checkbox/checkbox-checked.png);
+    image: url(://images/checkbox/checkbox-checked-focused.png);
 }
 
 QCheckBox::indicator:checked:hover,
 QCheckBox::indicator:checked:pressed {
-    image: url(://images/checkbox/checkbox-checked-focused.png);
+    image: url(://images/checkbox/checkbox-checked.png);
 }
 
-/*QRadioButton::indicator {
-    width: 16px;
-    height: 16px;
+/* Radio button */
+QRadioButton {
+  color: #f6f5f5;
 }
 
 QRadioButton::indicator::unchecked {
-    image: url(:/);
+    image: url(://images/checkbox/radio-unchecked-focused.png);
 }
 
-QRadioButton::indicator:unchecked:hover {
-    image: url(:/);
-}
-
+QRadioButton::indicator:unchecked:hover,
 QRadioButton::indicator:unchecked:pressed {
-    image: url(:/);
+    image: url(://images/checkbox/radio-unchecked.png);
 }
 
 QRadioButton::indicator::checked {
-    image: url(:/);
+     image: url(://images/checkbox/radio-checked-focused.png);
 }
 
-QRadioButton::indicator:checked:hover {
-    image: url(:/);
-}
-
+QRadioButton::indicator:checked:hover,
 QRadioButton::indicator:checked:pressed {
-    image: url(:/);
-}*/
+    image: url(://images/checkbox/radio-checked.png);
+}
 
 /* Scroll bar */
 QScrollBar:horizontal {
