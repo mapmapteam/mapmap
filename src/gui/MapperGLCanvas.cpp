@@ -757,7 +757,7 @@ void MapperGLCanvas::resetZoomLevel()
   applyZoomToView();
 }
 
-void MapperGLCanvas::fitShapeInView()
+void MapperGLCanvas::fitShapeToView()
 {
   // Get first of the list of all the views
   // Scales the view matrix

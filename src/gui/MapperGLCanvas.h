@@ -195,7 +195,7 @@ public slots:
   void increaseZoomLevel(int steps=1);
   void decreaseZoomLevel(int steps=1);
   void resetZoomLevel();
-  void fitShapeInView();
+  void fitShapeToView();
   // Set zoom factor with drowmenu data
   void setZoomFromMenu(const QString& text);
 

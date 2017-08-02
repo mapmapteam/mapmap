@@ -142,9 +142,6 @@ void MainWindow::handlePaintItemSelectionChanged()
   addMeshAction->setEnabled(paintItemSelected);
   addTriangleAction->setEnabled(paintItemSelected);
   addEllipseAction->setEnabled(paintItemSelected);
-  // Enable some menus and buttons
-  sourceCanvasToolbar->enableZoomToolBar(paintItemSelected);
-  sourceMenu->setEnabled(paintItemSelected);
 
   // Update canvases.
   updateCanvases();
@@ -160,8 +157,18 @@ void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
   setCurrentMapping(mappingId);
   setCurrentPaint(paintId);
   // Enable destination zoom toolbar buttons and avoid loop
-  if (!destinationCanvasToolbar->buttonsAreEnable())
+  if (!destinationCanvasToolbar->buttonsAreEnable()) {
+    // Enable destination toolbar
    destinationCanvasToolbar->enableZoomToolBar(true);
+   // Enable source toolbar
+   sourceCanvasToolbar->enableZoomToolBar(true);
+   sourceMenu->setEnabled(true);
+   // Enable zoom action
+   zoomInAction->setEnabled(true);
+   zoomOutAction->setEnabled(true);
+   resetZoomAction->setEnabled(true);
+   fitToViewAction->setEnabled(true);
+  }
 
   // Update canvases.
   updateCanvases();
@@ -1964,6 +1971,35 @@ void MainWindow::createActions()
   perspectiveActionGroup->addAction(sourceViewAction);
   perspectiveActionGroup->addAction(destViewAction);
 
+  //Zoom toolbar
+  // Zoom In
+  zoomInAction = new QAction(tr("Zoom In"));
+  zoomInAction->setShortcut(QKeySequence::ZoomIn);
+  zoomInAction->setToolTip(tr("Zoom In"));
+  zoomInAction->setEnabled(false);
+  connect(zoomInAction, SIGNAL(triggered()), sourceCanvas, SLOT(increaseZoomLevel()));
+  connect(zoomInAction, SIGNAL(triggered()), destinationCanvas, SLOT(increaseZoomLevel()));
+  // Zoom Out
+  zoomOutAction = new QAction(tr("Zoom Out"));
+  zoomOutAction->setShortcut(QKeySequence::ZoomOut);
+  zoomOutAction->setToolTip(tr("Zoom Out"));
+  zoomOutAction->setEnabled(false);
+  connect(zoomOutAction, SIGNAL(triggered()), sourceCanvas, SLOT(decreaseZoomLevel()));
+  connect(zoomOutAction, SIGNAL(triggered()), destinationCanvas, SLOT(decreaseZoomLevel()));
+  // Reset zoom
+  resetZoomAction = new QAction(tr("Original Size"));
+  resetZoomAction->setShortcut(Qt::CTRL + Qt::Key_0);
+  resetZoomAction->setToolTip(tr("Reset zoom to original size"));
+  resetZoomAction->setEnabled(false);
+  connect(resetZoomAction, SIGNAL(triggered()), sourceCanvas, SLOT(resetZoomLevel()));
+  connect(resetZoomAction, SIGNAL(triggered()), destinationCanvas, SLOT(resetZoomLevel()));
+  // Fit to view
+  fitToViewAction = new QAction(tr("Fit To View"));
+  fitToViewAction->setToolTip(tr("Fit to viewport"));
+  fitToViewAction->setEnabled(false);
+  connect(fitToViewAction, SIGNAL(triggered()), sourceCanvas, SLOT(fitShapeToView()));
+  connect(fitToViewAction, SIGNAL(triggered()), destinationCanvas, SLOT(fitShapeToView()));
+
   // Helps
   // Bug report
   bugReportAction = new QAction(tr("Report an issue"), this);
@@ -2058,6 +2094,11 @@ void MainWindow::createMenus()
   // View.
   viewMenu = menuBar->addMenu(tr("&View"));
 
+  viewMenu->addAction(zoomInAction);
+  viewMenu->addAction(zoomOutAction);
+  viewMenu->addAction(resetZoomAction);
+  viewMenu->addAction(fitToViewAction);
+  viewMenu->addSeparator();
   viewMenu->addAction(outputFullScreenAction);
   viewMenu->addAction(displayTestSignalAction);
   viewMenu->addAction(displayControlsAction);

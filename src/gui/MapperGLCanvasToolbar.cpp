@@ -81,7 +81,7 @@ void MapperGLCanvasToolbar::createZoomToolsLayout()
   _fitToViewButton->setToolTip(tr("Fit the shape to content view"));
   _fitToViewButton->setFixedSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE);
   _fitToViewButton->setObjectName("zoom-fit");
-  connect(_fitToViewButton, SIGNAL(clicked()), _canvas, SLOT(fitShapeInView()));
+  connect(_fitToViewButton, SIGNAL(clicked()), _canvas, SLOT(fitShapeToView()));
 
   // Create separator
   QFrame *separator = new QFrame(this);

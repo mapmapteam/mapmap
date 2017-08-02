@@ -424,6 +424,12 @@ private:
   QList<QAction *> screenActions;
   QActionGroup *screenActionGroup;
 
+  // Canvas zoom actions
+  QAction *zoomInAction;
+  QAction *zoomOutAction;
+  QAction *resetZoomAction;
+  QAction *fitToViewAction;
+
   // Widgets and layout.
   QTabWidget* contentTab;
 
