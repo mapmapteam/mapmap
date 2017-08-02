@@ -73,6 +73,9 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
 
   // Black background.
   this->scene()->setBackgroundBrush(Qt::black);
+
+  // Enable dragndrop
+  setAcceptDrops(true);
 }
 
 MShape::ptr MapperGLCanvas::getShapeFromMapping(Mapping::ptr mapping)
@@ -171,6 +174,68 @@ void MapperGLCanvas::applyZoomToView()
   view->update();
 
   emit zoomFactorChanged(zoomFactor);
+}
+
+void MapperGLCanvas::dragEnterEvent(QDragEnterEvent *event)
+{
+  const QMimeData *mimeData = event->mimeData();
+  bool allowDrag = true;
+
+  if (mimeData->hasUrls()) {
+    foreach (QUrl url, mimeData->urls()) {
+      QString fileName = url.toLocalFile();
+      // Don't allow drag if file is not supported
+      if (!MainWindow::window()->fileSupported(fileName, MM::FILE_EXTENSION) &&
+          !MainWindow::window()->fileSupported(fileName, MM::IMAGE_FILES_FILTER) &&
+          !MainWindow::window()->fileSupported(fileName, MM::VIDEO_FILES_FILTER)) {
+        allowDrag = false;
+      }
+    }
+  }
+
+  if (allowDrag)
+    event->acceptProposedAction();
+}
+
+void MapperGLCanvas::dragMoveEvent(QDragMoveEvent *event)
+{
+  event->acceptProposedAction();
+}
+
+void MapperGLCanvas::dragLeaveEvent(QDragLeaveEvent *event)
+{
+  event->accept();
+}
+
+void MapperGLCanvas::dropEvent(QDropEvent *event)
+{
+  const QMimeData *mimeData = event->mimeData();
+
+  if (mimeData->hasUrls()) {
+    // In case that dragged many files
+    foreach (QUrl url, mimeData->urls()) {
+      QString fileName = url.toLocalFile();
+
+      if (!fileName.isEmpty()) {
+        // Test if is mmp file and exit loop
+        if (MainWindow::window()->fileSupported(fileName, MM::FILE_EXTENSION)) {
+            MainWindow::window()->loadFile(fileName);
+          // Exit for prevent drag to many project files
+          break;
+        }
+        // Allow to drag too many videos or images
+        else {
+          // Check if file is image or not
+          // according to file extension
+          if (MainWindow::window()->fileSupported(fileName, MM::IMAGE_FILES_FILTER))
+            MainWindow::window()->importMediaFile(fileName, true);
+          else
+            MainWindow::window()->importMediaFile(fileName, false);
+        }
+      }
+    }
+  }
+  event->acceptProposedAction();
 }
 
 

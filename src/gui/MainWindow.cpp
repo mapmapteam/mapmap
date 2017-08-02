@@ -89,6 +89,9 @@ MainWindow::MainWindow()
   setWindowIcon(QIcon(":/mapmap-logo"));
   setCurrentFile("");
 
+  // Allow drag n drop
+  setAcceptDrops(true);
+
   // Create and start timer.
   videoTimer = new QTimer(this);
   connect(videoTimer, SIGNAL(timeout()), this, SLOT(processFrame()));
@@ -394,6 +397,70 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
   }
 
   return QMainWindow::eventFilter(object, event);
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+  const QMimeData *mimeData = event->mimeData();
+  bool allowDrag = true;
+
+  if (mimeData->hasUrls()) {
+    foreach (QUrl url, mimeData->urls()) {
+      QString fileName = url.toLocalFile();
+      // Don't allow drag if file is not supported
+      if (!fileSupported(fileName, MM::FILE_EXTENSION) &&
+          !fileSupported(fileName, MM::IMAGE_FILES_FILTER) &&
+          !fileSupported(fileName, MM::VIDEO_FILES_FILTER)) {
+        allowDrag = false;
+      }
+    }
+  }
+
+  if (allowDrag)
+    event->acceptProposedAction();
+}
+
+void MainWindow::dragMoveEvent(QDragMoveEvent *event)
+{
+  event->acceptProposedAction();
+}
+
+void MainWindow::dragLeaveEvent(QDragLeaveEvent *event)
+{
+  event->accept();
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+  const QMimeData *mimeData = event->mimeData();
+
+  if (mimeData->hasUrls()) {
+    // In case that dragged many files
+    foreach (QUrl url, mimeData->urls()) {
+      QString fileName = url.toLocalFile();
+
+      if (!fileName.isEmpty()) {
+        // Test if is mmp file and exit loop
+        if (fileSupported(fileName, MM::FILE_EXTENSION)) {
+          if (okToContinue()) {
+            loadFile(fileName);
+          }
+          // Exit for prevent drag to many project files
+          break;
+        }
+        // Allow to drag too many videos or images
+        else {
+          // Check if file is image or not
+          // according to file extension
+          if (fileSupported(fileName, MM::IMAGE_FILES_FILTER))
+            importMediaFile(fileName, true);
+          else
+            importMediaFile(fileName, false);
+        }
+      }
+    }
+  }
+  event->acceptProposedAction();
 }
 
 void MainWindow::setOutputWindowFullScreen(bool enable)
@@ -2810,6 +2877,16 @@ bool MainWindow::fileSupported(const QString &file, bool isImage)
                        tr("The following file is not supported: %1")
                        .arg(fileInfo.fileName()));
   return false;
+}
+
+bool MainWindow::fileSupported(const QString &file, const QString &extension)
+{
+  if (!QFileInfo(file).suffix().isEmpty() &&
+      extension.contains(QFileInfo(file).suffix(), Qt::CaseInsensitive)) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 QString MainWindow::locateMediaFile(const QString &uri, bool isImage)

@@ -83,6 +83,11 @@ protected:
   void keyPressEvent(QKeyEvent *event);
   bool eventFilter(QObject *object, QEvent *event);
 
+  void dragEnterEvent(QDragEnterEvent *event);
+  void dragMoveEvent(QDragMoveEvent *event);
+  void dragLeaveEvent(QDragLeaveEvent *event);
+  void dropEvent(QDropEvent *event);
+
   // Slots ////////////////////////////////////////////////////////////////////////////////////////////////////
 private slots:
 
@@ -301,6 +306,7 @@ public:
   bool fileExists(const QString& file);
   // Check if the file is supported
   bool fileSupported(const QString& file, bool isImage);
+  bool fileSupported(const QString &file, const QString &extension);
   // Locate the file not found
   QString locateMediaFile(const QString& uri, bool isImage);
 

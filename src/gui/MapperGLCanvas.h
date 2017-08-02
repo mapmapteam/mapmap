@@ -110,6 +110,10 @@ protected:
 //  void mouseMoveEvent(QMouseEvent* event);
 //  void mouseReleaseEvent(QMouseEvent* event);
 //  void paintEvent(QPaintEvent* event);
+  void dragEnterEvent(QDragEnterEvent *event);
+  void dragMoveEvent(QDragMoveEvent *event);
+  void dragLeaveEvent(QDragLeaveEvent *event);
+  void dropEvent(QDropEvent *event);
 
 protected:
 //  /**
