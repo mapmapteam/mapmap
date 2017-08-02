@@ -44,8 +44,11 @@
         <file alias="classic-test">images/test-signal/examples/classic-test-card.png</file>
         <file alias="pal-test">images/test-signal/examples/pal-test-card.png</file>
         <file alias="ntsc-test">images/test-signal/examples/ntsc-test-card.png</file>
-        <file>images/checkbox/checkbox-unchecked.png</file>
         <file alias="ntsc-test-card">images/test-signal/ntsc-test-signal.svg</file>
         <file alias="mapmap-logo-with-border">images/logo/mapmap-wide-with-border.svg</file>
+        <file>images/checkbox/checkbox-checked.png</file>
+        <file>images/checkbox/checkbox-checked-focused.png</file>
+        <file>images/checkbox/checkbox-unchecked.png</file>
+        <file>images/checkbox/checkbox-unchecked-focused.png</file>
     </qresource>
 </RCC>
