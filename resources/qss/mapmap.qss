@@ -305,3 +305,60 @@ QRadioButton::indicator:checked:hover {
 QRadioButton::indicator:checked:pressed {
     image: url(:/);
 }*/
+
+/* Scroll bar */
+QScrollBar:horizontal {
+    background: transparent;
+    height: 10px;
+    margin: 2px 0px 2px 0px;
+}
+
+QScrollBar:vertical {
+    background: transparent;
+    width: 10px;
+    margin: 0px 2px 0px 2px;
+}
+
+QScrollBar::handle:horizontal,
+QScrollBar::handle:vertical {
+    background: #f6f5f5;
+    border-radius: 3px;
+}
+
+QScrollBar::handle:horizontal::hover,
+QScrollBar::handle:vertical::hover {
+    background: #4C4F5B;
+}
+
+QScrollBar::handle:horizontal:pressed,
+QScrollBar::handle:vertical:pressed {
+    background: #f6f5f5;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal,
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
+}
+
+QScrollBar:left-arrow:horizontal,
+QScrollBar::right-arrow:horizontal,
+QScrollBar:up-arrow:vertical,
+QScrollBar::down-arrow:vertical {
+    border: none;
+    background: none;
+    color: none;
+}
+
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal,
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+QAbstractScrollArea::corner {
+    background: transparent;
+}

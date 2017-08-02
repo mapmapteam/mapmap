@@ -45,9 +45,9 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
 
   setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing |
                  QPainter::HighQualityAntialiasing | QPainter::SmoothPixmapTransform);
-
-  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+  // Dont need to always see scroll bar
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
   this->horizontalScrollBar()->setRange(0, 1000);
   this->verticalScrollBar()->setRange(0, 1000);
