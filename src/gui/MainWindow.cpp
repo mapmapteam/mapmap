@@ -162,7 +162,15 @@ void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
    destinationCanvasToolbar->enableZoomToolBar(true);
    // Enable source toolbar
    sourceCanvasToolbar->enableZoomToolBar(true);
-   sourceMenu->setEnabled(true);
+   // Enable paint and mapping edit action
+   deletePaintAction->setEnabled(true);
+   renamePaintAction->setEnabled(true);
+   cloneMappingAction->setEnabled(true);
+   deleteMappingAction->setEnabled(true);
+   renameMappingAction->setEnabled(true);
+   mappingLockedAction->setEnabled(true);
+   mappingHideAction->setEnabled(true);
+   mappingSoloAction->setEnabled(true);
    // Enable zoom action
    zoomInAction->setEnabled(true);
    zoomOutAction->setEnabled(true);
@@ -1679,76 +1687,84 @@ void MainWindow::createActions()
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
   // Duplicate.
-  cloneMappingAction = new QAction(tr("Duplicate"), this);
+  cloneMappingAction = new QAction(tr("Duplicate Mapping"), this);
   cloneMappingAction->setShortcut(Qt::CTRL + Qt::Key_D);
-  cloneMappingAction->setToolTip(tr("Duplicate item"));
+  cloneMappingAction->setToolTip(tr("Duplicate mapping item"));
   cloneMappingAction->setIconVisibleInMenu(false);
+  cloneMappingAction->setEnabled(false);
   cloneMappingAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(cloneMappingAction);
   connect(cloneMappingAction, SIGNAL(triggered()), this, SLOT(duplicateMappingItem()));
 
   // Delete mapping.
-  deleteMappingAction = new QAction(tr("Delete mapping"), this);
+  deleteMappingAction = new QAction(tr("Delete Mapping"), this);
   deleteMappingAction->setShortcut(QKeySequence::Delete);
-  deleteMappingAction->setToolTip(tr("Delete item"));
+  deleteMappingAction->setToolTip(tr("Delete mapping item"));
   deleteMappingAction->setIconVisibleInMenu(false);
+  deleteMappingAction->setEnabled(false);
   deleteMappingAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(deleteMappingAction);
   connect(deleteMappingAction, SIGNAL(triggered()), this, SLOT(deleteMappingItem()));
 
   // Rename mapping.
-  renameMappingAction = new QAction(tr("Rename"), this);
+  renameMappingAction = new QAction(tr("Rename Mapping"), this);
   renameMappingAction->setShortcut(Qt::Key_F2);
-  renameMappingAction->setToolTip(tr("Rename item"));
+  renameMappingAction->setToolTip(tr("Rename mapping item"));
   renameMappingAction->setIconVisibleInMenu(false);
+  renameMappingAction->setEnabled(false);
   renameMappingAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(renameMappingAction);
   connect(renameMappingAction, SIGNAL(triggered()), this, SLOT(renameMappingItem()));
 
   // Lock mapping.
-  mappingLockedAction = new QAction(tr("Lock mapping"), this);
+  mappingLockedAction = new QAction(tr("Lock Mapping"), this);
   mappingLockedAction->setToolTip(tr("Lock mapping item"));
   mappingLockedAction->setIconVisibleInMenu(false);
   mappingLockedAction->setCheckable(true);
   mappingLockedAction->setChecked(false);
+  mappingLockedAction->setEnabled(false);
   mappingLockedAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(mappingLockedAction);
   connect(mappingLockedAction, SIGNAL(triggered(bool)), this, SLOT(setMappingItemLocked(bool)));
 
   // Hide mapping.
-  mappingHideAction = new QAction(tr("Hide mapping"), this);
+  mappingHideAction = new QAction(tr("Hide Mapping"), this);
   mappingHideAction->setToolTip(tr("Hide mapping item"));
   mappingHideAction->setIconVisibleInMenu(false);
   mappingHideAction->setCheckable(true);
   mappingHideAction->setChecked(false);
+  mappingHideAction->setEnabled(false);
   mappingHideAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(mappingHideAction);
   connect(mappingHideAction, SIGNAL(triggered(bool)), this, SLOT(setMappingItemHide(bool)));
 
   // Solo mapping.
-  mappingSoloAction = new QAction(tr("Solo mapping"), this);
+  mappingSoloAction = new QAction(tr("Solo Mapping"), this);
   mappingSoloAction->setToolTip(tr("solo mapping item"));
   mappingSoloAction->setIconVisibleInMenu(false);
   mappingSoloAction->setCheckable(true);
   mappingSoloAction->setChecked(false);
+  mappingSoloAction->setEnabled(false);
   mappingSoloAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(mappingSoloAction);
   connect(mappingSoloAction, SIGNAL(triggered(bool)), this, SLOT(setMappingItemSolo(bool)));
 
   // Delete paint.
-  deletePaintAction = new QAction(tr("Delete paint"), this);
+  deletePaintAction = new QAction(tr("Delete Paint"), this);
   //deletePaintAction->setShortcut(tr("CTRL+DEL"));
-  deletePaintAction->setToolTip(tr("Delete item"));
+  deletePaintAction->setToolTip(tr("Delete paint item"));
   deletePaintAction->setIconVisibleInMenu(false);
+  deletePaintAction->setEnabled(false);
   deletePaintAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(deletePaintAction);
   connect(deletePaintAction, SIGNAL(triggered()), this, SLOT(deletePaintItem()));
 
   // Rename paint.
-  renamePaintAction = new QAction(tr("Rename"), this);
+  renamePaintAction = new QAction(tr("Rename Paint"), this);
   //renamePaintAction->setShortcut(Qt::Key_F2);
-  renamePaintAction->setToolTip(tr("Rename item"));
+  renamePaintAction->setToolTip(tr("Rename paint item"));
   renamePaintAction->setIconVisibleInMenu(false);
+  renamePaintAction->setEnabled(false);
   renamePaintAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(renamePaintAction);
   connect(renamePaintAction, SIGNAL(triggered()), this, SLOT(renamePaintItem()));
@@ -2074,19 +2090,20 @@ void MainWindow::createMenus()
   editMenu->addAction(undoAction);
   editMenu->addAction(redoAction);
   editMenu->addSeparator();
-  editMenu->addAction(stickyVerticesAction);
-  editMenu->addSeparator();
   // Source canvas menu
-  sourceMenu = editMenu->addMenu(tr("&Source"));
-  sourceMenu->setEnabled(false);
-  sourceMenu->addAction(deletePaintAction);
-  sourceMenu->addAction(renamePaintAction);
+  editMenu->addAction(deletePaintAction);
+  editMenu->addAction(renamePaintAction);
+  editMenu->addSeparator();
   // Destination canvas menu
-  destinationMenu = editMenu->addMenu(tr("&Destination"));
-  destinationMenu->setEnabled(false);
-  destinationMenu->addAction(cloneMappingAction);
-  destinationMenu->addAction(deleteMappingAction);
-  destinationMenu->addAction(renameMappingAction);
+  editMenu->addAction(cloneMappingAction);
+  editMenu->addAction(deleteMappingAction);
+  editMenu->addAction(renameMappingAction);
+  editMenu->addAction(mappingLockedAction);
+  editMenu->addAction(mappingHideAction);
+  editMenu->addAction(mappingSoloAction);
+  editMenu->addSeparator();
+  // Sticky vertices
+  editMenu->addAction(stickyVerticesAction);
   editMenu->addSeparator();
   // Preferences
   editMenu->addAction(preferencesAction);
