@@ -65,8 +65,8 @@ public:
   static const int DEFAULT_WINDOW_WIDTH = 640;
   static const int DEFAULT_WINDOW_HEIGHT = 480;
   static const int TOOLBAR_ICON_SIZE = 48;
-  static const int ZOOM_TOOLBAR_ICON_SIZE = 22;
-  static const int ZOOM_TOOLBAR_BUTTON_SIZE = 32;
+  static const int ZOOM_TOOLBAR_ICON_SIZE = 16;
+  static const int ZOOM_TOOLBAR_BUTTON_SIZE = 20;
   static const int MAPPING_LIST_ICON_SIZE = 16;
 
   // OSC

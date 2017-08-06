@@ -52,10 +52,10 @@ protected:
   // Labels
   QLabel *_titleLabel;
   // Buttons for toolbox layout
-  QPushButton* _zoomInButton;
-  QPushButton* _zoomOutButton;
-  QPushButton* _resetZoomButton;
-  QPushButton* _fitToViewButton;
+  QToolButton* _zoomInButton;
+  QToolButton* _zoomOutButton;
+  QToolButton* _resetZoomButton;
+  QToolButton* _fitToViewButton;
   // Dropdown menu
   QComboBox* _dropdownMenu;
 
