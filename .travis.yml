@@ -1,0 +1,14 @@
+install:
+  - sudo apt-get update
+  # Qt
+  - sudo apt-get install qt5-default qttools5-dev-tools
+  # Liblo
+  - sudo apt-get install liblo-dev liblo-tools
+  # GStreamer
+  - sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-vaapi gstreamer1.0-plugins-base gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-x gstreamer1.0-tools
+  # QtMultimedia (unused)
+  - sudo apt-get install qtmultimedia5-dev
+
+script:
+  - qmake mapmap.pro
+  - make
