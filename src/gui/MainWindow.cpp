@@ -1991,28 +1991,28 @@ void MainWindow::createActions()
 
   //Zoom toolbar
   // Zoom In
-  zoomInAction = new QAction(tr("Zoom In"));
+  zoomInAction = new QAction(tr("Zoom In"), this);
   zoomInAction->setShortcut(QKeySequence::ZoomIn);
   zoomInAction->setToolTip(tr("Zoom In"));
   zoomInAction->setEnabled(false);
   connect(zoomInAction, SIGNAL(triggered()), sourceCanvas, SLOT(increaseZoomLevel()));
   connect(zoomInAction, SIGNAL(triggered()), destinationCanvas, SLOT(increaseZoomLevel()));
   // Zoom Out
-  zoomOutAction = new QAction(tr("Zoom Out"));
+  zoomOutAction = new QAction(tr("Zoom Out"), this);
   zoomOutAction->setShortcut(QKeySequence::ZoomOut);
   zoomOutAction->setToolTip(tr("Zoom Out"));
   zoomOutAction->setEnabled(false);
   connect(zoomOutAction, SIGNAL(triggered()), sourceCanvas, SLOT(decreaseZoomLevel()));
   connect(zoomOutAction, SIGNAL(triggered()), destinationCanvas, SLOT(decreaseZoomLevel()));
   // Reset zoom
-  resetZoomAction = new QAction(tr("Original Size"));
+  resetZoomAction = new QAction(tr("Original Size"), this);
   resetZoomAction->setShortcut(Qt::CTRL + Qt::Key_0);
   resetZoomAction->setToolTip(tr("Reset zoom to original size"));
   resetZoomAction->setEnabled(false);
   connect(resetZoomAction, SIGNAL(triggered()), sourceCanvas, SLOT(resetZoomLevel()));
   connect(resetZoomAction, SIGNAL(triggered()), destinationCanvas, SLOT(resetZoomLevel()));
   // Fit to view
-  fitToViewAction = new QAction(tr("Fit To View"));
+  fitToViewAction = new QAction(tr("Fit To View"), this);
   fitToViewAction->setToolTip(tr("Fit to viewport"));
   fitToViewAction->setEnabled(false);
   connect(fitToViewAction, SIGNAL(triggered()), sourceCanvas, SLOT(fitShapeToView()));

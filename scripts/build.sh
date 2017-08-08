@@ -4,6 +4,7 @@
 # set -o verbose
 
 cd $(dirname $0)
+cd ..
 
 qtversion=5.8
 
