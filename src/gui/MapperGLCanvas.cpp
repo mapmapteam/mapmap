@@ -757,17 +757,21 @@ void MapperGLCanvas::resetZoomLevel()
 
 void MapperGLCanvas::fitShapeToView()
 {
-  // Get first of the list of all the views
-  // Scales the view matrix
-  fitInView(getCurrentShapeGraphicsItem()->boundingRect(), Qt::KeepAspectRatio);
-  centerOn(getCurrentShapeGraphicsItem()->boundingRect().center());
-  // Get the horizontal scaling factor
-  _scalingFactor = matrix().m11();
+  if (getCurrentShape()) { // Test if current shape exists
+    // Get first of the list of all the views
+    // Scales the view matrix
+    fitInView(this->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
+    // Center all shapes
+    setSceneRect(scene()->itemsBoundingRect());
+    centerOn(this->scene()->itemsBoundingRect().center());
+    // Get the horizontal scaling factor
+    _scalingFactor = matrix().m11();
 
-  // Adapt shape
-  _shapeIsAdapted = true;
+    // Adapt shape
+    _shapeIsAdapted = true;
 
-  emit zoomFactorChanged(getZoomFactor());
+    emit zoomFactorChanged(getZoomFactor());
+  }
 }
 
 
