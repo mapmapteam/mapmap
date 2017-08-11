@@ -164,14 +164,12 @@ void MapperGLCanvas::applyZoomToView()
 {
   // Re-bound zoom (for consistency).
   qreal zoomFactor = getZoomFactor();
-  // Get first of the list of all the views
-  QGraphicsView* view = this->scene()->views().first();
   // Resets the view transformation matrix
-  view->resetMatrix();
+  resetMatrix();
   // Scale the current view
-  view->scale(zoomFactor, zoomFactor);
+  scale(zoomFactor, zoomFactor);
   // And update
-  view->update();
+  update();
 
   emit zoomFactorChanged(zoomFactor);
 }
