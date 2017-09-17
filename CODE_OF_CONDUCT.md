@@ -1,4 +1,4 @@
-# Contributor Covenant Code of Conduct
+# MapMap Code of Conduct
 
 ## Our Pledge
 
