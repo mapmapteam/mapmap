@@ -148,8 +148,15 @@ private:
   // Start position of last object grabbed (in scene coordinates).
   QPointF _grabbedObjectStartScenePosition;
 
+	// Center point of currently selected shape (in scene coordinates).
+	QPointF _grabbedShapeStartCenterScenePosition;
+	MShape::ptr _grabbedShapeCopy;
+
   // Mouse currently pressed inside a vertex.
   bool _vertexGrabbed;
+
+	// Scale and rotate mode selected.
+	bool _scaleRotateMode;
 
   // Index of currently active vertex.
   int _activeVertex;

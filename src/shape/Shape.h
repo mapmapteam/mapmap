@@ -34,6 +34,7 @@
 #include <QMap>
 #include <QString>
 #include <QMetaType>
+#include <QTransform>
 
 #include <QSharedPointer>
 
@@ -81,6 +82,8 @@ public:
     setVertex(i, QPointF(x, y));
   }
 
+	virtual void applyTransform(const QTransform& transform) = 0;
+
   virtual QString getType() const = 0;
 
   /** Return true if Shape includes point (x,y), false otherwise
@@ -111,6 +114,9 @@ public:
     vertices.resize(vertices_.size());
     qCopy(vertices_.begin(), vertices_.end(), vertices.begin());
   }
+
+	// Returns center of object.
+	virtual QPointF getCenter() const;
 
   virtual void read(const QDomElement& obj);
   virtual void write(QDomElement& obj);

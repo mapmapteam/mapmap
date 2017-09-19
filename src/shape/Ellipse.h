@@ -132,6 +132,8 @@ public:
   // Override the parent, checking to make sure the vertices are displaced correctly.
   virtual void setVertex(int i, const QPointF& v);
 
+	virtual void applyTransform(const QTransform& transform);
+
 protected:
   /// Returns a new MShape (using default constructor).
   virtual MShape* _create() const { return new Ellipse(); }

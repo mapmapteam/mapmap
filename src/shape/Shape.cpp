@@ -45,6 +45,15 @@ void MShape::translate(const QPointF& offset)
     *it += offset;
 }
 
+QPointF MShape::getCenter() const
+{
+	QPointF center;
+  for (QVector<QPointF>::const_iterator it = vertices.begin(); it != vertices.end(); ++it)
+    center += (*it);
+ 	center /= nVertices();
+	return center;
+}
+
 void MShape::read(const QDomElement& obj)
 {
   // Read basic data.

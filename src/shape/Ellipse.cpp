@@ -149,4 +149,10 @@ void Ellipse::setVertex(int i, const QPointF& v)
   sanitize();
 }
 
+void Ellipse::applyTransform(const QTransform& transform)
+{
+	
+}
+
+
 }

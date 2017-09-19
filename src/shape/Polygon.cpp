@@ -30,6 +30,12 @@ void Polygon::setVertex(int i, const QPointF& v)
   _rawSetVertex(i, realV);
 }
 
+void Polygon::applyTransform(const QTransform& transform)
+{
+//	fromPolygon(toPolygon());
+	fromPolygon(transform.map(toPolygon()));
+}
+
 void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
 {
   // Nothing to do (eg. triangles).
@@ -122,7 +128,17 @@ QPolygonF Polygon::toPolygon() const
   {
     polygon.append(*it);
   }
+	// First point and end point match.
+//	polygon.append(vertices.first());
   return polygon;
+}
+
+void Polygon::fromPolygon(const QPolygonF& p)
+{
+	Q_ASSERT(p.size() == nVertices());
+	for (int i=0; i<nVertices(); i++)
+		vertices[i] = p[i];
+	build();
 }
 
 }

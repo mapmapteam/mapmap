@@ -36,6 +36,7 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
     _vertexGrabbed(false),
     _activeVertex(NO_VERTEX),
     _shapeGrabbed(false), // comment out?
+		_scaleRotateMode(false),
     _shapeFirstGrab(false), // comment out?
     _zoomLevel(0),
     _shapeIsAdapted(false)
@@ -266,11 +267,17 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     MShape::ptr shape = getCurrentShape();
     if (shape)
     {
+			// Switch mode to scale&rotate on pressing CTLR.
+		  _scaleRotateMode = (event->modifiers() & Qt::ControlModifier);
+
       // Shape is locked either if either itself or its mapping is locked.
       bool shapeIsLocked = _mainWindow->getCurrentMapping()->isLocked() || shape->isLocked();
 
       // Note: we compare with the square value for fastest computation of the distance
       int minDistance = sq(MM::VERTEX_SELECT_RADIUS);
+
+		  _grabbedShapeStartCenterScenePosition = shape->getCenter();
+			_grabbedShapeCopy.reset(shape->clone());
 
       // Find the ID of the nearest vertex (from currently selected shape)
       for (int i = 0; i < shape->nVertices(); i++)
@@ -341,6 +348,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
         _shapeFirstGrab = true;
 
         _grabbedObjectStartScenePosition = pos;
+//				_grabbedShapeStartCenterScenePosition = selectedShape->getCenter();
       }
     }
     // Show the shape/mapping context menu
@@ -392,8 +400,12 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
       _snapVertex(&p);
     }
 
-    undoStack->push(new MoveVertexCommand(this,
-                TransformShapeCommand::RELEASE, _activeVertex, p));
+		if (_scaleRotateMode)
+    	undoStack->push(new ScaleRotateShapeCommand(this,
+                		  TransformShapeCommand::RELEASE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy));
+		else
+    	undoStack->push(new MoveVertexCommand(this,
+                		  TransformShapeCommand::RELEASE, _activeVertex, p));
   }
   else if (_shapeGrabbed)
   {
@@ -433,8 +445,12 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
         _snapVertex(&p);
       }
 
+		if (_scaleRotateMode)
+    	undoStack->push(new ScaleRotateShapeCommand(this,
+                		  TransformShapeCommand::FREE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy));
+		else
       undoStack->push(new MoveVertexCommand(this,
-                  TransformShapeCommand::FREE, _activeVertex, p));
+                      TransformShapeCommand::FREE, _activeVertex, p));
     }
   }
 
@@ -556,9 +572,10 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 
     if (handledKey)
     {
-      // Enable to Undo and Redo when arrow keys move the position of vertices
-      undoStack->push(new MoveVertexCommand(this,
-                  TransformShapeCommand::STEP, _activeVertex, mapToScene(pos)));
+			if (!_scaleRotateMode)
+	      // Enable to Undo and Redo when arrow keys move the position of vertices
+	      undoStack->push(new MoveVertexCommand(this,
+	                      TransformShapeCommand::STEP, _activeVertex, mapToScene(pos)));
     }
   }
   else
