@@ -473,6 +473,8 @@ void Mesh::copyFrom(const MShape& shape)
     _vertices2d[i].resize(_nRows);
     qCopy(mesh->_vertices2d[i].begin(), mesh->_vertices2d[i].end(), _vertices2d[i].begin());
   }
+
+	_reorderVertices();
 }
 
 void Mesh::_reorderVertices()
