@@ -148,7 +148,7 @@ int MoveVertexCommand::id() const { return (_option == STEP ? CMD_KEY_MOVE_VERTE
 
 void MoveVertexCommand::_doTransform(MShape::ptr shape)
 {
-  shape->setVertex(_movedVertex, _vertexPosition);
+	shape->setVertex(_movedVertex, _vertexPosition);
 }
 
 bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
