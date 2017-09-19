@@ -38,6 +38,13 @@ MShape* MShape::clone() const {
   return copyShape;
 }
 
+void MShape::applyTransform(const QTransform& transform)
+{
+	for (QVector<QPointF>::iterator it = vertices.begin();
+       it != vertices.end(); ++it)
+		(*it) = transform.map(*it);
+}
+
 void MShape::translate(const QPointF& offset)
 {
   // We can feel free to translate every vertex without check by default.

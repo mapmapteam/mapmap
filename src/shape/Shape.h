@@ -82,7 +82,7 @@ public:
     setVertex(i, QPointF(x, y));
   }
 
-	virtual void applyTransform(const QTransform& transform) = 0;
+	virtual void applyTransform(const QTransform& transform);
 
   virtual QString getType() const = 0;
 

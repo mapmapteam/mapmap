@@ -44,8 +44,6 @@ public:
   // Override the parent, checking to make sure the vertices are displaced correctly.
   virtual void setVertex(int i, const QPointF& v);
 
-	virtual void applyTransform(const QTransform& transform);
-
 protected:
   /// Returns all line segments of the polygon.
   QVector<QLineF> _getSegments() const;

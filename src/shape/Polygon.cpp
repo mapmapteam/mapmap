@@ -30,12 +30,6 @@ void Polygon::setVertex(int i, const QPointF& v)
   _rawSetVertex(i, realV);
 }
 
-void Polygon::applyTransform(const QTransform& transform)
-{
-//	fromPolygon(toPolygon());
-	fromPolygon(transform.map(toPolygon()));
-}
-
 void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
 {
   // Nothing to do (eg. triangles).
