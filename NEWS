@@ -1,9 +1,29 @@
 Release notes for MapMap
 ========================
 
-2017-0?-?? - MapMap 0.5.1
+2017-09-25 - MapMap 0.6.0
 -------------------------
-* in progress
+- New feature: Implement rotation/scale for all shapes
+- Fix error in the Mesh::toPolygon() (wrong number of vertices).
+- Fix all shapes to view canvas instead current shape
+- CI: automated builds on travis-ci.org
+- New feature: Add shape zoom option in menubar
+- New feature: Add drag and drop feature for media file and project
+- Fix sticky vertices preferences setting
+- Add missing images when switch from a branch to a another
+- Reorganize source code directories.
+- Mouse wheel: press control to zoom. WIP: scroll
+- Always show scroll bars in mapping canvas
+- macOS: remove liblo + use libc++, not libstdc++
+- macOS: build.sh: update to Qt 5.8
+- Boundary checks to try to repair #319.
+- Merge branch 'develop' of github.com:mapmapteam/mapmap into develop
+- Fix #319 crash when receiving osc messages
+- Fix bug that crashed the application when DEL was pressed while no mappings
+  were there anymore to delete (fixes #315).
+- Proper management of mappings related to a paint in undo/redo (#315).
+- Rename *ShapesCommand to *MappingCommand in Command classes.
+- Restrict display of camera input to Linux -does not yet work on other systems
 
 2017-01-01 - MapMap 0.5.0
 -------------------------
