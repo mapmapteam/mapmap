@@ -55,13 +55,13 @@ Make a release
 * Create a release-x.y.z branch
 * Verify the version number:
   * VERSION.txt
-  * VERSION in MM.cpp
+  * VERSION in src/core/MM.cpp
   * VERSION in mapmap.pro
-  * PROJECT_NUMBER in Doxyfile
+  * PROJECT_NUMBER in docs/Doxyfile
 * Edit NEWS - update with the news for the release you are about to make
-* Run ./scripts/update-changelog.sh and commit the changes
-* Maybe update the docs/informations/osc.md file and run scripts/update-osc.sh and commit the changes
-* Maybe update the docs/informations/CONTRIBUTORS.md file and run scripts/update-contributors.sh and commit the changes
+* FIXME: ? Run ./scripts/update-changelog.sh and commit the changes
+* FIXME: ? Maybe update the docs/informations/osc.md file and run scripts/update-osc.sh and commit the changes
+* FIXME: ? Maybe update the docs/informations/CONTRIBUTORS.md file and run scripts/update-contributors.sh and commit the changes
 * run make
 * run ./sh_build_doc.sh
 * merge to master, or to the major.minor branch
