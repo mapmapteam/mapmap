@@ -33,10 +33,10 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
   : QGraphicsView(parent),
     _mainWindow(mainWindow),
     _isOutput(isOutput),
+    _scaleRotateMode(false),
     _vertexGrabbed(false),
     _activeVertex(NO_VERTEX),
     _shapeGrabbed(false), // comment out?
-		_scaleRotateMode(false),
     _shapeFirstGrab(false), // comment out?
     _zoomLevel(0),
     _shapeIsAdapted(false)
