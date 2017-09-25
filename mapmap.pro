@@ -1,7 +1,7 @@
 CONFIG += c++11
 
 # Always use major.minor.micro version number format
-VERSION = 0.5.1
+VERSION = 0.6.0
 TARGET = mapmap
 
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB
