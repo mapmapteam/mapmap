@@ -142,6 +142,8 @@ void MainWindow::handlePaintItemSelectionChanged()
   addMeshAction->setEnabled(paintItemSelected);
   addTriangleAction->setEnabled(paintItemSelected);
   addEllipseAction->setEnabled(paintItemSelected);
+  deletePaintAction->setEnabled(true);
+  renamePaintAction->setEnabled(true);
 
   // Update canvases.
   updateCanvases();
@@ -163,8 +165,6 @@ void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
    // Enable source toolbar
    sourceCanvasToolbar->enableZoomToolBar(true);
    // Enable paint and mapping edit action
-   deletePaintAction->setEnabled(true);
-   renamePaintAction->setEnabled(true);
    cloneMappingAction->setEnabled(true);
    deleteMappingAction->setEnabled(true);
    renameMappingAction->setEnabled(true);
