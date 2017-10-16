@@ -619,6 +619,10 @@ Ligne %2, colonne %3</translation>
         <source>Problem at creation of mapping.</source>
         <translation>Problème à la création du mapping.</translation>
     </message>
+    <message>
+        <source>Scale and rotate shape</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QtBoolEdit</name>
@@ -1211,31 +1215,31 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Duplicate</source>
-        <translation>Dupliquer</translation>
+        <translation type="vanished">Dupliquer</translation>
     </message>
     <message>
         <source>Duplicate item</source>
-        <translation>Dupliquer l&apos;élément</translation>
+        <translation type="vanished">Dupliquer l&apos;élément</translation>
     </message>
     <message>
         <source>Delete mapping</source>
-        <translation>Supprimer le mapping</translation>
+        <translation type="vanished">Supprimer le mapping</translation>
     </message>
     <message>
         <source>Delete item</source>
-        <translation>Effacer l&apos;élément sélectionné</translation>
+        <translation type="vanished">Effacer l&apos;élément sélectionné</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation>Renommer</translation>
+        <translation type="vanished">Renommer</translation>
     </message>
     <message>
         <source>Rename item</source>
-        <translation>Renommer l&apos;élément</translation>
+        <translation type="vanished">Renommer l&apos;élément</translation>
     </message>
     <message>
         <source>Lock mapping</source>
-        <translation>Verrouiller le mapping</translation>
+        <translation type="vanished">Verrouiller le mapping</translation>
     </message>
     <message>
         <source>Lock mapping item</source>
@@ -1243,7 +1247,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Hide mapping</source>
-        <translation>Masquer le mapping</translation>
+        <translation type="vanished">Masquer le mapping</translation>
     </message>
     <message>
         <source>Hide mapping item</source>
@@ -1251,7 +1255,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Solo mapping</source>
-        <translation>Activer le mode solo pour le mapping</translation>
+        <translation type="vanished">Activer le mode solo pour le mapping</translation>
     </message>
     <message>
         <source>solo mapping item</source>
@@ -1259,7 +1263,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Delete paint</source>
-        <translation>Supprimer la source</translation>
+        <translation type="vanished">Supprimer la source</translation>
     </message>
     <message>
         <source>&amp;Preferences...</source>
@@ -1419,11 +1423,11 @@ No camera available in your system</source>
     </message>
     <message>
         <source>&amp;Source</source>
-        <translation>&amp;Source</translation>
+        <translation type="vanished">&amp;Source</translation>
     </message>
     <message>
         <source>&amp;Destination</source>
-        <translation>&amp;Destination</translation>
+        <translation type="vanished">&amp;Destination</translation>
     </message>
     <message>
         <source>&amp;Tools</source>
@@ -1581,6 +1585,82 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     <message>
         <source> - Primary</source>
         <translation> - Principal</translation>
+    </message>
+    <message>
+        <source>Duplicate Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate mapping item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete mapping item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename mapping item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lock Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Solo Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete Paint</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete paint item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename Paint</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename paint item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom In</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Original Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset zoom to original size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fit To View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fit to viewport</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

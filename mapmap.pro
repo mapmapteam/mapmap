@@ -14,7 +14,8 @@ include(src/app/app.pri)
 
 TRANSLATIONS = \
     translations/mapmap_en.ts \
-    translations/mapmap_fr.ts
+    translations/mapmap_fr.ts \
+	translations/mapmap_es.ts
 RESOURCES = \
     translations/translation.qrc \
     docs/documentation.qrc \
