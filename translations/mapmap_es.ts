@@ -6,7 +6,7 @@
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser-extension/fileedit.cpp" line="54"/>
         <source>Choose a file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Seleccionar archivo</translation>
     </message>
 </context>
 <context>
