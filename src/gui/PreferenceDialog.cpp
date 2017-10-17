@@ -351,7 +351,7 @@ void PreferenceDialog::createAdvancedPage()
 void PreferenceDialog::createPreferencesList()
 {
   // Apparence Item
-  QListWidgetItem *interfaceItem = new QListWidgetItem(QIcon(":/add-color"), tr("Interface"));
+  QListWidgetItem *interfaceItem = new QListWidgetItem(QIcon(":/pref-interface"), tr("Interface"));
 
   // Mapping & Shape Item
   QListWidgetItem *shapeItem = new QListWidgetItem(QIcon(":/control-points"), tr("Mappings"));
@@ -360,10 +360,10 @@ void PreferenceDialog::createPreferencesList()
   QListWidgetItem *outputItem = new QListWidgetItem(QIcon(":/output-window"), tr("Output"));
 
   // Controls Item
-  QListWidgetItem *controlsItem = new QListWidgetItem(QIcon(":/preferences"), tr("Controls"));
+  QListWidgetItem *controlsItem = new QListWidgetItem(QIcon(":/pref-controls"), tr("Controls"));
 
   // Advanced Item
-  QListWidgetItem *advancedItem = new QListWidgetItem(QIcon(":/preferences"), tr("Advanced"));
+  QListWidgetItem *advancedItem = new QListWidgetItem(QIcon(":/pref-advanced"), tr("Advanced"));
 
   // Add items in the list
   _listWidget = new QListWidget;
