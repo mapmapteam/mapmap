@@ -566,8 +566,9 @@ bool MainWindow::saveAs()
 
 void MainWindow::importMedia()
 {
-  // Stop video playback to avoid lags. XXX Hack
-  pause(false);
+  // Stop video playback, if it is playing, to avoid lags. XXX Hack
+  if (pauseAction->isVisible())
+    pause(false);
 
   // Pop-up file-choosing dialog to choose media file.
   // TODO: restrict the type of files that can be imported
@@ -577,8 +578,9 @@ void MainWindow::importMedia()
                                                   tr("Media files (%1 %2);;All files (*)")
                                                   .arg(MM::VIDEO_FILES_FILTER)
                                                   .arg(MM::IMAGE_FILES_FILTER));
-  // Restart video playback. XXX Hack
-  play(false);
+  // Restart video playback if it was previously playing. XXX Hack
+  if (pauseAction->isVisible())
+    play(false);
 
   // Check if file is image or not
   // according to file extension
@@ -637,8 +639,9 @@ void MainWindow::openCameraDevice()
 
 void MainWindow::addColor()
 {
-  // Stop video playback to avoid lags. XXX Hack
-  pause(false);
+  // Stop video playback, if it is playing, to avoid lags. XXX Hack
+  if (pauseAction->isVisible())
+    pause(false);
 
   // Pop-up color-choosing dialog to choose color paint.
   // FIXME: we use a static variable to store the last chosen color
@@ -652,8 +655,9 @@ void MainWindow::addColor()
     addColorPaint(color);
   }
 
-  // Restart video playback. XXX Hack
-  play(false);
+  // Restart video playback if it was previously playing. XXX Hack
+  if (pauseAction->isVisible())
+    play(false);
 }
 
 void MainWindow::addMesh()
