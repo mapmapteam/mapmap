@@ -33,6 +33,8 @@
 
 #include "MetaObjectRegistry.h"
 
+#include "ProjectLabels.h"
+
 namespace mmp {
 
 // TODO: replace by ProjectAttribute
