@@ -91,8 +91,8 @@ void Mapping::read(const QDomElement& obj)
   Element::read(obj);
 
   // Read paint.
-  int paintId = obj.attribute("paintId").toInt();
-//  setPaint(MainWindow::window()->getMappingManager().getPaintById(paintId));
+  int paintId = obj.attribute(ProjectLabels::PAINT_ID).toInt();
+  setPaint(MainWindow::window()->getMappingManager().getPaintById(paintId));
 
   // Read output shape.
   _readShape(obj, true);
