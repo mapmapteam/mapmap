@@ -259,7 +259,7 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   QSharedPointer<Texture> texture = _texture.toStrongRef();
   painter->beginNativePainting();
 
-  // Project source texture and sent it to destination.
+  // Project source texture and send it to destination.
   texture->update();
 
   // Only works for similar shapes.
