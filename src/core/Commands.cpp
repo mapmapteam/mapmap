@@ -184,12 +184,12 @@ ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, Transfo
 	qreal scale = currentVector.length() / initialVector.length();
 
 	// Compute rotation.
-	qreal rotation = initialVector.angleTo(currentVector);
+	qreal rotation = currentVector.angleTo(initialVector);
 
-	// Create transform object.
+	// Create transform object.	
 	//	transform.rotate(rotation);
 	_transform.translate(+center.x(), +center.y());
-	_transform.rotate(-rotation);
+	_transform.rotate(rotation);
 	_transform.scale(scale, scale);
 	_transform.translate(-center.x(), -center.y());
 }

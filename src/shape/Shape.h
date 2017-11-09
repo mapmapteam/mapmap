@@ -96,8 +96,14 @@ public:
 
   virtual bool includesPoint(const QPointF& p) = 0;
 
+	virtual void transform(const QPointF& translate, qreal scale, qreal rotate);
+
   /// Translate all vertices of shape by the vector (x,y).
   virtual void translate(const QPointF& offset);
+
+
+	virtual void rotate(qreal angle);
+	virtual void scale(qreal scaling);
 
   virtual void copyFrom(const MShape& shape);
 

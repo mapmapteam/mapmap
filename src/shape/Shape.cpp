@@ -45,11 +45,42 @@ void MShape::applyTransform(const QTransform& transform)
 		(*it) = transform.map(*it);
 }
 
+void MShape::transform(const QPointF& translate, qreal scale, qreal rotate)
+{
+	const QPointF& center = getCenter();
+
+	// Create transformation.
+	QTransform transform;
+
+	// Center and perform rotate + scale, then de-center.
+	transform.translate(+center.x(), +center.y());
+	if (rotate)
+		transform.rotate(rotate);
+	if (scale)
+		transform.scale(scale, scale);
+	transform.translate(-center.x(), -center.y());
+
+	// Apply translation.
+	if (!translate.isNull())
+		transform.translate(translate.x(), translate.y());
+
+	// Perform operation.
+	applyTransform(transform);
+}
+
 void MShape::translate(const QPointF& offset)
 {
-  // We can feel free to translate every vertex without check by default.
-  for (QVector<QPointF>::iterator it = vertices.begin(); it != vertices.end(); ++it)
-    *it += offset;
+	transform(offset, 0, 0);
+}
+
+void MShape::rotate(qreal angle)
+{
+	transform(QPointF(), 0, angle);
+}
+
+void MShape::scale(qreal scaling)
+{
+	transform(QPointF(), scaling, 0);
 }
 
 QPointF MShape::getCenter() const
