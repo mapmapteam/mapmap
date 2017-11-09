@@ -29,12 +29,29 @@ namespace mmp {
 
 UidAllocator Paint::allocator;
 
-void Texture::update()
+Paint::Paint(uid id)
+  : Element(id, &allocator),
+    _isPlaying(false)
 {
-  if (textureId == 0)
-  {
-    glGenTextures(1, &textureId);
-  }
+}
+
+Paint::~Paint()
+{
+  allocator.free(getId());
+}
+
+Texture::Texture(uid id) :
+	Paint(id),
+  textureId(0),
+  x(0),
+  y(0)
+{
+}
+
+void Texture::setPosition(GLfloat xPos, GLfloat yPos)
+{
+  setX(xPos);
+  setY(yPos);
 }
 
 void Texture::read(const QDomElement& obj)
@@ -57,30 +74,39 @@ void Texture::write(QDomElement& obj)
   _writeNode(obj, "y", QString::number(getY()));
 }
 
-Paint::Paint(uid id)
-  : Element(id, &allocator),
-    _isPlaying(false)
+BitsTexture::BitsTexture(uid id) :
+	Texture(id)
+{}
+
+BitsTexture::~BitsTexture()
 {
+	// TODO: this needs to be fixed: it will not work unless it is executed from within a GL context
+	// see issue #229
+	if (textureExists())
+		glDeleteTextures(1, &textureId);
 }
 
-Paint::~Paint()
+void BitsTexture::update()
 {
-  allocator.free(getId());
+	// Generate texture.
+	if (!textureExists())
+  	glGenTextures(1, &textureId);
 }
 
 Image::Image(int id)
-  : Texture(id),
+  : BitsTexture(id),
     _rate(0),
     _currentFrame(0),
     _currentFrameReal(0.0),
     _prevTime(0),
-    _bits(0)
+    _bits(0),
+		_bitsChanged(true)
   {
     setRate(1.0);
   }
 
 Image::Image(const QString uri_, uid id)
-  : Texture(id),
+  : BitsTexture(id),
     _rate(0),
     _currentFrame(-1),
     _currentFrameReal(0.0),
@@ -131,11 +157,11 @@ void Image::update()
     uint nextFrame = (int)_currentFrameReal;
 
     // If frame changed, update image bits pointer.
-    if (nextFrame != _currentFrame)
+		_bitsChanged = (nextFrame != _currentFrame);
+    if (_bitsChanged)
     {
       _currentFrame = nextFrame;
       _bits = _images[_currentFrame].bits();
-      bitsChanged = true;
     }
 
     // Reset previous time.
@@ -154,7 +180,7 @@ void Image::rewind()
     _timer.start();
   }
   _bits = _images.isEmpty() ? 0 : _images[0].bits();
-  bitsChanged = true;
+  _bitsChanged = true;
 }
 
 const uchar* Image::getBits() {
@@ -172,9 +198,10 @@ void Image::_doPlay()
 }
 
 /* Implementation of the Video class */
-Video::Video(int id) : Texture(id),
-    _uri(""),
-    _impl(NULL)
+Video::Video(int id) :
+	BitsTexture(id),
+  _uri(""),
+  _impl(NULL)
 {
   _impl = new VideoUriDecodeBinImpl();
   setRate(1);
@@ -182,7 +209,7 @@ Video::Video(int id) : Texture(id),
 }
 
 Video::Video(const QString uri_, VideoType type, double rate, uid id):
-    Texture(id),
+    BitsTexture(id),
     _uri(""),
     _impl(NULL)
 {
@@ -230,7 +257,7 @@ int Video::getHeight() const
 
 void Video::update() {
   _impl->update();
-  Texture::update();
+  BitsTexture::update();
 }
 
 void Video::rewind()

@@ -35,6 +35,10 @@
 #include <GL/gl.h>
 #endif
 
+#if defined(Q_OS_MAC)
+#include "Syphon.h"
+#endif
+
 #include "Element.h"
 #include "Maths.h"
 
@@ -150,52 +154,31 @@ protected:
   GLuint textureId;
   GLfloat x;
   GLfloat y;
-  mutable bool bitsChanged;
 
-  Texture(uid id=NULL_UID) :
-    Paint(id),
-    textureId(0),
-    x(0),
-    y(0)
-  {
-  }
+  Texture(uid id=NULL_UID);
 
 public:
-  virtual ~Texture() {
-    // TODO: this needs to be fixed: it will not work unless it is executed from within a GL context
-    // see issue #229
-    if (textureId != 0)
-      glDeleteTextures(1, &textureId);
-  }
+  virtual ~Texture() {}
 
 public:
-  virtual void update();
+	/// Returns image bits data. Next call to bitsHaveChanged() will be false.
+	virtual const uchar* getBits() = 0;
+
+	/// Returns true iff bits have changed since last call to getBits().
+	virtual bool bitsHaveChanged() const = 0;
 
   GLuint getTextureId() const { return textureId; }
+	bool textureExists() const { return (textureId != 0); }
+
   virtual int getWidth() const = 0;
   virtual int getHeight() const = 0;
-
-  /// Returns image bits data. Next call to bitsHaveChanged() will be false.
-  virtual const uchar* getBits() = 0;
-
-  /// Returns true iff bits have changed since last call to getBits().
-  virtual bool bitsHaveChanged() const = 0;
 
   virtual GLfloat getX() const { return x; }
   virtual GLfloat getY() const { return y; }
 
-  virtual void setX(GLfloat xPos) {
-      x = xPos;
-    }
-
-  virtual void setY(GLfloat yPos) {
-      y = yPos;
-    }
-
-  virtual void setPosition(GLfloat xPos, GLfloat yPos) {
-    setX(xPos);
-    setY(yPos);
-  }
+  virtual void setX(GLfloat xPos) { x = xPos; }
+  virtual void setY(GLfloat yPos) { y = yPos; }
+  virtual void setPosition(GLfloat xPos, GLfloat yPos);
 
   virtual QRectF getRect() const { return QRectF(getX(), getY(), getWidth(), getHeight()); }
 
@@ -208,9 +191,24 @@ protected:
 };
 
 /**
+ * Paint that is a Texture needing to be loaded from a bit-stream (such
+ * as an image or video rendered on the CPU). This class simply creates and
+ * releases the texture and keeps a handle to it.
+ */
+class BitsTexture : public Texture {
+	Q_OBJECT
+
+public:
+	BitsTexture(uid id=NULL_UID);
+	virtual ~BitsTexture();
+
+	virtual void update();
+};
+
+/**
  * Paint that is a Texture loaded from an image file.
  */
-class Image : public Texture
+class Image : public BitsTexture
 {
   Q_OBJECT
 
@@ -230,6 +228,8 @@ protected:
   uchar* _bits;
 
   QElapsedTimer _timer;
+
+  mutable bool _bitsChanged;
 
 public:
   Q_INVOKABLE Image(int id=NULL_UID);
@@ -255,7 +255,7 @@ public:
 
   virtual const uchar* getBits();
 
-  virtual bool bitsHaveChanged() const { return bitsChanged; }
+  virtual bool bitsHaveChanged() const { return _bitsChanged; }
 
   virtual QIcon getIcon() const
   {
@@ -283,7 +283,7 @@ class VideoImpl; // forward declaration
 /**
  * Paint that is a Texture retrieved via a video file.
  */
-class Video : public Texture
+class Video : public BitsTexture
 {
   Q_OBJECT
 
