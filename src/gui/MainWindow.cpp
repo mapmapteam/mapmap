@@ -2721,7 +2721,7 @@ void MainWindow::addMappingItem(uid mappingId)
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
   Q_CHECK_PTR(mapping);
 
-  QString label;
+  QString defaultName;
   QIcon icon;
 
   QString shapeType = mapping->getShape()->getType();
@@ -2743,7 +2743,7 @@ void MainWindow::addMappingItem(uid mappingId)
   // Triangle
   if (shapeType == "triangle")
   {
-    label = QString("Triangle %1").arg(mappingId);
+    defaultName = QString("Triangle %1").arg(mappingId);
     icon = QIcon(":/shape-triangle");
 
     if (paintType == "color")
@@ -2754,7 +2754,7 @@ void MainWindow::addMappingItem(uid mappingId)
   // Mesh
   else if (shapeType == "mesh")
   {
-    label = QString("Mesh %1").arg(mappingId);
+    defaultName = QString("Mesh %1").arg(mappingId);
     icon = QIcon(":/shape-mesh");
     if (paintType == "color")
       mapper = MappingGui::ptr(new MeshColorMappingGui(mapping));
@@ -2763,7 +2763,7 @@ void MainWindow::addMappingItem(uid mappingId)
   }
   else if (shapeType == "ellipse")
   {
-    label = QString("Ellipse %1").arg(mappingId);
+    defaultName = QString("Ellipse %1").arg(mappingId);
     icon = QIcon(":/shape-ellipse");
     if (paintType == "color")
       mapper = MappingGui::ptr(new EllipseColorMappingGui(mapping));
@@ -2772,13 +2772,13 @@ void MainWindow::addMappingItem(uid mappingId)
   }
   else
   {
-    label = QString("Polygon %1").arg(mappingId);
+    defaultName = QString("Polygon %1").arg(mappingId);
     icon = QIcon(":/shape-polygon");
   }
 
   // Label is only going to be applied if no name is present.
-  if (!mapping->getName().isEmpty())
-    label = mapping->getName();
+  if (mapping->getName().isEmpty())
+    mapping->setName(defaultName);
 
   // Add to list of mappers.
   mappers[mappingId] = mapper;
@@ -2808,7 +2808,7 @@ void MainWindow::addMappingItem(uid mappingId)
   contentTab->setCurrentWidget(mappingSplitter);
 
   // Add item to layerList widget.
-  mappingListModel->addItem(mapping, icon, label);
+  mappingListModel->addItem(mapping, icon, mapping->getName());
   mappingListModel->updateModel();
   setCurrentMapping(mappingId);
 
