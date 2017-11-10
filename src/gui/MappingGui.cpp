@@ -36,6 +36,12 @@ MappingGui::MappingGui(Mapping::ptr mapping)
   _variantFactory = new VariantFactory;
 
   _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
+  
+  // Mapping UID.
+  _idItem = _variantManager->addProperty(QVariant::Int, QObject::tr("ID"));
+  _idItem->setEnabled(false);
+  _idItem->setValue(_mapping->getId());
+  _propertyBrowser->addProperty(_idItem);
 
   // Mapping basic properties.
   _opacityItem = _variantManager->addProperty(QVariant::Double, QObject::tr("Opacity (%)"));

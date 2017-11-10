@@ -78,6 +78,8 @@ protected:
   QtAbstractPropertyBrowser* _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
+
+  QtVariantProperty* _idItem;
   QtVariantProperty* _opacityItem;
 };
 

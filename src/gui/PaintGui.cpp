@@ -34,6 +34,11 @@ PaintGui::PaintGui(Paint::ptr paint)
   connect(_variantManager, SIGNAL(valueChanged(QtProperty*, const QVariant&)),
           this,            SLOT(setValue(QtProperty*, const QVariant&)));
 
+  // Mapping UID.
+  _idItem = _variantManager->addProperty(QVariant::Int, QObject::tr("ID"));
+  _idItem->setEnabled(false);
+  _idItem->setValue(_paint->getId());
+  _propertyBrowser->addProperty(_idItem);
 
   // Paint basic properties.
   _opacityItem = _variantManager->addProperty(QVariant::Double, QObject::tr("Opacity (%)"));
