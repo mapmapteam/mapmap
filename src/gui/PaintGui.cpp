@@ -29,15 +29,11 @@ PaintGui::PaintGui(Paint::ptr paint)
   _variantManager = new VariantManager;
   _variantFactory = new VariantFactory;
 
-  _topItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
-                                          QObject::tr("Paint"));
-
   _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
 
   connect(_variantManager, SIGNAL(valueChanged(QtProperty*, const QVariant&)),
           this,            SLOT(setValue(QtProperty*, const QVariant&)));
 
-  _propertyBrowser->addProperty(_topItem);
 
   // Paint basic properties.
   _opacityItem = _variantManager->addProperty(QVariant::Double, QObject::tr("Opacity (%)"));
@@ -45,7 +41,7 @@ PaintGui::PaintGui(Paint::ptr paint)
   _opacityItem->setAttribute("maximum", 100.0);
   _opacityItem->setAttribute("decimals", 1);
   _opacityItem->setValue(_paint->getOpacity()*100.0);
-  _topItem->addSubProperty(_opacityItem);
+  _propertyBrowser->addProperty(_opacityItem);
 }
 
 PaintGui::~PaintGui()
@@ -88,7 +84,7 @@ ColorGui::ColorGui(Paint::ptr paint)
 
   _colorItem->setValue(color->getColor());
 
-  _topItem->addSubProperty(_colorItem);
+  _propertyBrowser->addProperty(_colorItem);
 }
 
 void ColorGui::setValue(QtProperty* property, const QVariant& value) {
@@ -130,8 +126,8 @@ _imageFileItem->setValue(image->getUri());
   _imageRateItem->setAttribute("decimals", 1);
   _imageRateItem->setValue(rate);
 
-  _topItem->addSubProperty(_imageFileItem);
-  _topItem->addSubProperty(_imageRateItem);
+  _propertyBrowser->addProperty(_imageFileItem);
+  _propertyBrowser->addProperty(_imageRateItem);
 }
 
 void ImageGui::setValue(QtProperty* property, const QVariant& value) {
@@ -190,10 +186,10 @@ VideoGui::VideoGui(Paint::ptr paint)
 //                                                tr("Reverse"));
 //  _mediaReverseItem->setValue(false);
 
-  _topItem->addSubProperty(_mediaFileItem);
-  _topItem->addSubProperty(_mediaRateItem);
-  _topItem->addSubProperty(_mediaVolumeItem);
-//  _topItem->addSubProperty(_mediaReverseItem);
+  _propertyBrowser->addProperty(_mediaFileItem);
+  _propertyBrowser->addProperty(_mediaRateItem);
+  _propertyBrowser->addProperty(_mediaVolumeItem);
+//  _propertyBrowser->addProperty(_mediaReverseItem);
 }
 
 void VideoGui::setValue(QtProperty* property, const QVariant& value)
