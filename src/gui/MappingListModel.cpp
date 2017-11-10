@@ -47,9 +47,9 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
   case Qt::SizeHintRole:
     if (index.column() == MM::HideColumn)
       return QSize(24, 40);
-    if (index.column() == MM::IconAndNameColum)
-      return QSize(135, 40);
-    if (index.column() == MM::GroupButtonColum)
+//    if (index.column() == MM::IconAndNameColum)
+//      return QSize(135, 40);
+    else if (index.column() == MM::GroupButtonColum)
       return QSize(128, 40);
     break;
   case Qt::CheckStateRole + 1:
