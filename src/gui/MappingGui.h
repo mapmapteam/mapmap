@@ -98,7 +98,7 @@ protected:
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
 
-  QtProperty* _topItem;
+  QtVariantProperty* _idItem;
   QtVariantProperty* _opacityItem;
   QtProperty* _outputItem;
 
