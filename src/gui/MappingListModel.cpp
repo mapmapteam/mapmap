@@ -70,6 +70,9 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
   case Qt::DecorationRole:
     return mappingList.at(index.row()).icon;
     break;
+  case Qt::ToolTipRole:
+    return QString("ID: %1").arg(mappingList.at(index.row()).id);
+    break;
   default:
     return QVariant();
     break;

@@ -2689,6 +2689,9 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
 
   // Set size.
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
+  
+  // Set tooltip.
+  item->setToolTip(QString("ID: %1").arg(paint->getId()));
 
   // Switch to paint tab.
   contentTab->setCurrentWidget(paintSplitter);
