@@ -503,7 +503,7 @@ bool VideoImpl::setPlayState(bool play)
   if (ret == GST_STATE_CHANGE_FAILURE)
   {
     qDebug() << "Unable to set the pipeline to the playing state." << endl;
-    unloadMovie();
+    //unloadMovie(); // <-- calling this created an infinite recursion
     return false;
   }
   else
