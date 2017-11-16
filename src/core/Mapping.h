@@ -64,6 +64,7 @@ class Mapping : public Element
 //  Q_PROPERTY(MShape::ptr inputShape READ getInputShape)
 
   Q_PROPERTY(bool hasInputShape READ hasInputShape STORED false)
+  Q_PROPERTY(uid  paintId  READ getPaintId WRITE setPaintById STORED false)
 //  Q_PROPERTY(Paint::ptr paint READ getPaint WRITE setPaint)
 
 protected:
@@ -116,6 +117,9 @@ public:
   /// Returns the paint.
   Paint::ptr getPaint() const { return _paint; }
 
+	/// Returns paint id.
+	uid getPaintId() const { return _paint->getId(); }
+
   /// Returns the (output) shape.
   MShape::ptr getShape() const { return _shape; }
 
@@ -140,7 +144,8 @@ public:
 
   virtual float getComputedOpacity() const { return getOpacity() * _paint->getOpacity(); }
 
-  virtual void setPaint(Paint::ptr p) { _paint = p; }
+  virtual void setPaint(Paint::ptr paint);
+	virtual void setPaintById(uid paintId);
   virtual void setShape(MShape::ptr s) { _shape = s; }
   virtual void setInputShape(MShape::ptr s) { _inputShape = s; }
 
