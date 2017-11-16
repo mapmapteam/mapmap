@@ -298,6 +298,11 @@ void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant v
     {
       mappingLockedAction->setChecked(value.toBool());
     }
+		else if (propertyName == "paintId")
+		{
+			mappingGui->updatePaints();
+			updatePlayingState();
+		}
   }
 
   // Send to list items.
