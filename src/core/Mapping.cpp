@@ -86,8 +86,11 @@ void Mapping::setLocked(bool locked)
 
 void Mapping::setPaint(Paint::ptr paint)
 {
-	_paint = paint;
-  _emitPropertyChanged("paintId");
+	if (paintIsCompatible(paint))
+	{
+		_paint = paint;
+	  _emitPropertyChanged("paintId");
+	}
 }
 
 void Mapping::setPaintById(uid paintId)
