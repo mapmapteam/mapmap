@@ -53,6 +53,17 @@ QVector<Paint::ptr> MappingManager::getPaintsByNameRegExp(QString namePattern)
   return _getElementsByNameRegExp(paintVector, namePattern);
 }
 
+QVector<Paint::ptr> MappingManager::getPaintsCompatibleWith(Mapping::ptr mapping)
+{
+	QVector<Paint::ptr> paints;
+	for (QVector<Paint::ptr>::const_iterator it = paintVector.constBegin();
+	     it != paintVector.constEnd(); ++it)
+		if (mapping->paintIsCompatible(*it))
+			paints.append(*it);
+	qDebug() << "Compatible paints: " << paints << endl;
+	return paints;
+}
+
 Mapping::ptr MappingManager::getMappingByName(QString name)
 {
   return _getElementByName(mappingVector, name);

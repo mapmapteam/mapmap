@@ -168,4 +168,14 @@ void Mapping::_writeShape(QDomElement& obj, bool isOutput)
   obj.appendChild(shapeObj);
 }
 
+bool ColorMapping::paintIsCompatible(Paint::ptr paint) const
+{
+	return paint->inherits("mmp::Color");
+}
+
+bool TextureMapping::paintIsCompatible(Paint::ptr paint) const
+{
+	return paint->inherits("mmp::Texture");
+}
+
 }

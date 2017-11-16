@@ -2689,7 +2689,7 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
 
   // Set size.
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
-  
+
   // Set tooltip.
   item->setToolTip(QString("ID: %1").arg(paint->getId()));
 
@@ -2699,6 +2699,9 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
   // Add item to paint list.
   paintList->addItem(item);
   paintList->setCurrentItem(item);
+
+	// Update mapping guis.
+	updateMappers();
 
   // Window was modified.
   windowModified();
@@ -2714,6 +2717,9 @@ void MainWindow::updatePaintItem(uid paintId, const QIcon& icon, const QString& 
   // Update item info.
   item->setIcon(icon);
   item->setText(name);
+
+	// Update mapping guis.
+	updateMappers();
 
   // Window was modified.
   windowModified();
@@ -2793,6 +2799,10 @@ void MainWindow::addMappingItem(uid mappingId)
   // When mapper value is changed, update canvases.
   connect(mapper.data(), SIGNAL(valueChanged()),
           this,          SLOT(updateCanvases()));
+
+	// Also update playing state in case paint was changed.
+  connect(mapper.data(), SIGNAL(valueChanged()),
+          this,          SLOT(updatePlayingState()));
 
   connect(sourceCanvas,  SIGNAL(shapeChanged(MShape*)),
           mapper.data(), SLOT(updateShape(MShape*)));
@@ -2885,6 +2895,8 @@ void MainWindow::removePaintItem(uid paintId)
   // Remove associated mapper.
   paintPropertyPanel->removeWidget(paintGuis[paintId]->getPropertiesEditor());
   paintGuis.remove(paintId);
+
+	updateMappers();
 
   // Remove widget from paintList.
   int row = getItemRowFromId(*paintList, paintId);
@@ -3009,6 +3021,14 @@ void MainWindow::updateCanvases()
 
   // Update statut bar
   updateStatusBar();
+}
+
+void MainWindow::updateMappers() {
+	// Update mapping guis.
+	for (QMap<uid, MappingGui::ptr>::iterator it = mappers.begin();
+			 it != mappers.end(); ++it) {
+		it.value()->updatePaints();
+	}
 }
 
 void MainWindow::processFrame()

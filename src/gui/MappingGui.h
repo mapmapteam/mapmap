@@ -36,6 +36,7 @@
 #include "Shape.h"
 #include "Paint.h"
 #include "Mapping.h"
+#include "MappingManager.h"
 
 #include "MapperGLCanvas.h"
 
@@ -54,6 +55,8 @@
 #include "variantfactory.h"
 
 namespace mmp {
+
+class MainWindow;
 
 /**
  * This is the "view" side of the Mapping class (model). It contains the graphic items for
@@ -87,6 +90,7 @@ public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
   virtual void setValue(QString propertyName, QVariant value);
   virtual void updateShape(MShape* shape);
+	virtual void updatePaints();
 
 signals:
   void valueChanged();
@@ -97,9 +101,11 @@ protected:
   QSharedPointer<QtTreePropertyBrowser> _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
+	QtEnumPropertyManager* _paintEnumManager;
 
   QtVariantProperty* _idItem;
   QtVariantProperty* _opacityItem;
+	QtVariantProperty* _paintItem;
   QtProperty* _outputItem;
 
   std::map<QtProperty*, std::pair<MShape*, int> > _propertyToVertex;

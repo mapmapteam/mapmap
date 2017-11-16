@@ -87,6 +87,9 @@ public:
   /// Returns all mappings with given regexp.
   QVector<Paint::ptr> getPaintsByNameRegExp(QString namePattern);
 
+	/// Get paints compatible with given mapping.
+	QVector<Paint::ptr> getPaintsCompatibleWith(Mapping::ptr mapping);
+
   /// Adds a mapping and returns its uid.
   uid addMapping(Mapping::ptr mapping);
 

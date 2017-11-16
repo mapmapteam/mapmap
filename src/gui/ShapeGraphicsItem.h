@@ -186,8 +186,9 @@ protected:
 
 protected:
   QWeakPointer<TextureMapping> _textureMapping;
-  QWeakPointer<Texture> _texture;
   QWeakPointer<MShape> _inputShape;
+
+	QSharedPointer<Texture> _getTexture();
 };
 
 /// Graphics item for textured polygons (eg. triangles).

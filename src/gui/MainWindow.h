@@ -229,6 +229,9 @@ public slots:
   /// Updates all canvases.
   void updateCanvases();
 
+	/// Update all mapping guis.
+	void updateMappers();
+
   /**
    * This function is triggered framesPerSeconds() times per second. It makes sure
    * the image is refreshed (updateCanvases()) and performs other necessary operations.

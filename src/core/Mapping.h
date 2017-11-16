@@ -110,6 +110,9 @@ public:
   /// The type of the mapping (expressed as a string).
   virtual QString getType() const = 0;
 
+	/// Returns true iff paint is compatible with mapping.
+	virtual bool paintIsCompatible(Paint::ptr paint) const = 0;
+
   /// Returns the paint.
   Paint::ptr getPaint() const { return _paint; }
 
@@ -169,6 +172,9 @@ public:
   /// Returns true iff the mapping possesses an input (source) shape.
   virtual bool hasInputShape() const { return false; }
 
+	/// Returns true iff paint is compatible with mapping.
+	virtual bool paintIsCompatible(Paint::ptr paint) const;
+
   virtual QString getType() const {
     return getShape()->getType() + "_color";
   }
@@ -197,6 +203,9 @@ public:
 
   /// Returns true iff the mapping possesses an input (source) shape.
   virtual bool hasInputShape() const { return true; }
+
+	/// Returns true iff paint is compatible with mapping.
+	virtual bool paintIsCompatible(Paint::ptr paint) const;
 
   virtual QString getType() const {
     return getShape()->getType() + "_texture";
