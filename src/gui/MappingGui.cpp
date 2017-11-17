@@ -194,7 +194,7 @@ MeshColorMappingGui::MeshColorMappingGui(Mapping::ptr mapping)
   _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
   _meshItem->setAttribute("minimum", QSize(2,2));
-  _propertyBrowser->insertProperty(_meshItem, _opacityItem); // insert at the beginning
+  _propertyBrowser->insertProperty(_meshItem, _paintItem); // insert at the beginning
 }
 
 void MeshColorMappingGui::setValue(QtProperty* property, const QVariant& value)
@@ -287,7 +287,7 @@ TextureMappingGui::TextureMappingGui(QSharedPointer<TextureMapping> mapping)
   _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
                                             QObject::tr("Input shape"));
   _buildShapeProperty(_inputItem, inputShape.data());
-  _propertyBrowser->insertProperty(_inputItem, _opacityItem); // insert
+  _propertyBrowser->insertProperty(_inputItem, _paintItem); // insert
 
   // Collapse input shape.
   _propertyBrowser->setExpanded(_propertyBrowser->items(_inputItem).at(0), false);
@@ -423,7 +423,7 @@ MeshTextureMappingGui::MeshTextureMappingGui(QSharedPointer<TextureMapping> mapp
   _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
   _meshItem->setAttribute("minimum", QSize(2,2));
-  _propertyBrowser->insertProperty(_meshItem, _opacityItem); // insert at the beginning
+  _propertyBrowser->insertProperty(_meshItem, _paintItem); // insert at the beginning
 }
 
 void MeshTextureMappingGui::setValue(QtProperty* property, const QVariant& value)
