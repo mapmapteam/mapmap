@@ -54,7 +54,7 @@ MappingGui::MappingGui(Mapping::ptr mapping)
   _opacityItem->setValue(_mapping->getOpacity()*100.0);
   _propertyBrowser->addProperty(_opacityItem);
 
-	_paintItem = _variantManager->addProperty(QtVariantPropertyManager::enumTypeId(), "Paints");
+	_paintItem = _variantManager->addProperty(QtVariantPropertyManager::enumTypeId(), "Paint");
   _propertyBrowser->addProperty(_paintItem);
 	updatePaints();
 
