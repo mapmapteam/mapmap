@@ -184,7 +184,6 @@ protected:
 
   // FIXME: use typedefs, member of the class for type names that are too long to type:
   QWeakPointer<TextureMapping> textureMapping;
-  QWeakPointer<Texture> texture;
   QWeakPointer<MShape> inputShape;
 };
 

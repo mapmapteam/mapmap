@@ -280,9 +280,6 @@ TextureMappingGui::TextureMappingGui(QSharedPointer<TextureMapping> mapping)
   textureMapping = qSharedPointerCast<TextureMapping>(_mapping);
   Q_CHECK_PTR(textureMapping);
 
-  texture = qSharedPointerCast<Texture>(_mapping->getPaint());
-  Q_CHECK_PTR(texture);
-
   inputShape = textureMapping.toStrongRef()->getInputShape();
   Q_CHECK_PTR(inputShape);
 
