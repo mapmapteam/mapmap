@@ -1,12 +1,10 @@
 Build instructions
 ==================
-This file is written in rst, so that one can use rst2pdf to create a PDF out of it.
-
 
 Build on GNU/Linux
 ------------------
 
-Install the dependencies. (see below)
+Install the dependencies.
 
 Build it:
 
@@ -21,8 +19,9 @@ Alternatively:
 ./scripts/build.sh
 ```
 
-Ubuntu 13.10, 14.04, 15.04 and 16.04 LTS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Ubuntu
+
+NOTE: Tested on 13.10, 14.04, 15.04 and 16.04
 
 Install basic development tools fot Qt projects, plus liblo for OSC support:
 
@@ -34,7 +33,6 @@ sudo apt-get install -y \
       qtmultimedia5-dev \
       libqt5multimedia5-plugins
 ```
-
 
 Install GStreamer 1.0 libraries and plugins:
 
@@ -63,8 +61,7 @@ sudo apt-get install -y \
       markdown
 ```
 
-Arch Linux
-~~~~~~~~~~
+### Arch Linux
 
 Install basic development tools fot Qt projects, GStreamer 1.0 and liblo for OSC support:
 
@@ -82,21 +79,6 @@ sudo pacman -S gst-libav \
                gst-plugins-base-libs \
                gst-plugins-good \
                gst-plugins-ugly
-```
-
-To edit translations
---------------------
-You might need to update the files:
-  
-```
-cd src/mapmap
-lupdate mapmap.pro 
-```
-
-Then, do this:
-
-```  
-lrelease mapmap.pro
 ```
 
 Build on Mac OS X
@@ -130,14 +112,7 @@ It will create a .app and a .dmg.
 
 DMGVERSION.txt should be created automatically with "1" as its contents. Update to "2", and so on, if needed.
 
-
-Use on OS X
------------
-Download GStreamer from
-- http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64-packages.dmg
-- http://gstreamer.freedesktop.org/data/pkg/osx/1.6.0/gstreamer-1.0-1.6.0-x86_64.pkg
-
-Download MapMap.dmg, decompress the app and copy it to /Applications.
+### Troubleshooting
 
 If the appearance of the window of the OSC port number in the preferences seem corrupted, you might want to reset MapMap's preferences:
 
@@ -151,9 +126,8 @@ To print debugging informations, launch it from the Terminal app like this::
 GSTPLUGIN_PATH=/Library/Frameworks/GStreamer.framework/Libraries GST_DEBUG=2 /Applications/MapMap.app/Contents/MacOS/MapMap
 ```
 
-
-Build for release on Windows
-----------------------------
+Build on Windows
+----------------
 
 Download gstreamer-x86 runtime& devel 
  - https://gstreamer.freedesktop.org/data/pkg/windows/1.10.2/gstreamer-1.0-x86-1.10.2.msi
@@ -179,3 +153,18 @@ Copy all DLL files of the Gstreamer's plugin folder (e.g. C:\gstreamer\1.0\x86\l
 Remove lib\libopenh264.dll, lib\libSoundTouch-0.dll, lib\libtag.dll
 
 Run Mapamp.exe
+
+Editing translations
+--------------------
+You might need to update the files:
+  
+```
+cd src/mapmap
+lupdate mapmap.pro 
+```
+
+Then, do this:
+
+```  
+lrelease mapmap.pro
+```
