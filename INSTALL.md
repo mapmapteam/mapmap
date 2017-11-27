@@ -93,7 +93,7 @@ Install tools and dependencies:
 2) Install Qt5
   - You can get the open source version from http://www.qt.io/download-open-source/
   - Run the installer and choose the default location (which should be ~/Qt).
-  - Latest tested version: 5.5.1
+  - Latest tested version: 5.5.1=
 3) Install liblo
   - Use the following guide: http://macappstore.org/liblo/
   - OR compile from the tar.gz - it should install it to /usr/local
@@ -113,6 +113,12 @@ It will create a .app and a .dmg.
 DMGVERSION.txt should be created automatically with "1" as its contents. Update to "2", and so on, if needed.
 
 ### Troubleshooting
+
+#### GStreamer header not found
+
+If you have a compilation error saying that file ```<gst/gst.h>``` cannot be found: make sure your GStreamer.framework folder is installed and is _not_ read-protected.
+
+#### Corrupted OSC port
 
 If the appearance of the window of the OSC port number in the preferences seem corrupted, you might want to reset MapMap's preferences:
 
