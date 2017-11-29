@@ -298,11 +298,11 @@ void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant v
     {
       mappingLockedAction->setChecked(value.toBool());
     }
-		else if (propertyName == "paintId")
-		{
-			mappingGui->updatePaints();
-			updatePlayingState();
-		}
+    else if (propertyName == "paintId")
+    {
+      mappingGui->updatePaints();
+      updatePlayingState();
+    }
   }
 
   // Send to list items.
@@ -572,8 +572,7 @@ bool MainWindow::saveAs()
 void MainWindow::importMedia()
 {
   // Stop video playback, if it is playing, to avoid lags. XXX Hack
-  if (pauseAction->isVisible())
-    pause(false);
+  pause(!pauseAction->isVisible());
 
   // Pop-up file-choosing dialog to choose media file.
   // TODO: restrict the type of files that can be imported
@@ -584,8 +583,7 @@ void MainWindow::importMedia()
                                                   .arg(MM::VIDEO_FILES_FILTER)
                                                   .arg(MM::IMAGE_FILES_FILTER));
   // Restart video playback if it was previously playing. XXX Hack
-  if (pauseAction->isVisible())
-    play(false);
+  play(!pauseAction->isVisible());
 
   // Check if file is image or not
   // according to file extension
@@ -2805,7 +2803,7 @@ void MainWindow::addMappingItem(uid mappingId)
   connect(mapper.data(), SIGNAL(valueChanged()),
           this,          SLOT(updateCanvases()));
 
-	// Also update playing state in case paint was changed.
+  // Also update playing state in case paint was changed.
   connect(mapper.data(), SIGNAL(valueChanged()),
           this,          SLOT(updatePlayingState()));
 
@@ -2901,7 +2899,7 @@ void MainWindow::removePaintItem(uid paintId)
   paintPropertyPanel->removeWidget(paintGuis[paintId]->getPropertiesEditor());
   paintGuis.remove(paintId);
 
-	updateMappers();
+  updateMappers();
 
   // Remove widget from paintList.
   int row = getItemRowFromId(*paintList, paintId);
@@ -3031,7 +3029,7 @@ void MainWindow::updateCanvases()
 void MainWindow::updateMappers() {
 	// Update mapping guis.
 	for (QMap<uid, MappingGui::ptr>::iterator it = mappers.begin();
-			 it != mappers.end(); ++it) {
+	     it != mappers.end(); ++it) {
 		it.value()->updatePaints();
 	}
 }
