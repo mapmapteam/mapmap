@@ -39,7 +39,7 @@ system($$QMAKE_LRELEASE mapmap.pro) # Run lrelease
 #docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
 #QMAKE_EXTRA_TARGETS += docs
 
- Linux-specific:
+# Linux-specific:
 unix:!macx {
   mapmapfile.files = mapmap
   mapmapfile.path = /usr/bin
