@@ -41,6 +41,7 @@
 #include "VideoSurface.h"
 
 #include <QVideoSurfaceFormat>
+#include <QGLWidget>
 
 namespace mmp {
 
@@ -61,10 +62,16 @@ QList<QVideoFrame::PixelFormat> VideoSurface::supportedPixelFormats(
     if (handleType == QAbstractVideoBuffer::NoHandle) {
         return QList<QVideoFrame::PixelFormat>()
                 << QVideoFrame::Format_RGB32
+                << QVideoFrame::Format_RGB24
+                << QVideoFrame::Format_RGB565
+                << QVideoFrame::Format_RGB555
                 << QVideoFrame::Format_ARGB32
                 << QVideoFrame::Format_ARGB32_Premultiplied
-                << QVideoFrame::Format_RGB565
-                << QVideoFrame::Format_RGB555;
+                << QVideoFrame::Format_BGR32
+                << QVideoFrame::Format_BGR24
+                << QVideoFrame::Format_BGR565
+                << QVideoFrame::Format_BGR555
+                ;
     } else {
         return QList<QVideoFrame::PixelFormat>();
     }
@@ -72,34 +79,38 @@ QList<QVideoFrame::PixelFormat> VideoSurface::supportedPixelFormats(
 
 bool VideoSurface::present(const QVideoFrame &frame)
 {
-    // if (!framePainted) {
-    //     if (!QAbstractVideoSurface::isActive())
-    //         setError(StoppedError);
-    //
-    //     return false;
-    // } else {
-        currentFrame = frame;
-        //
-        // int width = frame.width();
-        // int height = frame.height();
-        // const uchar* bits = frame.bits();
-        // framePainted = false;
-        //
-        // update();
+  // Copy current frame.
+  QVideoFrame currentFrame(frame);
 
-        return true;
-//    }
+  // Convert frame into QImage with appropriate format.
+  // Source: https://stackoverflow.com/questions/27829830/convert-qvideoframe-to-qimage
+  if (currentFrame.map(QAbstractVideoBuffer::ReadOnly))
+  {
+    QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(currentFrame.pixelFormat());
+    if (imageFormat != QImage::Format_Invalid) {
+      _img = QImage(currentFrame.bits(), currentFrame.width(), currentFrame.height(), imageFormat);
+    } else {
+       // e.g. JPEG
+       int nbytes = currentFrame.mappedBytes();
+       _img = QImage::fromData(currentFrame.bits(), nbytes);
+    }
+
+    currentFrame.unmap();
+
+    // Convert to OpenGLformat and apply transforms to straighten.
+    _img = QGLWidget::convertToGLFormat(_img)
+            .mirrored(true, false)
+            .transformed(QTransform().rotate(180));
+
+    return true;
+  }
+  else
+    return false;
 }
 
 const uchar* VideoSurface::bits()
 {
-  if (currentFrame.map(QAbstractVideoBuffer::ReadOnly)) {
-    const uchar* bits = currentFrame.bits();
-    currentFrame.unmap();
-    return bits;
-  }
-  else
-    return 0;
+  return _img.bits();
 }
 
 }

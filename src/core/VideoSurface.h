@@ -66,11 +66,8 @@ public:
     const uchar* bits();
 
 private:
-    // QImage::Format imageFormat;
-    // QSize imageSize;
-
-    QVideoFrame currentFrame;
-    // bool framePainted;
+    // Each frame is saved internally in a QImage.
+    QImage _img;
 };
 
 }
