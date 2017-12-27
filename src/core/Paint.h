@@ -278,7 +278,7 @@ protected:
   qreal _elapsedTime() const { return _timer.elapsed() / 1000.0; }
 };
 
-class VideoImpl; // forward declaration
+class VideoImplQtMultiMedia; // forward declaration
 
 /**
  * Paint that is a Texture retrieved via a video file.
@@ -362,7 +362,8 @@ protected:
    * Private implementation, so that GStreamer headers don't need
    * to be included from every file in the project.
    */
-  VideoImpl *_impl;
+  VideoImplQtMultiMedia* _impl;
+  //VideoImpl *_impl;
 };
 
 }

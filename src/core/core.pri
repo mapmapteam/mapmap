@@ -14,10 +14,8 @@ HEADERS += $$PWD/Commands.h \
     $$PWD/ProjectWriter.h \
     $$PWD/Serializable.h \
     $$PWD/UidAllocator.h \
-    $$PWD/VideoImpl.h \
-    $$PWD/VideoShmSrcImpl.h \
-    $$PWD/VideoUriDecodeBinImpl.h \
-    $$PWD/VideoV4l2SrcImpl.h \
+    $$PWD/VideoImplQtMultiMedia.h \
+    $$PWD/VideoSurface.h \
     $$PWD/Util.h
 
 SOURCES += $$PWD/Commands.cpp \
@@ -32,8 +30,6 @@ SOURCES += $$PWD/Commands.cpp \
     $$PWD/ProjectWriter.cpp \
     $$PWD/Serializable.cpp \
     $$PWD/UidAllocator.cpp \
-    $$PWD/VideoImpl.cpp \
-    $$PWD/VideoShmSrcImpl.cpp \
-    $$PWD/VideoUriDecodeBinImpl.cpp \
-    $$PWD/VideoV4l2SrcImpl.cpp \
+    $$PWD/VideoImplQtMultiMedia.cpp \
+    $$PWD/VideoSurface.cpp \
     $$PWD/Util.cpp

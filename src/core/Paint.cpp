@@ -19,10 +19,7 @@
  */
 
 #include "Paint.h"
-#include "VideoImpl.h"
-#include "VideoUriDecodeBinImpl.h"
-#include "VideoV4l2SrcImpl.h"
-#include "VideoShmSrcImpl.h"
+#include "VideoImplQtMultiMedia.h"
 #include <iostream>
 
 namespace mmp {
@@ -176,7 +173,8 @@ Video::Video(int id) : Texture(id),
     _uri(""),
     _impl(NULL)
 {
-  _impl = new VideoUriDecodeBinImpl();
+  _impl = new VideoImplQtMultiMedia();
+//  _impl = new VideoUriDecodeBinImpl();
   setRate(1);
   setVolume(1);
 }
@@ -186,20 +184,21 @@ Video::Video(const QString uri_, VideoType type, double rate, uid id):
     _uri(""),
     _impl(NULL)
 {
-  switch (type) {
-    case VIDEO_URI:
-      _impl = new VideoUriDecodeBinImpl();
-      break;
-    case VIDEO_WEBCAM:
-      _impl = new VideoV4l2SrcImpl();
-      break;
-    case VIDEO_SHMSRC:
-      _impl = new VideoShmSrcImpl();
-      break;
-    default:
-      fprintf (stderr, "Could not determine type for video source\n ");
-      break;
-  }
+  _impl = new VideoImplQtMultiMedia();
+  // switch (type) {
+  //   case VIDEO_URI:
+  //     _impl = new VideoUriDecodeBinImpl();
+  //     break;
+  //   case VIDEO_WEBCAM:
+  //     _impl = new VideoV4l2SrcImpl();
+  //     break;
+  //   case VIDEO_SHMSRC:
+  //     _impl = new VideoShmSrcImpl();
+  //     break;
+  //   default:
+  //     fprintf (stderr, "Could not determine type for video source\n ");
+  //     break;
+  // }
   //_impl = new VideoShmSrcImpl();//V4l2SrcImpl();//UriDecodeBinImpl();
   setRate(rate);
   setVolume(1);
@@ -248,12 +247,12 @@ void Video::unlockMutex() {
 
 const uchar* Video::getBits()
 {
-  return this->_impl->getBits();
+  return _impl->getBits();
 }
 
 bool Video::bitsHaveChanged() const
 {
-  return this->_impl->bitsHaveChanged();
+  return _impl->bitsHaveChanged();
 }
 
 void Video::setRate(double rate)
@@ -286,7 +285,7 @@ double Video::getVolume() const
 
 bool Video::hasVideoSupport()
 {
-  return VideoImpl::hasVideoSupport();
+  return VideoImplQtMultiMedia::hasVideoSupport();
 }
 
 bool Video::setUri(const QString &uri)
