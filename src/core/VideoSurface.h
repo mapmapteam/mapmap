@@ -46,6 +46,8 @@
 #include <QGraphicsItem>
 #include <QAudio>
 
+#include <QDebug>
+
 namespace mmp {
 
 class VideoSurface
@@ -65,9 +67,15 @@ public:
 
     const uchar* bits();
 
+    void setFreeze(bool freeze) { _freeze = freeze; }
+
+signals:
+    void frameAvailable(QImage img);
+
 private:
     // Each frame is saved internally in a QImage.
-    QImage _img;
+//    QImage _img;
+    bool _freeze;
 };
 
 }

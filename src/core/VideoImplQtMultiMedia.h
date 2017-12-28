@@ -30,6 +30,8 @@
 #include "VideoSurface.h"
 
 #include <QMediaPlayer>
+#include <QVideoProbe>
+
 #include <QtOpenGL>
 #include <QMutex>
 #include <QWaitCondition>
@@ -132,6 +134,11 @@ public:
 
   void resetMovie();
 
+public slots:
+  void mediaStatusChanged(QMediaPlayer::MediaStatus status);
+  void processImage(QImage img);
+  void processFrame(QVideoFrame frame);
+
 protected:
 
 public:
@@ -185,6 +192,11 @@ private:
   QString _uri;
 
   QMediaPlayer mediaPlayer;
+
+  QImage _img;
+
+  QVideoProbe* videoProbe;
+  bool _freeze;
 
   VideoSurface* videoSurface;
 

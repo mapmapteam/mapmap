@@ -46,7 +46,8 @@
 namespace mmp {
 
 VideoSurface::VideoSurface(QObject *parent)
-    : QAbstractVideoSurface(parent)
+    : QAbstractVideoSurface(parent),
+      _freeze(false)
     // , imageFormat(QImage::Format_Invalid)
     // , framePainted(false)
 {
@@ -79,8 +80,16 @@ QList<QVideoFrame::PixelFormat> VideoSurface::supportedPixelFormats(
 
 bool VideoSurface::present(const QVideoFrame &frame)
 {
+    return true;
+  if (!frame.isValid())
+      return false;
+
+  if (_freeze)
+    return true;
+
   // Copy current frame.
   QVideoFrame currentFrame(frame);
+  QImage _img;
 
   // Convert frame into QImage with appropriate format.
   // Source: https://stackoverflow.com/questions/27829830/convert-qvideoframe-to-qimage
@@ -88,19 +97,27 @@ bool VideoSurface::present(const QVideoFrame &frame)
   {
     QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(currentFrame.pixelFormat());
     if (imageFormat != QImage::Format_Invalid) {
-      _img = QImage(currentFrame.bits(), currentFrame.width(), currentFrame.height(), imageFormat);
+      _img = QImage(currentFrame.bits(), currentFrame.width(), currentFrame.height(), currentFrame.bytesPerLine(), imageFormat);
     } else {
        // e.g. JPEG
        int nbytes = currentFrame.mappedBytes();
        _img = QImage::fromData(currentFrame.bits(), nbytes);
     }
 
-    currentFrame.unmap();
 
     // Convert to OpenGLformat and apply transforms to straighten.
     _img = QGLWidget::convertToGLFormat(_img)
             .mirrored(true, false)
             .transformed(QTransform().rotate(180));
+
+    emit frameAvailable(_img);
+    currentFrame.unmap();
+
+    if (_img.allGray())
+    {
+        int x = 4;
+        qDebug() << frame.endTime() << " " << frame.isValid() << endl;
+    }
 
     return true;
   }
@@ -108,9 +125,9 @@ bool VideoSurface::present(const QVideoFrame &frame)
     return false;
 }
 
-const uchar* VideoSurface::bits()
-{
-  return _img.bits();
-}
+//const uchar* VideoSurface::bits()
+//{
+//  return _img.bits();
+//}
 
 }

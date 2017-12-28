@@ -57,7 +57,8 @@ const uchar* VideoImplQtMultiMedia::getBits()
 //  _bitsChanged = false;
 
   // Return data.
-  return videoSurface->bits();
+  return _img.bits();
+//  return videoSurface->bits();
 //  return (hasBits() ? videoSurface->bits() : NULL);
 }
 
@@ -131,9 +132,20 @@ _uri("")
   _mutexLocker = new QMutexLocker(&_mutex);
 
   videoSurface = new VideoSurface(this);
+  videoProbe = new QVideoProbe(this);
+  videoProbe->setSource(&mediaPlayer);
+  _freeze = false;
+
   mediaPlayer.setVideoOutput(videoSurface);
 
   _bitsChanged = true;
+  connect(&mediaPlayer, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)),
+          this, SLOT(mediaStatusChanged(QMediaPlayer::MediaStatus)));
+
+  connect(videoProbe, SIGNAL(videoFrameProbed(QVideoFrame)), this, SLOT(processFrame(QVideoFrame)));
+  //connect(videoSurface, SIGNAL(frameAvailable(QImage)),
+  //        this, SLOT(processImage(QImage)));
+
   // connect(&mediaPlayer, SIGNAL(stateChanged(QMediaPlayer::State)),
   //         this, SLOT(mediaStateChanged(QMediaPlayer::State)));
   // connect(&mediaPlayer, SIGNAL(positionChanged(qint64)), this, SLOT(positionChanged(qint64)));
@@ -180,6 +192,72 @@ void VideoImplQtMultiMedia::resetMovie()
   }
 }
 
+void VideoImplQtMultiMedia::mediaStatusChanged(QMediaPlayer::MediaStatus status)
+{
+  if (status == QMediaPlayer::EndOfMedia)
+  {
+//      loadMovie(_uri);
+//      _freeze = true;
+//      videoSurface->setFreeze(true);
+
+//    resetMovie();
+  }
+  else if (status == QMediaPlayer::BufferedMedia)
+  {
+//      _freeze = false;
+//    setPlayState(_playState);
+//    videoSurface->setFreeze(false);
+  }
+}
+
+void VideoImplQtMultiMedia::processImage(QImage img)
+{
+    _img = img;
+}
+
+void VideoImplQtMultiMedia::processFrame(QVideoFrame frame)
+{
+    if (!frame.isValid())
+        return;
+
+    if (_freeze)
+        return;
+
+    // Copy current frame.
+    QVideoFrame currentFrame(frame);
+    QImage img;
+
+    // Convert frame into QImage with appropriate format.
+    // Source: https://stackoverflow.com/questions/27829830/convert-qvideoframe-to-qimage
+    if (currentFrame.map(QAbstractVideoBuffer::ReadOnly))
+    {
+      QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(currentFrame.pixelFormat());
+      if (imageFormat != QImage::Format_Invalid) {
+        img = QImage(currentFrame.bits(), currentFrame.width(), currentFrame.height(), currentFrame.bytesPerLine(), imageFormat);
+      } else {
+          qWarning() << "Strange" << endl;
+         // e.g. JPEG
+         int nbytes = currentFrame.mappedBytes();
+         img = QImage::fromData(currentFrame.bits(), nbytes);
+      }
+
+
+      // Convert to OpenGLformat and apply transforms to straighten.
+      img = QGLWidget::convertToGLFormat(img)
+              .mirrored(true, false)
+              .transformed(QTransform().rotate(180));
+
+//      qWarning() << img.isNull() << " " << img.allGray() << " " << currentFrame.bits() << " " << currentFrame << endl;
+
+      if (!img.isNull())
+          _img = img;
+
+      currentFrame.unmap();
+
+    }
+}
+
+
 void VideoImplQtMultiMedia::update()
 {
   // // Check for end-of-stream or terminate.
@@ -206,7 +284,9 @@ void VideoImplQtMultiMedia::update()
 
    // Start playing.
    if (!filename.isEmpty()) {
+       mediaPlayer.stop();
        mediaPlayer.setMedia(QUrl::fromLocalFile(filename));
+       setPlayState(_playState);
    }
 
    return true;

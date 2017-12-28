@@ -1,4 +1,4 @@
-CONFIG += c++11
+CONFIG += c++11 debug
 
 # Always use major.minor.micro version number format
 VERSION = 0.5.1
