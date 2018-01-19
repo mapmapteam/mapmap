@@ -61,6 +61,7 @@ public:
     // void stop() override;
     QList<QVideoFrame::PixelFormat> supportedPixelFormats(
             QAbstractVideoBuffer::HandleType handleType) const;
+    bool isFormatSupported(const QVideoSurfaceFormat &format, QVideoSurfaceFormat *similar) const;
     bool present(const QVideoFrame &frame) override;
 
     const uchar* bits();

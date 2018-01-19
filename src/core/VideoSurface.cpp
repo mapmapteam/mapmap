@@ -77,6 +77,18 @@ QList<QVideoFrame::PixelFormat> VideoSurface::supportedPixelFormats(
     }
 }
 
+bool VideoSurface::isFormatSupported(const QVideoSurfaceFormat &format, QVideoSurfaceFormat *similar) const
+{
+  Q_UNUSED(similar);
+
+  const QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(format.pixelFormat());
+  const QSize size = format.frameSize();
+
+  return imageFormat != QImage::Format_Invalid
+          && !size.isEmpty()
+          && format.handleType() == QAbstractVideoBuffer::NoHandle;
+}
+
 bool VideoSurface::present(const QVideoFrame &frame)
 {
   // Copy current frame.
