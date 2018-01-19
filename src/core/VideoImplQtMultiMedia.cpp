@@ -206,7 +206,12 @@ void VideoImplQtMultiMedia::update()
 
    // Start playing.
    if (!filename.isEmpty()) {
-       mediaPlayer.setMedia(QUrl::fromLocalFile(filename));
+       QMediaPlaylist *playlist = new QMediaPlaylist();
+       playlist->addMedia(QUrl::fromLocalFile(filename));
+       playlist->setPlaybackMode(QMediaPlaylist::Loop);
+//       mediaPlayer.setMedia(QUrl::fromLocalFile(filename));
+       mediaPlayer.setPlaylist(playlist);
+
    }
 
    return true;

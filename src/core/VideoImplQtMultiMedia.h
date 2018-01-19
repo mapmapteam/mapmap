@@ -30,6 +30,7 @@
 #include "VideoSurface.h"
 
 #include <QMediaPlayer>
+#include <QMediaPlaylist>
 #include <QtOpenGL>
 #include <QMutex>
 #include <QWaitCondition>
