@@ -15,6 +15,11 @@ extra dimensions, optical illusions, and notions of movement onto
 previously static objects. The video is commonly combined with, or
 triggered by, audio to create an audio-visual narrative.
 
+
+Build status
+---------------
+Linux [![Build Status](https://travis-ci.org/mapmapteam/mapmap.svg?branch=develop)](https://travis-ci.org/mapmapteam/mapmap)
+
 Ackowledgements
 ---------------
 This project was made possible by the support of the International
