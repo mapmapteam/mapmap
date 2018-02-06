@@ -57,3 +57,7 @@ Contributors
 More info
 ---------
 Get more info from http://mapmap.info
+
+Licence
+---------
+[GNU GPL v3](https://github.com/mapmapteam/mapmap/blob/develop/LICENSE)
