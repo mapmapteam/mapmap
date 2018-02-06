@@ -18,7 +18,7 @@ triggered by, audio to create an audio-visual narrative.
 
 Build status
 ---------------
-Linux [![Build Status](https://travis-ci.org/mapmapteam/mapmap.svg?branch=develop)](https://travis-ci.org/mapmapteam/mapmap)
+Linux   [![Build Status](https://travis-ci.org/mapmapteam/mapmap.svg?branch=develop)](https://travis-ci.org/mapmapteam/mapmap)
 
 Ackowledgements
 ---------------
