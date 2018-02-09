@@ -1,4 +1,4 @@
-CONFIG  += qt debug c++11
+CONFIG  += qt release c++11
 TEMPLATE = app
 # Always use major.minor.micro version number format
 VERSION = 0.5.1
@@ -129,6 +129,13 @@ QMAKE_EXTRA_TARGETS += docs
 
 # Linux-specific:
 unix:!mac {
+
+  # Raspberry pi
+  contains(QMAKE_HOST.arch, arm.*): {
+    QMAKE_CXXFLAGS_RELEASE -= -O2
+    QMAKE_CXXFLAGS_RELEASE -= -O1
+  }
+
   DEFINES += UNIX
   CONFIG += link_pkgconfig
   INCLUDE_PATH +=
