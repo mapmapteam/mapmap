@@ -232,23 +232,48 @@ void TextureGraphicsItem::_doDrawInput(QPainter* painter)
   if (isMappingCurrent())
   {
     // FIXME: Does this draw the quad counterclockwise?
+#if !defined(HAVE_GLES)
     glBegin (GL_QUADS);
     {
       QRectF rect = mapFromScene(_texture.toStrongRef()->getRect()).boundingRect();
 
-      Util::correctGlTexCoord(0, 0);
+      glTexCoord2f (0, 0);
       glVertex3f (rect.x(), rect.y(), 0);
 
-      Util::correctGlTexCoord(1, 0);
+      glTexCoord2f (1, 0);
       glVertex3f (rect.x() + rect.width(), rect.y(), 0);
 
-      Util::correctGlTexCoord(1, 1);
-      glVertex3f (rect.x()+rect.width(), rect.y()+rect.height(), 0);
+      glTexCoord2f (1, 1);
+      glVertex3f (rect.x() + rect.width(), rect.y() + rect.height(), 0);
 
-      Util::correctGlTexCoord(0, 1);
+      glTexCoord2f (0, 1);
       glVertex3f (rect.x(), rect.y()+rect.height(), 0);
     }
     glEnd ();
+#else
+    GLfloat quad[] = {
+      rect.x(), rect.y(), 0,
+      rect.x() + rect.width(), rect.y(), 0,
+      rect.x() + rect.width(), rect.y() + rect.height(), 0,
+      rect.x(), rect.y() + rect.height(), 0
+    };
+    GLfloat tex[] = {
+      0, 0,
+      1, 0,
+      1, 1,
+      0, 1
+    };
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glVertexPointer(3, GL_FLOAT, 0, quad);
+    glTexCoordPointer(2, GL_FLOAT, 0, tex);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#endif
   }
 }
 
