@@ -48,7 +48,9 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     // Draw the preferred signal test card
     QSettings settings;
     int testCard = settings.value("signalTestCard", MM::DEFAULT_TEST_CARD).toInt();
+#if !defined(HAVE_GLES)
     glPushMatrix();
+#endif
     painter->translate(rect.x(), rect.y());
     painter->setRenderHint(QPainter::Antialiasing);
     painter->save();
@@ -66,7 +68,9 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
       break;
     }
     painter->restore();
+#if !defined(HAVE_GLES)
     glPopMatrix();
+#endif
   }
   else
   {
