@@ -26,8 +26,10 @@
 
 #if __APPLE__
 #include <OpenGL/gl.h>
-#else
+#elif !defined(HAVE_GLES)
 #include <GL/gl.h>
+#else
+#include <GLES3/gl3.h>
 #endif
 
 #include <stdlib.h>

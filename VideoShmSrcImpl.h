@@ -40,6 +40,8 @@
 #include <glib.h>
 #if __APPLE__
 #include <OpenGL/gl.h>
+#elif defined(HAVE_GLES)
+#include <GLES3/gl3.h>
 #else
 #include <GL/gl.h>
 #endif
