@@ -39,6 +39,8 @@ namespace mmp {
  */
 namespace Util {
 
+#if !defined(HAVE_GLES)
+
 /// Calls glTexCoord2f() with the corrected texture coordinates.
 void correctGlTexCoord(GLfloat x, GLfloat y);
 
@@ -48,6 +50,13 @@ void correctGlTexCoord(GLfloat x, GLfloat y);
  * between glBegin(<GL_SHAPE>) and glEnd() calls.
  */
 void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint);
+
+#else
+
+void getGlTexPoint(GLfloat* texPoint, GLfloat dstPoint,
+                   const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint);
+
+#endif
 
 /**
  * Maps a number from a range to another.

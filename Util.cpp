@@ -30,6 +30,8 @@ namespace mmp {
 
 namespace Util {
 
+#if !defined(HAVE_GLES)
+
 void correctGlTexCoord(GLfloat x, GLfloat y)
 {
   glTexCoord2f (x, y);
@@ -47,6 +49,22 @@ void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPoi
     outputPoint.y()
   );
 }
+
+#else
+
+void getGlTexPoint(GLfloat* texPoint, GLfloat* dstPoint,
+                   const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint)
+{
+  // Set point in texture.
+  texPoint[0] = (inputPoint.x() - texture.getX()) / (GLfloat) texture.getWidth();
+  texPoint[1] = (inputPoint.y() - texture.getY()) / (GLfloat) texture.getHeight());
+  // Add point in output.
+  dstPoint[0] = outputPoint.x();
+  dstPoint[1] = outputPoint.y();
+  dstPoint[2] = 0;
+}
+
+#endif
 
 /**
  * Convenience function to map a variable from one coordinate space

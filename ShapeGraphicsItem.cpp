@@ -336,6 +336,30 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
   painter->endNativePainting();
 }
 
+#if defined(HAVE_GLES)
+void _drawTexture(const QVector<QPointF>& input, QVector<QPointF>& output, bool mapFromScene=true);
+{
+  int nVertices = input.size();
+  GLfloat tex[nVertices*2];
+  GLfloat vertices[nVertices*3];
+  for (int i=0, j=0, k=0; i<nVertices; i++, j+=2, k+=3)
+  {
+    Util::getGlTexPoint(&tex[j], &vertices[k],
+                        *_texture.toStrongRef(), input[i], (mapFromScene ? mapFromScene(output[i]) : output[i]));
+  }
+
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+  glVertexPointer(3, GL_FLOAT, 0, vertices);
+  glTexCoordPointer(2, GL_FLOAT, 0, tex);
+  glDrawArrays(GL_TRIANGLE_FAN, 0, nVertices);
+
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+#endif
+
 QPainterPath PolygonTextureGraphicsItem::shape() const
 {
   QPainterPath path;
@@ -355,6 +379,7 @@ void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   if (isOutput())
   {
     MShape::ptr inputShape = _inputShape.toStrongRef();
+#if !defined(HAVE_GLES)
     glBegin(GL_TRIANGLES);
     {
       for (int i=0; i<inputShape->nVertices(); i++)
@@ -363,6 +388,9 @@ void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter)
       }
     }
     glEnd();
+#else
+  _drawTexture(inputShape->getVertices(), getShape()->getVertices());
+#endif
   }
 }
 
@@ -442,12 +470,16 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
         // Draw all the cached items.
         for (CacheQuadMapping m: item.subQuads)
         {
+#if !defined(HAVE_GLES)
           glBegin(GL_QUADS);
           for (int i = 0; i < outputQuad->nVertices(); i++)
           {
             Util::setGlTexPoint(*_texture.toStrongRef(), m.input->getVertex(i), mapFromScene(m.output->getVertex(i)));
           }
           glEnd();
+#else
+          _drawTexture(m.input->getVertices(), m.output->getVertices());
+#endif
         }
       }
     }
@@ -639,12 +671,19 @@ void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 
       if (j > 0) // We don't draw the first triangle.
       {
+#if !defined(HAVE_GLES)
         // Draw triangle.
         glBegin(GL_TRIANGLES);
         Util::setGlTexPoint(*texture, inputData.controlCenter, outputData.controlCenter);
         Util::setGlTexPoint(*texture, prevInputPoint,     prevOutputPoint);
         Util::setGlTexPoint(*texture, currentInputPoint,  currentOutputPoint);
         glEnd();
+#else
+        QVector<QPointF> in, out;
+        in  << inputData.controlCenter  << prevInputPoint  << currentInputPoint;
+        out << outputData.controlCenter << prevOutputPoint << currentOutputPoint;
+        _drawTexture(in, out);
+#endif
       }
 
       // Save point for next iteration.

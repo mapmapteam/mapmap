@@ -185,6 +185,10 @@ protected:
   virtual void _doDrawInput(QPainter* painter);
 
 protected:
+#if defined(HAVE_GLES)
+void _drawTexture(const QVector<QPointF>& input, QVector<QPointF>& output, bool mapFromScene=true);
+#endif
+
   QWeakPointer<TextureMapping> _textureMapping;
   QWeakPointer<Texture> _texture;
   QWeakPointer<MShape> _inputShape;
