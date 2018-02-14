@@ -232,10 +232,10 @@ void TextureGraphicsItem::_doDrawInput(QPainter* painter)
   if (isMappingCurrent())
   {
     // FIXME: Does this draw the quad counterclockwise?
+    QRectF rect = mapFromScene(_texture.toStrongRef()->getRect()).boundingRect();
 #if !defined(HAVE_GLES)
     glBegin (GL_QUADS);
     {
-      QRectF rect = mapFromScene(_texture.toStrongRef()->getRect()).boundingRect();
 
       glTexCoord2f (0, 0);
       glVertex3f (rect.x(), rect.y(), 0);
@@ -264,15 +264,22 @@ void TextureGraphicsItem::_doDrawInput(QPainter* painter)
       0, 1
     };
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//    glEnableClientState(GL_VERTEX_ARRAY);
+//    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    glVertexPointer(3, GL_FLOAT, 0, quad);
-    glTexCoordPointer(2, GL_FLOAT, 0, tex);
+    GLuint ATTRIB_VERTEX = 0;
+    GLuint ATTRIB_TEXTURE = 1;
+
+    glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, GL_FALSE, 0, quad);
+    glVertexAttribPointer(ATTRIB_TEXTURE, 2, GL_FLOAT, GL_FALSE, 0, tex);
+    glEnableVertexAttribArray(ATTRIB_VERTEX);
+    glEnableVertexAttribArray(ATTRIB_TEXTURE);
+
+    // OR GL_TRIANGLE_STRIP???
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+ //   glDisableClientState(GL_VERTEX_ARRAY);
+ //   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #endif
   }
 }
@@ -315,15 +322,18 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   }
   texture->unlockMutex();
 
+#if !defined(HAVE_GLES)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+#endif
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+#if !defined(HAVE_GLES)
   // Set texture color (apply opacity).
   glColor4f(1.0f, 1.0f, 1.0f,
             isOutput() ? getMapping()->getComputedOpacity() : getMapping()->getPaint()->getOpacity());
-
+#endif
 }
 
 void TextureGraphicsItem::_postPaint(QPainter* painter,
@@ -337,7 +347,7 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
 }
 
 #if defined(HAVE_GLES)
-void _drawTexture(const QVector<QPointF>& input, QVector<QPointF>& output, bool mapFromScene=true);
+void TextureGraphicsItem::_drawTexture(const QVector<QPointF>& input, const QVector<QPointF>& output, bool mapFromScene_)
 {
   int nVertices = input.size();
   GLfloat tex[nVertices*2];
@@ -345,18 +355,20 @@ void _drawTexture(const QVector<QPointF>& input, QVector<QPointF>& output, bool 
   for (int i=0, j=0, k=0; i<nVertices; i++, j+=2, k+=3)
   {
     Util::getGlTexPoint(&tex[j], &vertices[k],
-                        *_texture.toStrongRef(), input[i], (mapFromScene ? mapFromScene(output[i]) : output[i]));
+                        *_texture.toStrongRef(), input[i], (mapFromScene_ ? mapFromScene(output[i]) : output[i]));
   }
 
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-  glVertexPointer(3, GL_FLOAT, 0, vertices);
-  glTexCoordPointer(2, GL_FLOAT, 0, tex);
-  glDrawArrays(GL_TRIANGLE_FAN, 0, nVertices);
+    GLuint ATTRIB_VERTEX = 0;
+    GLuint ATTRIB_TEXTURE = 1;
 
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+    glVertexAttribPointer(ATTRIB_TEXTURE, 2, GL_FLOAT, GL_FALSE, 0, tex);
+    glEnableVertexAttribArray(ATTRIB_VERTEX);
+    glEnableVertexAttribArray(ATTRIB_TEXTURE);
+
+    // OR GL_TRIANGLE_STRIP???
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
 #endif
 

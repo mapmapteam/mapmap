@@ -55,7 +55,7 @@ void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPoi
 
 #else
 
-void getGlTexPoint(GLfloat* texPoint, GLfloat dstPoint,
+void getGlTexPoint(GLfloat* texPoint, GLfloat* dstPoint,
                    const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint);
 
 #endif

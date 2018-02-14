@@ -57,7 +57,7 @@ void getGlTexPoint(GLfloat* texPoint, GLfloat* dstPoint,
 {
   // Set point in texture.
   texPoint[0] = (inputPoint.x() - texture.getX()) / (GLfloat) texture.getWidth();
-  texPoint[1] = (inputPoint.y() - texture.getY()) / (GLfloat) texture.getHeight());
+  texPoint[1] = (inputPoint.y() - texture.getY()) / (GLfloat) texture.getHeight();
   // Add point in output.
   dstPoint[0] = outputPoint.x();
   dstPoint[1] = outputPoint.y();

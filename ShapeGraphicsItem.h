@@ -188,7 +188,7 @@ protected:
 
 protected:
 #if defined(HAVE_GLES)
-void _drawTexture(const QVector<QPointF>& input, QVector<QPointF>& output, bool mapFromScene=true);
+void _drawTexture(const QVector<QPointF>& input, const QVector<QPointF>& output, bool mapFromScene=true);
 #endif
 
   QWeakPointer<TextureMapping> _textureMapping;

@@ -134,6 +134,7 @@ unix:!mac {
   contains(QMAKE_HOST.arch, arm.*): {
     QMAKE_CXXFLAGS_RELEASE -= -O2
     QMAKE_CXXFLAGS_RELEASE -= -O1
+    DEFINES += HAVE_GLES
   }
 
   DEFINES += UNIX
