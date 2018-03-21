@@ -62,7 +62,7 @@ public:
   VideoImplQtMultiMedia();
   virtual ~VideoImplQtMultiMedia();
 
-//  void setUri(const QString uri);
+  //  void setUri(const QString uri);
   /**
    * Returns whether or not GStreamer video support is ok.
    */
@@ -96,11 +96,11 @@ public:
   const uchar* getBits();
 
   /// Returns true iff bits have started flowing (ie. if there is at least a first sample available).
-//  bool hasBits() const { return videoSurface->bits() != NULL; }
-  bool hasBits() const { return videoSurface->isActive(); }
+  //  bool hasBits() const { return videoSurface->bits() != NULL; }
+  bool hasBits() const { return _videoSurface->isActive(); }
 
   /// Returns true iff bits have changed since last call to getBits().
-//  bool bitsHaveChanged() const { return _bitsChanged; }
+  //  bool bitsHaveChanged() const { return _bitsChanged; }
   bool bitsHaveChanged() const { return true; }
 
   /**
@@ -120,7 +120,7 @@ public:
   bool setPlayState(bool play);
   bool getPlayState() const { return _playState; }
 
-  bool seekIsEnabled() const { return mediaPlayer.isSeekable(); }
+  bool seekIsEnabled() const { return _mediaPlayer->isSeekable(); }
 
   bool seekTo(double position);
   bool seekTo(qint64 positionMilliSeconds);
@@ -178,6 +178,8 @@ protected:
 
   /// Main mutex locker (for the lockMutex() / unlockMutex() methods).
   QMutexLocker* _mutexLocker;
+private slots:
+  void endOfMedia(qint64 position);
 
 private:
   /**
@@ -185,9 +187,10 @@ private:
    */
   QString _uri;
 
-  QMediaPlayer mediaPlayer;
+  QMediaPlayer *_mediaPlayer;
+  QMediaPlaylist *_mediaPlaylist;
 
-  VideoSurface* videoSurface;
+  VideoSurface* _videoSurface;
 
 };
 

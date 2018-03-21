@@ -23,12 +23,50 @@
  */
 
 #include "VideoImplQtMultiMedia.h"
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 #include <cstring>
 #include <iostream>
 
 namespace mmp {
 
-// -------- private implementation of VideoImpl -------
+VideoImplQtMultiMedia::VideoImplQtMultiMedia() :
+//_width(-1),
+//_height(-1),
+//_duration(0),
+//_seekEnabled(false),
+_bitsChanged(false),
+_data(NULL),
+//_isSeekable(false),
+_rate(1.0),
+_movieReady(false),
+_playState(false),
+_uri("")
+{
+  _mutexLocker = new QMutexLocker(&_mutex);
+
+  _videoSurface = new VideoSurface;
+  _mediaPlayer = new QMediaPlayer;
+//  _mediaPlayer->setNotifyInterval(1); // Update info about position
+
+  _mediaPlayer->setVideoOutput(_videoSurface);
+
+  _nextMediaPlayer = new QMediaPlayer;
+  _mediaPlayer->setVideoOutput(_videoSurface);
+
+  connect(_mediaPlayer, SIGNAL(positionChanged(qint64)), this, SLOT(endOfMedia(qint64)));
+
+  _bitsChanged = true;
+}
+
+VideoImplQtMultiMedia::~VideoImplQtMultiMedia()
+{
+  // Free all resources.
+  //freeResources();
+
+  // Free mutex locker object.
+  delete _mutexLocker;
+}
 
 bool VideoImplQtMultiMedia::hasVideoSupport()
 {
@@ -38,7 +76,7 @@ bool VideoImplQtMultiMedia::hasVideoSupport()
 
 int VideoImplQtMultiMedia::getWidth() const
 {
-  return videoSurface->surfaceFormat().frameWidth();
+  return _videoSurface->surfaceFormat().frameWidth();
 //  return _width;
 //  Q_ASSERT(videoIsConnected());
 //  return _padHandlerData.width;
@@ -46,7 +84,7 @@ int VideoImplQtMultiMedia::getWidth() const
 
 int VideoImplQtMultiMedia::getHeight() const
 {
-  return videoSurface->surfaceFormat().frameHeight();
+  return _videoSurface->surfaceFormat().frameHeight();
 //  Q_ASSERT(videoIsConnected());
 //  return _padHandlerData.height;
 }
@@ -57,7 +95,7 @@ const uchar* VideoImplQtMultiMedia::getBits()
 //  _bitsChanged = false;
 
   // Return data.
-  return videoSurface->bits();
+  return _videoSurface->bits();
 //  return (hasBits() ? videoSurface->bits() : NULL);
 }
 
@@ -79,7 +117,7 @@ void VideoImplQtMultiMedia::setRate(double rate)
   {
     _rate = rate;
 
-    mediaPlayer.setPlaybackRate(_rate);
+    _mediaPlayer->setPlaybackRate(_rate);
   }
 }
 
@@ -90,7 +128,7 @@ void VideoImplQtMultiMedia::setVolume(double volume)
   {
     _volume = volume;
 
-    mediaPlayer.setMuted(_volume <= 0);
+    _mediaPlayer->setMuted(_volume <= 0);
     if (_volume > 0)
     {
       // Convert volume using logarithmic scale.
@@ -100,7 +138,7 @@ void VideoImplQtMultiMedia::setVolume(double volume)
 
       qreal linearVolume = _volume;
 
-      mediaPlayer.setVolume(qRound(linearVolume * 100));
+      _mediaPlayer->setVolume(qRound(linearVolume * 100));
     }
   }
 }
@@ -112,41 +150,6 @@ void VideoImplQtMultiMedia::build()
   {
     qDebug() << "Cannot load movie " << _uri << ".";
   }
-}
-
-
-VideoImplQtMultiMedia::VideoImplQtMultiMedia() :
-//_width(-1),
-//_height(-1),
-//_duration(0),
-//_seekEnabled(false),
-_bitsChanged(false),
-_data(NULL),
-//_isSeekable(false),
-_rate(1.0),
-_movieReady(false),
-_playState(false),
-_uri("")
-{
-  _mutexLocker = new QMutexLocker(&_mutex);
-
-  videoSurface = new VideoSurface(this);
-  mediaPlayer.setVideoOutput(videoSurface);
-
-  _bitsChanged = true;
-  // connect(&mediaPlayer, SIGNAL(stateChanged(QMediaPlayer::State)),
-  //         this, SLOT(mediaStateChanged(QMediaPlayer::State)));
-  // connect(&mediaPlayer, SIGNAL(positionChanged(qint64)), this, SLOT(positionChanged(qint64)));
-  // connect(&mediaPlayer, SIGNAL(durationChanged(qint64)), this, SLOT(durationChanged(qint64)));
-}
-
-VideoImplQtMultiMedia::~VideoImplQtMultiMedia()
-{
-  // Free all resources.
-  //freeResources();
-
-  // Free mutex locker object.
-  delete _mutexLocker;
 }
 
 // void VideoImplQtMultiMedia::unloadMovie()
@@ -169,7 +172,7 @@ void VideoImplQtMultiMedia::resetMovie()
     else
     {
       // NOTE: Untested.
-      seekTo(mediaPlayer.duration());
+      seekTo(_mediaPlayer->duration());
       //_updateRate();
     }
   }
@@ -182,17 +185,7 @@ void VideoImplQtMultiMedia::resetMovie()
 
 void VideoImplQtMultiMedia::update()
 {
-  // // Check for end-of-stream or terminate.
-  // if (_eos() || _terminate)
-  // {
-  //   _setFinished(true);
-  //   resetMovie();
-  // }
-  // else
-  // {
-  //   _setFinished(false);
-  // }
-  //
+
 }
 
  bool VideoImplQtMultiMedia::loadMovie(const QString& filename) {
@@ -206,12 +199,13 @@ void VideoImplQtMultiMedia::update()
 
    // Start playing.
    if (!filename.isEmpty()) {
-       QMediaPlaylist *playlist = new QMediaPlaylist();
-       playlist->addMedia(QUrl::fromLocalFile(filename));
-       playlist->setPlaybackMode(QMediaPlaylist::Loop);
-//       mediaPlayer.setMedia(QUrl::fromLocalFile(filename));
-       mediaPlayer.setPlaylist(playlist);
+     _mediaPlaylist = new QMediaPlaylist;
+     _mediaPlaylist->addMedia(QUrl::fromLocalFile(filename));
+     _mediaPlaylist->setPlaybackMode(QMediaPlaylist::Loop);
 
+     _mediaPlayer->setPlaylist(_mediaPlaylist);
+
+//     _mediaPlayer->setMedia(QUrl::fromLocalFile(filename));
    }
 
    return true;
@@ -221,15 +215,15 @@ bool VideoImplQtMultiMedia::setPlayState(bool play)
 {
   _playState = play;
   if (play)
-    mediaPlayer.play();
+    _mediaPlayer->play();
   else
-    mediaPlayer.pause();
+    _mediaPlayer->pause();
   return true;
 }
 
 bool VideoImplQtMultiMedia::seekTo(double position)
 {
-  qint64 duration = mediaPlayer.duration();
+  qint64 duration = _mediaPlayer->duration();
 
   // Make sure position is in [0,1].
   position = qBound(0.0, position, 1.0);
@@ -253,7 +247,7 @@ bool VideoImplQtMultiMedia::seekTo(qint64 positionMilliSeconds)
 //    _bitsChanged = false;
 
     // Seek to position.
-    mediaPlayer.setPosition(positionMilliSeconds);
+    _mediaPlayer->setPosition(positionMilliSeconds);
     unlockMutex();
 
     return true;
@@ -307,6 +301,21 @@ bool VideoImplQtMultiMedia::waitForNextBits(int timeout, const uchar** bits)
 
   // Timed out.
   return false;
+}
+
+void VideoImplQtMultiMedia::endOfMedia(qint64 position)
+{
+  if (_mediaPlayer->isVideoAvailable() && _rate > 0) { // If rate higher than 0
+    if (_mediaPlayer->state() != QMediaPlayer::PausedState) {
+      // Acording to the minimum framerate is 24
+      // 1000 millisecons / 24 = 41.666666667 (42)
+      // Reset the video just after reading the frame before the last
+      // Because the last frame always return invalid frame in the VideoSurface
+      if (_mediaPlayer->duration() - position < (qint64)84) {
+        resetMovie();
+      }
+    }
+  }
 }
 
 }
