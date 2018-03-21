@@ -47,11 +47,8 @@ _uri("")
 
   _videoSurface = new VideoSurface;
   _mediaPlayer = new QMediaPlayer;
-//  _mediaPlayer->setNotifyInterval(1); // Update info about position
+  _mediaPlayer->setNotifyInterval(10); // Update info about position
 
-  _mediaPlayer->setVideoOutput(_videoSurface);
-
-  _nextMediaPlayer = new QMediaPlayer;
   _mediaPlayer->setVideoOutput(_videoSurface);
 
   connect(_mediaPlayer, SIGNAL(positionChanged(qint64)), this, SLOT(endOfMedia(qint64)));
