@@ -12,15 +12,15 @@ install:
   - set QTDIR=C:\Qt\5.10.1\mingw53_32
   - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin
 
-  $msiPath = "$($env:USERPROFILE)\gstreamer-1.0-x86_64-1.12.4.msi"
-  $gstreamerPath = "C:\gstreamer"
-  (New-Object Net.WebClient).DownloadFile('https://gstreamer.freedesktop.org/data/pkg/windows/1.12.4/gstreamer-1.0-x86_64-1.12.4.msi', $msiPath)
-  msiexec /i $msiPath /quiet /qn /norestart /log install.log TARGETDIR=$gstreamerPath"
+  - $msiPath = "$($env:USERPROFILE)\gstreamer-1.0-x86_64-1.12.4.msi"
+  - $gstreamerPath = "C:\gstreamer"
+  - (New-Object Net.WebClient).DownloadFile('https://gstreamer.freedesktop.org/data/pkg/windows/1.12.4/gstreamer-1.0-x86_64-1.12.4.msi', $msiPath)
+  - msiexec /i $msiPath /quiet /qn /norestart /log install.log TARGETDIR=$gstreamerPath"
 
-  $msiPath = "$($env:USERPROFILE)\gstreamer-1.0-devel-x86_64-1.12.4.msi"
-  $gstreamerPath = "C:\gstreamer"
-  (New-Object Net.WebClient).DownloadFile('https://gstreamer.freedesktop.org/data/pkg/windows/1.12.4/gstreamer-1.0-devel-x86_64-1.12.4.msi', $msiPath)
-  msiexec /i $msiPath /quiet /qn /norestart /log install.log TARGETDIR=$gstreamerPath"
+  - $msiPath = "$($env:USERPROFILE)\gstreamer-1.0-devel-x86_64-1.12.4.msi"
+  - $gstreamerPath = "C:\gstreamer"
+  - (New-Object Net.WebClient).DownloadFile('https://gstreamer.freedesktop.org/data/pkg/windows/1.12.4/gstreamer-1.0-devel-x86_64-1.12.4.msi', $msiPath)
+  - msiexec /i $msiPath /quiet /qn /norestart /log install.log TARGETDIR=$gstreamerPath"
 
 build_script:
   - qmake mapmap.pro
