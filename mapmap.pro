@@ -1,4 +1,6 @@
-CONFIG += c++11
+CONFIG  += qt debug c++11
+
+TEMPLATE = app
 
 # Always use major.minor.micro version number format
 VERSION = 0.5.1
