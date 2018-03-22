@@ -1,7 +1,4 @@
 language: c++
-compiler:
-  - gcc
-  - clang
 cache: ccache
 
 
@@ -10,6 +7,7 @@ matrix:
     - os: linux
       dist: trusty
       env: TARGET="linux64"
+      compiler: gcc
       cache:
         directories:
           - ~/.ccache
@@ -19,6 +17,9 @@ matrix:
     - os: osx
       osx_image: xcode8
       env: TARGET="osx"
+      compiler:
+        - gcc
+        - clang
 
 before_install:
   - if [ "$TARGET" == "linux64" ]; then
@@ -46,20 +47,20 @@ install:
   - if [ "$TARGET" == "osx" ]; then
       brew install qt;
       brew install liblo;
-      brew install gstreamer gst-plugins-bad gst-plugins-base gst-plugins-good gst-libav;
       brew install ccache;
+      brew install wget;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
+      wget --quiet https://gstreamer.freedesktop.org/data/pkg/osx/1.12.4/gstreamer-1.0-1.12.4-x86_64.pkg;
+      sudo installer -verboseR -pkg gstreamer-1.0-1.12.4-x86_64.pkg;
+      wget --quiet https://gstreamer.freedesktop.org/data/pkg/osx/1.12.4/gstreamer-1.0-devel-1.12.4-x86_64.pkg;
+      sudo installer -verboseR -pkg gstreamer-1.0-devel-1.12.4-x86_64.pkg;
     fi
 
 before_script:
   - if [ "$TARGET" == "osx" ]; then
       brew link qt --force;
       brew link liblo --force;
-      brew link gstreamer --force;
-      brew link gst-plugins-bad --force;
-      brew link gst-plugins-base --force;
-      brew link gst-plugins-good --force;
-      brew link gst-libav --force;
+      gstreamer="GStreamer.framework/Versions/1.0/lib/GStreamer"
       app="MapMap.app";
     fi
 
