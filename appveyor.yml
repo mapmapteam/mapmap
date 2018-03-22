@@ -14,18 +14,22 @@ install:
   - ps: |
       Write-Host "Installing GStreamer..." -ForegroundColor Cyan
       $msiPath = "$($env:USERPROFILE)\gstreamer-1.0-x86_64-1.12.4.msi"
+      $gstreamerPath = "C:\gstreamer"
       Write-Host "Downloading..."
       (New-Object Net.WebClient).DownloadFile('https://gstreamer.freedesktop.org/data/pkg/windows/1.12.4/gstreamer-1.0-x86_64-1.12.4.msi', $msiPath)
       Write-Host "Installing..."
-      cmd /c start /wait msiexec /package $msiPath /passive ADDLOCAL=ALL
+      cmd /c start /wait msiexec /package $msiPath /passive ADDLOCAL=ALL TARGETDIR=$gstreamerPath
+      Write-Host "Installed" -ForegroundColor Green
 
   - ps: |
       Write-Host "Installing GStreamer..." -ForegroundColor Cyan
       $msiPath = "$($env:USERPROFILE)\gstreamer-1.0-devel-x86_64-1.12.4.msi"
+      $gstreamerPath = "C:\gstreamer"
       Write-Host "Downloading..."
       (New-Object Net.WebClient).DownloadFile('https://gstreamer.freedesktop.org/data/pkg/windows/1.12.4/gstreamer-1.0-devel-x86_64-1.12.4.msi', $msiPath)
       Write-Host "Installing..."
-      cmd /c start /wait msiexec /package $msiPath /passive ADDLOCAL=ALL
+      cmd /c start /wait msiexec /package $msiPath /passive ADDLOCAL=ALL TARGETDIR=$gstreamerPath
+      Write-Host "Installed" -ForegroundColor Green
 
 build_script:
   - qmake mapmap.pro
