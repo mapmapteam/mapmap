@@ -50,9 +50,9 @@ install:
       brew install ccache;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
       wget --quiet https://gstreamer.freedesktop.org/data/pkg/osx/1.12.4/gstreamer-1.0-1.12.4-x86_64.pkg;
-      sudo installer -verboseR -pkg gstreamer-1.0-1.12.4-x86_64.pkg;
+      sudo installer -verboseR -pkg gstreamer-1.0-1.12.4-x86_64.pkg -target /;
       wget --quiet https://gstreamer.freedesktop.org/data/pkg/osx/1.12.4/gstreamer-1.0-devel-1.12.4-x86_64.pkg;
-      sudo installer -verboseR -pkg gstreamer-1.0-devel-1.12.4-x86_64.pkg;
+      sudo installer -verboseR -pkg gstreamer-1.0-devel-1.12.4-x86_64.pkg -target /;
     fi
 
 before_script:
