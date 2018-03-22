@@ -18,8 +18,8 @@ triggered by, audio to create an audio-visual narrative.
 
 Build status
 ---------------
-Linux & OSX &nbsp;&nbsp;&nbsp;&nbsp;[![Build Status](https://travis-ci.org/mapmapteam/mapmap.svg?branch=develop)](https://travis-ci.org/mapmapteam/mapmap)
-Windows &nbsp;&nbsp;&nbsp;&nbsp;[https://ci.appveyor.com/api/projects/status/github/mapmapteam/mapmapbranch=develop&svg=true](https://ci.appveyor.com/project/baydam/mapmap/branch/develop)
+Linux & OSX &nbsp;&nbsp;&nbsp;&nbsp;[![Build Status](https://travis-ci.org/mapmapteam/mapmap.svg?branch=develop)](https://travis-ci.org/mapmapteam/mapmap)       
+Windows &nbsp;&nbsp;&nbsp;&nbsp;[https://ci.appveyor.com/api/projects/status/github/mapmapteam/mapmap?branch=master&svg=true](https://ci.appveyor.com/project/mapmapteam/mapmap/branch/develop)
 
 Ackowledgements
 ---------------
