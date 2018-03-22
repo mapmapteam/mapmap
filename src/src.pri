@@ -54,6 +54,16 @@ macx {
 
 # Windows-specific:
 win32 {
+  DEFINES += WIN32
+  TARGET = MapMap
+  GST_HOME = $$quote($$(GSTREAMER_1_0_ROOT_X86))
+  isEmpty(GST_HOME) {
+    message(\"GSTREAMER_1_0_ROOT_X86\" not detected ...)
+  }
+  else {
+    message(\"GSTREAMER_1_0_ROOT_X86\" detected in \"$${GST_HOME}\")
+  }
+
   INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \
     $${GST_HOME}/include/glib-2.0 \
     $${GST_HOME}/lib/glib-2.0/include \
@@ -67,7 +77,8 @@ win32 {
     $${GST_HOME}/lib/glib-2.0.lib \
     -lopengl32
 
+  CONFIG += release
+
+  RC_FILE = resources/windows_resource.rc
   QMAKE_CXXFLAGS += -D_USE_MATH_DEFINES
 }
-
-
