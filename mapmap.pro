@@ -42,7 +42,8 @@ system($$QMAKE_LRELEASE mapmap.pro) # Run lrelease
 #QMAKE_EXTRA_TARGETS += docs
 
 # Linux-specific:
-#unix:!macx {
+unix:!macx {
+QMAKE_CXXFLAGS += -D_GLIBCXX_USE_CXX11_ABI=0
 #  mapmapfile.files = mapmap
 #  mapmapfile.path = /usr/bin
 #  INSTALLS += mapmapfile
@@ -70,7 +71,7 @@ system($$QMAKE_LRELEASE mapmap.pro) # Run lrelease
 #  docs.depends = $(HEADERS) $(SOURCES)
 #  docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
 #  QMAKE_EXTRA_TARGETS += docs
-#}
+}
 
 # macOS-specific:
 #macx {
