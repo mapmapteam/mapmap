@@ -34,6 +34,20 @@ install:
       brew install gstreamer gst-plugins-bad gst-plugins-base gst-plugins-good gst-libav;
     fi
 
+before_script:
+  - if [ "$TARGET" == "osx" ]; then
+      brew link qt5 --force;
+      gstreamer="GStreamer.framework/Versions/1.0/lib/GStreamer";
+      app="MapMap.app";
+    fi
+
 script:
-  - qmake mapmap.pro
-  - make
+  - if [ "$TARGET" == "linux64" ]; then
+      qmake mapmap.pro;
+      make -j4;
+    fi
+
+  - if [ "$TARGET" == "osx" ]; then
+      qmake -config release;
+      make -j4;
+    fi
