@@ -14,7 +14,7 @@ install:
   - ps: |
       Write-Host "Installing GStreamer..." -ForegroundColor Cyan
       $msiPath = "$($env:USERPROFILE)\gstreamer-1.0-x86_64-1.12.4.msi"
-      Write-Host "Downloading...
+      Write-Host "Downloading..."
       (New-Object Net.WebClient).DownloadFile('https://gstreamer.freedesktop.org/data/pkg/windows/1.12.4/gstreamer-1.0-x86_64-1.12.4.msi', $msiPath)
       Write-Host "Installing..."
       cmd /c start /wait msiexec /package $msiPath /passive ADDLOCAL=ALL
@@ -22,7 +22,7 @@ install:
   - ps: |
       Write-Host "Installing GStreamer..." -ForegroundColor Cyan
       $msiPath = "$($env:USERPROFILE)\gstreamer-1.0-devel-x86_64-1.12.4.msi"
-      Write-Host "Downloading...
+      Write-Host "Downloading..."
       (New-Object Net.WebClient).DownloadFile('https://gstreamer.freedesktop.org/data/pkg/windows/1.12.4/gstreamer-1.0-devel-x86_64-1.12.4.msi', $msiPath)
       Write-Host "Installing..."
       cmd /c start /wait msiexec /package $msiPath /passive ADDLOCAL=ALL
