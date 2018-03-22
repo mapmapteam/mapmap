@@ -26,6 +26,32 @@ unix:!macx {
   QMAKE_CXXFLAGS += -DHAVE_OSC
 }
 
+# macOS-specific:
+macx {
+  TARGET = MapMap
+  DEFINES += MACOSX
+  QMAKE_CXXFLAGS += -D__MACOSX_CORE__
+  QMAKE_CXXFLAGS += -stdlib=libc++
+  INCLUDEPATH += /Library/Frameworks/GStreamer.framework/Versions/1.0/Headers
+  LIBS += -F /Library/Frameworks/ -framework GStreamer
+  LIBS += -framework OpenGL -framework GLUT
+  # With Xcode Tools > 1.5, to reduce the size of your binary even more:
+  # LIBS += -dead_strip
+  # This tells qmake not to put the executable inside a bundle.
+  # just for reference. Do not uncomment.
+  # CONFIG-=app_bundle
+
+  # For OSC support: (if pkg-config was installed)
+  # CONFIG += link_pkgconfig
+  # PKGCONFIG += lo
+
+  # FIXME: No OSC for now:
+  # LIBS += -L/usr/local/lib -llo
+  # INCLUDEPATH += /usr/local/include
+  # QMAKE_CXXFLAGS += -DHAVE_OSC
+}
+
+
 # Windows-specific:
 win32 {
   INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \

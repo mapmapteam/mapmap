@@ -84,15 +84,28 @@ void Mapping::setLocked(bool locked)
   Element::setLocked(locked);
 }
 
+void Mapping::setPaint(Paint::ptr paint)
+{
+	if (paintIsCompatible(paint))
+	{
+		_paint = paint;
+	  _emitPropertyChanged("paintId");
+	}
+}
+
+void Mapping::setPaintById(uid paintId)
+{
+  setPaint(MainWindow::window()->getMappingManager().getPaintById(paintId));
+}
 
 void Mapping::read(const QDomElement& obj)
 {
   // Read basic data.
   Element::read(obj);
 
-  // Read paint.
+  // // Read paint (stored in attributes for backward compatibility).
   int paintId = obj.attribute(ProjectLabels::PAINT_ID).toInt();
-  setPaint(MainWindow::window()->getMappingManager().getPaintById(paintId));
+	setPaintById(paintId);
 
   // Read output shape.
   _readShape(obj, true);
@@ -110,8 +123,8 @@ void Mapping::write(QDomElement& obj)
   // Write basic data.
   Element::write(obj);
 
-  // Write paint ID.
-  obj.setAttribute("paintId", getPaint()->getId());
+  // // Write paint ID.
+  obj.setAttribute("paintId", getPaintId());
 
   // Write output shape.
   _writeShape(obj, true);
@@ -166,6 +179,16 @@ void Mapping::_writeShape(QDomElement& obj, bool isOutput)
   QDomElement shapeObj = obj.ownerDocument().createElement(tag);
   shape->write(shapeObj);
   obj.appendChild(shapeObj);
+}
+
+bool ColorMapping::paintIsCompatible(Paint::ptr paint) const
+{
+	return paint->inherits("mmp::Color");
+}
+
+bool TextureMapping::paintIsCompatible(Paint::ptr paint) const
+{
+	return paint->inherits("mmp::Texture");
 }
 
 }

@@ -298,6 +298,11 @@ void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant v
     {
       mappingLockedAction->setChecked(value.toBool());
     }
+    else if (propertyName == "paintId")
+    {
+      mappingGui->updatePaints();
+      updatePlayingState();
+    }
   }
 
   // Send to list items.
@@ -567,8 +572,7 @@ bool MainWindow::saveAs()
 void MainWindow::importMedia()
 {
   // Stop video playback, if it is playing, to avoid lags. XXX Hack
-  if (pauseAction->isVisible())
-    pause(false);
+  pause(!pauseAction->isVisible());
 
   // Pop-up file-choosing dialog to choose media file.
   // TODO: restrict the type of files that can be imported
@@ -579,8 +583,7 @@ void MainWindow::importMedia()
                                                   .arg(MM::VIDEO_FILES_FILTER)
                                                   .arg(MM::IMAGE_FILES_FILTER));
   // Restart video playback if it was previously playing. XXX Hack
-  if (pauseAction->isVisible())
-    play(false);
+  play(!pauseAction->isVisible());
 
   // Check if file is image or not
   // according to file extension
@@ -2689,7 +2692,7 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
 
   // Set size.
   item->setSizeHint(QSize(item->sizeHint().width(), MainWindow::PAINT_LIST_ITEM_HEIGHT));
-  
+
   // Set tooltip.
   item->setToolTip(QString("ID: %1").arg(paint->getId()));
 
@@ -2699,6 +2702,9 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
   // Add item to paint list.
   paintList->addItem(item);
   paintList->setCurrentItem(item);
+
+	// Update mapping guis.
+	updateMappers();
 
   // Window was modified.
   windowModified();
@@ -2714,6 +2720,9 @@ void MainWindow::updatePaintItem(uid paintId, const QIcon& icon, const QString& 
   // Update item info.
   item->setIcon(icon);
   item->setText(name);
+
+	// Update mapping guis.
+	updateMappers();
 
   // Window was modified.
   windowModified();
@@ -2793,6 +2802,10 @@ void MainWindow::addMappingItem(uid mappingId)
   // When mapper value is changed, update canvases.
   connect(mapper.data(), SIGNAL(valueChanged()),
           this,          SLOT(updateCanvases()));
+
+  // Also update playing state in case paint was changed.
+  connect(mapper.data(), SIGNAL(valueChanged()),
+          this,          SLOT(updatePlayingState()));
 
   connect(sourceCanvas,  SIGNAL(shapeChanged(MShape*)),
           mapper.data(), SLOT(updateShape(MShape*)));
@@ -2885,6 +2898,8 @@ void MainWindow::removePaintItem(uid paintId)
   // Remove associated mapper.
   paintPropertyPanel->removeWidget(paintGuis[paintId]->getPropertiesEditor());
   paintGuis.remove(paintId);
+
+  updateMappers();
 
   // Remove widget from paintList.
   int row = getItemRowFromId(*paintList, paintId);
@@ -3009,6 +3024,14 @@ void MainWindow::updateCanvases()
 
   // Update statut bar
   updateStatusBar();
+}
+
+void MainWindow::updateMappers() {
+	// Update mapping guis.
+	for (QMap<uid, MappingGui::ptr>::iterator it = mappers.begin();
+	     it != mappers.end(); ++it) {
+		it.value()->updatePaints();
+	}
 }
 
 void MainWindow::processFrame()

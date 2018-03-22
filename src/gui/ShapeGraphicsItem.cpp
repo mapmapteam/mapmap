@@ -208,9 +208,6 @@ TextureGraphicsItem::TextureGraphicsItem(Mapping::ptr mapping, bool output)
   _textureMapping = qSharedPointerCast<TextureMapping>(mapping);
   Q_CHECK_PTR(_textureMapping);
 
-  _texture = qSharedPointerCast<Texture>(_textureMapping.toStrongRef()->getPaint());
-  Q_CHECK_PTR(_texture);
-
   _inputShape = qSharedPointerCast<MShape>(_textureMapping.toStrongRef()->getInputShape());
   Q_CHECK_PTR(_inputShape);
 }
@@ -234,7 +231,7 @@ void TextureGraphicsItem::_doDrawInput(QPainter* painter)
     // FIXME: Does this draw the quad counterclockwise?
     glBegin (GL_QUADS);
     {
-      QRectF rect = mapFromScene(_texture.toStrongRef()->getRect()).boundingRect();
+      QRectF rect = mapFromScene(_getTexture()->getRect()).boundingRect();
 
       Util::correctGlTexCoord(0, 0);
       glVertex3f (rect.x(), rect.y(), 0);
@@ -255,8 +252,10 @@ void TextureGraphicsItem::_doDrawInput(QPainter* painter)
 void TextureGraphicsItem::_prePaint(QPainter* painter,
                                     const QStyleOptionGraphicsItem *option)
 {
+	QSharedPointer<Texture> texture = _getTexture();
+	Q_CHECK_PTR(texture);
+
   Q_UNUSED(option);
-  QSharedPointer<Texture> texture = _texture.toStrongRef();
   painter->beginNativePainting();
 
   // Project source texture and sent it to destination.
@@ -311,6 +310,11 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
   painter->endNativePainting();
 }
 
+QSharedPointer<Texture> TextureGraphicsItem::_getTexture()
+{
+	return qSharedPointerCast<Texture>(_textureMapping.toStrongRef()->getPaint());
+}
+
 QPainterPath PolygonTextureGraphicsItem::shape() const
 {
   QPainterPath path;
@@ -334,7 +338,7 @@ void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter)
     {
       for (int i=0; i<inputShape->nVertices(); i++)
       {
-        Util::setGlTexPoint(*_texture.toStrongRef(), inputShape->getVertex(i), mapFromScene(getShape()->getVertex(i)));
+        Util::setGlTexPoint(*_getTexture(), inputShape->getVertex(i), mapFromScene(getShape()->getVertex(i)));
       }
     }
     glEnd();
@@ -420,7 +424,7 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
           glBegin(GL_QUADS);
           for (int i = 0; i < outputQuad->nVertices(); i++)
           {
-            Util::setGlTexPoint(*_texture.toStrongRef(), m.input->getVertex(i), mapFromScene(m.output->getVertex(i)));
+            Util::setGlTexPoint(*_getTexture(), m.input->getVertex(i), mapFromScene(m.output->getVertex(i)));
           }
           glEnd();
         }
@@ -578,7 +582,7 @@ void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   // Get input and output ellipses.
   QSharedPointer<Ellipse> inputEllipse  = qSharedPointerCast<Ellipse>(_inputShape);
   QSharedPointer<Ellipse> outputEllipse = qSharedPointerCast<Ellipse>(_shape);
-  QSharedPointer<Texture> texture = _texture.toStrongRef();
+  QSharedPointer<Texture> texture = _getTexture();
 
   // Data for calculating drawing.
   DrawingData inputData(inputEllipse);

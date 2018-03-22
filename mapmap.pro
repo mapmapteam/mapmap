@@ -1,4 +1,6 @@
-CONFIG += c++11
+CONFIG  += qt debug c++11
+
+TEMPLATE = app
 
 # Always use major.minor.micro version number format
 VERSION = 0.5.1
@@ -15,7 +17,7 @@ include(src/app/app.pri)
 TRANSLATIONS = \
     translations/mapmap_en.ts \
     translations/mapmap_fr.ts \
-	translations/mapmap_es.ts
+  translations/mapmap_es.ts
 RESOURCES = \
     translations/translation.qrc \
     docs/documentation.qrc \
@@ -41,91 +43,92 @@ system($$QMAKE_LRELEASE mapmap.pro) # Run lrelease
 
 # Linux-specific:
 unix:!macx {
-  mapmapfile.files = mapmap
-  mapmapfile.path = /usr/bin
-  INSTALLS += mapmapfile
-  desktopfile.files = resources/texts/mapmap.desktop
-  desktopfile.path = /usr/share/applications
-  INSTALLS += desktopfile
-  iconfile.files = resources/images/logo/mapmap.svg
-  iconfile.path = /usr/share/icons/hicolor/scalable/apps
-  INSTALLS += iconfile
-  mimetypesfile.files = resources/texts/mapmap.xml
-  mimetypesfile.path = /usr/share/mime/packages
-  INSTALLS += mimetypesfile
+QMAKE_CXXFLAGS += -D_GLIBCXX_USE_CXX11_ABI=0
+#  mapmapfile.files = mapmap
+#  mapmapfile.path = /usr/bin
+#  INSTALLS += mapmapfile
+#  desktopfile.files = resources/texts/mapmap.desktop
+#  desktopfile.path = /usr/share/applications
+#  INSTALLS += desktopfile
+#  iconfile.files = resources/images/logo/mapmap.svg
+#  iconfile.path = /usr/share/icons/hicolor/scalable/apps
+#  INSTALLS += iconfile
+#  mimetypesfile.files = resources/texts/mapmap.xml
+#  mimetypesfile.path = /usr/share/mime/packages
+#  INSTALLS += mimetypesfile
 
-  # REQUIRES ROOT PRIVILEDGES: (does not comply to the standards of Debian)
-  # -------------------------
-  # updatemimetypes.path = /usr/share/mime/packages
-  # updatemimetypes.commands = update-mime-database /usr/share/mime
-  # INSTALLS += updatemimetypes
-  # updatemimeappdefault.path = /usr/share/applications
-  # updatemimeappdefault.commands='grep mapmap.desktop /usr/share/applications/defaults.list >/dev/null|| sudo echo "application/mapmap=mapmap.desktop;" >> /usr/share/applications/defaults.list'
-  # INSTALLS += updatemimeappdefault
-  # -------------------------
+#  # REQUIRES ROOT PRIVILEDGES: (does not comply to the standards of Debian)
+#  # -------------------------
+#  # updatemimetypes.path = /usr/share/mime/packages
+#  # updatemimetypes.commands = update-mime-database /usr/share/mime
+#  # INSTALLS += updatemimetypes
+#  # updatemimeappdefault.path = /usr/share/applications
+#  # updatemimeappdefault.commands='grep mapmap.desktop /usr/share/applications/defaults.list >/dev/null|| sudo echo "application/mapmap=mapmap.desktop;" >> /usr/share/applications/defaults.list'
+#  # INSTALLS += updatemimeappdefault
+#  # -------------------------
 
-  # Add the docs target:
-  docs.depends = $(HEADERS) $(SOURCES)
-  docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
-  QMAKE_EXTRA_TARGETS += docs
+#  # Add the docs target:
+#  docs.depends = $(HEADERS) $(SOURCES)
+#  docs.commands = (cat Doxyfile; echo "INPUT = $?") | doxygen -
+#  QMAKE_EXTRA_TARGETS += docs
 }
 
 # macOS-specific:
-macx {
-  TARGET = MapMap
-  DEFINES += MACOSX
-  QMAKE_CXXFLAGS += -D__MACOSX_CORE__
-  QMAKE_CXXFLAGS += -stdlib=libc++
-  INCLUDEPATH += /Library/Frameworks/GStreamer.framework/Versions/1.0/Headers
-  LIBS += -F /Library/Frameworks/ -framework GStreamer
-  LIBS += -framework OpenGL -framework GLUT
-  # With Xcode Tools > 1.5, to reduce the size of your binary even more:
-  # LIBS += -dead_strip
-  # This tells qmake not to put the executable inside a bundle.
-  # just for reference. Do not uncomment.
-  # CONFIG-=app_bundle
+#macx {
+#  TARGET = MapMap
+#  DEFINES += MACOSX
+#  QMAKE_CXXFLAGS += -D__MACOSX_CORE__
+#  QMAKE_CXXFLAGS += -stdlib=libc++
+#  INCLUDEPATH += /Library/Frameworks/GStreamer.framework/Versions/1.0/Headers
+#  LIBS += -F /Library/Frameworks/ -framework GStreamer
+#  LIBS += -framework OpenGL -framework GLUT
+#  # With Xcode Tools > 1.5, to reduce the size of your binary even more:
+#  # LIBS += -dead_strip
+#  # This tells qmake not to put the executable inside a bundle.
+#  # just for reference. Do not uncomment.
+#  # CONFIG-=app_bundle
 
-  # For OSC support: (if pkg-config was installed)
-  # CONFIG += link_pkgconfig
-  # PKGCONFIG += lo
+#  # For OSC support: (if pkg-config was installed)
+#  # CONFIG += link_pkgconfig
+#  # PKGCONFIG += lo
 
-  # FIXME: No OSC for now:
-  # LIBS += -L/usr/local/lib -llo
-  # INCLUDEPATH += /usr/local/include
-  # QMAKE_CXXFLAGS += -DHAVE_OSC
-}
+#  # FIXME: No OSC for now:
+#  # LIBS += -L/usr/local/lib -llo
+#  # INCLUDEPATH += /usr/local/include
+#  # QMAKE_CXXFLAGS += -DHAVE_OSC
+#}
 
 # Windows-specific:
-win32 {
-  DEFINES += WIN32
-  TARGET = Mapmap
-  GST_HOME = $$quote($$(GSTREAMER_1_0_ROOT_X86))
-  isEmpty(GST_HOME) {
-    message(\"GSTREAMER_1_0_ROOT_X86\" not detected ...)
-  }
-  else {
-    message(\"GSTREAMER_1_0_ROOT_X86\" detected in \"$${GST_HOME}\")
-  }
-  #  DESTDIR = ../../Mapmap # Just for packaging
+#win32 {
+#  DEFINES += WIN32
+#  TARGET = Mapmap
+#  GST_HOME = $$quote($$(GSTREAMER_1_0_ROOT_X86))
+#  isEmpty(GST_HOME) {
+#    message(\"GSTREAMER_1_0_ROOT_X86\" not detected ...)
+#  }
+#  else {
+#    message(\"GSTREAMER_1_0_ROOT_X86\" detected in \"$${GST_HOME}\")
+#  }
+#  #  DESTDIR = ../../Mapmap # Just for packaging
 
-#  INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \
-#    $${GST_HOME}/include/glib-2.0 \
-#    $${GST_HOME}/lib/glib-2.0/include \
-#    $${GST_HOME}/include/gstreamer-1.0
+##  INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \
+##    $${GST_HOME}/include/glib-2.0 \
+##    $${GST_HOME}/lib/glib-2.0/include \
+##    $${GST_HOME}/include/gstreamer-1.0
 
-#  LIBS += $${GST_HOME}/lib/gstapp-1.0.lib \
-#    $${GST_HOME}/lib/gstbase-1.0.lib \
-#    $${GST_HOME}/lib/gstpbutils-1.0.lib \
-#    $${GST_HOME}/lib/gstreamer-1.0.lib \
-#    $${GST_HOME}/lib/gobject-2.0.lib \
-#    $${GST_HOME}/lib/glib-2.0.lib \
-#    -lopengl32
+##  LIBS += $${GST_HOME}/lib/gstapp-1.0.lib \
+##    $${GST_HOME}/lib/gstbase-1.0.lib \
+##    $${GST_HOME}/lib/gstpbutils-1.0.lib \
+##    $${GST_HOME}/lib/gstreamer-1.0.lib \
+##    $${GST_HOME}/lib/gobject-2.0.lib \
+##    $${GST_HOME}/lib/glib-2.0.lib \
+##    -lopengl32
 
-  CONFIG += release
+#  CONFIG += release
 
-  RC_FILE = resources/windows_resource.rc
-  QMAKE_CXXFLAGS += -D_USE_MATH_DEFINES
-}
+#  RC_FILE = resources/windows_resource.rc
+#  QMAKE_CXXFLAGS += -D_USE_MATH_DEFINES
+#}
 
 # Adds the tarball target
 tarball.target = mapmap-$${VERSION}.tar.gz

@@ -19,6 +19,7 @@
  */
 
 #include "MappingGui.h"
+#include "MainWindow.h"
 
 namespace mmp {
 
@@ -36,7 +37,9 @@ MappingGui::MappingGui(Mapping::ptr mapping)
   _variantFactory = new VariantFactory;
 
   _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
-  
+
+	_paintEnumManager = new QtEnumPropertyManager(this);
+
   // Mapping UID.
   _idItem = _variantManager->addProperty(QVariant::Int, QObject::tr("ID"));
   _idItem->setEnabled(false);
@@ -50,6 +53,10 @@ MappingGui::MappingGui(Mapping::ptr mapping)
   _opacityItem->setAttribute("decimals", 1);
   _opacityItem->setValue(_mapping->getOpacity()*100.0);
   _propertyBrowser->addProperty(_opacityItem);
+
+	_paintItem = _variantManager->addProperty(QtVariantPropertyManager::enumTypeId(), "Paint");
+  _propertyBrowser->addProperty(_paintItem);
+	updatePaints();
 
   // Output shape.
   _outputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
@@ -78,6 +85,15 @@ void MappingGui::setValue(QtProperty* property, const QVariant& value)
       emit valueChanged();
     }
   }
+	else if (property == _paintItem)
+	{
+		int paintIndex = value.toInt();
+		Paint::ptr newPaint = MainWindow::window()->getMappingManager().getPaint(paintIndex);
+		if (newPaint != _mapping->getPaint() && _mapping->paintIsCompatible(newPaint)) {
+			_mapping->setPaint(newPaint);
+			emit valueChanged();
+		}
+	}
   else
   {
     std::map<QtProperty*, std::pair<MShape*, int> >::iterator it = _propertyToVertex.find(property);
@@ -107,6 +123,22 @@ void MappingGui::updateShape(MShape* shape)
   {
     _updateShapeProperty(_outputItem, shape);
   }
+}
+
+void MappingGui::updatePaints()
+{
+	int currentPaint = -1;
+	MappingManager& manager = MainWindow::window()->getMappingManager();
+	QStringList paintList;
+	QVector<Paint::ptr> paints = manager.getPaintsCompatibleWith(_mapping);
+	for (int i=0; i<paints.size(); i++)
+	{
+		paintList.append(paints[i]->getName());
+		if (paints[i] == _mapping->getPaint())
+			currentPaint = i;
+	}
+	_paintItem->setAttribute("enumNames", paintList);
+	_paintItem->setValue(currentPaint);
 }
 
 void MappingGui::_buildShapeProperty(QtProperty* shapeItem, MShape* shape)
@@ -162,7 +194,7 @@ MeshColorMappingGui::MeshColorMappingGui(Mapping::ptr mapping)
   _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
   _meshItem->setAttribute("minimum", QSize(2,2));
-  _propertyBrowser->insertProperty(_meshItem, _opacityItem); // insert at the beginning
+  _propertyBrowser->insertProperty(_meshItem, _paintItem); // insert at the beginning
 }
 
 void MeshColorMappingGui::setValue(QtProperty* property, const QVariant& value)
@@ -248,9 +280,6 @@ TextureMappingGui::TextureMappingGui(QSharedPointer<TextureMapping> mapping)
   textureMapping = qSharedPointerCast<TextureMapping>(_mapping);
   Q_CHECK_PTR(textureMapping);
 
-  texture = qSharedPointerCast<Texture>(_mapping->getPaint());
-  Q_CHECK_PTR(texture);
-
   inputShape = textureMapping.toStrongRef()->getInputShape();
   Q_CHECK_PTR(inputShape);
 
@@ -258,7 +287,7 @@ TextureMappingGui::TextureMappingGui(QSharedPointer<TextureMapping> mapping)
   _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
                                             QObject::tr("Input shape"));
   _buildShapeProperty(_inputItem, inputShape.data());
-  _propertyBrowser->insertProperty(_inputItem, _opacityItem); // insert
+  _propertyBrowser->insertProperty(_inputItem, _paintItem); // insert
 
   // Collapse input shape.
   _propertyBrowser->setExpanded(_propertyBrowser->items(_inputItem).at(0), false);
@@ -394,7 +423,7 @@ MeshTextureMappingGui::MeshTextureMappingGui(QSharedPointer<TextureMapping> mapp
   _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
   _meshItem->setAttribute("minimum", QSize(2,2));
-  _propertyBrowser->insertProperty(_meshItem, _opacityItem); // insert at the beginning
+  _propertyBrowser->insertProperty(_meshItem, _paintItem); // insert at the beginning
 }
 
 void MeshTextureMappingGui::setValue(QtProperty* property, const QVariant& value)
