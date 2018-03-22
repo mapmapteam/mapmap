@@ -13,25 +13,25 @@ matrix:
 
 before_install:
   - if [ "$TARGET" == "linux64" ]; then
-      sudo apt-get update
+      sudo apt-get update;
     fi
 
   - if [ "$TARGET" == "osx" ]; then
-      brew update && brew bundle
+      brew update && brew bundle;
     fi
 
 install:
   - if [ "$TARGET" == "linux64" ]; then
-      sudo apt-get install qt5-default qttools5-dev-tools
-      sudo apt-get install liblo-dev liblo-tools
-      sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-vaapi gstreamer1.0-plugins-base gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-x gstreamer1.0-tools
-      sudo apt-get install qtmultimedia5-dev
+      sudo apt-get install qt5-default qttools5-dev-tools;
+      sudo apt-get install liblo-dev liblo-tools;
+      sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-vaapi gstreamer1.0-plugins-base gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-x gstreamer1.0-tools;
+      sudo apt-get install qtmultimedia5-dev;
     fi
 
   - if [ "$TARGET" == "linux64" ]; then
-      brew install qt
-      brew install liblo
-      brew install gstreamer gst-plugins-bad gst-plugins-base gst-plugins-good gst-libav
+      brew install qt;
+      brew install liblo;
+      brew install gstreamer gst-plugins-bad gst-plugins-base gst-plugins-good gst-libav;
     fi
 
 script:
