@@ -48,7 +48,6 @@ install:
       brew install qt;
       brew install liblo;
       brew install ccache;
-      brew install wget;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
       wget --quiet https://gstreamer.freedesktop.org/data/pkg/osx/1.12.4/gstreamer-1.0-1.12.4-x86_64.pkg;
       sudo installer -verboseR -pkg gstreamer-1.0-1.12.4-x86_64.pkg;
