@@ -17,7 +17,7 @@ before_install:
     fi
 
   - if [ "$TARGET" == "osx" ]; then
-      brew update && brew bundle;
+      brew update;
     fi
 
 install:
@@ -28,7 +28,7 @@ install:
       sudo apt-get install qtmultimedia5-dev;
     fi
 
-  - if [ "$TARGET" == "linux64" ]; then
+  - if [ "$TARGET" == "osx" ]; then
       brew install qt;
       brew install liblo;
       brew install gstreamer gst-plugins-bad gst-plugins-base gst-plugins-good gst-libav;
