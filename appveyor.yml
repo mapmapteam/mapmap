@@ -31,6 +31,8 @@ install:
       cmd /c start /wait msiexec /package $msiPath /passive ADDLOCAL=ALL TARGETDIR=$gstreamerPath
       Write-Host "Installed" -ForegroundColor Green
 
+  -set GSTREAMER_1_0_ROOT_X86=C:\gstreamer\1.0\x86_64
+
 build_script:
   - qmake mapmap.pro
   - mingw32-make
