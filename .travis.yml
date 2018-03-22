@@ -1,5 +1,7 @@
 language: c++
-compiler: gcc
+  compiler:
+    - gcc 
+    - clang
 
 matrix:
   include:
@@ -24,7 +26,11 @@ install:
   - if [ "$TARGET" == "linux64" ]; then
       sudo apt-get install qt5-default qttools5-dev-tools;
       sudo apt-get install liblo-dev liblo-tools;
-      sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-vaapi gstreamer1.0-plugins-base gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-x gstreamer1.0-tools;
+      sudo apt-get install libgstreamer1.0-dev
+      libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad
+      gstreamer1.0-libav gstreamer1.0-vaapi gstreamer1.0-plugins-base
+      gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-good
+      gstreamer1.0-plugins-ugly gstreamer1.0-x gstreamer1.0-tools;
       sudo apt-get install qtmultimedia5-dev;
     fi
 
@@ -36,8 +42,9 @@ install:
 
 before_script:
   - if [ "$TARGET" == "osx" ]; then
-      brew link qt5 --force;
-      gstreamer="GStreamer.framework/Versions/1.0/lib/GStreamer";
+      brew link qt --force;
+      brew link liblo --force;
+      brew link gstreamer --force;
       app="MapMap.app";
     fi
 
