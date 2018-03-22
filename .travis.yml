@@ -56,6 +56,10 @@ before_script:
       brew link qt --force;
       brew link liblo --force;
       brew link gstreamer --force;
+      brew link gst-plugins-bad --force;
+      brew link gst-plugins-base --force;
+      brew link gst-plugins-good --force;
+      brew link gst-libav --force;
       app="MapMap.app";
     fi
 
