@@ -1,13 +1,20 @@
 language: c++
-  compiler:
-    - gcc 
-    - clang
+compiler:
+  - gcc
+  - clang
+cache: ccache
+
 
 matrix:
   include:
     - os: linux
       dist: trusty
       env: TARGET="linux64"
+      cache:
+        directories:
+          - ~/.ccache
+        before_cache:
+          - rm -f ~/.cache/*.log
 
     - os: osx
       osx_image: xcode8
@@ -32,12 +39,16 @@ install:
       gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-good
       gstreamer1.0-plugins-ugly gstreamer1.0-x gstreamer1.0-tools;
       sudo apt-get install qtmultimedia5-dev;
+      wget http://mirrors.kernel.org/ubuntu/pool/main/c/ccache/ccache_3.3.4-1_amd64.deb;
+      sudo dpkg -i ccache_3.3.4-1_amd64.deb;
     fi
 
   - if [ "$TARGET" == "osx" ]; then
       brew install qt;
       brew install liblo;
       brew install gstreamer gst-plugins-bad gst-plugins-base gst-plugins-good gst-libav;
+      brew install ccache;
+      export PATH="/usr/local/opt/ccache/libexec:$PATH";
     fi
 
 before_script:
@@ -49,6 +60,8 @@ before_script:
     fi
 
 script:
+  - ccache -z
+  - ccache -s
   - if [ "$TARGET" == "linux64" ]; then
       qmake mapmap.pro;
       make -j4;
@@ -58,3 +71,4 @@ script:
       qmake -config release;
       make -j4;
     fi
+  - ccache -s
