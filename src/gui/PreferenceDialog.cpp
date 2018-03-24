@@ -354,7 +354,7 @@ void PreferenceDialog::createPreferencesList()
   QListWidgetItem *interfaceItem = new QListWidgetItem(QIcon(":/pref-interface"), tr("Interface"));
 
   // Mapping & Shape Item
-  QListWidgetItem *shapeItem = new QListWidgetItem(QIcon(":/control-points"), tr("Mappings"));
+  QListWidgetItem *shapeItem = new QListWidgetItem(QIcon(":/control-points"), tr("Layers"));
 
   // Output Item
   QListWidgetItem *outputItem = new QListWidgetItem(QIcon(":/output-window"), tr("Output"));

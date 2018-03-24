@@ -33,7 +33,7 @@ AddPaintCommand::AddPaintCommand(MainWindow *mainWindow, uid paintId, const QIco
   _icon(icon),
   _name(name)
 {
-  setText(QObject::tr("Add paint"));
+  setText(QObject::tr("Add media"));
 }
 
 void AddPaintCommand::undo()
@@ -59,7 +59,7 @@ AddMappingCommand::AddMappingCommand(MainWindow *mainWindow, uid mappingId, QUnd
   _mainWindow(mainWindow),
   _mappingId(mappingId)
 {
-  setText(QObject::tr("Add mapping"));
+  setText(QObject::tr("Add layer"));
 }
 
 void AddMappingCommand::undo()
@@ -84,7 +84,7 @@ void AddMappingCommand::redo()
 DuplicateMappingCommand::DuplicateMappingCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent):
   AddMappingCommand(mainWindow, cloneId, parent)
 {
-  setText(QObject::tr("Duplicate mapping"));
+  setText(QObject::tr("Duplicate layer"));
 }
 
 TransformShapeCommand::TransformShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, QUndoCommand* parent)
@@ -148,7 +148,7 @@ int MoveVertexCommand::id() const { return (_option == STEP ? CMD_KEY_MOVE_VERTE
 
 void MoveVertexCommand::_doTransform(MShape::ptr shape)
 {
-	shape->setVertex(_movedVertex, _vertexPosition);
+  shape->setVertex(_movedVertex, _vertexPosition);
 }
 
 bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
@@ -171,7 +171,7 @@ bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
 ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, const QPointF& initialPositionPoint, const MShape::ptr& initialShape, QUndoCommand *parent)
   : TransformShapeCommand(canvas, option, parent),
     _movedVertex(activeVertex),
-		_initialShape(initialShape)
+    _initialShape(initialShape)
 {
   setText(QObject::tr("Scale and rotate shape"));
 
@@ -186,7 +186,7 @@ ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, Transfo
 	// Compute rotation.
 	qreal rotation = currentVector.angleTo(initialVector);
 
-	// Create transform object.	
+	// Create transform object.
 	//	transform.rotate(rotation);
 	_transform.translate(+center.x(), +center.y());
 	_transform.rotate(rotation);
@@ -214,10 +214,10 @@ bool ScaleRotateShapeCommand::mergeWith(const QUndoCommand* other)
   if (cmd->_movedVertex != _movedVertex)
     return false;
 
-  _option = cmd->_option;
+	_option = cmd->_option;
 	_transform = cmd->_transform;
 
-  return true;
+	return true;
 }
 
 
@@ -255,7 +255,7 @@ RemovePaintCommand::RemovePaintCommand(MainWindow *mainWindow, uid paintId, QUnd
   _paintId(paintId),
   _paintMappings()
 {
-  setText(QObject::tr("Remove paint"));
+  setText(QObject::tr("Remove media"));
 }
 
 void RemovePaintCommand::undo()
@@ -293,7 +293,7 @@ DeleteMappingCommand::DeleteMappingCommand(MainWindow *mainWindow, uid mappingId
   _mainWindow(mainWindow),
   _mappingId(mappingId)
 {
-  setText(QObject::tr("Delete mapping"));
+  setText(QObject::tr("Delete layer"));
 }
 
 void DeleteMappingCommand::undo()
