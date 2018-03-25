@@ -45,8 +45,9 @@ _uri("")
 {
   _mutexLocker = new QMutexLocker(&_mutex);
 
-  _videoSurface = new VideoSurface;
-  _mediaPlayer = new QMediaPlayer;
+  _videoSurface = new VideoSurface(this);
+  _mediaPlayer = new QMediaPlayer(this);
+  _mediaPlaylist = new QMediaPlaylist(this);
   _mediaPlayer->setNotifyInterval(1); // Update info about position
 
   _mediaPlayer->setVideoOutput(_videoSurface);
@@ -196,7 +197,7 @@ void VideoImplQtMultiMedia::update()
 
    // Start playing.
    if (!filename.isEmpty()) {
-     _mediaPlaylist = new QMediaPlaylist;
+     _mediaPlaylist->clear();
      _mediaPlaylist->addMedia(QUrl::fromLocalFile(filename));
      _mediaPlaylist->setPlaybackMode(QMediaPlaylist::Loop);
 
