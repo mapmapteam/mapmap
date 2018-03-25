@@ -2071,7 +2071,9 @@ void MainWindow::createMenus()
   fileMenu->addAction(saveAsAction);
   fileMenu->addSeparator();
   fileMenu->addAction(importMediaAction);
+#ifdef Q_OS_LINUX
   fileMenu->addAction(openCameraAction);
+#endif
   fileMenu->addAction(addColorAction);
 
   // Recent file separator
@@ -2223,7 +2225,9 @@ void MainWindow::createToolBars()
   mainToolBar = addToolBar(tr("&Toolbar"));
   mainToolBar->setMovable(false);
   mainToolBar->addAction(importMediaAction);
+#ifdef Q_OS_LINUX
   mainToolBar->addAction(openCameraAction);
+#endif
   mainToolBar->addAction(addColorAction);
 
   mainToolBar->addSeparator();
