@@ -188,7 +188,6 @@ private:
   QString _uri;
 
   QMediaPlayer *_mediaPlayer;
-  QMediaPlaylist *_mediaPlaylist;
 
   VideoSurface* _videoSurface;
 

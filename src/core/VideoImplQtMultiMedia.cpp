@@ -47,8 +47,7 @@ _uri("")
 
   _videoSurface = new VideoSurface(this);
   _mediaPlayer = new QMediaPlayer(this);
-  _mediaPlaylist = new QMediaPlaylist(this);
-  _mediaPlayer->setNotifyInterval(1); // Update info about position
+//  _mediaPlayer->setNotifyInterval(1); // Update info about position
 
   _mediaPlayer->setVideoOutput(_videoSurface);
 
@@ -183,7 +182,18 @@ void VideoImplQtMultiMedia::resetMovie()
 
 void VideoImplQtMultiMedia::update()
 {
-
+  if (_rate > 0) {
+    // Acording to the minimum framerate is 24
+    // 1000 millisecons / 24 = 41.666666667 (42)
+    // Reset the video just after reading the frame before the last
+    // Because the last frame always return invalid frame in the VideoSurface
+    if (_mediaPlayer->duration() - _mediaPlayer->position() < (qint64)84) {
+      resetMovie();
+    }
+    if (_mediaPlayer->mediaStatus() == QMediaPlayer::EndOfMedia) {
+      _mediaPlayer->play();
+    }
+  }
 }
 
  bool VideoImplQtMultiMedia::loadMovie(const QString& filename) {
@@ -197,13 +207,13 @@ void VideoImplQtMultiMedia::update()
 
    // Start playing.
    if (!filename.isEmpty()) {
-     _mediaPlaylist->clear();
-     _mediaPlaylist->addMedia(QUrl::fromLocalFile(filename));
-     _mediaPlaylist->setPlaybackMode(QMediaPlaylist::Loop);
+//     QMediaPlaylist *_mediaPlaylist = new QMediaPlaylist;
+//     _mediaPlaylist->addMedia(QUrl::fromLocalFile(filename));
+//     _mediaPlaylist->setPlaybackMode(QMediaPlaylist::Loop);
 
-     _mediaPlayer->setPlaylist(_mediaPlaylist);
+//     _mediaPlayer->setPlaylist(_mediaPlaylist);
 
-//     _mediaPlayer->setMedia(QUrl::fromLocalFile(filename));
+     _mediaPlayer->setMedia(QUrl::fromLocalFile(filename));
    }
 
    return true;
