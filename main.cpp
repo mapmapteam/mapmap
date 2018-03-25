@@ -20,6 +20,17 @@
 
 MM_USE_NAMESPACE
 
+#if defined(HAVE_GLES)
+static QSurfaceFormat createSurfaceFormat() {
+    QSurfaceFormat format;
+    format.setSamples(4);
+    format.setDepthBufferSize(24);
+    format.setStencilBufferSize(8);
+    format.setVersion(3, 0);
+    return format;
+}
+#endif
+
 static void set_env_vars_if_needed()
 {
 #ifdef __MACOSX_CORE__
@@ -84,6 +95,10 @@ int main(int argc, char *argv[])
   initRegistry();
 
   MainApplication app(argc, argv);
+
+#if defined(HAVE_GLES)
+  QSurfaceFormat::setDefaultFormat(createSurfaceFormat());
+#endif
 
 #if USING_QT_5
   QCommandLineParser parser;

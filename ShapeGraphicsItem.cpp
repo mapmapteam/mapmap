@@ -25,6 +25,139 @@
 
 namespace mmp {
 
+ #if defined(HAVE_GLES)
+
+
+  //
+  ///
+  /// \brief Load a shader, check for compile errors, print error messages to output log
+  /// \param type Type of shader (GL_VERTEX_SHADER or GL_FRAGMENT_SHADER)
+  /// \param shaderSrc Shader source string
+  /// \return A new shader object on success, 0 on failure
+  //
+  GLuint TextureGraphicsItem::esLoadShader ( GLenum type, const char *shaderSrc )
+  {
+     GLuint shader;
+     GLint compiled;
+
+     // Create the shader object
+     shader = glCreateShader ( type );
+
+     if ( shader == 0 )
+     {
+        return 0;
+     }
+
+     // Load the shader source
+     glShaderSource ( shader, 1, &shaderSrc, NULL );
+
+     // Compile the shader
+     glCompileShader ( shader );
+
+     // Check the compile status
+     glGetShaderiv ( shader, GL_COMPILE_STATUS, &compiled );
+
+     if ( !compiled )
+     {
+        GLint infoLen = 0;
+
+        glGetShaderiv ( shader, GL_INFO_LOG_LENGTH, &infoLen );
+
+        if ( infoLen > 1 )
+        {
+           char *infoLog = (char*) malloc ( sizeof ( char ) * infoLen );
+
+           glGetShaderInfoLog ( shader, infoLen, NULL, infoLog );
+      //     esLogMessage ( "Error compiling shader:\n%s\n", infoLog );
+
+           free ( infoLog );
+        }
+
+        glDeleteShader ( shader );
+        return 0;
+     }
+
+     return shader;
+
+  }
+
+  //
+  ///
+  /// \brief Load a vertex and fragment shader, create a program object, link program.
+  //         Errors output to log.
+  /// \param vertShaderSrc Vertex shader source code
+  /// \param fragShaderSrc Fragment shader source code
+  /// \return A new program object linked with the vertex/fragment shader pair, 0 on failure
+  //
+  GLuint TextureGraphicsItem::esLoadProgram ( const char *vertShaderSrc, const char *fragShaderSrc )
+  {
+     GLuint vertexShader;
+     GLuint fragmentShader;
+     GLuint programObject;
+     GLint linked;
+
+     // Load the vertex/fragment shaders
+     vertexShader = esLoadShader ( GL_VERTEX_SHADER, vertShaderSrc );
+
+     if ( vertexShader == 0 )
+     {
+        return 0;
+     }
+
+     fragmentShader = esLoadShader ( GL_FRAGMENT_SHADER, fragShaderSrc );
+
+     if ( fragmentShader == 0 )
+     {
+        glDeleteShader ( vertexShader );
+        return 0;
+     }
+
+     // Create the program object
+     programObject = glCreateProgram ( );
+
+     if ( programObject == 0 )
+     {
+        return 0;
+     }
+
+     glAttachShader ( programObject, vertexShader );
+     glAttachShader ( programObject, fragmentShader );
+
+     // Link the program
+     glLinkProgram ( programObject );
+
+     // Check the link status
+     glGetProgramiv ( programObject, GL_LINK_STATUS, &linked );
+
+     if ( !linked )
+     {
+        GLint infoLen = 0;
+
+        glGetProgramiv ( programObject, GL_INFO_LOG_LENGTH, &infoLen );
+
+        if ( infoLen > 1 )
+        {
+           char *infoLog = (char*)malloc ( sizeof ( char ) * infoLen );
+
+           glGetProgramInfoLog ( programObject, infoLen, NULL, infoLog );
+//           esLogMessage ( "Error linking program:\n%s\n", infoLog );
+
+           free ( infoLog );
+        }
+
+        glDeleteProgram ( programObject );
+        return 0;
+     }
+
+     // Free up no longer needed shader resources
+     glDeleteShader ( vertexShader );
+     glDeleteShader ( fragmentShader );
+
+     return programObject;
+  }
+  
+#endif
+
 ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
   : _mapping(mapping), _output(output)
 {
@@ -298,12 +431,45 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   // TODO:remettre
   //Q_ASSERT( _inputShape->nVertices() == outputShape->nVertices());
 
+#if !defined(HAVE_GLES) // not sure
   // Allow alpha blending.
   glEnable (GL_BLEND);
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // Get texture.
   glEnable (GL_TEXTURE_2D);
+#endif
+
+#if defined(HAVE_GLES)
+
+  char vShaderStr[] =
+    "#version 300 es                            \n"
+    "layout(location = 0) in vec4 a_position;   \n"
+    "layout(location = 1) in vec2 a_texCoord;   \n"
+    "out vec2 v_texCoord;                       \n"
+    "void main()                                \n"
+    "{                                          \n"
+    "   gl_Position = a_position;               \n"
+    "   v_texCoord = a_texCoord;                \n"
+    "}                                          \n";
+
+  char fShaderStr[] =
+    "#version 300 es                                     \n"
+    "precision mediump float;                            \n"
+    "in vec2 v_texCoord;                                 \n"
+    "layout(location = 0) out vec4 outColor;             \n"
+    "uniform sampler2D s_texture;                        \n"
+    "void main()                                         \n"
+    "{                                                   \n"
+    "  outColor = texture( s_texture, v_texCoord );      \n"
+    "}                                                   \n";
+
+  program = esLoadProgram(vShaderStr, fShaderStr);
+  samplerLoc = glGetUniformLocation ( program, "s_texture" );
+
+#endif
+
+
   glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
 
   // Copy bits to texture iff necessary.
@@ -328,11 +494,15 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
 #endif
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // re-tester avec GL_LINEAR
 
 #if !defined(HAVE_GLES)
   // Set texture color (apply opacity).
   glColor4f(1.0f, 1.0f, 1.0f,
             isOutput() ? getMapping()->getComputedOpacity() : getMapping()->getPaint()->getOpacity());
+#else
+  glClearColor ( 1.0f, 1.0f, 1.0f, 0.0f );
+
 #endif
 }
 
@@ -350,25 +520,44 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
 void TextureGraphicsItem::_drawTexture(const QVector<QPointF>& input, const QVector<QPointF>& output, bool mapFromScene_)
 {
   int nVertices = input.size();
-  GLfloat tex[nVertices*2];
-  GLfloat vertices[nVertices*3];
-  for (int i=0, j=0, k=0; i<nVertices; i++, j+=2, k+=3)
+  GLfloat vertices[nVertices*(2+3)];
+  for (int i=0, j=0; i<nVertices; i++, j+=5)
   {
-    Util::getGlTexPoint(&tex[j], &vertices[k],
+    Util::getGlTexPoint(&vertices[j+3], &vertices[j],
                         *_texture.toStrongRef(), input[i], (mapFromScene_ ? mapFromScene(output[i]) : output[i]));
   }
 
+//  glClear ( GL_COLOR_BUFFER_BIT );
+
+    // Use the program object
+    glUseProgram ( program );
 
     GLuint ATTRIB_VERTEX = 0;
     GLuint ATTRIB_TEXTURE = 1;
 
-    glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertices);
-    glVertexAttribPointer(ATTRIB_TEXTURE, 2, GL_FLOAT, GL_FALSE, 0, tex);
+    // Load the vertex position
+      glVertexAttribPointer ( 0, 3, GL_FLOAT,
+                              GL_FALSE, 5 * sizeof ( GLfloat ), vertices );
+      // Load the texture coordinate
+      glVertexAttribPointer ( 1, 2, GL_FLOAT,
+                              GL_FALSE, 5 * sizeof ( GLfloat ), &vertices[3] );
+
+
     glEnableVertexAttribArray(ATTRIB_VERTEX);
     glEnableVertexAttribArray(ATTRIB_TEXTURE);
 
+    // Bind the texture
+    glActiveTexture ( GL_TEXTURE0 );
+    glBindTexture ( GL_TEXTURE_2D, _texture.toStrongRef()->getTextureId());
+
+    // Set the sampler texture unit to 0
+    glUniform1i ( samplerLoc, 0 );
+
+    GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
+    glDrawElements ( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices );
     // OR GL_TRIANGLE_STRIP???
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+//    glDrawArrays(GL_TRIANGLES, 0, nVertices);
+//    glDrawArrays(GL_TRIANGLE_STRIP, 0, nVertices);
 }
 #endif
 

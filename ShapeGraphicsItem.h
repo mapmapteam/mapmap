@@ -194,6 +194,15 @@ void _drawTexture(const QVector<QPointF>& input, const QVector<QPointF>& output,
   QWeakPointer<TextureMapping> _textureMapping;
   QWeakPointer<Texture> _texture;
   QWeakPointer<MShape> _inputShape;
+
+  #if defined(HAVE_GLES)
+  GLuint samplerLoc;
+  GLuint program;
+
+  GLuint esLoadProgram ( const char *vertShaderSrc, const char *fragShaderSrc );
+  GLuint esLoadShader ( GLenum type, const char *shaderSrc );
+
+  #endif
 };
 
 /// Graphics item for textured polygons (eg. triangles).

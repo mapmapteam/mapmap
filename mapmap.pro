@@ -131,12 +131,12 @@ QMAKE_EXTRA_TARGETS += docs
 unix:!mac {
 
   # Raspberry pi
-  contains(QMAKE_HOST.arch, arm.*): {
-    QMAKE_CXXFLAGS_RELEASE -= -O2
-    QMAKE_CXXFLAGS_RELEASE -= -O1
-    DEFINES += HAVE_GLES
-  }
+#  contains(QMAKE_HOST.arch, arm.*): {
+#    QMAKE_CXXFLAGS_RELEASE -= -O2
+#    QMAKE_CXXFLAGS_RELEASE -= -O1
+#  }
 
+#  DEFINES += HAVE_GLES
   DEFINES += UNIX
   CONFIG += link_pkgconfig
   INCLUDE_PATH +=
