@@ -52,7 +52,7 @@ _uri("")
 
   _mediaPlayer->setVideoOutput(_videoSurface);
 
-  connect(_mediaPlayer, SIGNAL(positionChanged(qint64)), this, SLOT(endOfMedia(qint64)));
+//  connect(_mediaPlayer, SIGNAL(positionChanged(qint64)), this, SLOT(endOfMedia(qint64)));
 
   _bitsChanged = true;
 }
