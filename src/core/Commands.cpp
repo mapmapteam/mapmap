@@ -148,7 +148,7 @@ int MoveVertexCommand::id() const { return (_option == STEP ? CMD_KEY_MOVE_VERTE
 
 void MoveVertexCommand::_doTransform(MShape::ptr shape)
 {
-	shape->setVertex(_movedVertex, _vertexPosition);
+  shape->setVertex(_movedVertex, _vertexPosition);
 }
 
 bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
@@ -168,10 +168,10 @@ bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
 }
 
 
-ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, const QPointF& initialPositionPoint, const MShape::ptr& initialShape, QUndoCommand *parent)
+ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, const QPointF& initialPositionPoint, const MShape::ptr& initialShape, MShape::ShapeMode mode, QUndoCommand *parent)
   : TransformShapeCommand(canvas, option, parent),
     _movedVertex(activeVertex),
-		_initialShape(initialShape)
+    _initialShape(initialShape)
 {
   setText(QObject::tr("Scale and rotate shape"));
 
@@ -186,11 +186,12 @@ ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, Transfo
 	// Compute rotation.
 	qreal rotation = currentVector.angleTo(initialVector);
 
-	// Create transform object.	
-	//	transform.rotate(rotation);
+	// Create transform object.
 	_transform.translate(+center.x(), +center.y());
-	_transform.rotate(rotation);
-	_transform.scale(scale, scale);
+	if (mode == MShape::RotateMode)
+		_transform.rotate(rotation);
+	if (mode == MShape::ScaleMode)
+		_transform.scale(scale, scale);
 	_transform.translate(-center.x(), -center.y());
 }
 
@@ -214,10 +215,10 @@ bool ScaleRotateShapeCommand::mergeWith(const QUndoCommand* other)
   if (cmd->_movedVertex != _movedVertex)
     return false;
 
-  _option = cmd->_option;
+	_option = cmd->_option;
 	_transform = cmd->_transform;
 
-  return true;
+	return true;
 }
 
 
