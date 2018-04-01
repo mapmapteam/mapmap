@@ -267,6 +267,37 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     MShape::ptr selectedShape = getCurrentShape();
     bool shapeSelectionChange = false;
 
+    // Check for vertex selection first.
+    if (event->buttons() & Qt::LeftButton)
+    {
+      if (selectedShape)
+      {
+        // Note: we compare with the square value for fastest computation of the distance
+        int minDistance = sq(MM::VERTEX_SELECT_RADIUS);
+
+        _grabbedShapeStartCenterScenePosition = selectedShape->getCenter();
+        _grabbedShapeCopy.reset(selectedShape->clone());
+
+        // Find the ID of the nearest vertex (from currently selected shape)
+        for (int i = 0; i < selectedShape->nVertices(); i++)
+        {
+          int dist = distSq(_mousePressedPosition, mapFromScene(selectedShape->getVertex(i))); // squared distance
+          if (dist < minDistance)
+          {
+            _activeVertex = i;
+            minDistance = dist;
+
+            // Vertex can be grabbed only if the mapping is not locked
+            _vertexGrabbed = !selectedShape->isLocked();
+            _vertexMoved = false; // Active vertex may not moved
+            mousePressedOnSomething = true;
+
+            _grabbedObjectStartScenePosition = selectedShape->getVertex(i);
+          }
+        }
+      }
+    }
+
     // Possibility of changing shape in output by clicking on it.
     MappingManager manager = getMainWindow()->getMappingManager();
     QVector<Mapping::ptr> mappings = manager.getVisibleMappings();
@@ -276,7 +307,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
       MShape::ptr shape = getShapeFromMapping(*it);
 
       // Check if mouse was pressed on that shape.
-      if (shape && shape->includesPoint(pos))
+      if (shape && !_vertexGrabbed && shape->includesPoint(pos))
       {
         mousePressedOnSomething = true;
 
@@ -298,7 +329,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
       }
     }
 
-    if (selectedShape && selectedShape->includesPoint(pos)) {
+    if (selectedShape && !_vertexGrabbed && selectedShape->includesPoint(pos)) {
       if (event->buttons() & Qt::LeftButton) {
         // Shape can be grabbed only if it is not locked
         _shapeGrabbed = !selectedShape->isLocked();
@@ -319,38 +350,6 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
       // Add Right click for context menu
       if (event->buttons() & Qt::RightButton) {
         emit shapeContextMenuRequested(event->pos()); // Show the shape/mapping context menu
-      }
-    }
-
-    // Check for vertex selection first.
-    if (event->buttons() & Qt::LeftButton)
-    {
-      //      MShape::ptr shape = getCurrentShape();
-      if (selectedShape)
-      {
-        // Note: we compare with the square value for fastest computation of the distance
-        int minDistance = sq(MM::VERTEX_SELECT_RADIUS);
-
-        _grabbedShapeStartCenterScenePosition = selectedShape->getCenter();
-        _grabbedShapeCopy.reset(selectedShape->clone());
-
-        // Find the ID of the nearest vertex (from currently selected shape)
-        for (int i = 0; i < selectedShape->nVertices(); i++)
-        {
-          int dist = distSq(_mousePressedPosition, mapFromScene(selectedShape->getVertex(i))); // squared distance
-          if (dist < minDistance)
-          {
-            _activeVertex = i;
-            minDistance = dist;
-
-            // Vertex can be grabbed only if the mapping is not locked
-            _vertexGrabbed = !selectedShape->isLocked();
-            _vertexMoved = false; // Active vertex may not movedl
-            mousePressedOnSomething = true;
-
-            _grabbedObjectStartScenePosition = selectedShape->getVertex(i);
-          }
-        }
       }
     }
   }

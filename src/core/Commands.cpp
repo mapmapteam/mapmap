@@ -173,8 +173,6 @@ ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, Transfo
     _movedVertex(activeVertex),
     _initialShape(initialShape)
 {
-  setText(QObject::tr("Scale and rotate shape"));
-
 	// Initial vector from center.
 	QPointF center = initialShape->getCenter();
 	QLineF initialVector(center, initialPositionPoint);
@@ -188,10 +186,14 @@ ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, Transfo
 
 	// Create transform object.
 	_transform.translate(+center.x(), +center.y());
-	if (mode == MShape::RotateMode)
+	if (mode == MShape::RotateMode) {
+		 setText(QObject::tr("Rotate shape"));
 		_transform.rotate(rotation);
-	if (mode == MShape::ScaleMode)
+	}
+	if (mode == MShape::ScaleMode) {
+		setText(QObject::tr("Scale shape"));
 		_transform.scale(scale, scale);
+	}
 	_transform.translate(-center.x(), -center.y());
 }
 
