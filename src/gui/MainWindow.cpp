@@ -916,7 +916,7 @@ void MainWindow::setMappingItemSolo(bool solo)
 void MainWindow::loadLayerMedia()
 {
   QAction *action = qobject_cast<QAction *>(sender());
-  Paint::ptr media = nullptr;
+  Paint::ptr media;
   uid currentLayerId = getCurrentMapping()->getId();
 
   if (action) {
@@ -1805,7 +1805,7 @@ void MainWindow::createActions()
   connect(renamePaintAction, SIGNAL(triggered()), this, SLOT(renamePaintItem()));
 
   // Import a new media for current layer
-  _importLayerMediaAction = new QAction(tr("Import New Media"));
+  _importLayerMediaAction = new QAction(tr("Import New Media"), this);
   _importLayerMediaAction->setToolTip(tr("Import new media file if not exists on the list"));
   _importLayerMediaAction->setIconVisibleInMenu(false);
   _importLayerMediaAction->setData("import-new-media"); // Important
