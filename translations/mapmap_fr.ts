@@ -487,7 +487,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Dimensions</source>
-        <translation>Dimensions</translation>
+        <translation type="vanished">Dimensions</translation>
     </message>
     <message>
         <source>%1
@@ -553,15 +553,15 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Add paint</source>
-        <translation>Ajouter une source</translation>
+        <translation type="vanished">Ajouter une source</translation>
     </message>
     <message>
         <source>Add mapping</source>
-        <translation>Ajouter un mapping</translation>
+        <translation type="vanished">Ajouter un mapping</translation>
     </message>
     <message>
         <source>Duplicate mapping</source>
-        <translation>Dupliquer un mapping</translation>
+        <translation type="vanished">Dupliquer un mapping</translation>
     </message>
     <message>
         <source>Move vertex</source>
@@ -573,11 +573,11 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Remove paint</source>
-        <translation>Supprimer la source</translation>
+        <translation type="vanished">Supprimer la source</translation>
     </message>
     <message>
         <source>Delete mapping</source>
-        <translation>Supprimer le mapping</translation>
+        <translation type="vanished">Supprimer le mapping</translation>
     </message>
     <message>
         <source>Problem at creation of shape.</source>
@@ -625,6 +625,34 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove media</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mesh Subdivisions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Subdivisions</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1115,23 +1143,23 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Remove this paint and all its associated mappings?</source>
-        <translation>Effacer cette source et tous les mappings qui y sont associés?</translation>
+        <translation type="vanished">Effacer cette source et tous les mappings qui y sont associés?</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation>Source</translation>
+        <translation type="vanished">Source</translation>
     </message>
     <message>
         <source>Destination</source>
-        <translation>Destination</translation>
+        <translation type="vanished">Destination</translation>
     </message>
     <message>
         <source>Paints</source>
-        <translation>Sources</translation>
+        <translation type="vanished">Sources</translation>
     </message>
     <message>
         <source>Mappings</source>
-        <translation>Mappings</translation>
+        <translation type="vanished">Mappings</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -1247,7 +1275,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Lock mapping item</source>
-        <translation>Verrouiller l&apos;élément mapping</translation>
+        <translation type="vanished">Verrouiller l&apos;élément mapping</translation>
     </message>
     <message>
         <source>Hide mapping</source>
@@ -1255,7 +1283,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Hide mapping item</source>
-        <translation>Masquer l&apos;élément mapping</translation>
+        <translation type="vanished">Masquer l&apos;élément mapping</translation>
     </message>
     <message>
         <source>Solo mapping</source>
@@ -1263,7 +1291,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>solo mapping item</source>
-        <translation>Activer le mode solo pour l&apos;élément mapping</translation>
+        <translation type="vanished">Activer le mode solo pour l&apos;élément mapping</translation>
     </message>
     <message>
         <source>Delete paint</source>
@@ -1279,27 +1307,27 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Add &amp;Mesh</source>
-        <translation>Ajouter un &amp;Mesh</translation>
+        <translation type="vanished">Ajouter un &amp;Mesh</translation>
     </message>
     <message>
         <source>Add mesh</source>
-        <translation>Ajouter un mesh</translation>
+        <translation type="vanished">Ajouter un mesh</translation>
     </message>
     <message>
         <source>Add &amp;Triangle</source>
-        <translation>Ajouter un &amp;Triangle</translation>
+        <translation type="vanished">Ajouter un &amp;Triangle</translation>
     </message>
     <message>
         <source>Add triangle</source>
-        <translation>Ajouter un triangle</translation>
+        <translation type="vanished">Ajouter un triangle</translation>
     </message>
     <message>
         <source>Add &amp;Ellipse</source>
-        <translation>Ajouter une &amp;Ellipse</translation>
+        <translation type="vanished">Ajouter une &amp;Ellipse</translation>
     </message>
     <message>
         <source>Add ellipse</source>
-        <translation>Ajouter une ellipse</translation>
+        <translation type="vanished">Ajouter une ellipse</translation>
     </message>
     <message>
         <source>Play</source>
@@ -1331,11 +1359,11 @@ No camera available in your system</source>
     </message>
     <message>
         <source>&amp;Display Controls of Mappings of a Paint</source>
-        <translation>Afficher les points de contrôle des mappings d&apos;une source</translation>
+        <translation type="vanished">Afficher les points de contrôle des mappings d&apos;une source</translation>
     </message>
     <message>
         <source>Display all canvas controls related to current paint</source>
-        <translation>Afficher tous les points de contrôle du canevas lié à la source actuelle</translation>
+        <translation type="vanished">Afficher tous les points de contrôle du canevas lié à la source actuelle</translation>
     </message>
     <message>
         <source>&amp;Sticky Vertices</source>
@@ -1379,19 +1407,19 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Source Layout</source>
-        <translation>Vue source</translation>
+        <translation type="vanished">Vue source</translation>
     </message>
     <message>
         <source>Switch to the Source layout.</source>
-        <translation>Passer à la vue source</translation>
+        <translation type="vanished">Passer à la vue source</translation>
     </message>
     <message>
         <source>Destination Layout</source>
-        <translation>Vue destination</translation>
+        <translation type="vanished">Vue destination</translation>
     </message>
     <message>
         <source>Switch to the Destination layout.</source>
-        <translation>Passer à la vue destination</translation>
+        <translation type="vanished">Passer à la vue destination</translation>
     </message>
     <message>
         <source>Report bug...</source>
@@ -1591,58 +1619,6 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
         <translation> - Principal</translation>
     </message>
     <message>
-        <source>Duplicate Mapping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duplicate mapping item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete Mapping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete mapping item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rename Mapping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rename mapping item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lock Mapping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide Mapping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Solo Mapping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete Paint</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete paint item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rename Paint</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rename paint item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Zoom In</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1664,6 +1640,138 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     </message>
     <message>
         <source>Fit to viewport</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this source and all its associated layers?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layers</source>
+        <translation type="unfinished">Calques</translation>
+    </message>
+    <message>
+        <source>Duplicate Layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate layer item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete Layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete layer item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename Layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename layer item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lock Layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lock layer item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide Layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide layer item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Solo Layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>solo layer item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete source item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename source item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add &amp;Mesh Layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add mesh layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add &amp;Triangle Layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add triangle layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add &amp;Ellipse Layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add ellipse layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Display Controls of Layers of a Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display all canvas controls related to current source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input editor Layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the Input editor Layout.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output Editor Layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the Output Editors Layout.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1703,6 +1811,17 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     <message>
         <source>Delete mapping</source>
         <translation>Supprimer</translation>
+    </message>
+</context>
+<context>
+    <name>mmp::MeshTextureMappingGui</name>
+    <message>
+        <source>Horizontal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1749,7 +1868,7 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     </message>
     <message>
         <source>Layers</source>
-        <translation type="vanished">Calques</translation>
+        <translation>Calques</translation>
     </message>
     <message>
         <source>Show resolution on output</source>
@@ -1817,14 +1936,14 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     </message>
     <message>
         <source>Mappings</source>
-        <translation type="unfinished">Mappings</translation>
+        <translation type="obsolete">Mappings</translation>
     </message>
 </context>
 <context>
     <name>mmp::VideoGui</name>
     <message>
         <source>Video file</source>
-        <translation>Fichhier vidéo</translation>
+        <translation type="vanished">Fichhier vidéo</translation>
     </message>
     <message>
         <source>Video files (%1);;All files (*)</source>
@@ -1837,6 +1956,10 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     <message>
         <source>Volume (%)</source>
         <translation>Volume (%)</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished">Source</translation>
     </message>
 </context>
 </TS>
