@@ -71,7 +71,7 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     painter->restore();
     glPopMatrix();
   }
-  else if (!controlOnMouseOver || MainWindow::window()->displayControls() && _windowIsHovered)
+  else if (!controlOnMouseOver || (MainWindow::window()->displayControls() && _windowIsHovered))
   {
     MapperGLCanvas::drawForeground(painter, rect);
 
