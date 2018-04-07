@@ -167,7 +167,7 @@ VideoGui::VideoGui(Paint::ptr paint)
   Q_CHECK_PTR(media);
 
   _mediaFileItem = _variantManager->addProperty(VariantManager::filePathTypeId(),
-                                                tr("Video file"));
+                                                tr("Source"));
 
   _mediaFileItem->setAttribute("filter", tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER));
   _mediaFileItem->setValue(media->getUri());
