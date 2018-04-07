@@ -421,8 +421,17 @@ MeshTextureMappingGui::MeshTextureMappingGui(QSharedPointer<TextureMapping> mapp
   // Add mesh sub property.
   QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_mapping->getShape());
   _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Mesh Subdivisions"));
+
+  // Rename subdivision subproperties.
+  QList<QtProperty *> subList = _meshItem->subProperties();
+  subList[0]->setPropertyName(tr("Horizontal"));
+  subList[1]->setPropertyName(tr("Vertical"));
+
+  // Set defaults.
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
   _meshItem->setAttribute("minimum", QSize(2, 2));
+
+  // Add.
   _propertyBrowser->insertProperty(_meshItem, _paintItem); // insert at the beginning
 }
 
