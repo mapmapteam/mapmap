@@ -1,6 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>mapmap_fr.qm</file>
         <file>mapmap_en.qm</file>
+        <file>mapmap_es.qm</file>
+        <file>mapmap_fr.qm</file>
+        <file>mapmap_zh_CN.qm</file>
+        <file>mapmap_zh_TW.qm</file>
     </qresource>
 </RCC>
