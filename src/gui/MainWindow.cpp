@@ -1632,7 +1632,7 @@ void MainWindow::createActions()
 #endif
 
   // Add color.
-  addColorAction = new QAction(tr("Add &Color Paint..."), this);
+  addColorAction = new QAction(tr("Add &Color Source..."), this);
   addColorAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_A);
   addColorAction->setIcon(QIcon(":/add-color"));
   addColorAction->setToolTip(tr("Add a color paint..."));
@@ -2624,7 +2624,7 @@ bool MainWindow::addColorPaint(const QColor& color)
 
   QApplication::restoreOverrideCursor();
 
-  statusBar()->showMessage(tr("Color paint added"), 2000);
+  statusBar()->showMessage(tr("Color source added"), 2000);
 
   return true;
 }
