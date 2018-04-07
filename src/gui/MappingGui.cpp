@@ -420,7 +420,7 @@ MeshTextureMappingGui::MeshTextureMappingGui(QSharedPointer<TextureMapping> mapp
 
   // Add mesh sub property.
   QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_mapping->getShape());
-  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Mesh Subdivisions"));
+  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Subdivisions"));
 
   // Rename subdivision subproperties.
   QList<QtProperty *> subList = _meshItem->subProperties();
