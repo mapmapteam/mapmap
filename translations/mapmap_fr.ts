@@ -589,7 +589,7 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Mapping</source>
-        <translation>Mapping</translation>
+        <translation type="vanished">Mapping</translation>
     </message>
     <message>
         <source>Opacity (%)</source>
@@ -597,7 +597,7 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Paint</source>
-        <translation>Source</translation>
+        <translation type="vanished">Source</translation>
     </message>
     <message>
         <source>Color</source>
@@ -621,6 +621,10 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Scale and rotate shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ID</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

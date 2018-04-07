@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="es_ES">
+<TS version="2.1" language="zh_CN">
 <context>
     <name>FileEdit</name>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser-extension/fileedit.cpp" line="54"/>
         <source>Choose a file</source>
-        <translation type="unfinished">Seleccionar archivo</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
