@@ -68,12 +68,19 @@ void OutputGLWindow::setFullScreen(bool fullscreen)
 {
   _setFullScreen(fullscreen);
   _isFullScreen = fullscreen;
+
+  _resetCursor(_isFullScreen);
+}
+
+void OutputGLWindow::_resetCursor(bool fullscreen)
+{
+  setCursor(fullscreen ? Qt::BlankCursor : Qt::ArrowCursor);
 }
 
 void OutputGLWindow::setCanvasDisplayCrosshair(bool crosshair)
 {
   canvas->setDisplayCrosshair(crosshair);
-  setCursor(crosshair || this->_isFullScreen ? Qt::BlankCursor : Qt::ArrowCursor);
+  _resetCursor(_isFullScreen);
 }
 
 void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
