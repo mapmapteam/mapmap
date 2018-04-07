@@ -27,7 +27,8 @@ namespace mmp {
 OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget* shareWidget, QGraphicsScene* scene)
 : MapperGLCanvas(mainWindow, true, parent, shareWidget, scene),
   _displayCrosshair(false),
-  _displayTestSignal(false)
+  _displayTestSignal(false),
+  _windowIsHovered(false)
 {
   // Disable scrollbars.
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -68,7 +69,7 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     painter->restore();
     glPopMatrix();
   }
-  else
+  else if (MainWindow::window()->displayControls() && _windowIsHovered)
   {
     MapperGLCanvas::drawForeground(painter, rect);
 
@@ -105,6 +106,18 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     }
   }
 
+}
+
+void OutputGLCanvas::enterEvent(QEvent *event)
+{
+  _windowIsHovered = true;
+  QGraphicsView::enterEvent(event);
+}
+
+void OutputGLCanvas::leaveEvent(QEvent *event)
+{
+  _windowIsHovered = false;
+  QGraphicsView::leaveEvent(event);
 }
 
 void OutputGLCanvas::_drawClassicTestSignal(QPainter* painter)
