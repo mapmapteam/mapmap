@@ -54,7 +54,7 @@ MappingGui::MappingGui(Mapping::ptr mapping)
   _opacityItem->setValue(_mapping->getOpacity()*100.0);
   _propertyBrowser->addProperty(_opacityItem);
 
-  _paintItem = _variantManager->addProperty(QtVariantPropertyManager::enumTypeId(), "Media");
+  _paintItem = _variantManager->addProperty(QtVariantPropertyManager::enumTypeId(), "Source");
   _propertyBrowser->addProperty(_paintItem);
   updatePaints();
 
@@ -191,7 +191,7 @@ MeshColorMappingGui::MeshColorMappingGui(Mapping::ptr mapping)
 
   // Add mesh sub property.
   QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_mapping->getShape());
-  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Mesh Warping"));
+  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Mesh Subdivisions"));
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
   _meshItem->setAttribute("minimum", QSize(2,2));
   _propertyBrowser->insertProperty(_meshItem, _paintItem); // insert at the beginning
@@ -227,7 +227,7 @@ EllipseColorMappingGui::EllipseColorMappingGui(Mapping::ptr mapping) : ColorMapp
 //  : ColorMappingGui(mapping) {
 //  // Add mesh sub property.
 //  Mesh* mesh = (Mesh*)mapping->getShape().get();
-//  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Mesh Warping"));
+//  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Mesh Subdivisions"));
 //  _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
 //  _topItem->insertSubProperty(_meshItem, 0); // insert at the beginning
 //}
@@ -420,8 +420,9 @@ MeshTextureMappingGui::MeshTextureMappingGui(QSharedPointer<TextureMapping> mapp
 
   // Add mesh sub property.
   QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_mapping->getShape());
-  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Mesh Warping"));
+  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Mesh Subdivisions"));
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
+  _meshItem->
   _meshItem->setAttribute("minimum", QSize(2,2));
   _propertyBrowser->insertProperty(_meshItem, _paintItem); // insert at the beginning
 }

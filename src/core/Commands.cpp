@@ -33,7 +33,7 @@ AddPaintCommand::AddPaintCommand(MainWindow *mainWindow, uid paintId, const QIco
   _icon(icon),
   _name(name)
 {
-  setText(QObject::tr("Add media"));
+  setText(QObject::tr("Add source"));
 }
 
 void AddPaintCommand::undo()

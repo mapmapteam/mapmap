@@ -788,8 +788,8 @@ void MainWindow::updateStatusBar()
   else
     mousePosLabel->setText(""); // Otherwise set empty text.
   currentMessageLabel->setText(statusBar()->currentMessage());
-  sourceZoomLabel->setText("Input: " + QString::number(int(sourceCanvas->getZoomFactor() * 100)).append(QChar('%')));
-  destinationZoomLabel->setText("Output Preview: " + QString::number(int(destinationCanvas->getZoomFactor() * 100)).append(QChar('%')));
+  sourceZoomLabel->setText("Input Editor: " + QString::number(int(sourceCanvas->getZoomFactor() * 100)).append(QChar('%')));
+  destinationZoomLabel->setText("Output Editor: " + QString::number(int(destinationCanvas->getZoomFactor() * 100)).append(QChar('%')));
   lastActionLabel->setText(undoStack->text(undoStack->count() - 1));
 }
 
@@ -916,7 +916,7 @@ void MainWindow::deletePaintItem()
   }
   else
   {
-    qCritical() << "No selected media" << endl;
+    qCritical() << "No selected source" << endl;
   }
 }
 
@@ -1375,7 +1375,7 @@ void MainWindow::deletePaint(uid paintId, bool replace)
   {
     if (replace == false) {
       int r = QMessageBox::warning(this, tr("MapMap"),
-                                   tr("Remove this media and all its associated layers?"),
+                                   tr("Remove this source and all its associated layers?"),
                                    QMessageBox::Ok | QMessageBox::Cancel);
       if (r == QMessageBox::Ok)
       {
@@ -1445,7 +1445,7 @@ void MainWindow::createLayout()
   sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
   sourceCanvasToolbar = new MapperGLCanvasToolbar(sourceCanvas, this);
-  sourceCanvasToolbar->setToolbarTitle(tr("Input"));
+  sourceCanvasToolbar->setToolbarTitle(tr("Input Editor"));
   QVBoxLayout* sourceLayout = new QVBoxLayout;
   sourceLayout->setContentsMargins(0, 0, 0, 0);
   sourceLayout->setSpacing(0);
@@ -1461,7 +1461,7 @@ void MainWindow::createLayout()
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
   destinationCanvasToolbar = new MapperGLCanvasToolbar(destinationCanvas, this);
-  destinationCanvasToolbar->setToolbarTitle(tr("Output Preview"));
+  destinationCanvasToolbar->setToolbarTitle(tr("Output Editor"));
   QVBoxLayout* destinationLayout = new QVBoxLayout;
   destinationLayout->setContentsMargins(0, 0, 0, 0);
   destinationLayout->setSpacing(0);
@@ -1507,7 +1507,7 @@ void MainWindow::createLayout()
 
   // Content tab.
   contentTab = new QTabWidget;
-  contentTab->addTab(paintSplitter, QIcon(":/add-video"), tr("Medias"));
+  contentTab->addTab(paintSplitter, QIcon(":/add-video"), tr("Library"));
   contentTab->addTab(mappingSplitter, QIcon(":/add-mesh"), tr("Layers"));
 
   canvasSplitter = new QSplitter(Qt::Vertical);
@@ -1736,9 +1736,9 @@ void MainWindow::createActions()
   connect(mappingSoloAction, SIGNAL(triggered(bool)), this, SLOT(setMappingItemSolo(bool)));
 
   // Delete paint.
-  deletePaintAction = new QAction(tr("Delete Media"), this);
+  deletePaintAction = new QAction(tr("Delete Source"), this);
   //deletePaintAction->setShortcut(tr("CTRL+DEL"));
-  deletePaintAction->setToolTip(tr("Delete media item"));
+  deletePaintAction->setToolTip(tr("Delete source item"));
   deletePaintAction->setIconVisibleInMenu(false);
   deletePaintAction->setEnabled(false);
   deletePaintAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -1746,9 +1746,9 @@ void MainWindow::createActions()
   connect(deletePaintAction, SIGNAL(triggered()), this, SLOT(deletePaintItem()));
 
   // Rename paint.
-  renamePaintAction = new QAction(tr("Rename Media"), this);
+  renamePaintAction = new QAction(tr("Rename Source"), this);
   //renamePaintAction->setShortcut(Qt::Key_F2);
-  renamePaintAction->setToolTip(tr("Rename paint item"));
+  renamePaintAction->setToolTip(tr("Rename source item"));
   renamePaintAction->setIconVisibleInMenu(false);
   renamePaintAction->setEnabled(false);
   renamePaintAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -1867,10 +1867,10 @@ void MainWindow::createActions()
   connect(displayControlsAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setCanvasDisplayCrosshair(bool)));
 
   // Toggle display of canvas controls.
-  displayPaintControlsAction = new QAction(tr("&Display Controls of Layers of a Media"), this);
+  displayPaintControlsAction = new QAction(tr("&Display Controls of Layers of a Source"), this);
   //displayPaintControlsAction->setShortcut(Qt::ALT + Qt::Key_C);
   displayPaintControlsAction->setIcon(QIcon(":/control-points"));
-  displayPaintControlsAction->setToolTip(tr("Display all canvas controls related to current media"));
+  displayPaintControlsAction->setToolTip(tr("Display all canvas controls related to current source"));
   displayPaintControlsAction->setIconVisibleInMenu(false);
   displayPaintControlsAction->setCheckable(true);
   displayPaintControlsAction->setChecked(_displayPaintControls);
@@ -1954,17 +1954,17 @@ void MainWindow::createActions()
   connect(mainViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setVisible(bool)));
   connect(mainViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setVisible(bool)));
   // Source Only
-  sourceViewAction = new QAction(tr("Input Layout"), this);
+  sourceViewAction = new QAction(tr("Input editor Layout"), this);
   sourceViewAction->setCheckable(true);
   sourceViewAction->setShortcut(Qt::CTRL + Qt::Key_2);
-  sourceViewAction->setToolTip(tr("Switch to the Input Layout."));
+  sourceViewAction->setToolTip(tr("Switch to the Input editor Layout."));
   connect(sourceViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setVisible(bool)));
   connect(sourceViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setHidden(bool)));
   // Destination Only
-  destViewAction = new QAction(tr("Output Preview Layout"), this);
+  destViewAction = new QAction(tr("Output Editor Layout"), this);
   destViewAction->setCheckable(true);
   destViewAction->setShortcut(Qt::CTRL + Qt::Key_3);
-  destViewAction->setToolTip(tr("Switch to the Output Preview Layout."));
+  destViewAction->setToolTip(tr("Switch to the Output Editors Layout."));
   connect(destViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setHidden(bool)));
   connect(destViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setVisible(bool)));
   // Groups all actions
