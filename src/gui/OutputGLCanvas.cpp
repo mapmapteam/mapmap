@@ -44,10 +44,12 @@ void OutputGLCanvas::setSceneRectToViewportGeometry()
 
 void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 {
+  QSettings settings;
+  bool controlOnMouseOver = settings.value("showControlOnMouseOver", MM::SHOW_OUTPUT_ON_MOUSE_HOVER).toBool();
+
   if (_displayTestSignal)
   {
     // Draw the preferred signal test card
-    QSettings settings;
     int testCard = settings.value("signalTestCard", MM::DEFAULT_TEST_CARD).toInt();
     glPushMatrix();
     painter->translate(rect.x(), rect.y());
@@ -69,7 +71,7 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     painter->restore();
     glPopMatrix();
   }
-  else if (MainWindow::window()->displayControls() && _windowIsHovered)
+  else if (!controlOnMouseOver || (MainWindow::window()->displayControls() && _windowIsHovered))
   {
     MapperGLCanvas::drawForeground(painter, rect);
 

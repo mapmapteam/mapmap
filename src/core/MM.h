@@ -81,9 +81,10 @@ public:
   static const bool DISPLAY_ZOOM_TOOLBAR = true;
   static const bool DISPLAY_MENU_BAR = true;
   static const bool STICKY_VERTICES = true;
-  static const int DEFAULT_TEST_CARD = 0;
+  static const int DEFAULT_TEST_CARD = 1;
   static const bool SHOW_OUTPUT_RESOLUTION = true;
   static const QString DEFAULT_LANGUAGE;
+  static const bool SHOW_OUTPUT_ON_MOUSE_HOVER = true;
 
   // Style.
   static const QColor WHITE;
