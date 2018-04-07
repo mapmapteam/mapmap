@@ -14,7 +14,7 @@
     <message>
         <location filename="../src/app/main.cpp" line="185"/>
         <source>Initiating program...</source>
-        <translation>啟動程序...</translation>
+        <translation>启动程序...</translation>
     </message>
     <message>
         <location filename="../src/app/main.cpp" line="240"/>
@@ -54,7 +54,7 @@
     <message>
         <location filename="../src/core/Commands.cpp" line="258"/>
         <source>Remove paint</source>
-        <translation>漆問題</translation>
+        <translation>去除漆</translation>
     </message>
     <message>
         <location filename="../src/core/Commands.cpp" line="296"/>
@@ -64,7 +64,7 @@
     <message>
         <location filename="../src/core/Mapping.cpp" line="154"/>
         <source>Problem at creation of shape.</source>
-        <translation>形狀問題</translation>
+        <translation>形狀問題.</translation>
     </message>
     <message>
         <location filename="../src/core/Mapping.cpp" line="170"/>
@@ -76,7 +76,7 @@
     <message>
         <location filename="../src/core/ProjectReader.cpp" line="49"/>
         <source>The file is not a mapmap version %1 file.</source>
-        <translation>這個文件不是MapMap %1 文件</translation>
+        <translation>這個文件不是MapMap %1 文件.</translation>
     </message>
     <message>
         <location filename="../src/core/ProjectReader.cpp" line="60"/>
@@ -87,12 +87,12 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/core/ProjectReader.cpp" line="127"/>
         <source>Problem at creation of paint.</source>
-        <translation>漆問題</translation>
+        <translation>漆問題.</translation>
     </message>
     <message>
         <location filename="../src/core/ProjectReader.cpp" line="158"/>
         <source>Problem at creation of mapping.</source>
-        <translation>映射問題</translation>
+        <translation>映射問題.</translation>
     </message>
     <message>
         <location filename="../src/gui/MappingGui.cpp" line="44"/>
@@ -167,7 +167,7 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qteditorfactory.cpp" line="1700"/>
         <source>Clear Char</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -261,42 +261,42 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="80"/>
         <source>Split Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>垂直分割</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="82"/>
         <source>Split Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>水平分割</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="84"/>
         <source>Pointing Hand</source>
-        <translation type="unfinished"></translation>
+        <translation>指向手</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="86"/>
         <source>Forbidden</source>
-        <translation type="unfinished"></translation>
+        <translation>被禁止</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="88"/>
         <source>Open Hand</source>
-        <translation type="unfinished"></translation>
+        <translation>開手</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="90"/>
         <source>Closed Hand</source>
-        <translation type="unfinished"></translation>
+        <translation>閉合的手</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="92"/>
         <source>What&apos;s This</source>
-        <translation type="unfinished"></translation>
+        <translation>這是什麼？</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="94"/>
         <source>Busy</source>
-        <translation type="unfinished"></translation>
+        <translation>繁忙</translation>
     </message>
 </context>
 <context>
@@ -574,7 +574,7 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="82"/>
         <source>MapMap is a free/open source video mapping software.</source>
-        <translation>MapMap 是一個免費軟體</translation>
+        <translation>MapMap 是一個免費軟體.</translation>
     </message>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="84"/>
@@ -734,7 +734,7 @@ No camera available in your system</source>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1401"/>
         <source>Remove this paint and all its associated mappings?</source>
-        <translation>刪除這個漆？</translation>
+        <translation>刪除這個漆?</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1471"/>
@@ -829,7 +829,7 @@ No camera available in your system</source>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1661"/>
         <source>Add a color paint...</source>
-        <translation>加彩色塗</translation>
+        <translation>加彩色塗...</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1668"/>
@@ -1032,12 +1032,12 @@ No camera available in your system</source>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1908"/>
         <source>&amp;Sticky Vertices</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;磁性的頂點</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1911"/>
         <source>Enable sticky vertices</source>
-        <translation type="unfinished"></translation>
+        <translation>啟用磁性的頂點</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1920"/>
@@ -1077,7 +1077,7 @@ No camera available in your system</source>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1976"/>
         <source>Switch to the Main layout.</source>
-        <translation>切換到基本設計</translation>
+        <translation>切換到基本設計.</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1980"/>
@@ -1087,7 +1087,7 @@ No camera available in your system</source>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1983"/>
         <source>Switch to the Source layout.</source>
-        <translation>切換到原始來源設計</translation>
+        <translation>切換到原始來源設計.</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1987"/>
@@ -1097,7 +1097,7 @@ No camera available in your system</source>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1990"/>
         <source>Switch to the Destination layout.</source>
-        <translation>切換到目的地設計</translation>
+        <translation>切換到目的地設計.</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2001"/>
@@ -1154,7 +1154,7 @@ No camera available in your system</source>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2067"/>
         <source>&amp;File</source>
-        <translation>檔案</translation>
+        <translation>&amp;檔案</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2081"/>
@@ -1169,7 +1169,7 @@ No camera available in your system</source>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2099"/>
         <source>&amp;Edit</source>
-        <translation>編輯</translation>
+        <translation>&amp;編輯</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2123"/>
@@ -1179,7 +1179,7 @@ No camera available in your system</source>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2134"/>
         <source>&amp;Output screen</source>
-        <translation>輸出螢幕</translation>
+        <translation>&amp;輸出螢幕</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2143"/>
@@ -1200,7 +1200,7 @@ No camera available in your system</source>
         <location filename="../src/gui/MainWindow.cpp" line="2371"/>
         <source>The document has been modified.
 Do you want to save your changes?</source>
-        <translation>你想保存你的更改嗎？</translation>
+        <translation>你想保存你的更改嗎?</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2393"/>
@@ -1314,7 +1314,7 @@ Do you want to save your changes?</source>
         <location filename="../src/gui/MainWindow.cpp" line="2995"/>
         <source>Unable to use file %1.
 The original file is not found. Please locate.</source>
-        <translation>無法使用文件，請找到文件</translation>
+        <translation>無法使用文件 %1，請找到文件.</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="3001"/>
@@ -1413,7 +1413,7 @@ The original file is not found. Please locate.</source>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="194"/>
         <source>Enable Sticky vertices</source>
-        <translation>磁性的頂點</translation>
+        <translation>啟用磁性的頂點</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="207"/>
@@ -1483,8 +1483,7 @@ The original file is not found. Please locate.</source>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="360"/>
         <source>Output</source>
-        <translation>產出
-</translation>
+        <translation>產出</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="363"/>
@@ -1517,8 +1516,7 @@ The original file is not found. Please locate.</source>
     <message>
         <location filename="../src/gui/PaintGui.cpp" line="183"/>
         <source>Volume (%)</source>
-        <translation>	
-音量 (%)</translation>
+        <translation>音量 (%)</translation>
     </message>
 </context>
 </TS>
