@@ -131,6 +131,15 @@ void Mesh::setVertex(int i, const QPointF& v)
   _rawSetVertex(i, realV);
 }
 
+bool Mesh::isMajorVertex(int idx) const
+{
+  return (idx == 0 ||
+          idx == nColumns()-1 ||
+          idx == nVertices()-1 ||
+          idx == nVertices()-nColumns());
+}
+
+
 void Mesh::resizeVertices2d(IndexVector2d& vertices2d, int nColumns, int nRows)
 {
   vertices2d.resize(nColumns);

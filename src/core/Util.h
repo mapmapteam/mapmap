@@ -68,7 +68,7 @@ Mesh* createMeshForColor(int frameWidth, int frameHeight);
 Triangle* createTriangleForColor(int frameWidth, int frameHeight);
 Ellipse* createEllipseForColor(int frameWidth, int frameHeight);
 
-void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected, bool locked, MShape::ShapeMode shapeMode, qreal radius = MM::VERTEX_SELECT_RADIUS, qreal strokeWidth = MM::VERTEX_SELECT_STROKE_WIDTH);
+void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool major, bool selected, bool locked, MShape::ShapeMode shapeMode, qreal radius = MM::VERTEX_SELECT_RADIUS, qreal strokeWidth = MM::VERTEX_SELECT_STROKE_WIDTH);
 
 /**
  * Checks if a file exists or not.
