@@ -1822,10 +1822,10 @@ void MainWindow::createActions()
   pauseAction->setVisible(false);
 
   // Rewind.
-  rewindAction = new QAction(tr("Rewind"), this);
+  rewindAction = new QAction(tr("Restart"), this);
   rewindAction->setShortcut(Qt::CTRL + Qt::Key_R);
   rewindAction->setIcon(QIcon(":/rewind"));
-  rewindAction->setToolTip(tr("Rewind"));
+  rewindAction->setToolTip(tr("Restart"));
   rewindAction->setIconVisibleInMenu(false);
   rewindAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(rewindAction);
