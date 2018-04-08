@@ -22,7 +22,7 @@ install:
       Write-Host "Installed" -ForegroundColor Green
 
   - ps: |
-      Write-Host "Installing GStreamer..." -ForegroundColor Cyan
+      Write-Host "Installing GStreamer Devel..." -ForegroundColor Cyan
       $msiPath = "$($env:USERPROFILE)\gstreamer-1.0-devel-x86_64-1.12.4.msi"
       $gstreamerPath = "C:\"
       Write-Host "Downloading..."
@@ -32,6 +32,9 @@ install:
       Write-Host "Installed" -ForegroundColor Green
 
   - set GSTREAMER_1_0_ROOT_X86=C:\gstreamer\1.0\x86_64
+
+before_build:
+  - ren 'C:\Program Files (x86)\Windows Kits\10\include\wdf' '00wdf'
 
 build_script:
   - qmake mapmap.pro
