@@ -150,7 +150,7 @@ Ellipse* createEllipseForColor(int frameWidth, int frameHeight)
   );
 }
 
-void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected, bool locked, MShape::ShapeMode shapeMode, qreal radius, qreal strokeWidth)
+void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool major, bool selected, bool locked, MShape::ShapeMode shapeMode, qreal radius, qreal strokeWidth)
 {
   // Init colors and stroke.
   if (locked)
@@ -160,29 +160,39 @@ void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected,
 
   painter->setPen(locked ? QPen(MM::CONTROL_LOCKED_COLOR) : QPen(MM::CONTROL_COLOR, strokeWidth));
 
-  QRect target(vertex.x() - radius, vertex.y() - radius, radius * 2, radius * 2);
+  QRect target((vertex.x() - radius) + 1,
+               (vertex.y() - radius) - 1,
+               radius * 2, radius * 2);
 
-  switch (shapeMode) {
-    case MShape::ScaleMode:
-      if (!locked)
-        // Draw scale icons
-        painter->drawPixmap(target, QPixmap(":/vertex-scale"));
-      break;
-    case MShape::RotateMode:
-      if (!locked)
-        // Draw rotate icons
-        painter->drawPixmap(target, QPixmap(":/vertex-rotate"));
-      break;
-    default:
-      // Draw ellipse.
+  if (locked)
+  {
+    // Draw ellipse.
+    painter->drawEllipse(vertex, radius, radius);
+  }
+  else if (shapeMode == MShape::DefaultMode)
+  {
+    // Draw ellipse.
+    painter->drawEllipse(vertex, radius, radius);
+
+    // Draw cross.
+    qreal offset = sin(M_PI/4) * radius;
+    painter->drawLine( vertex + QPointF(offset, offset),  vertex + QPointF(-offset, -offset) );
+    painter->drawLine( vertex + QPointF(offset, -offset), vertex + QPointF(-offset, offset) );
+  }
+  else if (!major)
+  {
       painter->drawEllipse(vertex, radius, radius);
-      break;
+  }
+  else if (shapeMode == MShape::ScaleMode)
+  {
+    painter->drawPixmap(target, QPixmap(":/vertex-scale"));
+  }
+  else // RotateMode
+  {
+    // Draw rotate icons
+    painter->drawPixmap(target, QPixmap(":/vertex-rotate"));
   }
 
-  // Draw cross.
-  //  qreal offset = sin(M_PI/4) * radius;
-  //  painter->drawLine( vertex + QPointF(offset, offset),  vertex + QPointF(-offset, -offset) );
-  //  painter->drawLine( vertex + QPointF(offset, -offset), vertex + QPointF(-offset, offset) );
 }
 
 bool fileExists(const QString& filename)
