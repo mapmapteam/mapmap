@@ -6,6 +6,7 @@
 cd $(dirname $0)
 cd ..
 
+#Verify this version matches folder name.
 qtversion=5.10.1
 
 do_create_dmg() {
@@ -50,6 +51,12 @@ do_fix_qt_plugins_in_app() {
 unamestr=$(uname)
 
 if [[ $unamestr == "Darwin" ]]; then
+
+    echo "Please enter password to restart Finder. This will set the application icon later ..."
+
+    #prompt for sudo password before longer operations
+    sudo echo
+
     #MAKE_CFLAGS_X86_64+="-Xarch_x86_64 -mmacosx-version-min=10.7"
     #QMAKE_CFLAGS_PPC_64+="-Xarch_ppc64 -mmacosx-version-min=10.7"
     #export MAKE_CFLAGS_X86_64
@@ -80,8 +87,15 @@ if [[ $unamestr == "Darwin" ]]; then
 
     # Set application icon macOS
     echo "Applying Application Icon, restarting Finder ..."
-    cp -f resources/macOS/info.plist ${app}/Contents/Resources
+    cp -f resources/macOS/info.plist ${app}/Contents/
     cp -f resources/macOS/mapmap.icns ${app}/Contents/Resources
+
+    touch MapMap.app/
+
+    #echo "Password Required to Restart Finder - this will set the applicaiton image ..."
+
+    sudo killall Finder
+    sudo killall Dock
 
     # Bundle GStreamer framework in app
     #echo "Bundling GStreamer ..."
