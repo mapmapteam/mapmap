@@ -160,23 +160,30 @@ void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected,
 
   painter->setPen(locked ? QPen(MM::CONTROL_LOCKED_COLOR) : QPen(MM::CONTROL_COLOR, strokeWidth));
 
-  QRect target(vertex.x() - radius, vertex.y() - radius, radius * 2, radius * 2);
+  QRect target((vertex.x() - radius) + 1,
+               (vertex.y() - radius) - 1,
+               radius * 2, radius * 2);
 
-  switch (shapeMode) {
-    case MShape::ScaleMode:
-      if (!locked)
+  if (locked) {
+    // Draw loccked ellipse.
+    painter->drawEllipse(vertex, radius, radius);
+  } else {
+    switch (shapeMode) {
+      case MShape::ScaleMode:
         // Draw scale icons
+        painter->drawEllipse(vertex, radius, radius);
         painter->drawPixmap(target, QPixmap(":/vertex-scale"));
-      break;
-    case MShape::RotateMode:
-      if (!locked)
+        break;
+      case MShape::RotateMode:
         // Draw rotate icons
+        painter->drawEllipse(vertex, radius, radius);
         painter->drawPixmap(target, QPixmap(":/vertex-rotate"));
-      break;
-    default:
-      // Draw ellipse.
-      painter->drawEllipse(vertex, radius, radius);
-      break;
+        break;
+      default:
+        // Draw ellipse.
+        painter->drawEllipse(vertex, radius, radius);
+        break;
+    }
   }
 
   // Draw cross.
