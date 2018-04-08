@@ -385,7 +385,7 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
   //  if ((event->buttons() & Qt::LeftButton) && _mousePressedOnVertex)
   //  {
   //  }
-  if (_vertexGrabbed && _vertexMoved)
+  if (_vertexGrabbed)
   {
     // TODO : code repetition here!!!
     QPointF p = mapToScene(event->pos());
@@ -406,8 +406,9 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
                                                     TransformShapeCommand::RELEASE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy, MShape::ScaleMode));
         break;
       default:
-        undoStack->push(new MoveVertexCommand(this,
-                                              TransformShapeCommand::RELEASE, _activeVertex, p));
+        if (_vertexMoved)
+          undoStack->push(new MoveVertexCommand(this,
+                                                TransformShapeCommand::RELEASE, _activeVertex, p));
         break;
     }
 
