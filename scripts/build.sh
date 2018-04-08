@@ -6,7 +6,7 @@
 cd $(dirname $0)
 cd ..
 
-qtversion=5.8
+qtversion=5.10.1
 
 do_create_dmg() {
     if [ -f DMGVERSION.txt ]
@@ -23,7 +23,7 @@ do_create_dmg() {
     rm -rf $DMGDIR
     mkdir -p $DMGDIR
     cp -R MapMap.app ${DMGDIR}
-    cp README ${DMGDIR}/README.txt
+    cp README.md ${DMGDIR}/README.txt
     cp NEWS ${DMGDIR}/NEWS.txt
     hdiutil create \
         -volname ${DMGDIR} \
@@ -70,6 +70,7 @@ if [[ $unamestr == "Darwin" ]]; then
 
     # build program
     echo "Building program ..."
+    echo "FIXME: you might need to run qmake in Qt Creator on macOS, and then run this script again"
     qmake -config release
     make -j4
     

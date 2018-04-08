@@ -13,6 +13,9 @@ Release/
 .deps
 .libs
 
+# except icons files
+!resources/images/*
+
 # Big files
 .*.swp
 *.zip
@@ -23,8 +26,6 @@ Release/
 *.ogg
 *.png
 
-# except icons files
-!resources/images/*
 *.tar
 *.rar
 *.qm

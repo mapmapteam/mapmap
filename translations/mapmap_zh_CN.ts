@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="es_ES">
+<TS version="2.1" language="zh_CN">
 <context>
     <name>FileEdit</name>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser-extension/fileedit.cpp" line="54"/>
         <source>Choose a file</source>
-        <translation type="unfinished">Seleccionar archivo</translation>
+        <translation>选择档案</translation>
     </message>
 </context>
 <context>
@@ -14,12 +14,16 @@
     <message>
         <location filename="../src/app/main.cpp" line="185"/>
         <source>Initiating program...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/app/main.cpp" line="240"/>
         <source>Done.</source>
-        <translation type="unfinished"></translation>
+        <translation>完成.</translation>
+    </message>
+    <message>
+        <source>Duplicate mapping</source>
+        <translation type="vanished">复制映射</translation>
     </message>
     <message>
         <location filename="../src/core/Commands.cpp" line="36"/>
@@ -39,17 +43,17 @@
     <message>
         <location filename="../src/core/Commands.cpp" line="144"/>
         <source>Move vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>移动顶点</translation>
     </message>
     <message>
         <location filename="../src/core/Commands.cpp" line="176"/>
         <source>Scale and rotate shape</source>
-        <translation type="unfinished"></translation>
+        <translation>缩放和旋转形状</translation>
     </message>
     <message>
         <location filename="../src/core/Commands.cpp" line="228"/>
         <source>Move shape</source>
-        <translation type="unfinished"></translation>
+        <translation>移动形状</translation>
     </message>
     <message>
         <location filename="../src/core/Commands.cpp" line="258"/>
@@ -62,59 +66,70 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Remove paint</source>
+        <translation type="vanished">去除漆</translation>
+    </message>
+    <message>
+        <source>Delete mapping</source>
+        <translation type="vanished">
+4/5000
+Shānchú yìngshè
+删除映射</translation>
+    </message>
+    <message>
         <location filename="../src/core/Mapping.cpp" line="154"/>
         <source>Problem at creation of shape.</source>
-        <translation type="unfinished"></translation>
+        <translation>形状问题.</translation>
     </message>
     <message>
         <location filename="../src/core/Mapping.cpp" line="170"/>
         <location filename="../src/core/ProjectReader.cpp" line="140"/>
         <location filename="../src/core/ProjectReader.cpp" line="169"/>
         <source>Unable to create paint of type &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>失败 &apos;%1&apos;.</translation>
     </message>
     <message>
         <location filename="../src/core/ProjectReader.cpp" line="49"/>
         <source>The file is not a mapmap version %1 file.</source>
-        <translation type="unfinished"></translation>
+        <translation>这个文件不是MapMap %1 文件.</translation>
     </message>
     <message>
         <location filename="../src/core/ProjectReader.cpp" line="60"/>
         <source>%1
 Line %2, column %3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Line %2, column %3</translation>
     </message>
     <message>
         <location filename="../src/core/ProjectReader.cpp" line="127"/>
         <source>Problem at creation of paint.</source>
-        <translation type="unfinished"></translation>
+        <translation>漆问题.</translation>
     </message>
     <message>
         <location filename="../src/core/ProjectReader.cpp" line="158"/>
         <source>Problem at creation of mapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>映射问题.</translation>
     </message>
     <message>
         <location filename="../src/gui/MappingGui.cpp" line="44"/>
         <location filename="../src/gui/PaintGui.cpp" line="38"/>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID</translation>
     </message>
     <message>
         <location filename="../src/gui/MappingGui.cpp" line="50"/>
         <location filename="../src/gui/PaintGui.cpp" line="44"/>
         <source>Opacity (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>透明度 (%)</translation>
     </message>
     <message>
         <location filename="../src/gui/MappingGui.cpp" line="63"/>
         <source>Output shape</source>
-        <translation type="unfinished"></translation>
+        <translation>输出形状</translation>
     </message>
     <message>
         <location filename="../src/gui/MappingGui.cpp" line="150"/>
         <source>Point %1</source>
-        <translation type="unfinished"></translation>
+        <translation>点 %1</translation>
     </message>
     <message>
         <location filename="../src/gui/MappingGui.cpp" line="194"/>
@@ -127,14 +142,18 @@ Line %2, column %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Dimensions</source>
+        <translation type="vanished">尺寸</translation>
+    </message>
+    <message>
         <location filename="../src/gui/MappingGui.cpp" line="288"/>
         <source>Input shape</source>
-        <translation type="unfinished"></translation>
+        <translation>输入形状</translation>
     </message>
     <message>
         <location filename="../src/gui/PaintGui.cpp" line="88"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>色</translation>
     </message>
 </context>
 <context>
@@ -144,13 +163,13 @@ Line %2, column %3</source>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="243"/>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="268"/>
         <source>True</source>
-        <translation type="unfinished"></translation>
+        <translation>成功</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="243"/>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="268"/>
         <source>False</source>
-        <translation type="unfinished"></translation>
+        <translation>错误</translation>
     </message>
 </context>
 <context>
@@ -158,12 +177,12 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="1696"/>
         <source>True</source>
-        <translation type="unfinished"></translation>
+        <translation>成功</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="1697"/>
         <source>False</source>
-        <translation type="unfinished"></translation>
+        <translation>错误</translation>
     </message>
 </context>
 <context>
@@ -171,7 +190,7 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qteditorfactory.cpp" line="1700"/>
         <source>Clear Char</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -179,7 +198,7 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qteditorfactory.cpp" line="2314"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
 </context>
 <context>
@@ -187,22 +206,22 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="6421"/>
         <source>Red</source>
-        <translation type="unfinished"></translation>
+        <translation>红色</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="6429"/>
         <source>Green</source>
-        <translation type="unfinished"></translation>
+        <translation>绿色</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="6437"/>
         <source>Blue</source>
-        <translation type="unfinished"></translation>
+        <translation>蓝色</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="6445"/>
         <source>Alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>透明度</translation>
     </message>
 </context>
 <context>
@@ -210,97 +229,100 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="58"/>
         <source>Arrow</source>
-        <translation type="unfinished"></translation>
+        <translation>箭头</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="60"/>
         <source>Up Arrow</source>
-        <translation type="unfinished"></translation>
+        <translation>向上箭头</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="62"/>
         <source>Cross</source>
-        <translation type="unfinished"></translation>
+        <translation>Cross</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="64"/>
         <source>Wait</source>
-        <translation type="unfinished"></translation>
+        <translation>等候</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="66"/>
         <source>IBeam</source>
-        <translation type="unfinished"></translation>
+        <translation>IBeam</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="68"/>
         <source>Size Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>垂直尺寸</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="70"/>
         <source>Size Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>水平尺寸</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="72"/>
         <source>Size Backslash</source>
-        <translation type="unfinished"></translation>
+        <translation>反斜杠大小</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="74"/>
         <source>Size Slash</source>
-        <translation type="unfinished"></translation>
+        <translation>斜线大小</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="76"/>
         <source>Size All</source>
-        <translation type="unfinished"></translation>
+        <translation>全部尺寸</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="78"/>
         <source>Blank</source>
-        <translation type="unfinished"></translation>
+        <translation>空白</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="80"/>
         <source>Split Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>垂直分割
+</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="82"/>
         <source>Split Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>水平分割</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="84"/>
         <source>Pointing Hand</source>
-        <translation type="unfinished"></translation>
+        <translation>指向手
+</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="86"/>
         <source>Forbidden</source>
-        <translation type="unfinished"></translation>
+        <translation>被禁止
+</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="88"/>
         <source>Open Hand</source>
-        <translation type="unfinished"></translation>
+        <translation>开手</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="90"/>
         <source>Closed Hand</source>
-        <translation type="unfinished"></translation>
+        <translation>闭合的手</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="92"/>
         <source>What&apos;s This</source>
-        <translation type="unfinished"></translation>
+        <translation>这是什么？</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="94"/>
         <source>Busy</source>
-        <translation type="unfinished"></translation>
+        <translation>繁忙</translation>
     </message>
 </context>
 <context>
@@ -308,12 +330,12 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qteditorfactory.cpp" line="2523"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qteditorfactory.cpp" line="2543"/>
         <source>Select Font</source>
-        <translation type="unfinished"></translation>
+        <translation>选择字体</translation>
     </message>
 </context>
 <context>
@@ -321,37 +343,37 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="6095"/>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation>字体系列</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="6108"/>
         <source>Point Size</source>
-        <translation type="unfinished"></translation>
+        <translation>点大小</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="6116"/>
         <source>Bold</source>
-        <translation type="unfinished"></translation>
+        <translation>粗体</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="6123"/>
         <source>Italic</source>
-        <translation type="unfinished"></translation>
+        <translation>斜体</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="6130"/>
         <source>Underline</source>
-        <translation type="unfinished"></translation>
+        <translation>底线</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="6137"/>
         <source>Strikeout</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="6144"/>
         <source>Kerning</source>
-        <translation type="unfinished"></translation>
+        <translation>字距</translation>
     </message>
 </context>
 <context>
@@ -359,7 +381,7 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="328"/>
         <source>Clear Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>清捷径</translation>
     </message>
 </context>
 <context>
@@ -367,17 +389,17 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="2611"/>
         <source>%1, %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, %2</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="2664"/>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>语言</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="2672"/>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation>国家</translation>
     </message>
 </context>
 <context>
@@ -385,17 +407,17 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="3081"/>
         <source>(%1, %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>(%1, %2)</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="3152"/>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="3160"/>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
 </context>
 <context>
@@ -403,17 +425,17 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="2841"/>
         <source>(%1, %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>(%1, %2)</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="2878"/>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="2885"/>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
 </context>
 <context>
@@ -421,12 +443,12 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="187"/>
         <source>[%1, %2, %3] (%4)</source>
-        <translation type="unfinished"></translation>
+        <translation>[%1, %2, %3] (%4)</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertybrowserutils.cpp" line="214"/>
         <source>[%1, %2]</source>
-        <translation type="unfinished"></translation>
+        <translation>[%1, %2]</translation>
     </message>
 </context>
 <context>
@@ -434,27 +456,27 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="4586"/>
         <source>[(%1, %2), %3 x %4]</source>
-        <translation type="unfinished"></translation>
+        <translation>[(%1, %2), %3 x %4]</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="4742"/>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="4750"/>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="4758"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>寬度</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="4767"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>高度</translation>
     </message>
 </context>
 <context>
@@ -462,27 +484,27 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="4156"/>
         <source>[(%1, %2), %3 x %4]</source>
-        <translation type="unfinished"></translation>
+        <translation>[(%1, %2), %3 x %4]</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="4276"/>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="4283"/>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="4290"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>寬度</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="4298"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>高度</translation>
     </message>
 </context>
 <context>
@@ -490,17 +512,17 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="3764"/>
         <source>%1 x %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 x %2</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="3894"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>寬度</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="3903"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>高度</translation>
     </message>
 </context>
 <context>
@@ -509,32 +531,32 @@ Line %2, column %3</source>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="5607"/>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="5608"/>
         <source>&lt;Invalid&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;失效&gt;</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="5609"/>
         <source>[%1, %2, %3, %4]</source>
-        <translation type="unfinished"></translation>
+        <translation>[%1, %2, %3, %4]</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="5654"/>
         <source>Horizontal Policy</source>
-        <translation type="unfinished"></translation>
+        <translation>横向政策</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="5663"/>
         <source>Vertical Policy</source>
-        <translation type="unfinished"></translation>
+        <translation>垂直政策</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="5672"/>
         <source>Horizontal Stretch</source>
-        <translation type="unfinished"></translation>
+        <translation>水平伸展</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="5680"/>
         <source>Vertical Stretch</source>
-        <translation type="unfinished"></translation>
+        <translation>垂直伸展</translation>
     </message>
 </context>
 <context>
@@ -542,17 +564,17 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="3400"/>
         <source>%1 x %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 x %2</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="3496"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>寬度</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qtpropertymanager.cpp" line="3504"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>高度</translation>
     </message>
 </context>
 <context>
@@ -560,12 +582,12 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qttreepropertybrowser.cpp" line="478"/>
         <source>Property</source>
-        <translation type="unfinished"></translation>
+        <translation>属性</translation>
     </message>
     <message>
         <location filename="../src/gui/contrib/qtpropertybrowser/src/qttreepropertybrowser.cpp" line="479"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>价值</translation>
     </message>
 </context>
 <context>
@@ -573,57 +595,57 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="33"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>关于 MapMap %1</translation>
     </message>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="82"/>
         <source>MapMap is a free/open source video mapping software.</source>
-        <translation type="unfinished"></translation>
+        <translation>MapMap 是一个免费软体.</translation>
     </message>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="84"/>
         <source>Copyright &amp;copy; 2013 %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copyright &amp;copy; 2013 %1.</translation>
     </message>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="94"/>
         <source>See the </source>
-        <translation type="unfinished"></translation>
+        <translation>请看</translation>
     </message>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="95"/>
         <source>%1 website</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 website</translation>
     </message>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="107"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>关于 MapMap</translation>
     </message>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="119"/>
         <source>Changelog</source>
-        <translation type="unfinished"></translation>
+        <translation>更新日志</translation>
     </message>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="139"/>
         <source>Libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>文库</translation>
     </message>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="151"/>
         <source>Contributors</source>
-        <translation type="unfinished"></translation>
+        <translation>合作者</translation>
     </message>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="163"/>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>许可</translation>
     </message>
     <message>
         <location filename="../src/gui/AboutDialog.cpp" line="175"/>
         <source>OSC</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC</translation>
     </message>
 </context>
 <context>
@@ -631,27 +653,27 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/ConsoleWindow.cpp" line="53"/>
         <source>Message Log Output - Mapmap</source>
-        <translation type="unfinished"></translation>
+        <translation>消息日志 - MapMap</translation>
     </message>
     <message>
         <location filename="../src/gui/ConsoleWindow.cpp" line="71"/>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;关闭</translation>
     </message>
     <message>
         <location filename="../src/gui/ConsoleWindow.cpp" line="73"/>
         <source>Close the console</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭控制台</translation>
     </message>
     <message>
         <location filename="../src/gui/ConsoleWindow.cpp" line="80"/>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;档案</translation>
     </message>
     <message>
         <location filename="../src/gui/ConsoleWindow.cpp" line="101"/>
         <source>MMM dd yy HH:mm</source>
-        <translation type="unfinished"></translation>
+        <translation>MMM dd yy HH:mm</translation>
     </message>
 </context>
 <context>
@@ -659,17 +681,17 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/PaintGui.cpp" line="122"/>
         <source>Image file</source>
-        <translation type="unfinished"></translation>
+        <translation>图像档案</translation>
     </message>
     <message>
         <location filename="../src/gui/PaintGui.cpp" line="124"/>
         <source>Image files (%1);;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>图像档案 (%1);; 全部的档案 (*)</translation>
     </message>
     <message>
         <location filename="../src/gui/PaintGui.cpp" line="128"/>
         <source>Speed (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>速度 (%)</translation>
     </message>
 </context>
 <context>
@@ -677,266 +699,398 @@ Line %2, column %3</source>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="520"/>
         <source>Open project</source>
-        <translation type="unfinished"></translation>
+        <translation>开放</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="522"/>
         <location filename="../src/gui/MainWindow.cpp" line="552"/>
         <source>MapMap files (*.%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>MapMap 档案 (* %1)</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="551"/>
         <source>Save project</source>
-        <translation type="unfinished"></translation>
+        <translation>储存档案</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="580"/>
         <source>Import media source file</source>
-        <translation type="unfinished"></translation>
+        <translation>汇入档案</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="582"/>
         <source>Media files (%1 %2);;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>媒体文件 (%1 %2);;All files (*)</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="616"/>
         <source>Camera device</source>
-        <translation type="unfinished"></translation>
+        <translation>相机设备</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="617"/>
         <source>Select camera</source>
-        <translation type="unfinished"></translation>
+        <translation>选择相机</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="628"/>
         <location filename="../src/gui/MainWindow.cpp" line="639"/>
         <source>No camera available</source>
-        <translation type="unfinished"></translation>
+        <translation>没有可用的相机</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="628"/>
         <location filename="../src/gui/MainWindow.cpp" line="639"/>
         <source>You can not use this feature!
 No camera available in your system</source>
-        <translation type="unfinished"></translation>
+        <translation>系统中没有相机可用</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="653"/>
         <source>Select Color</source>
-        <translation type="unfinished"></translation>
+        <translation>选择颜色</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1377"/>
         <location filename="../src/gui/MainWindow.cpp" line="1532"/>
         <location filename="../src/gui/MainWindow.cpp" line="2347"/>
         <source>MapMap</source>
-        <translation type="unfinished"></translation>
+        <translation>MapMap</translation>
+    </message>
+    <message>
+        <source>Remove this paint and all its associated mappings?</source>
+        <translation type="vanished">删除这个漆?</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="vanished">来源</translation>
+    </message>
+    <message>
+        <source>Destination</source>
+        <translation type="vanished">目的地</translation>
+    </message>
+    <message>
+        <source>Paints</source>
+        <translation type="vanished">料</translation>
+    </message>
+    <message>
+        <source>Mappings</source>
+        <translation type="vanished">映射</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1546"/>
         <source>&amp;New</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;新档案</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1549"/>
         <source>Create a new project</source>
-        <translation type="unfinished"></translation>
+        <translation>开新档案</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1556"/>
         <source>&amp;Open...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;开放...</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1559"/>
         <source>Open an existing project</source>
-        <translation type="unfinished"></translation>
+        <translation>开现有的方案</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1566"/>
         <source>&amp;Save</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;储存档案</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1569"/>
         <source>Save the project</source>
-        <translation type="unfinished"></translation>
+        <translation>储存档案</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1576"/>
         <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;储存至...</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1579"/>
         <source>Save the project as...</source>
-        <translation type="unfinished"></translation>
+        <translation>储存至...</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1608"/>
         <source>No Recents Videos</source>
-        <translation type="unfinished"></translation>
+        <translation>没有最近的影片</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1613"/>
         <source>&amp;Import Media File...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;汇入媒体文件...</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1616"/>
         <source>Import a video or image file...</source>
-        <translation type="unfinished"></translation>
+        <translation>导入影片或图像...</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1624"/>
         <source>Open &amp;Camera Device...</source>
-        <translation type="unfinished"></translation>
+        <translation>打开 &amp;相机设备...</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1628"/>
         <source>Choose your camera device...</source>
-        <translation type="unfinished"></translation>
+        <translation>选择相机设备...</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1635"/>
         <source>Add &amp;Color Paint...</source>
-        <translation type="unfinished"></translation>
+        <translation>加&amp;彩色涂...</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1638"/>
         <source>Add a color paint...</source>
-        <translation type="unfinished"></translation>
+        <translation>加彩色涂...</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1645"/>
         <source>E&amp;xit</source>
-        <translation type="unfinished"></translation>
+        <translation>退&amp;出</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1647"/>
         <source>Exit the application</source>
-        <translation type="unfinished"></translation>
+        <translation>退出应用程序</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1654"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>复原</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1661"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation>重做</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1668"/>
         <source>&amp;About MapMap</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;关于 MapMap</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1669"/>
         <source>Show the application&apos;s About box</source>
-        <translation type="unfinished"></translation>
+        <translation>显示 &apos;关于&apos; 框</translation>
+    </message>
+    <message>
+        <source>Duplicate Mapping</source>
+        <translation type="vanished">重复映射</translation>
+    </message>
+    <message>
+        <source>Duplicate mapping item</source>
+        <translation type="vanished">重复映射</translation>
+    </message>
+    <message>
+        <source>Delete Mapping</source>
+        <translation type="vanished">删除映射</translation>
+    </message>
+    <message>
+        <source>Delete mapping item</source>
+        <translation type="vanished">删除映射</translation>
+    </message>
+    <message>
+        <source>Rename Mapping</source>
+        <translation type="vanished">改名映射</translation>
+    </message>
+    <message>
+        <source>Rename mapping item</source>
+        <translation type="vanished">改名映射</translation>
+    </message>
+    <message>
+        <source>Lock Mapping</source>
+        <translation type="vanished">锁定映射</translation>
+    </message>
+    <message>
+        <source>Lock mapping item</source>
+        <translation type="vanished">锁定映射</translation>
+    </message>
+    <message>
+        <source>Hide Mapping</source>
+        <translation type="vanished">隐藏映射</translation>
+    </message>
+    <message>
+        <source>Hide mapping item</source>
+        <translation type="vanished">隐藏映射</translation>
+    </message>
+    <message>
+        <source>Solo Mapping</source>
+        <translation type="vanished">单口映射</translation>
+    </message>
+    <message>
+        <source>solo mapping item</source>
+        <translation type="vanished">单口映射</translation>
+    </message>
+    <message>
+        <source>Delete Paint</source>
+        <translation type="vanished">删除漆</translation>
+    </message>
+    <message>
+        <source>Delete paint item</source>
+        <translation type="vanished">删除漆</translation>
+    </message>
+    <message>
+        <source>Rename Paint</source>
+        <translation type="vanished">改漆名</translation>
+    </message>
+    <message>
+        <source>Rename paint item</source>
+        <translation type="vanished">改漆名</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1759"/>
         <source>&amp;Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;偏好...</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1762"/>
         <source>Configure preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>配置偏好...</translation>
+    </message>
+    <message>
+        <source>Add &amp;Mesh</source>
+        <translation type="vanished">添加&amp;形状</translation>
+    </message>
+    <message>
+        <source>Add mesh</source>
+        <translation type="vanished">添加形状</translation>
+    </message>
+    <message>
+        <source>Add &amp;Triangle</source>
+        <translation type="vanished">添加&amp;三角形</translation>
+    </message>
+    <message>
+        <source>Add triangle</source>
+        <translation type="vanished">添加三角形</translation>
+    </message>
+    <message>
+        <source>Add &amp;Ellipse</source>
+        <translation type="vanished">添&amp;加椭圆</translation>
+    </message>
+    <message>
+        <source>Add ellipse</source>
+        <translation type="vanished">添加椭圆</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1803"/>
         <location filename="../src/gui/MainWindow.cpp" line="1806"/>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>播放</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1814"/>
         <location filename="../src/gui/MainWindow.cpp" line="1817"/>
         <source>Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>暂停</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1825"/>
         <location filename="../src/gui/MainWindow.cpp" line="1828"/>
         <source>Rewind</source>
-        <translation type="unfinished"></translation>
+        <translation>倒回</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1835"/>
         <source>Toggle &amp;Fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>切换&amp;全屏</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1838"/>
         <source>Toggle Fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>切換全屏</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1856"/>
         <source>&amp;Display Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;显示控制</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1859"/>
         <source>Display canvas controls</source>
-        <translation type="unfinished"></translation>
+        <translation>显示画布控制</translation>
+    </message>
+    <message>
+        <source>&amp;Display Controls of Mappings of a Paint</source>
+        <translation type="vanished">&amp;显示颜色图层控制</translation>
+    </message>
+    <message>
+        <source>Display all canvas controls related to current paint</source>
+        <translation type="vanished">显示画布的所有控件</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1885"/>
         <source>&amp;Sticky Vertices</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;磁性的顶点</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1888"/>
         <source>Enable sticky vertices</source>
-        <translation type="unfinished"></translation>
+        <translation>启用磁性的顶点</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1897"/>
         <source>Show &amp;Test Signal</source>
-        <translation type="unfinished"></translation>
+        <translation>显示&amp;测试信号</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1900"/>
         <source>Show Test signal</source>
-        <translation type="unfinished"></translation>
+        <translation>显示测试信号</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1911"/>
         <source>Display &amp;Undo History</source>
-        <translation type="unfinished"></translation>
+        <translation>显示&amp;撤消历史</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1921"/>
         <source>Open Conso&amp;le</source>
-        <translation type="unfinished"></translation>
+        <translation>打开&amp;控制台</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1932"/>
         <source>Display &amp;Zoom Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>显示&amp;缩放工具栏</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1942"/>
         <source>&amp;Menu Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;选单列</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1949"/>
         <source>Main Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>基本设计</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1953"/>
         <source>Switch to the Main layout.</source>
-        <translation type="unfinished"></translation>
+        <translation>切换到基本设计.</translation>
+    </message>
+    <message>
+        <source>Source Layout</source>
+        <translation type="vanished">来源设计</translation>
+    </message>
+    <message>
+        <source>Switch to the Source layout.</source>
+        <translation type="vanished">切换到原始来源设计.</translation>
+    </message>
+    <message>
+        <source>Destination Layout</source>
+        <translation type="vanished">切换到目的地设计</translation>
+    </message>
+    <message>
+        <source>Switch to the Destination layout.</source>
+        <translation type="vanished">切换到目的地设计.</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1378"/>
@@ -1107,233 +1261,234 @@ No camera available in your system</source>
         <location filename="../src/gui/MainWindow.cpp" line="1978"/>
         <location filename="../src/gui/MainWindow.cpp" line="1980"/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>放大</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1985"/>
         <location filename="../src/gui/MainWindow.cpp" line="1987"/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>缩小
+</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1992"/>
         <source>Original Size</source>
-        <translation type="unfinished"></translation>
+        <translation>原始大小</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1994"/>
         <source>Reset zoom to original size</source>
-        <translation type="unfinished"></translation>
+        <translation>重置为原始大小</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1999"/>
         <source>Fit To View</source>
-        <translation type="unfinished"></translation>
+        <translation>适合查看</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2000"/>
         <source>Fit to viewport</source>
-        <translation type="unfinished"></translation>
+        <translation>适合视口</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2007"/>
         <source>Report an issue</source>
-        <translation type="unfinished"></translation>
+        <translation>回报问题</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2010"/>
         <source>Technical support</source>
-        <translation type="unfinished"></translation>
+        <translation>支援</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2013"/>
         <source>Documentation</source>
-        <translation type="unfinished"></translation>
+        <translation>文件</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2016"/>
         <source>Submit feedback via email</source>
-        <translation type="unfinished"></translation>
+        <translation>电子邮件反馈</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2044"/>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;档案</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2058"/>
         <source>Open Recents Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>开最近的方案</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2065"/>
         <source>Open Recents Videos</source>
-        <translation type="unfinished"></translation>
+        <translation>开最近的影片</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2076"/>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;编辑</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2100"/>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;视图</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2111"/>
         <source>&amp;Output screen</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;输出萤幕</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2120"/>
         <source>&amp;Window</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;视窗</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2144"/>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;协助</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2202"/>
         <source>&amp;Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;工具列</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2348"/>
         <source>The document has been modified.
 Do you want to save your changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>你想保存你的更改吗?</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2370"/>
         <location filename="../src/gui/MainWindow.cpp" line="2384"/>
         <source>Error reading mapping project file</source>
-        <translation type="unfinished"></translation>
+        <translation>读取文件错误</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2371"/>
         <location filename="../src/gui/MainWindow.cpp" line="2578"/>
         <source>Cannot read file %1:
 %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法读取文件 %1: %2.</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2385"/>
         <source>Parse error in file %1:
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>解析文件中的错误 %1: %2</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2392"/>
         <source>File loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>文件加载</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2404"/>
         <source>Error saving mapping project</source>
-        <translation type="unfinished"></translation>
+        <translation>无法保存</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2405"/>
         <source>Cannot write file %1:
 %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>不能写入文件 %1: %2.</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2415"/>
         <source>File saved</source>
-        <translation type="unfinished"></translation>
+        <translation>文件已保存</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2427"/>
         <source>Untitled</source>
-        <translation type="unfinished"></translation>
+        <translation>无名</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2442"/>
         <source>%1[*] - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1[*] - %2</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2442"/>
         <location filename="../src/gui/MainWindow.cpp" line="2577"/>
         <source>MapMap Project</source>
-        <translation type="unfinished"></translation>
+        <translation>MapMap 方案</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2465"/>
         <location filename="../src/gui/MainWindow.cpp" line="2497"/>
         <source>&amp;%1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;%1 %2</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2482"/>
         <source>Clear List</source>
-        <translation type="unfinished"></translation>
+        <translation>清除的列表</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2485"/>
         <source>No Recents Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>没有最近的方案</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2518"/>
         <source>%1 - %2x%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 - %2x%3</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2523"/>
         <source> - Primary</source>
-        <translation type="unfinished"></translation>
+        <translation> - Primary</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2609"/>
         <source>File imported</source>
-        <translation type="unfinished"></translation>
+        <translation>文件汇入</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2627"/>
         <source>Color paint added</source>
-        <translation type="unfinished"></translation>
+        <translation>彩色漆已添加</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2939"/>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>警告</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2940"/>
         <source>The following file is not supported: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开文件: %1</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2971"/>
         <source>Cannot load movie</source>
-        <translation type="unfinished"></translation>
+        <translation>无法加载视频</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2972"/>
         <source>Unable to use file %1.
 The original file is not found. Please locate.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法使用文件 %1，请找到文件.</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2978"/>
         <source>Locate file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>定位文件 %1</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2980"/>
         <source>%1 files (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 档案 (%2)</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="3103"/>
         <source>Undo history</source>
-        <translation type="unfinished"></translation>
+        <translation>撤消历史</translation>
     </message>
 </context>
 <context>
@@ -1341,22 +1496,22 @@ The original file is not found. Please locate.</source>
     <message>
         <location filename="../src/gui/MapperGLCanvasToolbar.cpp" line="55"/>
         <source>Enlarge the shape</source>
-        <translation type="unfinished"></translation>
+        <translation>放大形状</translation>
     </message>
     <message>
         <location filename="../src/gui/MapperGLCanvasToolbar.cpp" line="63"/>
         <source>Shrink the shape</source>
-        <translation type="unfinished"></translation>
+        <translation>缩小形状</translation>
     </message>
     <message>
         <location filename="../src/gui/MapperGLCanvasToolbar.cpp" line="71"/>
         <source>Reset the shape to the normal size</source>
-        <translation type="unfinished"></translation>
+        <translation>重置为原始大小</translation>
     </message>
     <message>
         <location filename="../src/gui/MapperGLCanvasToolbar.cpp" line="79"/>
         <source>Fit the shape to content view</source>
-        <translation type="unfinished"></translation>
+        <translation>适合内容的形状</translation>
     </message>
 </context>
 <context>
@@ -1364,22 +1519,22 @@ The original file is not found. Please locate.</source>
     <message>
         <location filename="../src/gui/MappingItemDelegate.cpp" line="99"/>
         <source>Solo mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>单口映射</translation>
     </message>
     <message>
         <location filename="../src/gui/MappingItemDelegate.cpp" line="111"/>
         <source>Lock mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>锁定映射</translation>
     </message>
     <message>
         <location filename="../src/gui/MappingItemDelegate.cpp" line="123"/>
         <source>Duplicate mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>重复映射</translation>
     </message>
     <message>
         <location filename="../src/gui/MappingItemDelegate.cpp" line="135"/>
         <source>Delete mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>删除映射</translation>
     </message>
 </context>
 <context>
@@ -1400,97 +1555,97 @@ The original file is not found. Please locate.</source>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="59"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>偏好</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="169"/>
         <source>Large</source>
-        <translation type="unfinished"></translation>
+        <translation>大</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="170"/>
         <source>Medium</source>
-        <translation type="unfinished"></translation>
+        <translation>中</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="171"/>
         <source>Small</source>
-        <translation type="unfinished"></translation>
+        <translation>小</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="175"/>
         <source>Language (requires restart)</source>
-        <translation type="unfinished"></translation>
+        <translation>语言 (必须重新启动)</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="179"/>
         <source>Toolbar icon size (requires restart)</source>
-        <translation type="unfinished"></translation>
+        <translation>工具栏尺寸 (必须重新启动)</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="194"/>
         <source>Enable Sticky vertices</source>
-        <translation type="unfinished"></translation>
+        <translation>启用磁性的顶点</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="207"/>
         <source>Sensitivity</source>
-        <translation type="unfinished"></translation>
+        <translation>灵敏度</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="209"/>
         <source>Vertices</source>
-        <translation type="unfinished"></translation>
+        <translation>顶点</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="235"/>
         <source>Show resolution on output</source>
-        <translation type="unfinished"></translation>
+        <translation>显示分辨率</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="237"/>
         <source>Classic test card</source>
-        <translation type="unfinished"></translation>
+        <translation>Classic test card</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="238"/>
         <source>PAL test card</source>
-        <translation type="unfinished"></translation>
+        <translation>PAL test card</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="239"/>
         <source>NTSC test card</source>
-        <translation type="unfinished"></translation>
+        <translation>NTSC test card</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="308"/>
         <source>Listen to OSC messages</source>
-        <translation type="unfinished"></translation>
+        <translation>听OSC的消息</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="317"/>
         <source>on port</source>
-        <translation type="unfinished"></translation>
+        <translation>on port</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="320"/>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>刷新</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="330"/>
         <source>Local IP</source>
-        <translation type="unfinished"></translation>
+        <translation>本地IP</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="341"/>
         <source>OSC Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC 体系</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="354"/>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>介面</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="357"/>
@@ -1498,42 +1653,50 @@ The original file is not found. Please locate.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Mappings</source>
+        <translation type="vanished">映射</translation>
+    </message>
+    <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="360"/>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>产出</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="363"/>
         <source>Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>控制</translation>
     </message>
     <message>
         <location filename="../src/gui/PreferenceDialog.cpp" line="366"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>高级设置</translation>
     </message>
 </context>
 <context>
     <name>mmp::VideoGui</name>
     <message>
+        <source>Video file</source>
+        <translation type="vanished">影片档案</translation>
+    </message>
+    <message>
         <location filename="../src/gui/PaintGui.cpp" line="170"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">来源</translation>
     </message>
     <message>
         <location filename="../src/gui/PaintGui.cpp" line="172"/>
         <source>Video files (%1);;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>影片档案 (%1);; 全部的档案 (*)</translation>
     </message>
     <message>
         <location filename="../src/gui/PaintGui.cpp" line="176"/>
         <source>Speed (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>速度 (%)</translation>
     </message>
     <message>
         <location filename="../src/gui/PaintGui.cpp" line="183"/>
         <source>Volume (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>音量 (%)</translation>
     </message>
 </context>
 </TS>

@@ -110,6 +110,8 @@ bool PreferenceDialog::loadSettings()
   _stickyRadiusBox->setCurrentText(settings.value("vertexStickRadius", MM::VERTEX_STICK_RADIUS).toString());
   // Show screen resolution on output
   _showResolutionBox->setChecked(settings.value("showResolution", MM::SHOW_OUTPUT_RESOLUTION).toBool());
+  // Show control on mouse hover
+  _showControlOnOverBox->setChecked(settings.value("showControlOnMouseOver", MM::SHOW_OUTPUT_ON_MOUSE_HOVER).toBool());
   // Set preferred test signal pattern
   _radioGroup.at(settings.value("signalTestCard", MM::DEFAULT_TEST_CARD).toInt())->setChecked(true);
   // Set toolbar icon size
@@ -134,6 +136,8 @@ void PreferenceDialog::applySettings()
   settings.setValue("vertexStickRadius", _stickyRadiusBox->currentText());
   // Show screen resolution on output
   settings.setValue("showResolution", _showResolutionBox->isChecked());
+  // Show control on mouse hover
+  settings.setValue("showControlOnMouseOver", _showControlOnOverBox->isChecked());
   // Set preferred test signal pattern
   for (QRadioButton *radio: _radioGroup) {
     if (radio->isChecked()) {
@@ -232,7 +236,16 @@ void PreferenceDialog::createOutputPage()
 {
   _outputPage = new QWidget;
 
-  _showResolutionBox = new QCheckBox(tr("Show resolution on output"));
+  _showControlOnOverBox = new QCheckBox(tr("Only show output controls on mouse over"));
+
+  QVBoxLayout *outputLayout = new QVBoxLayout;
+  outputLayout->addWidget(_showControlOnOverBox);
+
+  QGroupBox *outputGroupBox = new QGroupBox(tr("Output Layers"));
+  outputGroupBox->setLayout(outputLayout);
+
+
+  _showResolutionBox = new QCheckBox(tr("Show resolution on output test cards"));
 
   _classicRadio = new QRadioButton(tr("Classic test card"));
   _palTestRadio = new QRadioButton(tr("PAL test card"));
@@ -259,13 +272,20 @@ void PreferenceDialog::createOutputPage()
   testLayout->addWidget(_palTestRadio, 1, 1);
   testLayout->addWidget(_ntscTestRadio, 1, 2);
 
-  QVBoxLayout *outputLayout = new QVBoxLayout;
-  outputLayout->addWidget(_showResolutionBox);
-  outputLayout->addSpacing(30);
-  outputLayout->addLayout(testLayout);
-  outputLayout->addStretch();
+  QVBoxLayout *testCardLayout = new QVBoxLayout;
+  testCardLayout->addWidget(_showResolutionBox);
+  testCardLayout->addSpacing(30);
+  testCardLayout->addLayout(testLayout);
+  testCardLayout->addStretch();
 
-  _outputPage->setLayout(outputLayout);
+  QGroupBox *testCardGroupbox = new QGroupBox(tr("Test Card"));
+  testCardGroupbox->setLayout(testCardLayout);
+
+  QVBoxLayout *outputPageLayout = new QVBoxLayout;
+  outputPageLayout->addWidget(outputGroupBox);
+  outputPageLayout->addWidget(testCardGroupbox);
+
+  _outputPage->setLayout(outputPageLayout);
 }
 
 void PreferenceDialog::createControlsPage()
@@ -354,7 +374,7 @@ void PreferenceDialog::createPreferencesList()
   QListWidgetItem *interfaceItem = new QListWidgetItem(QIcon(":/pref-interface"), tr("Interface"));
 
   // Mapping & Shape Item
-  QListWidgetItem *shapeItem = new QListWidgetItem(QIcon(":/control-points"), tr("Mappings"));
+  QListWidgetItem *shapeItem = new QListWidgetItem(QIcon(":/control-points"), tr("Layers"));
 
   // Output Item
   QListWidgetItem *outputItem = new QListWidgetItem(QIcon(":/output-window"), tr("Output"));

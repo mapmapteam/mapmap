@@ -27,7 +27,8 @@ namespace mmp {
 OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget* shareWidget, QGraphicsScene* scene)
 : MapperGLCanvas(mainWindow, true, parent, shareWidget, scene),
   _displayCrosshair(false),
-  _displayTestSignal(false)
+  _displayTestSignal(false),
+  _windowIsHovered(false)
 {
   // Disable scrollbars.
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -43,10 +44,12 @@ void OutputGLCanvas::setSceneRectToViewportGeometry()
 
 void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 {
+  QSettings settings;
+  bool controlOnMouseOver = settings.value("showControlOnMouseOver", MM::SHOW_OUTPUT_ON_MOUSE_HOVER).toBool();
+
   if (_displayTestSignal)
   {
     // Draw the preferred signal test card
-    QSettings settings;
     int testCard = settings.value("signalTestCard", MM::DEFAULT_TEST_CARD).toInt();
     glPushMatrix();
     painter->translate(rect.x(), rect.y());
@@ -68,7 +71,7 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     painter->restore();
     glPopMatrix();
   }
-  else
+  else if (!controlOnMouseOver || (MainWindow::window()->displayControls() && _windowIsHovered))
   {
     MapperGLCanvas::drawForeground(painter, rect);
 
@@ -105,6 +108,18 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     }
   }
 
+}
+
+void OutputGLCanvas::enterEvent(QEvent *event)
+{
+  _windowIsHovered = true;
+  QGraphicsView::enterEvent(event);
+}
+
+void OutputGLCanvas::leaveEvent(QEvent *event)
+{
+  _windowIsHovered = false;
+  QGraphicsView::leaveEvent(event);
 }
 
 void OutputGLCanvas::_drawClassicTestSignal(QPainter* painter)

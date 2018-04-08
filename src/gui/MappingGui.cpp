@@ -38,7 +38,7 @@ MappingGui::MappingGui(Mapping::ptr mapping)
 
   _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
 
-	_paintEnumManager = new QtEnumPropertyManager(this);
+  _paintEnumManager = new QtEnumPropertyManager(this);
 
   // Mapping UID.
   _idItem = _variantManager->addProperty(QVariant::Int, QObject::tr("ID"));
@@ -54,9 +54,9 @@ MappingGui::MappingGui(Mapping::ptr mapping)
   _opacityItem->setValue(_mapping->getOpacity()*100.0);
   _propertyBrowser->addProperty(_opacityItem);
 
-	_paintItem = _variantManager->addProperty(QtVariantPropertyManager::enumTypeId(), "Paint");
+  _paintItem = _variantManager->addProperty(QtVariantPropertyManager::enumTypeId(), "Source");
   _propertyBrowser->addProperty(_paintItem);
-	updatePaints();
+  updatePaints();
 
   // Output shape.
   _outputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
@@ -85,15 +85,15 @@ void MappingGui::setValue(QtProperty* property, const QVariant& value)
       emit valueChanged();
     }
   }
-	else if (property == _paintItem)
-	{
-		int paintIndex = value.toInt();
-		Paint::ptr newPaint = MainWindow::window()->getMappingManager().getPaint(paintIndex);
-		if (newPaint != _mapping->getPaint() && _mapping->paintIsCompatible(newPaint)) {
-			_mapping->setPaint(newPaint);
-			emit valueChanged();
-		}
-	}
+  else if (property == _paintItem)
+  {
+    int paintIndex = value.toInt();
+    Paint::ptr newPaint = MainWindow::window()->getMappingManager().getPaint(paintIndex);
+    if (newPaint != _mapping->getPaint() && _mapping->paintIsCompatible(newPaint)) {
+      _mapping->setPaint(newPaint);
+      emit valueChanged();
+    }
+  }
   else
   {
     std::map<QtProperty*, std::pair<MShape*, int> >::iterator it = _propertyToVertex.find(property);
@@ -191,7 +191,7 @@ MeshColorMappingGui::MeshColorMappingGui(Mapping::ptr mapping)
 
   // Add mesh sub property.
   QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_mapping->getShape());
-  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
+  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Mesh Subdivisions"));
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
   _meshItem->setAttribute("minimum", QSize(2,2));
   _propertyBrowser->insertProperty(_meshItem, _paintItem); // insert at the beginning
@@ -227,7 +227,7 @@ EllipseColorMappingGui::EllipseColorMappingGui(Mapping::ptr mapping) : ColorMapp
 //  : ColorMappingGui(mapping) {
 //  // Add mesh sub property.
 //  Mesh* mesh = (Mesh*)mapping->getShape().get();
-//  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
+//  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Mesh Subdivisions"));
 //  _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
 //  _topItem->insertSubProperty(_meshItem, 0); // insert at the beginning
 //}
@@ -420,9 +420,18 @@ MeshTextureMappingGui::MeshTextureMappingGui(QSharedPointer<TextureMapping> mapp
 
   // Add mesh sub property.
   QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_mapping->getShape());
-  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Dimensions"));
+  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Subdivisions"));
+
+  // Rename subdivision subproperties.
+  QList<QtProperty *> subList = _meshItem->subProperties();
+  subList[0]->setPropertyName(tr("Horizontal"));
+  subList[1]->setPropertyName(tr("Vertical"));
+
+  // Set defaults.
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
-  _meshItem->setAttribute("minimum", QSize(2,2));
+  _meshItem->setAttribute("minimum", QSize(2, 2));
+
+  // Add.
   _propertyBrowser->insertProperty(_meshItem, _paintItem); // insert at the beginning
 }
 

@@ -72,7 +72,7 @@ QString VideoImpl::getUri() const
 
 void VideoImpl::setRate(double rate)
 {
-  if (rate == 0)
+  if (rate == 0.0)
   {
     qDebug() << "Cannot set rate to zero, ignoring rate " << rate << endl;
     return;
@@ -130,7 +130,7 @@ bool VideoImpl::_eos() const
   if (_movieReady)
   {
     Q_ASSERT( _appsink0 );
-    if (_rate > 0)
+    if (_rate > 0.0)
     {
       gboolean videoEos;
       g_object_get (G_OBJECT (_appsink0), "eos", &videoEos, NULL);
@@ -288,12 +288,17 @@ void VideoImpl::resetMovie()
 {
   if (_seekEnabled)
   {
-    if (_rate > 0)
-      seekTo((guint64)0);
+    if (_rate > 0.0)
+    {
+      seekTo((guint64) 0);
+      qWarning() << "update Rate" << endl;
+      _updateRate();
+    }
     else
     {
       // NOTE: Untested.
       seekTo(_duration);
+      qWarning() << "update Rate" << endl;
       _updateRate();
     }
   }
@@ -721,10 +726,14 @@ void  VideoImpl::_updateRate()
 
   // Create the seek event.
   GstEvent *seekEvent;
-  if (_rate > 0) {
+  if (_rate > 0.0) {
+    // Rate is positive (playing the video in normal direction)
+    // Set new rate as a first argument. Provide position 0 so that we go to 0:00
     seekEvent = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
-        GST_SEEK_TYPE_SET, position, GST_SEEK_TYPE_NONE, 0);
+        GST_SEEK_TYPE_SET, position, GST_SEEK_TYPE_NONE, 0); // Go to 0:00
   } else {
+    // Rate is negative
+    // Set new rate as a first arguemnt. Provide the position we were already at.
     seekEvent = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
         GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position);
   }

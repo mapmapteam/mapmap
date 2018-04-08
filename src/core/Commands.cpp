@@ -33,7 +33,7 @@ AddPaintCommand::AddPaintCommand(MainWindow *mainWindow, uid paintId, const QIco
   _icon(icon),
   _name(name)
 {
-  setText(QObject::tr("Add paint"));
+  setText(QObject::tr("Add source"));
 }
 
 void AddPaintCommand::undo()
@@ -59,7 +59,7 @@ AddMappingCommand::AddMappingCommand(MainWindow *mainWindow, uid mappingId, QUnd
   _mainWindow(mainWindow),
   _mappingId(mappingId)
 {
-  setText(QObject::tr("Add mapping"));
+  setText(QObject::tr("Add layer"));
 }
 
 void AddMappingCommand::undo()
@@ -84,7 +84,7 @@ void AddMappingCommand::redo()
 DuplicateMappingCommand::DuplicateMappingCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent):
   AddMappingCommand(mainWindow, cloneId, parent)
 {
-  setText(QObject::tr("Duplicate mapping"));
+  setText(QObject::tr("Duplicate layer"));
 }
 
 TransformShapeCommand::TransformShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, QUndoCommand* parent)
@@ -258,7 +258,7 @@ RemovePaintCommand::RemovePaintCommand(MainWindow *mainWindow, uid paintId, QUnd
   _paintId(paintId),
   _paintMappings()
 {
-  setText(QObject::tr("Remove paint"));
+  setText(QObject::tr("Remove media"));
 }
 
 void RemovePaintCommand::undo()
@@ -296,7 +296,7 @@ DeleteMappingCommand::DeleteMappingCommand(MainWindow *mainWindow, uid mappingId
   _mainWindow(mainWindow),
   _mappingId(mappingId)
 {
-  setText(QObject::tr("Delete mapping"));
+  setText(QObject::tr("Delete layer"));
 }
 
 void DeleteMappingCommand::undo()

@@ -16,8 +16,10 @@ include(src/app/app.pri)
 
 TRANSLATIONS = \
     translations/mapmap_en.ts \
+    translations/mapmap_es.ts \
     translations/mapmap_fr.ts \
-  translations/mapmap_es.ts
+    translations/mapmap_zh_CN.ts \
+    translations/mapmap_zh_TW.ts
 RESOURCES = \
     translations/translation.qrc \
     docs/documentation.qrc \
@@ -44,6 +46,7 @@ system($$QMAKE_LRELEASE mapmap.pro) # Run lrelease
 # Linux-specific:
 unix:!macx {
 QMAKE_CXXFLAGS += -D_GLIBCXX_USE_CXX11_ABI=0
+QMAKE_CXXFLAGS += -Wno-expansion-to-defined
 #  mapmapfile.files = mapmap
 #  mapmapfile.path = /usr/bin
 #  INSTALLS += mapmapfile
