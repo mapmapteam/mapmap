@@ -132,6 +132,9 @@ public:
   // Override the parent, checking to make sure the vertices are displaced correctly.
   virtual void setVertex(int i, const QPointF& v);
 
+  // Returns true iff vertex index is considered a major (external) control point.
+  virtual bool isMajorVertex(int idx) const;
+
 protected:
   /// Returns a new MShape (using default constructor).
   virtual MShape* _create() const { return new Ellipse(); }

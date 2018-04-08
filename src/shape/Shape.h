@@ -132,6 +132,9 @@ public:
     qCopy(vertices_.begin(), vertices_.end(), vertices.begin());
   }
 
+  // Returns true iff vertex index is considered a major (external) control point.
+  virtual bool isMajorVertex(int idx) const { Q_UNUSED(idx); return true; }
+
 	// Returns center of object.
 	virtual QPointF getCenter() const;
 
