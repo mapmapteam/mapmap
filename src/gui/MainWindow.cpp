@@ -890,6 +890,32 @@ void MainWindow::setMappingItemSolo(bool solo)
   setMappingSolo(currentMappingItemId(), solo);
 }
 
+void MainWindow::loadLayerMedia()
+{
+  QAction *action = qobject_cast<QAction *>(sender());
+  Paint::ptr media;
+  uid currentLayerId = getCurrentMapping()->getId();
+
+  if (action) {
+    if (action->data().toString() == "import-new-media") {
+      // Due to the fact that we can't assign a media/paint without adding a mesh
+      importMedia();
+      addMesh(); // Creating a temporary mesh
+      media = mappingManager->getPaintById(currentPaintId); // The last imported video is current ID
+      deleteMapping(getCurrentMapping()->getId()); // Delete the temporary mesh
+      setCurrentMapping(currentLayerId); // Set the previous selected layer as the current
+    } else {
+      media = mappingManager->getPaintById(action->data().toInt());
+    }
+
+    if (media && media != getCurrentMapping()->getPaint() &&
+        getCurrentMapping()->paintIsCompatible(media)) {
+      // Change layer source
+      getCurrentMapping()->setPaint(media);
+    }
+  }
+}
+
 void MainWindow::renameMapping(uid mappingId, const QString &name)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
@@ -1755,6 +1781,13 @@ void MainWindow::createActions()
   addAction(renamePaintAction);
   connect(renamePaintAction, SIGNAL(triggered()), this, SLOT(renamePaintItem()));
 
+  // Import a new media for current layer
+  _importLayerMediaAction = new QAction(tr("Import New Media"), this);
+  _importLayerMediaAction->setToolTip(tr("Import new media file if not exists on the list"));
+  _importLayerMediaAction->setIconVisibleInMenu(false);
+  _importLayerMediaAction->setData("import-new-media"); // Important
+  connect(_importLayerMediaAction, SIGNAL(triggered()), this, SLOT(loadLayerMedia()));
+
   // Preferences...
   preferencesAction = new QAction(tr("&Preferences..."), this);
   //preferencesAction->setIcon(QIcon(":/preferences"));
@@ -2165,6 +2198,11 @@ void MainWindow::createMappingContextMenu()
   mappingContextMenu->addAction(mappingLockedAction);
   mappingContextMenu->addAction(mappingHideAction);
   mappingContextMenu->addAction(mappingSoloAction);
+  // Add a little separator
+  mappingContextMenu->addSeparator();
+
+  // Create menu for source list
+  _changeLayerMediaMenu = mappingContextMenu->addMenu(tr("Change Layer Source"));
 
   // Set context menu policy
   mappingList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -2540,6 +2578,27 @@ void MainWindow::updateScreenActions()
   }
 }
 
+void MainWindow::updateMediaListActions()
+{
+  // Clear media list menu
+  _changeLayerMediaMenu->clear();
+
+  if (paintList->count() > 1) { // No need to load the same video
+    for (auto i = 0; i < paintList->count(); i++) {
+      QAction *mediaAction = new QAction(this);
+      mediaAction->setText(tr("&%1 %2").arg(i + 1).arg(mappingManager->getPaint(i)->getName()));
+      mediaAction->setData(mappingManager->getPaint(i)->getId());
+      mediaAction->setVisible(true);
+      connect(mediaAction, SIGNAL(triggered()),
+              this, SLOT(loadLayerMedia()));
+      // Add new media on action list
+      _changeLayerMediaMenu->addAction(mediaAction);
+    }
+  }
+  // Add new media source in case no exists on the list
+  _changeLayerMediaMenu->addAction(_importLayerMediaAction);
+}
+
 void MainWindow::clearRecentFileList()
 {
   recentFiles = settings.value("recentFiles").toStringList();
@@ -2607,6 +2666,9 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
   }
 
   statusBar()->showMessage(tr("File imported"), 2000);
+
+  // Update media list
+  updateMediaListActions();
 
   return true;
 }
