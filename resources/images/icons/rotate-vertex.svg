@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="18"
+   height="18"
+   viewBox="0 0 4.7624998 4.7625001"
+   version="1.1"
+   id="svg4682"
+   inkscape:version="0.92.2 2405546, 2018-03-11"
+   sodipodi:docname="rotate-vertex.svg"
+   inkscape:export-filename="/home/baydam/Dropbox/Dev/C++/Github Contrib/mapmap/resources/images/icons/vertex-rotate.png"
+   inkscape:export-xdpi="213.33"
+   inkscape:export-ydpi="213.33">
+  <defs
+     id="defs4676" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="28.001429"
+     inkscape:cx="10.602702"
+     inkscape:cy="9.1449964"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     showguides="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1024"
+     inkscape:window-x="0"
+     inkscape:window-y="28"
+     inkscape:window-maximized="1"
+     inkscape:pagecheckerboard="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid5229"
+       originx="5.4102985"
+       originy="-0.22621975" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata4679">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(5.4102986,-292.01127)">
+    <circle
+       r="2.3812499"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.52916676;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       id="circle4609"
+       cx="3.0290487"
+       cy="294.39252"
+       transform="scale(-1,1)" />
+    <path
+       id="path4617-3"
+       style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.05291667;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       d="m -4.5975034,295.44356 0.8408659,0.25837 0.1966852,-0.8574 z m 2.030931,-1.58818 0.857399,-0.19668 -0.258369,-0.84087 z m -0.04944,-0.72854 c 0.150881,0 0.296541,0.022 0.435632,0.0599 l -0.207739,0.35967 c -0.07409,-0.0134 -0.14976,-0.0233 -0.227893,-0.0233 -0.7001261,0 -1.2634891,0.56337 -1.2634891,1.26349 0,0.0785 0.0092,0.15447 0.022741,0.22892 l -0.3607012,0.20826 c -0.03834,-0.13956 -0.06046,-0.28575 -0.06046,-0.43718 0,-0.91461 0.7473011,-1.65985 1.6619141,-1.65985 z"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>

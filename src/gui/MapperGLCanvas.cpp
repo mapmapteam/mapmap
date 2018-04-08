@@ -28,13 +28,13 @@
 namespace mmp {
 
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
-        bool isOutput, QWidget* parent, const QGLWidget * shareWidget,
-        QGraphicsScene* scene)
+                               bool isOutput, QWidget* parent, const QGLWidget * shareWidget,
+                               QGraphicsScene* scene)
   : QGraphicsView(parent),
     _mainWindow(mainWindow),
     _isOutput(isOutput),
-    _scaleRotateMode(false),
     _vertexGrabbed(false),
+    _vertexMoved(false),
     _activeVertex(NO_VERTEX),
     _shapeGrabbed(false), // comment out?
     _shapeFirstGrab(false), // comment out?
@@ -129,7 +129,7 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
       {
         QMap<uid, Mapping::ptr> paintMappings = _mainWindow->getMappingManager().getPaintMappings( _mainWindow->getCurrentPaint() );
         for (QMap<uid, Mapping::ptr>::const_iterator it = paintMappings.constBegin();
-            it != paintMappings.constEnd(); ++it)
+             it != paintMappings.constEnd(); ++it)
         {
           if (it.key() != mid)
           {
@@ -218,7 +218,7 @@ void MapperGLCanvas::dropEvent(QDropEvent *event)
       if (!fileName.isEmpty()) {
         // Test if is mmp file and exit loop
         if (MainWindow::window()->fileSupported(fileName, MM::FILE_EXTENSION)) {
-            MainWindow::window()->loadFile(fileName);
+          MainWindow::window()->loadFile(fileName);
           // Exit for prevent drag to many project files
           break;
         }
@@ -247,77 +247,67 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   QPointF pos = mapToScene(event->pos());
 
   // Drag the scene with middle button.
-  if (event->buttons() & Qt::MiddleButton)
-  {
-    // NOTE: This is a trick code to implement scroll hand drag using the middle button.
-    QMouseEvent releaseEvent(QEvent::MouseButtonRelease, event->pos(),
-            event->globalPos(), Qt::LeftButton, 0, event->modifiers());
-    QGraphicsView::mouseReleaseEvent(&releaseEvent);
-    setDragMode(QGraphicsView::ScrollHandDrag);
+  //  if (event->buttons() & Qt::MiddleButton)
+  //  {
+  //    // NOTE: This is a trick code to implement scroll hand drag using the middle button.
+  //    QMouseEvent releaseEvent(QEvent::MouseButtonRelease, event->pos(),
+  //            event->globalPos(), Qt::LeftButton, 0, event->modifiers());
+  //    QGraphicsView::mouseReleaseEvent(&releaseEvent);
+  //    setDragMode(QGraphicsView::ScrollHandDrag);
 
-    // We need to pretend it is actually the left button that was pressed!
-    QMouseEvent fakeEvent(event->type(), event->pos(), event->globalPos(),
-            Qt::LeftButton, event->buttons() | Qt::LeftButton, event->modifiers());
-    QGraphicsView::mousePressEvent(&fakeEvent);
-  }
+  //    // We need to pretend it is actually the left button that was pressed!
+  //    QMouseEvent fakeEvent(event->type(), event->pos(), event->globalPos(),
+  //            Qt::LeftButton, event->buttons() | Qt::LeftButton, event->modifiers());
+  //    QGraphicsView::mousePressEvent(&fakeEvent);
+  //  }
 
-  // Check for vertex selection first.
-  else if (event->buttons() & Qt::LeftButton)
+  // Check for shape selection.
+  if (event->buttons() & (Qt::LeftButton | Qt::RightButton))
   {
-    MShape::ptr shape = getCurrentShape();
-    if (shape)
+    MShape::ptr selectedShape = getCurrentShape();
+    bool shapeSelectionChange = false;
+
+    // Check for vertex selection first.
+    if (event->buttons() & Qt::LeftButton)
     {
-			// Switch mode to scale&rotate on pressing CTLR.
-		  _scaleRotateMode = (event->modifiers() & Qt::ControlModifier);
-
-      // Shape is locked either if either itself or its mapping is locked.
-      bool shapeIsLocked = _mainWindow->getCurrentMapping()->isLocked() || shape->isLocked();
-
-      // Note: we compare with the square value for fastest computation of the distance
-      int minDistance = sq(MM::VERTEX_SELECT_RADIUS);
-
-		  _grabbedShapeStartCenterScenePosition = shape->getCenter();
-			_grabbedShapeCopy.reset(shape->clone());
-
-      // Find the ID of the nearest vertex (from currently selected shape)
-      for (int i = 0; i < shape->nVertices(); i++)
+      if (selectedShape)
       {
-        int dist = distSq(_mousePressedPosition, mapFromScene(shape->getVertex(i))); // squared distance
-        if (dist < minDistance)
+        // Note: we compare with the square value for fastest computation of the distance
+        int minDistance = sq(MM::VERTEX_SELECT_RADIUS);
+
+        _grabbedShapeStartCenterScenePosition = selectedShape->getCenter();
+        _grabbedShapeCopy.reset(selectedShape->clone());
+
+        // Find the ID of the nearest vertex (from currently selected shape)
+        for (int i = 0; i < selectedShape->nVertices(); i++)
         {
-          _activeVertex = i;
-          minDistance = dist;
+          int dist = distSq(_mousePressedPosition, mapFromScene(selectedShape->getVertex(i))); // squared distance
+          if (dist < minDistance)
+          {
+            _activeVertex = i;
+            minDistance = dist;
 
-          // Vertex can be grabbed only if the mapping is not locked
-          _vertexGrabbed = !shapeIsLocked;
-          mousePressedOnSomething = true;
+            // Vertex can be grabbed only if the mapping is not locked
+            _vertexGrabbed = !selectedShape->isLocked();
+            _vertexMoved = false; // Active vertex may not moved
+            mousePressedOnSomething = true;
 
-          _grabbedObjectStartScenePosition = shape->getVertex(i);
+            _grabbedObjectStartScenePosition = selectedShape->getVertex(i);
+          }
         }
       }
     }
-  }
-
-  if (mousePressedOnSomething)
-  {
-    return;
-  }
-
-  // Check for shape selection.
-  if (event->buttons() & (Qt::LeftButton | Qt::RightButton)) // Add Right click for context menu
-  {
-    MShape::ptr selectedShape = getCurrentShape();
 
     // Possibility of changing shape in output by clicking on it.
     MappingManager manager = getMainWindow()->getMappingManager();
     QVector<Mapping::ptr> mappings = manager.getVisibleMappings();
     for (QVector<Mapping::ptr>::const_iterator it = mappings.end() - 1;
-            it >= mappings.begin(); --it)
+         it >= mappings.begin(); --it)
     {
       MShape::ptr shape = getShapeFromMapping(*it);
 
       // Check if mouse was pressed on that shape.
-      if (shape && shape->includesPoint(pos))
+      if (shape && !_vertexGrabbed && shape->includesPoint(pos))
       {
         mousePressedOnSomething = true;
 
@@ -332,31 +322,34 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
 
           // Reset selected shape to new one.
           selectedShape = getCurrentShape();
+          shapeSelectionChange = true;
         }
 
-        break;
+        break; // Exit loop
       }
     }
 
-    // Grab the shape.
-    if (event->buttons() & Qt::LeftButton) // This preserve me from duplicate code above
-    {
-      if (selectedShape && selectedShape->includesPoint(pos))
-      {
+    if (selectedShape && !_vertexGrabbed && selectedShape->includesPoint(pos)) {
+      if (event->buttons() & Qt::LeftButton) {
         // Shape can be grabbed only if it is not locked
-        _shapeGrabbed = selectedShape->isLocked() ? false : true;
+        _shapeGrabbed = !selectedShape->isLocked();
         _shapeFirstGrab = true;
 
         _grabbedObjectStartScenePosition = pos;
-//				_grabbedShapeStartCenterScenePosition = selectedShape->getCenter();
+        //				_grabbedShapeStartCenterScenePosition = selectedShape->getCenter();
+
+        if (shapeSelectionChange) { // if fresh selected shape
+          // Reset shape Mode
+          selectedShape->setShapeMode(MShape::DefaultMode);
+        } else {
+          // Move to the next mode
+          selectedShape->setShapeMode(selectedShape->shapeModeState(), true);
+        }
       }
-    }
-    // Show the shape/mapping context menu
-    if (event->button() & Qt::RightButton)
-    {
-      if (selectedShape && selectedShape->includesPoint(pos))
-      {
-        emit shapeContextMenuRequested(event->pos());
+
+      // Add Right click for context menu
+      if (event->buttons() & Qt::RightButton) {
+        emit shapeContextMenuRequested(event->pos()); // Show the shape/mapping context menu
       }
     }
   }
@@ -378,18 +371,18 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
   if (event->buttons() & Qt::MiddleButton)
   {
     QMouseEvent fakeEvent(
-            event->type(), event->pos(), event->globalPos(),
-            Qt::LeftButton, event->buttons() & ~Qt::LeftButton,
-            event->modifiers());
+          event->type(), event->pos(), event->globalPos(),
+          Qt::LeftButton, event->buttons() & ~Qt::LeftButton,
+          event->modifiers());
     QGraphicsView::mouseReleaseEvent(&fakeEvent);
     setDragMode(QGraphicsView::NoDrag);
     setCursor(Qt::ArrowCursor);
   }
-//  // Click on vertex ==> select the vertex.
-//  if ((event->buttons() & Qt::LeftButton) && _mousePressedOnVertex)
-//  {
-//  }
-  if (_vertexGrabbed)
+  //  // Click on vertex ==> select the vertex.
+  //  if ((event->buttons() & Qt::LeftButton) && _mousePressedOnVertex)
+  //  {
+  //  }
+  if (_vertexGrabbed && _vertexMoved)
   {
     // TODO : code repetition here!!!
     QPointF p = mapToScene(event->pos());
@@ -400,19 +393,31 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
       _snapVertex(&p);
     }
 
-		if (_scaleRotateMode)
-    	undoStack->push(new ScaleRotateShapeCommand(this,
-                		  TransformShapeCommand::RELEASE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy));
-		else
-    	undoStack->push(new MoveVertexCommand(this,
-                		  TransformShapeCommand::RELEASE, _activeVertex, p));
+    switch (getCurrentShape()->shapeModeState()) {
+      case MShape::RotateMode:
+        undoStack->push(new ScaleRotateShapeCommand(this,
+                                                    TransformShapeCommand::RELEASE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy, MShape::RotateMode));
+        break;
+      case MShape::ScaleMode:
+        undoStack->push(new ScaleRotateShapeCommand(this,
+                                                    TransformShapeCommand::RELEASE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy, MShape::ScaleMode));
+        break;
+      default:
+        undoStack->push(new MoveVertexCommand(this,
+                                              TransformShapeCommand::RELEASE, _activeVertex, p));
+        break;
+    }
+
+
   }
   else if (_shapeGrabbed)
   {
     undoStack->push(new TranslateShapeCommand(this,
-                TransformShapeCommand::RELEASE, QPointF()));
+                                              TransformShapeCommand::RELEASE, QPointF()));
   }
+
   _vertexGrabbed = false;
+  _vertexMoved = false;
   _shapeGrabbed = false;
 }
 
@@ -432,12 +437,13 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
     MShape::ptr shape = getCurrentShape();
     if (shape && hasActiveVertex())
     {
-//      QPointF p = shape->getVertex(_activeVertex);
-//      // Set point to mouse coordinates.
-//      p.setX(pos.x());
-//      p.setY(pos.y());
+      //      QPointF p = shape->getVertex(_activeVertex);
+      //      // Set point to mouse coordinates.
+      //      p.setX(pos.x());
+      //      p.setY(pos.y());
 
       QPointF p = scenePos;
+      _vertexMoved = true; // The active vertex is actually moved
 
       // Stick to vertices.
       if (xOr(_mainWindow->isStickyVertices(), (event->modifiers() & Qt::ShiftModifier)))
@@ -445,12 +451,20 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
         _snapVertex(&p);
       }
 
-		if (_scaleRotateMode)
-    	undoStack->push(new ScaleRotateShapeCommand(this,
-                		  TransformShapeCommand::FREE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy));
-		else
-      undoStack->push(new MoveVertexCommand(this,
-                      TransformShapeCommand::FREE, _activeVertex, p));
+      switch (getCurrentShape()->shapeModeState()) {
+        case MShape::RotateMode:
+          undoStack->push(new ScaleRotateShapeCommand(this,
+                                                      TransformShapeCommand::FREE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy, MShape::RotateMode));
+          break;
+        case MShape::ScaleMode:
+          undoStack->push(new ScaleRotateShapeCommand(this,
+                                                      TransformShapeCommand::FREE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy, MShape::ScaleMode));
+          break;
+        default:
+          undoStack->push(new MoveVertexCommand(this,
+                                                TransformShapeCommand::FREE, _activeVertex, p));
+          break;
+      }
     }
   }
 
@@ -465,6 +479,8 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       {
         lastMousePos = _mousePressedPosition;
         _shapeFirstGrab = false;
+        // Reset the mode after moved shape
+        getCurrentShape()->setShapeMode(MShape::DefaultMode);
       }
     }
     QPointF diff = scenePos - mapToScene(lastMousePos);
@@ -505,77 +521,76 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
       // SHIFT + directional keys allow move with large steps
       switch (event->key())
       {
-      case Qt::Key_Up:
-        pos.ry() -= MM::BigStep;
-        break;
-      case Qt::Key_Down:
-        pos.ry() += MM::BigStep;
-        break;
-      case Qt::Key_Right:
-        pos.rx() += MM::BigStep;
-        break;
-      case Qt::Key_Left:
-        pos.rx() -= MM::BigStep;
-        break;
-      // SHIFT+Space to switch between vertex
-      case Qt::Key_Space:
-        _activeVertex = (_activeVertex + 1) % shape->nVertices();
-        pos = mapFromScene(shape->getVertex(_activeVertex)); // reset to new vertex
-        break;
-      default:
-        handledKey = false;
-        break;
+        case Qt::Key_Up:
+          pos.ry() -= MM::BigStep;
+          break;
+        case Qt::Key_Down:
+          pos.ry() += MM::BigStep;
+          break;
+        case Qt::Key_Right:
+          pos.rx() += MM::BigStep;
+          break;
+        case Qt::Key_Left:
+          pos.rx() -= MM::BigStep;
+          break;
+          // SHIFT+Space to switch between vertex
+        case Qt::Key_Space:
+          _activeVertex = (_activeVertex + 1) % shape->nVertices();
+          pos = mapFromScene(shape->getVertex(_activeVertex)); // reset to new vertex
+          break;
+        default:
+          handledKey = false;
+          break;
       }
     }
     else if (event->modifiers() & Qt::AltModifier)
     {
       switch (event->key())
       {
-      case Qt::Key_Up:
-        pos.ry() -= MM::SmallStep;
-        break;
-      case Qt::Key_Down:
-        pos.ry() += MM::SmallStep;
-        break;
-      case Qt::Key_Right:
-        pos.rx() += MM::SmallStep;
-        break;
-      case Qt::Key_Left:
-        pos.rx() -= MM::SmallStep;
-        break;
-      default:
-        handledKey = false;
-        break;
+        case Qt::Key_Up:
+          pos.ry() -= MM::SmallStep;
+          break;
+        case Qt::Key_Down:
+          pos.ry() += MM::SmallStep;
+          break;
+        case Qt::Key_Right:
+          pos.rx() += MM::SmallStep;
+          break;
+        case Qt::Key_Left:
+          pos.rx() -= MM::SmallStep;
+          break;
+        default:
+          handledKey = false;
+          break;
       }
     }
     else
     {
       switch (event->key())
       {
-      case Qt::Key_Up:
-        pos.ry() -= MM::MediumStep;
-        break;
-      case Qt::Key_Down:
-        pos.ry() += MM::MediumStep;
-        break;
-      case Qt::Key_Right:
-        pos.rx() += MM::MediumStep;
-        break;
-      case Qt::Key_Left:
-        pos.rx() -= MM::MediumStep;
-        break;
-      default:
-        handledKey = false;
-        break;
+        case Qt::Key_Up:
+          pos.ry() -= MM::MediumStep;
+          break;
+        case Qt::Key_Down:
+          pos.ry() += MM::MediumStep;
+          break;
+        case Qt::Key_Right:
+          pos.rx() += MM::MediumStep;
+          break;
+        case Qt::Key_Left:
+          pos.rx() -= MM::MediumStep;
+          break;
+        default:
+          handledKey = false;
+          break;
       }
     }
 
     if (handledKey)
     {
-			if (!_scaleRotateMode)
-	      // Enable to Undo and Redo when arrow keys move the position of vertices
-	      undoStack->push(new MoveVertexCommand(this,
-	                      TransformShapeCommand::STEP, _activeVertex, mapToScene(pos)));
+      // Enable to Undo and Redo when arrow keys move the position of vertices
+      undoStack->push(new MoveVertexCommand(this,
+                                            TransformShapeCommand::STEP, _activeVertex, mapToScene(pos)));
     }
   }
   else
@@ -611,7 +626,7 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
       // Case 2: zoom in with CTRL+=
       else if (event->key() == Qt::Key_Equal ||
                // Case 3: zoom in with CTRL+SHIFT++
-          ((event->modifiers() & Qt::ShiftModifier) && event->key() == Qt::Key_Plus))
+               ((event->modifiers() & Qt::ShiftModifier) && event->key() == Qt::Key_Plus))
       {
         increaseZoomLevel();
       }
@@ -642,6 +657,22 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
     this->horizontalScrollBar()->setValue(scrollX);
   }
 
+  if (getCurrentShape()) {
+    switch (event->key()) {
+      case Qt::Key_M:
+        getCurrentShape()->setShapeMode(MShape::DefaultMode);
+        break;
+      case Qt::Key_S:
+        getCurrentShape()->setShapeMode(MShape::ScaleMode);
+        break;
+      case Qt::Key_R:
+        getCurrentShape()->setShapeMode(MShape::RotateMode);
+        break;
+      default:
+        break;
+    }
+  }
+
   // Defer unhandled keys to parent.
   if (! handledKey)
   {
@@ -659,6 +690,7 @@ void MapperGLCanvas::deselectVertices()
 {
   _activeVertex = NO_VERTEX;
   _vertexGrabbed = false;
+  _vertexMoved = false;
 }
 
 void MapperGLCanvas::deselectAll()
@@ -692,20 +724,20 @@ void MapperGLCanvas::wheelEvent(QWheelEvent *event)
     // Accept wheel scrolling event.
     event->accept();
   } else { // control is not pressed: scroll
-     QScrollBar* scrollbar;
-     if (shift_is_pressed) { // shift is pressed: pans horizontally
-       scrollbar = this->horizontalScrollBar();
-     } else { // shift is not pressed: scrolls vertically
-       scrollbar = this->verticalScrollBar();
-     }
-     // FIXME: scrolling with the mouse doesn't currently work
-     int scroll = scrollbar->value();
-     if (deltaLevel > 0) {
-       scrollbar->setValue(scroll + 50);
-     } else {
-       scrollbar->setValue(scroll - 50);
-     }
-     event->accept();
+    QScrollBar* scrollbar;
+    if (shift_is_pressed) { // shift is pressed: pans horizontally
+      scrollbar = this->horizontalScrollBar();
+    } else { // shift is not pressed: scrolls vertically
+      scrollbar = this->verticalScrollBar();
+    }
+    // FIXME: scrolling with the mouse doesn't currently work
+    int scroll = scrollbar->value();
+    if (deltaLevel > 0) {
+      scrollbar->setValue(scroll + 50);
+    } else {
+      scrollbar->setValue(scroll - 50);
+    }
+    event->accept();
   }
 }
 

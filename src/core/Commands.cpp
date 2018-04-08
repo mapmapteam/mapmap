@@ -168,13 +168,11 @@ bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
 }
 
 
-ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, const QPointF& initialPositionPoint, const MShape::ptr& initialShape, QUndoCommand *parent)
+ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, const QPointF& initialPositionPoint, const MShape::ptr& initialShape, MShape::ShapeMode mode, QUndoCommand *parent)
   : TransformShapeCommand(canvas, option, parent),
     _movedVertex(activeVertex),
     _initialShape(initialShape)
 {
-  setText(QObject::tr("Scale and rotate shape"));
-
 	// Initial vector from center.
 	QPointF center = initialShape->getCenter();
 	QLineF initialVector(center, initialPositionPoint);
@@ -187,10 +185,15 @@ ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, Transfo
 	qreal rotation = currentVector.angleTo(initialVector);
 
 	// Create transform object.
-	//	transform.rotate(rotation);
 	_transform.translate(+center.x(), +center.y());
-	_transform.rotate(rotation);
-	_transform.scale(scale, scale);
+	if (mode == MShape::RotateMode) {
+		 setText(QObject::tr("Rotate shape"));
+		_transform.rotate(rotation);
+	}
+	if (mode == MShape::ScaleMode) {
+		setText(QObject::tr("Scale shape"));
+		_transform.scale(scale, scale);
+	}
 	_transform.translate(-center.x(), -center.y());
 }
 
