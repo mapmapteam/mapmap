@@ -72,17 +72,22 @@ if [[ $unamestr == "Darwin" ]]; then
     echo "Building program ..."
     qmake -config release
     make -j4
-    
+
     # Bundle Qt frameworks in app using macdeployqt
     echo "Bundling Qt ..."
     macdeployqt $app
-    
+
+    # Set application icon macOS
+    echo "Applying Application Icon, restarting Finder ..."
+    cp -f resources/macOS/info.plist ${app}/Contents/Resources
+    cp -f resources/macOS/mapmap.icns ${app}/Contents/Resources
+
     # Bundle GStreamer framework in app
     #echo "Bundling GStreamer ..."
     #cp -R /Library/Frameworks/GStreamer.framework ${app}/Contents/Frameworks/
     #install_name_tool -id @executable_path/../Frameworks/${gstreamer} ${app}/Contents/Frameworks/${gstreamer}
     #install_name_tool -change /Library/Frameworks/${gstreamer} @executable_path/../Frameworks/${gstreamer} ${app}/Contents/MacOs/MapMap
-    
+
     # do_fix_qt_plugins_in_app
     echo "Creating DMG ..."
     do_create_dmg
@@ -90,4 +95,3 @@ elif [[ $unamestr == "Linux" ]]; then
     qmake
     make -j4
 fi
-
