@@ -116,6 +116,7 @@ private slots:
   void setMappingItemLocked(bool locked);
   void setMappingItemHide(bool hide);
   void setMappingItemSolo(bool solo);
+  void loadLayerMedia();
   // Context menu for paints
   void deletePaintItem();
   void renamePaintItem();
@@ -279,6 +280,7 @@ private:
   void updateRecentFileActions();
   void updateRecentVideoActions();
   void updateScreenActions();
+  void updateMediaListActions();
 
   // Settings.
   void readSettings();
@@ -357,6 +359,9 @@ private:
   // Some menus when need to be separated
   QMenu *sourceMenu;
   QMenu *destinationMenu;
+
+  QMenu *_changeLayerMediaMenu;
+  QAction *_importLayerMediaAction;
 
   // Toolbar.
   QToolBar *mainToolBar;

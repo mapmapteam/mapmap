@@ -22,7 +22,7 @@ install:
       Write-Host "Installed" -ForegroundColor Green
 
   - ps: |
-      Write-Host "Installing GStreamer..." -ForegroundColor Cyan
+      Write-Host "Installing GStreamer Devel..." -ForegroundColor Cyan
       $msiPath = "$($env:USERPROFILE)\gstreamer-1.0-devel-x86_64-1.12.4.msi"
       $gstreamerPath = "C:\"
       Write-Host "Downloading..."

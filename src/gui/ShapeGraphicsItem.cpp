@@ -312,7 +312,7 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
 
 QSharedPointer<Texture> TextureGraphicsItem::_getTexture()
 {
-	return qSharedPointerCast<Texture>(_textureMapping.toStrongRef()->getPaint());
+  return qSharedPointerCast<Texture>(_textureMapping.toStrongRef()->getPaint());
 }
 
 QPainterPath PolygonTextureGraphicsItem::shape() const
