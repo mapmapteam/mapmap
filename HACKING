@@ -29,7 +29,6 @@ We want the 0 series to be backward-compatible. That means that a project create
 
 Files
 -----
-* BUGS: List of bugs to fix. (or, again, use github for these)
 * HACKING: What to know to contribute to the project.
 * INSTALL: Instructions to build and install the software.
 * NEWS: Release notes for each tag.
