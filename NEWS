@@ -1,9 +1,11 @@
 Release notes for MapMap
 ========================
 
-20??-??-?? - MapMap 0.6.1
+2018-04-09 - MapMap 0.6.1
 -------------------------
-- todo
+- Add .url link file to GStreamer on macOS and packaged it in the DMG.
+- Fix: crash because undoStack was uninitialized (closes #413).
+- Windows environnement variable fix
 
 2018-04-08 - MapMap 0.6.0
 -------------------------
