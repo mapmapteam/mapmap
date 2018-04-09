@@ -26,6 +26,7 @@ do_create_dmg() {
     cp -R MapMap.app ${DMGDIR}
     cp README.md ${DMGDIR}/README.txt
     cp NEWS ${DMGDIR}/NEWS.txt
+    cp resources/macOS/Get\ GStreamer\ macOS.url ${DMGDIR}/
     hdiutil create \
         -volname ${DMGDIR} \
         -srcfolder ${DMGDIR} \
