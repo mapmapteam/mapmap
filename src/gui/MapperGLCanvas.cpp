@@ -77,6 +77,9 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
 
   // Enable dragndrop
   setAcceptDrops(true);
+
+  // Prepare to store commands
+  undoStack = mainWindow->getUndoStack();
 }
 
 MShape::ptr MapperGLCanvas::getShapeFromMapping(Mapping::ptr mapping)
@@ -427,9 +430,6 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 
   QPointF scenePos = mapToScene(event->pos());
 
-  // Prepare to store commands
-  undoStack = getMainWindow()->getUndoStack();
-
   // Vertex grab.
   if (_vertexGrabbed)
   {
@@ -503,9 +503,6 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 
 void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 {
-  // Prepare to store commands.
-  undoStack = getMainWindow()->getUndoStack();
-
   // Checks if the key has been handled by this function or needs to be deferred to superclass.
   bool handledKey = false;
 
