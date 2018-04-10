@@ -32,6 +32,8 @@ do_create_dmg() {
         -srcfolder ${DMGDIR} \
         -ov -format UDZO \
         ${DMGDIR}.dmg
+    # Let's also create a zip archive:
+    zip -r ${DMGDIR}_macOS.zip ${DMGDIR}
 }
 
 do_fix_qt_plugins_in_app() {
