@@ -29,9 +29,7 @@ Install basic development tools fot Qt projects, plus liblo for OSC support:
 sudo apt-get install -y \
       liblo-dev liblo-tools \
       qttools5-dev-tools \
-      qt5-default \
-      qtmultimedia5-dev \
-      libqt5multimedia5-plugins
+      qt5-default
 ```
 
 Install GStreamer 1.0 libraries and plugins:
@@ -105,7 +103,7 @@ Install tools and dependencies:
 Do this:
 
 ```
-./build.sh
+./scripts/build.sh
 ```
 
 It will create a .app and a .dmg.
