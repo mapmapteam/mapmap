@@ -77,13 +77,24 @@ QMAKE_CXXFLAGS += -Wno-expansion-to-defined
 }
 
 # macOS-specific:
-#macx {
+macx {
+
+  # INCLUDEPATH += -I/Library/Frameworks/GStreamer.framework/Headers/
+  # INCLUDEPATH += -I/Library/Frameworks/GStreamer.framework/Versions/1.0/lib/gstreamer-1.0/include
+  LIBS += -L/Library/Frameworks/GStreamer.framework/Libraries/
+  LIBS += -framework GStreamer
+  QMAKE_LFLAGS += -F/Library/Frameworks/GStreamer.framework/
+  PKG_CONFIG_PATH += /Library/Frameworks/GStreamer.framework/Libraries/pkgconfig
+  CONFIG += link_pkgconfig
+  # PKGCONFIG += gstreamer-1.0 gstreamer-video-1.0 gstreamer-base-1.0
+
+
 #  TARGET = MapMap
 #  DEFINES += MACOSX
 #  QMAKE_CXXFLAGS += -D__MACOSX_CORE__
 #  QMAKE_CXXFLAGS += -stdlib=libc++
-#  INCLUDEPATH += /Library/Frameworks/GStreamer.framework/Versions/1.0/Headers
-#  LIBS += -F /Library/Frameworks/ -framework GStreamer
+  INCLUDEPATH += /Library/Frameworks/GStreamer.framework/Versions/1.0/Headers
+  LIBS += -F /Library/Frameworks/ -framework GStreamer
 #  LIBS += -framework OpenGL -framework GLUT
 #  # With Xcode Tools > 1.5, to reduce the size of your binary even more:
 #  # LIBS += -dead_strip
@@ -99,7 +110,7 @@ QMAKE_CXXFLAGS += -Wno-expansion-to-defined
 #  # LIBS += -L/usr/local/lib -llo
 #  # INCLUDEPATH += /usr/local/include
 #  # QMAKE_CXXFLAGS += -DHAVE_OSC
-#}
+}
 
 # Windows-specific:
 #win32 {
@@ -142,7 +153,7 @@ QMAKE_EXTRA_TARGETS += tarball
 # Show various messages
 message("MapMap version: $${VERSION}")
 # message("Qt version: $$[QT_VERSION]")
-# message("LIBS: $${LIBS}")
+message("LIBS: $${LIBS}")
 # message("PKGCONFIG: $${PKGCONFIG}")
 # message("The project contains the following files: $${SOURCES} $${HEADERS}}")
 # message("To create a tarball, run `make tarball`")
