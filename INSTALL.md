@@ -30,6 +30,7 @@ sudo apt-get install -y \
       liblo-dev liblo-tools \
       qttools5-dev-tools \
       qtmultimedia5-dev \
+      libqt5opengl5-dev \
       libqt5multimedia5-plugins \
       qt5-default
 ```
