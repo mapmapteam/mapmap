@@ -32,6 +32,7 @@ const QString MM::VIDEO_FILES_FILTER = "*.mov *.mp4 *.avi *.ogg *.ogv *.mpeg *.m
 const QString MM::IMAGE_FILES_FILTER = "*.jpg *.jpeg *.gif *.png *.tiff *.tif *.bmp";
 const QString MM::NAMESPACE_PREFIX = QString("%1::").arg(TOSTRING(MM_NAMESPACE));
 const QString MM::SUPPORTED_LANGUAGES = "en, es, fr, zh_CN, zh_TW";
+const QString MM::SUPPORTED_FILE_VERSIONS = "\\d+\\.\\d+\\.\\d+"; // regex
 
 const QColor MM::WHITE("#f6f5f5");
 const QColor MM::BLUE_GRAY("#323541");

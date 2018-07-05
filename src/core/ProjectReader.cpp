@@ -28,6 +28,13 @@ ProjectReader::ProjectReader(MainWindow *window) : _window(window)
 {
 }
 
+bool ProjectReader::isValidVersion(const QString& versionString)
+{
+    QRegularExpression re(MM::SUPPORTED_FILE_VERSIONS);
+    QRegularExpressionMatch match = re.match(versionString);
+    return match.hasMatch();
+}
+
 bool ProjectReader::readFile(QIODevice *device)
 {
   QString errorStr;
@@ -43,10 +50,15 @@ bool ProjectReader::readFile(QIODevice *device)
   }
 
   QDomElement root = doc.documentElement();
+  QString projectVersion = root.attribute("version");
   // The handling of the version number will get fancier as we go.
-  if (root.tagName() != "project" || root.attribute("version") != MM::VERSION)
-  {
-    _xml.raiseError(QObject::tr("The file is not a mapmap version %1 file.").arg(MM::VERSION));
+  if (root.tagName() != "project") {
+    _xml.raiseError(QObject::tr("The contents of this file does not look like a MapMap project."));
+    return false;
+  } else if (! this->isValidVersion(projectVersion)) {
+    _xml.raiseError(
+        QObject::tr("The version of MapMap %1 used to save this file is not readable by this MapMap version %2.").arg(
+            projectVersion, MM::VERSION));
     return false;
   }
 

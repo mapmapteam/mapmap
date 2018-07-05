@@ -60,6 +60,7 @@ public:
   static const QString IMAGE_FILES_FILTER;
   static const QString NAMESPACE_PREFIX;
   static const QString SUPPORTED_LANGUAGES;
+  static const QString SUPPORTED_FILE_VERSIONS;
 
   // GUI.
   static const int DEFAULT_WINDOW_WIDTH = 640;
