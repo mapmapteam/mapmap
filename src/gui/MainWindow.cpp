@@ -2758,14 +2758,17 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
 
 void MainWindow::updatePaintItem(uid paintId, const QIcon& icon, const QString& name) {
   QListWidgetItem* item = getItemFromId(*paintList, paintId);
-  Q_ASSERT(item);
+  if (item == NULL) {
+    // FIXME there was an assert that seemed to make MapMap crash, here.
+    return;
+  }
 
   // Update item info.
   item->setIcon(icon);
   item->setText(name);
 
-	// Update mapping guis.
-	updateMappers();
+  // Update mapping guis.
+  updateMappers();
 
   // Window was modified.
   windowModified();
