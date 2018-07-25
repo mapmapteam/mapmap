@@ -1,6 +1,10 @@
 Release notes for MapMap
 ========================
 
+2018-??-?? - MapMap 0.6.3
+-------------------------
+TODO
+
 2018-07-24 - MapMap 0.6.2
 -------------------------
 - Remove an assert that might crash MapMap
