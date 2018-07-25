@@ -1,9 +1,12 @@
 Release notes for MapMap
 ========================
 
-2018-??-?? - MapMap 0.6.2
+2018-07-24 - MapMap 0.6.2
 -------------------------
-- todo
+- Remove an assert that might crash MapMap
+- Fix parsing of MapMap version in the project file (critical bug fixed)
+- Add qt5opengl in deps in INSTALL.md
+- Also create a zip archive in scripts/build.sh
 
 2018-04-09 - MapMap 0.6.1
 -------------------------
