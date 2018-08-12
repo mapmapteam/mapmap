@@ -107,6 +107,7 @@ private:
   QLabel *_machineAddressLabel;
   QSpinBox *_listenPortNumber;
   QPushButton *_ipRefreshButton;
+  QCheckBox *_oscSameMediaSourceBox;
 
   // Advanced widgets
 

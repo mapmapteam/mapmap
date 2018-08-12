@@ -120,6 +120,9 @@ bool PreferenceDialog::loadSettings()
   // Set language
   _languageBox->setCurrentIndex(_languageBox->findData(settings.value("language", MM::DEFAULT_LANGUAGE)));
 
+  // Allow OSC message with same media source
+  _oscSameMediaSourceBox->setChecked(settings.value("oscSameMediaSource").toBool());
+
   return true;
 }
 
@@ -149,6 +152,8 @@ void PreferenceDialog::applySettings()
   settings.setValue("toolbarIconSize", _toolbarIconSizeBox->currentData());
   // Set language
   settings.setValue("language", _languageBox->currentData());
+  // Allow OSC message with same media source
+  settings.setValue("oscSameMediaSource", _oscSameMediaSourceBox->isChecked());
 }
 
 void PreferenceDialog::refreshCurrentIP()
@@ -332,6 +337,9 @@ void PreferenceDialog::createControlsPage()
   _listenPortNumber->setRange(1024, 65534);
   _listenPortNumber->setFixedWidth(120);
 
+  _oscSameMediaSourceBox = new QCheckBox("Allow message with existing media source");
+  _oscSameMediaSourceBox->setChecked(false);
+
   QFormLayout *listenPortForm = new QFormLayout;
   listenPortForm->setContentsMargins(margins);
   listenPortForm->addRow(tr("on port"), _listenPortNumber);
@@ -354,6 +362,7 @@ void PreferenceDialog::createControlsPage()
   // oscLayout->addLayout(sendMessageForm, 4);
   oscLayout->addWidget(_listenMessageBox, 1);
   oscLayout->addLayout(listenPortForm, 1);
+  oscLayout->addWidget(_oscSameMediaSourceBox, 1);
   oscLayout->addLayout(listenAddressForm, 3);
 
   _oscWidget->setLayout(oscLayout);
