@@ -226,6 +226,9 @@ _playState(false),
 _uri("")
 {
   _mutexLocker = new QMutexLocker(&_mutex);
+
+  QSettings settings;
+  _playInLoop = settings.value("playInLoop", MM::PLAY_IN_LOOP).toBool();
 }
 
 void VideoImpl::unloadMovie()
@@ -428,7 +431,8 @@ void VideoImpl::update()
   if (_eos() || _terminate)
   {
     _setFinished(true);
-    resetMovie();
+    if (_playInLoop) // Check if repeat mode is on
+      resetMovie();
   }
   else
   {
@@ -596,38 +600,39 @@ void VideoImpl::_checkMessages()
 
       switch (GST_MESSAGE_TYPE (msg))
       {
-      // Error ////////////////////////////////////////////////
-      case GST_MESSAGE_ERROR:
-        gst_message_parse_error(msg, &err, &debug_info);
-        qWarning() << "Error received from element " << GST_OBJECT_NAME (msg->src) << ": " << err->message << endl;
-        qDebug() << "Debugging information: " << (debug_info ? debug_info : "none") << "." << endl;
-        g_clear_error(&err);
-        g_free(debug_info);
+        // Error ////////////////////////////////////////////////
+        case GST_MESSAGE_ERROR:
+          gst_message_parse_error(msg, &err, &debug_info);
+          qWarning() << "Error received from element " << GST_OBJECT_NAME (msg->src) << ": " << err->message << endl;
+          qDebug() << "Debugging information: " << (debug_info ? debug_info : "none") << "." << endl;
+          g_clear_error(&err);
+          g_free(debug_info);
 
-        if (!isLive())
-        {
-          _terminate = true;
-        }
-        else
-        {
-          gst_element_set_state (_pipeline, GST_STATE_PAUSED);
-          gst_element_set_state (_pipeline, GST_STATE_NULL);
-          gst_element_set_state (_pipeline, GST_STATE_READY);
-        }
-//        _finish();
-        break;
+          if (!isLive())
+          {
+            _terminate = true;
+          }
+          else
+          {
+            gst_element_set_state (_pipeline, GST_STATE_PAUSED);
+            gst_element_set_state (_pipeline, GST_STATE_NULL);
+            gst_element_set_state (_pipeline, GST_STATE_READY);
+          }
+          //        _finish();
+          break;
 
-      // End-of-stream ////////////////////////////////////////
-      case GST_MESSAGE_EOS:
-        // Automatically loop back.
-        resetMovie();
-//        _terminate = true;
-//        _finish();
-        break;
+          // End-of-stream ////////////////////////////////////////
+        case GST_MESSAGE_EOS:
+          // Automatically loop back.
+          if (_playInLoop) // Check if repeat mode is on
+            resetMovie();
+          //        _terminate = true;
+          //        _finish();
+          break;
 
-      // Pipeline has prerolled/ready to play ///////////////
-      case GST_MESSAGE_ASYNC_DONE:
-        if (!_isMovieReady())
+          // Pipeline has prerolled/ready to play ///////////////
+        case GST_MESSAGE_ASYNC_DONE:
+          if (!_isMovieReady())
         {
           // Check if seeking is allowed.
           gint64 start, end;

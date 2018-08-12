@@ -39,6 +39,7 @@ public:
   ~PreferenceDialog();
 
   void showDialog();
+  void saveSettings() { applySettings(); }
 
 protected:
   void closeEvent(QCloseEvent* event);
@@ -74,7 +75,7 @@ private:
   QWidget *_mappingPage;
   QWidget *_outputPage;
   QTabWidget *_controlsPage;
-  QWidget *_advancedPage;
+  QTabWidget *_advancedPage;
 
   // Interface widgets
   QComboBox *_languageBox;
@@ -110,6 +111,10 @@ private:
   QCheckBox *_oscSameMediaSourceBox;
 
   // Advanced widgets
+  // Playback
+  QWidget *_playbackWidget;
+  QCheckBox *_playInLoopBox;
+
 
   // Common widgets
   QListWidget *_listWidget;

@@ -86,6 +86,8 @@ public:
   static const bool SHOW_OUTPUT_RESOLUTION = true;
   static const QString DEFAULT_LANGUAGE;
   static const bool SHOW_OUTPUT_ON_MOUSE_HOVER = true;
+  static const bool OSC_SAME_MEDIA_SOURCE = false;
+  static const bool PLAY_IN_LOOP = true;
 
   // Style.
   static const QColor WHITE;

@@ -357,6 +357,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
   {
     // Save settings
     writeSettings();
+    _preferenceDialog->saveSettings();
     // Close all top level widgets
     for (QWidget *widget: QApplication::topLevelWidgets()) {
       if (widget != this) { // Avoid recursion
@@ -3289,7 +3290,7 @@ void MainWindow::connectProjectWidgets()
   connect(mappingItemDelegate, SIGNAL(itemRemoved(uid)),
           this, SLOT(deleteMapping(uid)));
 
-  connect(_preferenceDialog, SIGNAL(settingSaved()), this, SLOT(applySettings()));
+  connect(_preferenceDialog, SIGNAL(settingSaved()), this, SLOT(updateSettings()));
 }
 
 void MainWindow::disconnectProjectWidgets()
@@ -3318,7 +3319,7 @@ void MainWindow::disconnectProjectWidgets()
   disconnect(mappingItemDelegate, SIGNAL(itemRemoved(uid)),
           this, SLOT(deleteMapping(uid)));
 
-  disconnect(_preferenceDialog, SIGNAL(settingSaved()), this, SLOT(applySettings()));
+  disconnect(_preferenceDialog, SIGNAL(settingSaved()), this, SLOT(updateSettings()));
 }
 
 uid MainWindow::getItemId(const QListWidgetItem& item)
@@ -3483,7 +3484,7 @@ void MainWindow::exitFullScreen()
   displayTestSignalAction->setChecked(false);
 }
 
-void MainWindow::applySettings()
+void MainWindow::updateSettings()
 {
   stickyVerticesAction->setChecked(settings.value("stickyVertices").toBool());
 }

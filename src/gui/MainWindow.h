@@ -163,7 +163,7 @@ private slots:
       QDesktopServices::openUrl(QUrl("https://github.com/mapmapteam/mapmap/issues/new"));
   }
 
-  void applySettings();
+  void updateSettings();
 
 public slots:
 

@@ -121,7 +121,9 @@ bool PreferenceDialog::loadSettings()
   _languageBox->setCurrentIndex(_languageBox->findData(settings.value("language", MM::DEFAULT_LANGUAGE)));
 
   // Allow OSC message with same media source
-  _oscSameMediaSourceBox->setChecked(settings.value("oscSameMediaSource").toBool());
+  _oscSameMediaSourceBox->setChecked(settings.value("oscSameMediaSource", MM::OSC_SAME_MEDIA_SOURCE).toBool());
+  // Play in loop
+  _playInLoopBox->setChecked(settings.value("playInLoop", MM::PLAY_IN_LOOP).toBool());
 
   return true;
 }
@@ -154,6 +156,8 @@ void PreferenceDialog::applySettings()
   settings.setValue("language", _languageBox->currentData());
   // Allow OSC message with same media source
   settings.setValue("oscSameMediaSource", _oscSameMediaSourceBox->isChecked());
+  // Play in loop
+  settings.setValue("playInLoop", _playInLoopBox->isChecked());
 }
 
 void PreferenceDialog::refreshCurrentIP()
@@ -337,7 +341,7 @@ void PreferenceDialog::createControlsPage()
   _listenPortNumber->setRange(1024, 65534);
   _listenPortNumber->setFixedWidth(120);
 
-  _oscSameMediaSourceBox = new QCheckBox("Allow message with existing media source");
+  _oscSameMediaSourceBox = new QCheckBox(tr("Allow message with existing media source"));
   _oscSameMediaSourceBox->setChecked(false);
 
   QFormLayout *listenPortForm = new QFormLayout;
@@ -375,6 +379,20 @@ void PreferenceDialog::createControlsPage()
 void PreferenceDialog::createAdvancedPage()
 {
   _advancedPage = new QTabWidget;
+
+  // Playback tab
+  _playbackWidget = new QWidget;
+
+  // Play in loop
+  _playInLoopBox = new QCheckBox(tr("Play in loop (requires restart)"));
+  _playInLoopBox->setChecked(true); // Loop by default
+
+  QVBoxLayout *playbackLayout = new QVBoxLayout;
+  playbackLayout->addWidget(_playInLoopBox, 1, Qt::AlignTop);
+
+  _playbackWidget->setLayout(playbackLayout);
+
+  _advancedPage->addTab(_playbackWidget, tr("Playback"));
 }
 
 void PreferenceDialog::createPreferencesList()
