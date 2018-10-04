@@ -605,7 +605,7 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>The file is not a mapmap version %1 file.</source>
-        <translation>Ce fichier n&apos;est pas un fichier MapMap version %1</translation>
+        <translation type="vanished">Ce fichier n&apos;est pas un fichier MapMap version %1</translation>
     </message>
     <message>
         <source>Problem at creation of paint.</source>
@@ -618,10 +618,6 @@ Ligne %2, colonne %3</translation>
     <message>
         <source>Problem at creation of mapping.</source>
         <translation>Problème à la création du mapping.</translation>
-    </message>
-    <message>
-        <source>Scale and rotate shape</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>ID</source>
@@ -653,6 +649,22 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Subdivisions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rotate shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scale shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The contents of this file does not look like a MapMap project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The version of MapMap %1 used to save this file is not readable by this MapMap version %2.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1215,7 +1227,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Add &amp;Color Paint...</source>
-        <translation>Ajouter une source &amp;couleur...</translation>
+        <translation type="vanished">Ajouter une source &amp;couleur...</translation>
     </message>
     <message>
         <source>Add a color paint...</source>
@@ -1339,7 +1351,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Rewind</source>
-        <translation>Rembobiner</translation>
+        <translation type="vanished">Rembobiner</translation>
     </message>
     <message>
         <source>Toggle &amp;Fullscreen</source>
@@ -1553,7 +1565,7 @@ Do you want to save your changes?</source>
     </message>
     <message>
         <source>Color paint added</source>
-        <translation>Source de couleur ajoutée</translation>
+        <translation type="vanished">Source de couleur ajoutée</translation>
     </message>
     <message>
         <source>Warning</source>
@@ -1774,6 +1786,30 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
         <source>Switch to the Output Editors Layout.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add &amp;Color Source...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import New Media</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import new media file if not exists on the list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restart</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change Layer Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color source added</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>mmp::MapperGLCanvasToolbar</name>
@@ -1872,7 +1908,7 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     </message>
     <message>
         <source>Show resolution on output</source>
-        <translation>Montrer la résolution sur la sortie vidéo</translation>
+        <translation type="vanished">Montrer la résolution sur la sortie vidéo</translation>
     </message>
     <message>
         <source>Classic test card</source>
@@ -1937,6 +1973,34 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     <message>
         <source>Mappings</source>
         <translation type="obsolete">Mappings</translation>
+    </message>
+    <message>
+        <source>Only show output controls on mouse over</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output Layers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show resolution on output test cards</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Test Card</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Allow message with existing media source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play in loop (requires restart)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playback</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
