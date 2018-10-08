@@ -609,7 +609,7 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>Problem at creation of paint.</source>
-        <translation>Problème à la création de la source</translation>
+        <translation>Problème à la création de la peinture.</translation>
     </message>
     <message>
         <source></source>
@@ -621,51 +621,51 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID</translation>
     </message>
     <message>
         <source>Add source</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter une source</translation>
     </message>
     <message>
         <source>Add layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter une couche</translation>
     </message>
     <message>
         <source>Duplicate layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Dupliquer la couche</translation>
     </message>
     <message>
         <source>Remove media</source>
-        <translation type="unfinished"></translation>
+        <translation>Retirer le média</translation>
     </message>
     <message>
         <source>Delete layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer la couche</translation>
     </message>
     <message>
         <source>Mesh Subdivisions</source>
-        <translation type="unfinished"></translation>
+        <translation>Subdivisions de maillage</translation>
     </message>
     <message>
         <source>Subdivisions</source>
-        <translation type="unfinished"></translation>
+        <translation>Subdivisions</translation>
     </message>
     <message>
         <source>Rotate shape</source>
-        <translation type="unfinished"></translation>
+        <translation>Tourner la forme</translation>
     </message>
     <message>
         <source>Scale shape</source>
-        <translation type="unfinished"></translation>
+        <translation>Mettre à l&apos;échelle la forme</translation>
     </message>
     <message>
         <source>The contents of this file does not look like a MapMap project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Le contenu de ce fichier ne ressemble pas à un projet MapMap.</translation>
     </message>
     <message>
         <source>The version of MapMap %1 used to save this file is not readable by this MapMap version %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>La version de MapMap (%1) utilisée pour sauvegarder ce fichier n&apos;est pas lisible par cette version de MapMap (%2).</translation>
     </message>
 </context>
 <context>
@@ -727,199 +727,199 @@ Ligne %2, colonne %3</translation>
     <name>QtCursorDatabase</name>
     <message>
         <source>Arrow</source>
-        <translation type="unfinished"></translation>
+        <translation>Flèche</translation>
     </message>
     <message>
         <source>Up Arrow</source>
-        <translation type="unfinished"></translation>
+        <translation>Flèche vers le haut</translation>
     </message>
     <message>
         <source>Cross</source>
-        <translation type="unfinished"></translation>
+        <translation>Traverser</translation>
     </message>
     <message>
         <source>Wait</source>
-        <translation type="unfinished"></translation>
+        <translation>Attendre</translation>
     </message>
     <message>
         <source>IBeam</source>
-        <translation type="unfinished"></translation>
+        <translation>IBeam</translation>
     </message>
     <message>
         <source>Size Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensionner Vertical</translation>
     </message>
     <message>
         <source>Size Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensionner Horizontal</translation>
     </message>
     <message>
         <source>Size Backslash</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensionner Barre Oblique Inversée</translation>
     </message>
     <message>
         <source>Size Slash</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensionner Barre Oblique</translation>
     </message>
     <message>
         <source>Size All</source>
-        <translation type="unfinished"></translation>
+        <translation>Tout dimensionner</translation>
     </message>
     <message>
         <source>Blank</source>
-        <translation type="unfinished"></translation>
+        <translation>Vide</translation>
     </message>
     <message>
         <source>Split Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>Séparer verticalement</translation>
     </message>
     <message>
         <source>Split Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>Séparer horizontalement</translation>
     </message>
     <message>
         <source>Pointing Hand</source>
-        <translation type="unfinished"></translation>
+        <translation>Main pointant</translation>
     </message>
     <message>
         <source>Forbidden</source>
-        <translation type="unfinished"></translation>
+        <translation>Interdit</translation>
     </message>
     <message>
         <source>Open Hand</source>
-        <translation type="unfinished"></translation>
+        <translation>Main ouverte</translation>
     </message>
     <message>
         <source>Closed Hand</source>
-        <translation type="unfinished"></translation>
+        <translation>Main fermée</translation>
     </message>
     <message>
         <source>What&apos;s This</source>
-        <translation type="unfinished"></translation>
+        <translation>Qu&apos;est-ce que c&apos;est</translation>
     </message>
     <message>
         <source>Busy</source>
-        <translation type="unfinished"></translation>
+        <translation>Occupé</translation>
     </message>
 </context>
 <context>
     <name>QtFontEditWidget</name>
     <message>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <source>Select Font</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner une police</translation>
     </message>
 </context>
 <context>
     <name>QtFontPropertyManager</name>
     <message>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation>Famille</translation>
     </message>
     <message>
         <source>Point Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Taille du point</translation>
     </message>
     <message>
         <source>Bold</source>
-        <translation type="unfinished"></translation>
+        <translation>Gras</translation>
     </message>
     <message>
         <source>Italic</source>
-        <translation type="unfinished"></translation>
+        <translation>Italique</translation>
     </message>
     <message>
         <source>Underline</source>
-        <translation type="unfinished"></translation>
+        <translation>Souligner</translation>
     </message>
     <message>
         <source>Strikeout</source>
-        <translation type="unfinished"></translation>
+        <translation>Barrer</translation>
     </message>
     <message>
         <source>Kerning</source>
-        <translation type="unfinished"></translation>
+        <translation>Crénage</translation>
     </message>
 </context>
 <context>
     <name>QtKeySequenceEdit</name>
     <message>
         <source>Clear Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Effacer le raccourci</translation>
     </message>
 </context>
 <context>
     <name>QtLocalePropertyManager</name>
     <message>
         <source>%1, %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, %2</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Langue</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation>Pays</translation>
     </message>
 </context>
 <context>
     <name>QtPointFPropertyManager</name>
     <message>
         <source>(%1, %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>(%1, %2)</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
 </context>
 <context>
     <name>QtPointPropertyManager</name>
     <message>
         <source>(%1, %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>(%1, %2)</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
 </context>
 <context>
     <name>QtPropertyBrowserUtils</name>
     <message>
         <source>[%1, %2, %3] (%4)</source>
-        <translation type="unfinished"></translation>
+        <translation>[%1, %2, %3] (%4)</translation>
     </message>
     <message>
         <source>[%1, %2]</source>
-        <translation type="unfinished"></translation>
+        <translation>[%1, %2]</translation>
     </message>
 </context>
 <context>
     <name>QtRectFPropertyManager</name>
     <message>
         <source>[(%1, %2), %3 x %4]</source>
-        <translation type="unfinished"></translation>
+        <translation>[(%1, %2), %3 x %4]</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Width</source>
@@ -934,15 +934,15 @@ Ligne %2, colonne %3</translation>
     <name>QtRectPropertyManager</name>
     <message>
         <source>[(%1, %2), %3 x %4]</source>
-        <translation type="unfinished"></translation>
+        <translation>[(%1, %2), %3 x %4]</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Width</source>
@@ -957,7 +957,7 @@ Ligne %2, colonne %3</translation>
     <name>QtSizeFPropertyManager</name>
     <message>
         <source>%1 x %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 x %2</translation>
     </message>
     <message>
         <source>Width</source>
@@ -972,34 +972,34 @@ Ligne %2, colonne %3</translation>
     <name>QtSizePolicyPropertyManager</name>
     <message>
         <source>&lt;Invalid&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Invalide&gt;</translation>
     </message>
     <message>
         <source>[%1, %2, %3, %4]</source>
-        <translation type="unfinished"></translation>
+        <translation>[%1, %2, %3, %4]</translation>
     </message>
     <message>
         <source>Horizontal Policy</source>
-        <translation type="unfinished"></translation>
+        <translation>Police horizontale</translation>
     </message>
     <message>
         <source>Vertical Policy</source>
-        <translation type="unfinished"></translation>
+        <translation>Police verticale</translation>
     </message>
     <message>
         <source>Horizontal Stretch</source>
-        <translation type="unfinished"></translation>
+        <translation>Étirement horizontal</translation>
     </message>
     <message>
         <source>Vertical Stretch</source>
-        <translation type="unfinished"></translation>
+        <translation>Étirement vertical</translation>
     </message>
 </context>
 <context>
     <name>QtSizePropertyManager</name>
     <message>
         <source>%1 x %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 x %2</translation>
     </message>
     <message>
         <source>Width</source>
@@ -1014,11 +1014,11 @@ Ligne %2, colonne %3</translation>
     <name>QtTreePropertyBrowser</name>
     <message>
         <source>Property</source>
-        <translation type="unfinished"></translation>
+        <translation>Propriété</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valeur</translation>
     </message>
 </context>
 <context>
@@ -1029,7 +1029,7 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>MapMap is a free/open source video mapping software.</source>
-        <translation>MapMap est un logiciel libre de mapping vidéo</translation>
+        <translation>MapMap est un logiciel libre de mapping vidéo.</translation>
     </message>
     <message>
         <source>Copyright &amp;copy; 2013 %1.</source>
@@ -1037,7 +1037,7 @@ Ligne %2, colonne %3</translation>
     </message>
     <message>
         <source>See the </source>
-        <translation>Voir le</translation>
+        <translation>Voir le </translation>
     </message>
     <message>
         <source>%1 website</source>
@@ -1211,7 +1211,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>&amp;Import Media File...</source>
-        <translation>Importer un fichier média ...</translation>
+        <translation>&amp;Importer un fichier média ...</translation>
     </message>
     <message>
         <source>Import a video or image file...</source>
@@ -1355,7 +1355,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Toggle &amp;Fullscreen</source>
-        <translation>Plein écran</translation>
+        <translation>&amp;Plein écran</translation>
     </message>
     <message>
         <source>Toggle Fullscreen</source>
@@ -1363,7 +1363,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>&amp;Display Controls</source>
-        <translation>Afficher les points de contrôle</translation>
+        <translation>&amp;Afficher les points de contrôle</translation>
     </message>
     <message>
         <source>Display canvas controls</source>
@@ -1379,7 +1379,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>&amp;Sticky Vertices</source>
-        <translation>Sommets collants</translation>
+        <translation>&amp;Sommets collants</translation>
     </message>
     <message>
         <source>Enable sticky vertices</source>
@@ -1395,7 +1395,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Display &amp;Undo History</source>
-        <translation>Afficher l&apos;historique des opérations</translation>
+        <translation>&amp;Afficher l&apos;historique des opérations</translation>
     </message>
     <message>
         <source>Open Conso&amp;le</source>
@@ -1415,7 +1415,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>Switch to the Main layout.</source>
-        <translation>Passer à la vue normale</translation>
+        <translation>Passer à la vue normale.</translation>
     </message>
     <message>
         <source>Source Layout</source>
@@ -1479,7 +1479,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>&amp;Window</source>
-        <translation>Fenêtre</translation>
+        <translation>&amp;Fenêtre</translation>
     </message>
     <message>
         <source>Toolbars</source>
@@ -1491,7 +1491,7 @@ No camera available in your system</source>
     </message>
     <message>
         <source>&amp;Toolbar</source>
-        <translation>Barre de menu</translation>
+        <translation>&amp;Barre de menu</translation>
     </message>
     <message>
         <source>The document has been modified.
@@ -1610,11 +1610,11 @@ The original file is not found. Will you locate?</source>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation>Apparence</translation>
+        <translation>&amp;Apparence</translation>
     </message>
     <message>
         <source>&amp;Output screen</source>
-        <translation>Écran de sortie</translation>
+        <translation>&amp;Écran de sortie</translation>
     </message>
     <message>
         <source>Unable to use file %1.
@@ -1632,202 +1632,202 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Agrandir</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Réduire</translation>
     </message>
     <message>
         <source>Original Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Taille Originale</translation>
     </message>
     <message>
         <source>Reset zoom to original size</source>
-        <translation type="unfinished"></translation>
+        <translation>Réinitialiser le zoom à la taille d&apos;origine</translation>
     </message>
     <message>
         <source>Fit To View</source>
-        <translation type="unfinished"></translation>
+        <translation>Adapter à la vue</translation>
     </message>
     <message>
         <source>Fit to viewport</source>
-        <translation type="unfinished"></translation>
+        <translation>Adapter à la fenêtre</translation>
     </message>
     <message>
         <source>Remove this source and all its associated layers?</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer cette source et toutes les couches associées ?</translation>
     </message>
     <message>
         <source>Input Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Éditeur d&apos;entrée</translation>
     </message>
     <message>
         <source>Output Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Éditeur de sortie</translation>
     </message>
     <message>
         <source>Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibliothèque</translation>
     </message>
     <message>
         <source>Layers</source>
-        <translation type="unfinished">Calques</translation>
+        <translation>Calques</translation>
     </message>
     <message>
         <source>Duplicate Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Dupliquer le calque</translation>
     </message>
     <message>
         <source>Duplicate layer item</source>
-        <translation type="unfinished"></translation>
+        <translation>Dupliquer un élément du calque</translation>
     </message>
     <message>
         <source>Delete Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer le calque</translation>
     </message>
     <message>
         <source>Delete layer item</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer un élément du calque</translation>
     </message>
     <message>
         <source>Rename Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Renommer le calque</translation>
     </message>
     <message>
         <source>Rename layer item</source>
-        <translation type="unfinished"></translation>
+        <translation>Renommer un élément du calque</translation>
     </message>
     <message>
         <source>Lock Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Vérouiller le calque</translation>
     </message>
     <message>
         <source>Lock layer item</source>
-        <translation type="unfinished"></translation>
+        <translation>Vérouiller un élément du calque</translation>
     </message>
     <message>
         <source>Hide Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Cacher le calque</translation>
     </message>
     <message>
         <source>Hide layer item</source>
-        <translation type="unfinished"></translation>
+        <translation>Cacher un élément du calque</translation>
     </message>
     <message>
         <source>Solo Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Calque solo</translation>
     </message>
     <message>
         <source>solo layer item</source>
-        <translation type="unfinished"></translation>
+        <translation>Élement du calque solo</translation>
     </message>
     <message>
         <source>Delete Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer la source</translation>
     </message>
     <message>
         <source>Delete source item</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer un élément de la source</translation>
     </message>
     <message>
         <source>Rename Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Renommer la source</translation>
     </message>
     <message>
         <source>Rename source item</source>
-        <translation type="unfinished"></translation>
+        <translation>Renommer un élément de la source</translation>
     </message>
     <message>
         <source>Add &amp;Mesh Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter Couche &amp;Maillage</translation>
     </message>
     <message>
         <source>Add mesh layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter une couche de maillage</translation>
     </message>
     <message>
         <source>Add &amp;Triangle Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter Couche &amp;Triangle</translation>
     </message>
     <message>
         <source>Add triangle layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter une couche triangulaire</translation>
     </message>
     <message>
         <source>Add &amp;Ellipse Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter Couche &amp;Ellipse</translation>
     </message>
     <message>
         <source>Add ellipse layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter une couche elliptique</translation>
     </message>
     <message>
         <source>&amp;Display Controls of Layers of a Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Commandes d&apos;&amp;affichage des couches d&apos;une source</translation>
     </message>
     <message>
         <source>Display all canvas controls related to current source</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher tous les contrôles de la toile liés à la source actuelle</translation>
     </message>
     <message>
         <source>Input editor Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Couche d&apos;entrée de l&apos;éditeur</translation>
     </message>
     <message>
         <source>Switch to the Input editor Layout.</source>
-        <translation type="unfinished"></translation>
+        <translation>Changer la couche d&apos;entrée de l&apos;éditeur.</translation>
     </message>
     <message>
         <source>Output Editor Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Couche de sortie de l&apos;éditeur</translation>
     </message>
     <message>
         <source>Switch to the Output Editors Layout.</source>
-        <translation type="unfinished"></translation>
+        <translation>Changer la couche de sortie de l&apos;éditeur.</translation>
     </message>
     <message>
         <source>Add &amp;Color Source...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter &amp;Couleur Source...</translation>
     </message>
     <message>
         <source>Import New Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Importer un nouveau média</translation>
     </message>
     <message>
         <source>Import new media file if not exists on the list</source>
-        <translation type="unfinished"></translation>
+        <translation>Importer un nouveau média si le fichier n&apos;existe pas sur la liste</translation>
     </message>
     <message>
         <source>Restart</source>
-        <translation type="unfinished"></translation>
+        <translation>Redémarrer</translation>
     </message>
     <message>
         <source>Change Layer Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Changer la source de la couche</translation>
     </message>
     <message>
         <source>Color source added</source>
-        <translation type="unfinished"></translation>
+        <translation>La couleur de la source a été ajoutée</translation>
     </message>
 </context>
 <context>
     <name>mmp::MapperGLCanvasToolbar</name>
     <message>
         <source>Enlarge the shape</source>
-        <translation type="unfinished"></translation>
+        <translation>Agrandir la forme</translation>
     </message>
     <message>
         <source>Shrink the shape</source>
-        <translation type="unfinished"></translation>
+        <translation>Rétrécir la forme</translation>
     </message>
     <message>
         <source>Reset the shape to the normal size</source>
-        <translation type="unfinished"></translation>
+        <translation>Remettre la forme à sa taille initiale</translation>
     </message>
     <message>
         <source>Fit the shape to content view</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajuster la forme au contenu de la vue</translation>
     </message>
 </context>
 <context>
@@ -1853,11 +1853,11 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     <name>mmp::MeshTextureMappingGui</name>
     <message>
         <source>Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontal</translation>
     </message>
     <message>
         <source>Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertical</translation>
     </message>
 </context>
 <context>
@@ -1968,7 +1968,7 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     </message>
     <message>
         <source>Vertices</source>
-        <translation type="unfinished">Sommets</translation>
+        <translation>Sommets</translation>
     </message>
     <message>
         <source>Mappings</source>
@@ -1976,31 +1976,31 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     </message>
     <message>
         <source>Only show output controls on mouse over</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher uniquement les contrôles de sortie au passage de la souris</translation>
     </message>
     <message>
         <source>Output Layers</source>
-        <translation type="unfinished"></translation>
+        <translation>Couches de sortie</translation>
     </message>
     <message>
         <source>Show resolution on output test cards</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher la résolution sur les cartes de test de sortie</translation>
     </message>
     <message>
         <source>Test Card</source>
-        <translation type="unfinished"></translation>
+        <translation>Carte de test</translation>
     </message>
     <message>
         <source>Allow message with existing media source</source>
-        <translation type="unfinished"></translation>
+        <translation>Autoriser le message avec la source de média existante</translation>
     </message>
     <message>
         <source>Play in loop (requires restart)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jouer en boucle (nécessite un redémarrage)</translation>
     </message>
     <message>
         <source>Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Lecture</translation>
     </message>
 </context>
 <context>
@@ -2023,7 +2023,7 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Source</translation>
+        <translation>Source</translation>
     </message>
 </context>
 </TS>
