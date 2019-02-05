@@ -517,10 +517,20 @@ void MainWindow::open()
   // Popup dialog allowing the user to save before opening a new file.
   if (okToContinue())
   {
+// Temporary fix of QFileDialog on GTK
+#ifdef Q_OS_LINUX
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                                    tr("Open project"),
+                                                    settings.value("defaultProjectDir").toString(),
+                                                    tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION),
+                                                    nullptr, QFileDialog::DontUseNativeDialog);
+#else
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     tr("Open project"),
                                                     settings.value("defaultProjectDir").toString(),
                                                     tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
+#endif
+
     if (! fileName.isEmpty())
       loadFile(fileName);
   }
@@ -547,10 +557,17 @@ bool MainWindow::saveAs()
   // Stop video playback to avoid lags. XXX Hack
   pause(false);
 
+#ifdef Q_OS_LINUX
+  QString fileName = QFileDialog::getSaveFileName(this,
+                                                  tr("Save project"), settings.value("defaultProjectDir").toString(),
+                                                  tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION),
+                                                  nullptr, QFileDialog::DontUseNativeDialog);
+#else
   // Popul file dialog to choose filename.
   QString fileName = QFileDialog::getSaveFileName(this,
                                                   tr("Save project"), settings.value("defaultProjectDir").toString(),
                                                   tr("MapMap files (*.%1)").arg(MM::FILE_EXTENSION));
+#endif
 
   // Restart video playback. XXX Hack
   play(false);
@@ -577,12 +594,22 @@ void MainWindow::importMedia()
 
   // Pop-up file-choosing dialog to choose media file.
   // TODO: restrict the type of files that can be imported
+#ifdef Q_OS_LINUX
+  QString fileName = QFileDialog::getOpenFileName(this,
+                                                  tr("Import media source file"),
+                                                  settings.value("defaultVideoDir").toString(),
+                                                  tr("Media files (%1 %2);;All files (*)")
+                                                  .arg(MM::VIDEO_FILES_FILTER)
+                                                  .arg(MM::IMAGE_FILES_FILTER),
+                                                  nullptr, QFileDialog::DontUseNativeDialog);
+#else
   QString fileName = QFileDialog::getOpenFileName(this,
                                                   tr("Import media source file"),
                                                   settings.value("defaultVideoDir").toString(),
                                                   tr("Media files (%1 %2);;All files (*)")
                                                   .arg(MM::VIDEO_FILES_FILTER)
                                                   .arg(MM::IMAGE_FILES_FILTER));
+#endif
   // Restart video playback if it was previously playing. XXX Hack
   play(!pauseAction->isVisible());
 
@@ -651,9 +678,15 @@ void MainWindow::addColor()
   // FIXME: we use a static variable to store the last chosen color
   // it should rather be a member of this class, or so.
   static QColor color = QColor(0, 255, 0, 255);
+#ifdef Q_OS_LINUX
+  color = QColorDialog::getColor(color, this, tr("Select Color"),
+                                  QColorDialog::DontUseNativeDialog |
+                                 QColorDialog::ShowAlphaChannel);
+#else
   color = QColorDialog::getColor(color, this, tr("Select Color"),
                                  // QColorDialog::DontUseNativeDialog |
                                  QColorDialog::ShowAlphaChannel);
+#endif
   if (color.isValid())
   {
     addColorPaint(color);
