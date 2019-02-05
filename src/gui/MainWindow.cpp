@@ -357,7 +357,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
   {
     // Save settings
     writeSettings();
-    _preferenceDialog->saveSettings();
+//    _preferenceDialog->saveSettings();
     // Close all top level widgets
     for (QWidget *widget: QApplication::topLevelWidgets()) {
       if (widget != this) { // Avoid recursion
