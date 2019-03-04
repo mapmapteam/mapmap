@@ -77,6 +77,7 @@ win32 {
     $${GST_HOME}/lib/glib-2.0.lib \
     -lopengl32
 
+  CONFIG -= debug
   CONFIG += release
 
   RC_FILE = resources/windows_resource.rc
