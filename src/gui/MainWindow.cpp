@@ -142,8 +142,8 @@ void MainWindow::handlePaintItemSelectionChanged()
   addMeshAction->setEnabled(paintItemSelected);
   addTriangleAction->setEnabled(paintItemSelected);
   addEllipseAction->setEnabled(paintItemSelected);
-  deletePaintAction->setEnabled(true);
-  renamePaintAction->setEnabled(true);
+  deletePaintAction->setEnabled(paintItemSelected);
+  renamePaintAction->setEnabled(paintItemSelected);
 
   // Update canvases.
   updateCanvases();
@@ -165,7 +165,7 @@ void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
    // Enable source toolbar
    sourceCanvasToolbar->enableZoomToolBar(true);
    // Enable paint and mapping edit action
-   cloneMappingAction->setEnabled(true);
+   duplicateMappingAction->setEnabled(true);
    deleteMappingAction->setEnabled(true);
    renameMappingAction->setEnabled(true);
    mappingLockedAction->setEnabled(true);
@@ -1451,6 +1451,7 @@ void MainWindow::windowModified()
 {
   setWindowModified(true);
   updateStatusBar();
+  updateLayerActions();
 }
 
 void MainWindow::createLayout()
@@ -1733,14 +1734,14 @@ void MainWindow::createActions()
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
   // Duplicate.
-  cloneMappingAction = new QAction(tr("Duplicate Layer"), this);
-  cloneMappingAction->setShortcut(Qt::CTRL + Qt::Key_D);
-  cloneMappingAction->setToolTip(tr("Duplicate layer item"));
-  cloneMappingAction->setIconVisibleInMenu(false);
-  cloneMappingAction->setEnabled(false);
-  cloneMappingAction->setShortcutContext(Qt::ApplicationShortcut);
-  addAction(cloneMappingAction);
-  connect(cloneMappingAction, SIGNAL(triggered()), this, SLOT(duplicateMappingItem()));
+  duplicateMappingAction = new QAction(tr("Duplicate Layer"), this);
+  duplicateMappingAction->setShortcut(Qt::CTRL + Qt::Key_D);
+  duplicateMappingAction->setToolTip(tr("Duplicate layer item"));
+  duplicateMappingAction->setIconVisibleInMenu(false);
+  duplicateMappingAction->setEnabled(false);
+  duplicateMappingAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(duplicateMappingAction);
+  connect(duplicateMappingAction, SIGNAL(triggered()), this, SLOT(duplicateMappingItem()));
 
   // Delete mapping.
   deleteMappingAction = new QAction(tr("Delete Layer"), this);
@@ -2150,7 +2151,7 @@ void MainWindow::createMenus()
   editMenu->addAction(renamePaintAction);
   editMenu->addSeparator();
   // Destination canvas menu
-  editMenu->addAction(cloneMappingAction);
+  editMenu->addAction(duplicateMappingAction);
   editMenu->addAction(deleteMappingAction);
   editMenu->addAction(renameMappingAction);
   editMenu->addAction(mappingLockedAction);
@@ -2226,7 +2227,7 @@ void MainWindow::createMappingContextMenu()
   mappingContextMenu->installEventFilter(this);
 
   // Add different Action
-  mappingContextMenu->addAction(cloneMappingAction);
+  mappingContextMenu->addAction(duplicateMappingAction);
   mappingContextMenu->addAction(deleteMappingAction);
   mappingContextMenu->addAction(renameMappingAction);
   mappingContextMenu->addAction(mappingLockedAction);
@@ -2631,6 +2632,26 @@ void MainWindow::updateMediaListActions()
   }
   // Add new media source in case no exists on the list
   _changeLayerMediaMenu->addAction(_importLayerMediaAction);
+}
+
+void MainWindow::updateLayerActions()
+{
+  if (mappingListModel->rowCount() < 1) {
+    duplicateMappingAction->setEnabled(false);
+    deleteMappingAction->setEnabled(false);
+    renameMappingAction->setEnabled(false);
+    mappingLockedAction->setEnabled(false);
+    mappingHideAction->setEnabled(false);
+    mappingSoloAction->setEnabled(false);
+    //Disable zoom menus
+    zoomInAction->setEnabled(false);
+    zoomOutAction->setEnabled(false);
+    resetZoomAction->setEnabled(false);
+    fitToViewAction->setEnabled(false);
+    // Also disable toobars
+    destinationCanvasToolbar->enableZoomToolBar(false);
+    sourceCanvasToolbar->enableZoomToolBar(false);
+  }
 }
 
 void MainWindow::clearRecentFileList()

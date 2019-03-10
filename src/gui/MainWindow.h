@@ -286,6 +286,7 @@ private:
   void updateRecentVideoActions();
   void updateScreenActions();
   void updateMediaListActions();
+  void updateLayerActions();
 
   // Settings.
   void readSettings();
@@ -384,7 +385,7 @@ private:
   QAction *undoAction;
   QAction *redoAction;
   // Mappings context menu actions
-  QAction *cloneMappingAction;
+  QAction *duplicateMappingAction;
   QAction *deleteMappingAction;
   QAction *renameMappingAction;
   QAction *mappingSoloAction;
