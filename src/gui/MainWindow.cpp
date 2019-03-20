@@ -1097,11 +1097,7 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
 
   else
   {
-    // Check if file exists before
-    //if (! fileExists(uri))
-      //uri = locateMediaFile(uri, isImage);
-
-    Texture* tex = 0;
+    Texture* tex = nullptr;
     if (isImage)
       tex = new Image(uri, paintId);
     else {
@@ -3078,13 +3074,9 @@ QString MainWindow::locateMediaFile(const QString &uri, bool isImage)
   QFileInfo file(uri);
   // The name of the file
   QString filename = file.fileName();
-  // The directory name
-  QString directory = file.absolutePath();
   // Handle the case where it is video or image
   QString mediaFilter = isImage ? MM::IMAGE_FILES_FILTER : MM::VIDEO_FILES_FILTER;
   QString mediaType = isImage ? "Images" : "Videos";
-  // New linked uri
-  QString url;
 
   // Show a warning and offer to locate the file
   QMessageBox::warning(this,
@@ -3094,18 +3086,29 @@ QString MainWindow::locateMediaFile(const QString &uri, bool isImage)
                        .arg(filename));
 
   // Set the new uri
-  url = QFileDialog::getOpenFileName(this,
-                                     tr("Locate file %1").arg(filename),
-                                     directory,
-                                     tr("%1 files (%2)")
-                                     .arg(mediaType)
-                                     .arg(mediaFilter));
+#ifdef Q_OS_LINUX
+ QString newUri = QFileDialog::getOpenFileName(this,
+                                               tr("Locate file %1").arg(filename),
+                                               file.absolutePath(),
+                                               tr("%1 files (%2)")
+                                               .arg(mediaType)
+                                               .arg(mediaFilter),
+                                               nullptr, QFileDialog::DontUseNativeDialog);
+#else
+  QString newUri = QFileDialog::getOpenFileName(this,
+                                                tr("Locate file %1").arg(filename),
+                                                file.absolutePath(),
+                                                tr("%1 files (%2)")
+                                                .arg(mediaType)
+                                                .arg(mediaFilter));
+#endif
 
-  return url;
+  return newUri;
+
 }
 
 MainWindow* MainWindow::window() {
-  static MainWindow* instance = 0;
+  static MainWindow* instance = nullptr;
   if (!instance) {
     instance = new MainWindow;
   }

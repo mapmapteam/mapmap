@@ -99,6 +99,22 @@ void ProjectReader::parseProject(const QDomElement& project)
     {
       manager.addPaint(paint);
       _window->addPaintItem(paint->getId(), paint->getIcon(), paint->getName());
+
+      // Locate media file if not found
+      if (paint->getType() == "media")
+      {
+        QSharedPointer<Video> media = qSharedPointerCast<Video>(paint);
+        Q_CHECK_PTR(media);
+        if (!_window->fileExists(media->getUri()))
+          media->setUri(_window->locateMediaFile(media->getUri(), false));
+      }
+      if (paint->getType() == "image")
+      {
+        QSharedPointer<Image> image = qSharedPointerCast<Image>(paint);
+        Q_CHECK_PTR(image);
+        if (!_window->fileExists(image->getUri()))
+          image->setUri(_window->locateMediaFile(image->getUri(), true));
+      }
     }
     paintNode = paintNode.nextSibling();
   }
@@ -134,6 +150,7 @@ Paint::ptr ProjectReader::parsePaint(const QDomElement& paintElem)
   {
     // Create new instance.
     Paint::ptr paint (qobject_cast<Paint*>(metaObject->newInstance( Q_ARG(int, id)) ));
+
     if (paint.isNull())
     {
       qDebug() << QObject::tr("Problem at creation of paint.") << endl;
