@@ -61,6 +61,11 @@ public:
     RotateMode
   };
 
+  enum FlipDirection {
+    Horizontal,
+    Vertical
+  };
+
   typedef QSharedPointer<MShape> ptr;
 
   MShape() : _isLocked(false) {}

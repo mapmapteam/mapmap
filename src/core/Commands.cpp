@@ -315,4 +315,48 @@ void DeleteMappingCommand::redo()
   _mainWindow->deleteMapping(_mappingId);
 }
 
+FlipShapeCommand::FlipShapeCommand(MapperGLCanvas *canvas, TransformShapeCommand::TransformShapeOption option, const MShape::ptr &initialShape, MShape::FlipDirection direction, QUndoCommand *parent)
+  : TransformShapeCommand (canvas, option, parent),
+    _initialShape(initialShape)
+{
+	// Initial vector from center.
+	QPointF center = initialShape->getCenter();
+
+	// Create transform object.
+	_transform.translate(+center.x(), +center.y());
+
+	if (direction == MShape::Horizontal) {
+		setText(QObject::tr("Flipped Horizontally"));
+		_transform.scale(-1, 1);
+	}
+
+	if (direction == MShape::Vertical) {
+		setText(QObject::tr("Flipped Vertically"));
+		_transform.scale(1, -1);
+	}
+	_transform.translate(-center.x(), -center.y());
+}
+
+int FlipShapeCommand::id() const { return (_option == STEP ? CMD_KEY_FLIP_SHAPE : CMD_MOUSE_FLIP_SHAPE); }
+
+void FlipShapeCommand::_doTransform(MShape::ptr shape)
+{
+	// Apply to shape.
+	shape->copyFrom(*_initialShape);
+	shape->applyTransform(_transform);
+}
+
+bool FlipShapeCommand::mergeWith(const QUndoCommand* other)
+{
+  if (!TransformShapeCommand::mergeWith(other))
+    return false;
+
+  const FlipShapeCommand* cmd = static_cast<const FlipShapeCommand*>(other);
+
+	_option = cmd->_option;
+	_transform = cmd->_transform;
+
+	return true;
+}
+
 }

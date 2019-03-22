@@ -171,6 +171,8 @@ void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
    mappingLockedAction->setEnabled(true);
    mappingHideAction->setEnabled(true);
    mappingSoloAction->setEnabled(true);
+   mappingpHorizontalFlipAction->setEnabled(true);
+   mappingVerticalFlipAction->setEnabled(true);
    // Enable zoom action
    zoomInAction->setEnabled(true);
    zoomOutAction->setEnabled(true);
@@ -946,6 +948,20 @@ void MainWindow::loadLayerMedia()
         getCurrentMapping()->paintIsCompatible(media)) {
       // Change layer source
       getCurrentMapping()->setPaint(media);
+    }
+  }
+}
+
+void MainWindow::flipMappingItem()
+{
+  QAction *actionSender = qobject_cast<QAction *>(sender());
+
+  if (actionSender) {
+    if(actionSender->data().toString() == "horizontal") {
+      undoStack->push(new FlipShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Horizontal));
+    }
+    else if (actionSender->data().toString() == "vertical") {
+      undoStack->push(new FlipShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Vertical));
     }
   }
 }
@@ -1792,6 +1808,22 @@ void MainWindow::createActions()
   addAction(mappingSoloAction);
   connect(mappingSoloAction, SIGNAL(triggered(bool)), this, SLOT(setMappingItemSolo(bool)));
 
+  // Horizontal Flip Action
+  mappingpHorizontalFlipAction = new QAction(tr("Flip Horizontally"), this);
+  mappingpHorizontalFlipAction->setToolTip(tr("Flip Horizontally"));
+  mappingpHorizontalFlipAction->setIconVisibleInMenu(true);
+  mappingpHorizontalFlipAction->setEnabled(false);
+  mappingpHorizontalFlipAction->setData("horizontal");
+  connect(mappingpHorizontalFlipAction, SIGNAL(triggered()), SLOT(flipMappingItem()));
+
+  // Vertical Flip Action
+  mappingVerticalFlipAction = new QAction(tr("Flip Vertically"), this);
+  mappingVerticalFlipAction->setToolTip(tr("Flip Vertically"));
+  mappingVerticalFlipAction->setIconVisibleInMenu(true);
+  mappingVerticalFlipAction->setEnabled(false);
+  mappingVerticalFlipAction->setData("vertical");
+  connect(mappingVerticalFlipAction, SIGNAL(triggered()), SLOT(flipMappingItem()));
+
   // Delete paint.
   deletePaintAction = new QAction(tr("Delete Source"), this);
   //deletePaintAction->setShortcut(tr("CTRL+DEL"));
@@ -2235,6 +2267,11 @@ void MainWindow::createMappingContextMenu()
   // Create menu for source list
   _changeLayerMediaMenu = mappingContextMenu->addMenu(tr("Change Layer Source"));
 
+  // Add another separator
+  mappingContextMenu->addSeparator();
+  mappingContextMenu->addAction(mappingpHorizontalFlipAction);
+  mappingContextMenu->addAction(mappingVerticalFlipAction);
+
   // Set context menu policy
   mappingList->setContextMenuPolicy(Qt::CustomContextMenu);
   destinationCanvas->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -2639,6 +2676,8 @@ void MainWindow::updateLayerActions()
     mappingLockedAction->setEnabled(false);
     mappingHideAction->setEnabled(false);
     mappingSoloAction->setEnabled(false);
+    mappingpHorizontalFlipAction->setEnabled(false);
+    mappingVerticalFlipAction->setEnabled(false);
     //Disable zoom menus
     zoomInAction->setEnabled(false);
     zoomOutAction->setEnabled(false);
