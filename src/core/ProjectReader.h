@@ -41,6 +41,11 @@ private:
     void parseProject(const QDomElement& project);
     Paint::ptr   parsePaint(const QDomElement& paint);
     Mapping::ptr parseMapping(const QDomElement& mapping);
+    /**
+     * Checks if the version attribute of the project tag matches the regex of supported versions of MapMap.
+     * Some older versions of MapMap might not be supported by this version.
+     */
+    bool isValidVersion(const QString& versionString);
 
     QXmlStreamReader _xml;
     MainWindow *_window;

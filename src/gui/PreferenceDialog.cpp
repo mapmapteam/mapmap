@@ -110,6 +110,8 @@ bool PreferenceDialog::loadSettings()
   _stickyRadiusBox->setCurrentText(settings.value("vertexStickRadius", MM::VERTEX_STICK_RADIUS).toString());
   // Show screen resolution on output
   _showResolutionBox->setChecked(settings.value("showResolution", MM::SHOW_OUTPUT_RESOLUTION).toBool());
+  // Show control on mouse hover
+  _showControlOnOverBox->setChecked(settings.value("showControlOnMouseOver", MM::SHOW_OUTPUT_ON_MOUSE_HOVER).toBool());
   // Set preferred test signal pattern
   _radioGroup.at(settings.value("signalTestCard", MM::DEFAULT_TEST_CARD).toInt())->setChecked(true);
   // Set toolbar icon size
@@ -117,6 +119,11 @@ bool PreferenceDialog::loadSettings()
                                          settings.value("toolbarIconSize", MM::TOOLBAR_ICON_SIZE)));
   // Set language
   _languageBox->setCurrentIndex(_languageBox->findData(settings.value("language", MM::DEFAULT_LANGUAGE)));
+
+  // Allow OSC message with same media source
+  _oscSameMediaSourceBox->setChecked(settings.value("oscSameMediaSource", MM::OSC_SAME_MEDIA_SOURCE).toBool());
+  // Play in loop
+  _playInLoopBox->setChecked(settings.value("playInLoop", MM::PLAY_IN_LOOP).toBool());
 
   return true;
 }
@@ -134,6 +141,8 @@ void PreferenceDialog::applySettings()
   settings.setValue("vertexStickRadius", _stickyRadiusBox->currentText());
   // Show screen resolution on output
   settings.setValue("showResolution", _showResolutionBox->isChecked());
+  // Show control on mouse hover
+  settings.setValue("showControlOnMouseOver", _showControlOnOverBox->isChecked());
   // Set preferred test signal pattern
   for (QRadioButton *radio: _radioGroup) {
     if (radio->isChecked()) {
@@ -145,6 +154,10 @@ void PreferenceDialog::applySettings()
   settings.setValue("toolbarIconSize", _toolbarIconSizeBox->currentData());
   // Set language
   settings.setValue("language", _languageBox->currentData());
+  // Allow OSC message with same media source
+  settings.setValue("oscSameMediaSource", _oscSameMediaSourceBox->isChecked());
+  // Play in loop
+  settings.setValue("playInLoop", _playInLoopBox->isChecked());
 }
 
 void PreferenceDialog::refreshCurrentIP()
@@ -232,7 +245,16 @@ void PreferenceDialog::createOutputPage()
 {
   _outputPage = new QWidget;
 
-  _showResolutionBox = new QCheckBox(tr("Show resolution on output"));
+  _showControlOnOverBox = new QCheckBox(tr("Only show output controls on mouse over"));
+
+  QVBoxLayout *outputLayout = new QVBoxLayout;
+  outputLayout->addWidget(_showControlOnOverBox);
+
+  QGroupBox *outputGroupBox = new QGroupBox(tr("Output Layers"));
+  outputGroupBox->setLayout(outputLayout);
+
+
+  _showResolutionBox = new QCheckBox(tr("Show resolution on output test cards"));
 
   _classicRadio = new QRadioButton(tr("Classic test card"));
   _palTestRadio = new QRadioButton(tr("PAL test card"));
@@ -259,13 +281,20 @@ void PreferenceDialog::createOutputPage()
   testLayout->addWidget(_palTestRadio, 1, 1);
   testLayout->addWidget(_ntscTestRadio, 1, 2);
 
-  QVBoxLayout *outputLayout = new QVBoxLayout;
-  outputLayout->addWidget(_showResolutionBox);
-  outputLayout->addSpacing(30);
-  outputLayout->addLayout(testLayout);
-  outputLayout->addStretch();
+  QVBoxLayout *testCardLayout = new QVBoxLayout;
+  testCardLayout->addWidget(_showResolutionBox);
+  testCardLayout->addSpacing(30);
+  testCardLayout->addLayout(testLayout);
+  testCardLayout->addStretch();
 
-  _outputPage->setLayout(outputLayout);
+  QGroupBox *testCardGroupbox = new QGroupBox(tr("Test Card"));
+  testCardGroupbox->setLayout(testCardLayout);
+
+  QVBoxLayout *outputPageLayout = new QVBoxLayout;
+  outputPageLayout->addWidget(outputGroupBox);
+  outputPageLayout->addWidget(testCardGroupbox);
+
+  _outputPage->setLayout(outputPageLayout);
 }
 
 void PreferenceDialog::createControlsPage()
@@ -312,6 +341,9 @@ void PreferenceDialog::createControlsPage()
   _listenPortNumber->setRange(1024, 65534);
   _listenPortNumber->setFixedWidth(120);
 
+  _oscSameMediaSourceBox = new QCheckBox(tr("Allow message with existing media source"));
+  _oscSameMediaSourceBox->setChecked(false);
+
   QFormLayout *listenPortForm = new QFormLayout;
   listenPortForm->setContentsMargins(margins);
   listenPortForm->addRow(tr("on port"), _listenPortNumber);
@@ -334,6 +366,7 @@ void PreferenceDialog::createControlsPage()
   // oscLayout->addLayout(sendMessageForm, 4);
   oscLayout->addWidget(_listenMessageBox, 1);
   oscLayout->addLayout(listenPortForm, 1);
+  oscLayout->addWidget(_oscSameMediaSourceBox, 1);
   oscLayout->addLayout(listenAddressForm, 3);
 
   _oscWidget->setLayout(oscLayout);
@@ -346,6 +379,20 @@ void PreferenceDialog::createControlsPage()
 void PreferenceDialog::createAdvancedPage()
 {
   _advancedPage = new QTabWidget;
+
+  // Playback tab
+  _playbackWidget = new QWidget;
+
+  // Play in loop
+  _playInLoopBox = new QCheckBox(tr("Play in loop (requires restart)"));
+  _playInLoopBox->setChecked(true); // Loop by default
+
+  QVBoxLayout *playbackLayout = new QVBoxLayout;
+  playbackLayout->addWidget(_playInLoopBox, 1, Qt::AlignTop);
+
+  _playbackWidget->setLayout(playbackLayout);
+
+  _advancedPage->addTab(_playbackWidget, tr("Playback"));
 }
 
 void PreferenceDialog::createPreferencesList()
@@ -354,7 +401,7 @@ void PreferenceDialog::createPreferencesList()
   QListWidgetItem *interfaceItem = new QListWidgetItem(QIcon(":/pref-interface"), tr("Interface"));
 
   // Mapping & Shape Item
-  QListWidgetItem *shapeItem = new QListWidgetItem(QIcon(":/control-points"), tr("Mappings"));
+  QListWidgetItem *shapeItem = new QListWidgetItem(QIcon(":/control-points"), tr("Layers"));
 
   // Output Item
   QListWidgetItem *outputItem = new QListWidgetItem(QIcon(":/output-window"), tr("Output"));

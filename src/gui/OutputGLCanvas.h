@@ -62,6 +62,7 @@ private:
   QBrush _brush_test_signal;
   QImage _palTestCard;
   QImage _ntscTestCard;
+  bool _windowIsHovered;
 
 protected:
   // overriden from QGlWidget:
@@ -69,6 +70,8 @@ protected:
 
   void wheelEvent(QWheelEvent *event);
   void mouseMoveEvent(QMouseEvent *event);
+  void enterEvent(QEvent * event);
+  void leaveEvent(QEvent *event);
 };
 
 }

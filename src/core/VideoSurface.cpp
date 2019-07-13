@@ -79,7 +79,7 @@ QList<QVideoFrame::PixelFormat> VideoSurface::supportedPixelFormats(
 
 bool VideoSurface::isFormatSupported(const QVideoSurfaceFormat &format, QVideoSurfaceFormat *similar) const
 {
-  Q_UNUSED(similar);
+  Q_UNUSED(similar)
 
   const QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(format.pixelFormat());
   const QSize size = format.frameSize();

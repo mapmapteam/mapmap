@@ -113,7 +113,7 @@ public:
   bool videoIsConnected() const { return _videoIsConnected; }
   void videoConnect() { _videoIsConnected = true; }
   bool videoIsSupported() const { return _queue0 != NULL; }
-  
+
   bool audioIsConnected() const { return _audioIsConnected; }
   void audioConnect() { _audioIsConnected = true; }
   bool audioIsSupported() const { return _audioqueue0 != NULL; }
@@ -274,6 +274,8 @@ private:
   QString _uri;
 
   static const int MAX_SAMPLES_IN_BUFFER_QUEUES = 30;
+
+  bool _playInLoop;
 };
 
 }

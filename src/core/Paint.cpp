@@ -290,8 +290,12 @@ bool Video::hasVideoSupport()
 
 bool Video::setUri(const QString &uri)
 {
+  QSettings settings;
+  bool sameMediasource = settings.value("oscSameMediaSource").toBool();
   // Check if we're actually changing the uri.
-  if (uri != _uri)
+  // In some case with OSC message the user may need to allow
+  // the same media source (uri)
+  if (sameMediasource || uri != _uri)
   {
     // Try to load movie.
     if (!_impl->loadMovie(uri))

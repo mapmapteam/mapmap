@@ -42,7 +42,7 @@ void ShapeControlPainter::_paintVertices(QPainter *painter, MapperGLCanvas* canv
   qreal strokeWidth  = MM::VERTEX_SELECT_STROKE_WIDTH / zoomFactor;
 
   for (int i=0; i<getShape()->nVertices(); i++)
-    Util::drawControlsVertex(painter, getShape()->getVertex(i), selectedVertices.contains(i), getShape()->isLocked(), selectRadius, strokeWidth);
+    Util::drawControlsVertex(painter, getShape()->getVertex(i), getShape()->isMajorVertex(i), selectedVertices.contains(i), getShape()->isLocked(), getShape()->shapeModeState(), selectRadius, strokeWidth);
 }
 
 QPen ShapeControlPainter::getRescaledShapeStroke(MapperGLCanvas* canvas, bool selected, bool innerStroke)

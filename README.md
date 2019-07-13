@@ -52,13 +52,20 @@ Authors
 
 Contributors
 ------------
-* Alex Barry: user experience design.
-* Maxime Damecour: inspiration.
+* Lucas Adair : developer, macOS packaging.
 * Christian Ambaud: sponsor, inspiration.
-* Louis Desjardins: project manager.
-* Julien Keable: developer.
+* Alex Barry: user experience design.
+* Eliza Bennett : documentation, chinese translation.
+* Jonathan Roman Bland : developer.
 * Sylvain Cormier: developer.
+* Maxime Damecour: inspiration.
+* Louis Desjardins: project manager.
+* Ian Donnelly : user interface designer, documentation.
+* Gene Felice : video package, documentation.
+* Julien Keable: developer.
 * Marc Lavallée: help with packaging.
+* Matthew Loewens : documentation, developer.
+* Madison Suniga : documentation.
 
 More info
 ---------

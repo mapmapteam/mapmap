@@ -55,7 +55,7 @@ macx {
 # Windows-specific:
 win32 {
   DEFINES += WIN32
-  TARGET = MapMap
+  TARGET = ../../../MapMap/MapMap # Just for release
   GST_HOME = $$quote($$(GSTREAMER_1_0_ROOT_X86))
   isEmpty(GST_HOME) {
     message(\"GSTREAMER_1_0_ROOT_X86\" not detected ...)
@@ -77,6 +77,7 @@ win32 {
     $${GST_HOME}/lib/glib-2.0.lib \
     -lopengl32
 
+  CONFIG -= debug
   CONFIG += release
 
   RC_FILE = resources/windows_resource.rc

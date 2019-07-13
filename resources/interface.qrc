@@ -56,5 +56,7 @@
         <file alias="pref-interface">images/icons/interface.png</file>
         <file alias="solo-mapping">images/icons/solo.png</file>
         <file alias="toggle-test-signal">images/icons/testsignal.png</file>
+        <file alias="vertex-scale">images/icons/scale-vertex.png</file>
+        <file alias="vertex-rotate">images/icons/rotate-vertex.png</file>
     </qresource>
 </RCC>

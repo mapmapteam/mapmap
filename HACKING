@@ -29,7 +29,6 @@ We want the 0 series to be backward-compatible. That means that a project create
 
 Files
 -----
-* BUGS: List of bugs to fix. (or, again, use github for these)
 * HACKING: What to know to contribute to the project.
 * INSTALL: Instructions to build and install the software.
 * NEWS: Release notes for each tag.
@@ -54,6 +53,7 @@ Make a release
 * If it's a new feature, increment minor. If it's bugfix, increment micro. If it's not backward-compatible, increment major.
 * Create a release-x.y.z branch
 * Verify the version number:
+  * vim -o VERSION.txt DMGVERSION.txt mapmap.pro docs/Doxyfile NEWS src/core/MM.cpp
   * VERSION.txt
   * VERSION in MM.cpp
   * VERSION in mapmap.pro

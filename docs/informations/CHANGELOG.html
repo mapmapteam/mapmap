@@ -1,5 +1,70 @@
 <h1>Release notes for MapMap</h1>
 
+<h2>2018-07-24 - MapMap 0.6.2</h2>
+
+<ul>
+<li>Remove an assert that might crash MapMap</li>
+<li>Fix parsing of MapMap version in the project file (critical bug fixed)</li>
+<li>Add qt5opengl in deps in INSTALL.md</li>
+<li>Also create a zip archive in scripts/build.sh</li>
+</ul>
+
+<h2>2018-04-09 - MapMap 0.6.1</h2>
+
+<ul>
+<li>Add .url link file to GStreamer on macOS and packaged it in the DMG.</li>
+<li>Fix: crash because undoStack was uninitialized (closes #413).</li>
+<li>Windows environnement variable fix</li>
+</ul>
+
+<h2>2018-04-08 - MapMap 0.6.0</h2>
+
+<ul>
+<li>Add macOS Application Icon</li>
+<li>Fix video rate bug (Closes #369)</li>
+<li>Change the default test card</li>
+<li>Add preference to show controls only on mouse over</li>
+<li>Add simplified and traditional chinese translations</li>
+<li>Add Spanish translation</li>
+<li>Rename "Mesh subdivisions" to "Subdivisions"</li>
+<li>Rename width/height to horizontal/vertical for mesh subdivision naming</li>
+<li>Rename GUI elements: paint, mapping, source, destination, dimension #376</li>
+<li>Fix: Cursor no longer displays in fullscreen without controls (closes #387)</li>
+<li>Allow to change source of the current layer in context menu. Request #377</li>
+<li>Implement scale/rotate icons and minor fix</li>
+<li>Replace CTRL-click for free-hand transforms with re-click</li>
+<li>Prevent adding camera action in OSX and WINDOWS where it is not created (closes #366).</li>
+<li>Fixed linker problem on Ubuntu 17.10 (closes #382)</li>
+<li>Transition to the Mardown syntax for the README file</li>
+<li>Prevent changing paint for mapping if not compatible.</li>
+<li>Allow the change of paint id on mapping using OSC (closes #302).</li>
+<li>Added paintId as property + preserved backwards compatibility for files.</li>
+<li>Allows possibility of changing paint of a mapping from the interface (related to #302).</li>
+<li>Remove infinite recursion in VideoImpl (closes #351).</li>
+<li>Add item ID as part of properties.</li>
+<li>Simplified property browser interface by removing useless top-item property.</li>
+<li>Added tooltips specifying the ID of each element.</li>
+<li>Bugfix: let mappings names adjust size (closes #365).</li>
+<li>Fix problem with OSC messages (unset names in mappings were left empty).</li>
+<li>Integrate transform function</li>
+<li>Improve some icons, zoom, solo mode, prefs, test signal</li>
+<li>Fix the play/pause button when adding media or color paints</li>
+<li>Enabled paint context menu</li>
+<li>Implemented basic rotation/scaling of polygons.</li>
+<li>Fix error in the Mesh::toPolygon() (wrong number of vertices).</li>
+<li>Fit all shapes to view canvas instead current shape</li>
+<li>Add a .travis.yml file for automated builds on travis-ci.org</li>
+<li>Reduce the size of the zoom tool bars</li>
+<li>Add drag and drop feature for media file and project</li>
+<li>Reorganize source code files</li>
+<li>Mouse wheel: press control to zoom.</li>
+<li>Always show scroll bars in mapping canvas</li>
+<li>Boundary checks - fix #319 crash when receiving osc messages</li>
+<li>Fix crash when DEL is pressed while no mappings to delete - fixes #315</li>
+<li>Proper management of mappings related to a paint in undo/redo (relates to #315).</li>
+<li>Only show camera input button on GNU/Linux, since it doesn't work on the other platforms</li>
+</ul>
+
 <h2>2017-01-01 - MapMap 0.5.0</h2>
 
 <ul>

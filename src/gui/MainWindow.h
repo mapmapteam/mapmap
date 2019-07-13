@@ -116,6 +116,8 @@ private slots:
   void setMappingItemLocked(bool locked);
   void setMappingItemHide(bool hide);
   void setMappingItemSolo(bool solo);
+  void loadLayerMedia();
+  void flipMappingItem();
   // Context menu for paints
   void deletePaintItem();
   void renamePaintItem();
@@ -146,18 +148,23 @@ private slots:
   void exitFullScreen();
 
   // Some help links
-  void documentation() { QDesktopServices::openUrl(
-          QUrl("http://mapmap.info/tiki-index.php?page=Documentation#section-documentation")); }
+  void documentation() {
+      QDesktopServices::openUrl(QUrl("http://mapmap.info/"));
+  }
   // Send us feedback
-  void sendFeedback() { QDesktopServices::openUrl(QUrl("mailto:mapmap-list@mapmap.info")); }
+  void sendFeedback() {
+      QDesktopServices::openUrl(QUrl("mailto:mapmap-list@mapmap.info"));
+  }
   // Technical support
-  void technicalSupport() { QDesktopServices::openUrl(
-          QUrl("http://mapmap.info/tiki-index.php?page=HomePage#section-support")); }
+  void technicalSupport() {
+      QDesktopServices::openUrl(QUrl("http://mapmap.info/"));
+  }
   // Report an issues
-  void reportBug() { QDesktopServices::openUrl(
-          QUrl("https://github.com/mapmapteam/mapmap/issues/new")); }
+  void reportBug() {
+      QDesktopServices::openUrl(QUrl("https://github.com/mapmapteam/mapmap/issues/new"));
+  }
 
-  void applySettings();
+  void updateSettings();
 
 public slots:
 
@@ -279,6 +286,8 @@ private:
   void updateRecentFileActions();
   void updateRecentVideoActions();
   void updateScreenActions();
+  void updateMediaListActions();
+  void updateLayerActions();
 
   // Settings.
   void readSettings();
@@ -358,6 +367,9 @@ private:
   QMenu *sourceMenu;
   QMenu *destinationMenu;
 
+  QMenu *_changeLayerMediaMenu;
+  QAction *_importLayerMediaAction;
+
   // Toolbar.
   QToolBar *mainToolBar;
 
@@ -374,12 +386,14 @@ private:
   QAction *undoAction;
   QAction *redoAction;
   // Mappings context menu actions
-  QAction *cloneMappingAction;
+  QAction *duplicateMappingAction;
   QAction *deleteMappingAction;
   QAction *renameMappingAction;
   QAction *mappingSoloAction;
   QAction *mappingLockedAction;
   QAction *mappingHideAction;
+  QAction *mappingpHorizontalFlipAction;
+  QAction *mappingVerticalFlipAction;
   // Paints context menu action
   QAction *deletePaintAction;
   QAction *renamePaintAction;

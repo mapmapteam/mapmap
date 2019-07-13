@@ -29,9 +29,10 @@ Install basic development tools fot Qt projects, plus liblo for OSC support:
 sudo apt-get install -y \
       liblo-dev liblo-tools \
       qttools5-dev-tools \
-      qt5-default \
       qtmultimedia5-dev \
-      libqt5multimedia5-plugins
+      libqt5opengl5-dev \
+      libqt5multimedia5-plugins \
+      qt5-default
 ```
 
 Install GStreamer 1.0 libraries and plugins:
@@ -105,7 +106,7 @@ Install tools and dependencies:
 Do this:
 
 ```
-./build.sh
+./scripts/build.sh
 ```
 
 It will create a .app and a .dmg.
@@ -147,9 +148,9 @@ Then:
 
 Copy the followings DLL into the target folder together with Mapmap.exe:
 ```
-	libffi-6.dll libgobject-2.0-0.dll libgstbase-1.0-0.dll libgsttag-1.0-0.dll liborc-0.4-0.dll 
-	libglib-2.0-0.dll libgstapp-1.0-0.dll 	libgstpbutils-1.0-0.dll libgstvideo-1.0-0.dll libz.dll 
-	libgmodule-2.0-0.dll libgstaudio-1.0-0.dll libgstreamer-1.0-0.dll libintl-8.dll
+libffi-6.dll libgobject-2.0-0.dll libgstbase-1.0-0.dll libgsttag-1.0-0.dll liborc-0.4-0.dll 
+libglib-2.0-0.dll libgstapp-1.0-0.dll libgstpbutils-1.0-0.dll libgstvideo-1.0-0.dll libz.dll 
+libgmodule-2.0-0.dll libgstaudio-1.0-0.dll libgstreamer-1.0-0.dll libintl-8.dll
 ```
 
 Copy all DLL files of the Gstreamer's bin folder (e.g. C:\gstreamer\1.0\x86\bin) into a new folder named 'lib' in the target folder together with mapmap.exe

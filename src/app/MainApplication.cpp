@@ -31,8 +31,8 @@ MainApplication::MainApplication(int &argc, char *argv[])
   QString pluginPath = QCoreApplication::applicationDirPath() + "/plugins";
   QString libPath = QCoreApplication::applicationDirPath() + "/lib";
 
-  putenv("GST_PLUGIN_PATH", pluginPath.toLocal8Bit());
-  putenv("PATH", libPath.toLocal8Bit());
+  qputenv("GST_PLUGIN_SYSTEM_PATH_1_0", pluginPath.toLocal8Bit());
+  qputenv("PATH", libPath.toLocal8Bit());
 
   // Set settings default format
   QSettings::setDefaultFormat(QSettings::IniFormat);
