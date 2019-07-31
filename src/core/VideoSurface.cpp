@@ -46,9 +46,7 @@
 namespace mmp {
 
 VideoSurface::VideoSurface(QObject *parent)
-    : QAbstractVideoSurface(parent)
-    // , imageFormat(QImage::Format_Invalid)
-    // , framePainted(false)
+  : QAbstractVideoSurface(parent)
 {
 }
 
@@ -57,29 +55,28 @@ VideoSurface::~VideoSurface()
 }
 
 QList<QVideoFrame::PixelFormat> VideoSurface::supportedPixelFormats(
-        QAbstractVideoBuffer::HandleType handleType) const
+    QAbstractVideoBuffer::HandleType handleType) const
 {
-    if (handleType == QAbstractVideoBuffer::NoHandle) {
-        return QList<QVideoFrame::PixelFormat>()
-                << QVideoFrame::Format_RGB32
-                << QVideoFrame::Format_RGB24
-                << QVideoFrame::Format_RGB565
-                << QVideoFrame::Format_RGB555
-                << QVideoFrame::Format_ARGB32
-                << QVideoFrame::Format_ARGB32_Premultiplied
-                << QVideoFrame::Format_BGR32
-                << QVideoFrame::Format_BGR24
-                << QVideoFrame::Format_BGR565
-                << QVideoFrame::Format_BGR555
-                ;
-    } else {
-        return QList<QVideoFrame::PixelFormat>();
-    }
+  if (handleType == QAbstractVideoBuffer::NoHandle) {
+    return QList<QVideoFrame::PixelFormat>()
+        << QVideoFrame::Format_RGB32
+        << QVideoFrame::Format_RGB24
+        << QVideoFrame::Format_RGB565
+        << QVideoFrame::Format_RGB555
+        << QVideoFrame::Format_ARGB32
+        << QVideoFrame::Format_ARGB32_Premultiplied
+        << QVideoFrame::Format_BGR32
+        << QVideoFrame::Format_BGR24
+        << QVideoFrame::Format_BGR565
+        << QVideoFrame::Format_BGR555
+           ;
+  } else {
+    return QList<QVideoFrame::PixelFormat>();
+  }
 }
 
-bool VideoSurface::isFormatSupported(const QVideoSurfaceFormat &format, QVideoSurfaceFormat *similar) const
+bool VideoSurface::isFormatSupported(const QVideoSurfaceFormat &format) const
 {
-  Q_UNUSED(similar)
 
   const QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(format.pixelFormat());
   const QSize size = format.frameSize();
@@ -91,23 +88,26 @@ bool VideoSurface::isFormatSupported(const QVideoSurfaceFormat &format, QVideoSu
 
 bool VideoSurface::present(const QVideoFrame &frame)
 {
-  // Copy current frame.
-  QVideoFrame currentFrame(frame);
+  if (frame.isValid()) {
+    // Copy current frame.
+    QVideoFrame currentFrame(frame);
 
-  // Convert frame into QImage with appropriate format.
-  // Source: https://stackoverflow.com/questions/27829830/convert-qvideoframe-to-qimage
-  if (currentFrame.map(QAbstractVideoBuffer::ReadOnly))
-  {
-    QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(currentFrame.pixelFormat());
-    if (imageFormat != QImage::Format_Invalid) {
-      _img = QImage(currentFrame.bits(), currentFrame.width(), currentFrame.height(), imageFormat);
-    } else {
-       // e.g. JPEG
-       int nbytes = currentFrame.mappedBytes();
-       _img = QImage::fromData(currentFrame.bits(), nbytes);
+    // Convert frame into QImage with appropriate format.
+    // Source: https://stackoverflow.com/questions/27829830/convert-qvideoframe-to-qimage
+    if (currentFrame.map(QAbstractVideoBuffer::ReadOnly))
+    {
+      QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(currentFrame.pixelFormat());
+      if (imageFormat != QImage::Format_Invalid) {
+        _img = QImage(currentFrame.bits(), currentFrame.width(), currentFrame.height(), imageFormat);
+      } else {
+        // e.g. JPEG
+        int nbytes = currentFrame.mappedBytes();
+        _img = QImage::fromData(currentFrame.bits(), nbytes);
+      }
+
+      currentFrame.unmap();
     }
-
-    currentFrame.unmap();
+//    _frameMutex.unlock();
 
     // Convert to OpenGLformat and apply transforms to straighten.
     _img = QGLWidget::convertToGLFormat(_img)
@@ -117,7 +117,7 @@ bool VideoSurface::present(const QVideoFrame &frame)
     return true;
   }
   else
-    return false;
+    return true;
 }
 
 const uchar* VideoSurface::bits()

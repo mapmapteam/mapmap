@@ -54,14 +54,12 @@ class VideoSurface
     Q_OBJECT
 
 public:
-    VideoSurface(QObject *parent = 0);
-    ~VideoSurface();
+    VideoSurface(QObject *parent = nullptr);
+    ~VideoSurface() override;
 
-    // bool start(const QVideoSurfaceFormat &format) override;
-    // void stop() override;
     QList<QVideoFrame::PixelFormat> supportedPixelFormats(
-            QAbstractVideoBuffer::HandleType handleType) const;
-    bool isFormatSupported(const QVideoSurfaceFormat &format, QVideoSurfaceFormat *similar) const;
+            QAbstractVideoBuffer::HandleType handleType) const override;
+    bool isFormatSupported(const QVideoSurfaceFormat &format) const override;
     bool present(const QVideoFrame &frame) override;
 
     const uchar* bits();

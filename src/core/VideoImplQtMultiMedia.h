@@ -125,11 +125,11 @@ public:
   bool seekTo(double position);
   bool seekTo(qint64 positionMilliSeconds);
 
-  void setRate(double rate=1.0);
-  double getRate() const { return _rate; }
+  void setRate(int rate=1.0);
+  int getRate() const { return _rate; }
 
-  void setVolume(double rate=0.0);
-  double getVolume() const { return _volume; }
+  void setVolume(int rate=0.0);
+  int getVolume() const { return _volume; }
 
   void resetMovie();
 
@@ -143,7 +143,7 @@ public:
   void unlockMutex();
 
   /// Wait until first data samples are available (blocking).
-  bool waitForNextBits(int timeout, const uchar** bits=0);
+  bool waitForNextBits(int timeout, const uchar** bits=nullptr);
 
 protected:
   int _width;
@@ -162,9 +162,9 @@ protected:
 
 
   /// Playback rate (negative ==> reverse).
-  double _rate;
+  int _rate;
   /// Audio playback volume (0.0 ==> 1.0).
-  double _volume;
+  int _volume;
 
 
   /// Is the movie (or rather pipeline) ready to play.
@@ -179,7 +179,7 @@ protected:
   /// Main mutex locker (for the lockMutex() / unlockMutex() methods).
   QMutexLocker* _mutexLocker;
 private slots:
-  void endOfMedia(qint64 position);
+  void watchEndOfMedia(qint64 position);
 
 private:
   /**
@@ -188,6 +188,7 @@ private:
   QString _uri;
 
   QMediaPlayer *_mediaPlayer;
+  QMediaPlaylist *_mediaPlaylist;
 
   VideoSurface* _videoSurface;
 
