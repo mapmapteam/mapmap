@@ -26,21 +26,6 @@ namespace mmp {
 MainApplication::MainApplication(int &argc, char *argv[])
   : QApplication(argc, argv)
 {
-#ifdef Q_OS_WIN32
-  // Set GStreamer plugins path on Windows
-  QString pluginPath = QCoreApplication::applicationDirPath() + "/plugins";
-  QString libPath = QCoreApplication::applicationDirPath() + "/lib";
-
-  qputenv("GST_PLUGIN_SYSTEM_PATH_1_0", pluginPath.toLocal8Bit());
-  qputenv("PATH", libPath.toLocal8Bit());
-
-  // Set settings default format
-  QSettings::setDefaultFormat(QSettings::IniFormat);
-#endif
-
-  // Initialize GStreamer.
-  gst_init (NULL, NULL);
-
   // Set application information.
   setApplicationName(MM::APPLICATION_NAME);
   setApplicationVersion(MM::VERSION);
@@ -50,8 +35,7 @@ MainApplication::MainApplication(int &argc, char *argv[])
 
 MainApplication::~MainApplication()
 {
-  // Deinitialize GStreamer.
-  gst_deinit();
+
 }
 
 bool MainApplication::notify(QObject *receiver, QEvent *event)

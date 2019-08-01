@@ -35,7 +35,6 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-#include <glib.h>
 #if __APPLE__
 #include <OpenGL/gl.h>
 #else

@@ -19,7 +19,6 @@
  */
 
 #include "Util.h"
-#include <glib.h>
 #include <algorithm>
 #include <QFile>
 #include <QDir>
