@@ -1,8 +1,5 @@
-QT += gui opengl xml core network
-greaterThan(QT_MAJOR_VERSION, 4) {
-  QT -= gui # using widgets instead gui in Qt5
-  QT += widgets multimedia
-}
+# Qt5 support
+QT += widgets multimedia opengl xml core network multimediawidgets
 
 #Includes common configuration for all subdirectory .pro files.
 INCLUDEPATH += $$PWD/core \
@@ -53,7 +50,8 @@ macx {
 win32 {
   DEFINES += WIN32
   TARGET = ../../../MapMap/MapMap # Just for release
-    -lopengl32
+#    -lopengl32
+  LIBS   += -lopengl32 -lglu32 -lglut32
 
   CONFIG -= debug
   CONFIG += release
