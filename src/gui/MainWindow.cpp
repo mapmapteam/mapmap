@@ -1517,7 +1517,7 @@ void MainWindow::createLayout()
   sourceCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   sourceCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  sourceCanvasToolbar = new MapperGLCanvasToolbar(sourceCanvas, this);
+  sourceCanvasToolbar = new MapperGLCanvasToolbar(sourceCanvas);
   sourceCanvasToolbar->setToolbarTitle(tr("Input Editor"));
   QVBoxLayout* sourceLayout = new QVBoxLayout;
   sourceLayout->setContentsMargins(0, 0, 0, 0);
@@ -1533,7 +1533,7 @@ void MainWindow::createLayout()
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
 
-  destinationCanvasToolbar = new MapperGLCanvasToolbar(destinationCanvas, this);
+  destinationCanvasToolbar = new MapperGLCanvasToolbar(destinationCanvas);
   destinationCanvasToolbar->setToolbarTitle(tr("Output Editor"));
   QVBoxLayout* destinationLayout = new QVBoxLayout;
   destinationLayout->setContentsMargins(0, 0, 0, 0);
@@ -2836,8 +2836,8 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
   paintList->addItem(item);
   paintList->setCurrentItem(item);
 
-	// Update mapping guis.
-	updateMappers();
+  // Update mapping guis.
+  updateMappers();
 
   // Window was modified.
   windowModified();
@@ -3170,11 +3170,11 @@ void MainWindow::updateCanvases()
 }
 
 void MainWindow::updateMappers() {
-	// Update mapping guis.
-	for (QMap<uid, MappingGui::ptr>::iterator it = mappers.begin();
-	     it != mappers.end(); ++it) {
-		it.value()->updatePaints();
-	}
+  // Update mapping guis.
+  for (QMap<uid, MappingGui::ptr>::iterator it = mappers.begin();
+       it != mappers.end(); ++it) {
+    it.value()->updatePaints();
+  }
 }
 
 void MainWindow::processFrame()

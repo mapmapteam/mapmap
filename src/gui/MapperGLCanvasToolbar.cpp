@@ -21,9 +21,8 @@
 
 namespace mmp {
 
-MapperGLCanvasToolbar::MapperGLCanvasToolbar(MapperGLCanvas* canvas, QWidget* parent)
-  : QWidget(parent),
-    _canvas(canvas)
+MapperGLCanvasToolbar::MapperGLCanvasToolbar(MapperGLCanvas* parent)
+  : _canvas(parent)
 {
   // Create tools layout
   createZoomToolsLayout();
