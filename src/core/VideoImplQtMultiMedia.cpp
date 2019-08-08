@@ -302,16 +302,21 @@ void VideoImplQtMultiMedia::watchEndOfMedia(qint64 position)
 {
   if (_mediaPlayer->isVideoAvailable() && _rate > 0) { // If rate higher than 0
     if (_mediaPlayer->state() != QMediaPlayer::PausedState) { // Check playback state
-      qreal frameRate = _videoSurface->surfaceFormat().frameRate(); // Current video frame rate
-      qint64 frameCount = _mediaPlayer->duration() / 1000 * qint64(frameRate); // Total number of frames in the video
-      qint64 currentFrame = position / 1000 * qint64(frameRate); // Current frame position
-      if (currentFrame == frameCount) {
-        _mediaPlayer->setPosition(0);
+      qreal frameRate;
+#ifdef Q_OS_WIN32
+      frameRate = _mediaPlayer->metaData("VideoFrameRate").toDouble(); // Current video frame rate
+#else
+      frameRate = _videoSurface->surfaceFormat().frameRate(); // Current video frame rate
+#endif
+      qint64 frameCount = _mediaPlayer->duration() * qint64(frameRate) / 1000; // Total number of frames in the video
+      qint64 currentFrame = position * qint64(frameRate) / 1000; // Current frame position
 
+      if (currentFrame == frameCount) {
+        _mediaPlayer->setPosition(1);
+        _mediaPlayer->play();
       }
     }
   }
-
 }
 
 
