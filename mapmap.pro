@@ -14,7 +14,7 @@ include(src/gui/gui.pri)
 include(src/control/control.pri)
 include(src/app/app.pri)
 
-TRANSLATIONS = \
+TRANSLATIONS += \
     translations/mapmap_en.ts \
     translations/mapmap_es.ts \
     translations/mapmap_fr.ts \

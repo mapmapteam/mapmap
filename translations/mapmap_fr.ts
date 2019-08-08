@@ -667,6 +667,14 @@ Ligne %2, colonne %3</translation>
         <source>The version of MapMap %1 used to save this file is not readable by this MapMap version %2.</source>
         <translation>La version de MapMap (%1) utilisée pour sauvegarder ce fichier n&apos;est pas lisible par cette version de MapMap (%2).</translation>
     </message>
+    <message>
+        <source>Flipped Horizontally</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flipped Vertically</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QtBoolEdit</name>
@@ -1809,6 +1817,14 @@ Le fichier original est introuvable. Prière de le localiser.</translation>
     <message>
         <source>Color source added</source>
         <translation>La couleur de la source a été ajoutée</translation>
+    </message>
+    <message>
+        <source>Flip Horizontally</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flip Vertically</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
