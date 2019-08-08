@@ -6,12 +6,12 @@ Darker gray: #272a36
 */
 
 /*Windows and dialog background*/
-QMainWindow, QDialog, QToolTip {
+QMainWindow, QDialog {
   background-color: #272a36;
 }
 
 /*General font color*/
-QLabel, QToolTip, QMenu,
+QLabel, QMenu,
 QCheckBox, QGroupBox::title,
 QTextBrowser {
   color: #f6f5f5;
@@ -37,6 +37,14 @@ QPushButton:pressed,
 QPushButton::hover,
 QPushButton::checked {
   background-color: #272a36;
+}
+
+QToolTip {
+  padding: 1px 2px;
+  border-radius: 2px;
+  color: #f6f5f5;
+  background-color: #323541;
+  border: 1px solid #4C4F5B;
 }
 
 /*Tool buttons*/
@@ -146,9 +154,16 @@ QSplitter::handle:vertical {
 }
 
 QComboBox QAbstractItemView {
-    background: #323541;
-    border: 1px solid #4C4F5B;
-    selection-background-color: lightgray;
+  background: #323541;
+  border: 1px solid #4C4F5B;
+  selection-background-color: #f6f5f5;
+  selection-color: #323541;
+  color: #f6f5f5;
+
+}
+
+QComboBox {
+  color: #323541;
 }
 
 /*Menu */
