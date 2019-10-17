@@ -304,7 +304,7 @@ public:
   bool saveFile(const QString &fileName);
   void setCurrentFile(const QString &fileName);
   void setCurrentVideo(const QString &filename);
-  bool importMediaFile(const QString &fileName, bool isImage);
+  bool importMediaFile(const QString &fileName, bool isImage = false, bool isCamera = false);
   bool addColorPaint(const QColor& color);
   void addMappingItem(uid mappingId);
   void removeMappingItem(uid mappingId);
@@ -378,7 +378,7 @@ private:
   QAction *newAction;
   QAction *openAction;
   QAction *importMediaAction;
-  QAction *openCameraAction;
+  QAction *AddCameraAction;
   QAction *addColorAction;
   QAction *saveAction;
   QAction *saveAsAction;

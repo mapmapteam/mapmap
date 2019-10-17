@@ -38,6 +38,8 @@
 #include "Element.h"
 #include "Maths.h"
 
+#include <QCameraInfo>
+
 namespace mmp {
 
 typedef enum {
@@ -202,6 +204,11 @@ public:
   virtual void read(const QDomElement& obj);
   virtual void write(QDomElement& obj);
 
+  // Get Camera human-readable name from url
+  QString getCameraNameFromUri(const QString &uri) {
+    return QCameraInfo(uri.toLocal8Bit()).description();
+  }
+
 protected:
   // Lists QProperties that should NOT be parsed automatically.
   virtual QList<QString> _propertiesSpecial() const { return Paint::_propertiesSpecial() << "x" << "y"; }
@@ -353,6 +360,7 @@ protected:
 
   QString _uri;
   QIcon _icon;
+  VideoType _videoType;
 
   /**
    * Private implementation, so that GStreamer headers don't need
