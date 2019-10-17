@@ -2,6 +2,8 @@
 include(../src.pri)
 
 HEADERS += $$PWD/Commands.h \
+    $$PWD/CameraImpl.h \
+    $$PWD/CameraSurface.h \
     $$PWD/Element.h \
     $$PWD/Mapping.h \
     $$PWD/MappingManager.h \
@@ -21,6 +23,8 @@ HEADERS += $$PWD/Commands.h \
     $$PWD/Util.h
 
 SOURCES += $$PWD/Commands.cpp \
+    $$PWD/CameraImpl.cpp \
+    $$PWD/CameraSurface.cpp \
     $$PWD/Element.cpp \
     $$PWD/Mapping.cpp \
     $$PWD/MappingManager.cpp \
