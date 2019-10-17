@@ -29,10 +29,8 @@ MainApplication::MainApplication(int &argc, char *argv[])
 #ifdef Q_OS_WIN32
   // Set GStreamer plugins path on Windows
   QString pluginPath = QCoreApplication::applicationDirPath() + "/plugins";
-  QString libPath = QCoreApplication::applicationDirPath() + "/lib";
 
-  qputenv("GST_PLUGIN_SYSTEM_PATH_1_0", pluginPath.toLocal8Bit());
-  qputenv("PATH", libPath.toLocal8Bit());
+  _putenv_s("GST_PLUGIN_PATH", pluginPath.toLocal8Bit());
 
   // Set settings default format
   QSettings::setDefaultFormat(QSettings::IniFormat);
