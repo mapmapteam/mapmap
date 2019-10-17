@@ -94,3 +94,4 @@ trash
 !resources/macOS/Info.plist
 !resources/macOS/MapMap.icns
 
+*.json
