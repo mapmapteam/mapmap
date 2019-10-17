@@ -627,7 +627,7 @@ void MainWindow::importMedia()
 
 void MainWindow::openCameraDevice()
 {
-#if QT_VERSION >= 0x050500
+#if QT_VERSION >= 0x050300
   QString device;
   QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
 
@@ -664,7 +664,7 @@ void MainWindow::openCameraDevice()
   }
 
   if (!device.isEmpty())
-    importMediaFile(device, false);
+    importMediaFile(device, false, true);
 #else
     QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
 #endif
@@ -1059,7 +1059,7 @@ void MainWindow::openRecentVideo()
 {
   QAction *action = qobject_cast<QAction *>(sender());
   if (action)
-    importMediaFile(action->data().toString(),false);
+    importMediaFile(action->data().toString(), false);
 }
 
 bool MainWindow::clearProject()
@@ -1125,7 +1125,12 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
 
     // Add it to the manager.
     Paint::ptr paint(tex);
-    paint->setName(strippedName(uri));
+
+    if (type == VIDEO_WEBCAM) {
+      paint->setName(tex->getCameraNameFromUri(uri));
+    } else {
+      paint->setName(strippedName(uri));
+    }
 
     // Add paint to model and return its uid.
     uid id = mappingManager->addPaint(paint);
@@ -1693,16 +1698,14 @@ void MainWindow::createActions()
   connect(importMediaAction, SIGNAL(triggered()), this, SLOT(importMedia()));
 
   // Open camera.
-#ifdef Q_OS_LINUX
-  openCameraAction = new QAction(tr("Open &Camera Device..."), this);
-  openCameraAction->setShortcut(Qt::CTRL + Qt::Key_C);
-  openCameraAction->setIcon(QIcon(":/add-image"));
-  openCameraAction->setIconVisibleInMenu(false);
-  openCameraAction->setToolTip(tr("Choose your camera device..."));
-  openCameraAction->setShortcutContext(Qt::ApplicationShortcut);
-  addAction(openCameraAction);
-  connect(openCameraAction, SIGNAL(triggered()), this, SLOT(openCameraDevice()));
-#endif
+  AddCameraAction = new QAction(tr("Open &Camera Device..."), this);
+  AddCameraAction->setShortcut(Qt::CTRL + Qt::Key_C);
+  AddCameraAction->setIcon(QIcon(":/add-image"));
+  AddCameraAction->setIconVisibleInMenu(false);
+  AddCameraAction->setToolTip(tr("Choose your camera device..."));
+  AddCameraAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(AddCameraAction);
+  connect(AddCameraAction, SIGNAL(triggered()), this, SLOT(openCameraDevice()));
 
   // Add color.
   addColorAction = new QAction(tr("Add &Color Source..."), this);
@@ -2144,9 +2147,7 @@ void MainWindow::createMenus()
   fileMenu->addAction(saveAsAction);
   fileMenu->addSeparator();
   fileMenu->addAction(importMediaAction);
-#ifdef Q_OS_LINUX
-  fileMenu->addAction(openCameraAction);
-#endif
+  fileMenu->addAction(AddCameraAction);
   fileMenu->addAction(addColorAction);
 
   // Recent file separator
@@ -2308,9 +2309,7 @@ void MainWindow::createToolBars()
   mainToolBar = addToolBar(tr("&Toolbar"));
   mainToolBar->setMovable(false);
   mainToolBar->addAction(importMediaAction);
-#ifdef Q_OS_LINUX
-  mainToolBar->addAction(openCameraAction);
-#endif
+  mainToolBar->addAction(AddCameraAction);
   mainToolBar->addAction(addColorAction);
 
   mainToolBar->addSeparator();
@@ -2318,7 +2317,6 @@ void MainWindow::createToolBars()
   mainToolBar->addAction(addMeshAction);
   mainToolBar->addAction(addTriangleAction);
   mainToolBar->addAction(addEllipseAction);
-
   mainToolBar->addSeparator();
 
   mainToolBar->addAction(outputFullScreenAction);
@@ -2705,7 +2703,7 @@ void MainWindow::clearRecentFileList()
 // {
 // }
 
-bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
+bool MainWindow::importMediaFile(const QString &fileName, bool isImage, bool isCamera)
 {
   QFile file(fileName);
   QDir currentDir;
@@ -2714,7 +2712,8 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
   if (!fileSupported(fileName, isImage))
     return false;
 
-  if (fileName.contains(QString("/dev/video"))) {
+//  if (fileName.contains(QString("/dev/video"))) {
+  if (isCamera) {
     type = VIDEO_WEBCAM;
   }
 
