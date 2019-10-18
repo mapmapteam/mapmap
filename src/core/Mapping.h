@@ -109,7 +109,7 @@ public:
   }
 
   /// The type of the mapping (expressed as a string).
-  virtual QString getType() const = 0;
+  virtual MShape::ShapeType getType() const = 0;
 
 	/// Returns true iff paint is compatible with mapping.
 	virtual bool paintIsCompatible(Paint::ptr paint) const = 0;
@@ -180,8 +180,8 @@ public:
 	/// Returns true iff paint is compatible with mapping.
 	virtual bool paintIsCompatible(Paint::ptr paint) const;
 
-  virtual QString getType() const {
-    return getShape()->getType() + "_color";
+  virtual MShape::ShapeType getType() const {
+    return getShape()->getType();
   }
 
 };
@@ -212,8 +212,8 @@ public:
 	/// Returns true iff paint is compatible with mapping.
 	virtual bool paintIsCompatible(Paint::ptr paint) const;
 
-  virtual QString getType() const {
-    return getShape()->getType() + "_texture";
+  virtual MShape::ShapeType getType() const {
+    return getShape()->getType();
   }
 };
 
