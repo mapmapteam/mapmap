@@ -174,7 +174,7 @@ void Image::_doPlay()
 /* Implementation of the Video class */
 Video::Video(int id) : Texture(id),
     _uri(""),
-    _impl(NULL)
+    _impl(nullptr)
 {
   _impl = new VideoUriDecodeBinImpl();
   setRate(1);
@@ -184,7 +184,7 @@ Video::Video(int id) : Texture(id),
 Video::Video(const QString uri_, VideoType type, double rate, uid id):
     Texture(id),
     _uri(""),
-    _impl(NULL)
+    _impl(nullptr)
 {
   switch (type) {
     case VIDEO_URI:
