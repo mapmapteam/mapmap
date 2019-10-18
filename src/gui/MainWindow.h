@@ -554,6 +554,7 @@ private:
   QLabel *trueFramesPerSecondsLabel;
 
   typedef Paint::SourceType SourceType;
+  typedef MShape::ShapeType ShapeType ;
 
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
