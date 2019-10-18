@@ -30,6 +30,7 @@ CameraImpl::CameraImpl() :
 
 CameraImpl::~CameraImpl()
 {
+  _camera->stop();
   delete _camera;
   delete _cameraSurface;
 }
