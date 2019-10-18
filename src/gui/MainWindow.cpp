@@ -2746,14 +2746,16 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage, bool isC
 
   QApplication::restoreOverrideCursor();
 
-  if (!isImage)
-  {
-    settings.setValue("defaultVideoDir", currentDir.absoluteFilePath(fileName));
-    setCurrentVideo(fileName);
-  }
-  else
-  {
-    settings.setValue("defaultImageDir", currentDir.absoluteFilePath(fileName));
+  if (!isCamera) { // Do not add camera to recents files
+    if (!isImage)
+    {
+      settings.setValue("defaultVideoDir", currentDir.absoluteFilePath(fileName));
+      setCurrentVideo(fileName);
+    }
+    else
+    {
+      settings.setValue("defaultImageDir", currentDir.absoluteFilePath(fileName));
+    }
   }
 
   statusBar()->showMessage(tr("File imported"), 2000);
