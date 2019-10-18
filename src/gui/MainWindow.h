@@ -553,6 +553,8 @@ private:
   QLabel *mousePosLabel;
   QLabel *trueFramesPerSecondsLabel;
 
+  typedef Paint::SourceType SourceType;
+
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
   MappingManager& getMappingManager() const { return *mappingManager; }

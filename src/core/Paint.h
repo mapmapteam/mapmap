@@ -68,6 +68,11 @@ protected:
   Paint(uid id=NULL_UID);
 
 public:
+
+  enum SourceType {
+    Video, Image, Color
+  };
+
   typedef QSharedPointer<Paint> ptr;
 
   virtual ~Paint();
@@ -101,7 +106,7 @@ public:
   /// Unlocks mutex (default = no effect).
   virtual void unlockMutex() {}
 
-  virtual QString getType() const = 0;
+  virtual SourceType getSourceType() const = 0;
 
 protected:
   virtual void _doPlay() {}
@@ -127,7 +132,7 @@ public:
   QColor getColor() const { return color; }
   void setColor(const QColor& color_) { color = color_; }
 
-  virtual QString getType() const { return "color"; }
+  virtual SourceType getSourceType() const { return SourceType::Color; }
 
   virtual QIcon getIcon() const {
     QPixmap pixmap(100,100);
@@ -253,7 +258,7 @@ public:
   const QString getUri() const { return _uri; }
   bool setUri(const QString &uri);
 
-  virtual QString getType() const { return "image"; }
+  virtual SourceType getSourceType() const { return SourceType::Image; }
 
   bool isAnimation() const { return (_images.size() > 1); }
 
@@ -323,7 +328,7 @@ public:
   /// Unlocks mutex (default = no effect).
   virtual void unlockMutex();
 
-  virtual QString getType() const { return "media"; }
+  virtual SourceType getSourceType() const { return SourceType::Video; }
 
   virtual int getWidth() const;
   virtual int getHeight() const;

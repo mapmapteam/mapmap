@@ -236,7 +236,9 @@ void MainWindow::handlePaintChanged(Paint::ptr paint)
 
   uid paintId = mappingManager->getPaintId(paint);
 
-  if (paint->getType() == "media")
+//  QSharedPointer<Texture> texture;
+
+  if (paint->getSourceType() == SourceType::Video)
   {
     QSharedPointer<Video> media = qSharedPointerCast<Video>(paint);
     Q_CHECK_PTR(media);
@@ -247,7 +249,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint)
     //    if (!fileName.isEmpty())
     //      importMediaFile(fileName, paint, false);
   }
-  if (paint->getType() == "image")
+  if (paint->getSourceType() == SourceType::Image)
   {
     QSharedPointer<Image> image = qSharedPointerCast<Image>(paint);
     Q_CHECK_PTR(image);
@@ -258,7 +260,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint)
     //    if (!fileName.isEmpty())
     //      importMediaFile(fileName, paint, true);
   }
-  else if (paint->getType() == "color")
+  else if (paint->getSourceType() == SourceType::Color)
   {
     // Pop-up color-choosing dialog to choose color paint.
     QSharedPointer<Color> color = qSharedPointerCast<Color>(paint);
@@ -711,7 +713,7 @@ void MainWindow::addMesh()
 
   // Create input and output quads.
   Mapping* mappingPtr;
-  if (paint->getType() == "color")
+  if (paint->getSourceType() == SourceType::Color)
   {
     MShape::ptr outputQuad = MShape::ptr(Util::createMeshForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputQuad);
@@ -746,7 +748,7 @@ void MainWindow::addTriangle()
 
   // Create input and output quads.
   Mapping* mappingPtr;
-  if (paint->getType() == "color")
+  if (paint->getSourceType() == SourceType::Color)
   {
     MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputTriangle);
@@ -781,7 +783,7 @@ void MainWindow::addEllipse()
 
   // Create input and output ellipses.
   Mapping* mappingPtr;
-  if (paint->getType() == "color")
+  if (paint->getSourceType() == SourceType::Color)
   {
     MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputEllipse);
@@ -1424,7 +1426,7 @@ void MainWindow::duplicateMapping(uid mappingId)
 
   // Create new duplicated mapping item
   Mapping::ptr clonedMappingPtr;
-  if (paintPtr->getType() == "color") // Color paint
+  if (paintPtr->getSourceType() == SourceType::Color) // Color paint
     //clonedMapping = new ColorMapping(paintPtr, shapePtr);
     clonedMappingPtr = Mapping::ptr(new ColorMapping(paintPtr, shape));
   else // Or Texture Paint
@@ -2787,12 +2789,12 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
 
   // Create paint gui.
   PaintGui::ptr paintGui;
-  QString paintType = paint->getType();
-  if (paintType == "media")
+  SourceType paintType = paint->getSourceType();
+  if (paintType == SourceType::Video)
     paintGui = PaintGui::ptr(new VideoGui(paint));
-  else if (paintType == "image")
+  else if (paintType == SourceType::Image)
     paintGui = PaintGui::ptr(new ImageGui(paint));
-  else if (paintType == "color")
+  else if (paintType == SourceType::Color)
     paintGui = PaintGui::ptr(new ColorGui(paint));
   else
     paintGui = PaintGui::ptr(new PaintGui(paint));
@@ -2872,12 +2874,12 @@ void MainWindow::addMappingItem(uid mappingId)
   QIcon icon;
 
   QString shapeType = mapping->getShape()->getType();
-  QString paintType = mapping->getPaint()->getType();
+  SourceType paintType = mapping->getPaint()->getSourceType();
 
   // Add mapper.
   // XXX hardcoded for textures
   QSharedPointer<TextureMapping> textureMapping;
-  if (paintType == "media" || paintType == "image")
+  if (paintType == SourceType::Video || paintType == SourceType::Image)
   {
     textureMapping = qSharedPointerCast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);
@@ -2893,7 +2895,7 @@ void MainWindow::addMappingItem(uid mappingId)
     defaultName = QString("Triangle %1").arg(mappingId);
     icon = QIcon(":/shape-triangle");
 
-    if (paintType == "color")
+    if (paintType == SourceType::Color)
       mapper = MappingGui::ptr(new PolygonColorMappingGui(mapping));
     else
       mapper = MappingGui::ptr(new TriangleTextureMappingGui(textureMapping));
@@ -2903,7 +2905,7 @@ void MainWindow::addMappingItem(uid mappingId)
   {
     defaultName = QString("Mesh %1").arg(mappingId);
     icon = QIcon(":/shape-mesh");
-    if (paintType == "color")
+    if (paintType == SourceType::Color)
       mapper = MappingGui::ptr(new MeshColorMappingGui(mapping));
     else
       mapper = MappingGui::ptr(new MeshTextureMappingGui(textureMapping));
@@ -2912,7 +2914,7 @@ void MainWindow::addMappingItem(uid mappingId)
   {
     defaultName = QString("Ellipse %1").arg(mappingId);
     icon = QIcon(":/shape-ellipse");
-    if (paintType == "color")
+    if (paintType == SourceType::Color)
       mapper = MappingGui::ptr(new EllipseColorMappingGui(mapping));
     else
       mapper = MappingGui::ptr(new EllipseTextureMappingGui(textureMapping));
