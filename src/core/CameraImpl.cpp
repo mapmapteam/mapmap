@@ -51,6 +51,10 @@ bool CameraImpl::loadMovie(const QString &path)
   if (_camera->state() == QCamera::ActiveState)
     return true;
 
+  if (_camera->error() != QCamera::NoError)
+    QMessageBox(QMessageBox::Critical, "Camera Error",
+                "Failed to start: " + _camera->errorString()).exec();
+
   return false;
 }
 
