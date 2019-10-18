@@ -45,7 +45,7 @@ public:
   }
   virtual ~Quad() {}
 
-  virtual QString getType() const { return "quad"; }
+  virtual ShapeType getType() const { return ShapeType::Quad; }
 
 protected:
   /// Returns a new MShape (using default constructor).

@@ -1434,7 +1434,7 @@ void MainWindow::duplicateMapping(uid mappingId)
     clonedMappingPtr = Mapping::ptr(new TextureMapping(paintPtr, shape, inputShape));
 
   // Scale the duplicated shapes
-  if (shape->getType() == "mesh")
+  if (shape->getType() == ShapeType::Mesh)
     shape->translate(QPointF(20, 20));
   else
     shape->translate(QPointF(0, 20));
@@ -2873,7 +2873,7 @@ void MainWindow::addMappingItem(uid mappingId)
   QString defaultName;
   QIcon icon;
 
-  QString shapeType = mapping->getShape()->getType();
+  ShapeType shapeType = mapping->getShape()->getType();
   SourceType paintType = mapping->getPaint()->getSourceType();
 
   // Add mapper.
@@ -2890,7 +2890,7 @@ void MainWindow::addMappingItem(uid mappingId)
   // XXX Branching on nVertices() is crap
 
   // Triangle
-  if (shapeType == "triangle")
+  if (shapeType == ShapeType::Triangle)
   {
     defaultName = QString("Triangle %1").arg(mappingId);
     icon = QIcon(":/shape-triangle");
@@ -2901,7 +2901,7 @@ void MainWindow::addMappingItem(uid mappingId)
       mapper = MappingGui::ptr(new TriangleTextureMappingGui(textureMapping));
   }
   // Mesh
-  else if (shapeType == "mesh")
+  else if (shapeType == ShapeType::Mesh)
   {
     defaultName = QString("Mesh %1").arg(mappingId);
     icon = QIcon(":/shape-mesh");
@@ -2910,7 +2910,7 @@ void MainWindow::addMappingItem(uid mappingId)
     else
       mapper = MappingGui::ptr(new MeshTextureMappingGui(textureMapping));
   }
-  else if (shapeType == "ellipse")
+  else if (shapeType == ShapeType::Ellipse)
   {
     defaultName = QString("Ellipse %1").arg(mappingId);
     icon = QIcon(":/shape-ellipse");
