@@ -630,6 +630,9 @@ void MainWindow::importMedia()
 void MainWindow::openCameraDevice()
 {
 #if QT_VERSION >= 0x050300
+  // Stop video playback, if it is playing, to avoid lags. XXX Hack
+  pause(!pauseAction->isVisible());
+
   QString device;
   QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
 
@@ -653,17 +656,24 @@ void MainWindow::openCameraDevice()
       if (devices.contains(deviceName))
         device = devices.value(deviceName);
     }
-  }
 
-  else if (QCameraInfo::defaultCamera().isNull())
-  {
-    QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
   }
 
   else
   {
-    device = QCameraInfo::defaultCamera().deviceName();
+    if (QCameraInfo::defaultCamera().isNull())
+    {
+      QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
+
+    }
+    else
+    {
+      device = QCameraInfo::defaultCamera().deviceName();
+    }
   }
+
+  // Restart video playback if it was previously playing. XXX Hack
+  play(!pauseAction->isVisible());
 
   if (!device.isEmpty())
     importMediaFile(device, false, true);
@@ -2714,12 +2724,11 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage, bool isC
   if (!fileSupported(fileName, isImage))
     return false;
 
-//  if (fileName.contains(QString("/dev/video"))) {
   if (isCamera) {
     type = VIDEO_WEBCAM;
   }
 
-  if (!file.open(QIODevice::ReadOnly)) {
+  if (!isCamera && !file.open(QIODevice::ReadOnly)) {
     if (file.isSequential()) {
       type = VIDEO_SHMSRC;
     }
