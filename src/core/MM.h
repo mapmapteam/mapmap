@@ -69,6 +69,9 @@ public:
   static const int ZOOM_TOOLBAR_ICON_SIZE = 16;
   static const int ZOOM_TOOLBAR_BUTTON_SIZE = 20;
   static const int MAPPING_LIST_ICON_SIZE = 16;
+  static const int MAPPING_LIST_HIDE_COLUMN = 24;
+  static const int MAPPING_LIST_NAME_COLUMN = 135;
+  static const int MAPPING_LIST_BUTTONS_COLUMN = 128;
 
   // OSC
   static const int DEFAULT_OSC_PORT = 12345;

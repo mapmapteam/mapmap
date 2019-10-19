@@ -39,17 +39,17 @@ class MappingItemDelegate : public QStyledItemDelegate
   Q_OBJECT
 
 public:
-  MappingItemDelegate(QObject *parent = 0);
+  MappingItemDelegate(QObject *parent = nullptr);
 
   void paint(QPainter *painter, const QStyleOptionViewItem &option,
-             const QModelIndex &index) const Q_DECL_OVERRIDE;
+             const QModelIndex &index) const override;
   QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                        const QModelIndex &index) const Q_DECL_OVERRIDE;
-  void setEditorData(QWidget *editor, const QModelIndex &index) const Q_DECL_OVERRIDE;
+                        const QModelIndex &index) const override;
+  void setEditorData(QWidget *editor, const QModelIndex &index) const override;
   void setModelData(QWidget *editor, QAbstractItemModel *model,
-                    const QModelIndex &index) const Q_DECL_OVERRIDE;
+                    const QModelIndex &index) const override;
   void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
-                            const QModelIndex &index) const Q_DECL_OVERRIDE;
+                            const QModelIndex &index) const override;
 
 signals:
   void itemContextMenuRequested(const QPoint &pos);
@@ -58,7 +58,7 @@ signals:
 
 protected:
   bool editorEvent(QEvent *event, QAbstractItemModel *model,
-                   const QStyleOptionViewItem &option, const QModelIndex &index) Q_DECL_OVERRIDE;
+                   const QStyleOptionViewItem &option, const QModelIndex &index) override;
 };
 
 }
