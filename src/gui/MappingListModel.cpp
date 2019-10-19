@@ -31,7 +31,7 @@ int MappingListModel::rowCount(const QModelIndex &parent) const
 
 int MappingListModel::columnCount(const QModelIndex &parent) const
 {
-  Q_UNUSED(parent);
+  Q_UNUSED(parent)
   return 3;
 }
 
@@ -43,39 +43,38 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
   switch (role) {
   case Qt::CheckStateRole:
     return mappingList.at(index.row()).isVisible ? Qt::Checked : Qt::Unchecked;
-    break;
+
   case Qt::SizeHintRole:
     if (index.column() == MM::HideColumn)
-      return QSize(24, 40);
-//    if (index.column() == MM::IconAndNameColum)
-//      return QSize(135, 40);
-    else if (index.column() == MM::GroupButtonColum)
-      return QSize(128, 40);
-    break;
+      return QSize(MM::MAPPING_LIST_HIDE_COLUMN, 40);
+    if (index.column() == MM::IconAndNameColum)
+      return QSize(MM::MAPPING_LIST_NAME_COLUMN, 40);
+    if (index.column() == MM::GroupButtonColum)
+      return QSize(MM::MAPPING_LIST_BUTTONS_COLUMN, 40);
+   break;
   case Qt::CheckStateRole + 1:
     return mappingList.at(index.row()).isSolo ? Qt::Checked : Qt::Unchecked;
-    break;
+
   case Qt::CheckStateRole + 2:
     return mappingList.at(index.row()).isLocked ? Qt::Checked : Qt::Unchecked;
-    break;
+
   case Qt::UserRole:
     return QVariant(mappingList.at(index.row()).id);
-    break;
+
   case Qt::EditRole:
     return QVariant(mappingList.at(index.row()).label);
-    break;
+
   case Qt::DisplayRole:
     return QVariant(mappingList.at(index.row()).label);
-    break;
+
   case Qt::DecorationRole:
     return mappingList.at(index.row()).icon;
-    break;
+
   case Qt::ToolTipRole:
     return QString("ID: %1").arg(mappingList.at(index.row()).id);
-    break;
+
   default:
     return QVariant();
-    break;
   }
 
   return QVariant();
@@ -84,7 +83,7 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
 Qt::ItemFlags MappingListModel::flags(const QModelIndex &index) const
 {
   if (!index.isValid())
-    return 0;
+    return Qt::NoItemFlags;
 
   if (index.column() == MM::IconAndNameColum)
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable |

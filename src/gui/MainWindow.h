@@ -166,6 +166,8 @@ private slots:
 
   void updateSettings();
 
+  void updateMappingListColumnWidth();
+
 public slots:
 
   // CRUD.

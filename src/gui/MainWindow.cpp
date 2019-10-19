@@ -182,6 +182,7 @@ void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
 
   // Update canvases.
   updateCanvases();
+  updateMappingListColumnWidth();
 }
 
 void MainWindow::handleMappingItemChanged(const QModelIndex &index)
@@ -1515,13 +1516,14 @@ void MainWindow::createLayout()
   mappingList->setModel(mappingListModel);
   mappingList->setItemDelegate(mappingItemDelegate);
   // Pimp Mapping table widget
-  mappingList->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-  mappingList->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-  mappingList->horizontalHeader()->setStretchLastSection(true);
-  //mappingList->setShowGrid(false);
+  mappingList->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  mappingList->setShowGrid(false);
   mappingList->horizontalHeader()->hide();
   mappingList->verticalHeader()->hide();
   mappingList->setMouseTracking(true);// Important
+  mappingList->setColumnWidth(0, MM::MAPPING_LIST_HIDE_COLUMN);
+  mappingList->setColumnWidth(1, MM::MAPPING_LIST_NAME_COLUMN);
+  mappingList->setColumnWidth(2, MM::MAPPING_LIST_BUTTONS_COLUMN);
 
   // Create property panel.
   mappingPropertyPanel = new QStackedWidget;
@@ -1545,7 +1547,7 @@ void MainWindow::createLayout()
   sourceLayout->addWidget(sourceCanvasToolbar, 0, Qt::AlignRight);
   sourcePanel->setLayout(sourceLayout);
 
-  destinationCanvas = new MapperGLCanvas(this, true, 0, (QGLWidget*)sourceCanvas->viewport());
+  destinationCanvas = new MapperGLCanvas(this, true, nullptr, static_cast<QGLWidget*>(sourceCanvas->viewport()));
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
@@ -1607,6 +1609,7 @@ void MainWindow::createLayout()
   mainSplitter = new QSplitter(Qt::Horizontal);
   mainSplitter->addWidget(canvasSplitter);
   mainSplitter->addWidget(contentTab);
+  connect(mainSplitter, SIGNAL(splitterMoved(int, int)), this, SLOT(updateMappingListColumnWidth()));
 
   // Initialize size to 9:1 proportions.
   QSize sz = mainSplitter->size();
@@ -3297,7 +3300,7 @@ void MainWindow::showMappingContextMenu(const QPoint &point)
   mappingHideAction->setChecked(!mapping->isVisible());
   mappingSoloAction->setChecked(mapping->isSolo());
 
-  if (objectSender != NULL) {
+  if (objectSender != nullptr) {
     if (sender() == mappingItemDelegate) // XXX: The item delegate is not a widget
       mappingContextMenu->exec(mappingList->mapToGlobal(point));
     else
@@ -3309,7 +3312,7 @@ void MainWindow::showPaintContextMenu(const QPoint &point)
 {
   QWidget *objectSender = dynamic_cast<QWidget*>(sender());
 
-  if (objectSender != NULL && paintList->count() > 0)
+  if (objectSender != nullptr && paintList->count() > 0)
     paintContextMenu->exec(objectSender->mapToGlobal(point));
 }
 
@@ -3595,6 +3598,11 @@ void MainWindow::exitFullScreen()
 void MainWindow::updateSettings()
 {
   stickyVerticesAction->setChecked(settings.value("stickyVertices").toBool());
+}
+
+void MainWindow::updateMappingListColumnWidth()
+{
+  mappingList->setColumnWidth(1, mappingList->horizontalHeader()->width() - (MM::MAPPING_LIST_HIDE_COLUMN + MM::MAPPING_LIST_BUTTONS_COLUMN));
 }
 
 // void MainWindow::applyOscCommand(const QVariantList& command)
