@@ -21,7 +21,7 @@
 #include "Paint.h"
 #include "VideoImpl.h"
 #include "VideoUriDecodeBinImpl.h"
-#include "VideoV4l2SrcImpl.h"
+#include "CameraImpl.h"
 #include "VideoShmSrcImpl.h"
 #include <iostream>
 
@@ -174,7 +174,7 @@ void Image::_doPlay()
 /* Implementation of the Video class */
 Video::Video(int id) : Texture(id),
     _uri(""),
-    _impl(NULL)
+    _impl(nullptr)
 {
   _impl = new VideoUriDecodeBinImpl();
   setRate(1);
@@ -184,26 +184,23 @@ Video::Video(int id) : Texture(id),
 Video::Video(const QString uri_, VideoType type, double rate, uid id):
     Texture(id),
     _uri(""),
-    _impl(NULL)
+    _impl(nullptr)
 {
   switch (type) {
     case VIDEO_URI:
       _impl = new VideoUriDecodeBinImpl();
       break;
     case VIDEO_WEBCAM:
-      _impl = new VideoV4l2SrcImpl();
+      _impl = new CameraImpl();
       break;
     case VIDEO_SHMSRC:
       _impl = new VideoShmSrcImpl();
       break;
-    default:
-      fprintf (stderr, "Could not determine type for video source\n ");
-      break;
   }
-  //_impl = new VideoShmSrcImpl();//V4l2SrcImpl();//UriDecodeBinImpl();
   setRate(rate);
   setVolume(1);
   setUri(uri_);
+  _videoType = type;
 }
 
 // vertigo

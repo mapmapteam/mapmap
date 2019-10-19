@@ -38,6 +38,8 @@
 #include "Element.h"
 #include "Maths.h"
 
+#include <QCameraInfo>
+
 namespace mmp {
 
 typedef enum {
@@ -66,6 +68,11 @@ protected:
   Paint(uid id=NULL_UID);
 
 public:
+
+  enum SourceType {
+    Video, Image, Color
+  };
+
   typedef QSharedPointer<Paint> ptr;
 
   virtual ~Paint();
@@ -99,7 +106,7 @@ public:
   /// Unlocks mutex (default = no effect).
   virtual void unlockMutex() {}
 
-  virtual QString getType() const = 0;
+  virtual SourceType getSourceType() const = 0;
 
 protected:
   virtual void _doPlay() {}
@@ -125,7 +132,7 @@ public:
   QColor getColor() const { return color; }
   void setColor(const QColor& color_) { color = color_; }
 
-  virtual QString getType() const { return "color"; }
+  virtual SourceType getSourceType() const { return SourceType::Color; }
 
   virtual QIcon getIcon() const {
     QPixmap pixmap(100,100);
@@ -202,6 +209,11 @@ public:
   virtual void read(const QDomElement& obj);
   virtual void write(QDomElement& obj);
 
+  // Get Camera human-readable name from url
+  QString getCameraNameFromUri(const QString &uri) {
+    return QCameraInfo(uri.toLocal8Bit()).description();
+  }
+
 protected:
   // Lists QProperties that should NOT be parsed automatically.
   virtual QList<QString> _propertiesSpecial() const { return Paint::_propertiesSpecial() << "x" << "y"; }
@@ -246,7 +258,7 @@ public:
   const QString getUri() const { return _uri; }
   bool setUri(const QString &uri);
 
-  virtual QString getType() const { return "image"; }
+  virtual SourceType getSourceType() const { return SourceType::Image; }
 
   bool isAnimation() const { return (_images.size() > 1); }
 
@@ -316,7 +328,7 @@ public:
   /// Unlocks mutex (default = no effect).
   virtual void unlockMutex();
 
-  virtual QString getType() const { return "media"; }
+  virtual SourceType getSourceType() const { return SourceType::Video; }
 
   virtual int getWidth() const;
   virtual int getHeight() const;
@@ -357,6 +369,7 @@ protected:
 
   QString _uri;
   QIcon _icon;
+  VideoType _videoType;
 
   /**
    * Private implementation, so that GStreamer headers don't need

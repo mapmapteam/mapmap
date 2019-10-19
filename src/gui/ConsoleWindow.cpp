@@ -41,7 +41,7 @@ ConsoleWindow::ConsoleWindow(QWidget *parent) : QMainWindow(parent)
 
   // Set color scheme
   QPalette scheme = palette();
-  scheme.setColor(QPalette::Base, Qt::black);
+  scheme.setColor(QPalette::Base, QColor("#00020E"));
   scheme.setColor(QPalette::Text, Qt::white);
   _console->setPalette(scheme);
 
@@ -102,7 +102,7 @@ void ConsoleWindow::printMessage(QtMsgType type, const QMessageLogContext &conte
       debug = "<strong style=\"color: #00FF00;\">Debug:</strong>",
       info = "<strong style=\"color: #1E90FF;\">Info:</strong>",
       warning = "<strong style=\"color: #FFFF00;\">Warning:</strong>",
-      critical = "<strong style=\"color: #FF0000;\">Critical:</strong>",
+      critical = "<strong style=\"color: #FF6600;\">Critical:</strong>",
       fatal = "<strong style=\"background: #FF0000;\">Fatal!</strong>";
   // Output
   QString output;
