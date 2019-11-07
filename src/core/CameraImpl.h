@@ -34,7 +34,7 @@ public:
   CameraImpl();
   ~CameraImpl();
 
-  bool loadMovie(const QString& path);
+  bool loadMovie(const QString& deviceName);
   bool isLive() { return true; }
 
   int getWidth() const;
