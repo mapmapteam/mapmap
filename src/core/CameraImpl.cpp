@@ -35,11 +35,11 @@ CameraImpl::~CameraImpl()
   delete _cameraSurface;
 }
 
-bool CameraImpl::loadMovie(const QString &path)
+bool CameraImpl::loadMovie(const QString &deviceName)
 {
-  VideoImpl::loadMovie(path);
+  VideoImpl::loadMovie(deviceName);
 
-  _camera = new QCamera(path.toLocal8Bit());
+  _camera = new QCamera(deviceName.toLocal8Bit());
 
   _cameraSurface = new CameraSurface();
 
