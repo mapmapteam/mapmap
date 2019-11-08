@@ -76,6 +76,8 @@ win32 {
     $${GST_HOME}/lib/gstreamer-1.0.lib \
     $${GST_HOME}/lib/gobject-2.0.lib \
     $${GST_HOME}/lib/glib-2.0.lib \
+    $${GST_HOME}/lib/gstaudio-1.0.lib \
+    $${GST_HOME}/lib/gstvideo-1.0.lib \
     -lopengl32
 
   CONFIG -= debug
