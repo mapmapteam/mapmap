@@ -49,6 +49,7 @@ macx {
   # LIBS += -L/usr/local/lib -llo
   # INCLUDEPATH += /usr/local/include
   # QMAKE_CXXFLAGS += -DHAVE_OSC
+  ICON = resources/app_icons/mapmap.icns
 }
 
 
