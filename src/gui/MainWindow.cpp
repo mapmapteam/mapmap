@@ -3084,7 +3084,8 @@ bool MainWindow::fileSupported(const QString &file, bool isImage)
   QString fileExtension = fileInfo.suffix();
 
   if (isImage) {
-    if (MM::IMAGE_FILES_FILTER.contains(fileExtension, Qt::CaseInsensitive))
+    if (MM::IMAGE_FILES_FILTER.contains(fileExtension, Qt::CaseInsensitive) &&
+        QImageReader(file).canRead()) // extra check: makes sure format is readable
       return true;
   } else {
     if (MM::VIDEO_FILES_FILTER.contains(fileExtension, Qt::CaseInsensitive))
