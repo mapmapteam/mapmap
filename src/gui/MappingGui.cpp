@@ -92,6 +92,7 @@ void MappingGui::setValue(QtProperty* property, const QVariant& value)
     if (newPaint != _mapping->getPaint() && _mapping->paintIsCompatible(newPaint)) {
       _mapping->setPaint(newPaint);
       emit valueChanged();
+      emit paintChanged();
     }
   }
   else

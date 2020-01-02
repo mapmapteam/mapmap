@@ -271,7 +271,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint)
     setCurrentMapping(curMappingId);
   }
 
-  updatePlayingState();
+//  updatePlayingState();
 }
 
 void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant value)
@@ -291,10 +291,12 @@ void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant v
     if (propertyName == "visible")
     {
       mappingHideAction->setChecked(!value.toBool());
+      updatePlayingState();
     }
     else if (propertyName == "solo")
     {
       mappingSoloAction->setChecked(value.toBool());
+      updatePlayingState();
     }
     else if (propertyName == "locked")
     {
@@ -325,8 +327,6 @@ void MainWindow::mappingPropertyChanged(uid id, QString propertyName, QVariant v
   {
     mappingListModel->setData(index, mapping->isLocked(), Qt::CheckStateRole + 2);
   }
-
-  updatePlayingState();
 }
 
 void MainWindow::paintPropertyChanged(uid id, QString propertyName, QVariant value)
@@ -345,8 +345,6 @@ void MainWindow::paintPropertyChanged(uid id, QString propertyName, QVariant val
   QListWidgetItem* paintItem = getItemFromId(*paintList, id);
   if (propertyName == "name")
     paintItem->setText(paint->getName());
-
-  updatePlayingState();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -2940,7 +2938,7 @@ void MainWindow::addMappingItem(uid mappingId)
           this,          SLOT(updateCanvases()));
 
   // Also update playing state in case paint was changed.
-  connect(mapper.data(), SIGNAL(valueChanged()),
+  connect(mapper.data(), SIGNAL(paintChanged()),
           this,          SLOT(updatePlayingState()));
 
   connect(sourceCanvas,  SIGNAL(shapeChanged(MShape*)),
@@ -3228,7 +3226,7 @@ void MainWindow::updatePlayingState()
     }
   }
 
-  // Update all paint items with correct icon.
+  // Update all paint items with correct icon according to playing state.
   for (int i=0; i<mappingManager->nPaints(); i++)
   {
     Paint::ptr paint = mappingManager->getPaint(i);
