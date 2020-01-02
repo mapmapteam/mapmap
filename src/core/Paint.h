@@ -257,11 +257,7 @@ public:
 
   virtual bool bitsHaveChanged() const { return bitsChanged; }
 
-  virtual QIcon getIcon() const
-  {
-    return QIcon(QPixmap::fromImage(_images[0]).scaled(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE,
-                                                   Qt::IgnoreAspectRatio));
-  }
+  virtual QIcon getIcon() const;
 
   /// Sets playback rate (in %). Negative values mean reverse playback.
   virtual void setRate(double rate);
