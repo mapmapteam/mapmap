@@ -240,7 +240,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint)
   {
     QSharedPointer<Video> media = qSharedPointerCast<Video>(paint);
     Q_CHECK_PTR(media);
-    updatePaintItem(paintId, media->getIcon(), strippedName(media->getUri()));
+    updatePaintItem(paintId, getPaintIcon(paint), strippedName(media->getUri()));
     //    QString fileName = QFileDialog::getOpenFileName(this,
     //        tr("Import media source file"), ".");
     //    // Restart video playback. XXX Hack
@@ -251,7 +251,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint)
   {
     QSharedPointer<Image> image = qSharedPointerCast<Image>(paint);
     Q_CHECK_PTR(image);
-    updatePaintItem(paintId, image->getIcon(), strippedName(image->getUri()));
+    updatePaintItem(paintId, getPaintIcon(paint), strippedName(image->getUri()));
     //    QString fileName = QFileDialog::getOpenFileName(this,
     //        tr("Import media source file"), ".");
     //    // Restart video playback. XXX Hack
@@ -263,7 +263,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint)
     // Pop-up color-choosing dialog to choose color paint.
     QSharedPointer<Color> color = qSharedPointerCast<Color>(paint);
     Q_CHECK_PTR(color);
-    updatePaintItem(paintId, color->getIcon(), strippedName(color->getColor().name()));
+    updatePaintItem(paintId, getPaintIcon(paint), strippedName(color->getColor().name()));
   }
 
   if (curMappingId != NULL_UID)
