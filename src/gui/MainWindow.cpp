@@ -1694,7 +1694,7 @@ void MainWindow::createActions()
 #ifdef Q_OS_LINUX
   openCameraAction = new QAction(tr("Open &Camera Device..."), this);
   openCameraAction->setShortcut(Qt::CTRL + Qt::Key_C);
-  openCameraAction->setIcon(QIcon(":/add-image"));
+  openCameraAction->setIcon(QIcon(":/add-camera"));
   openCameraAction->setIconVisibleInMenu(false);
   openCameraAction->setToolTip(tr("Choose your camera device..."));
   openCameraAction->setShortcutContext(Qt::ApplicationShortcut);

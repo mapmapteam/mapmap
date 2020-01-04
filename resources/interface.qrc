@@ -8,7 +8,7 @@
         <file alias="output-window">images/icons/nofullscreen_w.png</file>
         <file alias="control-points">images/icons/ctrl2_w.png</file>
         <file alias="add-video">images/icons/add_movie_w.png</file>
-        <file alias="add-image">images/icons/add_img_w.png</file>
+        <file alias="add-camera">images/icons/add_camera_w.png</file>
         <file alias="add-color">images/icons/add_paint_w.png</file>
         <file alias="add-mesh">images/shapes/add_quad.png</file>
         <file alias="add-triangle">images/shapes/add_triangle.png</file>
