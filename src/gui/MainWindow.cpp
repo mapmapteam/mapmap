@@ -2743,7 +2743,7 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
 
   QApplication::restoreOverrideCursor();
 
-  if (!isImage)
+  if (!isImage && type != VIDEO_WEBCAM)
   {
     settings.setValue("defaultVideoDir", currentDir.absoluteFilePath(fileName));
     setCurrentVideo(fileName);
