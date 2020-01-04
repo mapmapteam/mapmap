@@ -2712,7 +2712,7 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
   if (!fileSupported(fileName, isImage))
     return false;
 
-  if (fileName.contains(QString("/dev/video"))) {
+  if (fileName.startsWith(QString("/dev/video"))) {
     type = VIDEO_WEBCAM;
   }
 
