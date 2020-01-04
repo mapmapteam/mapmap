@@ -356,6 +356,14 @@ bool Video::_generateThumbnail()
 
   // Default (in case seeking and loading don't work).
   _icon = provider.icon(QFileInfo(_uri));
+  if (_icon.isNull()) {
+    if (_uri.startsWith(QString("/dev/video"))) {
+      _icon = QIcon(":/add-camera");
+    }
+    else {
+      _icon = QIcon(":/add-video");
+    }
+  }
 
   // Try seeking to the middle of the movie.
   if (!_impl->seekTo(0.5))
