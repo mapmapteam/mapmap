@@ -128,7 +128,7 @@ public:
   virtual QString getType() const { return "color"; }
 
   virtual QIcon getIcon() const {
-    QPixmap pixmap(100,100);
+    QPixmap pixmap(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
     pixmap.fill(color);
     return QIcon(pixmap);
   }
