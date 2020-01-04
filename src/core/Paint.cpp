@@ -324,7 +324,7 @@ bool Video::setUri(const QString &uri)
 
     // Try to get thumbnail.
     // Wait for the first samples to be available to make sure we are ready.
-    if (!_impl->waitForNextBits(1000))
+    if (!_impl->waitForNextBits(ICON_TIMEOUT))
     {
       qDebug() << "No bits coming" << endl;
       return false;
