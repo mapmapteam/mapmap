@@ -1800,7 +1800,7 @@ void MainWindow::createActions()
 
   // Solo mapping.
   mappingSoloAction = new QAction(tr("Solo Layer"), this);
-  mappingSoloAction->setToolTip(tr("solo layer item"));
+  mappingSoloAction->setToolTip(tr("Solo layer item"));
   mappingSoloAction->setIconVisibleInMenu(false);
   mappingSoloAction->setCheckable(true);
   mappingSoloAction->setChecked(false);
