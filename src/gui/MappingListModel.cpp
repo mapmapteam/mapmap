@@ -197,7 +197,8 @@ bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, 
     }
   }
 
-  if (role == Qt::EditRole && index.column() == MM::IconAndNameColum) {
+  // Note: Removed the check for column as this was blocking OSC from changing name.
+  if (role == Qt::EditRole /* && index.column() == MM::IconAndNameColum*/) {
     if (mappingList[index.row()].label != value.toString()) {
       mappingList[index.row()].label = value.toString();
       emit dataChanged(index, index);
