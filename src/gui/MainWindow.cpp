@@ -199,6 +199,9 @@ void MainWindow::handleMappingItemChanged(const QModelIndex &index)
   mapping->setSolo(index.data(Qt::CheckStateRole + 1).toBool());
   mapping->setLocked(index.data(Qt::CheckStateRole + 2).toBool());
 
+  // Update model (important to make sure icons get updated in the interface).
+  mappingListModel->updateModel();
+
   updatePlayingState();
  }
 
