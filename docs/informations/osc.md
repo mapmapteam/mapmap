@@ -49,7 +49,7 @@ Rewind all .mov paints:
 `/mapmap/paint/rewind ,s "*.mov"`
 
 Set all mappings that begin with "mesh-" followed by a single digit to solo mode:  
-`/mapmap/mapping/solo ,s "mesh-[0-9]" 1`
+`/mapmap/mapping/solo ,si "mesh-[0-9]" 1`
 
 ## Playback
 
