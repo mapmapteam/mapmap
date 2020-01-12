@@ -111,6 +111,9 @@ public:
   /// The type of the mapping (expressed as a string).
   virtual QString getType() const = 0;
 
+  // Return copy of this mapping.
+  virtual Mapping* clone() const = 0;
+
 	/// Returns true iff paint is compatible with mapping.
 	virtual bool paintIsCompatible(Paint::ptr paint) const = 0;
 
@@ -174,6 +177,12 @@ public:
                uid id=NULL_UID)
     : Mapping(paint, shape, id) {}
 
+  // Return copy of this mapping.
+  virtual Mapping* clone() const {
+    MShape::ptr shape(_shape->clone());
+    return new ColorMapping(_paint, shape);
+  }
+
   /// Returns true iff the mapping possesses an input (source) shape.
   virtual bool hasInputShape() const { return false; }
 
@@ -204,6 +213,13 @@ public:
   {
     // Only supports shape of the same type (for now).
     Q_ASSERT(shape->getType() == inputShape->getType());
+  }
+
+  // Return copy of this mapping.
+  virtual Mapping* clone() const {
+    MShape::ptr shape(_shape->clone());
+    MShape::ptr inputShape(_inputShape->clone());
+    return new TextureMapping(_paint, shape, inputShape);
   }
 
   /// Returns true iff the mapping possesses an input (source) shape.
