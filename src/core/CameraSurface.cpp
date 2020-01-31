@@ -97,8 +97,8 @@ bool CameraSurface::present(const QVideoFrame &frame)
 #else
     // Convert to OpenGLformat and apply transforms to straighten.
     _temporaryImage = QGLWidget::convertToGLFormat(_temporaryImage)
-        .mirrored(true, false)
-        .transformed(QTransform().rotate(180));
+                      .mirrored(true, false)
+                      .transformed(QTransform().rotate(180));
 #endif
 
     return true;
