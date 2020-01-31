@@ -27,6 +27,7 @@
 #include <QDebug>
 #include "MM.h"
 #include <QSettings>
+#include <QDir>
 
 namespace mmp {
 
