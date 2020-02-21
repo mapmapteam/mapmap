@@ -198,6 +198,7 @@ Video::Video(int id) : Texture(id),
 Video::Video(const QString uri_, VideoType type, double rate, uid id):
     Texture(id),
     _uri(""),
+    _videoType(type),
     _impl(nullptr)
 {
   switch (type) {
@@ -303,11 +304,11 @@ bool Video::hasVideoSupport()
 bool Video::setUri(const QString &uri)
 {
   QSettings settings;
-  bool sameMediasource = settings.value("oscSameMediaSource").toBool();
+  bool sameMediaSourceOSC = settings.value("oscSameMediaSource").toBool();
   // Check if we're actually changing the uri.
   // In some case with OSC message the user may need to allow
   // the same media source (uri)
-  if (sameMediasource || uri != _uri)
+  if (sameMediaSourceOSC || uri != _uri)
   {
     // Try to load movie.
     if (!_impl->loadMovie(uri))
@@ -327,14 +328,18 @@ bool Video::setUri(const QString &uri)
       return false;
     }
 
-    if (!_generateThumbnail())
-      qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << endl;
+    if (_videoType != VIDEO_WEBCAM) { // Generated thumbnail if source type is not camera
+      if (!_generateThumbnail())
+        qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << endl;
+    }
 
     _emitPropertyChanged("uri");
+
+    // Return success.
+    return true;
   }
 
-  // Return success.
-  return true;
+  return false;
 }
 
 void Video::_doPlay()

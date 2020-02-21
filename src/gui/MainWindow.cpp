@@ -34,7 +34,7 @@ MainWindow::MainWindow()
 {
   // Create model.
 #if QT_VERSION >= 0x050500
-  QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: " <<
+  QMessageLogger(__FILE__, __LINE__, nullptr).info() << "Video support: " <<
       (Video::hasVideoSupport() ? "yes" : "no");
 #else
   QMessageLogger(__FILE__, __LINE__, 0).debug() << "Video support: " <<

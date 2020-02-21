@@ -92,10 +92,14 @@ bool CameraSurface::present(const QVideoFrame &frame)
       currentFrame.unmap();
     }
 
+#ifdef Q_OS_WIN
+    _temporaryImage = QGLWidget::convertToGLFormat(_temporaryImage);
+#else
     // Convert to OpenGLformat and apply transforms to straighten.
     _temporaryImage = QGLWidget::convertToGLFormat(_temporaryImage)
-        .mirrored(true, false)
-        .transformed(QTransform().rotate(180));
+                      .mirrored(true, false)
+                      .transformed(QTransform().rotate(180));
+#endif
 
     return true;
   }
