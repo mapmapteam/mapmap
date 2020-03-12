@@ -97,7 +97,7 @@ public:
   virtual const uchar* getBits();
 
   /// Returns true iff bits have started flowing (ie. if there is at least a first sample available).
-  virtual bool hasBits() const { return (_currentFrameSample != nullptr); }
+  virtual bool hasBits() const { return (_currentFrameSample != NULL); }
 
   /// Returns true iff bits have changed since last call to getBits().
   virtual bool bitsHaveChanged() const { return _bitsChanged; }
@@ -112,11 +112,11 @@ public:
 
   bool videoIsConnected() const { return _videoIsConnected; }
   void videoConnect() { _videoIsConnected = true; }
-  bool videoIsSupported() const { return _queue0 != nullptr; }
+  bool videoIsSupported() const { return _queue0 != NULL; }
 
   bool audioIsConnected() const { return _audioIsConnected; }
   void audioConnect() { _audioIsConnected = true; }
-  bool audioIsSupported() const { return _audioqueue0 != nullptr; }
+  bool audioIsSupported() const { return _audioqueue0 != NULL; }
 
   /**
    * Performs regular updates (checks if movie is ready and checks messages).
@@ -195,7 +195,7 @@ public:
   void unlockMutex();
 
   /// Wait until first data samples are available (blocking).
-  bool waitForNextBits(int timeout, const uchar** bits=nullptr);
+  bool waitForNextBits(int timeout, const uchar** bits = 0);
 
 protected:
   int _width;
