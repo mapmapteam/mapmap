@@ -1422,24 +1422,8 @@ void MainWindow::deleteMapping(uid mappingId)
 
 void MainWindow::duplicateMapping(uid mappingId)
 {
-  // Current Mapping
-  Mapping::ptr currentMapping = mappingManager->getMappingById(mappingId);
-
-  // Create new duplicated mapping item
-  Mapping::ptr clonedMappingPtr;
-  if (paintPtr->getSourceType() == SourceType::Color) // Color paint
-    //clonedMapping = new ColorMapping(paintPtr, shapePtr);
-    clonedMappingPtr = Mapping::ptr(new ColorMapping(paintPtr, shape));
-  else // Or Texture Paint
-    //clonedMapping = new TextureMapping(paintPtr, shapePtr, inputShape);
-    clonedMappingPtr = Mapping::ptr(new TextureMapping(paintPtr, shape, inputShape));
-
-  // Scale the duplicated shapes
-  if (shape->getType() == ShapeType::Mesh)
-    shape->translate(QPointF(20, 20));
-  else
-    shape->translate(QPointF(0, 20));
-  Mapping::ptr clonedMappingPtr(currentMapping->clone());
+  // Clone current Mapping.
+  Mapping::ptr clonedMappingPtr(mappingManager->getMappingById(mappingId)->clone());
 
   // Get duplicated mapping id
   uid cloneId = mappingManager->addMapping(clonedMappingPtr);
