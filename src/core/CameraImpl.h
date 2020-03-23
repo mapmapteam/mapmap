@@ -1,7 +1,7 @@
 /*
- * Quad.h
+ * CameraImpl.h
  *
- * (c) 2016 Sofian Audry -- info(@)sofianaudry(.)com
+ * (c) 2019 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,42 +17,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef CAMERAIMPL_H_
+#define CAMERAIMPL_H_
 
-#ifndef QUAD_H_
-#define QUAD_H_
+#include "CameraSurface.h"
+#include "VideoImpl.h"
 
-#include "Polygon.h"
+#include <QCamera>
+#include <QCameraInfo>
 
 namespace mmp {
 
-/**
- * Four-vertex shape.
- */
-class Quad : public Polygon
+class CameraImpl : public VideoImpl
 {
-  Q_OBJECT
 public:
-  typedef QSharedPointer<Quad> ptr;
+  CameraImpl();
+  ~CameraImpl();
 
-  Q_INVOKABLE Quad() {}
-  Quad(QPointF p1, QPointF p2, QPointF p3, QPointF p4)
-  {
-    _addVertex(p1);
-    _addVertex(p2);
-    _addVertex(p3);
-    _addVertex(p4);
-    build();
-  }
-  virtual ~Quad() {}
+  bool loadMovie(const QString& deviceName);
+  bool isLive() { return true; }
 
-  virtual ShapeType getType() const { return ShapeType::Quad; }
+  int getWidth() const;
+  int getHeight() const;
 
-protected:
-  /// Returns a new MShape (using default constructor).
-  virtual MShape* _create() const { return new Quad(); }
+  const uchar* getBits();
+
+  bool hasBits() const { return _cameraSurface->isActive(); }
+
+  bool bitsHaveChanged() const { return true; }
+
+private:
+  QCamera *_camera;
+  CameraSurface *_cameraSurface;
+
 };
-
 
 }
 
-#endif /* QUAD_H_ */
+#endif // CAMERAIMPL_H_

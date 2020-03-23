@@ -21,7 +21,7 @@
 #include "Paint.h"
 #include "VideoImpl.h"
 #include "VideoUriDecodeBinImpl.h"
-#include "VideoV4l2SrcImpl.h"
+#include "CameraImpl.h"
 #include "VideoShmSrcImpl.h"
 #include <iostream>
 
@@ -188,7 +188,7 @@ void Image::_doPlay()
 /* Implementation of the Video class */
 Video::Video(int id) : Texture(id),
     _uri(""),
-    _impl(NULL)
+    _impl(nullptr)
 {
   _impl = new VideoUriDecodeBinImpl();
   setRate(1);
@@ -198,26 +198,24 @@ Video::Video(int id) : Texture(id),
 Video::Video(const QString uri_, VideoType type, double rate, uid id):
     Texture(id),
     _uri(""),
-    _impl(NULL)
+    _videoType(type),
+    _impl(nullptr)
 {
   switch (type) {
     case VIDEO_URI:
       _impl = new VideoUriDecodeBinImpl();
       break;
     case VIDEO_WEBCAM:
-      _impl = new VideoV4l2SrcImpl();
+      _impl = new CameraImpl();
       break;
     case VIDEO_SHMSRC:
       _impl = new VideoShmSrcImpl();
       break;
-    default:
-      fprintf (stderr, "Could not determine type for video source\n ");
-      break;
   }
-  //_impl = new VideoShmSrcImpl();//V4l2SrcImpl();//UriDecodeBinImpl();
   setRate(rate);
   setVolume(1);
   setUri(uri_);
+  _videoType = type;
 }
 
 // vertigo
@@ -306,11 +304,11 @@ bool Video::hasVideoSupport()
 bool Video::setUri(const QString &uri)
 {
   QSettings settings;
-  bool sameMediasource = settings.value("oscSameMediaSource").toBool();
+  bool sameMediaSourceOSC = settings.value("oscSameMediaSource").toBool();
   // Check if we're actually changing the uri.
   // In some case with OSC message the user may need to allow
   // the same media source (uri)
-  if (sameMediasource || uri != _uri)
+  if (sameMediaSourceOSC || uri != _uri)
   {
     // Try to load movie.
     if (!_impl->loadMovie(uri))
@@ -330,14 +328,18 @@ bool Video::setUri(const QString &uri)
       return false;
     }
 
-    if (!_generateThumbnail())
-      qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << endl;
+    if (_videoType != VIDEO_WEBCAM) { // Generated thumbnail if source type is not camera
+      if (!_generateThumbnail())
+        qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << endl;
+    }
 
     _emitPropertyChanged("uri");
+
+    // Return success.
+    return true;
   }
 
-  // Return success.
-  return true;
+  return false;
 }
 
 void Video::_doPlay()

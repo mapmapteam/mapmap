@@ -184,7 +184,7 @@ QWidget *MappingItemDelegate::createEditor(QWidget *parent,
   }
   else
   {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -205,7 +205,7 @@ void MappingItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *mode
 void MappingItemDelegate::updateEditorGeometry(QWidget *editor,
         const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-  Q_UNUSED(index);
+  Q_UNUSED(index)
   editor->setGeometry(option.rect);
 }
 

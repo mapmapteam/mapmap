@@ -61,7 +61,7 @@ public:
     sanitize();
   }
 
-  virtual QString getType() const { return "ellipse"; }
+  virtual ShapeType getType() const { return ShapeType::Ellipse; }
 
   qreal getRotationRadians() const
   {

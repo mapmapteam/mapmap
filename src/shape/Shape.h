@@ -66,6 +66,10 @@ public:
     Vertical
   };
 
+  enum ShapeType {
+    Mesh, Triangle, Ellipse, Quad
+  };
+
   typedef QSharedPointer<MShape> ptr;
 
   MShape() : _isLocked(false) {}
@@ -97,7 +101,7 @@ public:
 
   virtual void applyTransform(const QTransform& transform);
 
-  virtual QString getType() const = 0;
+  virtual ShapeType getType() const = 0;
 
   /** Return true if Shape includes point (x,y), false otherwise
    *  Algorithm should work for all polygons, including non-convex

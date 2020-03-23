@@ -101,14 +101,14 @@ void ProjectReader::parseProject(const QDomElement& project)
       _window->addPaintItem(paint->getId(), paint->getIcon(), paint->getName());
 
       // Locate media file if not found
-      if (paint->getType() == "media")
+      if (paint->getSourceType() == Paint::SourceType::Video)
       {
         QSharedPointer<Video> media = qSharedPointerCast<Video>(paint);
         Q_CHECK_PTR(media);
         if (!_window->fileExists(media->getUri()))
           media->setUri(_window->locateMediaFile(media->getUri(), false));
       }
-      if (paint->getType() == "image")
+      if (paint->getSourceType() == Paint::SourceType::Image)
       {
         QSharedPointer<Image> image = qSharedPointerCast<Image>(paint);
         Q_CHECK_PTR(image);

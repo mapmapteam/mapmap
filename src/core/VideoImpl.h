@@ -78,12 +78,12 @@ public:
   /**
    * Returns the width of the video image.
    */
-  int getWidth() const;
+  virtual int getWidth() const;
 
   /**
    * Returns the height of the video image.
    */
-  int getHeight() const;
+  virtual int getHeight() const;
 
   /**
    * Returns the path to the media file being played.
@@ -94,13 +94,13 @@ public:
    * Returns the raw image of the last video frame.
    * It is currently unused!
    */
-  const uchar* getBits();
+  virtual const uchar* getBits();
 
   /// Returns true iff bits have started flowing (ie. if there is at least a first sample available).
-  bool hasBits() const { return (_currentFrameSample != NULL); }
+  virtual bool hasBits() const { return (_currentFrameSample != NULL); }
 
   /// Returns true iff bits have changed since last call to getBits().
-  bool bitsHaveChanged() const { return _bitsChanged; }
+  virtual bool bitsHaveChanged() const { return _bitsChanged; }
 
   /**
    * Checks if the pipeline is ready.
@@ -195,7 +195,7 @@ public:
   void unlockMutex();
 
   /// Wait until first data samples are available (blocking).
-  bool waitForNextBits(int timeout, const uchar** bits=0);
+  bool waitForNextBits(int timeout, const uchar** bits = 0);
 
 protected:
   int _width;

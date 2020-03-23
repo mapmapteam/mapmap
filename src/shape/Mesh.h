@@ -51,7 +51,7 @@ public:
 
   virtual void build();
 
-  virtual QString getType() const { return "mesh"; }
+  virtual ShapeType getType() const { return ShapeType::Mesh; }
 
   /// Returns a polygon that is formed by all the contour points of the mesh.
   virtual QPolygonF toPolygon() const;

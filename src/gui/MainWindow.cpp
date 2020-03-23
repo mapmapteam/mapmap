@@ -34,7 +34,7 @@ MainWindow::MainWindow()
 {
   // Create model.
 #if QT_VERSION >= 0x050500
-  QMessageLogger(__FILE__, __LINE__, 0).info() << "Video support: " <<
+  QMessageLogger(__FILE__, __LINE__, nullptr).info() << "Video support: " <<
       (Video::hasVideoSupport() ? "yes" : "no");
 #else
   QMessageLogger(__FILE__, __LINE__, 0).debug() << "Video support: " <<
@@ -182,6 +182,7 @@ void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
 
   // Update canvases.
   updateCanvases();
+  updateMappingListColumnWidth();
 }
 
 void MainWindow::handleMappingItemChanged(const QModelIndex &index)
@@ -239,7 +240,9 @@ void MainWindow::handlePaintChanged(Paint::ptr paint)
 
   uid paintId = mappingManager->getPaintId(paint);
 
-  if (paint->getType() == "media")
+//  QSharedPointer<Texture> texture;
+
+  if (paint->getSourceType() == SourceType::Video)
   {
     QSharedPointer<Video> media = qSharedPointerCast<Video>(paint);
     Q_CHECK_PTR(media);
@@ -250,7 +253,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint)
     //    if (!fileName.isEmpty())
     //      importMediaFile(fileName, paint, false);
   }
-  if (paint->getType() == "image")
+  if (paint->getSourceType() == SourceType::Image)
   {
     QSharedPointer<Image> image = qSharedPointerCast<Image>(paint);
     Q_CHECK_PTR(image);
@@ -261,7 +264,7 @@ void MainWindow::handlePaintChanged(Paint::ptr paint)
     //    if (!fileName.isEmpty())
     //      importMediaFile(fileName, paint, true);
   }
-  else if (paint->getType() == "color")
+  else if (paint->getSourceType() == SourceType::Color)
   {
     // Pop-up color-choosing dialog to choose color paint.
     QSharedPointer<Color> color = qSharedPointerCast<Color>(paint);
@@ -628,7 +631,10 @@ void MainWindow::importMedia()
 
 void MainWindow::openCameraDevice()
 {
-#if QT_VERSION >= 0x050500
+#if QT_VERSION >= 0x050300
+  // Stop video playback, if it is playing, to avoid lags. XXX Hack
+  pause(!pauseAction->isVisible());
+
   QString device;
   QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
 
@@ -652,20 +658,27 @@ void MainWindow::openCameraDevice()
       if (devices.contains(deviceName))
         device = devices.value(deviceName);
     }
-  }
 
-  else if (QCameraInfo::defaultCamera().isNull())
-  {
-    QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
   }
 
   else
   {
-    device = QCameraInfo::defaultCamera().deviceName();
+    if (QCameraInfo::defaultCamera().isNull())
+    {
+      QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
+
+    }
+    else
+    {
+      device = QCameraInfo::defaultCamera().deviceName();
+    }
   }
 
+  // Restart video playback if it was previously playing. XXX Hack
+  play(!pauseAction->isVisible());
+
   if (!device.isEmpty())
-    importMediaFile(device, false);
+    importMediaFile(device, false, true);
 #else
     QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
 #endif
@@ -712,7 +725,7 @@ void MainWindow::addMesh()
 
   // Create input and output quads.
   Mapping* mappingPtr;
-  if (paint->getType() == "color")
+  if (paint->getSourceType() == SourceType::Color)
   {
     MShape::ptr outputQuad = MShape::ptr(Util::createMeshForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputQuad);
@@ -747,7 +760,7 @@ void MainWindow::addTriangle()
 
   // Create input and output quads.
   Mapping* mappingPtr;
-  if (paint->getType() == "color")
+  if (paint->getSourceType() == SourceType::Color)
   {
     MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputTriangle);
@@ -782,7 +795,7 @@ void MainWindow::addEllipse()
 
   // Create input and output ellipses.
   Mapping* mappingPtr;
-  if (paint->getType() == "color")
+  if (paint->getSourceType() == SourceType::Color)
   {
     MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForColor(sourceCanvas->width(), sourceCanvas->height()));
     mappingPtr = new ColorMapping(paint, outputEllipse);
@@ -1060,7 +1073,7 @@ void MainWindow::openRecentVideo()
 {
   QAction *action = qobject_cast<QAction *>(sender());
   if (action)
-    importMediaFile(action->data().toString(),false);
+    importMediaFile(action->data().toString(), false);
 }
 
 bool MainWindow::clearProject()
@@ -1126,7 +1139,12 @@ uid MainWindow::createMediaPaint(uid paintId, QString uri, float x, float y,
 
     // Add it to the manager.
     Paint::ptr paint(tex);
-    paint->setName(strippedName(uri));
+
+    if (type == VIDEO_WEBCAM) {
+      paint->setName(tex->getCameraNameFromUri(uri));
+    } else {
+      paint->setName(strippedName(uri));
+    }
 
     // Add paint to model and return its uid.
     uid id = mappingManager->addPaint(paint);
@@ -1408,9 +1426,16 @@ void MainWindow::duplicateMapping(uid mappingId)
   Mapping::ptr currentMapping = mappingManager->getMappingById(mappingId);
 
   // Create new duplicated mapping item
+  Mapping::ptr clonedMappingPtr;
+  if (paintPtr->getSourceType() == SourceType::Color) // Color paint
+    //clonedMapping = new ColorMapping(paintPtr, shapePtr);
+    clonedMappingPtr = Mapping::ptr(new ColorMapping(paintPtr, shape));
+  else // Or Texture Paint
+    //clonedMapping = new TextureMapping(paintPtr, shapePtr, inputShape);
+    clonedMappingPtr = Mapping::ptr(new TextureMapping(paintPtr, shape, inputShape));
 
   // Scale the duplicated shapes
-  if (shape->getType() == "mesh")
+  if (shape->getType() == ShapeType::Mesh)
     shape->translate(QPointF(20, 20));
   else
     shape->translate(QPointF(0, 20));
@@ -1482,13 +1507,14 @@ void MainWindow::createLayout()
   mappingList->setModel(mappingListModel);
   mappingList->setItemDelegate(mappingItemDelegate);
   // Pimp Mapping table widget
-  mappingList->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-  mappingList->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-  mappingList->horizontalHeader()->setStretchLastSection(true);
-  //mappingList->setShowGrid(false);
+  mappingList->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  mappingList->setShowGrid(false);
   mappingList->horizontalHeader()->hide();
   mappingList->verticalHeader()->hide();
   mappingList->setMouseTracking(true);// Important
+  mappingList->setColumnWidth(0, MM::MAPPING_LIST_HIDE_COLUMN);
+  mappingList->setColumnWidth(1, MM::MAPPING_LIST_NAME_COLUMN);
+  mappingList->setColumnWidth(2, MM::MAPPING_LIST_BUTTONS_COLUMN);
 
   // Create property panel.
   mappingPropertyPanel = new QStackedWidget;
@@ -1512,7 +1538,7 @@ void MainWindow::createLayout()
   sourceLayout->addWidget(sourceCanvasToolbar, 0, Qt::AlignRight);
   sourcePanel->setLayout(sourceLayout);
 
-  destinationCanvas = new MapperGLCanvas(this, true, 0, (QGLWidget*)sourceCanvas->viewport());
+  destinationCanvas = new MapperGLCanvas(this, true, nullptr, static_cast<QGLWidget*>(sourceCanvas->viewport()));
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
@@ -1574,6 +1600,7 @@ void MainWindow::createLayout()
   mainSplitter = new QSplitter(Qt::Horizontal);
   mainSplitter->addWidget(canvasSplitter);
   mainSplitter->addWidget(contentTab);
+  connect(mainSplitter, SIGNAL(splitterMoved(int, int)), this, SLOT(updateMappingListColumnWidth()));
 
   // Initialize size to 9:1 proportions.
   QSize sz = mainSplitter->size();
@@ -1677,16 +1704,14 @@ void MainWindow::createActions()
   connect(importMediaAction, SIGNAL(triggered()), this, SLOT(importMedia()));
 
   // Open camera.
-#ifdef Q_OS_LINUX
-  openCameraAction = new QAction(tr("Open &Camera Device..."), this);
-  openCameraAction->setShortcut(Qt::CTRL + Qt::Key_C);
-  openCameraAction->setIcon(QIcon(":/add-camera"));
-  openCameraAction->setIconVisibleInMenu(false);
-  openCameraAction->setToolTip(tr("Choose your camera device..."));
-  openCameraAction->setShortcutContext(Qt::ApplicationShortcut);
-  addAction(openCameraAction);
-  connect(openCameraAction, SIGNAL(triggered()), this, SLOT(openCameraDevice()));
-#endif
+  AddCameraAction = new QAction(tr("Open &Camera Device..."), this);
+  AddCameraAction->setShortcut(Qt::CTRL + Qt::Key_C);
+  AddCameraAction->setIcon(QIcon(":/add-camera"));
+  AddCameraAction->setIconVisibleInMenu(false);
+  AddCameraAction->setToolTip(tr("Choose your camera device..."));
+  AddCameraAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(AddCameraAction);
+  connect(AddCameraAction, SIGNAL(triggered()), this, SLOT(openCameraDevice()));
 
   // Add color.
   addColorAction = new QAction(tr("Add &Color Source..."), this);
@@ -2128,9 +2153,7 @@ void MainWindow::createMenus()
   fileMenu->addAction(saveAsAction);
   fileMenu->addSeparator();
   fileMenu->addAction(importMediaAction);
-#ifdef Q_OS_LINUX
-  fileMenu->addAction(openCameraAction);
-#endif
+  fileMenu->addAction(AddCameraAction);
   fileMenu->addAction(addColorAction);
 
   // Recent file separator
@@ -2292,9 +2315,7 @@ void MainWindow::createToolBars()
   mainToolBar = addToolBar(tr("&Toolbar"));
   mainToolBar->setMovable(false);
   mainToolBar->addAction(importMediaAction);
-#ifdef Q_OS_LINUX
-  mainToolBar->addAction(openCameraAction);
-#endif
+  mainToolBar->addAction(AddCameraAction);
   mainToolBar->addAction(addColorAction);
 
   mainToolBar->addSeparator();
@@ -2302,7 +2323,6 @@ void MainWindow::createToolBars()
   mainToolBar->addAction(addMeshAction);
   mainToolBar->addAction(addTriangleAction);
   mainToolBar->addAction(addEllipseAction);
-
   mainToolBar->addSeparator();
 
   mainToolBar->addAction(outputFullScreenAction);
@@ -2689,7 +2709,7 @@ void MainWindow::clearRecentFileList()
 // {
 // }
 
-bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
+bool MainWindow::importMediaFile(const QString &fileName, bool isImage, bool isCamera)
 {
   QFile file(fileName);
   QDir currentDir;
@@ -2698,11 +2718,11 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
   if (!fileSupported(fileName, isImage))
     return false;
 
-  if (fileName.startsWith(QString("/dev/video"))) {
+  if (isCamera) {
     type = VIDEO_WEBCAM;
   }
 
-  if (!file.open(QIODevice::ReadOnly)) {
+  if (!isCamera && !file.open(QIODevice::ReadOnly)) {
     if (file.isSequential()) {
       type = VIDEO_SHMSRC;
     }
@@ -2729,14 +2749,16 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage)
 
   QApplication::restoreOverrideCursor();
 
-  if (!isImage && type != VIDEO_WEBCAM)
-  {
-    settings.setValue("defaultVideoDir", currentDir.absoluteFilePath(fileName));
-    setCurrentVideo(fileName);
-  }
-  else
-  {
-    settings.setValue("defaultImageDir", currentDir.absoluteFilePath(fileName));
+  if (!isCamera) { // Do not add camera to recents files
+    if (!isImage)
+    {
+      settings.setValue("defaultVideoDir", currentDir.absoluteFilePath(fileName));
+      setCurrentVideo(fileName);
+    }
+    else
+    {
+      settings.setValue("defaultImageDir", currentDir.absoluteFilePath(fileName));
+    }
   }
 
   statusBar()->showMessage(tr("File imported"), 2000);
@@ -2772,12 +2794,12 @@ void MainWindow::addPaintItem(uid paintId, const QIcon& icon, const QString& nam
 
   // Create paint gui.
   PaintGui::ptr paintGui;
-  QString paintType = paint->getType();
-  if (paintType == "media")
+  SourceType paintType = paint->getSourceType();
+  if (paintType == SourceType::Video)
     paintGui = PaintGui::ptr(new VideoGui(paint));
-  else if (paintType == "image")
+  else if (paintType == SourceType::Image)
     paintGui = PaintGui::ptr(new ImageGui(paint));
-  else if (paintType == "color")
+  else if (paintType == SourceType::Color)
     paintGui = PaintGui::ptr(new ColorGui(paint));
   else
     paintGui = PaintGui::ptr(new PaintGui(paint));
@@ -2856,13 +2878,13 @@ void MainWindow::addMappingItem(uid mappingId)
   QString defaultName;
   QIcon icon;
 
-  QString shapeType = mapping->getShape()->getType();
-  QString paintType = mapping->getPaint()->getType();
+  ShapeType shapeType = mapping->getShape()->getType();
+  SourceType paintType = mapping->getPaint()->getSourceType();
 
   // Add mapper.
   // XXX hardcoded for textures
   QSharedPointer<TextureMapping> textureMapping;
-  if (paintType == "media" || paintType == "image")
+  if (paintType == SourceType::Video || paintType == SourceType::Image)
   {
     textureMapping = qSharedPointerCast<TextureMapping>(mapping);
     Q_CHECK_PTR(textureMapping);
@@ -2873,31 +2895,31 @@ void MainWindow::addMappingItem(uid mappingId)
   // XXX Branching on nVertices() is crap
 
   // Triangle
-  if (shapeType == "triangle")
+  if (shapeType == ShapeType::Triangle)
   {
     defaultName = QString("Triangle %1").arg(mappingId);
     icon = QIcon(":/shape-triangle");
 
-    if (paintType == "color")
+    if (paintType == SourceType::Color)
       mapper = MappingGui::ptr(new PolygonColorMappingGui(mapping));
     else
       mapper = MappingGui::ptr(new TriangleTextureMappingGui(textureMapping));
   }
   // Mesh
-  else if (shapeType == "mesh")
+  else if (shapeType == ShapeType::Mesh)
   {
     defaultName = QString("Mesh %1").arg(mappingId);
     icon = QIcon(":/shape-mesh");
-    if (paintType == "color")
+    if (paintType == SourceType::Color)
       mapper = MappingGui::ptr(new MeshColorMappingGui(mapping));
     else
       mapper = MappingGui::ptr(new MeshTextureMappingGui(textureMapping));
   }
-  else if (shapeType == "ellipse")
+  else if (shapeType == ShapeType::Ellipse)
   {
     defaultName = QString("Ellipse %1").arg(mappingId);
     icon = QIcon(":/shape-ellipse");
-    if (paintType == "color")
+    if (paintType == SourceType::Color)
       mapper = MappingGui::ptr(new EllipseColorMappingGui(mapping));
     else
       mapper = MappingGui::ptr(new EllipseTextureMappingGui(textureMapping));
@@ -3270,7 +3292,7 @@ void MainWindow::showMappingContextMenu(const QPoint &point)
   mappingHideAction->setChecked(!mapping->isVisible());
   mappingSoloAction->setChecked(mapping->isSolo());
 
-  if (objectSender != NULL) {
+  if (objectSender != nullptr) {
     if (sender() == mappingItemDelegate) // XXX: The item delegate is not a widget
       mappingContextMenu->exec(mappingList->mapToGlobal(point));
     else
@@ -3282,7 +3304,7 @@ void MainWindow::showPaintContextMenu(const QPoint &point)
 {
   QWidget *objectSender = dynamic_cast<QWidget*>(sender());
 
-  if (objectSender != NULL && paintList->count() > 0)
+  if (objectSender != nullptr && paintList->count() > 0)
     paintContextMenu->exec(objectSender->mapToGlobal(point));
 }
 
@@ -3568,6 +3590,11 @@ void MainWindow::exitFullScreen()
 void MainWindow::updateSettings()
 {
   stickyVerticesAction->setChecked(settings.value("stickyVertices").toBool());
+}
+
+void MainWindow::updateMappingListColumnWidth()
+{
+  mappingList->setColumnWidth(1, mappingList->horizontalHeader()->width() - (MM::MAPPING_LIST_HIDE_COLUMN + MM::MAPPING_LIST_BUTTONS_COLUMN));
 }
 
 // void MainWindow::applyOscCommand(const QVariantList& command)
