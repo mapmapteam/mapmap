@@ -20,17 +20,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OSC_INTERFACE_H_
-#define OSC_INTERFACE_H_
-
-// Compiler flag (?)
-#ifdef HAVE_OSC
+#pragma once
 
 #include <QVariant>
+#include <QObject>
 #include <QMessageLogger>
 
 #include "ConcurrentQueue.h"
-#include "OscReceiver.h"
+#include "oscreceiver.h"
 
 namespace mmp {
 
@@ -44,18 +41,8 @@ class OscInterface {
 public:
   typedef QSharedPointer<OscInterface> ptr;
 
-  static const QString OSC_ROOT;
-  static const QString OSC_PAINT;
-  static const QString OSC_MAPPING;
-  static const QString OSC_QUIT;
-  static const QString OSC_PLAY;
-  static const QString OSC_PAUSE;
-  static const QString OSC_REWIND;
-
-  static const QString OSC_PAINT_MEDIA;
-  static const QString OSC_PAINT_COLOR;
-
-  OscInterface(const std::string &listen_port);
+  // FIXME: change listen_port to a int
+  OscInterface(int listen_port);
   ~OscInterface();
 
   /// Starts listening if receiving is enabled.
@@ -69,24 +56,14 @@ public:
    * <path> <typeTags> [args]
    */
   void consume_commands(MainWindow &main_window);
+  // FIXME use QObject signals instead of polling
 
 private:
   bool is_verbose() const { return false; }
-
   void push_command(QVariantList command);
-
-  // OSC callbacks
-  static int ping_cb(const char *path, const char *types, lo_arg **argv,
-      int argc, void *data, void *user_data);
-  static int pong_cb(const char *path, const char *types, lo_arg **argv,
-      int argc, void *data, void *user_data);
-  static int genericHandler(const char *path, const char *types, lo_arg **argv,
-      int argc, void *data, void *user_data);
 
   bool receiving_enabled_;
   OscReceiver receiver_;
-  //MainWindow* owner_;
-
   ConcurrentQueue<QVariantList> messaging_queue_;
 
   // In the main thread, handles the messages.
@@ -95,12 +72,11 @@ private:
   // For path = "path_item/rest_of_path" returns (path_item, rest_of_path).
   static QPair<QString,QString> next(const QString& path);
 
+  void messageReceivedCb(const QString& oscAddress, const QVariantList& arguments);
+
   // Sets property on element with given value.
   bool setElementProperty(const QSharedPointer<Element>& elem, const QString& property, const QVariant& value);
 };
 
 }
 
-#endif // HAVE_OSC
-
-#endif /* include guard */
