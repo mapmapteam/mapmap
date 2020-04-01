@@ -66,6 +66,12 @@ public:
     Vertical
   };
 
+  enum Rotation {
+    Rotate90CW,
+    Rotate90CCW,
+    Rotate180
+  };
+
   enum ShapeType {
     Mesh, Triangle, Ellipse, Quad
   };

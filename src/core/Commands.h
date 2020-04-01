@@ -35,7 +35,9 @@ enum CommandId {
   CMD_KEY_SCALE_ROTATE_SHAPE,
   CMD_MOUSE_SCALE_ROTATE_SHAPE,
   CMD_KEY_FLIP_SHAPE,
-  CMD_MOUSE_FLIP_SHAPE
+  CMD_MOUSE_FLIP_SHAPE,
+  CMD_KEY_ROTATE_SHAPE,
+  CMD_MOUSE_ROTATE_SHAPE,
 };
 
 class MainWindow;
@@ -174,6 +176,20 @@ protected:
   QTransform _transform;
   MShape::ptr _initialShape;
 };
+
+class RotateShapeCommand : public TransformShapeCommand
+{
+public:
+  RotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, const MShape::ptr& initialShape, MShape::Rotation rotation, QUndoCommand *parent = 0);
+
+  int id() const;
+  bool mergeWith(const QUndoCommand* other);
+
+protected:
+  // Perform the actual transformation on the shape.
+  virtual void _doTransform(MShape::ptr shape);
+
+  // Information pertaining to rotate transformation.
   QTransform _transform;
   MShape::ptr _initialShape;
 };

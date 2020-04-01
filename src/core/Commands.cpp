@@ -359,4 +359,54 @@ bool FlipShapeCommand::mergeWith(const QUndoCommand* other)
 	return true;
 }
 
+RotateShapeCommand::RotateShapeCommand(MapperGLCanvas *canvas, TransformShapeCommand::TransformShapeOption option, const MShape::ptr &initialShape, MShape::Rotation rotation, QUndoCommand *parent)
+  : TransformShapeCommand (canvas, option, parent),
+    _initialShape(initialShape)
+{
+	// Initial vector from center.
+	QPointF center = initialShape->getCenter();
+
+	// Create transform object.
+	_transform.translate(+center.x(), +center.y());
+
+	if (rotation == MShape::Rotate90CW) {
+		setText(QObject::tr("Rotate 90° CW"));
+    _transform.rotate(90);
+	}
+
+  else if (rotation == MShape::Rotate90CCW) {
+		setText(QObject::tr("Rotate 90° CCW"));
+    _transform.rotate(-90);
+	}
+
+  else if (rotation == MShape::Rotate180) {
+		setText(QObject::tr("Rotate 180°"));
+    _transform.rotate(180);
+	}
+
+	_transform.translate(-center.x(), -center.y());
+}
+
+int RotateShapeCommand::id() const { return (_option == STEP ? CMD_KEY_ROTATE_SHAPE : CMD_MOUSE_ROTATE_SHAPE); }
+
+void RotateShapeCommand::_doTransform(MShape::ptr shape)
+{
+	// Apply to shape.
+	shape->copyFrom(*_initialShape);
+	shape->applyTransform(_transform);
+}
+
+bool RotateShapeCommand::mergeWith(const QUndoCommand* other)
+{
+  if (!TransformShapeCommand::mergeWith(other))
+    return false;
+
+  const RotateShapeCommand* cmd = static_cast<const RotateShapeCommand*>(other);
+
+	_option = cmd->_option;
+	_transform = cmd->_transform;
+
+	return true;
+}
+
 }

@@ -117,7 +117,7 @@ private slots:
   void setMappingItemHide(bool hide);
   void setMappingItemSolo(bool solo);
   void loadLayerMedia();
-  void flipMappingItem();
+  void transformActionMappingItem();
   // Context menu for paints
   void deletePaintItem();
   void renamePaintItem();
@@ -394,7 +394,11 @@ private:
   QAction *mappingSoloAction;
   QAction *mappingLockedAction;
   QAction *mappingHideAction;
-  QAction *mappingpHorizontalFlipAction;
+  // Transform.
+  QAction *mappingRotate90CWAction;
+  QAction *mappingRotate90CCWAction;
+  QAction *mappingRotate180Action;
+  QAction *mappingHorizontalFlipAction;
   QAction *mappingVerticalFlipAction;
   // Paints context menu action
   QAction *deletePaintAction;

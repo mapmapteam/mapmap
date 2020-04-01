@@ -171,7 +171,10 @@ void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
    mappingLockedAction->setEnabled(true);
    mappingHideAction->setEnabled(true);
    mappingSoloAction->setEnabled(true);
-   mappingpHorizontalFlipAction->setEnabled(true);
+   mappingRotate90CWAction->setEnabled(true);
+   mappingRotate90CCWAction->setEnabled(true);
+   mappingRotate180Action->setEnabled(true);
+   mappingHorizontalFlipAction->setEnabled(true);
    mappingVerticalFlipAction->setEnabled(true);
    // Enable zoom action
    zoomInAction->setEnabled(true);
@@ -966,18 +969,27 @@ void MainWindow::loadLayerMedia()
   }
 }
 
-void MainWindow::flipMappingItem()
+void MainWindow::transformActionMappingItem()
 {
   QAction *actionSender = qobject_cast<QAction *>(sender());
 
-  if (actionSender) {
-    if(actionSender->data().toString() == "horizontal") {
-      undoStack->push(new FlipShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Horizontal));
-    }
-    else if (actionSender->data().toString() == "vertical") {
-      undoStack->push(new FlipShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Vertical));
-    }
+  if (actionSender == mappingRotate90CWAction) {
+    undoStack->push(new RotateShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Rotate90CW));
   }
+  else if (actionSender == mappingRotate90CCWAction) {
+    undoStack->push(new RotateShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Rotate90CCW));
+  }
+  else if (actionSender == mappingRotate180Action) {
+    undoStack->push(new RotateShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Rotate180));
+  }
+
+  else if (actionSender == mappingHorizontalFlipAction) {
+    undoStack->push(new FlipShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Horizontal));
+  }
+  else if (actionSender == mappingVerticalFlipAction) {
+    undoStack->push(new FlipShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Vertical));
+  }
+
 }
 
 void MainWindow::renameMapping(uid mappingId, const QString &name)
@@ -1801,21 +1813,47 @@ void MainWindow::createActions()
   addAction(mappingSoloAction);
   connect(mappingSoloAction, SIGNAL(triggered(bool)), this, SLOT(setMappingItemSolo(bool)));
 
+  // Rotate 90 degrees CW action.
+  mappingRotate90CWAction = new QAction(tr("Rotate 90° CW"), this);
+  mappingRotate90CWAction->setToolTip(tr("Rotate 90° CW"));
+  mappingRotate90CWAction->setIconVisibleInMenu(true);
+  mappingRotate90CWAction->setEnabled(false);
+  addAction(mappingRotate90CWAction);
+  connect(mappingRotate90CWAction, SIGNAL(triggered()), SLOT(transformActionMappingItem()));
+
+  // Rotate 90 degrees CW action.
+  mappingRotate90CCWAction = new QAction(tr("Rotate 90° CW"), this);
+  mappingRotate90CCWAction->setToolTip(tr("Rotate 90° CW"));
+  mappingRotate90CCWAction->setIconVisibleInMenu(true);
+  mappingRotate90CCWAction->setEnabled(false);
+  addAction(mappingRotate90CCWAction);
+  connect(mappingRotate90CCWAction, SIGNAL(triggered()), SLOT(transformActionMappingItem()));
+
+  // Rotate 180 degrees action.
+  mappingRotate180Action = new QAction(tr("Rotate 180°"), this);
+  mappingRotate180Action->setToolTip(tr("Rotate 180°"));
+  mappingRotate180Action->setIconVisibleInMenu(true);
+  mappingRotate180Action->setEnabled(false);
+  addAction(mappingRotate180Action);
+  connect(mappingRotate180Action, SIGNAL(triggered()), SLOT(transformActionMappingItem()));
+
   // Horizontal Flip Action
-  mappingpHorizontalFlipAction = new QAction(tr("Flip Horizontally"), this);
-  mappingpHorizontalFlipAction->setToolTip(tr("Flip Horizontally"));
-  mappingpHorizontalFlipAction->setIconVisibleInMenu(true);
-  mappingpHorizontalFlipAction->setEnabled(false);
-  mappingpHorizontalFlipAction->setData("horizontal");
-  connect(mappingpHorizontalFlipAction, SIGNAL(triggered()), SLOT(flipMappingItem()));
+  mappingHorizontalFlipAction = new QAction(tr("Flip Horizontally"), this);
+  mappingHorizontalFlipAction->setShortcut(Qt::Key_H);
+  mappingHorizontalFlipAction->setToolTip(tr("Flip Horizontally"));
+  mappingHorizontalFlipAction->setIconVisibleInMenu(true);
+  mappingHorizontalFlipAction->setEnabled(false);
+  addAction(mappingHorizontalFlipAction);
+  connect(mappingHorizontalFlipAction, SIGNAL(triggered()), SLOT(transformActionMappingItem()));
 
   // Vertical Flip Action
   mappingVerticalFlipAction = new QAction(tr("Flip Vertically"), this);
+  mappingVerticalFlipAction->setShortcut(Qt::Key_V);
   mappingVerticalFlipAction->setToolTip(tr("Flip Vertically"));
   mappingVerticalFlipAction->setIconVisibleInMenu(true);
   mappingVerticalFlipAction->setEnabled(false);
-  mappingVerticalFlipAction->setData("vertical");
-  connect(mappingVerticalFlipAction, SIGNAL(triggered()), SLOT(flipMappingItem()));
+  addAction(mappingHorizontalFlipAction);
+  connect(mappingVerticalFlipAction, SIGNAL(triggered()), SLOT(transformActionMappingItem()));
 
   // Delete paint.
   deletePaintAction = new QAction(tr("Delete Source"), this);
@@ -2260,7 +2298,11 @@ void MainWindow::createMappingContextMenu()
 
   // Add another separator
   mappingContextMenu->addSeparator();
-  mappingContextMenu->addAction(mappingpHorizontalFlipAction);
+  mappingContextMenu->addAction(mappingRotate90CWAction);
+  mappingContextMenu->addAction(mappingRotate90CCWAction);
+  mappingContextMenu->addAction(mappingRotate180Action);
+  mappingContextMenu->addSeparator();
+  mappingContextMenu->addAction(mappingHorizontalFlipAction);
   mappingContextMenu->addAction(mappingVerticalFlipAction);
 
   // Set context menu policy
@@ -2664,7 +2706,10 @@ void MainWindow::updateLayerActions()
     mappingLockedAction->setEnabled(false);
     mappingHideAction->setEnabled(false);
     mappingSoloAction->setEnabled(false);
-    mappingpHorizontalFlipAction->setEnabled(false);
+    mappingRotate90CWAction->setEnabled(true);
+    mappingRotate90CCWAction->setEnabled(true);
+    mappingRotate180Action->setEnabled(true);
+    mappingHorizontalFlipAction->setEnabled(false);
     mappingVerticalFlipAction->setEnabled(false);
     //Disable zoom menus
     zoomInAction->setEnabled(false);
