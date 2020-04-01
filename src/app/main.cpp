@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 #endif
     app.installTranslator(&qtTranslator);
 
-    appTranslator.load(QString("translations/mapmap_%1").arg(lang));
+    appTranslator.load(QString(":/translations_mapmap_%1").arg(lang));
     app.installTranslator(&appTranslator);
   }
   else {
