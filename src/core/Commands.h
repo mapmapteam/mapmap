@@ -170,8 +170,10 @@ protected:
   // Perform the actual transformation on the shape.
   virtual void _doTransform(MShape::ptr shape);
 
-  // Information pertaining to the moving of vertex.
-  int _movedVertex;
+  // Information pertaining to flip transformation.
+  QTransform _transform;
+  MShape::ptr _initialShape;
+};
   QTransform _transform;
   MShape::ptr _initialShape;
 };
