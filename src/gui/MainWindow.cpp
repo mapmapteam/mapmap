@@ -1852,7 +1852,7 @@ void MainWindow::createActions()
   mappingVerticalFlipAction->setToolTip(tr("Flip Vertically"));
   mappingVerticalFlipAction->setIconVisibleInMenu(true);
   mappingVerticalFlipAction->setEnabled(false);
-  addAction(mappingHorizontalFlipAction);
+  addAction(mappingVerticalFlipAction);
   connect(mappingVerticalFlipAction, SIGNAL(triggered()), SLOT(transformActionMappingItem()));
 
   // Delete paint.
