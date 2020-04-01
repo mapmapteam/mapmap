@@ -326,12 +326,12 @@ FlipShapeCommand::FlipShapeCommand(MapperGLCanvas *canvas, TransformShapeCommand
 	_transform.translate(+center.x(), +center.y());
 
 	if (direction == MShape::Horizontal) {
-		setText(QObject::tr("Flipped Horizontally"));
+		setText(QObject::tr("Flip Horizontally"));
 		_transform.scale(-1, 1);
 	}
 
-	if (direction == MShape::Vertical) {
-		setText(QObject::tr("Flipped Vertically"));
+	else if (direction == MShape::Vertical) {
+		setText(QObject::tr("Flip Vertically"));
 		_transform.scale(1, -1);
 	}
 	_transform.translate(-center.x(), -center.y());
