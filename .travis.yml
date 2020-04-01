@@ -1,14 +1,78 @@
+language: c++
+cache: ccache
+
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      env: TARGET="linux64"
+      compiler: gcc
+      cache:
+        directories:
+          - ~/.ccache
+        before_cache:
+          - rm -f ~/.cache/*.log
+
+    - os: osx
+      osx_image: xcode8
+      env: TARGET="osx"
+      compiler:
+        - gcc
+        - clang
+
+before_install:
+  - if [ "$TARGET" == "linux64" ]; then
+      sudo apt-get update;
+    fi
+
+  - if [ "$TARGET" == "osx" ]; then
+      brew update;
+    fi
+
 install:
-  - sudo apt-get update
-  # Qt
-  - sudo apt-get install qt5-default qttools5-dev-tools
-  # Liblo
-  - sudo apt-get install liblo-dev liblo-tools
-  # GStreamer
-  - sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-vaapi gstreamer1.0-plugins-base gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-x gstreamer1.0-tools
-  # QtMultimedia (unused)
-  - sudo apt-get install qtmultimedia5-dev
+  - if [ "$TARGET" == "linux64" ]; then
+      sudo apt-get install qt5-default qttools5-dev-tools;
+      sudo apt-get install liblo-dev liblo-tools;
+      sudo apt-get install libgstreamer1.0-dev
+      libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad
+      gstreamer1.0-libav gstreamer1.0-vaapi gstreamer1.0-plugins-base
+      gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-good
+      gstreamer1.0-plugins-ugly gstreamer1.0-x gstreamer1.0-tools;
+      sudo apt-get install qtmultimedia5-dev;
+      wget http://mirrors.kernel.org/ubuntu/pool/main/c/ccache/ccache_3.3.4-1_amd64.deb;
+      sudo dpkg -i ccache_3.3.4-1_amd64.deb;
+    fi
+
+  - if [ "$TARGET" == "osx" ]; then
+      brew install qt;
+      brew install liblo;
+      brew install ccache;
+      export PATH="/usr/local/opt/ccache/libexec:$PATH";
+      wget --quiet https://gstreamer.freedesktop.org/data/pkg/osx/1.12.4/gstreamer-1.0-1.12.4-x86_64.pkg;
+      sudo installer -verboseR -pkg gstreamer-1.0-1.12.4-x86_64.pkg -target /;
+      wget --quiet https://gstreamer.freedesktop.org/data/pkg/osx/1.12.4/gstreamer-1.0-devel-1.12.4-x86_64.pkg;
+      sudo installer -verboseR -pkg gstreamer-1.0-devel-1.12.4-x86_64.pkg -target /;
+    fi
+
+before_script:
+  - if [ "$TARGET" == "osx" ]; then
+      brew link qt --force;
+      brew link liblo --force;
+      gstreamer="GStreamer.framework/Versions/1.0/lib/GStreamer"
+      app="MapMap.app";
+    fi
 
 script:
-  - qmake mapmap.pro
-  - make
+  - ccache -z
+  - ccache -s
+  - if [ "$TARGET" == "linux64" ]; then
+      qmake mapmap.pro;
+      make -j4;
+    fi
+
+  - if [ "$TARGET" == "osx" ]; then
+      qmake -config release;
+      make -j4;
+    fi
+  - ccache -s

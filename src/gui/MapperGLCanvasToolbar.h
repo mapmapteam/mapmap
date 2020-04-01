@@ -28,7 +28,7 @@ namespace mmp {
 class MapperGLCanvasToolbar : public QWidget {
   Q_OBJECT
 public:
-  MapperGLCanvasToolbar(MapperGLCanvas* canvas, QWidget* parent=0);
+  MapperGLCanvasToolbar(MapperGLCanvas* parent = nullptr);
   virtual ~MapperGLCanvasToolbar();
 
   // Create zoom tool buttons

@@ -71,7 +71,7 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
               Qt::AlignLeft | Qt::AlignVCenter, iconPixmap);
 
       // Draw Text
-      QString mappingName = index.model()->data(index, Qt::DisplayRole).toString();
+      QString mappingName = index.model()->data(index, Qt::EditRole).toString();
       QRect textRect(x + 40, y, rect.width() - 40, rect.height());
       QPalette textColor = QPalette(MM::WHITE);
 
@@ -147,6 +147,7 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
       }
       QApplication::style()->drawControl( QStyle::CE_ToolButtonLabel,
               &mappingSoloButton, painter);
+
       if (isLocked)
       {
         QPainterPath mappingLockPanel;
@@ -158,6 +159,7 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
       }
       QApplication::style()->drawControl(
             QStyle::CE_ToolButtonLabel, &mappingLockButton, painter);
+
       QApplication::style()->drawControl(
             QStyle::CE_ToolButtonLabel, &mappingDuplicateButton, painter);
       QApplication::style()->drawControl(
@@ -182,7 +184,7 @@ QWidget *MappingItemDelegate::createEditor(QWidget *parent,
   }
   else
   {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -203,7 +205,7 @@ void MappingItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *mode
 void MappingItemDelegate::updateEditorGeometry(QWidget *editor,
         const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-  Q_UNUSED(index);
+  Q_UNUSED(index)
   editor->setGeometry(option.rect);
 }
 

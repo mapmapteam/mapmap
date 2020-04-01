@@ -41,7 +41,7 @@ public:
     build();
   }
   virtual ~Triangle() {}
-  virtual QString getType() const { return "triangle"; }
+  virtual ShapeType getType() const { return ShapeType::Triangle; }
 
 protected:
   /// Returns a new MShape (using default constructor).

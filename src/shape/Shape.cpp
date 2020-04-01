@@ -38,11 +38,20 @@ MShape* MShape::clone() const {
   return copyShape;
 }
 
+void MShape::setShapeMode(MShape::ShapeMode mode, bool next)
+{
+  if (!next)
+    _shapeMode = mode;
+  else
+    _shapeMode = static_cast<MShape::ShapeMode>((mode + 1) % 3);
+
+}
+
 void MShape::applyTransform(const QTransform& transform)
 {
-	for (QVector<QPointF>::iterator it = vertices.begin();
+  for (QVector<QPointF>::iterator it = vertices.begin();
        it != vertices.end(); ++it)
-		(*it) = transform.map(*it);
+    (*it) = transform.map(*it);
 }
 
 void MShape::transform(const QPointF& translate, qreal scale, qreal rotate)
@@ -85,11 +94,11 @@ void MShape::scale(qreal scaling)
 
 QPointF MShape::getCenter() const
 {
-	QPointF center;
+  QPointF center;
   for (QVector<QPointF>::const_iterator it = vertices.begin(); it != vertices.end(); ++it)
     center += (*it);
- 	center /= nVertices();
-	return center;
+  center /= nVertices();
+  return center;
 }
 
 void MShape::read(const QDomElement& obj)

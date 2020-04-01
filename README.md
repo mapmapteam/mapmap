@@ -15,6 +15,12 @@ extra dimensions, optical illusions, and notions of movement onto
 previously static objects. The video is commonly combined with, or
 triggered by, audio to create an audio-visual narrative.
 
+
+Build status
+---------------
+Linux & OSX &nbsp;&nbsp;&nbsp;&nbsp;[![Build Status](https://travis-ci.org/mapmapteam/mapmap.svg?branch=develop)](https://travis-ci.org/mapmapteam/mapmap)       
+Windows &nbsp;&nbsp;&nbsp;&nbsp;[![Build status](https://ci.appveyor.com/api/projects/status/5b2ww0n8m8s9p55c?svg=true)](https://ci.appveyor.com/project/baydam/mapmap)
+
 Ackowledgements
 ---------------
 This project was made possible by the support of the International
@@ -46,14 +52,25 @@ Authors
 
 Contributors
 ------------
-* Alex Barry: user experience design.
-* Maxime Damecour: inspiration.
+* Lucas Adair : developer, macOS packaging.
 * Christian Ambaud: sponsor, inspiration.
-* Louis Desjardins: project manager.
-* Julien Keable: developer.
+* Alex Barry: user experience design.
+* Eliza Bennett : documentation, chinese translation.
+* Jonathan Roman Bland : developer.
 * Sylvain Cormier: developer.
+* Maxime Damecour: inspiration.
+* Louis Desjardins: project manager.
+* Ian Donnelly : user interface designer, documentation.
+* Gene Felice : video package, documentation.
+* Julien Keable: developer.
 * Marc Lavallée: help with packaging.
+* Matthew Loewens : documentation, developer.
+* Madison Suniga : documentation.
 
 More info
 ---------
 Get more info from http://mapmap.info
+
+Licence
+---------
+[GNU GPL v3](https://github.com/mapmapteam/mapmap/blob/develop/LICENSE)

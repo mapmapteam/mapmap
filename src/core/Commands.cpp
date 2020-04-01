@@ -33,7 +33,7 @@ AddPaintCommand::AddPaintCommand(MainWindow *mainWindow, uid paintId, const QIco
   _icon(icon),
   _name(name)
 {
-  setText(QObject::tr("Add paint"));
+  setText(QObject::tr("Add source"));
 }
 
 void AddPaintCommand::undo()
@@ -59,7 +59,7 @@ AddMappingCommand::AddMappingCommand(MainWindow *mainWindow, uid mappingId, QUnd
   _mainWindow(mainWindow),
   _mappingId(mappingId)
 {
-  setText(QObject::tr("Add mapping"));
+  setText(QObject::tr("Add layer"));
 }
 
 void AddMappingCommand::undo()
@@ -84,7 +84,7 @@ void AddMappingCommand::redo()
 DuplicateMappingCommand::DuplicateMappingCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent):
   AddMappingCommand(mainWindow, cloneId, parent)
 {
-  setText(QObject::tr("Duplicate mapping"));
+  setText(QObject::tr("Duplicate layer"));
 }
 
 TransformShapeCommand::TransformShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, QUndoCommand* parent)
@@ -148,7 +148,7 @@ int MoveVertexCommand::id() const { return (_option == STEP ? CMD_KEY_MOVE_VERTE
 
 void MoveVertexCommand::_doTransform(MShape::ptr shape)
 {
-	shape->setVertex(_movedVertex, _vertexPosition);
+  shape->setVertex(_movedVertex, _vertexPosition);
 }
 
 bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
@@ -168,13 +168,11 @@ bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
 }
 
 
-ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, const QPointF& initialPositionPoint, const MShape::ptr& initialShape, QUndoCommand *parent)
+ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, const QPointF& initialPositionPoint, const MShape::ptr& initialShape, MShape::ShapeMode mode, QUndoCommand *parent)
   : TransformShapeCommand(canvas, option, parent),
     _movedVertex(activeVertex),
-		_initialShape(initialShape)
+    _initialShape(initialShape)
 {
-  setText(QObject::tr("Scale and rotate shape"));
-
 	// Initial vector from center.
 	QPointF center = initialShape->getCenter();
 	QLineF initialVector(center, initialPositionPoint);
@@ -186,11 +184,16 @@ ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, Transfo
 	// Compute rotation.
 	qreal rotation = currentVector.angleTo(initialVector);
 
-	// Create transform object.	
-	//	transform.rotate(rotation);
+	// Create transform object.
 	_transform.translate(+center.x(), +center.y());
-	_transform.rotate(rotation);
-	_transform.scale(scale, scale);
+	if (mode == MShape::RotateMode) {
+		 setText(QObject::tr("Rotate shape"));
+		_transform.rotate(rotation);
+	}
+	if (mode == MShape::ScaleMode) {
+		setText(QObject::tr("Scale shape"));
+		_transform.scale(scale, scale);
+	}
 	_transform.translate(-center.x(), -center.y());
 }
 
@@ -214,10 +217,10 @@ bool ScaleRotateShapeCommand::mergeWith(const QUndoCommand* other)
   if (cmd->_movedVertex != _movedVertex)
     return false;
 
-  _option = cmd->_option;
+	_option = cmd->_option;
 	_transform = cmd->_transform;
 
-  return true;
+	return true;
 }
 
 
@@ -255,7 +258,7 @@ RemovePaintCommand::RemovePaintCommand(MainWindow *mainWindow, uid paintId, QUnd
   _paintId(paintId),
   _paintMappings()
 {
-  setText(QObject::tr("Remove paint"));
+  setText(QObject::tr("Remove media"));
 }
 
 void RemovePaintCommand::undo()
@@ -293,7 +296,7 @@ DeleteMappingCommand::DeleteMappingCommand(MainWindow *mainWindow, uid mappingId
   _mainWindow(mainWindow),
   _mappingId(mappingId)
 {
-  setText(QObject::tr("Delete mapping"));
+  setText(QObject::tr("Delete layer"));
 }
 
 void DeleteMappingCommand::undo()
@@ -310,6 +313,50 @@ void DeleteMappingCommand::redo()
   // Store mapping pointer before delete it
   _mapping = _mainWindow->getMappingManager().getMappingById(_mappingId);
   _mainWindow->deleteMapping(_mappingId);
+}
+
+FlipShapeCommand::FlipShapeCommand(MapperGLCanvas *canvas, TransformShapeCommand::TransformShapeOption option, const MShape::ptr &initialShape, MShape::FlipDirection direction, QUndoCommand *parent)
+  : TransformShapeCommand (canvas, option, parent),
+    _initialShape(initialShape)
+{
+	// Initial vector from center.
+	QPointF center = initialShape->getCenter();
+
+	// Create transform object.
+	_transform.translate(+center.x(), +center.y());
+
+	if (direction == MShape::Horizontal) {
+		setText(QObject::tr("Flipped Horizontally"));
+		_transform.scale(-1, 1);
+	}
+
+	if (direction == MShape::Vertical) {
+		setText(QObject::tr("Flipped Vertically"));
+		_transform.scale(1, -1);
+	}
+	_transform.translate(-center.x(), -center.y());
+}
+
+int FlipShapeCommand::id() const { return (_option == STEP ? CMD_KEY_FLIP_SHAPE : CMD_MOUSE_FLIP_SHAPE); }
+
+void FlipShapeCommand::_doTransform(MShape::ptr shape)
+{
+	// Apply to shape.
+	shape->copyFrom(*_initialShape);
+	shape->applyTransform(_transform);
+}
+
+bool FlipShapeCommand::mergeWith(const QUndoCommand* other)
+{
+  if (!TransformShapeCommand::mergeWith(other))
+    return false;
+
+  const FlipShapeCommand* cmd = static_cast<const FlipShapeCommand*>(other);
+
+	_option = cmd->_option;
+	_transform = cmd->_transform;
+
+	return true;
 }
 
 }

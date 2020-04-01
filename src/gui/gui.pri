@@ -1,8 +1,8 @@
 
 include(../src.pri)
 
-include(contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
-include(contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
+include($$PWD/contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
+include($$PWD/contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
 
 HEADERS += $$PWD/AboutDialog.h \
     $$PWD/ConsoleWindow.h \

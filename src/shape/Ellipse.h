@@ -61,7 +61,7 @@ public:
     sanitize();
   }
 
-  virtual QString getType() const { return "ellipse"; }
+  virtual ShapeType getType() const { return ShapeType::Ellipse; }
 
   qreal getRotationRadians() const
   {
@@ -131,6 +131,9 @@ public:
 
   // Override the parent, checking to make sure the vertices are displaced correctly.
   virtual void setVertex(int i, const QPointF& v);
+
+  // Returns true iff vertex index is considered a major (external) control point.
+  virtual bool isMajorVertex(int idx) const;
 
 protected:
   /// Returns a new MShape (using default constructor).

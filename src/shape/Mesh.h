@@ -51,13 +51,16 @@ public:
 
   virtual void build();
 
-  virtual QString getType() const { return "mesh"; }
+  virtual ShapeType getType() const { return ShapeType::Mesh; }
 
   /// Returns a polygon that is formed by all the contour points of the mesh.
   virtual QPolygonF toPolygon() const;
 
   // Override the parent, checking to make sure the vertices are displaced correctly.
   virtual void setVertex(int i, const QPointF& v);
+
+  // Returns true iff vertex index is considered a major (external) control point.
+  virtual bool isMajorVertex(int idx) const;
 
   QPointF getVertex2d(int i, int j) const
   {

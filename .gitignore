@@ -13,6 +13,7 @@ Release/
 .deps
 .libs
 
+
 # Big files
 .*.swp
 *.zip
@@ -21,10 +22,7 @@ Release/
 *.mmp
 *.mov
 *.ogg
-*.png
 
-# except icons files
-!resources/images/*
 *.tar
 *.rar
 *.qm
@@ -50,15 +48,15 @@ moc_*.cpp
 prototypes/gst/
 qrc_*.cpp
 *.moc
-src/*/mocs/
-src/*/objs/
-src/*/qrc/
+src/*/mocs/*
+src/*/objs/*
+src/*/qrc/*
 
 # Folders not to be included
 html/
 
 # Mac OS X / MacOS
-.DS_Store
+*.DS_Store
 .qmake.stash
 Info.plist
 *.xcodeproj/
@@ -89,3 +87,10 @@ trash
 # Windows
 *.Debug
 *.Release
+
+# except icons files
+!resources/images/*
+!resources/macOS/Info.plist
+!resources/macOS/MapMap.icns
+
+*.json

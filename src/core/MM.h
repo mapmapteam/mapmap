@@ -60,6 +60,7 @@ public:
   static const QString IMAGE_FILES_FILTER;
   static const QString NAMESPACE_PREFIX;
   static const QString SUPPORTED_LANGUAGES;
+  static const QString SUPPORTED_FILE_VERSIONS;
 
   // GUI.
   static const int DEFAULT_WINDOW_WIDTH = 640;
@@ -68,6 +69,9 @@ public:
   static const int ZOOM_TOOLBAR_ICON_SIZE = 16;
   static const int ZOOM_TOOLBAR_BUTTON_SIZE = 20;
   static const int MAPPING_LIST_ICON_SIZE = 16;
+  static const int MAPPING_LIST_HIDE_COLUMN = 24;
+  static const int MAPPING_LIST_NAME_COLUMN = 135;
+  static const int MAPPING_LIST_BUTTONS_COLUMN = 128;
 
   // OSC
   static const int DEFAULT_OSC_PORT = 12345;
@@ -81,9 +85,12 @@ public:
   static const bool DISPLAY_ZOOM_TOOLBAR = true;
   static const bool DISPLAY_MENU_BAR = true;
   static const bool STICKY_VERTICES = true;
-  static const int DEFAULT_TEST_CARD = 0;
+  static const int DEFAULT_TEST_CARD = 1;
   static const bool SHOW_OUTPUT_RESOLUTION = true;
   static const QString DEFAULT_LANGUAGE;
+  static const bool SHOW_OUTPUT_ON_MOUSE_HOVER = true;
+  static const bool OSC_SAME_MEDIA_SOURCE = false;
+  static const bool PLAY_IN_LOOP = true;
 
   // Style.
   static const QColor WHITE;

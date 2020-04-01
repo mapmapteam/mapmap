@@ -105,6 +105,7 @@ bool MappingManager::removePaint(uid paintId)
     Q_ASSERT(idx != -1);
     paintVector.remove(idx);
     paintMap.remove(paintId);
+    paint->~Paint(); // FIX ME: Explicit call of paint destructor in order add Camera more than once
     return true;
   }
   else

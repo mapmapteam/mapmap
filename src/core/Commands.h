@@ -32,8 +32,10 @@ enum CommandId {
   CMD_MOUSE_MOVE_VERTEX,
   CMD_KEY_TRANSLATE_SHAPE,
   CMD_MOUSE_TRANSLATE_SHAPE,
-	CMD_KEY_SCALE_ROTATE_SHAPE,
-	CMD_MOUSE_SCALE_ROTATE_SHAPE,
+  CMD_KEY_SCALE_ROTATE_SHAPE,
+  CMD_MOUSE_SCALE_ROTATE_SHAPE,
+  CMD_KEY_FLIP_SHAPE,
+  CMD_MOUSE_FLIP_SHAPE
 };
 
 class MainWindow;
@@ -125,7 +127,7 @@ protected:
 class ScaleRotateShapeCommand : public TransformShapeCommand
 {
 public:
-  ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, const QPointF& initialPositionPoint, const MShape::ptr& initialShape, QUndoCommand *parent = 0);
+  ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, const QPointF& initialPositionPoint, const MShape::ptr& initialShape, MShape::ShapeMode mode, QUndoCommand *parent = 0);
 
   int id() const;
   bool mergeWith(const QUndoCommand* other);
@@ -136,8 +138,8 @@ protected:
 
   // Information pertaining to the moving of vertex.
   int _movedVertex;
-	QTransform _transform;
-	MShape::ptr _initialShape;
+  QTransform _transform;
+  MShape::ptr _initialShape;
 };
 
 class TranslateShapeCommand : public TransformShapeCommand
@@ -154,6 +156,24 @@ protected:
 
 private:
   QPointF _translation;
+};
+
+class FlipShapeCommand : public TransformShapeCommand
+{
+public:
+  FlipShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, const MShape::ptr& initialShape, MShape::FlipDirection direction, QUndoCommand *parent = 0);
+
+  int id() const;
+  bool mergeWith(const QUndoCommand* other);
+
+protected:
+  // Perform the actual transformation on the shape.
+  virtual void _doTransform(MShape::ptr shape);
+
+  // Information pertaining to the moving of vertex.
+  int _movedVertex;
+  QTransform _transform;
+  MShape::ptr _initialShape;
 };
 
 class RemovePaintCommand : public QUndoCommand

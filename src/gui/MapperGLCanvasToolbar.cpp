@@ -21,9 +21,8 @@
 
 namespace mmp {
 
-MapperGLCanvasToolbar::MapperGLCanvasToolbar(MapperGLCanvas* canvas, QWidget* parent)
-  : QWidget(parent),
-    _canvas(canvas)
+MapperGLCanvasToolbar::MapperGLCanvasToolbar(MapperGLCanvas* parent)
+  : _canvas(parent)
 {
   // Create tools layout
   createZoomToolsLayout();
@@ -113,7 +112,7 @@ void MapperGLCanvasToolbar::showZoomToolBar(bool visible)
 
 void MapperGLCanvasToolbar::enableZoomToolBar(bool enabled)
 {
-  for (QPushButton *button: findChildren<QPushButton *>()) {
+  for (QToolButton *button: findChildren<QToolButton *>()) {
     button->setEnabled(enabled);
   }
   _dropdownMenu->setEnabled(enabled);

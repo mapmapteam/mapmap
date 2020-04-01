@@ -72,8 +72,8 @@ private:
   QMenu *fileMenu;
 
   // Constants
-  static const int CONSOLE_WINDOW_DEFAULT_WIDTH = 640;
-  static const int CONSOLE_WINDOW_DEFAULT_HEIGHT = 480;
+  static const int CONSOLE_WINDOW_DEFAULT_WIDTH = 1024;
+  static const int CONSOLE_WINDOW_DEFAULT_HEIGHT = 768;
 };
 
 }

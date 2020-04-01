@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+<key>CFBundleIdentifier</key>
+<string>info.mapmapteam.MapMap</string>
+<key>CFBundleName</key>
+<string>mapmap</string>
+<key>CFBundleExecutable</key>
+<string>MapMap</string>
+<key>CFBundlePackageGetInfoString</key>
+<string>Open source video mapping software</string>
+<key>CFBundleIconFile</key>
+<string>mapmap.icns</string>
+<key>CFBundlePackageType</key>
+<string>APPL</string>
+<key>CFBundleVersion</key>
+<string>063</string>
+<key>CFBundleShortVersionString</key>
+<string>0.6.3</string>
+<key>LSMinimumSystemVersion</key>
+<string>10.10</string>
+<key>NSPrincipalClass</key>
+<string>NSApplication</string>
+<key>NSSupportsAutomaticGraphicsSwitching</key>
+<true/><key>NOTE</key>
+<string>This file need to be update at every release</string>
+
+</dict>
+</plist>

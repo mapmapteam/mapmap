@@ -1,0 +1,38 @@
+version: '{branch}-{build}'
+
+build:
+  verbosity: minimal
+
+environment:
+  matrix:
+    - BUILD: 'Release'
+      CONFIG: debug
+
+install:
+  - set QTDIR=C:\Qt\5.10.1\mingw53_32
+  - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin
+  - ps: |
+      Write-Host "Installing GStreamer..." -ForegroundColor Cyan
+      $msiPath = "$($env:USERPROFILE)\gstreamer-1.0-x86_64-1.12.4.msi"
+      $gstreamerPath = "C:\"
+      Write-Host "Downloading..."
+      (New-Object Net.WebClient).DownloadFile('https://gstreamer.freedesktop.org/data/pkg/windows/1.12.4/gstreamer-1.0-x86_64-1.12.4.msi', $msiPath)
+      Write-Host "Installing..."
+      cmd /c start /wait msiexec /package $msiPath /passive ADDLOCAL=ALL TARGETDIR=$gstreamerPath
+      Write-Host "Installed" -ForegroundColor Green
+
+  - ps: |
+      Write-Host "Installing GStreamer Devel..." -ForegroundColor Cyan
+      $msiPath = "$($env:USERPROFILE)\gstreamer-1.0-devel-x86_64-1.12.4.msi"
+      $gstreamerPath = "C:\"
+      Write-Host "Downloading..."
+      (New-Object Net.WebClient).DownloadFile('https://gstreamer.freedesktop.org/data/pkg/windows/1.12.4/gstreamer-1.0-devel-x86_64-1.12.4.msi', $msiPath)
+      Write-Host "Installing..."
+      cmd /c start /wait msiexec /package $msiPath /passive ADDLOCAL=ALL TARGETDIR=$gstreamerPath
+      Write-Host "Installed" -ForegroundColor Green
+
+  - set GSTREAMER_1_0_ROOT_X86=C:\gstreamer\1.0\x86_64
+
+build_script:
+  - qmake mapmap.pro
+  - mingw32-make

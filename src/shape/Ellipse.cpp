@@ -149,4 +149,10 @@ void Ellipse::setVertex(int i, const QPointF& v)
   sanitize();
 }
 
+// Returns true iff vertex index is considered a major (external) control point.
+bool Ellipse::isMajorVertex(int idx) const
+{
+  return !hasCenterControl() || idx != 4;
+}
+
 }

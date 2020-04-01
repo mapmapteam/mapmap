@@ -152,11 +152,10 @@ private:
   QPointF _grabbedShapeStartCenterScenePosition;
   MShape::ptr _grabbedShapeCopy;
 
-  // Scale and rotate mode selected.
-  bool _scaleRotateMode;
-
   // Mouse currently pressed inside a vertex.
   bool _vertexGrabbed;
+  // If current vertex is moved
+  bool _vertexMoved;
 
   // Index of currently active vertex.
   int _activeVertex;

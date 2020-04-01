@@ -21,7 +21,7 @@
 #include "Paint.h"
 #include "VideoImpl.h"
 #include "VideoUriDecodeBinImpl.h"
-#include "VideoV4l2SrcImpl.h"
+#include "CameraImpl.h"
 #include "VideoShmSrcImpl.h"
 #include <iostream>
 
@@ -161,6 +161,20 @@ const uchar* Image::getBits() {
   return _bits;
 }
 
+QIcon Image::getIcon() const
+{
+  static QFileIconProvider provider;
+
+  if (!_images.isEmpty())
+    // Create icon from image.
+    return QIcon(QPixmap::fromImage(_images[0]).scaled(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE,
+                                    Qt::IgnoreAspectRatio));
+  else
+    // Return default icon from filesystem.
+    return provider.icon(QFileInfo(_uri));
+}
+
+
 void Image::setRate(double rate)
 {
   _rate = rate;
@@ -174,7 +188,7 @@ void Image::_doPlay()
 /* Implementation of the Video class */
 Video::Video(int id) : Texture(id),
     _uri(""),
-    _impl(NULL)
+    _impl(nullptr)
 {
   _impl = new VideoUriDecodeBinImpl();
   setRate(1);
@@ -184,26 +198,24 @@ Video::Video(int id) : Texture(id),
 Video::Video(const QString uri_, VideoType type, double rate, uid id):
     Texture(id),
     _uri(""),
-    _impl(NULL)
+    _videoType(type),
+    _impl(nullptr)
 {
   switch (type) {
     case VIDEO_URI:
       _impl = new VideoUriDecodeBinImpl();
       break;
     case VIDEO_WEBCAM:
-      _impl = new VideoV4l2SrcImpl();
+      _impl = new CameraImpl();
       break;
     case VIDEO_SHMSRC:
       _impl = new VideoShmSrcImpl();
       break;
-    default:
-      fprintf (stderr, "Could not determine type for video source\n ");
-      break;
   }
-  //_impl = new VideoShmSrcImpl();//V4l2SrcImpl();//UriDecodeBinImpl();
   setRate(rate);
   setVolume(1);
   setUri(uri_);
+  _videoType = type;
 }
 
 // vertigo
@@ -291,8 +303,12 @@ bool Video::hasVideoSupport()
 
 bool Video::setUri(const QString &uri)
 {
+  QSettings settings;
+  bool sameMediaSourceOSC = settings.value("oscSameMediaSource").toBool();
   // Check if we're actually changing the uri.
-  if (uri != _uri)
+  // In some case with OSC message the user may need to allow
+  // the same media source (uri)
+  if (sameMediaSourceOSC || uri != _uri)
   {
     // Try to load movie.
     if (!_impl->loadMovie(uri))
@@ -306,20 +322,24 @@ bool Video::setUri(const QString &uri)
 
     // Try to get thumbnail.
     // Wait for the first samples to be available to make sure we are ready.
-    if (!_impl->waitForNextBits(1000))
+    if (!_impl->waitForNextBits(ICON_TIMEOUT))
     {
       qDebug() << "No bits coming" << endl;
       return false;
     }
 
-    if (!_generateThumbnail())
-      qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << endl;
+    if (_videoType != VIDEO_WEBCAM) { // Generated thumbnail if source type is not camera
+      if (!_generateThumbnail())
+        qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << endl;
+    }
 
     _emitPropertyChanged("uri");
+
+    // Return success.
+    return true;
   }
 
-  // Return success.
-  return true;
+  return false;
 }
 
 void Video::_doPlay()
@@ -338,6 +358,14 @@ bool Video::_generateThumbnail()
 
   // Default (in case seeking and loading don't work).
   _icon = provider.icon(QFileInfo(_uri));
+  if (_icon.isNull()) {
+    if (_uri.startsWith(QString("/dev/video"))) {
+      _icon = QIcon(":/add-camera");
+    }
+    else {
+      _icon = QIcon(":/add-video");
+    }
+  }
 
   // Try seeking to the middle of the movie.
   if (!_impl->seekTo(0.5))

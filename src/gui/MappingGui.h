@@ -94,7 +94,8 @@ public slots:
 
 signals:
   void valueChanged();
-
+  void paintChanged();
+  
 protected:
   Mapping::ptr _mapping;
 

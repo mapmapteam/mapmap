@@ -28,6 +28,13 @@ ProjectReader::ProjectReader(MainWindow *window) : _window(window)
 {
 }
 
+bool ProjectReader::isValidVersion(const QString& versionString)
+{
+    QRegularExpression re(MM::SUPPORTED_FILE_VERSIONS);
+    QRegularExpressionMatch match = re.match(versionString);
+    return match.hasMatch();
+}
+
 bool ProjectReader::readFile(QIODevice *device)
 {
   QString errorStr;
@@ -43,10 +50,15 @@ bool ProjectReader::readFile(QIODevice *device)
   }
 
   QDomElement root = doc.documentElement();
+  QString projectVersion = root.attribute("version");
   // The handling of the version number will get fancier as we go.
-  if (root.tagName() != "project" || root.attribute("version") != MM::VERSION)
-  {
-    _xml.raiseError(QObject::tr("The file is not a mapmap version %1 file.").arg(MM::VERSION));
+  if (root.tagName() != "project") {
+    _xml.raiseError(QObject::tr("The contents of this file does not look like a MapMap project."));
+    return false;
+  } else if (! this->isValidVersion(projectVersion)) {
+    _xml.raiseError(
+        QObject::tr("The version of MapMap %1 used to save this file is not readable by this MapMap version %2.").arg(
+            projectVersion, MM::VERSION));
     return false;
   }
 
@@ -87,6 +99,22 @@ void ProjectReader::parseProject(const QDomElement& project)
     {
       manager.addPaint(paint);
       _window->addPaintItem(paint->getId(), paint->getIcon(), paint->getName());
+
+      // Locate media file if not found
+      if (paint->getSourceType() == Paint::SourceType::Video)
+      {
+        QSharedPointer<Video> media = qSharedPointerCast<Video>(paint);
+        Q_CHECK_PTR(media);
+        if (!_window->fileExists(media->getUri()))
+          media->setUri(_window->locateMediaFile(media->getUri(), false));
+      }
+      if (paint->getSourceType() == Paint::SourceType::Image)
+      {
+        QSharedPointer<Image> image = qSharedPointerCast<Image>(paint);
+        Q_CHECK_PTR(image);
+        if (!_window->fileExists(image->getUri()))
+          image->setUri(_window->locateMediaFile(image->getUri(), true));
+      }
     }
     paintNode = paintNode.nextSibling();
   }
@@ -122,6 +150,7 @@ Paint::ptr ProjectReader::parsePaint(const QDomElement& paintElem)
   {
     // Create new instance.
     Paint::ptr paint (qobject_cast<Paint*>(metaObject->newInstance( Q_ARG(int, id)) ));
+
     if (paint.isNull())
     {
       qDebug() << QObject::tr("Problem at creation of paint.") << endl;

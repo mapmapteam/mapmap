@@ -184,7 +184,7 @@ static void printCommand(QVariantList &command)
 
 void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & command) {
   Q_UNUSED(main_window);
-  bool VERBOSE = true;
+  bool VERBOSE = false;
 
   if (VERBOSE)
   {
