@@ -1,7 +1,13 @@
-QT += gui opengl xml core network
+QT += gui
+QT += opengl
+QT += xml
+QT += core
+QT += network
+QT += multimedia
+
 greaterThan(QT_MAJOR_VERSION, 4) {
   QT -= gui # using widgets instead gui in Qt5
-  QT += widgets multimedia
+  QT += widgets
 }
 
 #Includes common configuration for all subdirectory .pro files.
@@ -18,12 +24,10 @@ unix:!macx {
   INCLUDE_PATH +=
   PKGCONFIG += \
     gstreamer-1.0 gstreamer-base-1.0 gstreamer-app-1.0 gstreamer-pbutils-1.0 \
-    liblo \
     gl x11
   QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-result -Wno-unused-parameter \
                             -Wno-unused-variable -Wno-switch -Wno-comment \
                             -Wno-unused-but-set-variable
-  QMAKE_CXXFLAGS += -DHAVE_OSC
 }
 
 # macOS-specific:
@@ -40,15 +44,6 @@ macx {
   # This tells qmake not to put the executable inside a bundle.
   # just for reference. Do not uncomment.
   # CONFIG-=app_bundle
-
-  # For OSC support: (if pkg-config was installed)
-  # CONFIG += link_pkgconfig
-  # PKGCONFIG += lo
-
-  # FIXME: No OSC for now:
-  # LIBS += -L/usr/local/lib -llo
-  # INCLUDEPATH += /usr/local/include
-  # QMAKE_CXXFLAGS += -DHAVE_OSC
   ICON = resources/app_icons/mapmap.icns
 }
 

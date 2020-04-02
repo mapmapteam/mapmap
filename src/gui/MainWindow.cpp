@@ -3548,24 +3548,21 @@ void MainWindow::removeCurrentMapping() {
 
 void MainWindow::startOscReceiver()
 {
-#ifdef HAVE_OSC
-  int port = oscListeningPort;
   std::ostringstream os;
-  os << port;
+  os << oscListeningPort;
 #if QT_VERSION >= 0x050500
-  QMessageLogger(__FILE__, __LINE__, 0).info() << "OSC port: " << port ;
+  QMessageLogger(__FILE__, __LINE__, 0).info() << "OSC port: " << oscListeningPort;
 #else
-  QMessageLogger(__FILE__, __LINE__, 0).debug() << "OSC port: " << port ;
+  QMessageLogger(__FILE__, __LINE__, 0).debug() << "OSC port: " << oscListeningPort;
 #endif
-  osc_interface.reset(new OscInterface(os.str()));
-  if (port != 0)
+  osc_interface.reset(new OscInterface(oscListeningPort));
+  if (oscListeningPort != 0)
   {
     osc_interface->start();
   }
   osc_timer = new QTimer(this); // FIXME: memleak?
   connect(osc_timer, SIGNAL(timeout()), this, SLOT(pollOscInterface()));
   osc_timer->start();
-#endif
 }
 
 bool MainWindow::setOscPort(int port)
@@ -3575,10 +3572,8 @@ bool MainWindow::setOscPort(int port)
     qWarning() << "OSC port is out of range: " << port << endl;
     return false;
   }
-
   oscListeningPort = port;
   startOscReceiver();
-
   return true;
 }
 
@@ -3605,9 +3600,8 @@ bool MainWindow::setOscPort(QString portNumber)
 
 void MainWindow::pollOscInterface()
 {
-#ifdef HAVE_OSC
+    // FIXME: we should now use its QObject signals instead of polling it
   osc_interface->consume_commands(*this);
-#endif
 }
 
 void MainWindow::exitFullScreen()

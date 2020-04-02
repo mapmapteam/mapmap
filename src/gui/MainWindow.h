@@ -37,9 +37,7 @@
 
 #include "MapperGLCanvas.h"
 #include "MapperGLCanvasToolbar.h"
-#ifdef HAVE_OSC
 #include "OscInterface.h"
-#endif
 
 #include "OutputGLWindow.h"
 #include "ConsoleWindow.h"
@@ -500,9 +498,7 @@ private:
   MappingItemDelegate *mappingItemDelegate;
 
   // OSC.
-#ifdef HAVE_OSC
   OscInterface::ptr osc_interface;
-#endif
   int oscListeningPort;
   QTimer *osc_timer;
 
