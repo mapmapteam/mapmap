@@ -50,17 +50,7 @@ private:
   void createLicenseTab();
   void createOscTab();
 
-  QGridLayout *_mainLayout;
-  QLabel *_iconLabel;
-  QLabel *_textLabel;
-  QLabel *_versionLabel;
   QTabWidget *_tabWidget;
-  QTextBrowser *_aboutTextBrowser;
-  QTextBrowser *_changelogTextBrowser;
-  QTextBrowser *_librariesTextBrowser;
-  QTextBrowser *_contributorsTextBrowser;
-  QTextBrowser *_licenseTextBrowser;
-  QDialogButtonBox *_buttonBox;
 
   // Constantes
   static const int ABOUT_WINDOW_WIDTH = 560;

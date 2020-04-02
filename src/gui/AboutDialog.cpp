@@ -32,39 +32,39 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
   // Set title
   setWindowTitle(tr("About %1").arg(MM::APPLICATION_NAME));
   // Set Layout
-  _mainLayout = new QGridLayout;
-  setLayout(_mainLayout);
+  QGridLayout *mainLayout = new QGridLayout;
+  setLayout(mainLayout);
 
   // Set icon label
-  _iconLabel = new QLabel;
-  _iconLabel->setPixmap(QPixmap(":/mapmap-logo").scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-  _iconLabel->setContentsMargins(0, 20, 0, 20);
-  _mainLayout->addWidget(_iconLabel, 0, 0, 1, 1, Qt::AlignRight);
+  QLabel *iconLabel = new QLabel;
+  iconLabel->setPixmap(QPixmap(":/mapmap-logo").scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+  iconLabel->setContentsMargins(0, 20, 0, 20);
+  mainLayout->addWidget(iconLabel, 0, 0, 1, 1, Qt::AlignRight);
   // Set title label
-  _textLabel = new QLabel;
-  _textLabel->setPixmap(QPixmap(":/mapmap-title-light").scaled(200, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-  _mainLayout->addWidget(_textLabel, 0, 2);
+  QLabel *textLabel = new QLabel;
+  textLabel->setPixmap(QPixmap(":/mapmap-title-light").scaled(200, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+  mainLayout->addWidget(textLabel, 0, 2);
   // Set version label
-  _versionLabel = new QLabel;
-  _versionLabel->setText(QString("<h2> %1 </h2>").arg(MM::VERSION));
-  _versionLabel->setContentsMargins(7, 20, 0, 0);
-  _mainLayout->addWidget(_versionLabel, 0, 3);
+  QLabel *versionLabel = new QLabel;
+  versionLabel->setText(QString("<h2> %1 </h2>").arg(MM::VERSION));
+  versionLabel->setContentsMargins(7, 20, 0, 0);
+  mainLayout->addWidget(versionLabel, 0, 3);
 
   // Add tab widget
   _tabWidget = new QTabWidget;
-  _mainLayout->addWidget(_tabWidget, 1, 0, 1, 4);
+  mainLayout->addWidget(_tabWidget, 1, 0, 1, 4);
 
   // Close button
-  _buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
-  connect(_buttonBox, SIGNAL(rejected()), this, SLOT(close()));
-  _mainLayout->addWidget(_buttonBox, 2, 0, 1, 4);
+  QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
+  connect(buttonBox, SIGNAL(rejected()), this, SLOT(close()));
+  mainLayout->addWidget(buttonBox, 2, 0, 1, 4);
 
   // Create and fill different tabs
   createAboutTab();
   // Changelog  Tab
   createChangelogTab();
   // Libraries
-  createLibrariesTab();
+//  createLibrariesTab();
   // Contributors
   createContributorsTab();
   // License
@@ -75,8 +75,8 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 
 void AboutDialog::createAboutTab()
 {
-  _aboutTextBrowser = new QTextBrowser;
-  _aboutTextBrowser->setOpenExternalLinks(true);
+  QTextBrowser *aboutTextBrowser = new QTextBrowser;
+  aboutTextBrowser->setOpenExternalLinks(true);
 
   // Software description
   QString aboutSoftwareText = "<p>" + tr("MapMap is a free/open source video mapping software.") + "</p>";
@@ -103,27 +103,27 @@ void AboutDialog::createAboutTab()
   aboutText.append(projectWebsiteText);
 
   // Set about text
-  _aboutTextBrowser->setText(aboutText);
+  aboutTextBrowser->setText(aboutText);
 
-  _tabWidget->addTab(_aboutTextBrowser, tr("About"));
+  _tabWidget->addTab(aboutTextBrowser, tr("About"));
 }
 
 void AboutDialog::createChangelogTab()
 {
-  _changelogTextBrowser = new QTextBrowser;
-  _changelogTextBrowser->setOpenExternalLinks(true);
+  QTextBrowser *changelogTextBrowser = new QTextBrowser;
+  changelogTextBrowser->setOpenExternalLinks(true);
 
   QFile changelogFile(":/changelog");
   changelogFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  _changelogTextBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(changelogFile.readAll()));
+  changelogTextBrowser->setMarkdown(QTextCodec::codecForName("UTF-8")->toUnicode(changelogFile.readAll()));
 
-  _tabWidget->addTab(_changelogTextBrowser, tr("Changelog"));
+  _tabWidget->addTab(changelogTextBrowser, tr("Changelog"));
 }
 
 void AboutDialog::createLibrariesTab()
 {
-  _librariesTextBrowser = new QTextBrowser;
-  _librariesTextBrowser->setOpenExternalLinks(true);
+  QTextBrowser *librariesTextBrowser = new QTextBrowser;
+  librariesTextBrowser->setOpenExternalLinks(true);
 
   QString qtVersionText = QString("<h4>Qt %1</h4>").arg(QT_VERSION_STR);
   QString gstreamerVersionText = QString("<h4>%1</h4>").arg(gst_version_string());
@@ -136,44 +136,45 @@ void AboutDialog::createLibrariesTab()
   //librairiesText.append(libloVersionText);
 
   // Set librairies main text
-  _librariesTextBrowser->setText(librairiesText);
-  _tabWidget->addTab(_librariesTextBrowser, tr("Libraries"));
+  librariesTextBrowser->setText(librairiesText);
+  _tabWidget->addTab(librariesTextBrowser, tr("Libraries"));
 }
 
 void AboutDialog::createContributorsTab()
 {
-  _contributorsTextBrowser = new QTextBrowser;
-  _contributorsTextBrowser->setOpenExternalLinks(true);
+  QTextBrowser *contributorsTextBrowser = new QTextBrowser;
+  contributorsTextBrowser->setOpenExternalLinks(true);
 
   QFile contributorsFile(":/contributors");
   contributorsFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  _contributorsTextBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(contributorsFile.readAll()));
+  contributorsTextBrowser->setMarkdown(QTextCodec::codecForName("UTF-8")->toUnicode(contributorsFile.readAll()));
 
-  _tabWidget->addTab(_contributorsTextBrowser, tr("Contributors"));
+  _tabWidget->addTab(contributorsTextBrowser, tr("Contributors"));
 }
 
 void AboutDialog::createLicenseTab()
 {
-  _licenseTextBrowser = new QTextBrowser;
-  _licenseTextBrowser->setOpenExternalLinks(true);
+  QTextBrowser *licenseTextBrowser = new QTextBrowser;
+  licenseTextBrowser->setOpenExternalLinks(true);
 
   QFile licenseFile(":/license");
   licenseFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  _licenseTextBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(licenseFile.readAll()));
+  licenseTextBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(licenseFile.readAll()));
 
-  _tabWidget->addTab(_licenseTextBrowser, tr("License"));
+  _tabWidget->addTab(licenseTextBrowser, tr("License"));
 }
 
 void AboutDialog::createOscTab()
 {
 
-  QTextBrowser *
-  oscBrowser = new QTextBrowser;
+  QTextBrowser *oscBrowser = new QTextBrowser;
   oscBrowser->setOpenExternalLinks(true);
-  QFile oscFile(":/osc_html");
+
+  QFile oscFile(":/osc-documentation");
   oscFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  oscBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(oscFile.readAll()));
-  _tabWidget->addTab(oscBrowser, tr("OSC"));
+  oscBrowser->setMarkdown(QTextCodec::codecForName("UTF-8")->toUnicode(oscFile.readAll()));
+
+  _tabWidget->addTab(oscBrowser, tr("OSC Commands"));
 }
 
 }
