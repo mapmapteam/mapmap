@@ -1,0 +1,51 @@
+html, body {
+  font-family: sans-serif;
+  font-size: 12pt;
+  color: #f6f5f5;
+  background: #272a36;
+}
+
+.table-col {
+  width: 460px;
+  float: left;
+  margin: 20px 0px;
+}
+
+table {
+  margin: auto;
+}
+
+kbd {
+  font-family: serif;
+  font-size: 10pt;
+  font-weight: 600;
+  color: #f6f5f5;
+  background: #323541;
+  border: 1px solid #4C4F5B;
+  border-radius: 3px;
+  border-bottom-width: 2px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+th {
+  font-size: 13pt;
+  text-align: left;
+  padding-left: 10px;
+  padding-bottom: 10px;
+}
+
+td {
+  font-family: sans-serif;
+  padding: 15px 5px 15px 10px;
+}
+
+::-webkit-scrollbar {
+  background: transparent;
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #f6f5f5;
+  border-radius: 3px;
+}

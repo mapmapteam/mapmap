@@ -1,7 +1,7 @@
 QT += gui opengl xml core network
 greaterThan(QT_MAJOR_VERSION, 4) {
   QT -= gui # using widgets instead gui in Qt5
-  QT += widgets multimedia
+  QT += widgets multimedia webenginewidgets
 }
 
 #Includes common configuration for all subdirectory .pro files.

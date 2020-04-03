@@ -18,7 +18,8 @@ HEADERS += $$PWD/AboutDialog.h \
     $$PWD/PaintGui.h \
     $$PWD/PreferenceDialog.h \
     $$PWD/ShapeControlPainter.h \
-    $$PWD/ShapeGraphicsItem.h
+    $$PWD/ShapeGraphicsItem.h \
+    $$PWD/ShortcutWindow.h
 
 SOURCES += $$PWD/AboutDialog.cpp \
     $$PWD/ConsoleWindow.cpp \
@@ -33,4 +34,5 @@ SOURCES += $$PWD/AboutDialog.cpp \
     $$PWD/PaintGui.cpp \
     $$PWD/PreferenceDialog.cpp \
     $$PWD/ShapeControlPainter.cpp \
-    $$PWD/ShapeGraphicsItem.cpp
+    $$PWD/ShapeGraphicsItem.cpp \
+    $$PWD/ShortcutWindow.cpp
