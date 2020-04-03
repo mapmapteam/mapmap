@@ -5,6 +5,7 @@
  * Copyright (c) 2010 Tristan Matthews <le.businessman@gmail.com>
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2020 Alexandre Quessy -- alexandre(@)quessy(.)net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,70 +21,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE_OSC
 #include "OscInterface.h"
 #include "MainWindow.h"
 #include <QVariant>
 
 namespace mmp {
 
-const QString OscInterface::OSC_ROOT("mapmap");
-const QString OscInterface::OSC_PAINT("paint");
-const QString OscInterface::OSC_MAPPING("mapping");
-const QString OscInterface::OSC_QUIT("quit");
-const QString OscInterface::OSC_PLAY("play");
-const QString OscInterface::OSC_PAUSE("pause");
-const QString OscInterface::OSC_REWIND("rewind");
+static const QString OSC_ROOT("mapmap");
+static const QString OSC_PAINT("paint");
+static const QString OSC_MAPPING("mapping");
+static const QString OSC_QUIT("quit");
+static const QString OSC_PLAY("play");
+static const QString OSC_PAUSE("pause");
+static const QString OSC_REWIND("rewind");
 
-const QString OscInterface::OSC_PAINT_MEDIA("media");
-const QString OscInterface::OSC_PAINT_COLOR("color");
+static const QString OSC_PAINT_MEDIA("media");
+static const QString OSC_PAINT_COLOR("color");
 
 OscInterface::OscInterface(
-//        MainWindow* owner,
-    const std::string &listen_port) :
+    int listen_port) :
     receiver_(listen_port),
-//    owner_(owner),
     messaging_queue_() {
-  //if (listen_port != OSC_PORT_NONE)
   receiving_enabled_ = true;
   if (receiving_enabled_) {
-    qDebug() << "Listening osc.udp://localhost:" << listen_port.c_str();
-    // receiver_.addHandler("/ping", "", ping_cb, this);
-    // receiver_.addHandler("/pong", "", pong_cb, this);
-    //receiver_.addHandler("/image/path", "ss", image_path_cb, this);
-    receiver_.addHandler(NULL, NULL, genericHandler, this);
+    qDebug() << "Listening osc.udp://localhost:" << listen_port;
+    // setup handler
+    QObject::connect(&receiver_, &OscReceiver::messageReceived, [=](const QString& oscAddress, const QVariantList& arguments) {
+      this->messageReceivedCb(oscAddress, arguments);
+    });
   }
 }
+
 
 OscInterface::~OscInterface() {
   // pass
-}
-
-/**
- * Handles /pong. Does nothing.
- */
-int OscInterface::pong_cb(const char *path, const char * /*types*/,
-    lo_arg ** /*argv*/, int /*argc*/, void * /*data*/, void *user_data) {
-  OscInterface* context = static_cast<OscInterface*>(user_data);
-  if (context->is_verbose())
-  {
-    qDebug() << "Got " << path;
-  }
-  return 0;
-}
-
-/**
- * Handles /ping. Does nothing.
- */
-int OscInterface::ping_cb(const char *path, const char * /*types*/,
-    lo_arg ** /*argv*/, int /*argc*/, void * /*data*/, void *user_data)
-{
-  OscInterface* context = static_cast<OscInterface*>(user_data);
-  if (context->is_verbose())
-  {
-    qDebug() << "Got " << path;
-  }
-  return 0;
 }
 
 void OscInterface::push_command(QVariantList command)
@@ -110,52 +81,45 @@ void OscInterface::consume_commands(MainWindow &main_window)
 
 void OscInterface::start()
 {
-  if (receiving_enabled_)
-  {
-    // start a thread to try and subscribe us
-    receiver_.listen(); // start listening in separate thread
-  }
 }
 
-// catch any incoming messages and display them. returning 1 means that the
-// message has not been fully handled and the server should try other methods
-int OscInterface::genericHandler(const char *path, const char *types,
-    lo_arg **argv, int argc, void * /*data*/, void * user_data)
-{
-  OscInterface* context = static_cast<OscInterface*>(user_data);
-  QVariantList message;
+void OscInterface::messageReceivedCb(const QString& oscAddress, const QVariantList& arguments) {
+  QVariantList command;
+  command.append(QVariant(oscAddress));
 
-  message.append(QVariant(QString(path)));
-  message.append(QVariant(QString(types)));
+  QString types = "";
+  for (int i = 0; i < arguments.count(); ++ i) {
+    QVariant argument = arguments[i];
+    QMetaType::Type type = static_cast<QMetaType::Type>(argument.type());
 
-  for (int i = 0; i < argc; ++i)
-  {
-    switch (types[i])
-    {
-    case 'i':
-      message.append(QVariant(argv[i]->i));
-      break;
-    case 'f':
-      message.append(QVariant((double) argv[i]->f));
-      break;
-    case 's':
-      message.append(QVariant(QString(static_cast<const char *>(&argv[i]->s))));
-      break;
-    case 'd':
-      message.append(QVariant((double) argv[i]->d));
-      break;
-    case 'T':
-      message.append(QVariant(true));
-      break;
-    case 'F':
-      message.append(QVariant(false));
-      break;
-    default:
-      break;
+    if (type == QMetaType::Int) {
+      types += "i";
+    } else if (type == QMetaType::Float) {
+      types += "f";
+    } else if (type == QMetaType::Double) {
+      types += "f";
+    } else if (type == QMetaType::QString) {
+      types += "s";
+    } else if (type == QMetaType::Bool) {
+      if (argument.toBool()) {
+        types += "T";
+      } else {
+        types += "F";
+      }
+    } else {
+      qDebug() << "Unhandled OSC argument type " << argument.typeName();
     }
+    // TODO: implement other OSC types
   }
-  context->push_command(message);
-  return 0; // handled
+  command.append(QVariant(types));
+
+  for (int i = 0; i < arguments.size(); ++i)
+  {
+    QVariant argument = arguments[i];
+    command.append(argument);
+  }
+
+  this->push_command(command);
 }
 
 static void printCommand(QVariantList &command)
@@ -206,14 +170,14 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
     return;
   }
 
-  QString path     = command.at(0).toString();
+  QString path = command.at(0).toString();
   QString typetags = command.at(1).toString();
 
   bool pathIsValid = false;
+  // Walks through each token in the form /mapmap/paint/color - The first token is "mapmap", and then "paint"
   QPair<QString,QString> iterator = next(path);
 
-  if (iterator.first.isEmpty())
-  {
+  if (iterator.first.isEmpty()) {
     // Check root tag.
     iterator = next(iterator.second);
     if (iterator.first == OSC_ROOT)
@@ -224,7 +188,7 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
       // Paint.
       if (iterator.first == OSC_PAINT)
       {
-        // Find mapping (or mappings).
+        // Find paint (or paints).
         if (command.size() >= 3)
         {
           // Find paint (or paints).
@@ -247,8 +211,10 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
               pathIsValid = true;
             }
             // Property setting (eg. opacity)
-            else if (command.size() >= 4)
+            else if (command.size() >= 4) {
+              qDebug() << "Attempt to set a paint property" << iterator.first << command.at(3);
               pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
+            }
           }
         }
       }
@@ -315,7 +281,7 @@ QPair<QString,QString> OscInterface::next(const QString& path)
   int idx = path.indexOf('/');
   if (idx >= 0)
   {
-    return QPair<QString,QString>(path.left(idx), path.right(path.size()-idx-1));
+    return QPair<QString,QString>(path.left(idx), path.right(path.size() - idx - 1));
   }
   else
   {
@@ -337,4 +303,3 @@ bool OscInterface::setElementProperty(const QSharedPointer<Element>& elem, const
 
 }
 
-#endif // HAVE_OSC

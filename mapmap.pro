@@ -1,4 +1,6 @@
-CONFIG  += qt debug c++11
+CONFIG += qt
+CONFIG += debug
+CONFIG += c++11
 
 TEMPLATE = app
 
@@ -20,6 +22,7 @@ TRANSLATIONS += \
     translations/mapmap_fr.ts \
     translations/mapmap_zh_CN.ts \
     translations/mapmap_zh_TW.ts
+
 RESOURCES = \
     translations/translation.qrc \
     docs/documentation.qrc \
@@ -27,8 +30,11 @@ RESOURCES = \
 
 # Manage lrelease (for translations)
 isEmpty(QMAKE_LRELEASE) {
-    win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\lrelease.exe
-    else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
+    win32: {
+        QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\lrelease.exe
+    }
+    !win32:
+        QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
 }
 updateqm.input = TRANSLATIONS
 updateqm.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
@@ -45,9 +51,14 @@ system($$QMAKE_LRELEASE mapmap.pro) # Run lrelease
 
 # Linux-specific:
 unix:!macx {
-QMAKE_CXXFLAGS += -D_GLIBCXX_USE_CXX11_ABI=0
-QMAKE_CXXFLAGS += -Wno-expansion-to-defined
+    QMAKE_CXXFLAGS += -D_GLIBCXX_USE_CXX11_ABI=0
+    QMAKE_CXXFLAGS += -Wno-expansion-to-defined
+}
 
+CONFIG -= qtquickcompiler
+
+unix:macx {
+    CONFIG += sdk_no_version_check
 }
 
 # Adds the tarball target
