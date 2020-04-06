@@ -24,9 +24,11 @@ TRANSLATIONS += \
     translations/mapmap_zh_TW.ts
 
 RESOURCES = \
+    main.qrc \
     translations/translation.qrc \
     docs/documentation.qrc \
-    resources/interface.qrc
+    resources/interface.qrc \
+    main.qrc # Main resource file
 
 # Manage lrelease (for translations)
 isEmpty(QMAKE_LRELEASE) {

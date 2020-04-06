@@ -21,6 +21,7 @@ QTextBrowser {
   background: #323541;
   border: none;
   padding: 10px;
+  padding-right: 0px;
 }
 
 /*Standard button*/
