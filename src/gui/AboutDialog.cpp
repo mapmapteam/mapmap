@@ -113,10 +113,16 @@ void AboutDialog::createChangelogTab()
   QTextBrowser *changelogTextBrowser = new QTextBrowser;
   changelogTextBrowser->setOpenExternalLinks(true);
 
-  QFile changelogFile(":/changelog");
+  QFile changelogFile;
+#if QT_VERSION >= 0x050104
+  changelogFile.setFileName(":/changelog_md");
   changelogFile.open(QIODevice::ReadOnly | QIODevice::Text);
   changelogTextBrowser->setMarkdown(QTextCodec::codecForName("UTF-8")->toUnicode(changelogFile.readAll()));
-
+#else
+  changelogFile.setFileName(":/changelog");
+  changelogFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  changelogTextBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(changelogFile.readAll()));
+#endif
   _tabWidget->addTab(changelogTextBrowser, tr("Changelog"));
 }
 
@@ -145,10 +151,15 @@ void AboutDialog::createContributorsTab()
   QTextBrowser *contributorsTextBrowser = new QTextBrowser;
   contributorsTextBrowser->setOpenExternalLinks(true);
 
-  QFile contributorsFile(":/contributors");
+#if QT_VERSION >= 0x050104
+  QFile contributorsFile(":/contributors_md");
   contributorsFile.open(QIODevice::ReadOnly | QIODevice::Text);
   contributorsTextBrowser->setMarkdown(QTextCodec::codecForName("UTF-8")->toUnicode(contributorsFile.readAll()));
-
+#else
+  QFile contributorsFile(":/contributors");
+  contributorsFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  contributorsTextBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(contributorsFile.readAll()));
+#endif
   _tabWidget->addTab(contributorsTextBrowser, tr("Contributors"));
 }
 
@@ -170,10 +181,15 @@ void AboutDialog::createOscTab()
   QTextBrowser *oscBrowser = new QTextBrowser;
   oscBrowser->setOpenExternalLinks(true);
 
-  QFile oscFile(":/osc-documentation");
+#if QT_VERSION >= 0x050104
+  QFile oscFile(":/osc-documentation_md");
   oscFile.open(QIODevice::ReadOnly | QIODevice::Text);
   oscBrowser->setMarkdown(QTextCodec::codecForName("UTF-8")->toUnicode(oscFile.readAll()));
-
+#else
+  QFile oscFile(":/osc-documentation");
+  oscFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  oscBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(oscFile.readAll()));
+#endif
   _tabWidget->addTab(oscBrowser, tr("OSC Commands"));
 }
 

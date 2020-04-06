@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="changelog_md">CHANGELOG.md</file>
+    </qresource>
+</RCC>
