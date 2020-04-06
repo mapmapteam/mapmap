@@ -113,13 +113,12 @@ void AboutDialog::createChangelogTab()
   QTextBrowser *changelogTextBrowser = new QTextBrowser;
   changelogTextBrowser->setOpenExternalLinks(true);
 
-  QFile changelogFile;
-#if QT_VERSION >= 0x050104
-  changelogFile.setFileName(":/changelog_md");
+#if QT_VERSION >= QT_VERSION_CHECK(5,1,4)
+  QFile changelogFile(":/changelog_md");
   changelogFile.open(QIODevice::ReadOnly | QIODevice::Text);
   changelogTextBrowser->setMarkdown(QTextCodec::codecForName("UTF-8")->toUnicode(changelogFile.readAll()));
 #else
-  changelogFile.setFileName(":/changelog");
+  QFile changelogFile(":/changelog");
   changelogFile.open(QIODevice::ReadOnly | QIODevice::Text);
   changelogTextBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(changelogFile.readAll()));
 #endif
@@ -151,7 +150,7 @@ void AboutDialog::createContributorsTab()
   QTextBrowser *contributorsTextBrowser = new QTextBrowser;
   contributorsTextBrowser->setOpenExternalLinks(true);
 
-#if QT_VERSION >= 0x050104
+#if QT_VERSION >= QT_VERSION_CHECK(5,1,4)
   QFile contributorsFile(":/contributors_md");
   contributorsFile.open(QIODevice::ReadOnly | QIODevice::Text);
   contributorsTextBrowser->setMarkdown(QTextCodec::codecForName("UTF-8")->toUnicode(contributorsFile.readAll()));
@@ -181,7 +180,7 @@ void AboutDialog::createOscTab()
   QTextBrowser *oscBrowser = new QTextBrowser;
   oscBrowser->setOpenExternalLinks(true);
 
-#if QT_VERSION >= 0x050104
+#if QT_VERSION >= QT_VERSION_CHECK(5,1,4)
   QFile oscFile(":/osc-documentation_md");
   oscFile.open(QIODevice::ReadOnly | QIODevice::Text);
   oscBrowser->setMarkdown(QTextCodec::codecForName("UTF-8")->toUnicode(oscFile.readAll()));
