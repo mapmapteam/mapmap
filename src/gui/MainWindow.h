@@ -116,6 +116,7 @@ private slots:
   void setMappingItemSolo(bool solo);
   void loadLayerMedia();
   void transformActionMappingItem();
+  void reorderMappingItem();
   // Context menu for paints
   void deletePaintItem();
   void renamePaintItem();
@@ -227,6 +228,9 @@ public slots:
   /// Deletes/removes a mapping.
   void deleteMapping(uid mappingId);
 
+  /// Moves a mapping to given index.
+  void moveMapping(uid mappingId, int idx);
+
   /// Clone/duplicate a mapping
   void duplicateMapping(uid mappingId);
 
@@ -308,12 +312,15 @@ public:
   bool addColorPaint(const QColor& color);
   void addMappingItem(uid mappingId);
   void removeMappingItem(uid mappingId);
+  void moveMappingItem(uid mappingId, int steps);
   void addPaintItem(uid paintId, const QIcon& icon, const QString& name);
   void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
   void removePaintItem(uid paintId);
   void renameMapping(uid mappingId, const QString& name);
   void renamePaint(uid paintId, const QString& name);
   void clearWindow();
+  // Resync mapping manager order the same as the GUI.
+  void syncMappingManager();
   // Check if the file exists
   bool fileExists(const QString& file);
   // Check if the file is supported
@@ -398,6 +405,12 @@ private:
   QAction *mappingRotate180Action;
   QAction *mappingHorizontalFlipAction;
   QAction *mappingVerticalFlipAction;
+  // Layer reordering.
+  QAction *mappingRaiseAction;
+  QAction *mappingLowerAction;
+  QAction *mappingRaiseToTopAction;
+  QAction *mappingLowerToBottomAction;
+
   // Paints context menu action
   QAction *deletePaintAction;
   QAction *renamePaintAction;

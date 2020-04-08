@@ -176,6 +176,10 @@ void MainWindow::handleMappingItemSelectionChanged(const QModelIndex &index)
    mappingRotate180Action->setEnabled(true);
    mappingHorizontalFlipAction->setEnabled(true);
    mappingVerticalFlipAction->setEnabled(true);
+   mappingRaiseAction->setEnabled(true);
+   mappingLowerAction->setEnabled(true);
+   mappingRaiseToTopAction->setEnabled(true);
+   mappingLowerToBottomAction->setEnabled(true);
    // Enable zoom action
    zoomInAction->setEnabled(true);
    zoomOutAction->setEnabled(true);
@@ -211,14 +215,8 @@ void MainWindow::handleMappingItemChanged(const QModelIndex &index)
 
 void MainWindow::handleMappingIndexesMoved()
 {
-  // Reorder mappings.
-  QVector<uid> newOrder;
-  for (int row=mappingListModel->rowCount()-1; row>=0; row--)
-  {
-    uid layerId = mappingListModel->getIndexFromRow(row).data(Qt::UserRole).toInt();
-    newOrder.push_back(layerId);
-  }
-  mappingManager->reorderMappings(newOrder);
+  // Resync mapping manager.
+  syncMappingManager();
 
   // Update canvases according to new order.
   updateCanvases();
@@ -992,6 +990,24 @@ void MainWindow::transformActionMappingItem()
 
 }
 
+void MainWindow::reorderMappingItem()
+{
+  QAction *actionSender = qobject_cast<QAction *>(sender());
+
+  if (actionSender == mappingRaiseAction) {
+    undoStack->push(new MoveMappingCommand(this, getCurrentMappingId(), MM::Raise));
+  }
+  else if (actionSender == mappingLowerAction) {
+    undoStack->push(new MoveMappingCommand(this, getCurrentMappingId(), MM::Lower));
+  }
+  else if (actionSender == mappingRaiseToTopAction) {
+    undoStack->push(new MoveMappingCommand(this, getCurrentMappingId(), MM::Top));
+  }
+  else if (actionSender == mappingLowerToBottomAction) {
+    undoStack->push(new MoveMappingCommand(this, getCurrentMappingId(), MM::Bottom));
+  }
+}
+
 void MainWindow::renameMapping(uid mappingId, const QString &name)
 {
   Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
@@ -1432,6 +1448,15 @@ void MainWindow::deleteMapping(uid mappingId)
   }
 }
 
+void MainWindow::moveMapping(uid mappingId, int idx)
+{
+  // Cannot delete unexisting mapping.
+  if (Mapping::getUidAllocator().exists(mappingId))
+  {
+    moveMappingItem(mappingId, idx);
+  }
+}
+
 void MainWindow::duplicateMapping(uid mappingId)
 {
   // Clone current Mapping.
@@ -1854,6 +1879,38 @@ void MainWindow::createActions()
   mappingVerticalFlipAction->setEnabled(false);
   addAction(mappingVerticalFlipAction);
   connect(mappingVerticalFlipAction, SIGNAL(triggered()), SLOT(transformActionMappingItem()));
+
+  mappingRaiseAction = new QAction(tr("Raise"), this);
+  mappingRaiseAction->setShortcut(Qt::Key_PageUp);
+  mappingRaiseAction->setToolTip(tr("Raise"));
+  mappingRaiseAction->setIconVisibleInMenu(true);
+  mappingRaiseAction->setEnabled(false);
+  addAction(mappingRaiseAction);
+  connect(mappingRaiseAction, SIGNAL(triggered()), SLOT(reorderMappingItem()));
+
+  mappingLowerAction = new QAction(tr("Lower"), this);
+  mappingLowerAction->setShortcut(Qt::Key_PageDown);
+  mappingLowerAction->setToolTip(tr("Lower"));
+  mappingLowerAction->setIconVisibleInMenu(true);
+  mappingLowerAction->setEnabled(false);
+  addAction(mappingLowerAction);
+  connect(mappingLowerAction, SIGNAL(triggered()), SLOT(reorderMappingItem()));
+
+  mappingRaiseToTopAction = new QAction(tr("Raise to Top"), this);
+  mappingRaiseToTopAction->setShortcut(Qt::Key_Home); // bottom = end
+  mappingRaiseToTopAction->setToolTip(tr("Raise to top"));
+  mappingRaiseToTopAction->setIconVisibleInMenu(true);
+  mappingRaiseToTopAction->setEnabled(false);
+  addAction(mappingRaiseToTopAction);
+  connect(mappingRaiseToTopAction, SIGNAL(triggered()), SLOT(reorderMappingItem()));
+
+  mappingLowerToBottomAction = new QAction(tr("Lower to Bottom"), this);
+  mappingLowerToBottomAction->setShortcut(Qt::Key_End);
+  mappingLowerToBottomAction->setToolTip(tr("Lower to bottom"));
+  mappingLowerToBottomAction->setIconVisibleInMenu(true);
+  mappingLowerToBottomAction->setEnabled(false);
+  addAction(mappingLowerToBottomAction);
+  connect(mappingLowerToBottomAction, SIGNAL(triggered()), SLOT(reorderMappingItem()));
 
   // Delete paint.
   deletePaintAction = new QAction(tr("Delete Source"), this);
@@ -2304,6 +2361,11 @@ void MainWindow::createMappingContextMenu()
   mappingContextMenu->addSeparator();
   mappingContextMenu->addAction(mappingHorizontalFlipAction);
   mappingContextMenu->addAction(mappingVerticalFlipAction);
+  mappingContextMenu->addSeparator();
+  mappingContextMenu->addAction(mappingRaiseAction);
+  mappingContextMenu->addAction(mappingLowerAction);
+  mappingContextMenu->addAction(mappingRaiseToTopAction);
+  mappingContextMenu->addAction(mappingLowerToBottomAction);
 
   // Set context menu policy
   mappingList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -2711,6 +2773,10 @@ void MainWindow::updateLayerActions()
     mappingRotate180Action->setEnabled(true);
     mappingHorizontalFlipAction->setEnabled(false);
     mappingVerticalFlipAction->setEnabled(false);
+    mappingRaiseAction->setEnabled(false);
+    mappingLowerAction->setEnabled(false);
+    mappingRaiseToTopAction->setEnabled(false);
+    mappingLowerToBottomAction->setEnabled(false);
     //Disable zoom menus
     zoomInAction->setEnabled(false);
     zoomOutAction->setEnabled(false);
@@ -3052,6 +3118,67 @@ void MainWindow::removeMappingItem(uid mappingId)
   updatePlayingState();
 }
 
+void MainWindow::moveMappingItem(uid mappingId, int idx)
+{
+  Mapping::ptr mapping = mappingManager->getMappingById(mappingId);
+  Q_CHECK_PTR(mapping);
+
+  // Remove mapping from model.
+  qDebug() << "BEF: " << mappingId << " " << mappingManager->getMappingIndex(mapping) << " , "
+                      << idx << endl;
+
+  for (int i=0; i<mappingManager->nMappings(); i++)
+    qDebug() << mappingManager->getMapping(i)->getId() << " " ;
+  qDebug() << endl;
+
+  uid exchangeMappingId = mappingManager->getMapping(idx)->getId();
+
+  mappingManager->moveMapping(mappingId, idx);
+
+  qDebug() << "AFT: " << mappingManager->getMappingIndex(mapping) << " , "
+                      << idx << endl;
+  for (int i=0; i<mappingManager->nMappings(); i++)
+    qDebug() << mappingManager->getMapping(i)->getId() << " ";
+  qDebug() << endl;
+
+  // Remove widget from mappingList.
+  int row = mappingListModel->getItemRowFromId(mappingId);
+  int rowTo = mappingListModel->getItemRowFromId(exchangeMappingId);
+  Q_ASSERT( row >= 0 );
+  mappingListModel->moveItem(row, idx);
+
+  qDebug() << "INFO: " << idx << " " << row << " " << rowTo << endl;
+
+//  mappingListModel->moveItem(row, mappingManager->nMappings()-1-idx);
+
+  // // TODO: not sure if we need what lies below
+  // Update list.
+  mappingListModel->updateModel();
+
+  QModelIndex index = mappingListModel->getIndexFromRow(idx);
+  mappingList->selectionModel()->select(index, QItemSelectionModel::Select);
+  mappingList->setCurrentIndex(index);
+  //
+  // if (mappingListModel->rowCount() == 0)
+  //   removeCurrentMapping();
+  // else
+  // {
+  //   int nextSelectedRow = row == mappingListModel->rowCount() ? row - 1 : row;
+  //   QModelIndex index = mappingListModel->getIndexFromRow(nextSelectedRow);
+  //   mappingList->selectionModel()->select(index, QItemSelectionModel::Select);
+  //   mappingList->setCurrentIndex(index);
+  // }
+
+  // Update everything.
+  updateCanvases();
+
+  // Window was modified.
+  windowModified();
+
+  // Update playing state.
+  updatePlayingState();
+}
+
 void MainWindow::removePaintItem(uid paintId)
 {
   Paint::ptr paint = mappingManager->getPaintById(paintId);
@@ -3101,6 +3228,19 @@ void MainWindow::removePaintItem(uid paintId)
 void MainWindow::clearWindow()
 {
   clearProject();
+}
+
+void MainWindow::syncMappingManager()
+{
+  // Reorder mappings.
+  QVector<uid> newOrder;
+  for (int row=0; row<mappingListModel->rowCount(); row++)
+//  for (int row=mappingListModel->rowCount()-1; row>=0; row--)
+  {
+    uid layerId = mappingListModel->getIndexFromRow(row).data(Qt::UserRole).toInt();
+    newOrder.push_back(layerId);
+  }
+  mappingManager->reorderMappings(newOrder);
 }
 
 bool MainWindow::fileExists(const QString &file)

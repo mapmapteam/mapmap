@@ -57,6 +57,7 @@ public:
 
   void removeItem(int index);
   void addItem(Mapping::ptr mapping, const QIcon &icon, const QString &label);
+  void moveItem(int row, int endRow);
 
   void updateModel();
   void clear();

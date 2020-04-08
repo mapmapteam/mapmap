@@ -140,7 +140,7 @@ uid MappingManager::addMapping(Mapping::ptr mapping)
   // Make sure the paint to which this mapping refers to exists in the manager.
   Q_ASSERT ( paintVector.contains(mapping->getPaint()) );
 
-  mappingVector.push_back(mapping);
+  mappingVector.insert(0, mapping);
   mappingMap[mapping->getId()] = mapping;
 
   return mapping->getId();
@@ -156,7 +156,25 @@ bool MappingManager::removeMapping(uid mappingId)
     Q_ASSERT( idx != -1 ); // Q_ASSERT(mappingVector.contains(mapping));
     mappingVector.remove(idx);
     mappingMap.remove(mappingId);
+    updateMappingsDepths();
 
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+/// Moves a mapping of given uid by a certain number of steps up or down.
+bool MappingManager::moveMapping(uid mappingId, int toIndex)
+{
+  // Make sure the paint to which this mapping refers to exists in the manager.
+  int idx = getMappingIndex(mappingId);
+  if (idx >= 0)
+  {
+    mappingVector.move(idx, toIndex);
+    updateMappingsDepths();
     return true;
   }
   else
@@ -262,6 +280,17 @@ void MappingManager::reorderMappings(QVector<uid> mappingIds)
     mapping->setDepth(depth);
     mappingVector.push_back( mapping );
 
+    depth++;
+  }
+}
+
+void MappingManager::updateMappingsDepths()
+{
+  int depth = 0;
+  for (QVector<Mapping::ptr>::iterator it = mappingVector.begin();
+          it != mappingVector.end(); ++it)
+  {
+    (*it)->setDepth(depth);
     depth++;
   }
 }

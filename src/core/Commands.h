@@ -223,6 +223,23 @@ private:
   uid _mappingId;
 };
 
+class MoveMappingCommand : public QUndoCommand
+{
+public:
+  explicit MoveMappingCommand(MainWindow *mainWindow, uid mappingId, MM::MoveElement moveType, QUndoCommand *parent = 0);
+
+  void undo() Q_DECL_OVERRIDE;
+  void redo() Q_DECL_OVERRIDE;
+
+private:
+  MainWindow *_mainWindow;
+  Mapping::ptr _mapping;
+  uid _mappingId;
+  MM::MoveElement _moveType;
+  int _fromIdx;
+  int _toIdx;
+};
+
 }
 
 #endif /* COMMANDS_H_ */

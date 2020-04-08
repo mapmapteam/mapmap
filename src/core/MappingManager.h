@@ -66,6 +66,10 @@ public:
   /// Returns the uid of a paint.
   uid getPaintId(Paint::ptr paint) const { return paintMap.key(paint); }
 
+  /// Returns indices of paint or (-1) if not found.
+  int getPaintIndex(Paint::ptr paint) const { return paintVector.lastIndexOf(paint); }
+  int getPaintIndex(uint paintId) const { return getPaintIndex(paintMap[paintId]); }
+
   /// Removes a paint of given uid.
   bool removePaint(uid paintId);
 
@@ -96,17 +100,20 @@ public:
   /// Removes a mapping of given uid.
   bool removeMapping(uid mappingId);
 
+  /// Moves a mapping of given uid by a certain number of steps up or down.
+  bool moveMapping(uid mappingId, int toIndex);
+
   /// Returns the number of mappings.
   int nMappings() const { return mappingVector.size(); }
 
   /**
    * Returns the i-th mapping in the vector. Good for iterating over all mappings. Vector is
-   * ordered from bottom to top layer.
+   * ordered from bottom (deepest) to top (shallowest) layer.
    */
   Mapping::ptr getMapping(int i) { return mappingVector[i]; }
 
   /// Returns mapping with given uid.
-  Mapping::ptr getMappingById(uid id) { return mappingMap[id]; }
+  Mapping::ptr getMappingById(uid id) const { return mappingMap[id]; }
 
   /// Returns mapping with given name (first match).
   Mapping::ptr getMappingByName(QString name);
@@ -114,8 +121,17 @@ public:
   /// Returns all mappings with given regexp.
   QVector<Mapping::ptr> getMappingsByNameRegExp(QString namePattern);
 
+  /// Returns indices of mapping or (-1) if not found.
+  int getMappingIndex(Mapping::ptr mapping) const { return mappingVector.lastIndexOf(mapping); }
+  int getMappingIndex(uint mappingId) const { return getMappingIndex(getMappingById(mappingId)); }
+
+  int getMappingDepth(Mapping::ptr mapping) const { return -getMappingIndex(mapping); }
+
   /// Reorders the mappings according to given list of uids. QVector needs to
   void reorderMappings(QVector<uid> mappingIds);
+
+  /// Update mapping depths after a move.
+  void updateMappingsDepths();
 
   /// Returns the ordered list of visible mappings, using both the "visible" and "solo" properties.
   QVector<Mapping::ptr> getVisibleMappings() const;

@@ -152,6 +152,13 @@ public:
     MediumStep = 2,
     BigStep = 20
   };
+
+  enum MoveElement {
+    Raise,
+    Lower,
+    Top,
+    Bottom,
+  };
 };
 
 }

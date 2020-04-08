@@ -121,6 +121,7 @@ void ProjectReader::parseProject(const QDomElement& project)
 
   // Parse mappings.
   QDomNode mappingNode = mappings.firstChild();
+  QVector<Mapping::ptr> allMappings;
   while (!mappingNode.isNull())
   {
     Mapping::ptr mapping = parseMapping(mappingNode.toElement());
@@ -130,11 +131,18 @@ void ProjectReader::parseProject(const QDomElement& project)
     }
     else
     {
-      manager.addMapping(mapping);
-      _window->addMappingItem(mapping->getId());
+      allMappings.push_back(mapping);
     }
 
     mappingNode = mappingNode.nextSibling();
+  }
+
+  // Add all mappings in reverse order.
+  for (QVector<Mapping::ptr>::const_reverse_iterator it = allMappings.rbegin();
+          it != allMappings.rend(); ++it)
+  {
+    manager.addMapping(*it);
+    _window->addMappingItem((*it)->getId());
   }
 }
 

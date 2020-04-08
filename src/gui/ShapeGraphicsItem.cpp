@@ -52,7 +52,8 @@ void ShapeGraphicsItem::paint(QPainter *painter,
 
   // Sync depth of figure with that of mapping (for layered output).
   if (isOutput())
-    setZValue(getMapping()->getDepth());
+    setZValue(MainWindow::window()->getMappingManager().getMappingDepth(getMapping()));
+    //setZValue(getMapping()->getDepth());
 
   // Paint if visible.
   if (isMappingVisible())

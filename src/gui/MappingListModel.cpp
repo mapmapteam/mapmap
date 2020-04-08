@@ -155,11 +155,8 @@ bool MappingListModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     int id;
     stream >> id;
 
-    int rows = getItemRowFromId(id);
-    if (!beginMoveRows(QModelIndex(), rows, rows, QModelIndex(), endRow))
-      continue;
-    mappingList.move(rows, endRow);
-    endMoveRows();
+    int row = getItemRowFromId(id);
+    moveItem(row, endRow);
 
     ++endRow;
   }
@@ -212,6 +209,15 @@ void MappingListModel::removeItem(int index)
 {
   auto it = mappingList.begin();
   mappingList.erase(it + index);
+}
+
+void MappingListModel::moveItem(int row, int endRow)
+{
+  if (beginMoveRows(QModelIndex(), row, row, QModelIndex(), (row < endRow ? endRow+1 : endRow)))
+  {
+    mappingList.move(row, endRow);
+    endMoveRows();
+  }
 }
 
 void MappingListModel::addItem(Mapping::ptr mapping, const QIcon &icon, const QString &label)

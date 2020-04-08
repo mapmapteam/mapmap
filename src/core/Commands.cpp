@@ -315,6 +315,49 @@ void DeleteMappingCommand::redo()
   _mainWindow->deleteMapping(_mappingId);
 }
 
+MoveMappingCommand::MoveMappingCommand(MainWindow *mainWindow, uid mappingId,  MM::MoveElement moveType, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  _mainWindow(mainWindow),
+  _mappingId(mappingId),
+  _moveType(moveType)
+{
+  switch (moveType) {
+    case MM::Raise:  setText(QObject::tr("Raise layer")); break;
+    case MM::Lower:  setText(QObject::tr("Lower layer")); break;
+    case MM::Top:    setText(QObject::tr("Raise layer to top")); break;
+    case MM::Bottom: setText(QObject::tr("Lower layer to bottom")); break;
+    default:; // should not happen
+  }
+}
+
+void MoveMappingCommand::undo()
+{
+  if (!_mapping.isNull())
+  {
+    // Do the inverse move.
+    _mainWindow->moveMapping(_mappingId, _fromIdx);
+  }
+}
+
+void MoveMappingCommand::redo()
+{
+  // Store mapping pointer before delete it
+  _mapping = _mainWindow->getMappingManager().getMappingById(_mappingId);
+  _fromIdx = _mainWindow->getMappingManager().getMappingIndex(_mapping);
+  int maxMappingIdx = _mainWindow->getMappingManager().nMappings()-1;
+
+  switch (_moveType) {
+    case MM::Raise:  _toIdx = qMax(_fromIdx - 1, 0); break;
+    case MM::Lower:  _toIdx = qMin(_fromIdx + 1, maxMappingIdx); break;
+    case MM::Top:    _toIdx = 0; break;
+    case MM::Bottom: _toIdx = maxMappingIdx; break;
+    default:; // should not happen
+  }
+
+  // Do the move.
+  _mainWindow->moveMapping(_mappingId, _toIdx);
+}
+
 FlipShapeCommand::FlipShapeCommand(MapperGLCanvas *canvas, TransformShapeCommand::TransformShapeOption option, const MShape::ptr &initialShape, MShape::FlipDirection direction, QUndoCommand *parent)
   : TransformShapeCommand (canvas, option, parent),
     _initialShape(initialShape)
