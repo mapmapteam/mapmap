@@ -30,7 +30,8 @@ sudo apt-get install -y \
       liblo-dev liblo-tools \
       qttools5-dev-tools \
       qtmultimedia5-dev \
-      libqt5opengl5-dev \
+      libqt5opengl5-dev \ 
+      qtwebengine5-dev \
       libqt5multimedia5-plugins \
       qt5-default
 ```
@@ -67,7 +68,7 @@ sudo apt-get install -y \
 Install basic development tools fot Qt projects, GStreamer 1.0 and liblo for OSC support:
 
 ```
-sudo pacman -S qt5-tools qt5-multimedia liblo gstreamer
+sudo pacman -S qt5-tools qt5-multimedia qt5-webengine liblo gstreamer
 ```
 
 Install GStreamer 1.0 libraries and plugins::
