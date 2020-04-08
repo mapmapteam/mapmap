@@ -60,7 +60,6 @@ QVector<Paint::ptr> MappingManager::getPaintsCompatibleWith(Mapping::ptr mapping
 	     it != paintVector.constEnd(); ++it)
 		if (mapping->paintIsCompatible(*it))
 			paints.append(*it);
-	qDebug() << "Compatible paints: " << paints << endl;
 	return paints;
 }
 
