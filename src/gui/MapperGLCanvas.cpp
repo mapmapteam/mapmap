@@ -304,8 +304,8 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
     // Possibility of changing shape in output by clicking on it.
     MappingManager manager = getMainWindow()->getMappingManager();
     QVector<Mapping::ptr> mappings = manager.getVisibleMappings();
-    for (QVector<Mapping::ptr>::const_iterator it = mappings.end() - 1;
-         it >= mappings.begin(); --it)
+    for (QVector<Mapping::ptr>::const_iterator it = mappings.begin();
+         it != mappings.end(); ++it)
     {
       MShape::ptr shape = getShapeFromMapping(*it);
 
