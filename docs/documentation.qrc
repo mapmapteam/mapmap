@@ -1,10 +1,15 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="changelog">informations/CHANGELOG.html</file>
         <file alias="license">informations/LICENSE</file>
         <file alias="license-short">informations/LICENSE_SHORT.txt</file>
         <file alias="projection-mapping">informations/MAPPING</file>
+        <file alias="contributors_md">informations/CONTRIBUTORS.md</file>
+        <file alias="osc-documentation_md">informations/osc.md</file>
+        <file alias="keyboard-shortcut">informations/mapmap-keyboard-shortcuts.md</file>
+        <file alias="shortcut-css">informations/keyboard-shortcuts.css</file>
+        <file alias="index-html">informations/keyboard-shortcuts.html</file>
+        <file alias="changelog">informations/CHANGELOG.html</file>
         <file alias="contributors">informations/CONTRIBUTORS.html</file>
-        <file alias="osc_html">informations/osc.html</file>
+        <file alias="osc-documentation">informations/osc.html</file>
     </qresource>
 </RCC>

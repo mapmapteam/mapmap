@@ -1,7 +1,7 @@
 /*
- * AboutDialog.h
+ * ShortcutWindow.h
  *
- * (c) 2016 Dame Diongue -- baydamd(@)gmail(.)com
+ * (c) 2020 Dame Diongue -- baydamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,47 +17,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ABOUTDIALOG_H
-#define ABOUTDIALOG_H
+#ifndef SHORTCUTWINDOW_H
+#define SHORTCUTWINDOW_H
 
-#include <QDialog>
+#include <QWebEngineView>
+#include <QWebEnginePage>
+#include <QWebEngineSettings>
+#include <QFile>
+#include <QTextCodec>
+#include <QFontDatabase>
 
-#include <gst/gst.h>
-#ifdef HAVE_OSC
-#include "lo/lo.h"
-#endif
-
-#include "GuiForward.h"
 #include "MM.h"
 
 namespace mmp {
 
-class AboutDialog : public QDialog
+class ShortcutWindow : public QWebEngineView
 {
   Q_OBJECT
 public:
-  AboutDialog(QWidget *parent = nullptr);
-  ~AboutDialog() {}
-
-public slots:
-
+  ShortcutWindow();
+  ~ShortcutWindow() {}
 
 private:
-  void createAboutTab();
-  void createChangelogTab();
-  void createLibrariesTab();
-  void createContributorsTab();
-  void createLicenseTab();
-  void createOscTab();
-
-  QTabWidget *_tabWidget;
 
   // Constantes
-  static const int ABOUT_WINDOW_WIDTH = 560;
-  static const int ABOUT_WINDOW_HEIGHT = 640;
+  static const int SHORTCUT_WINDOW_WIDTH = 960;
+  static const int SHORTCUT_WINDOW_HEIGHT = 640;
 
 };
 
 }
 
-#endif // ABOUTDIALOG_H
+#endif // SHORTCUTWINDOW_H

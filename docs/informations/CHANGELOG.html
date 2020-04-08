@@ -1,24 +1,24 @@
-<h1>Release notes for MapMap</h1>
-
-<h2>2018-07-24 - MapMap 0.6.2</h2>
-
+<h1 id="release-notes-for-mapmap">Release notes for MapMap</h1>
+<p> </p>
+<h2 id="mapmap-0.6.3">2018-??-?? - MapMap 0.6.3</h2>
+<p>TODO</p>
+<p> </p>
+<h2 id="mapmap-0.6.2">2018-07-24 - MapMap 0.6.2</h2>
 <ul>
 <li>Remove an assert that might crash MapMap</li>
 <li>Fix parsing of MapMap version in the project file (critical bug fixed)</li>
 <li>Add qt5opengl in deps in INSTALL.md</li>
 <li>Also create a zip archive in scripts/build.sh</li>
 </ul>
-
-<h2>2018-04-09 - MapMap 0.6.1</h2>
-
+<p> </p>
+<h2 id="mapmap-0.6.1">2018-04-09 - MapMap 0.6.1</h2>
 <ul>
 <li>Add .url link file to GStreamer on macOS and packaged it in the DMG.</li>
 <li>Fix: crash because undoStack was uninitialized (closes #413).</li>
 <li>Windows environnement variable fix</li>
 </ul>
-
-<h2>2018-04-08 - MapMap 0.6.0</h2>
-
+<p> </p>
+<h2 id="mapmap-0.6.0">2018-04-08 - MapMap 0.6.0</h2>
 <ul>
 <li>Add macOS Application Icon</li>
 <li>Fix video rate bug (Closes #369)</li>
@@ -26,7 +26,7 @@
 <li>Add preference to show controls only on mouse over</li>
 <li>Add simplified and traditional chinese translations</li>
 <li>Add Spanish translation</li>
-<li>Rename "Mesh subdivisions" to "Subdivisions"</li>
+<li>Rename “Mesh subdivisions” to “Subdivisions”</li>
 <li>Rename width/height to horizontal/vertical for mesh subdivision naming</li>
 <li>Rename GUI elements: paint, mapping, source, destination, dimension #376</li>
 <li>Fix: Cursor no longer displays in fullscreen without controls (closes #387)</li>
@@ -62,22 +62,21 @@
 <li>Boundary checks - fix #319 crash when receiving osc messages</li>
 <li>Fix crash when DEL is pressed while no mappings to delete - fixes #315</li>
 <li>Proper management of mappings related to a paint in undo/redo (relates to #315).</li>
-<li>Only show camera input button on GNU/Linux, since it doesn't work on the other platforms</li>
+<li>Only show camera input button on GNU/Linux, since it doesn’t work on the other platforms</li>
 </ul>
-
-<h2>2017-01-01 - MapMap 0.5.0</h2>
-
+<p> </p>
+<h2 id="mapmap-0.5.0">2017-01-01 - MapMap 0.5.0</h2>
 <ul>
 <li>Fix bug: it was impossible to get out of test signal mode by pressing ESC.</li>
 <li>Reorganize _updateToPreferredScreen().</li>
 <li>Rewrite constraining of screen no in setPreferredScreen(int).</li>
 <li>Bug fix: force fullscreen on output window if test signal is activated (closes #304).</li>
-<li>Added a <em>setFullScreen() method + renamed _is</em>fullscreen to _isFullScreen (camelCase).</li>
+<li>Added a _setFullScreen() method + renamed _is_fullscreen to _isFullScreen (camelCase).</li>
 <li>Put some order in the view menu.</li>
 <li>Remove toolbars sub-menu.</li>
 <li>Fix all french language files for 0.5 (closes #219).</li>
 <li>Thread-safe access OSC server to prevent crashes (not fully tested) (closes #307).</li>
-<li>Prevent property browsers from disappearing by making splitters' children non-collapsible.</li>
+<li>Prevent property browsers from disappearing by making splitters’ children non-collapsible.</li>
 <li>Fix #305 merge menus</li>
 <li>Fix #274: Document OSC within the software</li>
 <li>Comment-out unused elements in preferences.</li>
@@ -108,8 +107,8 @@
 <li>Fix problems with video files without audio codec not working properly (closes #280) - Cleanup and refactoring</li>
 <li>Test cards pattern improvements</li>
 <li>Change crosshair style for more visibility on light mapping</li>
-<li>Add toolbar title for  source and destination canvas</li>
-<li>Change "perspective" word to "layout" and their shortcut to avoid conflicts with some OS</li>
+<li>Add toolbar title for source and destination canvas</li>
+<li>Change “perspective” word to “layout” and their shortcut to avoid conflicts with some OS</li>
 <li>Cosmetic changes</li>
 <li>Trying to fix translation but still not working</li>
 <li>Fixed style problem: on Ubuntu, text was white-on-white in property browser</li>
@@ -128,8 +127,8 @@
 <li>Fix bug: Hiding a solo-ed mapping was stopping playback.</li>
 <li>Reintegrate audio support (works on Linux).</li>
 <li>Fix bug: New paints were automatically started (play()) when added, thus invalidating the feature that non-visible paints do not play.</li>
-<li>Add "Send feedback" to help menu</li>
-<li>Update "Undo stack" to "Undo history"</li>
+<li>Add “Send feedback” to help menu</li>
+<li>Update “Undo stack” to “Undo history”</li>
 <li>Improve vertices movement shortcuts</li>
 <li>Always align mapping layers buttons on the right side</li>
 <li>Cosmetic changes in duplicate mapping function</li>
@@ -169,15 +168,14 @@
 <li>Added script to automatically convert videos to PhotoJPEG (a good format for MapMap).</li>
 <li>Disable right click on context menu actions</li>
 <li>more decklink prototypes</li>
-<li>Don't need screen actions on single screen mode</li>
+<li>Don’t need screen actions on single screen mode</li>
 <li>Merge MapperGLCanvas.cpp</li>
 <li>Allow to finely choose on which display to output</li>
 <li>improving the menu and adding some useful link</li>
 <li>Make the duplication of mapping undoable and redoable.</li>
 </ul>
-
-<h2>2016-04-19 - MapMap 0.4.0</h2>
-
+<p> </p>
+<h2 id="mapmap-0.4.0">2016-04-19 - MapMap 0.4.0</h2>
 <ul>
 <li>Add zoom toolbar</li>
 <li>Add console window</li>
@@ -199,7 +197,7 @@
 <li>Done #72: Be able to name paints and mappings - for OSC controls</li>
 <li>Center the test signal #97 (must use all the space available)</li>
 <li>Fix #159: Program just freezes when importing corrupted video file</li>
-<li>Done #145: The user doesn't need to see the undo stack</li>
+<li>Done #145: The user doesn’t need to see the undo stack</li>
 <li>Done #40: Ctrl-Q should quit the application</li>
 <li>Done #183: Display logging output in a console and be able to turn it on and off</li>
 <li>Done #203: The toolbar can be shown or hidden at will by the user</li>
@@ -225,18 +223,16 @@
 <li>Fix blocking bug on OSX: program was freezing when move was loaded</li>
 <li>Implemented new feature: holding the shift key while moving a vertex temporarily inverts stick</li>
 </ul>
-
-<h2>2015-10-30 - MapMap 0.3.1</h2>
-
+<p> </p>
+<h2 id="mapmap-0.3.1">2015-10-30 - MapMap 0.3.1</h2>
 <ul>
 <li>Fix #138: splash screen does not show when installed</li>
 <li>Fix #139: Stylesheet is not applied when the app is installed on Linux</li>
 <li>Fix #135: Video playback is broken</li>
 <li>Fix #103: OSC not working on OS X</li>
 </ul>
-
-<h2>2015-07-17 - MapMap 0.3.0</h2>
-
+<p> </p>
+<h2 id="mapmap-0.3.0">2015-07-17 - MapMap 0.3.0</h2>
 <ul>
 <li>Add zoom and scroll/drag in editor windows</li>
 <li>Add transparency support for both paint and mapping</li>
@@ -244,13 +240,12 @@
 <li>Undo/redo move and add actions</li>
 <li>Fix perspective-correct textures in quads</li>
 </ul>
-
-<h2>2014-12-28 - MapMap 0.2.0</h2>
-
+<p> </p>
+<h2 id="mapmap-0.2.0">2014-12-28 - MapMap 0.2.0</h2>
 <ul>
-<li>Add --file option.</li>
-<li>Add --osc-port option.</li>
-<li>Add --reset-settings option.</li>
+<li>Add –file option.</li>
+<li>Add –osc-port option.</li>
+<li>Add –reset-settings option.</li>
 <li>Add crosshair cursor in fullscreen mode.</li>
 <li>Add logo title in about dialog.</li>
 <li>Can change OSC port via the new preference dialog.</li>
@@ -273,9 +268,8 @@
 <li>Fix: Save fullscreen setting.</li>
 <li>Fix: Save visibility of mappings.</li>
 </ul>
-
-<h2>2014-07-07 - MapMap 0.1.1</h2>
-
+<p> </p>
+<h2 id="mapmap-0.1.1">2014-07-07 - MapMap 0.1.1</h2>
 <ul>
 <li>Fix packaging on OS X 10.9.3.</li>
 <li>Fix: all media share same OpenGL texture</li>
@@ -288,9 +282,8 @@
 <li>Play movies when we load a project.</li>
 <li>Append file extension if none is provided.</li>
 </ul>
-
-<h2>2014-04-30 - MapMap 0.1.0</h2>
-
+<p> </p>
+<h2 id="mapmap-0.1.0">2014-04-30 - MapMap 0.1.0</h2>
 <ul>
 <li>Initial release.</li>
 <li>Qt user interface.</li>
@@ -300,3 +293,4 @@
 <li>Fullscreen output window.</li>
 <li>MMP project XML file format version 0.1.</li>
 </ul>
+<p> </p>

@@ -5,7 +5,7 @@ cache: ccache
 matrix:
   include:
     - os: linux
-      dist: trusty
+      dist: bionic
       env: TARGET="linux64"
       compiler: gcc
       cache:
@@ -32,16 +32,15 @@ before_install:
 
 install:
   - if [ "$TARGET" == "linux64" ]; then
-      sudo apt-get install qt5-default qttools5-dev-tools;
+      sudo apt-get install qt5-default qttools5-dev-tools
+      libqt5opengl5-dev qtmultimedia5-dev qtwebengine5-dev;
       sudo apt-get install liblo-dev liblo-tools;
       sudo apt-get install libgstreamer1.0-dev
       libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad
       gstreamer1.0-libav gstreamer1.0-vaapi gstreamer1.0-plugins-base
       gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-good
       gstreamer1.0-plugins-ugly gstreamer1.0-x gstreamer1.0-tools;
-      sudo apt-get install qtmultimedia5-dev;
-      wget http://mirrors.kernel.org/ubuntu/pool/main/c/ccache/ccache_3.3.4-1_amd64.deb;
-      sudo dpkg -i ccache_3.3.4-1_amd64.deb;
+      sudo apt-get install ccache;
     fi
 
   - if [ "$TARGET" == "osx" ]; then

@@ -22,6 +22,7 @@
 #include "MainWindow.h"
 #include "PreferenceDialog.h"
 #include "AboutDialog.h"
+#include "ShortcutWindow.h"
 #include "Commands.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
@@ -2199,6 +2200,9 @@ void MainWindow::createActions()
   // Send us feedback
   feedbackAction = new QAction(tr("Submit feedback via email"), this);
   connect(feedbackAction, SIGNAL(triggered()), this, SLOT(sendFeedback()));
+  // Keyboard shortcuts
+  shortcutAction = new QAction(tr("&Keyboard shortcuts"), this);
+  connect(shortcutAction, SIGNAL(triggered()), this, SLOT(openShortcutWindow()));
 
   // All available screen as action
   updateScreenActions();
@@ -2325,6 +2329,7 @@ void MainWindow::createMenus()
   // Help.
   helpMenu = menuBar->addMenu(tr("&Help"));
   helpMenu->addAction(docAction);
+  helpMenu->addAction(shortcutAction);
   helpMenu->addAction(feedbackAction);
   helpMenu->addAction(supportAction);
   helpMenu->addAction(bugReportAction);
@@ -3748,6 +3753,13 @@ void MainWindow::exitFullScreen()
 {
   outputFullScreenAction->setChecked(false);
   displayTestSignalAction->setChecked(false);
+}
+
+void MainWindow::openShortcutWindow()
+{
+  ShortcutWindow *shortcutWindow = new ShortcutWindow;
+  setAttribute(Qt::WA_DeleteOnClose);
+  shortcutWindow->show();
 }
 
 void MainWindow::updateSettings()

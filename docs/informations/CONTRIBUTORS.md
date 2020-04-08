@@ -1,12 +1,16 @@
-# Authors
+## Authors
 
-- Sofian Audry: lead developer, user interface designer, project manager.
+- Sofian Audry: lead developer, user interface designer, project
+    manager.
 - Dame Diongue: developer.
-- Alexandre Quessy: release manager, developer, technical writer, project manager.
+- Alexandre Quessy: release manager, developer, technical writer,
+    project manager.
 - Mike Latona: user interface designer.
 - Vasilis Liaskovitis: developer.
 
-# Contributors
+&nbsp;
+
+## Contributors
 
 - Lucas Adair : developer, macOS packaging.
 - Christian Ambaud: sponsor, inspiration.
@@ -23,3 +27,4 @@
 - Matthew Loewens : documentation, developer.
 - Madison Suniga : documentation.
 
+&nbsp;

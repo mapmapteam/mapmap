@@ -57,6 +57,7 @@ namespace mmp {
 
 class PreferenceDialog;
 class AboutDialog;
+class ShortcutWindow;
 
 /**
  * This is the main window of MapMap. It acts as both a view and a controller interface.
@@ -162,6 +163,8 @@ private slots:
   void reportBug() {
       QDesktopServices::openUrl(QUrl("https://github.com/mapmapteam/mapmap/issues/new"));
   }
+
+  void openShortcutWindow();
 
   void updateSettings();
 
@@ -453,6 +456,7 @@ private:
   QAction *supportAction;
   QAction *docAction;
   QAction *feedbackAction;
+  QAction *shortcutAction;
 
   // Screen output action
   QList<QAction *> screenActions;

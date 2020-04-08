@@ -7,7 +7,7 @@ QT += multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4) {
   QT -= gui # using widgets instead gui in Qt5
-  QT += widgets
+  QT += widgets webenginewidgets
 }
 
 #Includes common configuration for all subdirectory .pro files.
