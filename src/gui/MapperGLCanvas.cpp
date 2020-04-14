@@ -37,6 +37,7 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
     _vertexMoved(false),
     _activeVertex(NO_VERTEX),
     _shapeGrabbed(false), // comment out?
+    _shapeMoved(false),
     _shapeFirstGrab(false), // comment out?
     _zoomLevel(0),
     _shapeIsAdapted(false)
@@ -336,6 +337,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
       if (event->buttons() & Qt::LeftButton) {
         // Shape can be grabbed only if it is not locked
         _shapeGrabbed = !selectedShape->isLocked();
+//        _shapeMoved = false;
         _shapeFirstGrab = true;
 
         _grabbedObjectStartScenePosition = pos;
@@ -416,13 +418,15 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
   }
   else if (_shapeGrabbed)
   {
-    undoStack->push(new TranslateShapeCommand(this,
-                                              TransformShapeCommand::RELEASE, QPointF()));
+    if (_shapeMoved)
+      undoStack->push(new TranslateShapeCommand(this,
+                                                TransformShapeCommand::RELEASE, QPointF()));
   }
 
   _vertexGrabbed = false;
   _vertexMoved = false;
   _shapeGrabbed = false;
+  _shapeMoved = false;
 }
 
 void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
@@ -483,6 +487,8 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
         // Reset the mode after moved shape
         getCurrentShape()->setShapeMode(MShape::DefaultMode);
       }
+
+      _shapeMoved = true; // The active vertex is actually moved
     }
     QPointF diff = scenePos - mapToScene(lastMousePos);
     undoStack->push(new TranslateShapeCommand(this, TransformShapeCommand::FREE, diff));
@@ -695,6 +701,7 @@ void MapperGLCanvas::deselectAll()
 {
   deselectVertices();
   _shapeGrabbed = false;
+  _shapeMoved = false;
   _shapeFirstGrab = false;
 }
 

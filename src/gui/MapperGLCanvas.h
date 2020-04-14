@@ -154,7 +154,8 @@ private:
 
   // Mouse currently pressed inside a vertex.
   bool _vertexGrabbed;
-  // If current vertex is moved
+  
+  // If current vertex has been moved.
   bool _vertexMoved;
 
   // Index of currently active vertex.
@@ -162,6 +163,8 @@ private:
 
   // True iff current shape is grabbed.
   bool _shapeGrabbed;
+  // If current shape has been moved.
+  bool _shapeMoved;
 
   // True iff current shape is grabbed (first step).
   bool _shapeFirstGrab;
