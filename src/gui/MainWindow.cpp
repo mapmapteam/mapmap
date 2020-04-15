@@ -2272,10 +2272,25 @@ void MainWindow::createMenus()
   editMenu->addAction(duplicateMappingAction);
   editMenu->addAction(deleteMappingAction);
   editMenu->addAction(renameMappingAction);
+  editMenu->addSeparator();
+  editMenu->addAction(mappingRaiseAction);
+  editMenu->addAction(mappingLowerAction);
+  editMenu->addAction(mappingRaiseToTopAction);
+  editMenu->addAction(mappingLowerToBottomAction);
+  editMenu->addSeparator();
+  editMenu->addAction(mappingRotate90CWAction);
+  editMenu->addAction(mappingRotate90CCWAction);
+  editMenu->addAction(mappingRotate180Action);
+  editMenu->addSeparator();
+  editMenu->addAction(mappingHorizontalFlipAction);
+  editMenu->addAction(mappingVerticalFlipAction);
+  editMenu->addSeparator();
+
   editMenu->addAction(mappingLockedAction);
   editMenu->addAction(mappingHideAction);
   editMenu->addAction(mappingSoloAction);
   editMenu->addSeparator();
+
   // Sticky vertices
   editMenu->addAction(stickyVerticesAction);
   editMenu->addSeparator();
@@ -2349,9 +2364,6 @@ void MainWindow::createMappingContextMenu()
   mappingContextMenu->addAction(duplicateMappingAction);
   mappingContextMenu->addAction(deleteMappingAction);
   mappingContextMenu->addAction(renameMappingAction);
-  mappingContextMenu->addAction(mappingLockedAction);
-  mappingContextMenu->addAction(mappingHideAction);
-  mappingContextMenu->addAction(mappingSoloAction);
   // Add a little separator
   mappingContextMenu->addSeparator();
 
@@ -2360,17 +2372,22 @@ void MainWindow::createMappingContextMenu()
 
   // Add another separator
   mappingContextMenu->addSeparator();
+  mappingContextMenu->addAction(mappingRaiseAction);
+  mappingContextMenu->addAction(mappingLowerAction);
+  mappingContextMenu->addAction(mappingRaiseToTopAction);
+  mappingContextMenu->addAction(mappingLowerToBottomAction);
+  mappingContextMenu->addSeparator();
   mappingContextMenu->addAction(mappingRotate90CWAction);
   mappingContextMenu->addAction(mappingRotate90CCWAction);
   mappingContextMenu->addAction(mappingRotate180Action);
   mappingContextMenu->addSeparator();
   mappingContextMenu->addAction(mappingHorizontalFlipAction);
   mappingContextMenu->addAction(mappingVerticalFlipAction);
+
   mappingContextMenu->addSeparator();
-  mappingContextMenu->addAction(mappingRaiseAction);
-  mappingContextMenu->addAction(mappingLowerAction);
-  mappingContextMenu->addAction(mappingRaiseToTopAction);
-  mappingContextMenu->addAction(mappingLowerToBottomAction);
+  mappingContextMenu->addAction(mappingLockedAction);
+  mappingContextMenu->addAction(mappingHideAction);
+  mappingContextMenu->addAction(mappingSoloAction);
 
   // Set context menu policy
   mappingList->setContextMenuPolicy(Qt::CustomContextMenu);
