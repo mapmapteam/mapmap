@@ -27,7 +27,8 @@ before_install:
     fi
 
   - if [ "$TARGET" == "osx" ]; then
-      brew update;
+      brew untap homebrew/boneyard
+      brew update -v;
     fi
 
 install:
@@ -36,7 +37,7 @@ install:
       libqt5opengl5-dev qtmultimedia5-dev qtwebengine5-dev;
       sudo apt-get install liblo-dev liblo-tools;
       sudo apt-get install libgstreamer1.0-dev
-      libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad
+      libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad 
       gstreamer1.0-libav gstreamer1.0-vaapi gstreamer1.0-plugins-base
       gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-good
       gstreamer1.0-plugins-ugly gstreamer1.0-x gstreamer1.0-tools;
@@ -48,10 +49,8 @@ install:
       brew install liblo;
       brew install ccache;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
-      wget --quiet https://gstreamer.freedesktop.org/data/pkg/osx/1.12.4/gstreamer-1.0-1.12.4-x86_64.pkg;
-      sudo installer -verboseR -pkg gstreamer-1.0-1.12.4-x86_64.pkg -target /;
-      wget --quiet https://gstreamer.freedesktop.org/data/pkg/osx/1.12.4/gstreamer-1.0-devel-1.12.4-x86_64.pkg;
-      sudo installer -verboseR -pkg gstreamer-1.0-devel-1.12.4-x86_64.pkg -target /;
+      brew install gstreamer gst-plugins-base gst-plugins-bad 
+      brew install gst-plugins-ugly gst-plugins-good
     fi
 
 before_script:
