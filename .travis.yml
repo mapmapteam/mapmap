@@ -49,15 +49,18 @@ install:
       brew install liblo;
       brew install ccache;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
-      brew install gstreamer gst-plugins-base gst-plugins-bad; 
-      brew install gst-plugins-ugly gst-plugins-good;
+      brew install gstreamer;
+      brew install gst-plugins-base;
+      brew install gst-plugins-bad; 
+      brew install gst-plugins-ugly;
+      brew install gst-plugins-good;
     fi
 
 before_script:
   - if [ "$TARGET" == "osx" ]; then
       brew link qt --force;
       brew link liblo --force;
-      gstreamer="GStreamer.framework/Versions/1.0/lib/GStreamer"
+      brew link gstreamer --force
       app="MapMap.app";
     fi
 
