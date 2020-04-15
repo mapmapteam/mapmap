@@ -27,8 +27,7 @@ before_install:
     fi
 
   - if [ "$TARGET" == "osx" ]; then
-      brew untap homebrew/homebrew-versions;
-      brew update -v;
+      brew update;
     fi
 
 install:
@@ -49,18 +48,17 @@ install:
       brew install liblo;
       brew install ccache;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
-      brew install gstreamer;
-      brew install gst-plugins-base;
-      brew install gst-plugins-bad; 
-      brew install gst-plugins-ugly;
-      brew install gst-plugins-good;
+      wget --quiet https://gstreamer.freedesktop.org/data/pkg/osx/1.16.2/gstreamer-1.0-1.16.2-x86_64.pkg;
+      sudo installer -verboseR -pkg gstreamer-1.0-1.16.2-x86_64.pkg -target /;
+      wget --quiet https://gstreamer.freedesktop.org/data/pkg/osx/1.16.2/gstreamer-1.0-devel-1.16.2-x86_64.pkg;
+      sudo installer -verboseR -pkg gstreamer-1.0-devel-1.16.2-x86_64.pkg -target /;
     fi
 
 before_script:
   - if [ "$TARGET" == "osx" ]; then
       brew link qt --force;
       brew link liblo --force;
-      brew link gstreamer --force;
+      gstreamer="GStreamer.framework/Versions/1.0/lib/GStreamer";
       app="MapMap.app";
     fi
 
