@@ -60,7 +60,7 @@ before_script:
   - if [ "$TARGET" == "osx" ]; then
       brew link qt --force;
       brew link liblo --force;
-      brew link gstreamer --force
+      brew link gstreamer --force;
       app="MapMap.app";
     fi
 
