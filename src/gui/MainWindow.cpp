@@ -1598,6 +1598,9 @@ void MainWindow::createLayout()
   // Create console logging output
   consoleWindow = ConsoleWindow::console();
   consoleWindow->setVisible(false);
+  // Create shortcut window
+  _shortcutWindow = new ShortcutWindow;
+  _shortcutWindow->setVisible(false);
 
   // Create layout.
   paintSplitter = new QSplitter(Qt::Vertical);
@@ -2202,6 +2205,7 @@ void MainWindow::createActions()
   connect(feedbackAction, SIGNAL(triggered()), this, SLOT(sendFeedback()));
   // Keyboard shortcuts
   shortcutAction = new QAction(tr("&Keyboard shortcuts"), this);
+  shortcutAction->setShortcut(Qt::CTRL + Qt::Key_K);
   connect(shortcutAction, SIGNAL(triggered()), this, SLOT(openShortcutWindow()));
 
   // All available screen as action
@@ -3745,9 +3749,8 @@ void MainWindow::exitFullScreen()
 
 void MainWindow::openShortcutWindow()
 {
-  ShortcutWindow *shortcutWindow = new ShortcutWindow;
-  setAttribute(Qt::WA_DeleteOnClose);
-  shortcutWindow->show();
+  _shortcutWindow->reload(); // Important for speed
+  _shortcutWindow->setVisible(true);
 }
 
 void MainWindow::updateSettings()

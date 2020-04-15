@@ -64,12 +64,11 @@ ShortcutWindow::ShortcutWindow()
   // Create and customize font
   int sansSerif = QFontDatabase::addApplicationFont(":/base-font");
   int serif = QFontDatabase::addApplicationFont(":/console-font");
-  QFont sansSerifFont(QFont(QFontDatabase::applicationFontFamilies(sansSerif).at(0), 9, QFont::Normal));
-  QFont serifFont(QFont(QFontDatabase::applicationFontFamilies(serif).at(0), 9, QFont::Normal));
+  QFont sansSerifFont(QFont(QFontDatabase::applicationFontFamilies(sansSerif).at(0), 11, QFont::Normal));
+  QFont serifFont(QFont(QFontDatabase::applicationFontFamilies(serif).at(0), 10, QFont::Normal));
   // Apply font to the document
   settings()->setFontFamily(QWebEngineSettings::SansSerifFont, sansSerifFont.family());
   settings()->setFontFamily(QWebEngineSettings::SerifFont, serifFont.family());
-
 
 }
 
