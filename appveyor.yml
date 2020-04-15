@@ -34,5 +34,5 @@ install:
   - set GSTREAMER_1_0_ROOT_X86=C:\gstreamer\1.0\x86
 
 build_script:
-  - "$(QTDIR)\bin\qmake.exe" mapmap.pro
+  - $(QTDIR)\bin\qmake.exe mapmap.pro
   - mingw32-make
