@@ -27,7 +27,7 @@ before_install:
     fi
 
   - if [ "$TARGET" == "osx" ]; then
-      brew untap homebrew/homebrew-boneyard;
+      brew untap homebrew/homebrew-versions;
       brew update -v;
     fi
 
