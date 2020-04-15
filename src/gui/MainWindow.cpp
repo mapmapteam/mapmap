@@ -3129,22 +3129,8 @@ void MainWindow::moveMappingItem(uid mappingId, int idx)
   Q_CHECK_PTR(mapping);
 
   // Remove mapping from model.
-  qDebug() << "BEF: " << mappingId << " " << mappingManager->getMappingIndex(mapping) << " , "
-                      << idx << endl;
-
-  for (int i=0; i<mappingManager->nMappings(); i++)
-    qDebug() << mappingManager->getMapping(i)->getId() << " " ;
-  qDebug() << endl;
-
   uid exchangeMappingId = mappingManager->getMapping(idx)->getId();
-
   mappingManager->moveMapping(mappingId, idx);
-
-  qDebug() << "AFT: " << mappingManager->getMappingIndex(mapping) << " , "
-                      << idx << endl;
-  for (int i=0; i<mappingManager->nMappings(); i++)
-    qDebug() << mappingManager->getMapping(i)->getId() << " ";
-  qDebug() << endl;
 
   // Remove widget from mappingList.
   int row = mappingListModel->getItemRowFromId(mappingId);
@@ -3152,27 +3138,12 @@ void MainWindow::moveMappingItem(uid mappingId, int idx)
   Q_ASSERT( row >= 0 );
   mappingListModel->moveItem(row, idx);
 
-  qDebug() << "INFO: " << idx << " " << row << " " << rowTo << endl;
-
-//  mappingListModel->moveItem(row, mappingManager->nMappings()-1-idx);
-
-  // // TODO: not sure if we need what lies below
   // Update list.
   mappingListModel->updateModel();
 
   QModelIndex index = mappingListModel->getIndexFromRow(idx);
   mappingList->selectionModel()->select(index, QItemSelectionModel::Select);
   mappingList->setCurrentIndex(index);
-  //
-  // if (mappingListModel->rowCount() == 0)
-  //   removeCurrentMapping();
-  // else
-  // {
-  //   int nextSelectedRow = row == mappingListModel->rowCount() ? row - 1 : row;
-  //   QModelIndex index = mappingListModel->getIndexFromRow(nextSelectedRow);
-  //   mappingList->selectionModel()->select(index, QItemSelectionModel::Select);
-  //   mappingList->setCurrentIndex(index);
-  // }
 
   // Update everything.
   updateCanvases();
