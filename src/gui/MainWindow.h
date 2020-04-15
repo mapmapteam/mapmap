@@ -560,6 +560,8 @@ private:
   PreferenceDialog* _preferenceDialog;
   // About dialog
   AboutDialog *_aboutDialog;
+  // Shortcut Windows
+  ShortcutWindow *_shortcutWindow;
 
   // UndoStack
   QUndoStack *undoStack;
