@@ -27,7 +27,7 @@ before_install:
     fi
 
   - if [ "$TARGET" == "osx" ]; then
-      brew untap homebrew/boneyard
+      brew untap homebrew/homebrew-boneyard;
       brew update -v;
     fi
 
@@ -49,8 +49,8 @@ install:
       brew install liblo;
       brew install ccache;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
-      brew install gstreamer gst-plugins-base gst-plugins-bad 
-      brew install gst-plugins-ugly gst-plugins-good
+      brew install gstreamer gst-plugins-base gst-plugins-bad; 
+      brew install gst-plugins-ugly gst-plugins-good;
     fi
 
 before_script:
