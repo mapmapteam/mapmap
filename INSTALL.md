@@ -137,30 +137,25 @@ GSTPLUGIN_PATH=/Library/Frameworks/GStreamer.framework/Libraries GST_DEBUG=2 /Ap
 Build on Windows
 ----------------
 
-Download gstreamer-x86 runtime& devel 
- - https://gstreamer.freedesktop.org/data/pkg/windows/1.10.2/gstreamer-1.0-x86-1.10.2.msi
- - https://gstreamer.freedesktop.org/data/pkg/windows/1.10.2/gstreamer-1.0-devel-x86-1.10.2.msi
+## Build dynamic version to debug project:
+- Download and install gstreamer-x86 [runtime](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-mingw-x86-1.16.2.msi) and [devel](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-devel-mingw-x86-1.16.2.msi)
+- Download and install [Qt5 MinGW incl. QtCreator](https://www.qt.io/download-thank-you?os=windows)
+- Add the taglib bin path (e.g. C:\Program Files (x86)\taglib-1.9.1\bin) to PATH variable into the QtCreator project build enviroment settings
+- Build and run MapMap project within QtCreator (Ctrl-R)
 
-Then:
-- Choose complete option during installation process wizard
-- Build Mapmap with Qt Creator (qmake, build release)
-- Add the bin directory of your Qt installation (e.g. e.g. C:\Qt\Qt5.6.0\5.6\mingw49_32\bin) to the PATH variable
-- Open Windows console then run the following command: ```windeployqt --release --no-system-d3d-compiler <path-to-app-binary>```
+## Build static version for release:
+- Download and install gstreamer-x86 [runtime](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-mingw-x86-1.16.2.msi) and [devel](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-devel-mingw-x86-1.16.2.msi)
+- Build a [Qt static environment](https://wiki.qt.io/Building_a_static_Qt_for_Windows_using_MinGW) (This [video](https://www.youtube.com/watch?v=nEQGrBiz2T0) may explain it better)
+- Build MapMap using QtCreator (qmake, build release)
+- Copy all dll files of the gstreamer's bin folder (e.g. C:\gstreamer\1.0\x86\bin) into the target folder together with MapMap.exe
+- Copy all dll files of the gstreamer's plugin folder (e.g. C:\gstreamer\1.0\x86\lib\gstreamer-1.0) into an new folder named 'plugin' in parallel to MapMap.exe.
+- Run MapMap.exe
 
-Copy the followings DLL into the target folder together with Mapmap.exe:
-```
-libffi-6.dll libgobject-2.0-0.dll libgstbase-1.0-0.dll libgsttag-1.0-0.dll liborc-0.4-0.dll 
-libglib-2.0-0.dll libgstapp-1.0-0.dll libgstpbutils-1.0-0.dll libgstvideo-1.0-0.dll libz.dll 
-libgmodule-2.0-0.dll libgstaudio-1.0-0.dll libgstreamer-1.0-0.dll libintl-8.dll
-```
-
-Copy all DLL files of the Gstreamer's bin folder (e.g. C:\gstreamer\1.0\x86\bin) into a new folder named 'lib' in the target folder together with mapmap.exe
-
-Copy all DLL files of the Gstreamer's plugin folder (e.g. C:\gstreamer\1.0\x86\lib\gstreamer-1.0) into a new folder named 'plugins' in parallel of lib folder
-
-Remove lib\libopenh264.dll, lib\libSoundTouch-0.dll, lib\libtag.dll
-
-Run Mapamp.exe
+#### For packaging
+- Open Qt terminal via a Start Menu and run the following command:
+`windeployqt --release --no-system-d3d-compiler <path-to-app-binary>`
+- Replace all the `*.qm` files that exists in `released-binary`/translations folder by the ones from `source-code`/translations folder
+- Download and install [Inno Setup](https://jrsoftware.org/isdl.php) to create an installation wizard setup
 
 Editing translations
 --------------------
