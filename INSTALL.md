@@ -140,7 +140,7 @@ Build on Windows
 ## Build dynamic version to debug project:
 - Download and install gstreamer-x86 [runtime](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-mingw-x86-1.16.2.msi) and [devel](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-devel-mingw-x86-1.16.2.msi)
 - Download and install [Qt5 MinGW incl. QtCreator](https://www.qt.io/download-thank-you?os=windows)
-- Add the taglib bin path (e.g. C:\Program Files (x86)\taglib-1.9.1\bin) to PATH variable into the QtCreator project build enviroment settings
+- Add the GStreamer bin path (e.g. C:\gstreamer\1.0\x86\bin) to PATH variable into the QtCreator project build enviroment settings
 - Build and run MapMap project within QtCreator (Ctrl-R)
 
 ## Build static version for release:
