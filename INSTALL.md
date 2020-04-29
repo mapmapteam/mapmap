@@ -23,14 +23,14 @@ Alternatively:
 
 NOTE: Tested on 13.10, 14.04, 15.04 and 16.04
 
-Install basic development tools fot Qt projects, plus liblo for OSC support:
+Install basic development tools for Qt projects, plus liblo for OSC support:
 
 ```
 sudo apt-get install -y \
       liblo-dev liblo-tools \
       qttools5-dev-tools \
       qtmultimedia5-dev \
-      libqt5opengl5-dev \ 
+      libqt5opengl5-dev \
       qtwebengine5-dev \
       libqt5multimedia5-plugins \
       qt5-default
@@ -65,7 +65,7 @@ sudo apt-get install -y \
 
 ### Arch Linux
 
-Install basic development tools fot Qt projects, GStreamer 1.0 and liblo for OSC support:
+Install basic development tools for Qt projects, GStreamer 1.0 and liblo for OSC support:
 
 ```
 sudo pacman -S qt5-tools qt5-multimedia qt5-webengine liblo gstreamer
