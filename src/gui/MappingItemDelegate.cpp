@@ -18,6 +18,7 @@
  */
 
 #include "MappingItemDelegate.h"
+#include <QPainterPath>
 
 namespace mmp {
 
