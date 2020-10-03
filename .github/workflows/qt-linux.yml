@@ -20,7 +20,7 @@ jobs:
         version: '5.12.8'
         host: 'linux'
         target: 'desktop'
-        modules: 'gui core serialport network opengl xml'
+        modules: 'gui core serialport network opengl xml qtgstreamer'
     - name: qmake
       run: qmake .
     - name: make
