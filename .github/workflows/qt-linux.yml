@@ -21,6 +21,8 @@ jobs:
         host: 'linux'
         target: 'desktop'
         modules: 'gui core serialport network opengl xml qtgstreamer'
+    - name: Install gstreamer
+      run: sudo apt-get -y install libgstreamer1.0-dev
     - name: qmake
       run: qmake .
     - name: make
