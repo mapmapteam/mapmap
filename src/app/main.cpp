@@ -75,15 +75,16 @@ void logMessageHandler(QtMsgType type, const QMessageLogContext &context, const 
 
 int main(int argc, char *argv[])
 {
-  // Install message handler
-  qInstallMessageHandler(logMessageHandler);
-
   set_env_vars_if_needed();
 
   // Initialize meta-object registry.
   initRegistry();
 
   MainApplication app(argc, argv);
+  
+  // Install message handler
+  // after QGuiApplication has been instanciated
+  qInstallMessageHandler(logMessageHandler);
 
 #if USING_QT_5
   QCommandLineParser parser;
