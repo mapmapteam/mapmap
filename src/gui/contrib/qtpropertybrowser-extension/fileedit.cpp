@@ -51,7 +51,12 @@ FileEdit::FileEdit(QWidget *parent)
 
 void FileEdit::buttonClicked()
 {
+#ifdef Q_OS_LINUX
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Choose a file"), theLineEdit->text(), filter(), nullptr, QFileDialog::DontUseNativeDialog );
+#else
     QString filePath = QFileDialog::getOpenFileName(this, tr("Choose a file"), theLineEdit->text(), filter() );
+#endif
+
     if (filePath.isNull())
         return;
     theLineEdit->setText(filePath);
