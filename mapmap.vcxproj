@@ -1,0 +1,522 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{328B2D4D-FA05-383D-B311-F6B7CEF4CBC9}</ProjectGuid>
+    <RootNamespace>MapMap</RootNamespace>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.26100.0</WindowsTargetPlatformMinVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <PlatformToolset>v145</PlatformToolset>
+    <OutputDirectory>..\..\MapMap\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>Application</ConfigurationType>
+    <IntermediateDirectory>src\app\objs\</IntermediateDirectory>
+    <PrimaryOutput>MapMap</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <PlatformToolset>v145</PlatformToolset>
+    <OutputDirectory>..\..\MapMap\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>Application</ConfigurationType>
+    <IntermediateDirectory>src\app\objs\</IntermediateDirectory>
+    <PrimaryOutput>MapMap</PrimaryOutput>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(QtMsBuild)\qt_defaults.props" Condition="Exists('$(QtMsBuild)\qt_defaults.props')" />
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <QtInstall>6.9.2_msvc2022_64</QtInstall>
+    <QtModules>core;gui;network;qml;quick;widgets;opengl;multimedia;printsupport;webchannel;webenginecore;xml;positioning;webenginewidgets;webenginequick</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <QtInstall>6.9.2_msvc2022_64</QtInstall>
+    <QtModules>core;gui;network;qml;quick;widgets;opengl;multimedia;printsupport;webchannel;webenginecore;xml;positioning;webenginewidgets;webenginequick</QtModules>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') OR !Exists('$(QtMsBuild)\Qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\MapMap\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">src\app\objs\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MapMap</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\MapMap\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">src\app\objs\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MapMap</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;src\core;src\shape;src\gui;src\control;src\app;C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstreamer-1.0\include;C:\Program Files (x86)\gstreamer\1.0\msvc_x86\include\glib-2.0;C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\glib-2.0\include;C:\Program Files (x86)\gstreamer\1.0\msvc_x86\include\gstreamer-1.0;src\gui\contrib\qtpropertybrowser\src;src\gui\contrib\qtpropertybrowser-extension;src\control\qosc;./src/control/qosc/contrib/packosc;src\app\mocs;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -utf-8 -w34100 -w34189 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>src\app\objs\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>src\app\objs\</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_USE_MATH_DEFINES;_USE_MATH_DEFINES;_USE_MATH_DEFINES;_USE_MATH_DEFINES;_USE_MATH_DEFINES;_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;UNICODE;QT_THREAD_SUPPORT;QT_MESSAGELOGCONTEXT;WIN32;WIN32;WIN32;QT_DISABLE_DEPRECATED_BEFORE=0;WIN32;WIN32;NDEBUG;QT_NO_DEBUG;QT_QMLMETA_LIB;QT_QMLMODELS_LIB;QT_QMLWORKERSCRIPT_LIB;QT_QMLINTEGRATION_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstapp-1.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstbase-1.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstpbutils-1.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstreamer-1.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gobject-2.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\glib-2.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstaudio-1.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstvideo-1.0.lib";opengl32.lib;$(QTDIR)\lib\Qt6QmlMeta.lib;$(QTDIR)\lib\Qt6QmlModels.lib;$(QTDIR)\lib\Qt6QmlWorkerScript.lib;$(QTDIR)\lib\Qt6EntryPoint.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkIncremental>false</LinkIncremental>
+      <OptimizeReferences>true</OptimizeReferences>
+      <OutputFile>$(OutDir)\MapMap.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <Version>0.6</Version>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_USE_MATH_DEFINES;_USE_MATH_DEFINES;_USE_MATH_DEFINES;_USE_MATH_DEFINES;_USE_MATH_DEFINES;_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;UNICODE;QT_THREAD_SUPPORT;QT_MESSAGELOGCONTEXT;WIN32;WIN32;WIN32;QT_DISABLE_DEPRECATED_BEFORE=0;WIN32;WIN32;NDEBUG;QT_NO_DEBUG;QT_QMLMETA_LIB;QT_QMLMODELS_LIB;QT_QMLWORKERSCRIPT_LIB;QT_QMLINTEGRATION_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>./src/app/mocs/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>.\src\app\mocs</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtRcc>
+      <NoZstd>true</NoZstd>
+      <Compression>default</Compression>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>.\src\app\qrc</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;src\core;src\shape;src\gui;src\control;src\app;C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstreamer-1.0\include;C:\Program Files (x86)\gstreamer\1.0\msvc_x86\include\glib-2.0;C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\glib-2.0\include;C:\Program Files (x86)\gstreamer\1.0\msvc_x86\include\gstreamer-1.0;src\gui\contrib\qtpropertybrowser\src;src\gui\contrib\qtpropertybrowser-extension;src\control\qosc;./src/control/qosc/contrib/packosc;src\app\mocs;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -utf-8 -w34100 -w34189 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>src\app\objs\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>src\app\objs\</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_USE_MATH_DEFINES;_USE_MATH_DEFINES;_USE_MATH_DEFINES;_USE_MATH_DEFINES;_USE_MATH_DEFINES;_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;UNICODE;QT_THREAD_SUPPORT;QT_MESSAGELOGCONTEXT;WIN32;WIN32;WIN32;QT_DISABLE_DEPRECATED_BEFORE=0;WIN32;WIN32;QT_QMLMETA_LIB;QT_QMLMODELS_LIB;QT_QMLWORKERSCRIPT_LIB;QT_QMLINTEGRATION_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstapp-1.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstbase-1.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstpbutils-1.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstreamer-1.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gobject-2.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\glib-2.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstaudio-1.0.lib";"C:\Program Files (x86)\gstreamer\1.0\msvc_x86\lib\gstvideo-1.0.lib";opengl32.lib;$(QTDIR)\lib\Qt6QmlMetad.lib;$(QTDIR)\lib\Qt6QmlModelsd.lib;$(QTDIR)\lib\Qt6QmlWorkerScriptd.lib;$(QTDIR)\lib\Qt6EntryPointd.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <OutputFile>$(OutDir)\MapMap.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <Version>0.6</Version>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_USE_MATH_DEFINES;_USE_MATH_DEFINES;_USE_MATH_DEFINES;_USE_MATH_DEFINES;_USE_MATH_DEFINES;_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;UNICODE;QT_THREAD_SUPPORT;QT_MESSAGELOGCONTEXT;WIN32;WIN32;WIN32;QT_DISABLE_DEPRECATED_BEFORE=0;WIN32;WIN32;QT_QMLMETA_LIB;QT_QMLMODELS_LIB;QT_QMLWORKERSCRIPT_LIB;QT_QMLINTEGRATION_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <QtRcc>
+      <Compression>default</Compression>
+      <NoZstd>true</NoZstd>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>.\src\app\qrc</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>./src/app/mocs/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>.\src\app\mocs</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\gui\AboutDialog.cpp" />
+    <ClCompile Include="src\core\CameraImpl.cpp" />
+    <ClCompile Include="src\core\CameraSurface.cpp" />
+    <ClCompile Include="src\core\Commands.cpp" />
+    <ClCompile Include="src\gui\ConsoleWindow.cpp" />
+    <ClCompile Include="src\core\Element.cpp" />
+    <ClCompile Include="src\shape\Ellipse.cpp" />
+    <ClCompile Include="src\core\MM.cpp" />
+    <ClCompile Include="src\app\MainApplication.cpp" />
+    <ClCompile Include="src\gui\MainWindow.cpp" />
+    <ClCompile Include="src\gui\MapperGLCanvas.cpp" />
+    <ClCompile Include="src\gui\MapperGLCanvasToolbar.cpp" />
+    <ClCompile Include="src\core\Mapping.cpp" />
+    <ClCompile Include="src\gui\MappingGui.cpp" />
+    <ClCompile Include="src\gui\MappingItemDelegate.cpp" />
+    <ClCompile Include="src\gui\MappingListModel.cpp" />
+    <ClCompile Include="src\core\MappingManager.cpp" />
+    <ClCompile Include="src\shape\Mesh.cpp" />
+    <ClCompile Include="src\core\MetaObjectRegistry.cpp" />
+    <ClCompile Include="src\control\OscInterface.cpp" />
+    <ClCompile Include="src\control\qosc\contrib\oscpack\OscOutboundPacketStream.cpp" />
+    <ClCompile Include="src\control\qosc\contrib\oscpack\OscPrintReceivedElements.cpp" />
+    <ClCompile Include="src\control\qosc\contrib\oscpack\OscReceivedElements.cpp" />
+    <ClCompile Include="src\control\qosc\contrib\oscpack\OscTypes.cpp" />
+    <ClCompile Include="src\gui\OutputGLCanvas.cpp" />
+    <ClCompile Include="src\gui\OutputGLWindow.cpp" />
+    <ClCompile Include="src\core\Paint.cpp" />
+    <ClCompile Include="src\gui\PaintGui.cpp" />
+    <ClCompile Include="src\shape\Polygon.cpp" />
+    <ClCompile Include="src\gui\PreferenceDialog.cpp" />
+    <ClCompile Include="src\core\ProjectLabels.cpp" />
+    <ClCompile Include="src\core\ProjectReader.cpp" />
+    <ClCompile Include="src\core\ProjectWriter.cpp" />
+    <ClCompile Include="src\core\Serializable.cpp" />
+    <ClCompile Include="src\shape\Shape.cpp" />
+    <ClCompile Include="src\gui\ShapeControlPainter.cpp" />
+    <ClCompile Include="src\gui\ShapeGraphicsItem.cpp" />
+    <ClCompile Include="src\gui\ShortcutWindow.cpp" />
+    <ClCompile Include="src\core\UidAllocator.cpp" />
+    <ClCompile Include="src\core\Util.cpp" />
+    <ClCompile Include="src\core\VideoImpl.cpp" />
+    <ClCompile Include="src\core\VideoShmSrcImpl.cpp" />
+    <ClCompile Include="src\core\VideoUriDecodeBinImpl.cpp" />
+    <ClCompile Include="src\core\VideoV4l2SrcImpl.cpp" />
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser-extension\fileedit.cpp" />
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser-extension\fileeditfactory.cpp" />
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser-extension\filepathmanager.cpp" />
+    <ClCompile Include="src\app\main.cpp" />
+    <ClCompile Include="src\control\qosc\oscreceiver.cpp" />
+    <ClCompile Include="src\control\qosc\oscsender.cpp" />
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser\src\qtbuttonpropertybrowser.cpp" />
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser\src\qtgroupboxpropertybrowser.cpp" />
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser\src\qtpropertybrowser.cpp" />
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser\src\qtpropertybrowserutils.cpp" />
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser\src\qtvariantproperty.cpp" />
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser-extension\variantfactory.cpp" />
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser-extension\variantmanager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="src\gui\AboutDialog.h" />
+    <ClInclude Include="src\core\CameraImpl.h" />
+    <QtMoc Include="src\core\CameraSurface.h" />
+    <ClInclude Include="src\core\Commands.h" />
+    <ClInclude Include="src\control\ConcurrentQueue.h" />
+    <QtMoc Include="src\gui\ConsoleWindow.h" />
+    <QtMoc Include="src\core\Element.h" />
+    <QtMoc Include="src\shape\Ellipse.h" />
+    <ClInclude Include="src\gui\GuiForward.h" />
+    <ClInclude Include="src\core\MM.h" />
+    <ClInclude Include="src\app\MainApplication.h" />
+    <QtMoc Include="src\gui\MainWindow.h" />
+    <QtMoc Include="src\gui\MapperGLCanvas.h" />
+    <QtMoc Include="src\gui\MapperGLCanvasToolbar.h" />
+    <QtMoc Include="src\core\Mapping.h" />
+    <QtMoc Include="src\gui\MappingGui.h" />
+    <QtMoc Include="src\gui\MappingItemDelegate.h" />
+    <QtMoc Include="src\gui\MappingListModel.h" />
+    <ClInclude Include="src\core\MappingManager.h" />
+    <ClInclude Include="src\core\Maths.h" />
+    <QtMoc Include="src\shape\Mesh.h" />
+    <ClInclude Include="src\control\qosc\contrib\oscpack\MessageMappingOscPacketListener.h" />
+    <ClInclude Include="src\core\MetaObjectRegistry.h" />
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscException.h" />
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscHostEndianness.h" />
+    <ClInclude Include="src\control\OscInterface.h" />
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscOutboundPacketStream.h" />
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscPacketListener.h" />
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscPrintReceivedElements.h" />
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscReceivedElements.h" />
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscTypes.h" />
+    <QtMoc Include="src\gui\OutputGLCanvas.h" />
+    <QtMoc Include="src\gui\OutputGLWindow.h" />
+    <QtMoc Include="src\core\Paint.h" />
+    <QtMoc Include="src\gui\PaintGui.h" />
+    <QtMoc Include="src\shape\Polygon.h" />
+    <QtMoc Include="src\gui\PreferenceDialog.h" />
+    <ClInclude Include="src\core\ProjectLabels.h" />
+    <ClInclude Include="src\core\ProjectReader.h" />
+    <ClInclude Include="src\core\ProjectWriter.h" />
+    <QtMoc Include="src\shape\Quad.h" />
+    <QtMoc Include="src\core\Serializable.h" />
+    <QtMoc Include="src\shape\Shape.h" />
+    <ClInclude Include="src\gui\ShapeControlPainter.h" />
+    <ClInclude Include="src\gui\ShapeGraphicsItem.h" />
+    <ClInclude Include="src\shape\Shapes.h" />
+    <QtMoc Include="src\gui\ShortcutWindow.h" />
+    <QtMoc Include="src\shape\Triangle.h" />
+    <ClInclude Include="src\core\UidAllocator.h" />
+    <ClInclude Include="src\core\Util.h" />
+    <ClInclude Include="src\core\VideoImpl.h" />
+    <ClInclude Include="src\core\VideoShmSrcImpl.h" />
+    <ClInclude Include="src\core\VideoUriDecodeBinImpl.h" />
+    <ClInclude Include="src\core\VideoV4l2SrcImpl.h" />
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser-extension\fileedit.h" />
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser-extension\fileeditfactory.h" />
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser-extension\filepathmanager.h" />
+    <QtMoc Include="src\control\qosc\oscreceiver.h" />
+    <QtMoc Include="src\control\qosc\oscsender.h" />
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtbuttonpropertybrowser.h">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DynamicSource>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DynamicSource>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qteditorfactory.h">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DynamicSource>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DynamicSource>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtgroupboxpropertybrowser.h">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DynamicSource>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DynamicSource>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtpropertybrowser.h">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DynamicSource>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DynamicSource>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtpropertybrowserutils_p.h" />
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtpropertymanager.h">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DynamicSource>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DynamicSource>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qttreepropertybrowser.h">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DynamicSource>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DynamicSource>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtvariantproperty.h">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DynamicSource>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DynamicSource>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser-extension\variantfactory.h" />
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser-extension\variantmanager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include=".\src\app\mocs\moc_predefs.h.cbt">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -D_USE_MATH_DEFINES -D_USE_MATH_DEFINES -D_USE_MATH_DEFINES -D_USE_MATH_DEFINES -D_USE_MATH_DEFINES -O2 -MD -std:c++17 -utf-8 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;.\src\app\mocs\moc_predefs.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generate moc_predefs.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\src\app\mocs\moc_predefs.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -D_USE_MATH_DEFINES -D_USE_MATH_DEFINES -D_USE_MATH_DEFINES -D_USE_MATH_DEFINES -D_USE_MATH_DEFINES -Zi -MDd -std:c++17 -utf-8 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;.\src\app\mocs\moc_predefs.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generate moc_predefs.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\src\app\mocs\moc_predefs.h;%(Outputs)</Outputs>
+    </CustomBuild>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qteditorfactory.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocDir>.\src\app\mocs</QtMocDir>
+      <QtMocFileName>%(Filename).moc</QtMocFileName>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtpropertymanager.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocDir>.\src\app\mocs</QtMocDir>
+      <QtMocFileName>%(Filename).moc</QtMocFileName>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qttreepropertybrowser.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocDir>.\src\app\mocs</QtMocDir>
+      <QtMocFileName>%(Filename).moc</QtMocFileName>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="translations\mapmap_en.ts">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">translations\mapmap_en.ts;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)/bin/lrelease translations\mapmap_en.ts -qm translations/mapmap_en.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)/bin/lrelease</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">translations\mapmap_en.qm;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">translations\mapmap_en.ts;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)/bin/lrelease translations\mapmap_en.ts -qm translations/mapmap_en.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)/bin/lrelease</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">translations\mapmap_en.qm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="translations\mapmap_es.ts">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">translations\mapmap_es.ts;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)/bin/lrelease translations\mapmap_es.ts -qm translations/mapmap_es.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)/bin/lrelease</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">translations\mapmap_es.qm;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">translations\mapmap_es.ts;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)/bin/lrelease translations\mapmap_es.ts -qm translations/mapmap_es.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)/bin/lrelease</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">translations\mapmap_es.qm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="translations\mapmap_fr.ts">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">translations\mapmap_fr.ts;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)/bin/lrelease translations\mapmap_fr.ts -qm translations/mapmap_fr.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)/bin/lrelease</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">translations\mapmap_fr.qm;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">translations\mapmap_fr.ts;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)/bin/lrelease translations\mapmap_fr.ts -qm translations/mapmap_fr.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)/bin/lrelease</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">translations\mapmap_fr.qm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="translations\mapmap_zh_CN.ts">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">translations\mapmap_zh_CN.ts;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)/bin/lrelease translations\mapmap_zh_CN.ts -qm translations/mapmap_zh_CN.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)/bin/lrelease</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">translations\mapmap_zh_CN.qm;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">translations\mapmap_zh_CN.ts;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)/bin/lrelease translations\mapmap_zh_CN.ts -qm translations/mapmap_zh_CN.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)/bin/lrelease</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">translations\mapmap_zh_CN.qm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="translations\mapmap_zh_TW.ts">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">translations\mapmap_zh_TW.ts;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)/bin/lrelease translations\mapmap_zh_TW.ts -qm translations/mapmap_zh_TW.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)/bin/lrelease</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">translations\mapmap_zh_TW.qm;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">translations\mapmap_zh_TW.ts;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)/bin/lrelease translations\mapmap_zh_TW.ts -qm translations/mapmap_zh_TW.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)/bin/lrelease</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">translations\mapmap_zh_TW.qm;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="docs\informations\CHANGELOG.html" />
+    <None Include="CHANGELOG.md" />
+    <None Include="docs\informations\CONTRIBUTORS.html" />
+    <None Include="docs\informations\CONTRIBUTORS.md" />
+    <None Include="resources\fonts\DroidSans.otf" />
+    <None Include="resources\fonts\Hack-Regular.otf" />
+    <None Include="docs\informations\LICENSE" />
+    <None Include="docs\informations\LICENSE_SHORT.txt" />
+    <None Include="docs\informations\MAPPING" />
+    <None Include="resources\images\icons\add_camera_w.png" />
+    <None Include="resources\images\shapes\add_circle.png" />
+    <None Include="resources\images\icons\add_movie_w.png" />
+    <None Include="resources\images\icons\add_paint_w.png" />
+    <None Include="resources\images\shapes\add_quad.png" />
+    <None Include="resources\images\shapes\add_triangle.png" />
+    <None Include="resources\images\icons\advanced.png" />
+    <None Include="resources\images\checkbox\checkbox-checked-focused.png" />
+    <None Include="resources\images\checkbox\checkbox-checked.png" />
+    <None Include="resources\images\checkbox\checkbox-unchecked-focused.png" />
+    <None Include="resources\images\checkbox\checkbox-unchecked.png" />
+    <None Include="resources\images\test-signal\examples\classic-test-card.png" />
+    <None Include="resources\images\icons\controls.png" />
+    <None Include="resources\images\icons\ctrl2_w.png" />
+    <None Include="resources\images\icons\small\delete_w.png" />
+    <QtRcc Include="docs\documentation.qrc">
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">documentation</InitFuncName>
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">documentation</InitFuncName>
+    </QtRcc>
+    <None Include="resources\images\icons\small\duplicate_w.png" />
+    <None Include="resources\images\icons\fullscreen_w.png" />
+    <None Include="resources\images\icons\interface.png" />
+    <QtRcc Include="resources\interface.qrc">
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">interface</InitFuncName>
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">interface</InitFuncName>
+    </QtRcc>
+    <None Include="docs\informations\keyboard-shortcuts.css" />
+    <None Include="docs\informations\keyboard-shortcuts.html" />
+    <None Include="resources\images\icons\small\lock_w.png" />
+    <None Include="resources\images\logo\logomapmap-light.png" />
+    <None Include="resources\images\logo\logomapmap.png" />
+    <QtRcc Include="main.qrc">
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">main</InitFuncName>
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</InitFuncName>
+    </QtRcc>
+    <None Include="docs\informations\mapmap-keyboard-shortcuts.md" />
+    <None Include="resources\images\logo\mapmap-logo.png" />
+    <None Include="resources\images\logo\mapmap-wide-with-border.svg" />
+    <None Include="resources\qss\mapmap.qss" />
+    <None Include="translations\mapmap_en.qm" />
+    <None Include="translations\mapmap_es.qm" />
+    <None Include="translations\mapmap_fr.qm" />
+    <None Include="translations\mapmap_zh_CN.qm" />
+    <None Include="translations\mapmap_zh_TW.qm" />
+    <None Include="resources\images\icons\newdoc_w.png" />
+    <None Include="resources\images\icons\nofullscreen_w.png" />
+    <None Include="resources\images\test-signal\examples\ntsc-test-card.png" />
+    <None Include="resources\images\test-signal\ntsc-test-signal.svg" />
+    <None Include="resources\images\icons\open_w.png" />
+    <None Include="docs\informations\osc.html" />
+    <None Include="docs\informations\osc.md" />
+    <None Include="resources\images\test-signal\examples\pal-test-card.png" />
+    <None Include="resources\images\test-signal\pal-test-signal.svg" />
+    <None Include="resources\images\icons\pause_w_1.png" />
+    <None Include="resources\images\icons\play_w.png" />
+    <None Include="resources\images\checkbox\radio-checked-focused.png" />
+    <None Include="resources\images\checkbox\radio-checked.png" />
+    <None Include="resources\images\checkbox\radio-unchecked-focused.png" />
+    <None Include="resources\images\checkbox\radio-unchecked.png" />
+    <None Include="resources\images\icons\rewind_w.png" />
+    <None Include="resources\images\icons\rotate-vertex.png" />
+    <None Include="resources\images\icons\save_w.png" />
+    <None Include="resources\images\icons\scale-vertex.png" />
+    <None Include="resources\images\icons\solo.png" />
+    <None Include="resources\images\logo\splash.png" />
+    <None Include="resources\images\test-signal\test-signal.svg" />
+    <None Include="resources\images\icons\testsignal.png" />
+    <QtRcc Include="translations\translation.qrc">
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">translation</InitFuncName>
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">translation</InitFuncName>
+    </QtRcc>
+    <None Include="resources\images\icons\small\visible_w.png" />
+    <None Include="resources\images\icons\zoom_1.png" />
+    <None Include="resources\images\icons\zoom_fit.png" />
+    <None Include="resources\images\icons\zoom_in.png" />
+    <None Include="resources\images\icons\zoom_out_w.svg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\windows_resource.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

@@ -38,6 +38,10 @@
 
 #include <QSharedPointer>
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <algorithm>
+#endif
+
 #include "Maths.h"
 #include "Serializable.h"
 
@@ -142,9 +146,13 @@ public:
   const QVector<QPointF>& getVertices() const { return vertices; }
   virtual void setVertices(const QVector<QPointF>& vertices_)
   {
-    // Deep copy.
+    // Deep copy using Qt 6 compatible method
     vertices.resize(vertices_.size());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     qCopy(vertices_.begin(), vertices_.end(), vertices.begin());
+#else
+    std::copy(vertices_.begin(), vertices_.end(), vertices.begin());
+#endif
   }
 
   // Returns true iff vertex index is considered a major (external) control point.

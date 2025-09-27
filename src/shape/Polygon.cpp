@@ -81,8 +81,13 @@ void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
           j != wrapAround(idx+1, segments.size()))
       {
         QPointF intersection;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        if (segments[idx].intersects(segments[j], &intersection) == QLineF::BoundedIntersection ||
+            originalToNew.intersects(segments[j], &intersection) == QLineF::BoundedIntersection)
+#else
         if (segments[idx].intersect(segments[j], &intersection) == QLineF::BoundedIntersection ||
             originalToNew.intersect(segments[j], &intersection) == QLineF::BoundedIntersection)
+#endif
         {
           // Rearrange segments with new position at intersection point.
           // Create small vector pointing in same direction as segment.

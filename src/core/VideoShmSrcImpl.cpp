@@ -1,7 +1,7 @@
 /*
  * VideoShmSrcImpl.cpp
  *
- * (c) 2016 Vasilis Liaskovitis -- vliaskov@gmail.com
+ * (c) 2016 Vasilis Liaskov@gmail.com
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
  * (c) 2012 Jean-Sebastien Senecal
@@ -25,6 +25,7 @@
 #include "VideoShmSrcImpl.h"
 #include <cstring>
 #include <iostream>
+#include <QMutex>
 
 namespace mmp {
 
@@ -55,7 +56,7 @@ gstPollShmsrc (void *user_data)
   {
     if (! p->setPlayState(true))
     {
-      qDebug() << "tried to attach, but starting pipeline failed!" << endl;
+      qDebug() << "tried to attach, but starting pipeline failed!" << Qt::endl;
       return false;
     }
     p->setAttached(true);
@@ -80,7 +81,7 @@ bool VideoShmSrcImpl::loadMovie(const QString& path) {
 
   if (! _shmsrc0 || ! _gdpdepay0)
   {
-    qWarning() << "Not all elements could be created." << endl;
+    qWarning() << "Not all elements could be created." << Qt::endl;
     if (! _shmsrc0) g_printerr("_shmsrc0");
     if (! _gdpdepay0) g_printerr("_gdpdepay0");
     unloadMovie();
@@ -90,7 +91,7 @@ bool VideoShmSrcImpl::loadMovie(const QString& path) {
   gst_bin_add_many (GST_BIN(_pipeline), _shmsrc0, _gdpdepay0, NULL);
   if (! gst_element_link_many (_shmsrc0, _gdpdepay0, _queue0, NULL))
   {
-    qWarning() << "Could not link shmsrc, deserializer and video queue." << endl;
+    qWarning() << "Could not link shmsrc, deserializer and video queue." << Qt::endl;
   }
 
   QByteArray ba = path.toLocal8Bit();

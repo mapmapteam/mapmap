@@ -1,0 +1,684 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Translation Files">
+      <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
+      <Extensions>ts;xlf</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Translation Files">
+      <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
+      <Extensions>ts;xlf</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\gui\AboutDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\CameraImpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\CameraSurface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Commands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\ConsoleWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Element.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shape\Ellipse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\MM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\app\MainApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\MainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\MapperGLCanvas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\MapperGLCanvasToolbar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Mapping.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\MappingGui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\MappingItemDelegate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\MappingListModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\MappingManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shape\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\MetaObjectRegistry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\OscInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\qosc\contrib\oscpack\OscOutboundPacketStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\qosc\contrib\oscpack\OscPrintReceivedElements.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\qosc\contrib\oscpack\OscReceivedElements.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\qosc\contrib\oscpack\OscTypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\OutputGLCanvas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\OutputGLWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Paint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\PaintGui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shape\Polygon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\PreferenceDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\ProjectLabels.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\ProjectReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\ProjectWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Serializable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shape\Shape.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\ShapeControlPainter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\ShapeGraphicsItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\ShortcutWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\UidAllocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\VideoImpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\VideoShmSrcImpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\VideoUriDecodeBinImpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\VideoV4l2SrcImpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser-extension\fileedit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser-extension\fileeditfactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser-extension\filepathmanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\app\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\qosc\oscreceiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\qosc\oscsender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser\src\qtbuttonpropertybrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qteditorfactory.cpp">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser\src\qtgroupboxpropertybrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser\src\qtpropertybrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser\src\qtpropertybrowserutils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtpropertymanager.cpp">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qttreepropertybrowser.cpp">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser\src\qtvariantproperty.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser-extension\variantfactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\contrib\qtpropertybrowser-extension\variantmanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="src\gui\AboutDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\core\CameraImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\core\CameraSurface.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\core\Commands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\control\ConcurrentQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\gui\ConsoleWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\core\Element.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\shape\Ellipse.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\gui\GuiForward.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\MM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\app\MainApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\gui\MainWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\MapperGLCanvas.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\MapperGLCanvasToolbar.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\core\Mapping.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\MappingGui.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\MappingItemDelegate.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\MappingListModel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\core\MappingManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Maths.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\shape\Mesh.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\control\qosc\contrib\oscpack\MessageMappingOscPacketListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\MetaObjectRegistry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscHostEndianness.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\control\OscInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscOutboundPacketStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscPacketListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscPrintReceivedElements.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscReceivedElements.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\control\qosc\contrib\oscpack\OscTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\gui\OutputGLCanvas.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\OutputGLWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\core\Paint.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\PaintGui.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\shape\Polygon.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\PreferenceDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\core\ProjectLabels.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\ProjectReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\ProjectWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\shape\Quad.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\core\Serializable.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\shape\Shape.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\gui\ShapeControlPainter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\ShapeGraphicsItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\shape\Shapes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\gui\ShortcutWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\shape\Triangle.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="src\core\UidAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\VideoImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\VideoShmSrcImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\VideoUriDecodeBinImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\VideoV4l2SrcImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser-extension\fileedit.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser-extension\fileeditfactory.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser-extension\filepathmanager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\control\qosc\oscreceiver.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\control\qosc\oscsender.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtbuttonpropertybrowser.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qteditorfactory.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtgroupboxpropertybrowser.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtpropertybrowser.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtpropertybrowserutils_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtpropertymanager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qttreepropertybrowser.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser\src\qtvariantproperty.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser-extension\variantfactory.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\contrib\qtpropertybrowser-extension\variantmanager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include=".\src\app\mocs\moc_predefs.h.cbt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="translations\mapmap_en.ts">
+      <Filter>Translation Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="translations\mapmap_es.ts">
+      <Filter>Translation Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="translations\mapmap_fr.ts">
+      <Filter>Translation Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="translations\mapmap_zh_CN.ts">
+      <Filter>Translation Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="translations\mapmap_zh_TW.ts">
+      <Filter>Translation Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="docs\informations\CHANGELOG.html">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="CHANGELOG.md">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="docs\informations\CONTRIBUTORS.html">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="docs\informations\CONTRIBUTORS.md">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\fonts\DroidSans.otf">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\fonts\Hack-Regular.otf">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="docs\informations\LICENSE">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="docs\informations\LICENSE_SHORT.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="docs\informations\MAPPING">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\add_camera_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\shapes\add_circle.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\add_movie_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\add_paint_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\shapes\add_quad.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\shapes\add_triangle.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\advanced.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\checkbox\checkbox-checked-focused.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\checkbox\checkbox-checked.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\checkbox\checkbox-unchecked-focused.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\checkbox\checkbox-unchecked.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\test-signal\examples\classic-test-card.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\controls.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\ctrl2_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\small\delete_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <QtRcc Include="docs\documentation.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <None Include="resources\images\icons\small\duplicate_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\fullscreen_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\interface.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <QtRcc Include="resources\interface.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <None Include="docs\informations\keyboard-shortcuts.css">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="docs\informations\keyboard-shortcuts.html">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\small\lock_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\logo\logomapmap-light.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\logo\logomapmap.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <QtRcc Include="main.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <None Include="docs\informations\mapmap-keyboard-shortcuts.md">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\logo\mapmap-logo.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\logo\mapmap-wide-with-border.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\qss\mapmap.qss">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="translations\mapmap_en.qm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="translations\mapmap_es.qm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="translations\mapmap_fr.qm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="translations\mapmap_zh_CN.qm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="translations\mapmap_zh_TW.qm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\newdoc_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\nofullscreen_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\test-signal\examples\ntsc-test-card.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\test-signal\ntsc-test-signal.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\open_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="docs\informations\osc.html">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="docs\informations\osc.md">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\test-signal\examples\pal-test-card.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\test-signal\pal-test-signal.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\pause_w_1.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\play_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\checkbox\radio-checked-focused.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\checkbox\radio-checked.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\checkbox\radio-unchecked-focused.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\checkbox\radio-unchecked.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\rewind_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\rotate-vertex.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\save_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\scale-vertex.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\solo.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\logo\splash.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\test-signal\test-signal.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\testsignal.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <QtRcc Include="translations\translation.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <None Include="resources\images\icons\small\visible_w.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\zoom_1.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\zoom_fit.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\zoom_in.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icons\zoom_out_w.svg.png">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\windows_resource.rc" />
+  </ItemGroup>
+</Project>

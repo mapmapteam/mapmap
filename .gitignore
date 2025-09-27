@@ -94,3 +94,9 @@ trash
 !resources/macOS/MapMap.icns
 
 *.json
+*.log
+test_*
+/.vs/ProjectionMapper.slnx/FileContentIndex
+/.vs/CopilotSnapshots/806058E7873B2946879E43D276AE66C5
+/.vs/ProjectionMapper.slnx/copilot-chat/d26d4b2d/sessions
+/.vs/CopilotSnapshots

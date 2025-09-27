@@ -44,6 +44,13 @@
 
 #include "qtpropertybrowser.h"
 #include <QLineEdit>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <QRegExp>
+using QtRegExp = QRegExp;
+#else
+#include <QRegularExpression>
+using QtRegExp = QRegularExpression;
+#endif
 
 #if QT_VERSION >= 0x040400
 QT_BEGIN_NAMESPACE
@@ -184,19 +191,19 @@ public:
     ~QtStringPropertyManager();
 
     QString value(const QtProperty *property) const;
-    QRegExp regExp(const QtProperty *property) const;
+    QtRegExp regExp(const QtProperty *property) const;
     EchoMode echoMode(const QtProperty *property) const;
     bool isReadOnly(const QtProperty *property) const;
 
 public Q_SLOTS:
     void setValue(QtProperty *property, const QString &val);
-    void setRegExp(QtProperty *property, const QRegExp &regExp);
+    void setRegExp(QtProperty *property, const QtRegExp &regExp);
     void setEchoMode(QtProperty *property, EchoMode echoMode);
     void setReadOnly(QtProperty *property, bool readOnly);
 
 Q_SIGNALS:
     void valueChanged(QtProperty *property, const QString &val);
-    void regExpChanged(QtProperty *property, const QRegExp &regExp);
+    void regExpChanged(QtProperty *property, const QtRegExp &regExp);
     void echoModeChanged(QtProperty *property, const int);
     void readOnlyChanged(QtProperty *property, bool);
 

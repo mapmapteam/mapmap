@@ -85,7 +85,11 @@ void Element::write(QDomElement& obj)
 
 void Element::_emitPropertyChanged(const QString& propertyName)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   emit propertyChanged(getId(), propertyName, property(propertyName.toAscii()));
+#else
+  emit propertyChanged(getId(), propertyName, property(propertyName.toLatin1()));
+#endif
 }
 
 }

@@ -20,8 +20,24 @@
 #include "AboutDialog.h"
 
 #include <QtWidgets>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <QCameraInfo>
+#include <QTextCodec>
+#else
+#include <QMediaDevices>
+#include <QCameraDevice>
+#endif
 
 namespace mmp {
+
+// Helper function for Qt 5/6 compatibility
+static QString readUtf8File(QFile &file) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    return QTextCodec::codecForName("UTF-8")->toUnicode(file.readAll());
+#else
+    return QString::fromUtf8(file.readAll());
+#endif
+}
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 {
@@ -85,11 +101,11 @@ void AboutDialog::createAboutTab()
   // License short notice
   QFile licenseShortFile(":/license-short");
   licenseShortFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  QString licenseNoticeText = Qt::convertFromPlainText(QTextCodec::codecForName("UTF-8")->toUnicode(licenseShortFile.readAll()), Qt::WhiteSpaceNormal);
+  QString licenseNoticeText = Qt::convertFromPlainText(readUtf8File(licenseShortFile), Qt::WhiteSpaceNormal);
   // About projection mapping
   QFile aboutMappingFile(":/projection-mapping");
   aboutMappingFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  QString aboutMappingText = QTextCodec::codecForName("UTF-8")->toUnicode(aboutMappingFile.readAll());
+  QString aboutMappingText = readUtf8File(aboutMappingFile);
   // Visit our website for more information
   QString projectWebsiteText = "<p>" + tr("See the ") + QString("<a href=\"http://%1\">").arg(MM::ORGANIZATION_DOMAIN) +
                                                  tr("%1 website").arg(MM::APPLICATION_NAME) + "</a> for more information on this software.</p>";
@@ -116,11 +132,11 @@ void AboutDialog::createChangelogTab()
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
   QFile changelogFile(":/changelog_md");
   changelogFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  changelogTextBrowser->setMarkdown(QTextCodec::codecForName("UTF-8")->toUnicode(changelogFile.readAll()));
+  changelogTextBrowser->setMarkdown(readUtf8File(changelogFile));
 #else
   QFile changelogFile(":/changelog");
   changelogFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  changelogTextBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(changelogFile.readAll()));
+  changelogTextBrowser->setText(readUtf8File(changelogFile));
 #endif
   _tabWidget->addTab(changelogTextBrowser, tr("Changelog"));
 }
@@ -153,11 +169,11 @@ void AboutDialog::createContributorsTab()
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
   QFile contributorsFile(":/contributors_md");
   contributorsFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  contributorsTextBrowser->setMarkdown(QTextCodec::codecForName("UTF-8")->toUnicode(contributorsFile.readAll()));
+  contributorsTextBrowser->setMarkdown(readUtf8File(contributorsFile));
 #else
   QFile contributorsFile(":/contributors");
   contributorsFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  contributorsTextBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(contributorsFile.readAll()));
+  contributorsTextBrowser->setText(readUtf8File(contributorsFile));
 #endif
   _tabWidget->addTab(contributorsTextBrowser, tr("Contributors"));
 }
@@ -169,7 +185,7 @@ void AboutDialog::createLicenseTab()
 
   QFile licenseFile(":/license");
   licenseFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  licenseTextBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(licenseFile.readAll()));
+  licenseTextBrowser->setText(readUtf8File(licenseFile));
 
   _tabWidget->addTab(licenseTextBrowser, tr("License"));
 }
@@ -183,11 +199,11 @@ void AboutDialog::createOscTab()
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
   QFile oscFile(":/osc-documentation_md");
   oscFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  oscBrowser->setMarkdown(QTextCodec::codecForName("UTF-8")->toUnicode(oscFile.readAll()));
+  oscBrowser->setMarkdown(readUtf8File(oscFile));
 #else
   QFile oscFile(":/osc-documentation");
   oscFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  oscBrowser->setText(QTextCodec::codecForName("UTF-8")->toUnicode(oscFile.readAll()));
+  oscBrowser->setText(readUtf8File(oscFile));
 #endif
   _tabWidget->addTab(oscBrowser, tr("OSC Commands"));
 }

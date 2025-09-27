@@ -18,6 +18,9 @@
  */
 
 #include "Mesh.h"
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <algorithm>
+#endif
 
 namespace mmp {
 
@@ -480,7 +483,11 @@ void Mesh::copyFrom(const MShape& shape)
   for (int i=0; i<_nColumns; i++)
   {
     _vertices2d[i].resize(_nRows);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    std::copy(mesh->_vertices2d[i].begin(), mesh->_vertices2d[i].end(), _vertices2d[i].begin());
+#else
     qCopy(mesh->_vertices2d[i].begin(), mesh->_vertices2d[i].end(), _vertices2d[i].begin());
+#endif
   }
 
 	_reorderVertices();

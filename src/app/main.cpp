@@ -1,10 +1,14 @@
 // NOTE: To run, it is recommended not to be in Compiz or Beryl, they have shown some instability.
 
 #define USING_QT_5 (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#define USING_QT_6 (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
 
 #include <iostream>
 #include <QTranslator>
 #include <QDebug>
+#include <QFile>
+#include <QTextStream>
+#include <QDateTime>
 #if USING_QT_5
 #include <QCommandLineParser>
 #include <QCommandLineOption>
@@ -70,7 +74,38 @@ void initRegistry()
 // Intercept all logging message and display it in the console
 void logMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+  // Always write to console first for compatibility
   ConsoleWindow::console()->printMessage(type, context, msg);
+  
+  // Add file logging for better error tracking
+  static QFile debugFile("mapmap_debug.log");
+  static QTextStream stream(&debugFile);
+  static bool logFileOpened = false;
+  
+  if (!logFileOpened) {
+    debugFile.open(QIODevice::WriteOnly | QIODevice::Append);
+    logFileOpened = true;
+  }
+  
+  if (debugFile.isOpen()) {
+    QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    QString typeStr;
+    switch (type) {
+      case QtDebugMsg:    typeStr = "Debug"; break;
+      case QtWarningMsg:  typeStr = "Warning"; break;
+      case QtCriticalMsg: typeStr = "Critical"; break;
+      case QtFatalMsg:    typeStr = "Fatal"; break;
+      case QtInfoMsg:     typeStr = "Info"; break;
+      default:            typeStr = "Unknown"; break;
+    }
+    
+    stream << "[" << timestamp << "] [" << typeStr << "] ";
+    if (context.file && context.function) {
+      stream << "(" << context.file << ":" << context.line << " in " << context.function << ") ";
+    }
+    stream << msg << Qt::endl;
+    stream.flush();
+  }
 }
 
 int main(int argc, char *argv[])
@@ -170,11 +205,16 @@ int main(int argc, char *argv[])
 
 #endif // USING_QT_5
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   if (! QGLFormat::hasOpenGL())
   {
     qFatal("This system has no OpenGL support.");
     return 1;
   }
+#else
+  // Qt 6 always has OpenGL support through QtOpenGL module
+  // No need to check since it's a required dependency
+#endif
 
   // Create splash screen.
   QPixmap pixmap(":/mapmap-splash");

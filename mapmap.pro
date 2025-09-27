@@ -1,6 +1,6 @@
 CONFIG += qt
 CONFIG += debug
-CONFIG += c++11
+CONFIG += c++17
 
 TEMPLATE = app
 

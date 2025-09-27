@@ -29,16 +29,15 @@
 #include <QColor>
 #include <QMutex>
 
-#if __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
-
 #include "Element.h"
 #include "Maths.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QCameraInfo>
+#else
+#include <QMediaDevices>
+#include <QCameraDevice>
+#endif
 
 namespace mmp {
 
@@ -211,7 +210,17 @@ public:
 
   // Get Camera human-readable name from url
   QString getCameraNameFromUri(const QString &uri) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     return QCameraInfo(uri.toLocal8Bit()).description();
+#else
+    // Qt 6 implementation using QMediaDevices
+    for (const QCameraDevice &cameraDevice : QMediaDevices::videoInputs()) {
+      if (cameraDevice.id() == uri) {
+        return cameraDevice.description();
+      }
+    }
+    return QString("Unknown Camera");
+#endif
   }
 
 protected:

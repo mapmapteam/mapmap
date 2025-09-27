@@ -19,6 +19,9 @@
 
 #include "ConsoleWindow.h"
 #include <QtWidgets>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QRegularExpression>
+#endif
 
 namespace mmp {
 
@@ -88,7 +91,7 @@ void ConsoleWindow::writeLogFile(const QString &message)
   QFile logFile(logFilePath);
   logFile.open(QIODevice::Append);
   QTextStream stream(&logFile);
-  stream << message << endl;
+  stream << message << Qt::endl;
 }
 
 void ConsoleWindow::printMessage(QtMsgType type, const QMessageLogContext &context, const QString &msg)
@@ -130,7 +133,13 @@ void ConsoleWindow::printMessage(QtMsgType type, const QMessageLogContext &conte
   _console->appendHtml(output);
 
   // Write also on log file
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   writeLogFile(output.remove(QRegExp("<[^>]*>")));
+#else
+  QString plainText = output;
+  plainText.remove(QRegularExpression("<[^>]*>"));
+  writeLogFile(plainText);
+#endif
 }
 
 void ConsoleWindow::closeEvent(QCloseEvent *event)

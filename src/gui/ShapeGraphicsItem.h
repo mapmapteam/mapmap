@@ -22,15 +22,12 @@
 #define SHAPE_GRAPHICS_ITEM_H_
 
 #include <QtGlobal>
-
-#if __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+#include <QtOpenGL>
 
 #include <stdlib.h>
 #include <stdio.h>
+
+#include <QGraphicsItem>
 
 #include "Shapes.h"
 

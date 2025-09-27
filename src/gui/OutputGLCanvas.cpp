@@ -21,10 +21,18 @@
 
 #include "OutputGLCanvas.h"
 #include "MainWindow.h"
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QGuiApplication>
+#include <QScreen>
+#endif
 
 namespace mmp {
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget* shareWidget, QGraphicsScene* scene)
+#else
+OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QOpenGLWidget* shareWidget, QGraphicsScene* scene)
+#endif
 : MapperGLCanvas(mainWindow, true, parent, shareWidget, scene),
   _displayCrosshair(false),
   _displayTestSignal(false),
@@ -80,11 +88,24 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     {
 #ifdef Q_OS_OSX
       QPoint globalCursorPos = QCursor::pos();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
       int mouseScreen = QApplication::desktop()->screenNumber(globalCursorPos);
       QRect mouseScreenGeometry = QApplication::desktop()->screen(mouseScreen)->geometry();
+#else
+      const QList<QScreen*> screens = QGuiApplication::screens();
+      int mouseScreen = -1;
+      QRect mouseScreenGeometry;
+      for (int i = 0; i < screens.size(); ++i) {
+        if (screens[i]->geometry().contains(globalCursorPos)) {
+          mouseScreen = i;
+          mouseScreenGeometry = screens[i]->geometry();
+          break;
+        }
+      }
+#endif
       QPoint localCursorPos = globalCursorPos - mouseScreenGeometry.topLeft();
       QPointF cursorPosition = mapToScene(localCursorPos);
-//      qDebug() << "Cursor pos " << globalCursorPos << " " << cursorPosition << " " << localCursorPos << mouseScreen << endl;
+//      qDebug() << "Cursor pos " << globalCursorPos << " " << cursorPosition << " " << localCursorPos << mouseScreen << Qt::endl;
       if (rect.contains(cursorPosition) && getMainWindow()->getPreferredScreen() == mouseScreen)
 //      qDebug() << "Cursor pos " << mapToScene(mapFromGlobal(QCursor::pos(QApplication::screens()[1])));
 #else

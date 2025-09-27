@@ -93,7 +93,7 @@ void ProjectReader::parseProject(const QDomElement& project)
 
     if (paint.isNull())
     {
-      qDebug() << "Problem creating paint." << endl;
+      qDebug() << "Problem creating paint." << Qt::endl;
     }
     else
     {
@@ -127,7 +127,7 @@ void ProjectReader::parseProject(const QDomElement& project)
     Mapping::ptr mapping = parseMapping(mappingNode.toElement());
     if (mapping.isNull())
     {
-      qDebug() << "Problem creating mapping." << endl;
+      qDebug() << "Problem creating mapping." << Qt::endl;
     }
     else
     {
@@ -151,7 +151,7 @@ Paint::ptr ProjectReader::parsePaint(const QDomElement& paintElem)
   QString className = Serializable::classNameCleanToReal(paintElem.attribute(ProjectLabels::CLASS_NAME));
   int id            = paintElem.attribute(ProjectLabels::ID, QString::number(NULL_UID)).toInt();
 
-  qDebug() << "Found paint with classname: " << className << endl;
+  qDebug() << "Found paint with classname: " << className << Qt::endl;
 
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
   if (metaObject)
@@ -161,7 +161,7 @@ Paint::ptr ProjectReader::parsePaint(const QDomElement& paintElem)
 
     if (paint.isNull())
     {
-      qDebug() << QObject::tr("Problem at creation of paint.") << endl;
+      qDebug() << QObject::tr("Problem at creation of paint.") << Qt::endl;
 //      _xml.raiseError(QObject::tr("Problem at creation of paint."));
     }
     else
@@ -192,7 +192,7 @@ Mapping::ptr ProjectReader::parseMapping(const QDomElement& mappingElem)
     Mapping::ptr mapping (qobject_cast<Mapping*>(metaObject->newInstance( Q_ARG(int, id)) ));
     if (mapping.isNull())
     {
-      qDebug() << QObject::tr("Problem at creation of mapping.") << endl;
+      qDebug() << QObject::tr("Problem at creation of mapping.") << Qt::endl;
 //      _xml.raiseError(QObject::tr("Problem at creation of paint."));
     }
 

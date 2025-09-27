@@ -265,7 +265,7 @@ protected:
   QMutex _mutex;
 
   /// Main mutex locker (for the lockMutex() / unlockMutex() methods).
-  QMutexLocker* _mutexLocker;
+  QMutexLocker<QMutex>* _mutexLocker;
 
 private:
   /**
