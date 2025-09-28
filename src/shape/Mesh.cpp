@@ -18,6 +18,7 @@
  */
 
 #include "Mesh.h"
+#include <algorithm>
 
 namespace mmp {
 
@@ -480,7 +481,7 @@ void Mesh::copyFrom(const MShape& shape)
   for (int i=0; i<_nColumns; i++)
   {
     _vertices2d[i].resize(_nRows);
-    qCopy(mesh->_vertices2d[i].begin(), mesh->_vertices2d[i].end(), _vertices2d[i].begin());
+    std::copy(mesh->_vertices2d[i].begin(), mesh->_vertices2d[i].end(), _vertices2d[i].begin());
   }
 
 	_reorderVertices();

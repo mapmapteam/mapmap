@@ -19,6 +19,12 @@
 
 #include "ConsoleWindow.h"
 #include <QtWidgets>
+#include <QtGlobal>
+#if QT_VERSION >= 0x060000
+#include <QRegularExpression>
+#else
+#include <QRegExp>
+#endif
 
 namespace mmp {
 
@@ -130,7 +136,11 @@ void ConsoleWindow::printMessage(QtMsgType type, const QMessageLogContext &conte
   _console->appendHtml(output);
 
   // Write also on log file
+#if QT_VERSION >= 0x060000
+  writeLogFile(output.remove(QRegularExpression("<[^>]*>")));
+#else
   writeLogFile(output.remove(QRegExp("<[^>]*>")));
+#endif
 }
 
 void ConsoleWindow::closeEvent(QCloseEvent *event)

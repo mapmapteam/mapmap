@@ -20,6 +20,7 @@
 #ifndef SHORTCUTWINDOW_H
 #define SHORTCUTWINDOW_H
 
+#include <QtGlobal>
 #include <QWebEngineView>
 #include <QWebEnginePage>
 #include <QWebEngineSettings>

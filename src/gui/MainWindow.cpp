@@ -20,6 +20,7 @@
  */
 
 #include "MainWindow.h"
+#include <QtGlobal>
 #include "PreferenceDialog.h"
 #include "AboutDialog.h"
 #include "ShortcutWindow.h"

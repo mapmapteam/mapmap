@@ -21,6 +21,7 @@
 
 #include "OutputGLWindow.h"
 
+#include <QtGlobal>
 #include "MainWindow.h"
 #if QT_VERSION < 0x060000
 #include <QApplication>

@@ -120,7 +120,7 @@ void Serializable::write(QDomElement& obj)
     // If property is writable, try to find it and rewrite it.
     if (property.isWritable() && property.isReadable())
     {
-      qDebug() << "Read " << propertyName << " : " << property.read(this) << std::endl;
+      qDebug() << "Read " << propertyName << " : " << property.read(this);
       QString propertyValue = property.read(this).toString();
 
       // Always ignore objectName default property.

@@ -21,6 +21,8 @@
 #ifndef MAPPERGLCANVAS_H_
 #define MAPPERGLCANVAS_H_
 
+#include <QtGlobal>
+
 #if QT_VERSION < 0x050000
 #include <QGLWidget>
 #elif QT_VERSION < 0x060000
