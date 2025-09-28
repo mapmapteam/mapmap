@@ -23,6 +23,8 @@
 
 #if QT_VERSION < 0x050000
 #include <QGLWidget>
+#elif QT_VERSION < 0x060000
+#include <QOpenGLWidget>
 #else
 #include <QOpenGLWidget>
 #endif

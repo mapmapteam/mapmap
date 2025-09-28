@@ -21,6 +21,8 @@
 
 #include "PreferenceDialog.h"
 
+#include <QtWidgets>
+
 namespace mmp {
 
 PreferenceDialog::PreferenceDialog(QWidget* parent) :

@@ -124,6 +124,9 @@ private slots:
   // Output menu
   void setupOutputScreen();
   void updateScreenCount();
+#if QT_VERSION >= 0x060000
+  void updateScreenCount(QScreen*) { updateScreenCount(); } // Qt6 compatibility wrapper
+#endif
 
   // Widget callbacks.
   void handlePaintItemSelectionChanged();

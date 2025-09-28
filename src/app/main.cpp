@@ -5,6 +5,11 @@
 #include <iostream>
 #include <QTranslator>
 #include <QDebug>
+#include <QFontDatabase>
+#include <QFont>
+#include <QFile>
+#include <QPixmap>
+#include <QSplashScreen>
 #if USING_QT_5
 #include <QCommandLineParser>
 #include <QCommandLineOption>
@@ -170,11 +175,16 @@ int main(int argc, char *argv[])
 
 #endif // USING_QT_5
 
+#if QT_VERSION < 0x060000
   if (! QGLFormat::hasOpenGL())
   {
     qFatal("This system has no OpenGL support.");
     return 1;
   }
+#else
+  // Qt6: QGLFormat was removed, OpenGL is assumed to be available
+  // QOpenGLContext can be used if specific OpenGL checks are needed
+#endif
 
   // Create splash screen.
   QPixmap pixmap(":/mapmap-splash");

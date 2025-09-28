@@ -24,7 +24,11 @@
 #include <QWebEnginePage>
 #include <QWebEngineSettings>
 #include <QFile>
+#if QT_VERSION < 0x060000
 #include <QTextCodec>
+#else
+#include <QStringConverter>
+#endif
 #include <QFontDatabase>
 
 #include "MM.h"

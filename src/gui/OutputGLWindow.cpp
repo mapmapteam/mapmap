@@ -22,6 +22,13 @@
 #include "OutputGLWindow.h"
 
 #include "MainWindow.h"
+#if QT_VERSION < 0x060000
+#include <QApplication>
+#include <QDesktopWidget>
+#else
+#include <QGuiApplication>
+#include <QScreen>
+#endif
 
 namespace mmp {
 
@@ -109,7 +116,14 @@ void OutputGLWindow::_updateToPreferredScreen()
   // Check if user is on multiple screen (always pre
   int screen = getPreferredScreen();
   //Move window to second screen before fullscreening it.
+#if QT_VERSION < 0x060000
   setGeometry(QApplication::desktop()->screenGeometry(screen));
+#else
+  QList<QScreen*> screens = QGuiApplication::screens();
+  if (screen >= 0 && screen < screens.size()) {
+    setGeometry(screens[screen]->geometry());
+  }
+#endif
 }
 
 void OutputGLWindow::_setFullScreen(bool fullscreen)
