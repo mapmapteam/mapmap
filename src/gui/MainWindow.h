@@ -25,11 +25,6 @@
 #include <QtGui>
 #if QT_VERSION >= 0x050500
   #include <QtWidgets>
-  #include <QCameraInfo>
-  #if QT_VERSION >= 0x060000
-    #include <QCameraDevice>
-    #include <QMediaDevices>
-  #endif
 #endif
 #include <QTimer>
 #include <QElapsedTimer>

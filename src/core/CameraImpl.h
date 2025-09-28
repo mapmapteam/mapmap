@@ -24,7 +24,6 @@
 #include "VideoImpl.h"
 
 #include <QCamera>
-#include <QCameraInfo>
 
 namespace mmp {
 

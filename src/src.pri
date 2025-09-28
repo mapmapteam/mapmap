@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 greaterThan(QT_MAJOR_VERSION, 5) {
-  QT += multimediawidgets
+  QT += multimediawidgets openglwidgets
 }
 
 #Includes common configuration for all subdirectory .pro files.

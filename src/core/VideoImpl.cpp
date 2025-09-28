@@ -225,7 +225,11 @@ _movieReady(false),
 _playState(false),
 _uri("")
 {
+#if QT_VERSION < 0x060000
   _mutexLocker = new QMutexLocker(&_mutex);
+#else
+  _mutexLocker = new QMutexLocker<QMutex>(&_mutex);
+#endif
 
   QSettings settings;
   _playInLoop = settings.value("playInLoop", MM::PLAY_IN_LOOP).toBool();

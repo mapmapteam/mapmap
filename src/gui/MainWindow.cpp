@@ -29,6 +29,13 @@
 #include <sstream>
 #include <string>
 
+#if QT_VERSION < 0x060000
+  #include <QCameraInfo>
+#else
+  #include <QCameraDevice>
+  #include <QMediaDevices>
+#endif
+
 namespace mmp {
 
 MainWindow::MainWindow()
@@ -638,18 +645,30 @@ void MainWindow::openCameraDevice()
   pause(!pauseAction->isVisible());
 
   QString device;
+#if QT_VERSION < 0x060000
   QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
+#else
+  QList<QCameraDevice> cameras = QMediaDevices::videoInputs();
+#endif
 
   if (cameras.count() > 1)
   {
     QStringList devicesList;
     QMap<QString, QString> devices;
 
+#if QT_VERSION < 0x060000
     for (const QCameraInfo &cameraInfo: cameras)
     {
       devicesList << cameraInfo.description();
       devices.insert(cameraInfo.description(), cameraInfo.deviceName());
     }
+#else
+    for (const QCameraDevice &cameraInfo: cameras)
+    {
+      devicesList << cameraInfo.description();
+      devices.insert(cameraInfo.description(), cameraInfo.id());
+    }
+#endif
 
     bool ok;
     QString deviceName = QInputDialog::getItem(this, tr("Camera device"),
@@ -665,6 +684,7 @@ void MainWindow::openCameraDevice()
 
   else
   {
+#if QT_VERSION < 0x060000
     if (QCameraInfo::defaultCamera().isNull())
     {
       QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
@@ -674,6 +694,18 @@ void MainWindow::openCameraDevice()
     {
       device = QCameraInfo::defaultCamera().deviceName();
     }
+#else
+    auto defaultCamera = QMediaDevices::defaultVideoInput();
+    if (defaultCamera.isNull())
+    {
+      QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
+
+    }
+    else
+    {
+      device = defaultCamera.id();
+    }
+#endif
   }
 
   // Restart video playback if it was previously playing. XXX Hack

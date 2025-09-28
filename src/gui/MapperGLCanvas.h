@@ -21,7 +21,11 @@
 #ifndef MAPPERGLCANVAS_H_
 #define MAPPERGLCANVAS_H_
 
+#if QT_VERSION < 0x050000
 #include <QGLWidget>
+#else
+#include <QOpenGLWidget>
+#endif
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QKeyEvent>
@@ -52,7 +56,11 @@ class MapperGLCanvas: public QGraphicsView
   Q_OBJECT
 public:
   /// Constructor.
+#if QT_VERSION < 0x050000
   MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
+#else
+  MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* parent = 0, const QOpenGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
+#endif
   virtual ~MapperGLCanvas() {}
 
   /// Returns shape associated with mapping id.
