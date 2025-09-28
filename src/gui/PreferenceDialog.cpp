@@ -22,6 +22,14 @@
 #include "PreferenceDialog.h"
 
 #include <QtWidgets>
+#include <QtGlobal>
+#if QT_VERSION >= 0x060000
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
+#else
+#include <QRegExp>
+#include <QRegExpValidator>
+#endif
 
 namespace mmp {
 
@@ -310,8 +318,13 @@ void PreferenceDialog::createControlsPage()
   bold.setWeight(QFont::Bold);
   // Set IP Address validator
   QString octet("(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])");
+#if QT_VERSION >= 0x060000
+  QRegularExpression rx(octet + "\\." + octet + "\\." + octet + "\\." + octet);
+  QRegularExpressionValidator *ipValidator = new QRegularExpressionValidator(rx);
+#else
   QRegExp rx(octet + "\\." + octet + "\\." + octet + "\\." + octet);
   QRegExpValidator *ipValidator = new QRegExpValidator(rx);
+#endif
   QMargins margins(40, 0, 0, 0);
 
   // _sendMessageBox = new QCheckBox;

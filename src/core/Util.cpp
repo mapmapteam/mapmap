@@ -19,6 +19,7 @@
  */
 
 #include "Util.h"
+#include <QtGlobal>
 #include <glib.h>
 #include <algorithm>
 #include <QFile>

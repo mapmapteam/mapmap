@@ -21,6 +21,7 @@
 #ifndef MAPPINGMANAGER_H_
 #define MAPPINGMANAGER_H_
 
+#include <QtGlobal>
 #include <QVector>
 #include <QMap>
 #if QT_VERSION < 0x060000

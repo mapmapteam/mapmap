@@ -27,6 +27,7 @@
 #include <QToolButton>
 #include <QLabel>
 #include <QComboBox>
+#include <QHBoxLayout>
 
 namespace mmp {
 
