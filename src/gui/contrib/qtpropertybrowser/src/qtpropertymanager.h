@@ -45,6 +45,13 @@
 #include "qtpropertybrowser.h"
 #include <QLineEdit>
 
+// Qt6 compatibility includes for QRegExp/QRegularExpression
+#if QT_VERSION < 0x060000
+#include <QRegExp>
+#else
+#include <QRegularExpression>
+#endif
+
 #if QT_VERSION >= 0x040400
 QT_BEGIN_NAMESPACE
 #endif
@@ -184,19 +191,31 @@ public:
     ~QtStringPropertyManager();
 
     QString value(const QtProperty *property) const;
+#if QT_VERSION < 0x060000
     QRegExp regExp(const QtProperty *property) const;
+#else
+    QRegularExpression regExp(const QtProperty *property) const;
+#endif
     EchoMode echoMode(const QtProperty *property) const;
     bool isReadOnly(const QtProperty *property) const;
 
 public Q_SLOTS:
     void setValue(QtProperty *property, const QString &val);
+#if QT_VERSION < 0x060000
     void setRegExp(QtProperty *property, const QRegExp &regExp);
+#else
+    void setRegExp(QtProperty *property, const QRegularExpression &regExp);
+#endif
     void setEchoMode(QtProperty *property, EchoMode echoMode);
     void setReadOnly(QtProperty *property, bool readOnly);
 
 Q_SIGNALS:
     void valueChanged(QtProperty *property, const QString &val);
+#if QT_VERSION < 0x060000
     void regExpChanged(QtProperty *property, const QRegExp &regExp);
+#else
+    void regExpChanged(QtProperty *property, const QRegularExpression &regExp);
+#endif
     void echoModeChanged(QtProperty *property, const int);
     void readOnlyChanged(QtProperty *property, bool);
 

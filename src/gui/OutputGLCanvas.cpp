@@ -24,7 +24,11 @@
 
 namespace mmp {
 
+#if QT_VERSION < 0x050000
 OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget* shareWidget, QGraphicsScene* scene)
+#else
+OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QOpenGLWidget* shareWidget, QGraphicsScene* scene)
+#endif
 : MapperGLCanvas(mainWindow, true, parent, shareWidget, scene),
   _displayCrosshair(false),
   _displayTestSignal(false),

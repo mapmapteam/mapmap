@@ -56,6 +56,13 @@
 #include <QCheckBox>
 #include <QLineEdit>
 
+// Qt6 compatibility includes for QRegExp/QRegularExpression
+#if QT_VERSION < 0x060000
+#include <QRegExp>
+#else
+#include <QRegularExpression>
+#endif
+
 #include <limits.h>
 #include <float.h>
 
@@ -1303,12 +1310,21 @@ public:
 
     struct Data
     {
-        Data() : regExp(QString(QLatin1Char('*')),  Qt::CaseSensitive, QRegExp::Wildcard),
+        Data() : 
+#if QT_VERSION < 0x060000
+            regExp(QString(QLatin1Char('*')),  Qt::CaseSensitive, QRegExp::Wildcard),
+#else
+            regExp(QRegularExpression::wildcardToRegularExpression(QString(QLatin1Char('*')))),
+#endif
             echoMode(QLineEdit::Normal), readOnly(false)
         {
         }
         QString val;
+#if QT_VERSION < 0x060000
         QRegExp regExp;
+#else
+        QRegularExpression regExp;
+#endif
         int echoMode;
         bool readOnly;
     };
@@ -1397,10 +1413,17 @@ QString QtStringPropertyManager::value(const QtProperty *property) const
 
     \sa setRegExp()
 */
+#if QT_VERSION < 0x060000
 QRegExp QtStringPropertyManager::regExp(const QtProperty *property) const
 {
     return getData<QRegExp>(d_ptr->m_values, &QtStringPropertyManagerPrivate::Data::regExp, property, QRegExp());
 }
+#else
+QRegularExpression QtStringPropertyManager::regExp(const QtProperty *property) const
+{
+    return getData<QRegularExpression>(d_ptr->m_values, &QtStringPropertyManagerPrivate::Data::regExp, property, QRegularExpression());
+}
+#endif
 
 /*!
     \reimp
@@ -1486,7 +1509,11 @@ void QtStringPropertyManager::setValue(QtProperty *property, const QString &val)
 
     \sa regExp(), setValue(), regExpChanged()
 */
+#if QT_VERSION < 0x060000
 void QtStringPropertyManager::setRegExp(QtProperty *property, const QRegExp &regExp)
+#else
+void QtStringPropertyManager::setRegExp(QtProperty *property, const QRegularExpression &regExp)
+#endif
 {
     const QtStringPropertyManagerPrivate::PropertyValueMap::iterator it = d_ptr->m_values.find(property);
     if (it == d_ptr->m_values.end())
