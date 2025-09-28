@@ -5,6 +5,9 @@
 #include <iostream>
 #include <QTranslator>
 #include <QDebug>
+#include <QFontDatabase>
+#include <QFont>
+#include <QFile>
 #if USING_QT_5
 #include <QCommandLineParser>
 #include <QCommandLineOption>

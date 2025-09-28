@@ -26,6 +26,12 @@
 #include "Commands.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
+#if QT_VERSION < 0x060000
+#include <QDesktopWidget>
+#else
+#include <QGuiApplication>
+#include <QScreen>
+#endif
 #include <sstream>
 #include <string>
 
@@ -2068,7 +2074,13 @@ void MainWindow::createActions()
   addAction(outputFullScreenAction);
   // Manage fullscreen/modal show of GL output window.
   connect(outputFullScreenAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
+#if QT_VERSION < 0x060000
   connect(QApplication::desktop(), SIGNAL(screenCountChanged(int)), this, SLOT(updateScreenCount()));
+#else
+  // In Qt6, connect to QGuiApplication::screenAdded/screenRemoved signals
+  connect(qApp, &QGuiApplication::screenAdded, this, &MainWindow::updateScreenCount);
+  connect(qApp, &QGuiApplication::screenRemoved, this, &MainWindow::updateScreenCount);
+#endif
   // Create hiden action for closing output window
   QAction *closeOutput = new QAction(this);
   closeOutput->setShortcut(Qt::Key_Escape);
