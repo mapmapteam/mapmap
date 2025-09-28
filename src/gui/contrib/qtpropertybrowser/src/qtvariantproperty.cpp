@@ -46,6 +46,21 @@
 #include <QIcon>
 #include <QDate>
 #include <QLocale>
+#include <QRegExp>
+#include <QTime>
+#include <QDateTime>
+#include <QKeySequence>
+#include <QChar>
+#include <QPoint>
+#include <QPointF>
+#include <QSize>
+#include <QSizeF>
+#include <QRect>
+#include <QRectF>
+#include <QColor>
+#include <QSizePolicy>
+#include <QFont>
+#include <QCursor>
 
 #if defined(Q_CC_MSVC)
 #    pragma warning(disable: 4786) /* MS VS 6: truncating debug info after 255 characters */
