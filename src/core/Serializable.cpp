@@ -109,13 +109,17 @@ void Serializable::write(QDomElement& obj)
       continue;
 
     // Don't save unstored properties.
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    if (!property.isStored())
+#else
     if (!property.isStored(this))
+#endif
       continue;
 
     // If property is writable, try to find it and rewrite it.
     if (property.isWritable() && property.isReadable())
     {
-      qDebug() << "Read " << propertyName << " : " << property.read(this) << endl;
+      qDebug() << "Read " << propertyName << " : " << property.read(this) << Qt::endl;
       QString propertyValue = property.read(this).toString();
 
       // Always ignore objectName default property.

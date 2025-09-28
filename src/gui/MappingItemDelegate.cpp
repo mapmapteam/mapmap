@@ -232,7 +232,27 @@ bool MappingItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
 
   if (event->type() == QEvent::MouseMove)
   {
-    // TODO: handle tooltip
+    // Handle tooltip for buttons
+    QPoint pos = mouseEvent->pos();
+    QString tooltipText;
+    
+    if (hideButtonRect.contains(pos)) {
+      tooltipText = tr("Toggle visibility");
+    } else if (soloButtonRect.contains(pos)) {
+      tooltipText = tr("Solo mapping");
+    } else if (lockButtonRect.contains(pos)) {
+      tooltipText = tr("Lock mapping");
+    } else if (duplicateButtonRect.contains(pos)) {
+      tooltipText = tr("Duplicate mapping");
+    } else if (deleteButtonRect.contains(pos)) {
+      tooltipText = tr("Delete mapping");
+    }
+    
+    if (!tooltipText.isEmpty()) {
+      QToolTip::showText(mouseEvent->globalPos(), tooltipText);
+    } else {
+      QToolTip::hideText();
+    }
   }
   else if (event->type() == QEvent::MouseButtonPress)
   {

@@ -24,11 +24,20 @@
 
 #include "MainWindow.h"
 #include "Commands.h"
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <QGLFormat>
+#else
+#include <QSurfaceFormat>
+#endif
 
 namespace mmp {
 
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
                                bool isOutput, QWidget* parent, const QGLWidget * shareWidget,
+#else
+                               bool isOutput, QWidget* parent, const QOpenGLWidget * shareWidget,
+#endif
                                QGraphicsScene* scene)
   : QGraphicsView(parent),
     _mainWindow(mainWindow),
@@ -67,7 +76,15 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
   // setAcceptDrops(true);
 
   // Render with OpenGL.
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers), this, shareWidget));
+#else
+  QSurfaceFormat format;
+  format.setSamples(4); // Enable multisampling
+  QOpenGLWidget* glWidget = new QOpenGLWidget(this);
+  glWidget->setFormat(format);
+  setViewport(glWidget);
+#endif
   setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
   // TODO: do we need to delete scene (or call new QGraphicsScene(this)?)

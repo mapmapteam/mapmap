@@ -24,6 +24,9 @@
 #include "CameraImpl.h"
 #include "VideoShmSrcImpl.h"
 #include <iostream>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <QGLWidget>
+#endif
 
 namespace mmp {
 
@@ -109,9 +112,15 @@ void Image::build()
   _images.clear();
   for (int i=0; i<reader.imageCount(); i++)
     _images.push_back(
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         QGLWidget::convertToGLFormat(reader.read())
           .mirrored(true, false)
           .transformed(QTransform().rotate(180))
+#else
+        reader.read().rgbSwapped()
+          .mirrored(true, false)
+          .transformed(QTransform().rotate(180))
+#endif
       );
 
   rewind();
@@ -313,7 +322,7 @@ bool Video::setUri(const QString &uri)
     // Try to load movie.
     if (!_impl->loadMovie(uri))
     {
-      qDebug() << "Cannot load movie " << uri << "." << endl;
+      qDebug() << "Cannot load movie " << uri << "." << Qt::endl;
       return false;
     }
 
@@ -324,13 +333,13 @@ bool Video::setUri(const QString &uri)
     // Wait for the first samples to be available to make sure we are ready.
     if (!_impl->waitForNextBits(ICON_TIMEOUT))
     {
-      qDebug() << "No bits coming" << endl;
+      qDebug() << "No bits coming" << Qt::endl;
       return false;
     }
 
     if (_videoType != VIDEO_WEBCAM) { // Generated thumbnail if source type is not camera
       if (!_generateThumbnail())
-        qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << endl;
+        qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << Qt::endl;
     }
 
     _emitPropertyChanged("uri");
@@ -379,7 +388,7 @@ bool Video::_generateThumbnail()
   const uchar* bits;
   if (!_impl->waitForNextBits(ICON_TIMEOUT, &bits))
   {
-    qDebug() << "Second waiting wrong..." << endl;
+    qDebug() << "Second waiting wrong..." << Qt::endl;
     return false;
   }
 

@@ -6,8 +6,15 @@ QT += network
 QT += multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-  QT -= gui # using widgets instead gui in Qt5
-  QT += widgets webenginewidgets
+  QT -= gui # using widgets instead gui in Qt5+
+  QT += widgets
+  greaterThan(QT_MAJOR_VERSION, 5) {
+    # Qt 6 modules
+    QT += webenginewidgets openglwidgets
+  } else {
+    # Qt 5 modules
+    QT += webenginewidgets
+  }
 }
 
 #Includes common configuration for all subdirectory .pro files.

@@ -46,6 +46,13 @@
 #include <QGroupBox>
 #include <QTimer>
 #include <QMap>
+#include <QOpenGLWidget>
+
+// Ensure proper inclusion of OpenGL headers
+#include <windows.h>
+#include <GL/gl.h>
+
+// Resolve conflicts between Windows headers and OpenGL headers.
 
 #if QT_VERSION >= 0x040400
 QT_BEGIN_NAMESPACE

@@ -20,11 +20,8 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
-#if __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+#include <QtGlobal>
+#include <QtOpenGL>
 
 #include "Shapes.h"
 

@@ -40,12 +40,17 @@
 
 #include "CameraSurface.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QVideoSurfaceFormat>
 #include <QGLWidget>
+#else
+#include <QtOpenGLWidgets/QOpenGLWidget>
+#endif
 #include <QDebug>
 
 namespace mmp {
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 CameraSurface::CameraSurface(QObject *parent)
   : QAbstractVideoSurface(parent)
 {
@@ -111,5 +116,44 @@ const uchar* CameraSurface::bits()
 {
   return _temporaryImage.bits();
 }
+
+#else
+// Qt 6 implementation
+CameraSurface::CameraSurface(QObject *parent)
+  : QObject(parent)
+{
+}
+
+CameraSurface::~CameraSurface()
+{
+}
+
+void CameraSurface::processFrame(const QVideoFrame &frame)
+{
+  if (frame.isValid()) {
+    QVideoFrame currentFrame(frame);
+    
+    if (currentFrame.map(QVideoFrame::ReadOnly))
+    {
+      _temporaryImage = currentFrame.toImage();
+      currentFrame.unmap();
+    }
+
+#ifdef Q_OS_WIN
+    _temporaryImage = _temporaryImage.rgbSwapped();
+#else
+    // Convert to OpenGL format and apply transforms to straighten.
+    _temporaryImage = _temporaryImage.rgbSwapped()
+                      .mirrored(true, false)
+                      .transformed(QTransform().rotate(180));
+#endif
+  }
+}
+
+const uchar* CameraSurface::bits()
+{
+  return _temporaryImage.bits();
+}
+#endif
 
 }

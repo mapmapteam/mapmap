@@ -2,7 +2,7 @@
  * MapperGLCanvas.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
- * (c) 2014 Dame Diongue -- baydamd(@)gmail(.)com
+ * (c) 2014 Dame Diongue -- bamdamd(@)gmail(.)com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,21 +21,26 @@
 #ifndef MAPPERGLCANVAS_H_
 #define MAPPERGLCANVAS_H_
 
+#include <QtCore/QtGlobal>
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QGLWidget>
+#else
+#include <QtOpenGLWidgets/QOpenGLWidget>
+#include <QtOpenGL/QOpenGLFunctions>
+#endif
+
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QKeyEvent>
 #include <QPaintEvent>
 #include <QUndoStack>
-
 #include <QtMath>
-
 #include <iostream>
 
 #include "MM.h"
 #include "UidAllocator.h"
 #include "Shape.h"
-
 #include "MappingGui.h"
 
 namespace mmp {
@@ -52,7 +57,11 @@ class MapperGLCanvas: public QGraphicsView
   Q_OBJECT
 public:
   /// Constructor.
-  MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+  MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* parent = nullptr, const QGLWidget* shareWidget = nullptr, QGraphicsScene* scene = nullptr);
+#else
+  MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* parent = nullptr, const QOpenGLWidget* shareWidget = nullptr, QGraphicsScene* scene = nullptr);
+#endif
   virtual ~MapperGLCanvas() {}
 
   /// Returns shape associated with mapping id.
@@ -62,9 +71,6 @@ public:
   MShape::ptr getCurrentShape();
   QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMapping(Mapping::ptr mapping);
   QSharedPointer<ShapeGraphicsItem> getCurrentShapeGraphicsItem();
-
-//  QSize sizeHint() const;
-//  QSize minimumSizeHint() const;
 
   // Draws foreground (displays crosshair if needed).
   void drawForeground(QPainter *painter , const QRectF &rect);
@@ -89,7 +95,6 @@ public:
   bool shapeGrabbed() const { return _shapeGrabbed; }
   bool vertexGrabbed() const { return _vertexGrabbed; }
 
-  //qreal getZoomFactor() const { return qBound(qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MIN, MM::ZOOM_MAX); }
   qreal getZoomFactor() const { return _shapeIsAdapted
         ? _scalingFactor
         : qBound(MM::ZOOM_MIN, qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MAX); }
@@ -101,39 +106,10 @@ public:
   void applyZoomToView();
 
 protected:
-//  void initializeGL();
-//  void resizeGL(int width, int height);
-//  void paintGL();
-//
-//  void keyPressEvent(QKeyEvent* event);
-//  void mousePressEvent(QMouseEvent* event);
-//  void mouseMoveEvent(QMouseEvent* event);
-//  void mouseReleaseEvent(QMouseEvent* event);
-//  void paintEvent(QPaintEvent* event);
   void dragEnterEvent(QDragEnterEvent *event);
   void dragMoveEvent(QDragMoveEvent *event);
   void dragLeaveEvent(QDragLeaveEvent *event);
   void dropEvent(QDropEvent *event);
-
-protected:
-//  /**
-//   * Draws the shapes and controls over the canvas. This method calls:
-//   * <code>
-//   * enterDraw(painter);
-//   * doDraw(painter);
-//   * exitDraw(painter);
-//   * </code>
-//   */
-//  void draw(QPainter* painter);
-//
-//  /// Performs initalizations before drawing.
-//  void enterDraw(QPainter* painter);
-//
-//  /// Performs the drawing (implemented by subclasses).
-//  virtual void doDraw(QPainter* painter) = 0;
-//
-//  /// Performs last drawing actions before exiting draw(QPainter*).
-//  void exitDraw(QPainter* painter);
 
 private:
   // Pointer to main window.

@@ -1,7 +1,14 @@
-MapMap
+ProjectionMapper
 ====== 
 
-:warning: **Unfortunately, we are no longer able to maintain nor provide support for MapMap anymore. The code is provided "as is".**
+:warning: **The code is provided "as is".**
+
+This is a fork from the MapMap project and I'm attempting to resolve a couple of things that bug me about the program.
+I'm very lazily 100% using GitHub CoPilot to perform all changes and commit messages, where able. In no way should you
+trust that this application is stable or an improvement to the original. However, I'm tasking the AI models to bring the
+code up to speed with the new changes to Qt and whatnot. Maybe it'll be better, maybe it'll be a waste of time. I don't
+intend to spend a ton of time on this, but the program crashes a lot (on me anyway), so I'm making an effort to fix that.
+I'm currently playing with this in Visual Studio 2026 Preview, with Qt 6.9.2.
 
 MapMap is a free video mapping software.
 

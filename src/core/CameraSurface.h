@@ -41,13 +41,20 @@
 #ifndef CAMERA_SURFACE_H_
 #define CAMERA_SURFACE_H_
 
-#include <QAbstractVideoSurface>
+#include <QObject>
+#include <QImage>
+#include <QVideoFrame>
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <QtMultimedia/QAbstractVideoSurface>
 #include <QVideoSurfaceFormat>
+#endif
+
 #include <QGraphicsItem>
-#include <QAudio>
 
 namespace mmp {
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 class CameraSurface : public QAbstractVideoSurface
 {
     Q_OBJECT
@@ -64,6 +71,24 @@ public:
 private:
     QImage _temporaryImage;
 };
+#else
+// Qt 6 version using QVideoSink
+class CameraSurface : public QObject
+{
+    Q_OBJECT
+public:
+    CameraSurface(QObject *parent = nullptr);
+    ~CameraSurface();
+
+    const uchar* bits();
+
+public slots:
+    void processFrame(const QVideoFrame &frame);
+
+private:
+    QImage _temporaryImage;
+};
+#endif
 
 }
 

@@ -70,7 +70,7 @@ MappingGui::MappingGui(Mapping::ptr mapping)
 
   connect(_variantManager, SIGNAL(valueChanged(QtProperty*, const QVariant&)),
           this,            SLOT(setValue(QtProperty*, const QVariant&)));
-  //qDebug() << "Creating mapper" << endl;
+  //qDebug() << "Creating mapper" << Qt::endl;
 }
 
 
@@ -401,7 +401,7 @@ TriangleTextureMappingGui::TriangleTextureMappingGui(QSharedPointer<TextureMappi
 //
 //void TriangleTextureMappingGui::_doDraw(QPainter* painter)
 //{
-//  qDebug() << "Is this really used!" << endl;
+//  qDebug() << "Is this really used!" << Qt::endl;
 ////  Q_UNUSED(painter);
 ////  glBegin(GL_TRIANGLES);
 ////  {

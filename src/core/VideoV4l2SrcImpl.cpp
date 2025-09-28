@@ -25,6 +25,7 @@
 #include "VideoV4l2SrcImpl.h"
 #include <cstring>
 #include <iostream>
+#include <QMutex>
 
 namespace mmp {
 
@@ -41,7 +42,7 @@ bool VideoV4l2SrcImpl::loadMovie(const QString& path) {
 
   if ( !_v4l2src0)
   {
-    qWarning() << "Not all elements could be created." << endl;
+    qWarning() << "Not all elements could be created." << Qt::endl;
     unloadMovie();
     return (-1);
   }
@@ -54,7 +55,7 @@ bool VideoV4l2SrcImpl::loadMovie(const QString& path) {
 
   if (! gst_element_link_many (_v4l2src0, _queue0, NULL))
   {
-    qDebug() << "Could not link v4l2src" << endl;
+    qDebug() << "Could not link v4l2src" << Qt::endl;
     unloadMovie();
     return false;
   }

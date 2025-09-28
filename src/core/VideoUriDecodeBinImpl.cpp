@@ -25,6 +25,7 @@
 #include "VideoUriDecodeBinImpl.h"
 #include <cstring>
 #include <iostream>
+#include <QMutex>
 
 namespace mmp {
 
@@ -39,7 +40,7 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
 #ifdef VIDEO_IMPL_VERBOSE
 #ifndef Q_OS_OSX
   // NOTE: This line was causing a problem on Mac OSX: it caused the software to freeze when loading a new movie.
-  qDebug() << "Received new pad '" << GST_PAD_NAME(newPad) << "' from '" << GST_ELEMENT_NAME (src) << "'." << endl;
+  qDebug() << "Received new pad '" << GST_PAD_NAME(newPad) << "' from '" << GST_ELEMENT_NAME (src) << "'." << Qt::endl;
 #endif
 #endif
 
@@ -51,7 +52,7 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
   const gchar *newPadType   = gst_structure_get_name (newPadStruct);
   gchar *newPadStructStr = gst_structure_to_string(newPadStruct);
 #ifdef VIDEO_IMPL_VERBOSE
-  qDebug() << "Structure is " << newPadStructStr << "." << endl;
+  qDebug() << "Structure is " << newPadStructStr << "." << Qt::endl;
 #endif
   g_free(newPadStructStr);
 
@@ -71,7 +72,7 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
   {
     if (!p->createAudioComponents())
     {
-      qWarning() << "Problem creating audio components." << endl;
+      qWarning() << "Problem creating audio components." << Qt::endl;
       goto exit;
     }
     sinkPad = gst_element_get_static_pad (p->_audioqueue0, "sink");
@@ -79,7 +80,7 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
 
   // Other types: ignore.
   else {
-    qDebug() << "  It has type '" << newPadType << "' which is not raw audio/video: ignored." << endl;
+    qDebug() << "  It has type '" << newPadType << "' which is not raw audio/video: ignored." << Qt::endl;
     goto exit;
   }
 
@@ -90,7 +91,7 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
     // Best prefixes.
     if (isVideoPad || isAudioPad)
     {
-      qDebug() << "  Found a better pad." << endl;
+      qDebug() << "  Found a better pad." << Qt::endl;
       GstPad* oldPad = gst_pad_get_peer(sinkPad);
       gst_pad_unlink(oldPad, sinkPad);
       g_object_unref(oldPad);
@@ -98,7 +99,7 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
     else
     {
 #ifdef VIDEO_IMPL_VERBOSE
-      qDebug() << "  We are already linked: ignoring." << endl;
+      qDebug() << "  We are already linked: ignoring." << Qt::endl;
 #endif
       goto exit;
     }
@@ -108,7 +109,7 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
   if (GST_PAD_LINK_FAILED (gst_pad_link (newPad, sinkPad)))
   {
 #ifdef VIDEO_IMPL_VERBOSE
-    qDebug() << "  Type is '" << newPadType << "' but link failed." << endl;
+    qDebug() << "  Type is '" << newPadType << "' but link failed." << Qt::endl;
 #endif // ifdef
     goto exit;
   }
@@ -119,9 +120,9 @@ void VideoUriDecodeBinImpl::gstPadAddedCallback(GstElement *src, GstPad *newPad,
     else if (isAudioPad)
       p->audioConnect();
     else
-      qWarning() << "Error: this pad is neither valid audio or video." << endl;
+      qWarning() << "Error: this pad is neither valid audio or video." << Qt::endl;
 #ifdef VIDEO_IMPL_VERBOSE
-    qDebug() << "  Link succeeded (type '" << newPadType << "')." << endl;
+    qDebug() << "  Link succeeded (type '" << newPadType << "')." << Qt::endl;
 #endif // ifdef
   }
 
@@ -146,7 +147,7 @@ bool VideoUriDecodeBinImpl::loadMovie(const QString& path) {
 
   if ( !_uridecodebin0)
   {
-    qWarning() << "Not all elements could be created." << endl;
+    qWarning() << "Not all elements could be created." << Qt::endl;
     unloadMovie();
     return (-1);
   }
@@ -165,11 +166,11 @@ bool VideoUriDecodeBinImpl::loadMovie(const QString& path) {
   {
     // Try to convert filename to URI.
     GError* error = NULL;
-    qDebug() << "Calling gst_filename_to_uri : " << uri << endl;
+    qDebug() << "Calling gst_filename_to_uri : " << uri << Qt::endl;
     uri = gst_filename_to_uri(filename_tmp, &error);
     if (error)
     {
-      qDebug() << "Filename to URI error: " << error->message << endl;
+      qDebug() << "Filename to URI error: " << error->message << Qt::endl;
       g_clear_error(&error);
       gst_object_unref (uri);
       freeResources();
@@ -184,7 +185,7 @@ bool VideoUriDecodeBinImpl::loadMovie(const QString& path) {
   GstDiscoverer* discoverer = gst_discoverer_new(5*GST_SECOND, &error);
   if (!discoverer)
   {
-    qDebug() << "Error creating discoverer: " << error->message << endl;
+    qDebug() << "Error creating discoverer: " << error->message << Qt::endl;
     g_clear_error (&error);
     return false;
   }
@@ -193,7 +194,7 @@ bool VideoUriDecodeBinImpl::loadMovie(const QString& path) {
 
   if (!info)
   {
-    qDebug() << "Error getting discoverer info: " << error->message << endl;
+    qDebug() << "Error getting discoverer info: " << error->message << Qt::endl;
     g_clear_error (&error);
     return false;
   }
@@ -202,16 +203,16 @@ bool VideoUriDecodeBinImpl::loadMovie(const QString& path) {
 
   switch (result) {
     case GST_DISCOVERER_URI_INVALID:
-      qDebug()<< "Invalid URI '" << uri << "'" << endl;
+      qDebug()<< "Invalid URI '" << uri << "'" << Qt::endl;
       break;
     case GST_DISCOVERER_ERROR:
-      qDebug()<< "Discoverer error: " << error->message << endl;
+      qDebug()<< "Discoverer error: " << error->message << Qt::endl;
       break;
     case GST_DISCOVERER_TIMEOUT:
-      qDebug() << "Timeout" << endl;
+      qDebug() << "Timeout" << Qt::endl;
       break;
     case GST_DISCOVERER_BUSY:
-      qDebug() << "Busy" << endl;
+      qDebug() << "Busy" << Qt::endl;
       break;
     case GST_DISCOVERER_MISSING_PLUGINS:{
       const GstStructure *s;
@@ -220,19 +221,19 @@ bool VideoUriDecodeBinImpl::loadMovie(const QString& path) {
       s = gst_discoverer_info_get_misc (info);
       str = gst_structure_to_string (s);
 
-      qDebug() << "Missing plugins: " << str << endl;
+      qDebug() << "Missing plugins: " << str << Qt::endl;
       g_free (str);
       break;
     }
     case GST_DISCOVERER_OK:
-      qDebug() << "Discovered '" << uri << "'" << endl;
+      qDebug() << "Discovered '" << uri << "'" << Qt::endl;
       break;
   }
 
   g_clear_error (&error);
 
   if (result != GST_DISCOVERER_OK) {
-    qDebug() << "This URI cannot be played" << endl;
+    qDebug() << "This URI cannot be played" << Qt::endl;
     return false;
   }
 
@@ -240,7 +241,7 @@ bool VideoUriDecodeBinImpl::loadMovie(const QString& path) {
   GList *videoStreams = gst_discoverer_info_get_video_streams (info);
   if (!videoStreams)
   {
-    qDebug() << "This URI does not contain any video streams" << endl;
+    qDebug() << "This URI does not contain any video streams" << Qt::endl;
     return false;
   }
 

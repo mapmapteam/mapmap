@@ -24,6 +24,14 @@
 #include <QDialog>
 #include <QtGlobal>
 #include <QTimer>
+
+// Qt version-specific OpenGL includes
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <QOpenGLWidget>
+#else
+#include <QtOpenGLWidgets/QOpenGLWidget>
+#endif
+
 #include "OutputGLCanvas.h"
 
 namespace mmp {

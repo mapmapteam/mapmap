@@ -28,6 +28,14 @@
 #include "ProjectReader.h"
 #include <sstream>
 #include <string>
+<<<<<<< HEAD
+#include <QCameraInfo>
+=======
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QGuiApplication>
+#include <QScreen>
+#endif
+>>>>>>> 42e05b224a1c3a5a72e361a4e65dd5836a61c7cc
 
 namespace mmp {
 
@@ -638,18 +646,30 @@ void MainWindow::openCameraDevice()
   pause(!pauseAction->isVisible());
 
   QString device;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
+#else
+  QList<QCameraDevice> cameras = QMediaDevices::videoInputs();
+#endif
 
   if (cameras.count() > 1)
   {
     QStringList devicesList;
     QMap<QString, QString> devices;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     for (const QCameraInfo &cameraInfo: cameras)
     {
       devicesList << cameraInfo.description();
       devices.insert(cameraInfo.description(), cameraInfo.deviceName());
     }
+#else
+    for (const QCameraDevice &cameraInfo: cameras)
+    {
+      devicesList << cameraInfo.description();
+      devices.insert(cameraInfo.description(), cameraInfo.id());
+    }
+#endif
 
     bool ok;
     QString deviceName = QInputDialog::getItem(this, tr("Camera device"),
@@ -665,6 +685,7 @@ void MainWindow::openCameraDevice()
 
   else
   {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (QCameraInfo::defaultCamera().isNull())
     {
       QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
@@ -674,6 +695,18 @@ void MainWindow::openCameraDevice()
     {
       device = QCameraInfo::defaultCamera().deviceName();
     }
+#else
+    QCameraDevice defaultCamera = QMediaDevices::defaultVideoInput();
+    if (defaultCamera.isNull())
+    {
+      QMessageBox::warning(this, tr("No camera available"), tr("You can not use this feature!\nNo camera available in your system"));
+
+    }
+    else
+    {
+      device = defaultCamera.id();
+    }
+#endif
   }
 
   // Restart video playback if it was previously playing. XXX Hack
@@ -888,7 +921,7 @@ void MainWindow::deleteItem()
     }
     else
     {
-      qCritical() << "Selected item neither a mapping nor a paint." << endl;
+      qCritical() << "Selected item neither a mapping nor a paint." << Qt::endl;
     }
   }
 }
@@ -901,7 +934,7 @@ void MainWindow::duplicateMappingItem()
   }
   else
   {
-    qCritical() << "No selected mapping" << endl;
+    qCritical() << "No selected mapping" << Qt::endl;
   }
 }
 
@@ -913,7 +946,7 @@ void MainWindow::deleteMappingItem()
   }
   else
   {
-    qCritical() << "No selected mapping" << endl;
+    qCritical() << "No selected mapping" << Qt::endl;
   }
 }
 
@@ -1035,7 +1068,7 @@ void MainWindow::deletePaintItem()
   }
   else
   {
-    qCritical() << "No selected source" << endl;
+    qCritical() << "No selected source" << Qt::endl;
   }
 }
 
@@ -1223,7 +1256,7 @@ uid MainWindow::createMeshTextureMapping(uid mappingId,
   {
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     int nVertices = nColumns * nRows;
-    qDebug() << nVertices << " vs " << nColumns << "x" << nRows << " vs " << src.size() << " " << dst.size() << endl;
+    qDebug() << nVertices << " vs " << nColumns << "x" << nRows << " vs " << src.size() << " " << dst.size() << Qt::endl;
     Q_ASSERT(src.size() == nVertices && dst.size() == nVertices);
 
     MShape::ptr inputMesh( new Mesh(src, nColumns, nRows));
@@ -1396,7 +1429,7 @@ void MainWindow::setMappingVisible(uid mappingId, bool visible)
 
   if (mapping.isNull())
   {
-    qDebug() << "No such mapping id" << endl;
+    qDebug() << "No such mapping id" << Qt::endl;
   }
   else
   {
@@ -1560,7 +1593,11 @@ void MainWindow::createLayout()
   sourceLayout->addWidget(sourceCanvasToolbar, 0, Qt::AlignRight);
   sourcePanel->setLayout(sourceLayout);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   destinationCanvas = new MapperGLCanvas(this, true, nullptr, static_cast<QGLWidget*>(sourceCanvas->viewport()));
+#else
+  destinationCanvas = new MapperGLCanvas(this, true, nullptr, static_cast<QOpenGLWidget*>(sourceCanvas->viewport()));
+#endif
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);
@@ -2032,7 +2069,12 @@ void MainWindow::createActions()
   addAction(outputFullScreenAction);
   // Manage fullscreen/modal show of GL output window.
   connect(outputFullScreenAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   connect(QApplication::desktop(), SIGNAL(screenCountChanged(int)), this, SLOT(updateScreenCount()));
+#else
+  connect(QGuiApplication::instance(), &QGuiApplication::screenAdded, this, [this]() { updateScreenCount(); });
+  connect(QGuiApplication::instance(), &QGuiApplication::screenRemoved, this, [this]() { updateScreenCount(); });
+#endif
   // Create hiden action for closing output window
   QAction *closeOutput = new QAction(this);
   closeOutput->setShortcut(Qt::Key_Escape);
@@ -2860,10 +2902,22 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage, bool isC
 
   // Add media file to model.
   uint mediaId = createMediaPaint(NULL_UID, fileName, 0, 0, isImage, type);
+  
+  if (mediaId == NULL_UID) {
+    QApplication::restoreOverrideCursor();
+    QMessageBox::warning(this, tr("MapMap Project"),
+                         tr("Failed to create media paint for file: %1").arg(fileName));
+    return false;
+  }
 
-  // Initialize position (center).
+  // Initialize position (center) - check if media was created successfully
   QSharedPointer<Video> media = qSharedPointerCast<Video>(mappingManager->getPaintById(mediaId));
-  Q_CHECK_PTR(media);
+  if (!media) {
+    QApplication::restoreOverrideCursor();
+    QMessageBox::warning(this, tr("MapMap Project"),
+                         tr("Failed to get media object for file: %1").arg(fileName));
+    return false;
+  }
 
   media->setPosition((sourceCanvas->width()  - media->getWidth() ) / 2.0f,
                      (sourceCanvas->height() - media->getHeight()) / 2.0f );
@@ -3179,7 +3233,10 @@ void MainWindow::moveMappingItem(uid mappingId, int idx)
 void MainWindow::removePaintItem(uid paintId)
 {
   Paint::ptr paint = mappingManager->getPaintById(paintId);
-  Q_CHECK_PTR(paint);
+  if (!paint) {
+    qWarning() << "Attempting to remove paint item with invalid ID:" << paintId;
+    return;
+  }
 
   // Remove all mappings associated with paint.
   QMap<uid, Mapping::ptr> paintMappings = mappingManager->getPaintMappings(paint);
@@ -3188,21 +3245,37 @@ void MainWindow::removePaintItem(uid paintId)
     removeMappingItem(it.key());
   }
   // Remove paint from model.
-  Q_ASSERT( mappingManager->removePaint(paintId) );
+  if (!mappingManager->removePaint(paintId)) {
+    qWarning() << "Failed to remove paint from mapping manager:" << paintId;
+    return;
+  }
 
-  // Remove associated mapper.
-  paintPropertyPanel->removeWidget(paintGuis[paintId]->getPropertiesEditor());
-  paintGuis.remove(paintId);
+  // Remove associated mapper - check if it exists first to prevent crashes.
+  if (paintGuis.contains(paintId)) {
+    PaintGui::ptr paintGui = paintGuis[paintId];
+    if (paintGui) {
+      QWidget* propertiesEditor = paintGui->getPropertiesEditor();
+      if (propertiesEditor) {
+        paintPropertyPanel->removeWidget(propertiesEditor);
+      }
+    }
+    paintGuis.remove(paintId);
+  } else {
+    qWarning() << "Paint GUI not found for ID:" << paintId;
+  }
 
   updateMappers();
 
-  // Remove widget from paintList.
+  // Remove widget from paintList - check if row exists first
   int row = getItemRowFromId(*paintList, paintId);
-  Q_ASSERT( row >= 0 );
-  QListWidgetItem* item = paintList->takeItem(row);
-  if (item == currentSelectedItem)
-    currentSelectedItem = NULL;
-  delete item;
+  if (row >= 0) {
+    QListWidgetItem* item = paintList->takeItem(row);
+    if (item == currentSelectedItem)
+      currentSelectedItem = NULL;
+    delete item;
+  } else {
+    qWarning() << "Paint item not found in list for ID:" << paintId;
+  }
 
   // Update list.
   paintList->update();
@@ -3553,13 +3626,10 @@ void MainWindow::connectProjectWidgets()
   connect(mappingListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
           this,                 SLOT(handleMappingIndexesMoved()));
 
-  connect(mappingItemDelegate, SIGNAL(itemDuplicated(uid)),
-          this, SLOT(duplicateMapping(uid)));
-
-  connect(mappingItemDelegate, SIGNAL(itemRemoved(uid)),
-          this, SLOT(deleteMapping(uid)));
-
-  connect(_preferenceDialog, SIGNAL(settingSaved()), this, SLOT(updateSettings()));
+  connect(mappingItemDelegate, SIGNAL(itemContextMenuRequested(const QPoint&)),
+          this, SLOT(showMappingContextMenu(const QPoint&)), Qt::QueuedConnection);
+  connect(destinationCanvas, SIGNAL(shapeContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
+  connect(outputWindow->getCanvas(), SIGNAL(shapeContextMenuRequested(const QPoint&)), this, SLOT(showMappingContextMenu(const QPoint&)));
 }
 
 void MainWindow::disconnectProjectWidgets()
@@ -3650,7 +3720,23 @@ void MainWindow::setCurrentPaint(int uid)
     if (currentPaintId != uid) {
       currentPaintId = uid;
       paintList->setCurrentRow( getItemRowFromId(*paintList, uid) );
-      paintPropertyPanel->setCurrentWidget(paintGuis[uid]->getPropertiesEditor());
+      
+      // Safely access paintGuis to prevent crashes
+      if (paintGuis.contains(uid)) {
+        PaintGui::ptr paintGui = paintGuis[uid];
+        if (paintGui) {
+          QWidget* propertiesEditor = paintGui->getPropertiesEditor();
+          if (propertiesEditor) {
+            paintPropertyPanel->setCurrentWidget(propertiesEditor);
+          } else {
+            qWarning() << "Properties editor is null for paint ID:" << uid;
+          }
+        } else {
+          qWarning() << "Paint GUI is null for paint ID:" << uid;
+        }
+      } else {
+        qWarning() << "Paint GUI not found for ID:" << uid;
+      }
     }
     _hasCurrentPaint = true;
   }
@@ -3706,7 +3792,7 @@ bool MainWindow::setOscPort(int port)
 {
   if (port <= 1023 || port > 65535)
   {
-    qWarning() << "OSC port is out of range: " << port << endl;
+    qWarning() << "OSC port is out of range: " << port << Qt::endl;
     return false;
   }
   oscListeningPort = port;
@@ -3729,7 +3815,7 @@ bool MainWindow::setOscPort(QString portNumber)
   }
   else
   {
-    qWarning() << "OSC port is not a number: " << portNumber << endl;
+    qWarning() << "OSC port is not a number: " << portNumber << Qt::endl;
     return false;
   }
   return true;

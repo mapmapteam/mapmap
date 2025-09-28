@@ -1,6 +1,8 @@
 #include "oscreceiver.h"
 #include "contrib/oscpack/OscTypes.h"
 #include "contrib/oscpack/OscReceivedElements.h"
+#include <limits>
+#include <algorithm>
 
 OscReceiver::OscReceiver(quint16 receivePort, QObject* parent) :
         QObject(parent)
@@ -26,7 +28,11 @@ void OscReceiver::readyReadCb() {
 }
 
 void OscReceiver::byteArrayToVariantList(QVariantList& outputVariantList, QString& outputOscAddress, const QByteArray& inputByteArray) {
-    osc::ReceivedPacket packet(inputByteArray.data(), inputByteArray.size());
+    // Ensure the size fits within osc bundle element size type
+    qsizetype dataSize = inputByteArray.size();
+    osc::osc_bundle_element_size_t oscSize = static_cast<osc::osc_bundle_element_size_t>(qMin(dataSize, static_cast<qsizetype>(std::numeric_limits<osc::osc_bundle_element_size_t>::max())));
+    
+    osc::ReceivedPacket packet(inputByteArray.data(), oscSize);
     // TODO: catch parsing exceptions
     if (packet.IsMessage()) {
         osc::ReceivedMessage message(packet);
