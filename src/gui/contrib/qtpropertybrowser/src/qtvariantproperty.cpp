@@ -46,7 +46,11 @@
 #include <QIcon>
 #include <QDate>
 #include <QLocale>
+#if QT_VERSION < 0x060000
 #include <QRegExp>
+#else
+#include <QRegularExpression>
+#endif
 #include <QTime>
 #include <QDateTime>
 #include <QKeySequence>

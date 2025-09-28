@@ -2080,8 +2080,8 @@ void MainWindow::createActions()
   connect(QApplication::desktop(), SIGNAL(screenCountChanged(int)), this, SLOT(updateScreenCount()));
 #else
   // In Qt6, connect to QGuiApplication::screenAdded/screenRemoved signals
-  connect(qApp, &QGuiApplication::screenAdded, this, &MainWindow::updateScreenCount);
-  connect(qApp, &QGuiApplication::screenRemoved, this, &MainWindow::updateScreenCount);
+  connect(qApp, &QGuiApplication::screenAdded, this, [this]() { updateScreenCount(); });
+  connect(qApp, &QGuiApplication::screenRemoved, this, [this]() { updateScreenCount(); });
 #endif
   // Create hiden action for closing output window
   QAction *closeOutput = new QAction(this);
