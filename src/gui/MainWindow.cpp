@@ -32,6 +32,7 @@
 #else
 #include <QGuiApplication>
 #include <QScreen>
+#include <QKeyCombination>
 #endif
 #include <sstream>
 #include <string>

@@ -74,7 +74,11 @@ protected:
 
   void wheelEvent(QWheelEvent *event);
   void mouseMoveEvent(QMouseEvent *event);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+  void enterEvent(QEnterEvent * event);
+#else
   void enterEvent(QEvent * event);
+#endif
   void leaveEvent(QEvent *event);
 };
 

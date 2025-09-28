@@ -27,6 +27,7 @@
 #else
 #include <QGuiApplication>
 #include <QScreen>
+#include <QEnterEvent>
 #endif
 
 namespace mmp {
@@ -131,7 +132,11 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+void OutputGLCanvas::enterEvent(QEnterEvent *event)
+#else
 void OutputGLCanvas::enterEvent(QEvent *event)
+#endif
 {
   _windowIsHovered = true;
   QGraphicsView::enterEvent(event);

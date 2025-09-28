@@ -723,7 +723,7 @@ void QtVariantPropertyManagerPrivate::slotFlagNamesChanged(QtProperty *property,
     the type of its value, can be retrieved using the propertyType()
     and valueType() functions respectively.
 
-    A property's type is a QVariant::Type enumerator value, and
+    A property's type is a QMetaType::Type enumerator value, and
     usually a property's type is the same as its value type. But for
     some properties the types differ, for example for enums, flags and
     group types in which case QtVariantPropertyManager provides the
@@ -1639,7 +1639,7 @@ void QtVariantPropertyManager::setValue(QtProperty *property, const QVariant &va
 
     int valType = valueType(property);
 
-    if (propType != valType && !val.canConvert(static_cast<QVariant::Type>(valType)))
+    if (propType != valType && !val.canConvert(QMetaType::Type(valType)))
         return;
 
     QtProperty *internProp = propertyToWrappedProperty()->value(property, 0);
@@ -1743,7 +1743,7 @@ void QtVariantPropertyManager::setAttribute(QtProperty *property,
         return;
 
     if (attrType != attributeType(propertyType(property), attribute) &&
-                !value.canConvert((QVariant::Type)attrType))
+                !value.canConvert(QMetaType::Type(attrType)))
         return;
 
     QtProperty *internProp = propertyToWrappedProperty()->value(property, 0);
