@@ -1592,7 +1592,11 @@ void MainWindow::createLayout()
   sourceLayout->addWidget(sourceCanvasToolbar, 0, Qt::AlignRight);
   sourcePanel->setLayout(sourceLayout);
 
+#if QT_VERSION < 0x050000
   destinationCanvas = new MapperGLCanvas(this, true, nullptr, static_cast<QGLWidget*>(sourceCanvas->viewport()));
+#else
+  destinationCanvas = new MapperGLCanvas(this, true, nullptr, static_cast<QOpenGLWidget*>(sourceCanvas->viewport()));
+#endif
   destinationCanvas->setFocusPolicy(Qt::ClickFocus);
   destinationCanvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   destinationCanvas->setMinimumSize(CANVAS_MINIMUM_WIDTH, CANVAS_MINIMUM_HEIGHT);

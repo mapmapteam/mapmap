@@ -25,10 +25,19 @@
 #include "MainWindow.h"
 #include "Commands.h"
 
+// Qt6 compatibility includes
+#if QT_VERSION >= 0x060000
+#include <QSurfaceFormat>
+#endif
+
 namespace mmp {
 
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
+#if QT_VERSION < 0x050000
                                bool isOutput, QWidget* parent, const QGLWidget * shareWidget,
+#else
+                               bool isOutput, QWidget* parent, const QOpenGLWidget * shareWidget,
+#endif
                                QGraphicsScene* scene)
   : QGraphicsView(parent),
     _mainWindow(mainWindow),
@@ -46,7 +55,11 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
   setDragMode(QGraphicsView::NoDrag);
 
   setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing |
+#if QT_VERSION < 0x060000
                  QPainter::HighQualityAntialiasing | QPainter::SmoothPixmapTransform);
+#else
+                 QPainter::SmoothPixmapTransform);
+#endif
   // Dont need to always see scroll bar
   setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -67,7 +80,16 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
   // setAcceptDrops(true);
 
   // Render with OpenGL.
+#if QT_VERSION < 0x050000
   setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers), this, shareWidget));
+#else
+  // Qt6: Create QOpenGLWidget with appropriate format
+  QOpenGLWidget* viewport = new QOpenGLWidget(this);
+  QSurfaceFormat format;
+  format.setSamples(4); // Enable multisampling
+  viewport->setFormat(format);
+  setViewport(viewport);
+#endif
   setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
   // TODO: do we need to delete scene (or call new QGraphicsScene(this)?)
@@ -170,7 +192,11 @@ void MapperGLCanvas::applyZoomToView()
   // Re-bound zoom (for consistency).
   qreal zoomFactor = getZoomFactor();
   // Resets the view transformation matrix
+#if QT_VERSION < 0x050000
   resetMatrix();
+#else
+  resetTransform();
+#endif
   // Scale the current view
   scale(zoomFactor, zoomFactor);
   // And update
@@ -819,7 +845,11 @@ void MapperGLCanvas::fitShapeToView()
     setSceneRect(scene()->itemsBoundingRect());
     centerOn(this->scene()->itemsBoundingRect().center());
     // Get the horizontal scaling factor
+#if QT_VERSION < 0x050000
     _scalingFactor = matrix().m11();
+#else
+    _scalingFactor = transform().m11();
+#endif
 
     // Adapt shape
     _shapeIsAdapted = true;
