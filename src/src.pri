@@ -10,6 +10,10 @@ greaterThan(QT_MAJOR_VERSION, 4) {
   QT += widgets webenginewidgets
 }
 
+greaterThan(QT_MAJOR_VERSION, 5) {
+  QT += multimediawidgets
+}
+
 #Includes common configuration for all subdirectory .pro files.
 INCLUDEPATH += $$PWD/core \
     $$PWD/shape \

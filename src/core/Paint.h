@@ -39,6 +39,10 @@
 #include "Maths.h"
 
 #include <QCameraInfo>
+#if QT_VERSION >= 0x060000
+  #include <QCameraDevice>
+  #include <QMediaDevices>
+#endif
 
 namespace mmp {
 
@@ -211,7 +215,18 @@ public:
 
   // Get Camera human-readable name from url
   QString getCameraNameFromUri(const QString &uri) {
+#if QT_VERSION >= 0x060000
+    // In Qt6, use QMediaDevices to find camera by ID
+    const auto devices = QMediaDevices::videoInputs();
+    for (const auto &device : devices) {
+      if (device.id() == uri.toLocal8Bit()) {
+        return device.description();
+      }
+    }
+    return uri; // fallback to URI if not found
+#else
     return QCameraInfo(uri.toLocal8Bit()).description();
+#endif
   }
 
 protected:
