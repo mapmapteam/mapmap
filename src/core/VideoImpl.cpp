@@ -24,6 +24,7 @@
 #include "VideoImpl.h"
 #include <cstring>
 #include <iostream>
+#include <QElapsedTimer>
 
 namespace mmp {
 
@@ -796,9 +797,9 @@ void VideoImpl::unlockMutex()
 
 bool VideoImpl::waitForNextBits(int timeout, const uchar** bits)
 {
-  QTime time;
-  time.start();
-  while (time.elapsed() < timeout)
+  QElapsedTimer timer;
+  timer.start();
+  while (timer.elapsed() < timeout)
   {
     // Bits available.
     if (hasBits() && bitsHaveChanged())
