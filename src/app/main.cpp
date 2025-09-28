@@ -8,6 +8,8 @@
 #include <QFontDatabase>
 #include <QFont>
 #include <QFile>
+#include <QPixmap>
+#include <QSplashScreen>
 #if USING_QT_5
 #include <QCommandLineParser>
 #include <QCommandLineOption>
