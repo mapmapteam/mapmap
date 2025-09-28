@@ -24,6 +24,11 @@
 #include "CameraImpl.h"
 #include "VideoShmSrcImpl.h"
 #include <iostream>
+#if QT_VERSION < 0x050000
+#include <QGLWidget>
+#else
+#include <QOpenGLWidget>
+#endif
 
 namespace mmp {
 
@@ -109,7 +114,11 @@ void Image::build()
   _images.clear();
   for (int i=0; i<reader.imageCount(); i++)
     _images.push_back(
+#if QT_VERSION < 0x050000
         QGLWidget::convertToGLFormat(reader.read())
+#else
+        QOpenGLWidget::convertToGLFormat(reader.read())
+#endif
           .mirrored(true, false)
           .transformed(QTransform().rotate(180))
       );

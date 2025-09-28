@@ -41,28 +41,48 @@
 #ifndef CAMERA_SURFACE_H_
 #define CAMERA_SURFACE_H_
 
-#include <QAbstractVideoSurface>
-#include <QVideoSurfaceFormat>
+#include <QVideoSink>
+#include <QVideoFrame>
 #include <QGraphicsItem>
 #include <QAudio>
 
+// Forward declarations for Qt5 compatibility
+#if QT_VERSION < 0x060000
+#include <QAbstractVideoSurface>
+#include <QVideoSurfaceFormat>
+#endif
+
 namespace mmp {
 
-class CameraSurface : public QAbstractVideoSurface
+class CameraSurface : public QVideoSink
 {
     Q_OBJECT
 public:
     CameraSurface(QObject *parent = nullptr);
     ~CameraSurface() override;
 
+#if QT_VERSION < 0x060000
+    // Qt5 compatibility methods
     QList<QVideoFrame::PixelFormat> supportedPixelFormats(
-            QAbstractVideoBuffer::HandleType handleType) const override;
-    bool present(const QVideoFrame &frame) override;
+            QAbstractVideoBuffer::HandleType handleType) const;
+    bool present(const QVideoFrame &frame);
+    QVideoSurfaceFormat surfaceFormat() const { return _surfaceFormat; }
+#else
+    // Qt6 methods
+    int frameWidth() const { return _temporaryImage.width(); }
+    int frameHeight() const { return _temporaryImage.height(); }
+#endif
 
     const uchar* bits();
 
+private slots:
+    void onVideoFrameChanged(const QVideoFrame &frame);
+
 private:
     QImage _temporaryImage;
+#if QT_VERSION < 0x060000
+    QVideoSurfaceFormat _surfaceFormat;
+#endif
 };
 
 }

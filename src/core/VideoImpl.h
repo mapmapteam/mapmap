@@ -265,7 +265,11 @@ protected:
   QMutex _mutex;
 
   /// Main mutex locker (for the lockMutex() / unlockMutex() methods).
+#if QT_VERSION < 0x060000
   QMutexLocker* _mutexLocker;
+#else
+  QMutexLocker<QMutex>* _mutexLocker;
+#endif
 
 private:
   /**

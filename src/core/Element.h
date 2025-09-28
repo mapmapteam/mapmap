@@ -68,6 +68,7 @@ public:
   virtual void write(QDomElement& obj);
 
 signals:
+  void propertyChanged();
   void propertyChanged(uid id, QString propertyName, QVariant value);
 
 protected:

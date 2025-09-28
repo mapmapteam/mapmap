@@ -40,21 +40,30 @@
 
 #include "CameraSurface.h"
 
+#if QT_VERSION < 0x060000
 #include <QVideoSurfaceFormat>
 #include <QGLWidget>
+#include <QAbstractVideoSurface>
+#else
+#include <QVideoFrame>
+#include <QOpenGLWidget>
+#endif
 #include <QDebug>
 
 namespace mmp {
 
 CameraSurface::CameraSurface(QObject *parent)
-  : QAbstractVideoSurface(parent)
+  : QVideoSink(parent)
 {
+    connect(this, &QVideoSink::videoFrameChanged, 
+            this, &CameraSurface::onVideoFrameChanged);
 }
 
 CameraSurface::~CameraSurface()
 {
 }
 
+#if QT_VERSION < 0x060000
 QList<QVideoFrame::PixelFormat> CameraSurface::supportedPixelFormats(
     QAbstractVideoBuffer::HandleType handleType) const
 {
@@ -106,10 +115,44 @@ bool CameraSurface::present(const QVideoFrame &frame)
 
   return false;
 }
+#endif
+
+void CameraSurface::onVideoFrameChanged(const QVideoFrame &frame)
+{
+    if (frame.isValid()) {
+        // Copy current frame.
+        QVideoFrame currentFrame(frame);
+
+        if (currentFrame.map(QVideoFrame::ReadOnly))
+        {
+            _temporaryImage = currentFrame.toImage();
+            currentFrame.unmap();
+        }
+
+#ifdef Q_OS_WIN
+#if QT_VERSION < 0x050000
+        _temporaryImage = QGLWidget::convertToGLFormat(_temporaryImage);
+#else
+        _temporaryImage = QOpenGLWidget::convertToGLFormat(_temporaryImage);
+#endif
+#else
+        // Convert to OpenGL format and apply transforms to straighten.
+#if QT_VERSION < 0x050000
+        _temporaryImage = QGLWidget::convertToGLFormat(_temporaryImage)
+#else
+        _temporaryImage = QOpenGLWidget::convertToGLFormat(_temporaryImage)
+#endif
+                          .mirrored(true, false)
+                          .transformed(QTransform().rotate(180));
+#endif
+    }
+}
 
 const uchar* CameraSurface::bits()
 {
   return _temporaryImage.bits();
+}
+
 }
 
 }
