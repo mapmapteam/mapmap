@@ -39,7 +39,11 @@ ShortcutWindow::ShortcutWindow()
   // load CSS file
   QFile cssFile(":/shortcut-css");
   cssFile.open(QIODevice::ReadOnly | QIODevice::Text);
+#if QT_VERSION < 0x060000
   htmlContent.append(QTextCodec::codecForName("UTF-8")->toUnicode(cssFile.readAll()));
+#else
+  htmlContent.append(QString::fromUtf8(cssFile.readAll()));
+#endif
   htmlContent.append("\n</style>\n");
   htmlContent.append("</head>\n<body>");
 
@@ -47,7 +51,11 @@ ShortcutWindow::ShortcutWindow()
   // Load another HTML file
   QFile htmlFile(":/index-html");
   htmlFile.open(QIODevice::ReadOnly | QIODevice::Text);
+#if QT_VERSION < 0x060000
   htmlContent.append(QTextCodec::codecForName("UTF-8")->toUnicode(htmlFile.readAll()));
+#else
+  htmlContent.append(QString::fromUtf8(htmlFile.readAll()));
+#endif
   // End of body content
 
   htmlContent.append("</body></html>");
