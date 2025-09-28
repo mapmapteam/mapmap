@@ -25,6 +25,10 @@
 
 #include <QCamera>
 
+#if QT_VERSION >= 0x060000
+class QMediaCaptureSession;
+#endif
+
 namespace mmp {
 
 class CameraImpl : public VideoImpl
@@ -41,13 +45,22 @@ public:
 
   const uchar* getBits();
 
-  bool hasBits() const { return _cameraSurface->isActive(); }
+  bool hasBits() const { 
+#if QT_VERSION < 0x060000
+    return _cameraSurface->isActive(); 
+#else
+    return _cameraSurface->videoSize().isValid();
+#endif
+  }
 
   bool bitsHaveChanged() const { return true; }
 
 private:
   QCamera *_camera;
   CameraSurface *_cameraSurface;
+#if QT_VERSION >= 0x060000
+  QMediaCaptureSession *_captureSession;
+#endif
 
 };
 

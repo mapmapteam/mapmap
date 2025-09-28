@@ -66,6 +66,11 @@ public:
     QList<QVideoFrame::PixelFormat> supportedPixelFormats(
             QAbstractVideoBuffer::HandleType handleType) const;
     bool present(const QVideoFrame &frame);
+    QVideoSurfaceFormat surfaceFormat() const { return _surfaceFormat; }
+#else
+    // Qt6 methods
+    int frameWidth() const { return _temporaryImage.width(); }
+    int frameHeight() const { return _temporaryImage.height(); }
 #endif
 
     const uchar* bits();
@@ -75,6 +80,9 @@ private slots:
 
 private:
     QImage _temporaryImage;
+#if QT_VERSION < 0x060000
+    QVideoSurfaceFormat _surfaceFormat;
+#endif
 };
 
 }
