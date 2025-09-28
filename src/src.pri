@@ -69,6 +69,7 @@ win32 {
     $${GST_HOME}/lib/glib-2.0/include \
     $${GST_HOME}/include/gstreamer-1.0
 
+  # Link GLib libraries first (dependencies for GStreamer)
   LIBS += $${GST_HOME}/lib/glib-2.0.lib \
     $${GST_HOME}/lib/gobject-2.0.lib \
     $${GST_HOME}/lib/gio-2.0.lib \
