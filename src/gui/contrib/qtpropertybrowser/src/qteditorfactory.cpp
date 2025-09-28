@@ -60,6 +60,14 @@
 #include <QPainter>
 #include <QMap>
 
+#if QT_VERSION < 0x060000
+#include <QRegExp>
+#include <QRegExpValidator>
+#else
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
+#endif
+
 #if defined(Q_CC_MSVC)
 #    pragma warning(disable: 4786) /* MS VS 6: truncating debug info after 255 characters */
 #endif
@@ -975,7 +983,11 @@ class QtLineEditFactoryPrivate : public EditorFactoryPrivate<QLineEdit>
 public:
 
     void slotPropertyChanged(QtProperty *property, const QString &value);
+#if QT_VERSION < 0x060000
     void slotRegExpChanged(QtProperty *property, const QRegExp &regExp);
+#else
+    void slotRegExpChanged(QtProperty *property, const QRegularExpression &regExp);
+#endif
     void slotSetValue(const QString &value);
     void slotEchoModeChanged(QtProperty *, int);
     void slotReadOnlyChanged(QtProperty *, bool);
@@ -998,8 +1010,13 @@ void QtLineEditFactoryPrivate::slotPropertyChanged(QtProperty *property,
     }
 }
 
+#if QT_VERSION < 0x060000
 void QtLineEditFactoryPrivate::slotRegExpChanged(QtProperty *property,
             const QRegExp &regExp)
+#else
+void QtLineEditFactoryPrivate::slotRegExpChanged(QtProperty *property,
+            const QRegularExpression &regExp)
+#endif
 {
     if (!m_createdEditors.contains(property))
         return;
@@ -1015,7 +1032,11 @@ void QtLineEditFactoryPrivate::slotRegExpChanged(QtProperty *property,
         const QValidator *oldValidator = editor->validator();
         QValidator *newValidator = 0;
         if (regExp.isValid()) {
+#if QT_VERSION < 0x060000
             newValidator = new QRegExpValidator(regExp, editor);
+#else
+            newValidator = new QRegularExpressionValidator(regExp, editor);
+#endif
         }
         editor->setValidator(newValidator);
         if (oldValidator)
@@ -1115,8 +1136,13 @@ void QtLineEditFactory::connectPropertyManager(QtStringPropertyManager *manager)
 {
     connect(manager, SIGNAL(valueChanged(QtProperty *, const QString &)),
             this, SLOT(slotPropertyChanged(QtProperty *, const QString &)));
+#if QT_VERSION < 0x060000
     connect(manager, SIGNAL(regExpChanged(QtProperty *, const QRegExp &)),
             this, SLOT(slotRegExpChanged(QtProperty *, const QRegExp &)));
+#else
+    connect(manager, SIGNAL(regExpChanged(QtProperty *, const QRegularExpression &)),
+            this, SLOT(slotRegExpChanged(QtProperty *, const QRegularExpression &)));
+#endif
     connect(manager, SIGNAL(echoModeChanged(QtProperty*, int)),
             this, SLOT(slotEchoModeChanged(QtProperty *, int)));
     connect(manager, SIGNAL(readOnlyChanged(QtProperty*, bool)),
@@ -1135,11 +1161,19 @@ QWidget *QtLineEditFactory::createEditor(QtStringPropertyManager *manager,
     QLineEdit *editor = d_ptr->createEditor(property, parent);
     editor->setEchoMode((EchoMode)manager->echoMode(property));
     editor->setReadOnly(manager->isReadOnly(property));
+#if QT_VERSION < 0x060000
     QRegExp regExp = manager->regExp(property);
     if (regExp.isValid()) {
         QValidator *validator = new QRegExpValidator(regExp, editor);
         editor->setValidator(validator);
     }
+#else
+    QRegularExpression regExp = manager->regExp(property);
+    if (regExp.isValid()) {
+        QValidator *validator = new QRegularExpressionValidator(regExp, editor);
+        editor->setValidator(validator);
+    }
+#endif
     editor->setText(manager->value(property));
 
     connect(editor, SIGNAL(textChanged(const QString &)),
@@ -1158,8 +1192,13 @@ void QtLineEditFactory::disconnectPropertyManager(QtStringPropertyManager *manag
 {
     disconnect(manager, SIGNAL(valueChanged(QtProperty *, const QString &)),
                 this, SLOT(slotPropertyChanged(QtProperty *, const QString &)));
+#if QT_VERSION < 0x060000
     disconnect(manager, SIGNAL(regExpChanged(QtProperty *, const QRegExp &)),
                 this, SLOT(slotRegExpChanged(QtProperty *, const QRegExp &)));
+#else
+    disconnect(manager, SIGNAL(regExpChanged(QtProperty *, const QRegularExpression &)),
+                this, SLOT(slotRegExpChanged(QtProperty *, const QRegularExpression &)));
+#endif
     disconnect(manager, SIGNAL(echoModeChanged(QtProperty*,int)),
                 this, SLOT(slotEchoModeChanged(QtProperty *, int)));
     disconnect(manager, SIGNAL(readOnlyChanged(QtProperty*, bool)),
@@ -2331,12 +2370,20 @@ void QtColorEditWidget::setValue(const QColor &c)
 void QtColorEditWidget::buttonClicked()
 {
     bool ok = false;
+#if QT_VERSION < 0x060000
     QRgb oldRgba = m_color.rgba();
     QRgb newRgba = QColorDialog::getRgba(oldRgba, &ok, this);
     if (ok && newRgba != oldRgba) {
         setValue(QColor::fromRgba(newRgba));
         emit valueChanged(m_color);
     }
+#else
+    QColor newColor = QColorDialog::getColor(m_color, this, QString(), QColorDialog::ShowAlphaChannel);
+    if (newColor.isValid() && newColor != m_color) {
+        setValue(newColor);
+        emit valueChanged(m_color);
+    }
+#endif
 }
 
 bool QtColorEditWidget::eventFilter(QObject *obj, QEvent *ev)
