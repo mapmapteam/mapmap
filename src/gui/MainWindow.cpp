@@ -920,7 +920,7 @@ void MainWindow::deleteItem()
     }
     else
     {
-      qCritical() << "Selected item neither a mapping nor a paint." << endl;
+      qCritical() << "Selected item neither a mapping nor a paint." << Qt::endl;
     }
   }
 }
@@ -933,7 +933,7 @@ void MainWindow::duplicateMappingItem()
   }
   else
   {
-    qCritical() << "No selected mapping" << endl;
+    qCritical() << "No selected mapping" << Qt::endl;
   }
 }
 
@@ -945,7 +945,7 @@ void MainWindow::deleteMappingItem()
   }
   else
   {
-    qCritical() << "No selected mapping" << endl;
+    qCritical() << "No selected mapping" << Qt::endl;
   }
 }
 
@@ -1067,7 +1067,7 @@ void MainWindow::deletePaintItem()
   }
   else
   {
-    qCritical() << "No selected source" << endl;
+    qCritical() << "No selected source" << Qt::endl;
   }
 }
 
@@ -1255,7 +1255,7 @@ uid MainWindow::createMeshTextureMapping(uid mappingId,
   {
     Paint::ptr paint = mappingManager->getPaintById(paintId);
     int nVertices = nColumns * nRows;
-    qDebug() << nVertices << " vs " << nColumns << "x" << nRows << " vs " << src.size() << " " << dst.size() << endl;
+    qDebug() << nVertices << " vs " << nColumns << "x" << nRows << " vs " << src.size() << " " << dst.size() << Qt::endl;
     Q_ASSERT(src.size() == nVertices && dst.size() == nVertices);
 
     MShape::ptr inputMesh( new Mesh(src, nColumns, nRows));
@@ -1428,7 +1428,7 @@ void MainWindow::setMappingVisible(uid mappingId, bool visible)
 
   if (mapping.isNull())
   {
-    qDebug() << "No such mapping id" << endl;
+    qDebug() << "No such mapping id" << Qt::endl;
   }
   else
   {
@@ -3742,7 +3742,7 @@ bool MainWindow::setOscPort(int port)
 {
   if (port <= 1023 || port > 65535)
   {
-    qWarning() << "OSC port is out of range: " << port << endl;
+    qWarning() << "OSC port is out of range: " << port << Qt::endl;
     return false;
   }
   oscListeningPort = port;
@@ -3765,7 +3765,7 @@ bool MainWindow::setOscPort(QString portNumber)
   }
   else
   {
-    qWarning() << "OSC port is not a number: " << portNumber << endl;
+    qWarning() << "OSC port is not a number: " << portNumber << Qt::endl;
     return false;
   }
   return true;

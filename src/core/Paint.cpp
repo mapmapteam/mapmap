@@ -30,6 +30,11 @@
 #include <QOpenGLWidget>
 #endif
 
+// Qt6 compatibility for QFileIconProvider
+#if QT_VERSION >= 0x060000
+#include <QFileIconProvider>
+#endif
+
 namespace mmp {
 
 UidAllocator Paint::allocator;
@@ -116,8 +121,11 @@ void Image::build()
     _images.push_back(
 #if QT_VERSION < 0x050000
         QGLWidget::convertToGLFormat(reader.read())
-#else
+#elif QT_VERSION < 0x060000
         QOpenGLWidget::convertToGLFormat(reader.read())
+#else
+        // Qt6: convertToGLFormat was removed, use rgbSwapped instead
+        reader.read().rgbSwapped()
 #endif
           .mirrored(true, false)
           .transformed(QTransform().rotate(180))
@@ -322,7 +330,7 @@ bool Video::setUri(const QString &uri)
     // Try to load movie.
     if (!_impl->loadMovie(uri))
     {
-      qDebug() << "Cannot load movie " << uri << "." << endl;
+      qDebug() << "Cannot load movie " << uri << "." << Qt::endl;
       return false;
     }
 
@@ -333,13 +341,13 @@ bool Video::setUri(const QString &uri)
     // Wait for the first samples to be available to make sure we are ready.
     if (!_impl->waitForNextBits(ICON_TIMEOUT))
     {
-      qDebug() << "No bits coming" << endl;
+      qDebug() << "No bits coming" << Qt::endl;
       return false;
     }
 
     if (_videoType != VIDEO_WEBCAM) { // Generated thumbnail if source type is not camera
       if (!_generateThumbnail())
-        qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << endl;
+        qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << Qt::endl;
     }
 
     _emitPropertyChanged("uri");
@@ -388,7 +396,7 @@ bool Video::_generateThumbnail()
   const uchar* bits;
   if (!_impl->waitForNextBits(ICON_TIMEOUT, &bits))
   {
-    qDebug() << "Second waiting wrong..." << endl;
+    qDebug() << "Second waiting wrong..." << Qt::endl;
     return false;
   }
 
