@@ -146,7 +146,11 @@ QtPropertyEditorView::QtPropertyEditorView(QWidget *parent) :
 
 void QtPropertyEditorView::drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+#if QT_VERSION < 0x060000
     QStyleOptionViewItemV3 opt = option;
+#else
+    QStyleOptionViewItem opt = option;
+#endif
     bool hasValue = true;
     if (m_editorPrivate) {
         QtProperty *property = m_editorPrivate->indexToProperty(index);
@@ -348,7 +352,11 @@ void QtPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIt
         if (property)
             hasValue = property->hasValue();
     }
+#if QT_VERSION < 0x060000
     QStyleOptionViewItemV3 opt = option;
+#else
+    QStyleOptionViewItem opt = option;
+#endif
     if ((m_editorPrivate && index.column() == 0) || !hasValue) {
         QtProperty *property = m_editorPrivate->indexToProperty(index);
         if (property && property->isModified()) {
@@ -362,7 +370,11 @@ void QtPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIt
         opt.palette.setColor(QPalette::Text, opt.palette.color(QPalette::BrightText));
     } else {
         c = m_editorPrivate->calculatedBackgroundColor(m_editorPrivate->indexToBrowserItem(index));
+#if QT_VERSION < 0x060000
         if (c.isValid() && (opt.features & QStyleOptionViewItemV2::Alternate))
+#else
+        if (c.isValid() && (opt.features & QStyleOptionViewItem::Alternate))
+#endif
             c = c.lighter(112);
     }
     if (c.isValid())
@@ -483,8 +495,16 @@ void QtTreePropertyBrowserPrivate::init(QWidget *parent)
     m_delegate = new QtPropertyEditorDelegate(parent);
     m_delegate->setEditorPrivate(this);
     m_treeWidget->setItemDelegate(m_delegate);
+#if QT_VERSION < 0x050000
     m_treeWidget->header()->setMovable(false);
+#else
+    m_treeWidget->header()->setSectionsMovable(false);
+#endif
+#if QT_VERSION < 0x050000
     m_treeWidget->header()->setResizeMode(QHeaderView::Stretch);
+#else
+    m_treeWidget->header()->setSectionResizeMode(QHeaderView::Stretch);
+#endif
 
     m_expandIcon = drawIndicatorIcon(q_ptr->palette(), q_ptr->style());
 
@@ -589,7 +609,11 @@ void QtTreePropertyBrowserPrivate::propertyInserted(QtBrowserItem *index, QtBrow
     m_indexToItem[index] = newItem;
 
     newItem->setFlags(newItem->flags() | Qt::ItemIsEditable);
+#if QT_VERSION < 0x060000
     m_treeWidget->setItemExpanded(newItem, true);
+#else
+    newItem->setExpanded(true);
+#endif
 
     updateItem(newItem);
 }
@@ -896,7 +920,11 @@ void QtTreePropertyBrowser::setResizeMode(QtTreePropertyBrowser::ResizeMode mode
         case QtTreePropertyBrowser::Stretch:
         default:                                      m = QHeaderView::Stretch;          break;
     }
+#if QT_VERSION < 0x050000
     d_ptr->m_treeWidget->header()->setResizeMode(m);
+#else
+    d_ptr->m_treeWidget->header()->setSectionResizeMode(m);
+#endif
 }
 
 /*!
