@@ -138,17 +138,19 @@ Build on Windows
 ----------------
 
 ## Build dynamic version to debug project:
-- Download and install gstreamer-x86 [runtime](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-mingw-x86-1.16.2.msi) and [devel](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-devel-mingw-x86-1.16.2.msi)
+- For 64-bit builds (recommended): Download and install gstreamer-x86_64 [runtime](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-mingw-x86_64-1.16.2.msi) and [devel](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-devel-mingw-x86_64-1.16.2.msi)
+- For 32-bit builds: Download and install gstreamer-x86 [runtime](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-mingw-x86-1.16.2.msi) and [devel](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-devel-mingw-x86-1.16.2.msi)
 - Download and install [Qt5 MinGW incl. QtCreator](https://www.qt.io/download-thank-you?os=windows)
-- Add the GStreamer bin path (e.g. C:\gstreamer\1.0\x86\bin) to PATH variable into the QtCreator project build enviroment settings
+- Add the GStreamer bin path (e.g. C:\gstreamer\1.0\x86_64\bin for 64-bit or C:\gstreamer\1.0\x86\bin for 32-bit) to PATH variable into the QtCreator project build enviroment settings
 - Build and run MapMap project within QtCreator (Ctrl-R)
 
 ## Build static version for release:
-- Download and install gstreamer-x86 [runtime](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-mingw-x86-1.16.2.msi) and [devel](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-devel-mingw-x86-1.16.2.msi)
+- For 64-bit builds (recommended): Download and install gstreamer-x86_64 [runtime](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-mingw-x86_64-1.16.2.msi) and [devel](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-devel-mingw-x86_64-1.16.2.msi)
+- For 32-bit builds: Download and install gstreamer-x86 [runtime](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-mingw-x86-1.16.2.msi) and [devel](https://gstreamer.freedesktop.org/data/pkg/windows/1.16.2/gstreamer-1.0-devel-mingw-x86-1.16.2.msi)
 - Build a [Qt static environment](https://wiki.qt.io/Building_a_static_Qt_for_Windows_using_MinGW) (This [video](https://www.youtube.com/watch?v=nEQGrBiz2T0) may explain it better)
 - Build MapMap using QtCreator (qmake, build release)
-- Copy all dll files of the gstreamer's bin folder (e.g. C:\gstreamer\1.0\x86\bin) into the target folder together with MapMap.exe
-- Copy all dll files of the gstreamer's plugin folder (e.g. C:\gstreamer\1.0\x86\lib\gstreamer-1.0) into an new folder named 'plugin' in parallel to MapMap.exe.
+- Copy all dll files of the gstreamer's bin folder (e.g. C:\gstreamer\1.0\x86_64\bin for 64-bit or C:\gstreamer\1.0\x86\bin for 32-bit) into the target folder together with MapMap.exe
+- Copy all dll files of the gstreamer's plugin folder (e.g. C:\gstreamer\1.0\x86_64\lib\gstreamer-1.0 for 64-bit or C:\gstreamer\1.0\x86\lib\gstreamer-1.0 for 32-bit) into an new folder named 'plugin' in parallel to MapMap.exe.
 - Run MapMap.exe
 
 #### For packaging

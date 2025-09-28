@@ -56,12 +56,20 @@ macx {
 win32 {
   DEFINES += WIN32
   TARGET = ../../../MapMap/MapMap # Just for release
-  GST_HOME = $$quote($$(GSTREAMER_1_0_ROOT_X86))
+  
+  # Try 64-bit GStreamer first, fallback to 32-bit if not available
+  GST_HOME = $$quote($$(GSTREAMER_1_0_ROOT_X86_64))
   isEmpty(GST_HOME) {
-    message(\"GSTREAMER_1_0_ROOT_X86\" not detected ...)
+    GST_HOME = $$quote($$(GSTREAMER_1_0_ROOT_X86))
+    isEmpty(GST_HOME) {
+      message(\"Neither GSTREAMER_1_0_ROOT_X86_64 nor GSTREAMER_1_0_ROOT_X86 detected ...)
+    }
+    else {
+      message(\"GSTREAMER_1_0_ROOT_X86 detected in \"$${GST_HOME}\" - using 32-bit libraries\")
+    }
   }
   else {
-    message(\"GSTREAMER_1_0_ROOT_X86\" detected in \"$${GST_HOME}\")
+    message(\"GSTREAMER_1_0_ROOT_X86_64 detected in \"$${GST_HOME}\" - using 64-bit libraries\")
   }
 
   INCLUDEPATH += $${GST_HOME}/lib/gstreamer-1.0/include \
