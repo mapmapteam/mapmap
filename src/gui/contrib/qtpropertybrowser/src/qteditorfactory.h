@@ -188,7 +188,11 @@ private:
     Q_DECLARE_PRIVATE(QtLineEditFactory)
     Q_DISABLE_COPY(QtLineEditFactory)
     Q_PRIVATE_SLOT(d_func(), void slotPropertyChanged(QtProperty *, const QString &))
+#if QT_VERSION < 0x060000
     Q_PRIVATE_SLOT(d_func(), void slotRegExpChanged(QtProperty *, const QRegExp &))
+#else
+    Q_PRIVATE_SLOT(d_func(), void slotRegExpChanged(QtProperty *, const QRegularExpression &))
+#endif
     Q_PRIVATE_SLOT(d_func(), void slotEchoModeChanged(QtProperty *, int))
     Q_PRIVATE_SLOT(d_func(), void slotReadOnlyChanged(QtProperty *, bool))
     Q_PRIVATE_SLOT(d_func(), void slotSetValue(const QString &))

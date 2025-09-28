@@ -12,7 +12,7 @@
  *
  * Currently only supports unicast UDP.
  */
-class QOSC_EXPORT OscSender : public QObject
+class OscSender : public QObject
 {
     Q_OBJECT
 

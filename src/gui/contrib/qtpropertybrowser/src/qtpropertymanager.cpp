@@ -1493,8 +1493,16 @@ void QtStringPropertyManager::setValue(QtProperty *property, const QString &val)
     if (data.val == val)
         return;
 
-    if (data.regExp.isValid() && !data.regExp.exactMatch(val))
-        return;
+    if (data.regExp.isValid()) {
+#if QT_VERSION < 0x060000
+        if (!data.regExp.exactMatch(val))
+            return;
+#else
+        QRegularExpressionMatch match = data.regExp.match(val);
+        if (!match.hasMatch() || match.captured(0) != val)
+            return;
+#endif
+    }
 
     data.val = val;
 
@@ -6087,7 +6095,11 @@ void QtFontPropertyManager::setValue(QtProperty *property, const QFont &val)
         return;
 
     const QFont oldVal = it.value();
+#if QT_VERSION < 0x060000
     if (oldVal == val && oldVal.resolve() == val.resolve())
+#else
+    if (oldVal == val && oldVal.resolveMask() == val.resolveMask())
+#endif
         return;
 
     it.value() = val;
