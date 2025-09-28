@@ -356,10 +356,17 @@ void QtKeySequenceEdit::handleKeyEvent(QKeyEvent *e)
         return;
 
     nextKey |= translateModifiers(e->modifiers(), e->text());
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    int k0 = m_keySequence[0].toCombined();
+    int k1 = m_keySequence[1].toCombined();
+    int k2 = m_keySequence[2].toCombined();
+    int k3 = m_keySequence[3].toCombined();
+#else
     int k0 = m_keySequence[0];
     int k1 = m_keySequence[1];
     int k2 = m_keySequence[2];
     int k3 = m_keySequence[3];
+#endif
     switch (m_num) {
         case 0: k0 = nextKey; k1 = 0; k2 = 0; k3 = 0; break;
         case 1: k1 = nextKey; k2 = 0; k3 = 0; break;

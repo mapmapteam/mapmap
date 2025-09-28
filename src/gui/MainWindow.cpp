@@ -1764,7 +1764,7 @@ void MainWindow::createActions()
 
   // Import Media.
   importMediaAction = new QAction(tr("&Import Media File..."), this);
-  importMediaAction->setShortcut(Qt::CTRL + Qt::Key_I);
+  importMediaAction->setShortcut(QKeySequence("Ctrl+I"));
   importMediaAction->setIcon(QIcon(":/add-video"));
   importMediaAction->setToolTip(tr("Import a video or image file..."));
   importMediaAction->setIconVisibleInMenu(false);
@@ -1774,7 +1774,7 @@ void MainWindow::createActions()
 
   // Open camera.
   AddCameraAction = new QAction(tr("Open &Camera Device..."), this);
-  AddCameraAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_C);
+  AddCameraAction->setShortcut(QKeySequence("Ctrl+Shift+C"));
   AddCameraAction->setIcon(QIcon(":/add-camera"));
   AddCameraAction->setIconVisibleInMenu(false);
   AddCameraAction->setToolTip(tr("Choose your camera device..."));
@@ -1784,7 +1784,7 @@ void MainWindow::createActions()
 
   // Add color.
   addColorAction = new QAction(tr("Add &Color Source..."), this);
-  addColorAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_A);
+  addColorAction->setShortcut(QKeySequence("Ctrl+Shift+A"));
   addColorAction->setIcon(QIcon(":/add-color"));
   addColorAction->setToolTip(tr("Add a color paint..."));
   addColorAction->setIconVisibleInMenu(false);
@@ -1825,7 +1825,7 @@ void MainWindow::createActions()
 
   // Duplicate.
   duplicateMappingAction = new QAction(tr("Duplicate Layer"), this);
-  duplicateMappingAction->setShortcut(Qt::CTRL + Qt::Key_D);
+  duplicateMappingAction->setShortcut(QKeySequence("Ctrl+D"));
   duplicateMappingAction->setToolTip(tr("Duplicate layer item"));
   duplicateMappingAction->setIconVisibleInMenu(false);
   duplicateMappingAction->setEnabled(false);
@@ -1990,7 +1990,7 @@ void MainWindow::createActions()
   // Preferences...
   preferencesAction = new QAction(tr("&Preferences..."), this);
   //preferencesAction->setIcon(QIcon(":/preferences"));
-  preferencesAction->setShortcut(Qt::CTRL + Qt::Key_Comma);
+  preferencesAction->setShortcut(QKeySequence("Ctrl+Comma"));
   preferencesAction->setToolTip(tr("Configure preferences..."));
   //preferencesAction->setIconVisibleInMenu(false);
   preferencesAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -1999,7 +1999,7 @@ void MainWindow::createActions()
 
   // Add mesh.
   addMeshAction = new QAction(tr("Add &Mesh Layer"), this);
-  addMeshAction->setShortcut(Qt::CTRL + Qt::Key_M);
+  addMeshAction->setShortcut(QKeySequence("Ctrl+M"));
   addMeshAction->setIcon(QIcon(":/add-mesh"));
   addMeshAction->setToolTip(tr("Add mesh layer"));
   addMeshAction->setIconVisibleInMenu(false);
@@ -2010,7 +2010,7 @@ void MainWindow::createActions()
 
   // Add triangle.
   addTriangleAction = new QAction(tr("Add &Triangle Layer"), this);
-  addTriangleAction->setShortcut(Qt::CTRL + Qt::Key_T);
+  addTriangleAction->setShortcut(QKeySequence("Ctrl+T"));
   addTriangleAction->setIcon(QIcon(":/add-triangle"));
   addTriangleAction->setToolTip(tr("Add triangle layer"));
   addTriangleAction->setIconVisibleInMenu(false);
@@ -2021,7 +2021,7 @@ void MainWindow::createActions()
 
   // Add ellipse.
   addEllipseAction = new QAction(tr("Add &Ellipse Layer"), this);
-  addEllipseAction->setShortcut(Qt::CTRL + Qt::Key_E);
+  addEllipseAction->setShortcut(QKeySequence("Ctrl+E"));
   addEllipseAction->setIcon(QIcon(":/add-ellipse"));
   addEllipseAction->setToolTip(tr("Add ellipse layer"));
   addEllipseAction->setIconVisibleInMenu(false);
@@ -2031,7 +2031,7 @@ void MainWindow::createActions()
   addEllipseAction->setEnabled(false);
 
   // Play.
-  const QKeySequence PLAY_PAUSE_KEY_SEQUENCE = Qt::CTRL + Qt::SHIFT + Qt::Key_P;
+  const QKeySequence PLAY_PAUSE_KEY_SEQUENCE = QKeySequence("Ctrl+Shift+P");
   playAction = new QAction(tr("Play"), this);
   playAction->setShortcut(PLAY_PAUSE_KEY_SEQUENCE);
   playAction->setIcon(QIcon(":/play"));
@@ -2055,7 +2055,7 @@ void MainWindow::createActions()
 
   // Rewind.
   rewindAction = new QAction(tr("Restart"), this);
-  rewindAction->setShortcut(Qt::CTRL + Qt::Key_R);
+  rewindAction->setShortcut(QKeySequence("Ctrl+R"));
   rewindAction->setIcon(QIcon(":/rewind"));
   rewindAction->setToolTip(tr("Restart"));
   rewindAction->setIconVisibleInMenu(false);
@@ -2065,7 +2065,7 @@ void MainWindow::createActions()
 
   // Toggle display of output window.
   outputFullScreenAction = new QAction(tr("Toggle &Fullscreen"), this);
-  outputFullScreenAction->setShortcut(Qt::CTRL + Qt::Key_F);
+  outputFullScreenAction->setShortcut(QKeySequence("Ctrl+F"));
   outputFullScreenAction->setIcon(QIcon(":/fullscreen"));
   outputFullScreenAction->setToolTip(tr("Toggle Fullscreen"));
   outputFullScreenAction->setIconVisibleInMenu(false);
@@ -2092,7 +2092,7 @@ void MainWindow::createActions()
 
   // Toggle display of canvas controls.
   displayControlsAction = new QAction(tr("&Display Controls"), this);
-  displayControlsAction->setShortcut(Qt::ALT + Qt::Key_C);
+  displayControlsAction->setShortcut(QKeySequence("Alt+C"));
   displayControlsAction->setIcon(QIcon(":/control-points"));
   displayControlsAction->setToolTip(tr("Display canvas controls"));
   displayControlsAction->setIconVisibleInMenu(false);
@@ -2121,7 +2121,7 @@ void MainWindow::createActions()
 
   // Toggle sticky vertices
   stickyVerticesAction = new QAction(tr("&Sticky Vertices"), this);
-  stickyVerticesAction->setShortcut(Qt::ALT + Qt::Key_S);
+  stickyVerticesAction->setShortcut(QKeySequence("Alt+S"));
   stickyVerticesAction->setIcon(QIcon(":/control-points"));
   stickyVerticesAction->setToolTip(tr("Enable sticky vertices"));
   stickyVerticesAction->setIconVisibleInMenu(false);
@@ -2133,7 +2133,7 @@ void MainWindow::createActions()
   connect(stickyVerticesAction, SIGNAL(toggled(bool)), this, SLOT(enableStickyVertices(bool)));
 
   displayTestSignalAction = new QAction(tr("Show &Test Signal"), this);
-  displayTestSignalAction->setShortcut(Qt::ALT + Qt::Key_T);
+  displayTestSignalAction->setShortcut(QKeySequence("Alt+T"));
   displayTestSignalAction->setIcon(QIcon(":/toggle-test-signal"));
   displayTestSignalAction->setToolTip(tr("Show Test signal"));
   displayTestSignalAction->setIconVisibleInMenu(false);
@@ -2147,7 +2147,7 @@ void MainWindow::createActions()
 
   // Toggle display of Undo History
   displayUndoHistoryAction = new QAction(tr("Display &Undo History"), this);
-  displayUndoHistoryAction->setShortcut(Qt::ALT + Qt::Key_U);
+  displayUndoHistoryAction->setShortcut(QKeySequence("Alt+U"));
   displayUndoHistoryAction->setCheckable(true);
   displayUndoHistoryAction->setChecked(_displayUndoStack);
   displayUndoHistoryAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -2157,7 +2157,7 @@ void MainWindow::createActions()
 
   // Toggle display of Console output
   openConsoleAction = new QAction(tr("Open Conso&le"), this);
-  openConsoleAction->setShortcut(Qt::ALT + Qt::Key_L);
+  openConsoleAction->setShortcut(QKeySequence("Alt+L"));
   openConsoleAction->setCheckable(true);
   openConsoleAction->setChecked(false);
   openConsoleAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -2168,7 +2168,7 @@ void MainWindow::createActions()
 
   // Toggle display of zoom tool buttons
   displayZoomToolAction = new QAction(tr("Display &Zoom Toolbar"), this);
-  displayZoomToolAction->setShortcut(Qt::ALT + Qt::Key_Z);
+  displayZoomToolAction->setShortcut(QKeySequence("Alt+Z"));
   displayZoomToolAction->setCheckable(true);
   displayZoomToolAction->setChecked(true);
   displayZoomToolAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -2187,21 +2187,21 @@ void MainWindow::createActions()
   mainViewAction = new QAction(tr("Main Layout"), this);
   mainViewAction->setCheckable(true);
   mainViewAction->setChecked(true);
-  mainViewAction->setShortcut(Qt::CTRL + Qt::Key_1);
+  mainViewAction->setShortcut(QKeySequence("Ctrl+1"));
   mainViewAction->setToolTip(tr("Switch to the Main layout."));
   connect(mainViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setVisible(bool)));
   connect(mainViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setVisible(bool)));
   // Source Only
   sourceViewAction = new QAction(tr("Input editor Layout"), this);
   sourceViewAction->setCheckable(true);
-  sourceViewAction->setShortcut(Qt::CTRL + Qt::Key_2);
+  sourceViewAction->setShortcut(QKeySequence("Ctrl+2"));
   sourceViewAction->setToolTip(tr("Switch to the Input editor Layout."));
   connect(sourceViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setVisible(bool)));
   connect(sourceViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setHidden(bool)));
   // Destination Only
   destViewAction = new QAction(tr("Output Editor Layout"), this);
   destViewAction->setCheckable(true);
-  destViewAction->setShortcut(Qt::CTRL + Qt::Key_3);
+  destViewAction->setShortcut(QKeySequence("Ctrl+3"));
   destViewAction->setToolTip(tr("Switch to the Output Editors Layout."));
   connect(destViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setHidden(bool)));
   connect(destViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setVisible(bool)));
@@ -2228,7 +2228,7 @@ void MainWindow::createActions()
   connect(zoomOutAction, SIGNAL(triggered()), destinationCanvas, SLOT(decreaseZoomLevel()));
   // Reset zoom
   resetZoomAction = new QAction(tr("Original Size"), this);
-  resetZoomAction->setShortcut(Qt::CTRL + Qt::Key_0);
+  resetZoomAction->setShortcut(QKeySequence("Ctrl+0"));
   resetZoomAction->setToolTip(tr("Reset zoom to original size"));
   resetZoomAction->setEnabled(false);
   connect(resetZoomAction, SIGNAL(triggered()), sourceCanvas, SLOT(resetZoomLevel()));
@@ -2255,7 +2255,7 @@ void MainWindow::createActions()
   connect(feedbackAction, SIGNAL(triggered()), this, SLOT(sendFeedback()));
   // Keyboard shortcuts
   shortcutAction = new QAction(tr("&Keyboard shortcuts"), this);
-  shortcutAction->setShortcut(Qt::CTRL + Qt::Key_K);
+  shortcutAction->setShortcut(QKeySequence("Ctrl+K"));
   connect(shortcutAction, SIGNAL(triggered()), this, SLOT(openShortcutWindow()));
 
   // All available screen as action
