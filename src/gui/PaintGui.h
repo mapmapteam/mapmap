@@ -25,6 +25,10 @@
 
 #if __APPLE__
 #include <OpenGL/gl.h>
+#elif defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <GL/gl.h>
 #else
 #include <GL/gl.h>
 #endif
