@@ -143,7 +143,7 @@ static void printCommand(QVariantList &command)
       qDebug() << "(?) ";
     }
   }
-  qDebug() << endl;
+  qDebug() << Qt::endl;
 }
 
 void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & command) {
@@ -270,7 +270,7 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
 
   if (! pathIsValid)
   {
-    qDebug() << "Path could not be processed: " << path << endl;
+    qDebug() << "Path could not be processed: " << path << Qt::endl;
     printCommand(command);
   }
 

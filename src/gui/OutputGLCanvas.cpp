@@ -24,7 +24,11 @@
 
 namespace mmp {
 
+#if QT_VERSION < 0x050000
 OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget* shareWidget, QGraphicsScene* scene)
+#else
+OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QOpenGLWidget* shareWidget, QGraphicsScene* scene)
+#endif
 : MapperGLCanvas(mainWindow, true, parent, shareWidget, scene),
   _displayCrosshair(false),
   _displayTestSignal(false),
@@ -84,7 +88,7 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
       QRect mouseScreenGeometry = QApplication::desktop()->screen(mouseScreen)->geometry();
       QPoint localCursorPos = globalCursorPos - mouseScreenGeometry.topLeft();
       QPointF cursorPosition = mapToScene(localCursorPos);
-//      qDebug() << "Cursor pos " << globalCursorPos << " " << cursorPosition << " " << localCursorPos << mouseScreen << endl;
+//      qDebug() << "Cursor pos " << globalCursorPos << " " << cursorPosition << " " << localCursorPos << mouseScreen << Qt::endl;
       if (rect.contains(cursorPosition) && getMainWindow()->getPreferredScreen() == mouseScreen)
 //      qDebug() << "Cursor pos " << mapToScene(mapFromGlobal(QCursor::pos(QApplication::screens()[1])));
 #else

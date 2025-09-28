@@ -151,7 +151,7 @@ void Mapping::_readShape(const QDomElement& obj, bool isOutput)
     MShape::ptr shape (qobject_cast<MShape*>(metaObject->newInstance()));
     if (shape.isNull())
     {
-      qDebug() << QObject::tr("Problem at creation of shape.") << endl;
+      qDebug() << QObject::tr("Problem at creation of shape.") << Qt::endl;
 //      _xml.raiseError(QObject::tr("Problem at creation of paint."));
     }
 
@@ -167,7 +167,7 @@ void Mapping::_readShape(const QDomElement& obj, bool isOutput)
 
   else
   {
-    qDebug() << QObject::tr("Unable to create paint of type '%1'.").arg(className) << endl;
+    qDebug() << QObject::tr("Unable to create paint of type '%1'.").arg(className) << Qt::endl;
   }
 
 }

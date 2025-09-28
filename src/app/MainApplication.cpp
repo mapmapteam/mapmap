@@ -61,8 +61,8 @@ bool MainApplication::notify(QObject *receiver, QEvent *event)
   }
   catch (std::exception &ex)
   {
-    qDebug() << "std::exception was caught: " << ex.what() << endl;
-    qDebug() << "event type: " << event->type() << endl;
+    qDebug() << "std::exception was caught: " << ex.what() << Qt::endl;
+    qDebug() << "event type: " << event->type() << Qt::endl;
   }
 
   return false;

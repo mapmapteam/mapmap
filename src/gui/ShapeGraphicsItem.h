@@ -36,6 +36,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <QGraphicsItem>
+
 #include "Shapes.h"
 
 #include "Paint.h"
@@ -86,7 +88,13 @@ public:
   bool isMappingVisible() const;
 
   /// Returns the bounding rectangle of this item.
-  virtual QRectF boundingRect() const { return shape().boundingRect(); }
+  virtual QRectF boundingRect() const { 
+    if (getShape()) {
+      QPolygonF poly(getShape()->getVertices());
+      return poly.boundingRect();
+    }
+    return QRectF();
+  }
 //  virtual QPainterPath shape() const;
 //  virtual void paint(QPainter *painter,
 //                     const QStyleOptionGraphicsItem *option, QWidget *widget);

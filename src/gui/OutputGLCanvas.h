@@ -31,7 +31,11 @@ class OutputGLCanvas: public MapperGLCanvas
   Q_OBJECT
 
 public:
+#if QT_VERSION < 0x050000
   OutputGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
+#else
+  OutputGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, const QOpenGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
+#endif
   virtual ~OutputGLCanvas() {}
 
   // Adjust viewable scene to correspond to absolute coordinates.

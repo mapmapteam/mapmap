@@ -55,7 +55,7 @@ gstPollShmsrc (void *user_data)
   {
     if (! p->setPlayState(true))
     {
-      qDebug() << "tried to attach, but starting pipeline failed!" << endl;
+      qDebug() << "tried to attach, but starting pipeline failed!" << Qt::endl;
       return false;
     }
     p->setAttached(true);
@@ -80,7 +80,7 @@ bool VideoShmSrcImpl::loadMovie(const QString& path) {
 
   if (! _shmsrc0 || ! _gdpdepay0)
   {
-    qWarning() << "Not all elements could be created." << endl;
+    qWarning() << "Not all elements could be created." << Qt::endl;
     if (! _shmsrc0) g_printerr("_shmsrc0");
     if (! _gdpdepay0) g_printerr("_gdpdepay0");
     unloadMovie();
@@ -90,7 +90,7 @@ bool VideoShmSrcImpl::loadMovie(const QString& path) {
   gst_bin_add_many (GST_BIN(_pipeline), _shmsrc0, _gdpdepay0, NULL);
   if (! gst_element_link_many (_shmsrc0, _gdpdepay0, _queue0, NULL))
   {
-    qWarning() << "Could not link shmsrc, deserializer and video queue." << endl;
+    qWarning() << "Could not link shmsrc, deserializer and video queue." << Qt::endl;
   }
 
   QByteArray ba = path.toLocal8Bit();

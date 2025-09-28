@@ -132,18 +132,30 @@ void CameraSurface::onVideoFrameChanged(const QVideoFrame &frame)
 #ifdef Q_OS_WIN
 #if QT_VERSION < 0x050000
         _temporaryImage = QGLWidget::convertToGLFormat(_temporaryImage);
-#else
+#elif QT_VERSION < 0x060000
         _temporaryImage = QOpenGLWidget::convertToGLFormat(_temporaryImage);
+#else
+        // In Qt6, convertToGLFormat was removed, just use the image as-is
+        // Qt6's OpenGL integration handles the conversion automatically
+        _temporaryImage = _temporaryImage.rgbSwapped();
 #endif
 #else
         // Convert to OpenGL format and apply transforms to straighten.
 #if QT_VERSION < 0x050000
         _temporaryImage = QGLWidget::convertToGLFormat(_temporaryImage)
-#else
-        _temporaryImage = QOpenGLWidget::convertToGLFormat(_temporaryImage)
-#endif
                           .mirrored(true, false)
                           .transformed(QTransform().rotate(180));
+#elif QT_VERSION < 0x060000
+        _temporaryImage = QOpenGLWidget::convertToGLFormat(_temporaryImage)
+                          .mirrored(true, false)
+                          .transformed(QTransform().rotate(180));
+#else
+        // In Qt6, convertToGLFormat was removed, just use the image as-is
+        // Qt6's OpenGL integration handles the conversion automatically
+        _temporaryImage = _temporaryImage.rgbSwapped()
+                          .mirrored(true, false)
+                          .transformed(QTransform().rotate(180));
+#endif
 #endif
     }
 }
@@ -151,8 +163,6 @@ void CameraSurface::onVideoFrameChanged(const QVideoFrame &frame)
 const uchar* CameraSurface::bits()
 {
   return _temporaryImage.bits();
-}
-
 }
 
 }
