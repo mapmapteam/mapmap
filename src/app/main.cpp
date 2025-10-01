@@ -156,8 +156,13 @@ int main(int argc, char *argv[])
     if (qtTranslator.load(QString("qt_%1").arg(lang),
                       QApplication::applicationDirPath().append("/translations")))
 #else
+#if QT_VERSION < 0x060000
     if (qtTranslator.load(QString("qtbase_%1").arg(lang),
                       QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+#else
+    if (qtTranslator.load(QString("qtbase_%1").arg(lang),
+                      QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
+#endif
 #endif
     {
       app.installTranslator(&qtTranslator);
