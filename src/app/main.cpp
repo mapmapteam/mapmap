@@ -153,16 +153,25 @@ int main(int argc, char *argv[])
   {
     //QLocale::setDefault(QLocale(lang));
 #ifdef Q_OS_WIN32
-    qtTranslator.load(QString("qt_%1").arg(lang),
-                      QApplication::applicationDirPath().append("/translations"));
+    if (qtTranslator.load(QString("qt_%1").arg(lang),
+                      QApplication::applicationDirPath().append("/translations")))
 #else
-    qtTranslator.load(QString("qtbase_%1").arg(lang),
-                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+#if QT_VERSION < 0x060000
+    if (qtTranslator.load(QString("qtbase_%1").arg(lang),
+                      QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+#else
+    if (qtTranslator.load(QString("qtbase_%1").arg(lang),
+                      QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
 #endif
-    app.installTranslator(&qtTranslator);
+#endif
+    {
+      app.installTranslator(&qtTranslator);
+    }
 
-    appTranslator.load(QString(":/translations_mapmap_%1").arg(lang));
-    app.installTranslator(&appTranslator);
+    if (appTranslator.load(QString(":/translations_mapmap_%1").arg(lang)))
+    {
+      app.installTranslator(&appTranslator);
+    }
   }
   else {
     qWarning() << "Unrecognized/unsupported language: " << lang;

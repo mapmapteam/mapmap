@@ -41,7 +41,11 @@ void OscSender::variantListToByteArray(QByteArray& outputResult, const QString& 
 
     for (int i = 0; i < arguments.count(); ++ i) {
         QVariant argument = arguments[i];
+#if QT_VERSION < 0x060000
         QMetaType::Type type = static_cast<QMetaType::Type>(argument.type());
+#else
+        QMetaType::Type type = static_cast<QMetaType::Type>(argument.typeId());
+#endif
 
         if (type == QMetaType::Int) {
             packet << argument.toInt();

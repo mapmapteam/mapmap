@@ -274,6 +274,10 @@ void OutputGLCanvas::_drawResolutionText(QPainter *painter, const QRect &rect, i
 
 void OutputGLCanvas::resizeGL(int width, int height)
 {
+  // Suppress unused parameter warnings
+  Q_UNUSED(width);
+  Q_UNUSED(height);
+  
   setSceneRectToViewportGeometry();
 }
 

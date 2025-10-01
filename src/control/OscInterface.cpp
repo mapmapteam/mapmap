@@ -90,7 +90,11 @@ void OscInterface::messageReceivedCb(const QString& oscAddress, const QVariantLi
   QString types = "";
   for (int i = 0; i < arguments.count(); ++ i) {
     QVariant argument = arguments[i];
+#if QT_VERSION < 0x060000
     QMetaType::Type type = static_cast<QMetaType::Type>(argument.type());
+#else
+    QMetaType::Type type = static_cast<QMetaType::Type>(argument.typeId());
+#endif
 
     if (type == QMetaType::Int) {
       types += "i";
@@ -126,15 +130,27 @@ static void printCommand(QVariantList &command)
 {
   for (int i = 0; i < command.size(); ++i)
   {
+#if QT_VERSION < 0x060000
     if (command.at(i).type() == QVariant::Int)
+#else
+    if (command.at(i).typeId() == QMetaType::Int)
+#endif
     {
       qDebug() << command.at(i).toInt() << " ";
     }
+#if QT_VERSION < 0x060000
     else if (command.at(i).type() == QVariant::Double)
+#else
+    else if (command.at(i).typeId() == QMetaType::Double)
+#endif
     {
       qDebug() << command.at(i).toDouble() << " ";
     }
+#if QT_VERSION < 0x060000
     else if (command.at(i).type() == QVariant::String)
+#else
+    else if (command.at(i).typeId() == QMetaType::QString)
+#endif
     {
       qDebug() << command.at(i).toString() << " ";
     }
@@ -161,11 +177,19 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
   {
     return;
   }
+#if QT_VERSION < 0x060000
   if (command.at(0).type() != QVariant::String)
+#else
+  if (command.at(0).typeId() != QMetaType::QString)
+#endif
   {
     return;
   }
+#if QT_VERSION < 0x060000
   if (command.at(1).type() != QVariant::String)
+#else
+  if (command.at(1).typeId() != QMetaType::QString)
+#endif
   {
     return;
   }
@@ -193,7 +217,11 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
         {
           // Find paint (or paints).
           QVector<Paint::ptr> paints;
+#if QT_VERSION < 0x060000
           if (command.at(2).type() == QVariant::String)
+#else
+          if (command.at(2).typeId() == QMetaType::QString)
+#endif
             paints = main_window.getMappingManager().getPaintsByNameRegExp(command.at(2).toString());
           else
           {
@@ -226,7 +254,11 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
         if (command.size() >= 3)
         {
           QVector<Mapping::ptr> mappings;
+#if QT_VERSION < 0x060000
           if (command.at(2).type() == QVariant::String)
+#else
+          if (command.at(2).typeId() == QMetaType::QString)
+#endif
             mappings = main_window.getMappingManager().getMappingsByNameRegExp(command.at(2).toString());
           else
           {

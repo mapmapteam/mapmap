@@ -20,7 +20,8 @@
 
 #include "Util.h"
 #include <QtGlobal>
-#include <glib.h>
+// glib.h is not available on Windows and the code uses Qt alternatives
+// #include <glib.h>
 #include <algorithm>
 #include <QFile>
 #include <QDir>
