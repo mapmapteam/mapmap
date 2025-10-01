@@ -7,7 +7,6 @@
  * (c) 2012 Jean-Sebastien Senecal
  * (c) 2004 Mathieu Guindon, Julien Keable
  *           Based on code from Drone http://github.com/sofian/drone
- *           Based on code from the GStreamer Tutorials http://docs.gstreamer.com/display/GstSDK/Tutorials
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,9 +28,6 @@
 namespace mmp {
 
 VideoShmSrcImpl::VideoShmSrcImpl() :
-_shmsrc0(NULL),
-_gdpdepay0(NULL),
-_pollSource(NULL),
 _attached(false)
 {
 }
@@ -46,73 +42,22 @@ void VideoShmSrcImpl::setAttached(bool attach)
   _attached = attach;
 }
 
-gboolean
-gstPollShmsrc (void *user_data)
-{
-  VideoShmSrcImpl *p = (VideoShmSrcImpl*) user_data;
-  if (g_file_test(p->getUri().toUtf8().constData(), G_FILE_TEST_EXISTS) &&
-    ! p->getAttached())
-  {
-    if (! p->setPlayState(true))
-    {
-      qDebug() << "tried to attach, but starting pipeline failed!" << Qt::endl;
-      return false;
-    }
-    p->setAttached(true);
-  }
-  return true;
-}
-
 bool VideoShmSrcImpl::loadMovie(const QString& path) {
-
-  VideoImpl::loadMovie(path);
-
-  _shmsrc0 = gst_element_factory_make ("shmsrc", "shmsrc0");
-  _gdpdepay0 = gst_element_factory_make ("gdpdepay", "gdpdepay0");
-  _pollSource = g_timeout_source_new (500);
-
-  g_source_set_callback (_pollSource,
-      gstPollShmsrc,
-      this,
-      NULL);
-  g_source_attach (_pollSource, g_main_context_default());
-  g_source_unref (_pollSource);
-
-  if (! _shmsrc0 || ! _gdpdepay0)
-  {
-    qWarning() << "Not all elements could be created." << Qt::endl;
-    if (! _shmsrc0) g_printerr("_shmsrc0");
-    if (! _gdpdepay0) g_printerr("_gdpdepay0");
-    unloadMovie();
-    return -1;
-  }
-
-  gst_bin_add_many (GST_BIN(_pipeline), _shmsrc0, _gdpdepay0, NULL);
-  if (! gst_element_link_many (_shmsrc0, _gdpdepay0, _queue0, NULL))
-  {
-    qWarning() << "Could not link shmsrc, deserializer and video queue." << Qt::endl;
-  }
-
-  QByteArray ba = path.toLocal8Bit();
-  gchar* uri = (gchar*) path.toUtf8().constData();
-  uri =  (gchar*) ba.data();
-
-  //qDebug() << "LIVE mode" << uri;
-  g_object_set (_shmsrc0, "socket-path", uri, NULL);
-  g_object_set (_shmsrc0, "is-live", TRUE, NULL);
-  _videoIsConnected = true;
-
-  return TRUE;
+  // Note: Shared memory source support is not yet implemented with Qt Multimedia
+  // This would require a custom implementation using QSharedMemory or similar
+  qWarning() << "Shared memory video sources are not currently supported with Qt Multimedia backend." << Qt::endl;
+  qWarning() << "Attempted to load: " << path << Qt::endl;
+  
+  // For now, just mark as not attached
+  _attached = false;
+  _videoIsConnected = false;
+  
+  return false;
 }
 
 VideoShmSrcImpl::~VideoShmSrcImpl()
 {
-  // Unref the shmsrc poller.
-  if (_pollSource)
-  {
-     g_source_unref(_pollSource);
-     _pollSource = NULL;
-  }
+  // Cleanup if needed
 }
 
 }

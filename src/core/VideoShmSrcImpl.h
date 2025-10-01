@@ -26,10 +26,11 @@
 #ifndef VIDEO_SHMSRC_IMPL_H_
 #define VIDEO_SHMSRC_IMPL_H_
 
-// GStreamer includes.
-#include <gst/gst.h>
-#include <gst/app/gstappsink.h>
-#include <gst/pbutils/pbutils.h>
+// Qt Multimedia includes.
+#include <QObject>
+#include <QMediaPlayer>
+#include <QVideoSink>
+#include <QAudioOutput>
 
 // Other includes.
 #include "MM.h"
@@ -37,7 +38,6 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-#include <glib.h>
 #if __APPLE__
 #include <OpenGL/gl.h>
 #elif defined(_WIN32)
@@ -63,13 +63,8 @@ class VideoShmSrcImpl : public VideoImpl
   void setAttached(bool attach);
 
   private:
-  GstElement *_shmsrc0;
-  GstElement *_gdpdepay0;
-  /**
-   * shmsrc socket poller.
-   */
-  GSource *_pollSource;
-  /// Whether or not we are attached to a shmsrc.
+  // Note: Shared memory source support requires Qt equivalent implementation
+  // This is a placeholder for future implementation
   bool _attached;
 };
 
