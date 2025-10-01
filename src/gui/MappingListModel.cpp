@@ -169,7 +169,11 @@ bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, 
   if (!index.isValid())
     return false;
 
+#if QT_VERSION < 0x060000
   if (role == Qt::CheckStateRole && value.type() == QVariant::Bool) {
+#else
+  if (role == Qt::CheckStateRole && value.typeId() == QMetaType::Bool) {
+#endif
     if (mappingList[index.row()].isVisible != value.toBool()) {
       mappingList[index.row()].isVisible = value.toBool();
       emit dataChanged(index, index);
@@ -177,7 +181,11 @@ bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, 
     }
   }
 
+#if QT_VERSION < 0x060000
   if (role == Qt::CheckStateRole + 1 && value.type() == QVariant::Bool) {
+#else
+  if (role == Qt::CheckStateRole + 1 && value.typeId() == QMetaType::Bool) {
+#endif
     if (mappingList[index.row()].isSolo != value.toBool()) {
       mappingList[index.row()].isSolo = value.toBool();
       emit dataChanged(index, index);
@@ -185,7 +193,11 @@ bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, 
     }
   }
 
+#if QT_VERSION < 0x060000
   if (role == Qt::CheckStateRole + 2 && value.type() == QVariant::Bool) {
+#else
+  if (role == Qt::CheckStateRole + 2 && value.typeId() == QMetaType::Bool) {
+#endif
     if (mappingList[index.row()].isLocked != value.toBool()) {
       mappingList[index.row()].isLocked = value.toBool();
       emit dataChanged(index, index);
