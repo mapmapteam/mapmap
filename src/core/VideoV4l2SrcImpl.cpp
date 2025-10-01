@@ -7,7 +7,6 @@
  * (c) 2012 Jean-Sebastien Senecal
  * (c) 2004 Mathieu Guindon, Julien Keable
  *           Based on code from Drone http://github.com/sofian/drone
- *           Based on code from the GStreamer Tutorials http://docs.gstreamer.com/display/GstSDK/Tutorials
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,52 +28,56 @@
 namespace mmp {
 
 VideoV4l2SrcImpl::VideoV4l2SrcImpl() :
-_v4l2src0(NULL)
+_camera(nullptr),
+_captureSession(nullptr)
 {
 }
 
 
 bool VideoV4l2SrcImpl::loadMovie(const QString& path) {
-  VideoImpl::loadMovie(path);
-
-  _v4l2src0 = gst_element_factory_make("v4l2src", NULL);
-
-  if ( !_v4l2src0)
+  Q_UNUSED(path);
+  
+  // Create camera and capture session
+  _camera = new QCamera();
+  _captureSession = new QMediaCaptureSession();
+  _videoSink = new QVideoSink();
+  
+  if (!_camera || !_captureSession || !_videoSink)
   {
-    qWarning() << "Not all elements could be created." << Qt::endl;
-    unloadMovie();
-    return (-1);
-  }
-
-  // Build the pipeline. Note that we are NOT linking the source at this
-  // point. We will do it later.
-  gst_bin_add_many (GST_BIN (_pipeline),
-      _v4l2src0,
-      NULL);
-
-  if (! gst_element_link_many (_v4l2src0, _queue0, NULL))
-  {
-    qDebug() << "Could not link v4l2src" << Qt::endl;
+    qWarning() << "Camera components could not be created." << Qt::endl;
     unloadMovie();
     return false;
   }
 
-  // Configure video appsink.
-  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA,width=640,height=480");
-  g_object_set (_capsfilter0, "caps", videoCaps, NULL);
-  gst_caps_unref (videoCaps);
+  // Connect the video sink to receive frames
+  connect(_videoSink, &QVideoSink::videoFrameChanged, this, &VideoImpl::onVideoFrameChanged);
 
-  // Retrieve meta-info.
+  // Set up the capture session
+  _captureSession->setCamera(_camera);
+  _captureSession->setVideoSink(_videoSink);
+
+  // Configure default resolution
   _width = 640;
   _height = 480;
-  //_duration = ;
   _seekEnabled = false;
-
-  setPlayState(true);
-  return TRUE;
+  
+  // Start the camera
+  _camera->start();
+  
+  _videoIsConnected = true;
+  _setMovieReady(true);
+  
+  return true;
 }
 
 VideoV4l2SrcImpl::~VideoV4l2SrcImpl()
 {
+  if (_camera) {
+    _camera->stop();
+    delete _camera;
+  }
+  if (_captureSession) {
+    delete _captureSession;
+  }
 }
 }

@@ -6,7 +6,6 @@
  * (c) 2012 Jean-Sebastien Senecal
  * (c) 2004 Mathieu Guindon, Julien Keable
  *           Based on code from Drone http://github.com/sofian/drone
- *           Based on code from the GStreamer Tutorials http://docs.gstreamer.com/display/GstSDK/Tutorials
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +25,7 @@
 #define VIDEO_IMPL_H_
 
 // Qt Multimedia includes.
+#include <QObject>
 #include <QMediaPlayer>
 #include <QVideoSink>
 #include <QVideoFrame>
@@ -51,11 +51,13 @@ namespace mmp {
 
 /**
  * Private declaration of the video player.
- * This is to prevent the GStreamer header to be included in the whole project.
- * (it just needs to be included in this file).
+ * This is to prevent the Qt Multimedia headers from polluting the whole project.
+ * (they just need to be included in this file).
  */
-class VideoImpl
+class VideoImpl : public QObject
 {
+  Q_OBJECT
+
 public:
   /**
    * Constructor.

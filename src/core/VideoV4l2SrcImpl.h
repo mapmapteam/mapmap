@@ -26,10 +26,13 @@
 #ifndef VIDEO_V4L2SRC_IMPL_H_
 #define VIDEO_V4L2SRC_IMPL_H_
 
-// GStreamer includes.
-#include <gst/gst.h>
-#include <gst/app/gstappsink.h>
-#include <gst/pbutils/pbutils.h>
+// Qt Multimedia includes.
+#include <QObject>
+#include <QMediaPlayer>
+#include <QVideoSink>
+#include <QAudioOutput>
+#include <QCamera>
+#include <QMediaCaptureSession>
 
 // Other includes.
 #include "MM.h"
@@ -37,7 +40,6 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-#include <glib.h>
 #if __APPLE__
 #include <OpenGL/gl.h>
 #elif defined(_WIN32)
@@ -61,7 +63,8 @@ class VideoV4l2SrcImpl : public VideoImpl
   bool isLive() {return true;}
 
   private:
-  GstElement *_v4l2src0;
+  QCamera *_camera;
+  QMediaCaptureSession *_captureSession;
 };
 
 }

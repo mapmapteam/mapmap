@@ -24,6 +24,10 @@
 #include <cstring>
 #include <iostream>
 #include <QElapsedTimer>
+#include <QUrl>
+#include <QFile>
+#include <QImage>
+#include <QSettings>
 
 namespace mmp {
 
