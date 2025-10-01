@@ -51,6 +51,9 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
     _zoomLevel(0),
     _shapeIsAdapted(false)
 {
+  // Suppress unused parameter warning for shareWidget
+  Q_UNUSED(shareWidget);
+  
   // For now clicking on the window doesn't do anything.
   setDragMode(QGraphicsView::NoDrag);
 

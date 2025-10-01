@@ -3206,6 +3206,7 @@ void MainWindow::moveMappingItem(uid mappingId, int idx)
   // Remove widget from mappingList.
   int row = mappingListModel->getItemRowFromId(mappingId);
   int rowTo = mappingListModel->getItemRowFromId(exchangeMappingId);
+  Q_UNUSED(rowTo); // Suppress unused parameter warning
   Q_ASSERT( row >= 0 );
   mappingListModel->moveItem(row, idx);
 

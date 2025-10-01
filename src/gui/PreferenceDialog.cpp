@@ -321,9 +321,11 @@ void PreferenceDialog::createControlsPage()
 #if QT_VERSION >= 0x060000
   QRegularExpression rx(octet + "\\." + octet + "\\." + octet + "\\." + octet);
   QRegularExpressionValidator *ipValidator = new QRegularExpressionValidator(rx);
+  Q_UNUSED(ipValidator); // Currently unused - OSC sending functionality is disabled
 #else
   QRegExp rx(octet + "\\." + octet + "\\." + octet + "\\." + octet);
   QRegExpValidator *ipValidator = new QRegExpValidator(rx);
+  Q_UNUSED(ipValidator); // Currently unused - OSC sending functionality is disabled
 #endif
   QMargins margins(40, 0, 0, 0);
 

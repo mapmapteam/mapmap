@@ -544,7 +544,7 @@ EllipseTextureGraphicsItem::DrawingData::DrawingData(const QSharedPointer<Ellips
 float EllipseTextureGraphicsItem::DrawingData::getSpanInQuarter(int quarter) const
 {
   float angleSpan = quarterAngles[(quarter+1)%N_QUARTERS] - quarterAngles[quarter];
-  while (angleSpan < 0) angleSpan += 2*M_PI;
+  while (angleSpan < 0) angleSpan += static_cast<float>(2*M_PI);
   return angleSpan;
 }
 
