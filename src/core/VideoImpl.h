@@ -25,10 +25,11 @@
 #ifndef VIDEO_IMPL_H_
 #define VIDEO_IMPL_H_
 
-// GStreamer includes.
-#include <gst/gst.h>
-#include <gst/app/gstappsink.h>
-#include <gst/pbutils/pbutils.h>
+// Qt Multimedia includes.
+#include <QMediaPlayer>
+#include <QVideoSink>
+#include <QVideoFrame>
+#include <QAudioOutput>
 
 // Other includes.
 #include "MM.h"
@@ -36,7 +37,6 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-#include <glib.h>
 #if __APPLE__
 #include <OpenGL/gl.h>
 #elif defined(_WIN32)
@@ -69,7 +69,7 @@ public:
 
 //  void setUri(const QString uri);
   /**
-   * Returns whether or not GStreamer video support is ok.
+   * Returns whether or not Qt Multimedia video support is ok.
    */
   static bool hasVideoSupport();
 
@@ -101,7 +101,7 @@ public:
   virtual const uchar* getBits();
 
   /// Returns true iff bits have started flowing (ie. if there is at least a first sample available).
-  virtual bool hasBits() const { return (_currentFrameSample != NULL); }
+  virtual bool hasBits() const { return (_currentFrameData != nullptr && !_currentFrameData->isEmpty()); }
 
   /// Returns true iff bits have changed since last call to getBits().
   virtual bool bitsHaveChanged() const { return _bitsChanged; }
@@ -116,11 +116,11 @@ public:
 
   bool videoIsConnected() const { return _videoIsConnected; }
   void videoConnect() { _videoIsConnected = true; }
-  bool videoIsSupported() const { return _queue0 != NULL; }
+  bool videoIsSupported() const { return _mediaPlayer != nullptr; }
 
   bool audioIsConnected() const { return _audioIsConnected; }
   void audioConnect() { _audioIsConnected = true; }
-  bool audioIsSupported() const { return _audioqueue0 != NULL; }
+  bool audioIsSupported() const { return _audioOutput != nullptr; }
 
   /**
    * Performs regular updates (checks if movie is ready and checks messages).
@@ -142,7 +142,7 @@ public:
   bool seekIsEnabled() const { return _seekEnabled; }
 
   bool seekTo(double position);
-  bool seekTo(guint64 positionNanoSeconds);
+  bool seekTo(qint64 positionMilliseconds);
 
   void setRate(double rate=1.0);
   double getRate() const { return _rate; }
@@ -179,18 +179,11 @@ private:
   // Sends the appropriate seek events to adjust to rate.
   void _updateRate();
 
-  void _freeCurrentSample();
-
-  void _freeElement(GstElement** element);
+  void _freeCurrentFrame();
 
 public:
-  // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
-  static GstFlowReturn gstNewSampleCallback(GstElement*, VideoImpl *p);
-  //static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
-
-  // GStreamer callback that plugs the audio/video pads into the proper elements when they
-  // are made available by the source.
-  //static void gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* p);
+  // Qt Multimedia callback for video frame updates
+  void onVideoFrameChanged(const QVideoFrame &frame);
 
   /// Locks mutex (default = no effect).
   void lockMutex();
@@ -205,35 +198,21 @@ protected:
   int _width;
   int _height;
 
-  guint64 _duration; // duration (in nanoseconds) (unused for now)
+  qint64 _duration; // duration (in milliseconds)
 
   bool _videoIsConnected;
   bool _audioIsConnected;
   bool _seekEnabled;
 
-  GstElement *_pipeline;
-
-  GstElement *_queue0;
-  GstElement *_capsfilter0;
-  GstElement *_videoscale0;
-  GstElement *_videoconvert0;
-  GstElement *_appsink0;
-
-  GstElement *_audioqueue0;
-  GstElement *_audioconvert0;
-  GstElement *_audioresample0;
-  GstElement *_audiovolume0;
-  GstElement *_audiosink0;
-
-  // gstreamer elements
-  GstBus *_bus;
+  // Qt Multimedia elements
+  QMediaPlayer *_mediaPlayer;
+  QVideoSink *_videoSink;
+  QAudioOutput *_audioOutput;
 
   /**
    * Temporary contains the image data of the last frame.
    */
-  GstSample  *_currentFrameSample;
-  GstBuffer  *_currentFrameBuffer;
-  GstMapInfo  _mapInfo;
+  QByteArray *_currentFrameData;
   bool       _bitsChanged;
 
   /**

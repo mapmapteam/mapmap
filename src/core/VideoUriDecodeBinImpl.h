@@ -25,10 +25,10 @@
 #ifndef VIDEO_URIDECODEBIN_IMPL_H_
 #define VIDEO_URIDECODEBIN_IMPL_H_
 
-// GStreamer includes.
-#include <gst/gst.h>
-#include <gst/app/gstappsink.h>
-#include <gst/pbutils/pbutils.h>
+// Qt Multimedia includes.
+#include <QMediaPlayer>
+#include <QVideoSink>
+#include <QAudioOutput>
 
 // Other includes.
 #include "MM.h"
@@ -36,7 +36,6 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-#include <glib.h>
 #if __APPLE__
 #include <OpenGL/gl.h>
 #elif defined(_WIN32)
@@ -56,13 +55,11 @@ class VideoUriDecodeBinImpl : public VideoImpl
   public:
   VideoUriDecodeBinImpl();
   ~VideoUriDecodeBinImpl();
-  static void gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoUriDecodeBinImpl* p);
   bool loadMovie(const QString& path);
   bool isLive() {return false;}
 
   private:
-  GstElement *_uridecodebin0;
-  //bool _videoIsConnected;
+  // No additional members needed - Qt Multimedia handles everything
 };
 
 }

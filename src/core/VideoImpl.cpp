@@ -6,7 +6,6 @@
  * (c) 2012 Jean-Sebastien Senecal
  * (c) 2004 Mathieu Guindon, Julien Keable
  *           Based on code from Drone http://github.com/sofian/drone
- *           Based on code from the GStreamer Tutorials http://docs.gstreamer.com/display/GstSDK/Tutorials
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,14 +31,12 @@ namespace mmp {
 
 bool VideoImpl::hasVideoSupport()
 {
-  static bool did_print_gst_version = false;
-  if (! did_print_gst_version)
+  static bool did_print_qt_version = false;
+  if (! did_print_qt_version)
   {
-    qDebug() << "Using GStreamer version " <<
-      GST_VERSION_MAJOR << "." << GST_VERSION_MINOR << "." << GST_VERSION_MICRO << Qt::endl;
-    did_print_gst_version = true;
+    qDebug() << "Using Qt Multimedia version " << QT_VERSION_STR << Qt::endl;
+    did_print_qt_version = true;
   }
-  // TODO: actually check if we have it
   return true;
 }
 
@@ -97,11 +94,11 @@ void VideoImpl::setVolume(double volume)
   {
     _volume = volume;
 
-    // Set volume element property
-    if (audioIsSupported())
+    // Set volume on audio output
+    if (audioIsSupported() && _audioOutput)
     {
-      g_object_set (_audiovolume0, "mute", (_volume <= 0), NULL);
-      g_object_set (_audiovolume0, "volume", _volume, NULL);
+      _audioOutput->setMuted(_volume <= 0);
+      _audioOutput->setVolume(_volume);
     }
     else
       qWarning() << "Cannot change volume cause this video does not support audio." << Qt::endl;
@@ -128,23 +125,20 @@ VideoImpl::~VideoImpl()
 
 bool VideoImpl::_eos() const
 {
-  if (_movieReady)
+  if (_movieReady && _mediaPlayer)
   {
-    Q_ASSERT( _appsink0 );
+    QMediaPlayer::PlaybackState state = _mediaPlayer->playbackState();
+    qint64 position = _mediaPlayer->position();
+    qint64 duration = _mediaPlayer->duration();
+    
     if (_rate > 0.0)
     {
-      gboolean videoEos;
-      g_object_get (G_OBJECT (_appsink0), "eos", &videoEos, NULL);
-      return (bool) (videoEos);
+      // Check if we've reached the end
+      return (state == QMediaPlayer::StoppedState && position >= duration);
     }
     else
     {
-      /* Obtain the current position, needed for the seek event */
-      gint64 position;
-      if (!gst_element_query_position (_pipeline, GST_FORMAT_TIME, &position)) {
-        g_printerr ("Unable to retrieve current position.\n");
-        return false;
-      }
+      // For reverse playback, check if position is at 0
       return (position == 0);
     }
   }
@@ -152,51 +146,50 @@ bool VideoImpl::_eos() const
     return false;
 }
 
-GstFlowReturn VideoImpl::gstNewSampleCallback(GstElement*, VideoImpl *p)
+void VideoImpl::onVideoFrameChanged(const QVideoFrame &frame)
 {
   // Make it thread-safe.
-  p->lockMutex();
+  lockMutex();
 
-  // Get next frame.
-  GstSample *sample = gst_app_sink_pull_sample(GST_APP_SINK(p->_appsink0));
-
-  // Unref last frame.
-  p->_freeCurrentSample();
-
-  // Set current frame.
-  p->_currentFrameSample = sample;
-
-  // For live sources, video dimensions have not been set, because
-  // gstPadAddedCallback is never called. Fix dimensions from first sample /
-  // caps we receive.
-  if (( p->_width  == -1 ||
-        p->_height == -1)) {
-    GstCaps *caps = gst_sample_get_caps(sample);
-    GstStructure *structure;
-    structure = gst_caps_get_structure(caps, 0);
-    gst_structure_get_int(structure, "width",  &p->_width);
-    gst_structure_get_int(structure, "height", &p->_height);
-  }
-
-  // Try to retrieve data bits of frame.
-  GstMapInfo& map = p->_mapInfo;
-  GstBuffer *buffer = gst_sample_get_buffer( sample );
-  if (gst_buffer_map(buffer, &map, GST_MAP_READ))
+  if (!frame.isValid())
   {
-    p->_currentFrameBuffer = buffer;
-    // For debugging:
-    //gst_util_dump_mem(map.data, map.size)
-
-    // Retrieve data from map info.
-    p->_data = map.data;
-
-    // Bits have changed.
-    p->_bitsChanged = true;
+    unlockMutex();
+    return;
   }
 
-  p->unlockMutex();
+  // Get a copy of the frame
+  QVideoFrame clonedFrame(frame);
+  if (!clonedFrame.map(QVideoFrame::ReadOnly))
+  {
+    unlockMutex();
+    return;
+  }
 
-  return GST_FLOW_OK;
+  // Update dimensions if needed
+  if (_width == -1 || _height == -1)
+  {
+    _width = clonedFrame.width();
+    _height = clonedFrame.height();
+  }
+
+  // Free previous frame data
+  _freeCurrentFrame();
+
+  // Convert frame to RGBA format for OpenGL texture usage
+  QImage image = clonedFrame.toImage();
+  if (!image.isNull())
+  {
+    // Convert to RGBA8888 format which matches the old GStreamer RGBA format
+    image = image.convertToFormat(QImage::Format_RGBA8888);
+    
+    // Allocate and copy frame data
+    _currentFrameData = new QByteArray(reinterpret_cast<const char*>(image.bits()), image.sizeInBytes());
+    _data = reinterpret_cast<uchar*>(_currentFrameData->data());
+    _bitsChanged = true;
+  }
+
+  clonedFrame.unmap();
+  unlockMutex();
 }
 
 VideoImpl::VideoImpl() :
@@ -204,23 +197,12 @@ _width(-1),
 _height(-1),
 _duration(0),
 _seekEnabled(false),
-_pipeline(NULL),
-_queue0(NULL),
-_capsfilter0(NULL),
-_videoscale0(NULL),
-_videoconvert0(NULL),
-_appsink0(NULL),
-_audioqueue0(NULL),
-_audioconvert0(NULL),
-_audioresample0(NULL),
-_audiovolume0(NULL),
-_audiosink0(NULL),
-_bus(NULL),
-_currentFrameSample(NULL),
-_currentFrameBuffer(NULL),
+_mediaPlayer(nullptr),
+_videoSink(nullptr),
+_audioOutput(nullptr),
+_currentFrameData(nullptr),
 _bitsChanged(false),
-_data(NULL),
-//_isSeekable(false),
+_data(nullptr),
 _rate(1.0),
 _movieReady(false),
 _playState(false),
@@ -252,37 +234,32 @@ void VideoImpl::unloadMovie()
 
 void VideoImpl::freeResources()
 {
-  // Free resources.
-  if (_bus)
+  // Stop media player first
+  if (_mediaPlayer)
   {
-    gst_object_unref (GST_OBJECT(_bus));
-    _bus = NULL;
+    _mediaPlayer->stop();
+    delete _mediaPlayer;
+    _mediaPlayer = nullptr;
   }
 
-  if (_pipeline)
+  // Free video sink
+  if (_videoSink)
   {
-    gst_element_set_state (_pipeline, GST_STATE_NULL);
-    gst_object_unref (GST_OBJECT(_pipeline));
-    _pipeline = NULL;
+    delete _videoSink;
+    _videoSink = nullptr;
   }
 
-  // Free all components.
-  _freeElement(&_queue0);
-  _freeElement(&_capsfilter0);
-  _freeElement(&_videoscale0);
-  _freeElement(&_videoconvert0);
-  _freeElement(&_appsink0);
+  // Free audio output
+  if (_audioOutput)
+  {
+    delete _audioOutput;
+    _audioOutput = nullptr;
+  }
 
-  _freeElement(&_audioqueue0);
-  _freeElement(&_audioconvert0);
-  _freeElement(&_audioresample0);
-  _freeElement(&_audiovolume0);
-  _freeElement(&_audiosink0);
+  qDebug() << "Freeing remaining frame data" << Qt::endl;
 
-  qDebug() << "Freeing remaining samples/buffers" << Qt::endl;
-
-  // Frees current sample and buffer.
-  _freeCurrentSample();
+  // Frees current frame data
+  _freeCurrentFrame();
 
   // Reset other informations.
   _bitsChanged = false;
@@ -294,11 +271,11 @@ void VideoImpl::freeResources()
 
 void VideoImpl::resetMovie()
 {
-  if (_seekEnabled)
+  if (_seekEnabled && _mediaPlayer)
   {
     if (_rate > 0.0)
     {
-      seekTo((guint64) 0);
+      seekTo(0LL);
       qWarning() << "update Rate" << Qt::endl;
       _updateRate();
     }
@@ -323,52 +300,9 @@ bool VideoImpl::createVideoComponents()
   if (videoIsSupported())
     return true;
 
-  // Create the video elements.
-  _queue0 = gst_element_factory_make ("queue", "queue0");
-  _videoconvert0 = gst_element_factory_make ("videoconvert", "videoconvert0");
-  _videoscale0 = gst_element_factory_make ("videoscale", "videoscale0");
-  _capsfilter0 = gst_element_factory_make ("capsfilter", "capsfilter0");
-  _appsink0 = gst_element_factory_make ("appsink", "appsink0");
-
-  // Verify that they were created.
-  if (!_queue0 || !_videoconvert0 || ! _videoscale0 || ! _capsfilter0 || !_appsink0)
-  {
-    qWarning() << "Not all video elements could be created." << Qt::endl;
-    if (! _pipeline) g_printerr("_pipeline");
-    if (! _queue0) g_printerr("_queue0");
-    if (! _videoconvert0) g_printerr("_videoconvert0");
-    if (! _videoscale0) g_printerr("videoscale0");
-    if (! _capsfilter0) g_printerr("capsfilter0");
-    if (! _appsink0) g_printerr("_appsink0");
-    return false;
-  }
-
-  // Add them to pipeline.
-  gst_bin_add_many (GST_BIN (_pipeline),
-                    _queue0, _videoconvert0, _videoscale0, _capsfilter0, _appsink0,
-                    NULL);
-
-  // Link.
-  if (! gst_element_link_many (_queue0, _videoconvert0, _capsfilter0, _videoscale0, _appsink0, NULL))
-  {
-    qWarning() << "Could not link video queue, colorspace converter, caps filter, scaler and app sink." << Qt::endl;
-    return false;
-  }
-
-  // Configure video appsink.
-  GstCaps *videoCaps = gst_caps_from_string ("video/x-raw,format=RGBA");
-  g_object_set (_capsfilter0, "caps", videoCaps, NULL);
-
-  g_object_set (_appsink0, "emit-signals", TRUE,
-                           "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
-                           "drop", TRUE,         // ... other buffers are dropped
-                           "sync", TRUE,
-                           NULL);
-
-  g_signal_connect (_appsink0, "new-sample", G_CALLBACK (VideoImpl::gstNewSampleCallback), this);
-  gst_caps_unref (videoCaps);
-
-  return true;
+  // Video components are now managed by QMediaPlayer
+  // This method is kept for compatibility with the interface
+  return (_mediaPlayer != nullptr);
 }
 
 bool VideoImpl::createAudioComponents()
@@ -377,57 +311,9 @@ bool VideoImpl::createAudioComponents()
   if (audioIsSupported())
     return true;
 
-  // Create the audio elements.
-  _audioqueue0 = gst_element_factory_make ("queue", "audioqueue0");
-  _audioconvert0 = gst_element_factory_make ("audioconvert", "audioconvert0");
-  _audioresample0 = gst_element_factory_make ("audioresample", "audioresample0");
-  _audiovolume0 = gst_element_factory_make ("volume", "audiovolume0");
-  _audiosink0 = gst_element_factory_make ("autoaudiosink", "audiosink0");
-
-  // Verify that they were created.
-  if (!_audioqueue0 || !_audioconvert0 || !_audioresample0 || !_audiovolume0 || !_audiosink0)
-  {
-    qDebug() << "Not all audio elements could be created." << Qt::endl;
-    if (! _audioqueue0) g_printerr("_audioqueue0");
-    if (! _audioconvert0) g_printerr("_audioconvert0");
-    if (! _audioresample0) g_printerr("_audioresample0");
-    if (! _audiovolume0) g_printerr("_audiovolume0");
-    if (! _audiosink0) g_printerr("_audiosink0");
-    return false;
-  }
-
-  // Add them to pipeline.
-  gst_bin_add_many (GST_BIN (_pipeline),
-                    _audioqueue0, _audioconvert0, _audioresample0, _audiovolume0, _audiosink0,
-                    NULL);
-
-  // Link.
-  if (! gst_element_link_many (_audioqueue0, _audioconvert0, _audioresample0,
-                               _audiovolume0, _audiosink0, NULL))
-  {
-    qDebug() << "Could not link audio queue, converter, resampler and audio sink." << Qt::endl;
-    return false;
-  }
-
-  // Configure audio appsink.
-  // TODO: change from mono to stereo
-  //  gchar* audioCapsText = g_strdup_printf ("audio/x-raw-float,channels=1,rate=%d,signed=(boolean)true,width=%d,depth=%d,endianness=BYTE_ORDER",
-  //                                          Engine::signalInfo().sampleRate(), (int)(sizeof(Signal_T)*8), (int)(sizeof(Signal_T)*8) );
-  //GstCaps* audioCaps = gst_caps_from_string (audioCapsText);
-  /*
-  GstCaps* audioCaps = gst_caps_from_string ("audio/xraw-float");
-  g_object_set (_audioSink, "emit-signals", TRUE,
-  "caps", audioCaps,
-  "max-buffers", 1,     // only one buffer (the last) is maintained in the queue
-  "drop", TRUE,         // ... other buffers are dropped
-  "sync", TRUE,
-  NULL);
-  g_signal_connect (_audioSink, "new-buffer", G_CALLBACK (VideoImpl::gstNewAudioBufferCallback), this);
-  gst_caps_unref (audioCaps);
-  */
-  //  g_free (audioCapsText);
-
-  return true;
+  // Audio components are now managed by QMediaPlayer and QAudioOutput
+  // This method is kept for compatibility with the interface
+  return (_audioOutput != nullptr);
 }
 
 void VideoImpl::update()
@@ -456,8 +342,7 @@ void VideoImpl::update()
 
  bool VideoImpl::loadMovie(const QString& filename) {
    // Verify if file exists.
-   const gchar* filetestpath = (const gchar*) filename.toUtf8().constData();
-   if (FALSE == g_file_test(filetestpath, G_FILE_TEST_EXISTS))
+   if (!QFile::exists(filename))
    {
      qDebug() << "File " << filename << " does not exist" << Qt::endl;
      return false;
@@ -475,62 +360,80 @@ void VideoImpl::update()
    _videoIsConnected = false;
    _audioIsConnected = false;
 
-   // Create the empty pipeline.
-   _pipeline = gst_pipeline_new ( "video-source-pipeline" );
-   if (!_pipeline)
+   // Create Qt Multimedia components
+   _mediaPlayer = new QMediaPlayer();
+   _videoSink = new QVideoSink();
+   _audioOutput = new QAudioOutput();
+
+   if (!_mediaPlayer || !_videoSink || !_audioOutput)
    {
-     qWarning() << "Pipeline could not be created." << Qt::endl;
+     qWarning() << "Media components could not be created." << Qt::endl;
      unloadMovie();
-     return (-1);
+     return false;
    }
 
-   // Create and link video components.
-   if (!createVideoComponents())
-   {
-     qWarning() << "Video components could not be initialized." << Qt::endl;
-     unloadMovie();
-     return (-1);
-   }
+   // Connect the video sink to receive frames
+   connect(_videoSink, &QVideoSink::videoFrameChanged, this, &VideoImpl::onVideoFrameChanged);
 
-   //setVolume(0);
+   // Set up the media player
+   _mediaPlayer->setVideoSink(_videoSink);
+   _mediaPlayer->setAudioOutput(_audioOutput);
 
-   // Listen to the bus.
-   _bus = gst_element_get_bus (_pipeline);
+   // Connect signals for media status changes
+   connect(_mediaPlayer, &QMediaPlayer::durationChanged, this, [this](qint64 duration) {
+     _duration = duration;
+     qDebug() << "Duration: " << duration << " ms" << Qt::endl;
+   });
 
-   // Start playing.
+   connect(_mediaPlayer, &QMediaPlayer::mediaStatusChanged, this, [this](QMediaPlayer::MediaStatus status) {
+     if (status == QMediaPlayer::LoadedMedia || status == QMediaPlayer::BufferedMedia)
+     {
+       _seekEnabled = _mediaPlayer->isSeekable();
+       qDebug() << "Media loaded. Seekable: " << _seekEnabled << Qt::endl;
+       _setMovieReady(true);
+       _videoIsConnected = true;
+       _audioIsConnected = (_mediaPlayer->audioTracks().count() > 0);
+     }
+   });
+
+   connect(_mediaPlayer, &QMediaPlayer::errorOccurred, this, [this](QMediaPlayer::Error error, const QString &errorString) {
+     qWarning() << "Media player error: " << errorString << Qt::endl;
+     Q_UNUSED(error);
+   });
+
+   // Set the source
+   _mediaPlayer->setSource(QUrl::fromLocalFile(filename));
 
    return true;
  }
 
 bool VideoImpl::setPlayState(bool play)
 {
-  if (_pipeline == NULL)
+  if (_mediaPlayer == nullptr)
   {
     return false;
   }
 
   // Change state.
-  GstStateChangeReturn ret = gst_element_set_state (_pipeline, (play ? GST_STATE_PLAYING : GST_STATE_PAUSED));
-
-//  // Wait until its done.
-//  GstStateChangeReturn ret = gst_element_get_state (_pipeline, NULL, NULL, -1);
-  if (ret == GST_STATE_CHANGE_FAILURE)
-  {
-    qDebug() << "Unable to set the pipeline to the playing state." << Qt::endl;
-    //unloadMovie(); // <-- calling this created an infinite recursion
-    return false;
-  }
+  if (play)
+    _mediaPlayer->play();
   else
-  {
-    _playState = play;
-    return true;
-  }
+    _mediaPlayer->pause();
+
+  _playState = play;
+  return true;
 }
 
 bool VideoImpl::seekTo(double position)
 {
-  gint64 duration;
-  if (!gst_element_query_duration (_pipeline, GST_FORMAT_TIME, &duration))
+  if (!_mediaPlayer)
+  {
+    qDebug() << "Cannot seek: no media player" << Qt::endl;
+    return false;
+  }
+
+  qint64 duration = _mediaPlayer->duration();
+  if (duration <= 0)
   {
     qDebug() << "Cannot get duration of file" << Qt::endl;
     return false;
@@ -539,13 +442,13 @@ bool VideoImpl::seekTo(double position)
   // Make sure position is in [0,1].
   position = qBound(0.0, position, 1.0);
 
-  // Seek at position in nanoseconds.
-  return seekTo((guint64)(position*duration));
+  // Seek at position in milliseconds.
+  return seekTo((qint64)(position * duration));
 }
 
-bool VideoImpl::seekTo(guint64 positionNanoSeconds)
+bool VideoImpl::seekTo(qint64 positionMilliseconds)
 {
-  if (!_appsink0 || !_seekEnabled)
+  if (!_mediaPlayer || !_seekEnabled)
   {
     return false;
   }
@@ -553,19 +456,16 @@ bool VideoImpl::seekTo(guint64 positionNanoSeconds)
   {
     lockMutex();
 
-    // Free the current sample and reset.
-    _freeCurrentSample();
+    // Free the current frame and reset.
+    _freeCurrentFrame();
     _bitsChanged = false;
 
     // Seek to position.
-    bool result = gst_element_seek_simple(
-                    _appsink0, GST_FORMAT_TIME,
-                    GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
-                    positionNanoSeconds);
+    _mediaPlayer->setPosition(positionMilliseconds);
 
     unlockMutex();
 
-    return result;
+    return true;
   }
 }
 
@@ -591,109 +491,8 @@ bool VideoImpl::seekTo(guint64 positionNanoSeconds)
 
 void VideoImpl::_checkMessages()
 {
-  if (_bus != NULL)
-  {
-    // Get message.
-    GstMessage *msg = gst_bus_timed_pop_filtered(
-                        _bus, 0,
-                        (GstMessageType) (GST_MESSAGE_STATE_CHANGED | GST_MESSAGE_ERROR | GST_MESSAGE_EOS | GST_MESSAGE_ASYNC_DONE));
-
-    if (msg != NULL)
-    {
-      GError *err;
-      gchar *debug_info;
-
-      switch (GST_MESSAGE_TYPE (msg))
-      {
-        // Error ////////////////////////////////////////////////
-        case GST_MESSAGE_ERROR:
-          gst_message_parse_error(msg, &err, &debug_info);
-          qWarning() << "Error received from element " << GST_OBJECT_NAME (msg->src) << ": " << err->message << Qt::endl;
-          qDebug() << "Debugging information: " << (debug_info ? debug_info : "none") << "." << Qt::endl;
-          g_clear_error(&err);
-          g_free(debug_info);
-
-          if (!isLive())
-          {
-            _terminate = true;
-          }
-          else
-          {
-            gst_element_set_state (_pipeline, GST_STATE_PAUSED);
-            gst_element_set_state (_pipeline, GST_STATE_NULL);
-            gst_element_set_state (_pipeline, GST_STATE_READY);
-          }
-          //        _finish();
-          break;
-
-          // End-of-stream ////////////////////////////////////////
-        case GST_MESSAGE_EOS:
-          // Automatically loop back.
-          if (_playInLoop) // Check if repeat mode is on
-            resetMovie();
-          //        _terminate = true;
-          //        _finish();
-          break;
-
-          // Pipeline has prerolled/ready to play ///////////////
-        case GST_MESSAGE_ASYNC_DONE:
-          if (!_isMovieReady())
-        {
-          // Check if seeking is allowed.
-          gint64 start, end;
-          GstQuery *query = gst_query_new_seeking (GST_FORMAT_TIME);
-          if (gst_element_query (_pipeline, query))
-          {
-            gst_query_parse_seeking (query, NULL, (gboolean*)&_seekEnabled, &start, &end);
-            if (_seekEnabled)
-            {
-#ifdef VIDEO_IMPL_VERBOSE
-              qDebug() << "Seeking is ENABLED from " << start << " to " << end << "." << Qt::endl;
-#endif
-            }
-            else
-            {
-              qDebug() << "Seeking is DISABLED for this stream." << Qt::endl;
-            }
-          }
-          else
-          {
-            qWarning() << "Seeking query failed." << Qt::endl;
-          }
-
-          gst_query_unref (query);
-
-          // Movie is ready!
-#ifdef VIDEO_IMPL_VERBOSE
-          qDebug() << "Preroll done: movie is ready." << Qt::endl;
-#endif // ifdef
-          _setMovieReady(true);
-        }
-
-        break;
-
-      case GST_MESSAGE_STATE_CHANGED:
-        // We are only interested in state-changed messages from the pipeline.
-        if (GST_MESSAGE_SRC (msg) == GST_OBJECT (_pipeline))
-        {
-          GstState oldState, newState, pendingState;
-          gst_message_parse_state_changed(msg, &oldState, &newState, &pendingState);
-#ifdef VIDEO_IMPL_VERBOSE
-          qDebug() << "Pipeline state for movie " << _uri
-                   << " changed from " << gst_element_state_get_name(oldState)
-                   << " to " << gst_element_state_get_name(newState) << Qt::endl;
-#endif
-        }
-        break;
-
-      default:
-        // We should not reach here.
-        qWarning() << "Unexpected message received." << Qt::endl;
-        break;
-      }
-      gst_message_unref(msg);
-    }
-  }
+  // Qt Multimedia handles messages internally via signals/slots
+  // This method is kept for interface compatibility but is no longer needed
 }
 
 void VideoImpl::_setMovieReady(bool ready)
@@ -710,9 +509,9 @@ void VideoImpl::_setFinished(bool finished)
 void  VideoImpl::_updateRate()
 {
   // Check different things.
-  if (_pipeline == NULL)
+  if (_mediaPlayer == nullptr)
   {
-    qWarning() << "Cannot set rate: no pipeline!" << Qt::endl;
+    qWarning() << "Cannot set rate: no media player!" << Qt::endl;
     return;
   }
 
@@ -724,65 +523,23 @@ void  VideoImpl::_updateRate()
 
   if (!_isMovieReady())
   {
-    qWarning() << "Movie is not yet ready to play, cannot seek yet." << Qt::endl;
-  }
-
-  // Obtain the current position, needed for the seek event.
-  gint64 position;
-  if (!gst_element_query_position (_pipeline, GST_FORMAT_TIME, &position)) {
-    qWarning() << "Unable to retrieve current position." << Qt::endl;
+    qWarning() << "Movie is not yet ready to play, cannot set rate yet." << Qt::endl;
     return;
   }
 
-  // Create the seek event.
-  GstEvent *seekEvent;
-  if (_rate > 0.0) {
-    // Rate is positive (playing the video in normal direction)
-    // Set new rate as a first argument. Provide position 0 so that we go to 0:00
-    seekEvent = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
-        GST_SEEK_TYPE_SET, position, GST_SEEK_TYPE_NONE, 0); // Go to 0:00
-  } else {
-    // Rate is negative
-    // Set new rate as a first arguemnt. Provide the position we were already at.
-    seekEvent = gst_event_new_seek (_rate, GST_FORMAT_TIME, GstSeekFlags( GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE ),
-        GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position);
-  }
-
-  // If we have not done so, obtain the sink through which we will send the seek events.
-  if (_appsink0 == NULL) {
-    g_object_get (_pipeline, "video-sink", &_appsink0, NULL);
-  }
-
-  // Send the event.
-  if (!gst_element_send_event (_appsink0, seekEvent)) {
-    qWarning() << "Cannot perform seek event" << Qt::endl;
-  }
+  // Set the playback rate
+  _mediaPlayer->setPlaybackRate(_rate);
 
   qDebug() << "Current rate: " << _rate << "." << Qt::endl;
 }
 
-void VideoImpl::_freeCurrentSample() {
-  if (_currentFrameBuffer != NULL)
+void VideoImpl::_freeCurrentFrame() {
+  if (_currentFrameData != nullptr)
   {
-    gst_buffer_unmap(_currentFrameBuffer, &_mapInfo);
+    delete _currentFrameData;
+    _currentFrameData = nullptr;
   }
-
-  if (_currentFrameSample != NULL)
-  {
-    gst_sample_unref(_currentFrameSample);
-  }
-
-  _currentFrameSample = NULL;
-  _currentFrameBuffer = NULL;
-  _data = NULL;
-}
-
-void VideoImpl::_freeElement(GstElement** element)
-{
-  if (*element)
-  {
-    *element = NULL;
-  }
+  _data = nullptr;
 }
 
 void VideoImpl::lockMutex()

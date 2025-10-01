@@ -27,13 +27,9 @@ MM_USE_NAMESPACE
 
 static void set_env_vars_if_needed()
 {
+  // Environment setup for macOS if needed in the future
 #ifdef __MACOSX_CORE__
-  std::cout << "OS X detected. Set environment for GStreamer support." << std::endl;
-  if (0 == setenv("GST_PLUGIN_PATH", "/Library/Frameworks/GStreamer.framework/Libraries", 1))
-      std::cout << " * GST_PLUGIN_PATH=/Library/Frameworks/GStreamer.framework/Libraries" << std::endl;
-  if (0 == setenv("GST_DEBUG", "2", 1))
-      std::cout << " * GST_DEBUG=2" << std::endl;
-  //setenv("LANG", "C", 1);
+  // Qt Multimedia does not require special environment variables
 #endif // __MACOSX_CORE__
 }
 
