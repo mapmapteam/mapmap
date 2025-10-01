@@ -22,7 +22,6 @@
 
 #include <QDialog>
 
-#include <gst/gst.h>
 #ifdef HAVE_OSC
 #include "lo/lo.h"
 #endif

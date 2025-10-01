@@ -197,6 +197,7 @@ void VideoImpl::onVideoFrameChanged(const QVideoFrame &frame)
 }
 
 VideoImpl::VideoImpl() :
+QObject(),
 _width(-1),
 _height(-1),
 _duration(0),
