@@ -123,11 +123,12 @@ void Image::build()
         QGLWidget::convertToGLFormat(reader.read())
 #elif QT_VERSION < 0x060000
         QOpenGLWidget::convertToGLFormat(reader.read())
+          .mirrored(true, false)
 #else
         // Qt6: convertToGLFormat was removed, use rgbSwapped instead
         reader.read().rgbSwapped()
-#endif
           .mirrored(true, false)
+#endif
           .transformed(QTransform().rotate(180))
       );
 

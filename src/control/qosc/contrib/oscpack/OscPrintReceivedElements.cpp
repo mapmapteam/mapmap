@@ -126,12 +126,23 @@ std::ostream& operator<<( std::ostream & os,
                 std::time_t t =
                         (unsigned long)( arg.AsTimeTagUnchecked() >> 32 );
 
+#if defined(_WIN32) && defined(_MSC_VER)
+                // Use safer ctime_s on Windows with MSVC
+                char timeString[26];
+                if (ctime_s(timeString, sizeof(timeString), &t) == 0) {
+                    size_t len = std::strlen(timeString);
+                    // -1 to omit trailing newline
+                    if (len > 1)
+                        os.write(timeString, len - 1);
+                }
+#else
                 const char *timeString = std::ctime( &t );
                 size_t len = std::strlen( timeString );
 
                 // -1 to omit trailing newline from string returned by ctime()
                 if( len > 1 )
                     os.write( timeString, len - 1 );
+#endif
             }
             break;
                 

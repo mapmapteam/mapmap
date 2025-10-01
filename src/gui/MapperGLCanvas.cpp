@@ -401,10 +401,17 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
   // Wrap-up dragging the scene with middle button.
   if (event->buttons() & Qt::MiddleButton)
   {
+#if QT_VERSION < 0x060000
     QMouseEvent fakeEvent(
           event->type(), event->pos(), event->globalPos(),
           Qt::LeftButton, event->buttons() & ~Qt::LeftButton,
           event->modifiers());
+#else
+    QMouseEvent fakeEvent(
+          event->type(), event->pos(), event->globalPosition().toPoint(),
+          Qt::LeftButton, event->buttons() & ~Qt::LeftButton,
+          event->modifiers());
+#endif
     QGraphicsView::mouseReleaseEvent(&fakeEvent);
     setDragMode(QGraphicsView::NoDrag);
     setCursor(Qt::ArrowCursor);

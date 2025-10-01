@@ -44,7 +44,11 @@ bool VariantManager::isPropertyTypeSupported(int propertyType) const
 int VariantManager::valueType(int propertyType) const
 {
     if (propertyType == filePathTypeId())
+#if QT_VERSION < 0x060000
         return QVariant::String;
+#else
+        return QMetaType::QString;
+#endif
     return QtVariantPropertyManager::valueType(propertyType);
 }
 
@@ -69,7 +73,11 @@ int VariantManager::attributeType(int propertyType, const QString &attribute) co
 {
     if (propertyType == filePathTypeId()) {
         if (attribute == QLatin1String("filter"))
+#if QT_VERSION < 0x060000
             return QVariant::String;
+#else
+            return QMetaType::QString;
+#endif
         return 0;
     }
     return QtVariantPropertyManager::attributeType(propertyType, attribute);
@@ -96,7 +104,11 @@ QString VariantManager::valueText(const QtProperty *property) const
 void VariantManager::setValue(QtProperty *property, const QVariant &val)
 {
     if (theValues.contains(property)) {
+#if QT_VERSION < 0x060000
         if (val.type() != QVariant::String && !val.canConvert(QVariant::String))
+#else
+        if (val.typeId() != QMetaType::QString && !val.canConvert(QMetaType::QString))
+#endif
             return;
         QString str = val.value<QString>();
         Data d = theValues[property];
@@ -117,7 +129,11 @@ void VariantManager::setAttribute(QtProperty *property,
 {
     if (theValues.contains(property)) {
         if (attribute == QLatin1String("filter")) {
+#if QT_VERSION < 0x060000
             if (val.type() != QVariant::String && !val.canConvert(QVariant::String))
+#else
+            if (val.typeId() != QMetaType::QString && !val.canConvert(QMetaType::QString))
+#endif
                 return;
             QString str = val.value<QString>();
             Data d = theValues[property];

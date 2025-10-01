@@ -160,6 +160,7 @@ protected:
 
   void unloadMovie();
   void freeResources();
+  void _setMovieReady(bool ready);
 
 private:
   /**
@@ -174,7 +175,6 @@ private:
 
 //  bool _preRun();
   void _checkMessages();
-  void _setMovieReady(bool ready);
   bool _isMovieReady() const { return _movieReady; }
   void _setFinished(bool finished);
 
