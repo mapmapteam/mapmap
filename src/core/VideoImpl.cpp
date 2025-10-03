@@ -120,11 +120,14 @@ void VideoImpl::build()
 
 VideoImpl::~VideoImpl()
 {
-  // Free all resources.
-  freeResources();
+    // Free all resources.
+    freeResources();
 
-  // Free mutex locker object.
-  delete _mutexLocker;
+    // Free mutex locker object only if created (we don't create one anymore).
+    if (_mutexLocker) {
+        delete _mutexLocker;
+        _mutexLocker = nullptr;
+    }
 }
 
 bool VideoImpl::_eos() const
@@ -197,30 +200,32 @@ void VideoImpl::onVideoFrameChanged(const QVideoFrame &frame)
 }
 
 VideoImpl::VideoImpl() :
-QObject(),
-_width(-1),
-_height(-1),
-_duration(0),
-_seekEnabled(false),
-_mediaPlayer(nullptr),
-_videoSink(nullptr),
-_audioOutput(nullptr),
-_currentFrameData(nullptr),
-_bitsChanged(false),
-_data(nullptr),
-_rate(1.0),
-_movieReady(false),
-_playState(false),
-_uri("")
+    QObject(),
+    _width(-1),
+    _height(-1),
+    _duration(0),
+    _seekEnabled(false),
+    _mediaPlayer(nullptr),
+    _videoSink(nullptr),
+    _audioOutput(nullptr),
+    _currentFrameData(nullptr),
+    _bitsChanged(false),
+    _data(nullptr),
+    _rate(1.0),
+    _movieReady(false),
+    _playState(false),
+    _uri("")
 {
 #if QT_VERSION < 0x060000
-  _mutexLocker = new QMutexLocker(&_mutex);
+    // Do NOT create a persistent QMutexLocker here. That would lock the mutex permanently
+    // and calling relock() later can cause deadlocks between threads.
+    _mutexLocker = nullptr;
 #else
-  _mutexLocker = new QMutexLocker<QMutex>(&_mutex);
+    _mutexLocker = nullptr;
 #endif
 
-  QSettings settings;
-  _playInLoop = settings.value("playInLoop", MM::PLAY_IN_LOOP).toBool();
+    QSettings settings;
+    _playInLoop = settings.value("playInLoop", MM::PLAY_IN_LOOP).toBool();
 }
 
 void VideoImpl::unloadMovie()
@@ -391,14 +396,16 @@ void VideoImpl::update()
    });
 
    connect(_mediaPlayer, &QMediaPlayer::mediaStatusChanged, this, [this](QMediaPlayer::MediaStatus status) {
-     if (status == QMediaPlayer::LoadedMedia || status == QMediaPlayer::BufferedMedia)
-     {
-       _seekEnabled = _mediaPlayer->isSeekable();
-       qDebug() << "Media loaded. Seekable: " << _seekEnabled << Qt::endl;
-       _setMovieReady(true);
-       _videoIsConnected = true;
-       _audioIsConnected = (_mediaPlayer->audioTracks().count() > 0);
-     }
+       if (status == QMediaPlayer::LoadedMedia || status == QMediaPlayer::BufferedMedia)
+       {
+           _seekEnabled = _mediaPlayer->isSeekable();
+           qDebug() << "Media loaded. Seekable: " << _seekEnabled << Qt::endl;
+           _setMovieReady(true);
+           _videoIsConnected = true;
+           // Avoid referencing types that require QMediaMetaData to be fully defined
+           // (some Qt versions forward-declare media metadata types). Use audio output validity instead.
+           _audioIsConnected = (_audioOutput != nullptr);
+       }
    });
 
    connect(_mediaPlayer, &QMediaPlayer::errorOccurred, this, [this](QMediaPlayer::Error error, const QString &errorString) {
@@ -539,41 +546,44 @@ void  VideoImpl::_updateRate()
 }
 
 void VideoImpl::_freeCurrentFrame() {
-  if (_currentFrameData != nullptr)
-  {
-    delete _currentFrameData;
-    _currentFrameData = nullptr;
-  }
-  _data = nullptr;
+    if (_currentFrameData != nullptr)
+    {
+        delete _currentFrameData;
+        _currentFrameData = nullptr;
+    }
+    _data = nullptr;
 }
 
 void VideoImpl::lockMutex()
 {
-  _mutexLocker->relock();
+    // Lock the underlying mutex directly. This is safe across threads.
+    _mutex.lock();
 }
 
 void VideoImpl::unlockMutex()
 {
-  _mutexLocker->unlock();
+    _mutex.unlock();
 }
 
 bool VideoImpl::waitForNextBits(int timeout, const uchar** bits)
 {
-  QElapsedTimer timer;
-  timer.start();
-  while (timer.elapsed() < timeout)
-  {
-    // Bits available.
-    if (hasBits() && bitsHaveChanged())
+    QElapsedTimer timer;
+    timer.start();
+    while (timer.elapsed() < timeout)
     {
-      if (bits)
-        *bits = getBits();
-      return true;
+        // Bits available.
+        if (hasBits() && bitsHaveChanged())
+        {
+            if (bits)
+                *bits = getBits();
+            return true;
+        }
+        // Avoid tight busy-loop that hogs the CPU while waiting.
+        QThread::msleep(5);
+        // or QCoreApplication::processEvents() in some contexts, but msleep is safer here.
     }
-  }
 
-  // Timed out.
-  return false;
+    // Timed out.
+    return false;
 }
-
 }

@@ -42,16 +42,11 @@ bool ProjectReader::readFile(QIODevice *device)
   int errorColumn;
 
   QDomDocument doc;
-#if QT_VERSION < 0x060000
-  if (!doc.setContent(device, false, &errorStr, &errorLine, &errorColumn)) {
-#else
-  // Qt 6: setContent with namespaceProcessing parameter is deprecated, use ParseOptions
-  if (!doc.setContent(device, QDomDocument::ParseOption::PreserveWhitespace, &errorStr, &errorLine, &errorColumn)) {
-#endif
-    std::cerr << "Error: Parse error at line " << errorLine << ", "
-              << "column " << errorColumn << ": "
-              << qPrintable(errorStr) << std::endl;
-    return false;
+  if (!doc.setContent(device, &errorStr, &errorLine, &errorColumn)) {
+      std::cerr << "Error: Parse error at line " << errorLine << ", "
+                << "column " << errorColumn << ": "
+                << qPrintable(errorStr) << std::endl;
+      return false;
   }
 
   QDomElement root = doc.documentElement();
