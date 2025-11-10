@@ -94,3 +94,9 @@ trash
 !resources/macOS/MapMap.icns
 
 *.json
+
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+Cargo.lock

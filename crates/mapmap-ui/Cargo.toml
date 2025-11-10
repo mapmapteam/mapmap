@@ -1,0 +1,16 @@
+[package]
+name = "mapmap-ui"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+mapmap-render = { path = "../mapmap-render" }
+imgui = { workspace = true }
+imgui-wgpu = { workspace = true }
+imgui-winit-support = { workspace = true }
+wgpu = { workspace = true }
+winit = { workspace = true }
