@@ -1,0 +1,27 @@
+[package]
+name = "mapmap-render"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+wgpu = { workspace = true }
+winit = { workspace = true }
+pollster = { workspace = true }
+bytemuck = { workspace = true }
+glam = { workspace = true }
+image = { workspace = true }
+parking_lot = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+pollster = { workspace = true }
+
+[[bench]]
+name = "texture_upload"
+harness = false

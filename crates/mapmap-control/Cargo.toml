@@ -1,0 +1,26 @@
+[package]
+name = "mapmap-control"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+# Phase 4 dependencies - currently optional to avoid system dependencies in Phase 0
+midir = { workspace = true, optional = true }
+rosc = { workspace = true, optional = true }
+axum = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[features]
+default = []
+midi = ["midir"]
+osc = ["rosc"]
+http-api = ["axum", "tokio"]
+full = ["midi", "osc", "http-api"]

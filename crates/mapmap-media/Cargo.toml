@@ -1,0 +1,26 @@
+[package]
+name = "mapmap-media"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+# FFmpeg is optional - we have a test pattern fallback
+ffmpeg-next = { workspace = true, optional = true }
+crossbeam-channel = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[features]
+default = []
+ffmpeg = ["ffmpeg-next"]
+
+[dev-dependencies]
+criterion = { workspace = true }
+
+[[bench]]
+name = "video_decode"
+harness = false

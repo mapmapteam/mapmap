@@ -1,0 +1,18 @@
+[package]
+name = "mapmap-ffi"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+
+[build-dependencies]
+bindgen = { workspace = true }
+cbindgen = { workspace = true }
+
+[lib]
+crate-type = ["cdylib", "staticlib", "rlib"]

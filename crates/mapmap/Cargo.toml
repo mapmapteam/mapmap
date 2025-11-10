@@ -1,0 +1,27 @@
+[package]
+name = "mapmap"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "mapmap"
+path = "src/main.rs"
+
+[dependencies]
+mapmap-core = { path = "../mapmap-core" }
+mapmap-render = { path = "../mapmap-render" }
+mapmap-media = { path = "../mapmap-media" }
+mapmap-ui = { path = "../mapmap-ui" }
+mapmap-control = { path = "../mapmap-control" }
+
+wgpu = { workspace = true }
+winit = { workspace = true }
+pollster = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow = { workspace = true }
