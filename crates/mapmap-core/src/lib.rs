@@ -2,6 +2,7 @@
 //!
 //! This crate contains the core domain model for MapMap, including:
 //! - Paint/Mapping/Shape hierarchy
+//! - Layer system for compositing
 //! - Project file format
 //! - Geometry primitives
 //! - Transform calculations
@@ -9,6 +10,9 @@
 use glam::{Mat4, Vec2, Vec3};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+
+pub mod layer;
+pub use layer::{Layer, LayerManager, BlendMode};
 
 /// Core error types
 #[derive(Error, Debug)]

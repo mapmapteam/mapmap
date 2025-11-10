@@ -13,7 +13,6 @@ pub struct ShaderHandle {
 #[derive(Debug, Clone)]
 pub enum ShaderSource {
     Wgsl(String),
-    SpirV(Vec<u32>),
 }
 
 impl ShaderSource {
@@ -26,11 +25,6 @@ impl ShaderSource {
     /// Create from WGSL string
     pub fn from_wgsl(source: impl Into<String>) -> Self {
         Self::Wgsl(source.into())
-    }
-
-    /// Create from SPIR-V binary
-    pub fn from_spirv(bytes: Vec<u32>) -> Self {
-        Self::SpirV(bytes)
     }
 }
 

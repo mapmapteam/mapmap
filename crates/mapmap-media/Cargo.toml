@@ -11,6 +11,7 @@ repository.workspace = true
 # FFmpeg is optional - we have a test pattern fallback
 ffmpeg-next = { workspace = true, optional = true }
 crossbeam-channel = { workspace = true }
+parking_lot = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
 

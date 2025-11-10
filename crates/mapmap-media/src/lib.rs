@@ -11,9 +11,11 @@ use thiserror::Error;
 
 pub mod decoder;
 pub mod player;
+pub mod pipeline;
 
-pub use decoder::{VideoDecoder, FFmpegDecoder, DecodedFrame, PixelFormat};
+pub use decoder::{VideoDecoder, FFmpegDecoder, TestPatternDecoder, DecodedFrame, PixelFormat, HwAccelType};
 pub use player::{VideoPlayer, PlaybackState};
+pub use pipeline::{FramePipeline, PipelineConfig, PipelineStats, Priority, FrameScheduler};
 
 /// Media errors
 #[derive(Error, Debug)]

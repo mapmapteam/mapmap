@@ -19,7 +19,7 @@ mapmap-ui = { path = "../mapmap-ui" }
 mapmap-control = { path = "../mapmap-control" }
 
 wgpu = { workspace = true }
-winit = { workspace = true }
+winit = { version = "0.27", features = ["x11", "wayland"] }
 pollster = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

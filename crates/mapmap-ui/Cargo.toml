@@ -8,9 +8,11 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+mapmap-core = { path = "../mapmap-core" }
 mapmap-render = { path = "../mapmap-render" }
 imgui = { workspace = true }
 imgui-wgpu = { workspace = true }
 imgui-winit-support = { workspace = true }
 wgpu = { workspace = true }
-winit = { workspace = true }
+# Use winit 0.27 for imgui compatibility
+winit = { version = "0.27", features = ["x11", "wayland"] }

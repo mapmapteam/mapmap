@@ -8,8 +8,9 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+mapmap-core = { path = "../mapmap-core" }
 wgpu = { workspace = true }
-winit = { workspace = true }
+winit = { version = "0.27", features = ["x11", "wayland"] }
 pollster = { workspace = true }
 bytemuck = { workspace = true }
 glam = { workspace = true }
