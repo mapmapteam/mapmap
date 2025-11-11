@@ -22,11 +22,23 @@ pub mod paint;
 pub mod mesh;
 pub mod mapping;
 
+// Phase 3: Effects Pipeline
+pub mod shader_graph;
+pub mod animation;
+
 pub use output::{OutputManager, OutputConfig, OutputId, CanvasRegion, EdgeBlendConfig, EdgeBlendZone, ColorCalibration};
 pub use monitor::{MonitorInfo, MonitorTopology};
 pub use paint::{Paint, PaintId, PaintManager, PaintType};
 pub use mesh::{Mesh, MeshType, MeshVertex, VertexId, BezierPatch, keystone};
 pub use mapping::{Mapping, MappingId, MappingManager};
+pub use shader_graph::{
+    ShaderGraph, ShaderNode, NodeType, NodeId, GraphId,
+    DataType, InputSocket, OutputSocket, ParameterValue,
+};
+pub use animation::{
+    AnimationClip, AnimationTrack, AnimationPlayer, Keyframe,
+    AnimValue, InterpolationMode, TimePoint,
+};
 
 /// Core error types
 #[derive(Error, Debug)]
