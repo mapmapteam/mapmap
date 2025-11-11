@@ -1,7 +1,7 @@
 //! MapMap Core - Domain Model and Data Structures
 //!
 //! This crate contains the core domain model for MapMap, including:
-//! - Paint/Mapping/Shape hierarchy
+//! - Paint/Mapping/Mesh hierarchy
 //! - Layer system for compositing
 //! - Project file format
 //! - Geometry primitives
@@ -11,8 +11,18 @@ use glam::{Mat4, Vec2, Vec3};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+// Phase 1: Layer system for compositing
 pub mod layer;
-pub use layer::{Layer, LayerManager, BlendMode};
+pub use layer::{BlendMode, Layer, LayerManager};
+
+// Phase 2: Mapping system
+pub mod paint;
+pub mod mesh;
+pub mod mapping;
+
+pub use paint::{Paint, PaintId, PaintManager, PaintType};
+pub use mesh::{Mesh, MeshType, MeshVertex, VertexId};
+pub use mapping::{Mapping, MappingId, MappingManager};
 
 /// Core error types
 #[derive(Error, Debug)]
@@ -72,68 +82,37 @@ impl Quad {
 }
 
 /// Shape trait - represents any mappable geometry
+/// (Legacy - will be replaced by Mesh in Phase 2)
 pub trait Shape: Send + Sync {
     fn vertices(&self) -> &[Vertex];
     fn indices(&self) -> &[u16];
     fn update(&mut self, delta_time: f32);
 }
 
-/// Paint - represents a media source
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Paint {
-    pub id: u64,
-    pub name: String,
-    pub source: MediaSource,
-    pub opacity: f32,
-}
-
-/// Media source types
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum MediaSource {
-    Video { path: String },
-    Image { path: String },
-    Color { r: f32, g: f32, b: f32, a: f32 },
-}
-
-/// Mapping - connects a Paint to a Shape
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Mapping {
-    pub id: u64,
-    pub paint_id: u64,
-    pub shape: ShapeType,
-    pub visible: bool,
-}
-
-/// Shape types
+/// Legacy shape types (Phase 0/1)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ShapeType {
     Quad(Quad),
     Mesh { vertices: Vec<Vertex>, indices: Vec<u16> },
 }
 
-/// Project - top-level container
+/// Project - top-level container (Phase 2+)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Project {
     pub name: String,
-    pub paints: Vec<Paint>,
-    pub mappings: Vec<Mapping>,
+    pub paint_manager: PaintManager,
+    pub mapping_manager: MappingManager,
+    pub layer_manager: LayerManager,
 }
 
 impl Project {
     pub fn new(name: impl Into<String>) -> Self {
         Self {
             name: name.into(),
-            paints: Vec::new(),
-            mappings: Vec::new(),
+            paint_manager: PaintManager::new(),
+            mapping_manager: MappingManager::new(),
+            layer_manager: LayerManager::new(),
         }
-    }
-
-    pub fn add_paint(&mut self, paint: Paint) {
-        self.paints.push(paint);
-    }
-
-    pub fn add_mapping(&mut self, mapping: Mapping) {
-        self.mappings.push(mapping);
     }
 }
 
@@ -149,19 +128,10 @@ mod tests {
 
     #[test]
     fn test_project_creation() {
-        let mut project = Project::new("Test Project");
+        let project = Project::new("Test Project");
         assert_eq!(project.name, "Test Project");
-        assert_eq!(project.paints.len(), 0);
-        assert_eq!(project.mappings.len(), 0);
-
-        let paint = Paint {
-            id: 1,
-            name: "Test Paint".to_string(),
-            source: MediaSource::Color { r: 1.0, g: 0.0, b: 0.0, a: 1.0 },
-            opacity: 1.0,
-        };
-        project.add_paint(paint);
-        assert_eq!(project.paints.len(), 1);
+        assert_eq!(project.paint_manager.paints().len(), 0);
+        assert_eq!(project.mapping_manager.mappings().len(), 0);
     }
 
     #[test]
