@@ -23,7 +23,7 @@ pub mod mapping;
 
 pub use output::{OutputManager, OutputConfig, OutputId, CanvasRegion, EdgeBlendConfig, EdgeBlendZone, ColorCalibration};
 pub use paint::{Paint, PaintId, PaintManager, PaintType};
-pub use mesh::{Mesh, MeshType, MeshVertex, VertexId};
+pub use mesh::{Mesh, MeshType, MeshVertex, VertexId, BezierPatch, keystone};
 pub use mapping::{Mapping, MappingId, MappingManager};
 
 /// Core error types
