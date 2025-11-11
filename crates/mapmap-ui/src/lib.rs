@@ -59,6 +59,14 @@ pub enum UIAction {
     SetMasterSpeed(f32),
     SetCompositionName(String),
 
+    // Phase 2: Output management
+    AddOutput(String, mapmap_core::CanvasRegion, (u32, u32)),
+    RemoveOutput(u64),
+    ConfigureOutput(u64, mapmap_core::OutputConfig),
+    SetOutputEdgeBlend(u64, mapmap_core::EdgeBlendConfig),
+    SetOutputColorCalibration(u64, mapmap_core::ColorCalibration),
+    CreateProjectorArray2x2((u32, u32), f32),
+
     // View actions
     ToggleFullscreen,
 }
@@ -173,6 +181,7 @@ pub struct AppUI {
     pub show_mappings: bool,
     pub show_transforms: bool,      // Phase 1
     pub show_master_controls: bool, // Phase 1
+    pub show_outputs: bool,          // Phase 2
     pub playback_speed: f32,
     pub looping: bool,
     // Phase 1: Advanced playback state
@@ -180,6 +189,8 @@ pub struct AppUI {
     pub playback_mode: mapmap_media::PlaybackMode,
     // Phase 1: Transform editing state
     pub selected_layer_id: Option<u64>,
+    // Phase 2: Output configuration state
+    pub selected_output_id: Option<u64>,
     pub actions: Vec<UIAction>,
 }
 
@@ -193,11 +204,13 @@ impl Default for AppUI {
             show_mappings: true,
             show_transforms: true,
             show_master_controls: true,
+            show_outputs: true,
             playback_speed: 1.0,
             looping: true,
             playback_direction: mapmap_media::PlaybackDirection::Forward,
             playback_mode: mapmap_media::PlaybackMode::Loop,
             selected_layer_id: None,
+            selected_output_id: None,
             actions: Vec::new(),
         }
     }
@@ -784,6 +797,235 @@ impl AppUI {
                 ui.text("Effective Multipliers:");
                 ui.text("All layer opacity × Master Opacity");
                 ui.text("All playback speed × Master Speed");
+            });
+    }
+
+    /// Phase 2: Render output configuration panel
+    pub fn render_output_panel(&mut self, ui: &Ui, output_manager: &mut mapmap_core::OutputManager) {
+        if !self.show_outputs {
+            return;
+        }
+
+        ui.window("Outputs")
+            .size([420.0, 500.0], Condition::FirstUseEver)
+            .position([10.0, 450.0], Condition::FirstUseEver)
+            .build(|| {
+                ui.text("Multi-Output Configuration");
+                ui.separator();
+
+                // Canvas size display
+                let canvas_size = output_manager.canvas_size();
+                ui.text(format!("Canvas: {}x{}", canvas_size.0, canvas_size.1));
+                ui.separator();
+
+                // Output list
+                ui.text(format!("Outputs: {}", output_manager.outputs().len()));
+
+                for output in output_manager.outputs() {
+                    let _id = ui.push_id_usize(output.id as usize);
+
+                    let is_selected = self.selected_output_id == Some(output.id);
+                    if ui.selectable_config(&output.name)
+                        .selected(is_selected)
+                        .build()
+                    {
+                        self.selected_output_id = Some(output.id);
+                    }
+
+                    // Show output info
+                    ui.same_line();
+                    ui.text_disabled(format!(
+                        "{}x{} | {}",
+                        output.resolution.0,
+                        output.resolution.1,
+                        if output.fullscreen { "FS" } else { "Win" }
+                    ));
+                }
+
+                ui.separator();
+
+                // Quick setup buttons
+                if ui.button("2x2 Projector Array") {
+                    self.actions.push(UIAction::CreateProjectorArray2x2(
+                        (1920, 1080),
+                        0.1, // 10% overlap
+                    ));
+                }
+
+                ui.same_line();
+                if ui.button("Add Output") {
+                    // Add a single output covering full canvas
+                    self.actions.push(UIAction::AddOutput(
+                        "New Output".to_string(),
+                        mapmap_core::CanvasRegion::new(0.0, 0.0, 1.0, 1.0),
+                        (1920, 1080),
+                    ));
+                }
+
+                ui.separator();
+
+                // Edit selected output
+                if let Some(output_id) = self.selected_output_id {
+                    if let Some(output) = output_manager.outputs().iter().find(|o| o.id == output_id) {
+                        ui.text("Selected Output Settings");
+                        ui.separator();
+
+                        ui.text(format!("Name: {}", output.name));
+                        ui.text(format!("Resolution: {}x{}", output.resolution.0, output.resolution.1));
+
+                        ui.separator();
+                        ui.text("Canvas Region:");
+                        ui.text(format!("  X: {:.2}, Y: {:.2}", output.canvas_region.x, output.canvas_region.y));
+                        ui.text(format!("  W: {:.2}, H: {:.2}", output.canvas_region.width, output.canvas_region.height));
+
+                        ui.separator();
+
+                        // Edge blending status
+                        let blend = &output.edge_blend;
+                        ui.text("Edge Blending:");
+                        if blend.left.enabled { ui.text("  Left"); }
+                        if blend.right.enabled { ui.text("  Right"); }
+                        if blend.top.enabled { ui.text("  Top"); }
+                        if blend.bottom.enabled { ui.text("  Bottom"); }
+
+                        ui.separator();
+
+                        if ui.button("Remove Output") {
+                            self.actions.push(UIAction::RemoveOutput(output_id));
+                            self.selected_output_id = None;
+                        }
+                    }
+                }
+
+                ui.separator();
+                ui.text_disabled("Multi-window rendering: Pending integration");
+            });
+    }
+
+    /// Phase 2: Render edge blend configuration
+    pub fn render_edge_blend_panel(&mut self, ui: &Ui, output_manager: &mut mapmap_core::OutputManager) {
+        if self.selected_output_id.is_none() {
+            return;
+        }
+
+        let output_id = self.selected_output_id.unwrap();
+        let output = output_manager.get_output_mut(output_id);
+
+        if output.is_none() {
+            return;
+        }
+
+        let output = output.unwrap();
+
+        ui.window("Edge Blending")
+            .size([380.0, 450.0], Condition::FirstUseEver)
+            .position([440.0, 450.0], Condition::FirstUseEver)
+            .build(|| {
+                ui.text(format!("Output: {}", output.name));
+                ui.separator();
+
+                let blend = &mut output.edge_blend;
+
+                // Left edge
+                ui.checkbox("Left Edge", &mut blend.left.enabled);
+                if blend.left.enabled {
+                    ui.indent();
+                    ui.slider("Width##left", 0.0, 0.5, &mut blend.left.width);
+                    ui.slider("Offset##left", -0.1, 0.1, &mut blend.left.offset);
+                    ui.unindent();
+                }
+
+                ui.separator();
+
+                // Right edge
+                ui.checkbox("Right Edge", &mut blend.right.enabled);
+                if blend.right.enabled {
+                    ui.indent();
+                    ui.slider("Width##right", 0.0, 0.5, &mut blend.right.width);
+                    ui.slider("Offset##right", -0.1, 0.1, &mut blend.right.offset);
+                    ui.unindent();
+                }
+
+                ui.separator();
+
+                // Top edge
+                ui.checkbox("Top Edge", &mut blend.top.enabled);
+                if blend.top.enabled {
+                    ui.indent();
+                    ui.slider("Width##top", 0.0, 0.5, &mut blend.top.width);
+                    ui.slider("Offset##top", -0.1, 0.1, &mut blend.top.offset);
+                    ui.unindent();
+                }
+
+                ui.separator();
+
+                // Bottom edge
+                ui.checkbox("Bottom Edge", &mut blend.bottom.enabled);
+                if blend.bottom.enabled {
+                    ui.indent();
+                    ui.slider("Width##bottom", 0.0, 0.5, &mut blend.bottom.width);
+                    ui.slider("Offset##bottom", -0.1, 0.1, &mut blend.bottom.offset);
+                    ui.unindent();
+                }
+
+                ui.separator();
+
+                // Gamma control
+                ui.slider("Blend Gamma", 1.0, 3.0, &mut blend.gamma);
+
+                ui.separator();
+
+                if ui.button("Reset to Defaults") {
+                    *blend = mapmap_core::EdgeBlendConfig::default();
+                }
+            });
+    }
+
+    /// Phase 2: Render color calibration panel
+    pub fn render_color_calibration_panel(&mut self, ui: &Ui, output_manager: &mut mapmap_core::OutputManager) {
+        if self.selected_output_id.is_none() {
+            return;
+        }
+
+        let output_id = self.selected_output_id.unwrap();
+        let output = output_manager.get_output_mut(output_id);
+
+        if output.is_none() {
+            return;
+        }
+
+        let output = output.unwrap();
+
+        ui.window("Color Calibration")
+            .size([380.0, 500.0], Condition::FirstUseEver)
+            .position([830.0, 450.0], Condition::FirstUseEver)
+            .build(|| {
+                ui.text(format!("Output: {}", output.name));
+                ui.separator();
+
+                let cal = &mut output.color_calibration;
+
+                ui.slider("Brightness", -1.0, 1.0, &mut cal.brightness);
+                ui.slider("Contrast", 0.0, 2.0, &mut cal.contrast);
+
+                ui.separator();
+                ui.text("Gamma (Per Channel)");
+                ui.slider("Red Gamma", 0.5, 3.0, &mut cal.gamma.x);
+                ui.slider("Green Gamma", 0.5, 3.0, &mut cal.gamma.y);
+                ui.slider("Blue Gamma", 0.5, 3.0, &mut cal.gamma_b);
+
+                ui.separator();
+                ui.slider("Color Temperature", 2000.0, 10000.0, &mut cal.color_temp);
+                ui.text_disabled("(D65 = 6500K)");
+
+                ui.separator();
+                ui.slider("Saturation", 0.0, 2.0, &mut cal.saturation);
+
+                ui.separator();
+
+                if ui.button("Reset to Defaults") {
+                    *cal = mapmap_core::ColorCalibration::default();
+                }
             });
     }
 }

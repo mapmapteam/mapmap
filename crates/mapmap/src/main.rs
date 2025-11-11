@@ -35,6 +35,7 @@ struct App {
     layer_manager: LayerManager,
     paint_manager: PaintManager,
     mapping_manager: MappingManager,
+    output_manager: mapmap_core::OutputManager,
     video_players: HashMap<u64, VideoPlayer>, // Paint ID -> VideoPlayer
     paint_textures: HashMap<u64, mapmap_render::TextureHandle>, // Paint ID -> Texture
     layer_textures: HashMap<u64, mapmap_render::TextureHandle>, // Layer ID -> Texture
@@ -167,6 +168,7 @@ impl App {
             layer_manager,
             paint_manager,
             mapping_manager,
+            output_manager: mapmap_core::OutputManager::new((1920, 1080)),
             video_players,
             paint_textures: HashMap::new(),
             layer_textures: HashMap::new(),
@@ -308,6 +310,7 @@ impl App {
         let layer_manager = &mut self.layer_manager;
         let paint_manager = &mut self.paint_manager;
         let mapping_manager = &mut self.mapping_manager;
+        let output_manager = &mut self.output_manager;
         let fps = self.fps;
         let frame_time = self.last_frame.elapsed().as_secs_f32() * 1000.0;
 
@@ -325,6 +328,7 @@ impl App {
                 ui_state.render_mapping_panel(ui, mapping_manager);
                 ui_state.render_transform_panel(ui, layer_manager); // Phase 1
                 ui_state.render_master_controls(ui, layer_manager);  // Phase 1
+                ui_state.render_output_panel(ui, output_manager); // Phase 2
                 ui_state.render_stats(ui, fps, frame_time);
             },
         );
@@ -596,6 +600,38 @@ impl App {
                 UIAction::SetCompositionName(name) => {
                     info!("Setting composition name to {}", name);
                     self.layer_manager.composition.name = name;
+                }
+
+                // Phase 2: Multi-Output Actions
+                UIAction::AddOutput(name, region, resolution) => {
+                    info!("Adding output: {} at {:?} with resolution {:?}", name, region, resolution);
+                    self.output_manager.add_output(name, region, resolution);
+                }
+                UIAction::RemoveOutput(id) => {
+                    info!("Removing output {}", id);
+                    self.output_manager.remove_output(id);
+                }
+                UIAction::ConfigureOutput(id, config) => {
+                    info!("Configuring output {} with new settings", id);
+                    if let Some(output) = self.output_manager.get_output_mut(id) {
+                        *output = config;
+                    }
+                }
+                UIAction::SetOutputEdgeBlend(id, edge_blend) => {
+                    info!("Setting edge blend for output {}", id);
+                    if let Some(output) = self.output_manager.get_output_mut(id) {
+                        output.edge_blend = edge_blend;
+                    }
+                }
+                UIAction::SetOutputColorCalibration(id, calibration) => {
+                    info!("Setting color calibration for output {}", id);
+                    if let Some(output) = self.output_manager.get_output_mut(id) {
+                        output.color_calibration = calibration;
+                    }
+                }
+                UIAction::CreateProjectorArray2x2(resolution, overlap) => {
+                    info!("Creating 2x2 projector array with resolution {:?} and {}% overlap", resolution, overlap * 100.0);
+                    self.output_manager.create_projector_array_2x2(resolution, overlap);
                 }
             }
         }
