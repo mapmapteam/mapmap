@@ -74,6 +74,11 @@ sudo apt-get install -y \
   libwayland-dev \
   libxkbcommon-dev
 
+# Install font rendering libraries (required for ImGui)
+sudo apt-get install -y \
+  libfontconfig1-dev \
+  libfreetype6-dev
+
 # Install audio libraries (for future audio support)
 sudo apt-get install -y libasound2-dev
 
@@ -98,6 +103,11 @@ sudo dnf install -y \
   wayland-devel \
   libxkbcommon-devel
 
+# Install font rendering libraries
+sudo dnf install -y \
+  fontconfig-devel \
+  freetype-devel
+
 # Install audio libraries
 sudo dnf install -y alsa-lib-devel
 
@@ -119,6 +129,8 @@ sudo pacman -S \
   libx11 \
   wayland \
   libxkbcommon \
+  fontconfig \
+  freetype2 \
   alsa-lib
 
 # Optional: Install FFmpeg
@@ -483,6 +495,26 @@ error: failed to run custom build command for `winit v0.29.X`
 **Solution:**
 ```bash
 sudo apt-get install libxcb1-dev libx11-dev libwayland-dev
+```
+
+#### Linux: Missing fontconfig Library
+
+**Error:**
+```
+error: failed to run custom build command for `servo-fontconfig-sys`
+The system library `fontconfig` required by crate `servo-fontconfig-sys` was not found.
+```
+
+**Solution:**
+```bash
+# Ubuntu/Debian
+sudo apt-get install libfontconfig1-dev libfreetype6-dev
+
+# Fedora
+sudo dnf install fontconfig-devel freetype-devel
+
+# Arch Linux
+sudo pacman -S fontconfig freetype2
 ```
 
 #### macOS: Missing Xcode Tools
