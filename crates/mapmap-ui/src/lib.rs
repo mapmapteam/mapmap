@@ -898,7 +898,11 @@ impl AppUI {
                 }
 
                 ui.separator();
-                ui.text_disabled("Multi-window rendering: Pending integration");
+                ui.text_colored(
+                    [0.0, 1.0, 0.0, 1.0],
+                    "Multi-window rendering: ACTIVE"
+                );
+                ui.text_disabled("Output windows are automatically created and synchronized");
             });
     }
 
