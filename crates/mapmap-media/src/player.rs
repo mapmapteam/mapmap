@@ -11,14 +11,55 @@ pub enum PlaybackState {
     Stopped,
 }
 
+/// Playback direction (Phase 1, Month 5)
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PlaybackDirection {
+    /// Play forward (default)
+    Forward,
+    /// Play backward (reverse)
+    Backward,
+}
+
+impl Default for PlaybackDirection {
+    fn default() -> Self {
+        PlaybackDirection::Forward
+    }
+}
+
+/// Playback mode (Phase 1, Month 5)
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PlaybackMode {
+    /// Loop - repeat indefinitely (existing behavior)
+    Loop,
+    /// Ping Pong - bounce forward and backward
+    PingPong,
+    /// Play Once and Eject - stop and unload after completion
+    PlayOnceAndEject,
+    /// Play Once and Hold - stop on last frame
+    PlayOnceAndHold,
+}
+
+impl Default for PlaybackMode {
+    fn default() -> Self {
+        PlaybackMode::Loop
+    }
+}
+
 /// Video player with playback control
 pub struct VideoPlayer {
     decoder: Box<dyn VideoDecoder>,
     state: PlaybackState,
     current_time: Duration,
     playback_speed: f32,
+    /// Legacy looping flag (deprecated - use playback_mode instead)
     looping: bool,
+    /// Playback direction - forward or backward (Phase 1, Month 5)
+    direction: PlaybackDirection,
+    /// Playback mode - loop, ping pong, play once variants (Phase 1, Month 5)
+    playback_mode: PlaybackMode,
     last_frame: Option<DecodedFrame>,
+    /// Track whether we should eject after completing playback
+    should_eject: bool,
 }
 
 impl VideoPlayer {
@@ -30,7 +71,10 @@ impl VideoPlayer {
             current_time: Duration::ZERO,
             playback_speed: 1.0,
             looping: false,
+            direction: PlaybackDirection::default(),
+            playback_mode: PlaybackMode::default(),
             last_frame: None,
+            should_eject: false,
         }
     }
 
@@ -40,16 +84,34 @@ impl VideoPlayer {
             return self.last_frame.clone();
         }
 
-        // Advance playback time
-        self.current_time += dt.mul_f32(self.playback_speed);
+        let duration = self.decoder.duration();
 
-        // Check if we've reached the end
-        if self.current_time >= self.decoder.duration() {
-            if self.looping {
-                self.seek(Duration::ZERO);
-            } else {
-                self.state = PlaybackState::Stopped;
-                return self.last_frame.clone();
+        // Advance playback time based on direction
+        match self.direction {
+            PlaybackDirection::Forward => {
+                self.current_time += dt.mul_f32(self.playback_speed);
+
+                // Check if we've reached the end
+                if self.current_time >= duration {
+                    self.handle_end_of_playback();
+                    if self.should_eject {
+                        return None; // Eject - return no frame
+                    }
+                }
+            }
+            PlaybackDirection::Backward => {
+                // Go backward in time
+                let delta = dt.mul_f32(self.playback_speed);
+                if self.current_time > delta {
+                    self.current_time -= delta;
+                } else {
+                    // Reached the beginning
+                    self.current_time = Duration::ZERO;
+                    self.handle_beginning_of_playback();
+                    if self.should_eject {
+                        return None; // Eject - return no frame
+                    }
+                }
             }
         }
 
@@ -60,13 +122,64 @@ impl VideoPlayer {
                 Some(frame)
             }
             Err(_) => {
-                if self.looping {
+                // Handle end of stream based on mode
+                if self.looping || self.playback_mode == PlaybackMode::Loop {
                     self.seek(Duration::ZERO);
                     self.decoder.next_frame().ok()
                 } else {
                     self.state = PlaybackState::Stopped;
                     self.last_frame.clone()
                 }
+            }
+        }
+    }
+
+    /// Handle reaching the end of playback (forward direction)
+    fn handle_end_of_playback(&mut self) {
+        match self.playback_mode {
+            PlaybackMode::Loop => {
+                // Loop back to beginning
+                self.seek(Duration::ZERO);
+            }
+            PlaybackMode::PingPong => {
+                // Reverse direction
+                self.direction = PlaybackDirection::Backward;
+                self.current_time = self.decoder.duration();
+            }
+            PlaybackMode::PlayOnceAndEject => {
+                // Stop and mark for ejection
+                self.state = PlaybackState::Stopped;
+                self.should_eject = true;
+            }
+            PlaybackMode::PlayOnceAndHold => {
+                // Stop and hold on last frame
+                self.state = PlaybackState::Stopped;
+                self.current_time = self.decoder.duration();
+            }
+        }
+    }
+
+    /// Handle reaching the beginning of playback (backward direction)
+    fn handle_beginning_of_playback(&mut self) {
+        match self.playback_mode {
+            PlaybackMode::Loop => {
+                // Loop to end
+                self.seek(self.decoder.duration());
+            }
+            PlaybackMode::PingPong => {
+                // Reverse direction to forward
+                self.direction = PlaybackDirection::Forward;
+                self.current_time = Duration::ZERO;
+            }
+            PlaybackMode::PlayOnceAndEject => {
+                // Stop and mark for ejection
+                self.state = PlaybackState::Stopped;
+                self.should_eject = true;
+            }
+            PlaybackMode::PlayOnceAndHold => {
+                // Stop and hold on first frame
+                self.state = PlaybackState::Stopped;
+                self.current_time = Duration::ZERO;
             }
         }
     }
@@ -138,6 +251,45 @@ impl VideoPlayer {
     pub fn fps(&self) -> f64 {
         self.decoder.fps()
     }
+
+    /// Set playback direction (Phase 1, Month 5)
+    pub fn set_direction(&mut self, direction: PlaybackDirection) {
+        self.direction = direction;
+    }
+
+    /// Get current playback direction
+    pub fn direction(&self) -> PlaybackDirection {
+        self.direction
+    }
+
+    /// Set playback mode (Phase 1, Month 5)
+    pub fn set_playback_mode(&mut self, mode: PlaybackMode) {
+        self.playback_mode = mode;
+        self.should_eject = false; // Reset eject flag when changing mode
+    }
+
+    /// Get current playback mode
+    pub fn playback_mode(&self) -> PlaybackMode {
+        self.playback_mode
+    }
+
+    /// Check if the player should eject (for PlayOnceAndEject mode)
+    pub fn should_eject(&self) -> bool {
+        self.should_eject
+    }
+
+    /// Toggle direction between forward and backward
+    pub fn toggle_direction(&mut self) {
+        self.direction = match self.direction {
+            PlaybackDirection::Forward => PlaybackDirection::Backward,
+            PlaybackDirection::Backward => PlaybackDirection::Forward,
+        };
+    }
+
+    /// Reset the eject flag (call after ejecting content)
+    pub fn reset_eject(&mut self) {
+        self.should_eject = false;
+    }
 }
 
 #[cfg(test)]
@@ -163,12 +315,17 @@ mod tests {
             current_time: Duration::ZERO,
             playback_speed: 1.0,
             looping: false,
+            direction: PlaybackDirection::default(),
+            playback_mode: PlaybackMode::default(),
             last_frame: None,
+            should_eject: false,
         };
 
         assert_eq!(player.state(), PlaybackState::Stopped);
         assert_eq!(player.speed(), 1.0);
         assert_eq!(player.is_looping(), false);
+        assert_eq!(player.direction(), PlaybackDirection::Forward);
+        assert_eq!(player.playback_mode(), PlaybackMode::Loop);
     }
 
     #[test]
@@ -186,7 +343,10 @@ mod tests {
             current_time: Duration::ZERO,
             playback_speed: 1.0,
             looping: false,
+            direction: PlaybackDirection::default(),
+            playback_mode: PlaybackMode::default(),
             last_frame: None,
+            should_eject: false,
         };
 
         player.play();
@@ -214,7 +374,10 @@ mod tests {
             current_time: Duration::ZERO,
             playback_speed: 1.0,
             looping: false,
+            direction: PlaybackDirection::default(),
+            playback_mode: PlaybackMode::default(),
             last_frame: None,
+            should_eject: false,
         };
 
         player.set_speed(2.0);
@@ -229,5 +392,49 @@ mod tests {
 
         player.set_speed(-1.0);
         assert_eq!(player.speed(), 0.0);
+    }
+
+    #[test]
+    fn test_playback_direction() {
+        let mut player = VideoPlayer::new(FFmpegDecoder {
+            width: 1920,
+            height: 1080,
+            duration: Duration::from_secs(60),
+            fps: 30.0,
+            current_time: Duration::ZERO,
+            frame_count: 0,
+        });
+
+        assert_eq!(player.direction(), PlaybackDirection::Forward);
+
+        player.set_direction(PlaybackDirection::Backward);
+        assert_eq!(player.direction(), PlaybackDirection::Backward);
+
+        player.toggle_direction();
+        assert_eq!(player.direction(), PlaybackDirection::Forward);
+    }
+
+    #[test]
+    fn test_playback_modes() {
+        let mut player = VideoPlayer::new(FFmpegDecoder {
+            width: 1920,
+            height: 1080,
+            duration: Duration::from_secs(60),
+            fps: 30.0,
+            current_time: Duration::ZERO,
+            frame_count: 0,
+        });
+
+        assert_eq!(player.playback_mode(), PlaybackMode::Loop);
+
+        player.set_playback_mode(PlaybackMode::PingPong);
+        assert_eq!(player.playback_mode(), PlaybackMode::PingPong);
+
+        player.set_playback_mode(PlaybackMode::PlayOnceAndEject);
+        assert_eq!(player.playback_mode(), PlaybackMode::PlayOnceAndEject);
+        assert!(!player.should_eject());
+
+        player.set_playback_mode(PlaybackMode::PlayOnceAndHold);
+        assert_eq!(player.playback_mode(), PlaybackMode::PlayOnceAndHold);
     }
 }

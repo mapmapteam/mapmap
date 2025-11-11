@@ -17,7 +17,7 @@ pub mod player;
 // pub mod pipeline;
 
 pub use decoder::{VideoDecoder, FFmpegDecoder, TestPatternDecoder, DecodedFrame, PixelFormat, HwAccelType};
-pub use player::{VideoPlayer, PlaybackState};
+pub use player::{VideoPlayer, PlaybackState, PlaybackDirection, PlaybackMode};
 // pub use pipeline::{FramePipeline, PipelineConfig, PipelineStats, Priority, FrameScheduler};
 
 /// Media errors
