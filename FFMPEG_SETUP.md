@@ -1,5 +1,21 @@
 # FFmpeg Setup for Video Playback
 
+## Current Issue: Build Environment Isolation ⚠️
+
+**You've installed FFmpeg packages, but `cargo build` still can't find them.**
+
+This happens when your build environment is isolated from your system (common in containers, VMs, or some IDEs). The packages are installed on your system, but the Cargo build process runs in a different environment.
+
+**Quick check:**
+```bash
+pkg-config --modversion libavutil
+```
+
+- ✅ **Shows version**: Packages are accessible, proceed to rebuild
+- ❌ **"Package libavutil was not found"**: Environment isolation issue (see [Troubleshooting](#troubleshooting))
+
+---
+
 ## Why You're Not Seeing Video Playback
 
 You have the **FFmpeg runtime** installed (the `ffmpeg` command-line tool), but MapMap needs the **FFmpeg development libraries** to enable real video playback.
@@ -106,7 +122,45 @@ dpkg -l | grep libavcodec-dev
 
 ### "The system library 'libavutil' required by crate 'ffmpeg-sys-next' was not found"
 
-This error means FFmpeg development libraries aren't installed. Run the install script or manual commands above.
+This error means FFmpeg development libraries aren't installed **in the build environment**.
+
+**Common causes:**
+
+1. **Packages not installed**: Run the install script
+2. **Build environment isolation**: Your `cargo build` may run in a container/sandbox separate from your system
+3. **PKG_CONFIG_PATH not set**: The .pc files exist but pkg-config can't find them
+
+**Solutions:**
+
+**Check if packages are actually visible:**
+```bash
+# Check if pkg-config can find FFmpeg
+pkg-config --modversion libavutil
+
+# If this returns a version number, packages are accessible
+# If it fails, packages need to be installed in the build environment
+```
+
+**For isolated build environments (common in some IDEs/containers):**
+
+You may need to set PKG_CONFIG_PATH manually:
+```bash
+# Find where .pc files are installed
+find /usr -name "libavutil.pc" 2>/dev/null
+
+# If found at /usr/lib/x86_64-linux-gnu/pkgconfig/libavutil.pc:
+export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
+cargo build --release --features ffmpeg
+```
+
+**For truly isolated environments:**
+
+If your build runs in a container/VM, install FFmpeg there:
+```bash
+# Enter your build environment first, then:
+sudo apt-get install -y libavcodec-dev libavformat-dev libavutil-dev \
+    libswscale-dev libavdevice-dev libavfilter-dev
+```
 
 ### "Package libavcodec-dev has no installation candidate"
 
