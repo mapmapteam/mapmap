@@ -305,6 +305,7 @@ impl App {
 
         // Render ImGui
         let ui_state = &mut self.ui_state;
+        let layer_manager = &mut self.layer_manager;
         let paint_manager = &mut self.paint_manager;
         let mapping_manager = &mut self.mapping_manager;
         let fps = self.fps;
@@ -319,8 +320,11 @@ impl App {
             |ui| {
                 ui_state.render_menu_bar(ui);
                 ui_state.render_controls(ui);
+                ui_state.render_layer_panel(ui, layer_manager);
                 ui_state.render_paint_panel(ui, paint_manager);
                 ui_state.render_mapping_panel(ui, mapping_manager);
+                ui_state.render_transform_panel(ui, layer_manager); // Phase 1
+                ui_state.render_master_controls(ui, layer_manager);  // Phase 1
                 ui_state.render_stats(ui, fps, frame_time);
             },
         );
@@ -477,6 +481,121 @@ impl App {
                     info!("Toggle fullscreen triggered");
                     // TODO: Implement fullscreen toggle
                 }
+
+                // Phase 1: Advanced Playback Actions
+                UIAction::SetPlaybackDirection(direction) => {
+                    info!("Setting playback direction to {:?}", direction);
+                    for player in self.video_players.values_mut() {
+                        player.set_direction(direction);
+                    }
+                }
+                UIAction::TogglePlaybackDirection => {
+                    info!("Toggling playback direction");
+                    for player in self.video_players.values_mut() {
+                        player.toggle_direction();
+                    }
+                }
+                UIAction::SetPlaybackMode(mode) => {
+                    info!("Setting playback mode to {:?}", mode);
+                    for player in self.video_players.values_mut() {
+                        player.set_playback_mode(mode);
+                    }
+                }
+
+                // Phase 1: Layer Actions
+                UIAction::AddLayer => {
+                    info!("Adding new layer");
+                    let layer_id = self.layer_manager.create_layer("New Layer");
+                    info!("Created layer {} with ID {}", self.layer_manager.get_layer(layer_id).unwrap().name, layer_id);
+                }
+                UIAction::RemoveLayer(id) => {
+                    info!("Removing layer {}", id);
+                    if let Some(layer) = self.layer_manager.remove_layer(id) {
+                        info!("Removed layer: {}", layer.name);
+                    }
+                }
+                UIAction::DuplicateLayer(id) => {
+                    info!("Duplicating layer {}", id);
+                    if let Some(new_id) = self.layer_manager.duplicate_layer(id) {
+                        info!("Created duplicate layer with ID {}", new_id);
+                    }
+                }
+                UIAction::RenameLayer(id, new_name) => {
+                    info!("Renaming layer {} to {}", id, new_name);
+                    self.layer_manager.rename_layer(id, new_name);
+                }
+                UIAction::ToggleLayerBypass(id) => {
+                    info!("Toggling bypass for layer {}", id);
+                    if let Some(layer) = self.layer_manager.get_layer_mut(id) {
+                        layer.toggle_bypass();
+                        info!("Layer {} bypass is now {}", id, layer.bypass);
+                    }
+                }
+                UIAction::ToggleLayerSolo(id) => {
+                    info!("Toggling solo for layer {}", id);
+                    if let Some(layer) = self.layer_manager.get_layer_mut(id) {
+                        layer.toggle_solo();
+                        info!("Layer {} solo is now {}", id, layer.solo);
+                    }
+                }
+                UIAction::SetLayerOpacity(id, opacity) => {
+                    info!("Setting layer {} opacity to {}", id, opacity);
+                    if let Some(layer) = self.layer_manager.get_layer_mut(id) {
+                        layer.opacity = opacity;
+                    }
+                }
+                UIAction::EjectAllLayers => {
+                    info!("Ejecting all layer content");
+                    self.layer_manager.eject_all();
+                }
+
+                // Phase 1: Transform Actions
+                UIAction::SetLayerTransform(id, transform) => {
+                    info!("Setting transform for layer {}", id);
+                    if let Some(layer) = self.layer_manager.get_layer_mut(id) {
+                        layer.transform = transform;
+                    }
+                }
+                UIAction::ApplyResizeMode(id, mode) => {
+                    info!("Applying resize mode {:?} to layer {}", mode, id);
+
+                    // Get composition size first (before borrowing layer)
+                    let target_size = glam::Vec2::new(
+                        self.layer_manager.composition.size.0 as f32,
+                        self.layer_manager.composition.size.1 as f32
+                    );
+
+                    if let Some(layer) = self.layer_manager.get_layer_mut(id) {
+                        // Get paint dimensions if available
+                        let source_size = if let Some(paint_id) = layer.paint_id {
+                            if let Some(paint) = self.paint_manager.get_paint(paint_id) {
+                                paint.dimensions
+                            } else {
+                                glam::Vec2::new(1920.0, 1080.0)
+                            }
+                        } else {
+                            glam::Vec2::new(1920.0, 1080.0)
+                        };
+
+                        layer.set_transform_with_resize(mode, source_size, target_size);
+                        info!("Applied resize mode to layer {}", id);
+                    }
+                }
+
+                // Phase 1: Master Controls
+                UIAction::SetMasterOpacity(opacity) => {
+                    info!("Setting master opacity to {}", opacity);
+                    self.layer_manager.composition.set_master_opacity(opacity);
+                }
+                UIAction::SetMasterSpeed(speed) => {
+                    info!("Setting master speed to {}", speed);
+                    self.layer_manager.composition.set_master_speed(speed);
+                    // Note: Master speed application to video players would happen during update loop
+                }
+                UIAction::SetCompositionName(name) => {
+                    info!("Setting composition name to {}", name);
+                    self.layer_manager.composition.name = name;
+                }
             }
         }
 
@@ -507,7 +626,7 @@ impl App {
                     .and_then(|n| n.to_str())
                     .unwrap_or("Video");
 
-                let mut paint = Paint {
+                let paint = Paint {
                     id: next_id,
                     name: filename.to_string(),
                     paint_type: PaintType::Video,
