@@ -28,12 +28,13 @@ impl GpuVertex {
 }
 
 /// Uniforms for mesh rendering (matches mesh_warp.wgsl)
+/// Note: Must be padded to 96 bytes (multiple of 16) for std140 layout
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Pod, Zeroable)]
 struct MeshUniforms {
-    transform: [[f32; 4]; 4],
-    opacity: f32,
-    _padding: [f32; 3],
+    transform: [[f32; 4]; 4],  // 64 bytes
+    opacity: f32,              // 4 bytes
+    _padding: [f32; 7],        // 28 bytes (total 96 bytes for std140 alignment)
 }
 
 /// Mesh renderer for warped texture mapping
