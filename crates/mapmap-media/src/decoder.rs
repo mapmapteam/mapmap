@@ -3,7 +3,7 @@
 use crate::{MediaError, Result};
 use std::path::Path;
 use std::time::Duration;
-use tracing::{debug, info, warn};
+use tracing::{info, warn};
 
 /// Pixel format for decoded frames
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -412,6 +412,9 @@ pub enum FFmpegDecoder {
     #[cfg(feature = "ffmpeg")]
     Real(ffmpeg_impl::RealFFmpegDecoder),
     TestPattern(TestPatternDecoder),
+    StillImage(crate::image_decoder::StillImageDecoder),
+    Gif(crate::image_decoder::GifDecoder),
+    ImageSequence(crate::image_decoder::ImageSequenceDecoder),
 }
 
 impl FFmpegDecoder {
@@ -423,11 +426,47 @@ impl FFmpegDecoder {
     /// Open a video file with hardware acceleration
     pub fn open_with_hw_accel<P: AsRef<Path>>(
         path: P,
-        hw_accel: HwAccelType,
+        #[allow(unused_variables)] hw_accel: HwAccelType,
     ) -> Result<Self> {
+        let path_ref = path.as_ref();
+
+        // Try image decoders first based on file extension
+        if crate::image_decoder::StillImageDecoder::supports_format(path_ref) {
+            info!("Detected still image format, using StillImageDecoder");
+            match crate::image_decoder::StillImageDecoder::open(path_ref) {
+                Ok(decoder) => return Ok(FFmpegDecoder::StillImage(decoder)),
+                Err(e) => {
+                    warn!("Still image decoder failed: {}, trying video decoder", e);
+                }
+            }
+        }
+
+        if crate::image_decoder::GifDecoder::supports_format(path_ref) {
+            info!("Detected GIF format, using GifDecoder");
+            match crate::image_decoder::GifDecoder::open(path_ref) {
+                Ok(decoder) => return Ok(FFmpegDecoder::Gif(decoder)),
+                Err(e) => {
+                    warn!("GIF decoder failed: {}, trying video decoder", e);
+                }
+            }
+        }
+
+        // If it's a directory, try image sequence decoder
+        if path_ref.is_dir() {
+            info!("Detected directory, trying ImageSequenceDecoder");
+            // Default to 30 fps for image sequences
+            match crate::image_decoder::ImageSequenceDecoder::open(path_ref, 30.0) {
+                Ok(decoder) => return Ok(FFmpegDecoder::ImageSequence(decoder)),
+                Err(e) => {
+                    warn!("Image sequence decoder failed: {}", e);
+                }
+            }
+        }
+
+        // Fall back to video decoder (FFmpeg or test pattern)
         #[cfg(feature = "ffmpeg")]
         {
-            match ffmpeg_impl::RealFFmpegDecoder::open(path, hw_accel) {
+            match ffmpeg_impl::RealFFmpegDecoder::open(path_ref, hw_accel) {
                 Ok(decoder) => Ok(FFmpegDecoder::Real(decoder)),
                 Err(e) => {
                     warn!("FFmpeg decoder failed: {}, using test pattern", e);
@@ -443,8 +482,6 @@ impl FFmpegDecoder {
 
         #[cfg(not(feature = "ffmpeg"))]
         {
-            let _ = path;
-            let _ = hw_accel;
             info!("FFmpeg feature not enabled, using test pattern");
             Ok(FFmpegDecoder::TestPattern(TestPatternDecoder::new(
                 1920,
@@ -453,6 +490,12 @@ impl FFmpegDecoder {
                 30.0,
             )))
         }
+    }
+
+    /// Open an image sequence with a custom frame rate
+    pub fn open_image_sequence<P: AsRef<Path>>(directory: P, fps: f64) -> Result<Self> {
+        crate::image_decoder::ImageSequenceDecoder::open(directory, fps)
+            .map(FFmpegDecoder::ImageSequence)
     }
 
     /// Detect and use best available hardware acceleration
@@ -479,6 +522,9 @@ impl VideoDecoder for FFmpegDecoder {
             #[cfg(feature = "ffmpeg")]
             FFmpegDecoder::Real(decoder) => decoder.next_frame(),
             FFmpegDecoder::TestPattern(decoder) => decoder.next_frame(),
+            FFmpegDecoder::StillImage(decoder) => decoder.next_frame(),
+            FFmpegDecoder::Gif(decoder) => decoder.next_frame(),
+            FFmpegDecoder::ImageSequence(decoder) => decoder.next_frame(),
         }
     }
 
@@ -487,6 +533,9 @@ impl VideoDecoder for FFmpegDecoder {
             #[cfg(feature = "ffmpeg")]
             FFmpegDecoder::Real(decoder) => decoder.seek(timestamp),
             FFmpegDecoder::TestPattern(decoder) => decoder.seek(timestamp),
+            FFmpegDecoder::StillImage(decoder) => decoder.seek(timestamp),
+            FFmpegDecoder::Gif(decoder) => decoder.seek(timestamp),
+            FFmpegDecoder::ImageSequence(decoder) => decoder.seek(timestamp),
         }
     }
 
@@ -495,6 +544,9 @@ impl VideoDecoder for FFmpegDecoder {
             #[cfg(feature = "ffmpeg")]
             FFmpegDecoder::Real(decoder) => decoder.duration(),
             FFmpegDecoder::TestPattern(decoder) => decoder.duration(),
+            FFmpegDecoder::StillImage(decoder) => decoder.duration(),
+            FFmpegDecoder::Gif(decoder) => decoder.duration(),
+            FFmpegDecoder::ImageSequence(decoder) => decoder.duration(),
         }
     }
 
@@ -503,6 +555,9 @@ impl VideoDecoder for FFmpegDecoder {
             #[cfg(feature = "ffmpeg")]
             FFmpegDecoder::Real(decoder) => decoder.resolution(),
             FFmpegDecoder::TestPattern(decoder) => decoder.resolution(),
+            FFmpegDecoder::StillImage(decoder) => decoder.resolution(),
+            FFmpegDecoder::Gif(decoder) => decoder.resolution(),
+            FFmpegDecoder::ImageSequence(decoder) => decoder.resolution(),
         }
     }
 
@@ -511,6 +566,9 @@ impl VideoDecoder for FFmpegDecoder {
             #[cfg(feature = "ffmpeg")]
             FFmpegDecoder::Real(decoder) => decoder.fps(),
             FFmpegDecoder::TestPattern(decoder) => decoder.fps(),
+            FFmpegDecoder::StillImage(decoder) => decoder.fps(),
+            FFmpegDecoder::Gif(decoder) => decoder.fps(),
+            FFmpegDecoder::ImageSequence(decoder) => decoder.fps(),
         }
     }
 }
