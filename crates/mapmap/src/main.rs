@@ -305,6 +305,7 @@ impl App {
 
         // Render ImGui
         let ui_state = &mut self.ui_state;
+        let layer_manager = &mut self.layer_manager;
         let paint_manager = &mut self.paint_manager;
         let mapping_manager = &mut self.mapping_manager;
         let fps = self.fps;
@@ -557,6 +558,13 @@ impl App {
                 }
                 UIAction::ApplyResizeMode(id, mode) => {
                     info!("Applying resize mode {:?} to layer {}", mode, id);
+
+                    // Get composition size first (before borrowing layer)
+                    let target_size = glam::Vec2::new(
+                        self.layer_manager.composition.size.0 as f32,
+                        self.layer_manager.composition.size.1 as f32
+                    );
+
                     if let Some(layer) = self.layer_manager.get_layer_mut(id) {
                         // Get paint dimensions if available
                         let source_size = if let Some(paint_id) = layer.paint_id {
@@ -568,11 +576,6 @@ impl App {
                         } else {
                             glam::Vec2::new(1920.0, 1080.0)
                         };
-
-                        let target_size = glam::Vec2::new(
-                            self.layer_manager.composition.size.0 as f32,
-                            self.layer_manager.composition.size.1 as f32
-                        );
 
                         layer.set_transform_with_resize(mode, source_size, target_size);
                         info!("Applied resize mode to layer {}", id);
@@ -623,7 +626,7 @@ impl App {
                     .and_then(|n| n.to_str())
                     .unwrap_or("Video");
 
-                let mut paint = Paint {
+                let paint = Paint {
                     id: next_id,
                     name: filename.to_string(),
                     paint_type: PaintType::Video,
