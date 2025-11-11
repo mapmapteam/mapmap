@@ -15,11 +15,13 @@ use thiserror::Error;
 pub mod layer;
 pub use layer::{BlendMode, Layer, LayerManager, Transform, ResizeMode, Composition};
 
-// Phase 2: Mapping system
+// Phase 2: Multi-output and projection mapping
+pub mod output;
 pub mod paint;
 pub mod mesh;
 pub mod mapping;
 
+pub use output::{OutputManager, OutputConfig, OutputId, CanvasRegion, EdgeBlendConfig, EdgeBlendZone, ColorCalibration};
 pub use paint::{Paint, PaintId, PaintManager, PaintType};
 pub use mesh::{Mesh, MeshType, MeshVertex, VertexId};
 pub use mapping::{Mapping, MappingId, MappingManager};
