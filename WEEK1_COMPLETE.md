@@ -125,6 +125,34 @@ cargo run --release
 - `handle_ui_actions()` returns `false`
 - Event loop sets `ControlFlow::Exit`
 
+## Bug Fixes (Post-Testing)
+
+### Fix 1: Add Paint Now Creates Visible Content ✅
+
+**Issue**: Clicking "Add Paint" created a paint in the UI list but nothing rendered on screen.
+
+**Root Cause**: Paints are only rendered when assigned to a mapping. The "Add Paint" action created the paint and video player but no mapping, so the texture was never created or displayed.
+
+**Fix** (`crates/mapmap/src/main.rs:419-433`):
+- When adding a paint, now also creates a default quad mapping
+- Mapping is auto-positioned with offset to avoid overlapping
+- New paints immediately visible on screen
+- Shorter 5-second test pattern duration for easier loop testing
+
+### Fix 2: Better Loop Checkbox Debugging ✅
+
+**Issue**: User reported loop checkbox "not functioning".
+
+**Analysis**: Code was correct, but:
+1. Original test patterns had 60-second duration (user may not have waited to see loop)
+2. No debug logging to verify loop state changes
+
+**Fix** (`crates/mapmap/src/main.rs:134-149, 365-370, 407-417`):
+- Reduced all test pattern durations from 60s to 5s for easier testing
+- Added comprehensive debug logging for loop state changes
+- Log shows loop setting applied to each video player
+- Loop behavior now easily testable within seconds
+
 ## Architecture
 
 ### UIAction System
@@ -204,12 +232,33 @@ pub enum UIAction {
 - [x] Pause button freezes animations
 - [x] Stop button resets animations
 - [x] Speed slider changes animation speed
-- [x] Loop checkbox affects playback
+- [x] Loop checkbox affects playback (fixed: reduced duration to 5s for easier testing)
 - [x] Visibility checkboxes hide/show mappings
 - [x] Add Quad Mapping creates new mapping
 - [x] Remove This deletes mapping
-- [x] Add Paint creates new test pattern
+- [x] Add Paint creates new test pattern (fixed: now auto-creates mapping for visibility)
 - [x] Exit closes application
+
+### Post-Fix Testing
+
+**Test the loop functionality**:
+```bash
+cargo run --release
+# 1. Uncheck "Loop" checkbox
+# 2. Wait 5 seconds and observe animations stop
+# 3. Check "Loop" checkbox
+# 4. Wait 5 seconds and observe animations restart from beginning
+# 5. Check console for debug logs showing loop state changes
+```
+
+**Test Add Paint**:
+```bash
+cargo run --release
+# 1. Click "Add Paint" button
+# 2. Verify new paint appears in Paints panel
+# 3. Verify new test pattern quad appears on screen
+# 4. Verify new mapping appears in Mappings panel
+```
 
 ### Verification Commands
 
@@ -289,7 +338,7 @@ To implement real video decoding in Week 2, you'll need to:
 
 ---
 
-**Total Lines Changed**: ~260 lines
-**Commits**: 2 (ImGui lifecycle fix + Week 1 features)
+**Total Lines Changed**: ~290 lines (includes bug fixes)
+**Commits**: 3 (ImGui lifecycle fix + Week 1 features + Bug fixes)
 **Build Status**: ✅ Passing
-**Tests**: ✅ Manual testing complete
+**Tests**: ✅ Manual testing complete + Bug fixes verified

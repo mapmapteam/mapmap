@@ -131,8 +131,9 @@ impl App {
         let mut video_players = HashMap::new();
 
         // Use TestPattern decoder for demo (Real FFmpeg decoder requires feature flag)
+        // 5-second duration for easier loop testing
         let decoder1 = FFmpegDecoder::TestPattern(
-            TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(60), 30.0)
+            TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(5), 30.0)
         );
         let mut player1 = VideoPlayer::new(decoder1);
         player1.set_looping(true);
@@ -140,7 +141,7 @@ impl App {
         video_players.insert(paint_id_1, player1);
 
         let decoder2 = FFmpegDecoder::TestPattern(
-            TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(60), 30.0)
+            TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(5), 30.0)
         );
         let mut player2 = VideoPlayer::new(decoder2);
         player2.set_looping(true);
@@ -363,9 +364,10 @@ impl App {
                     }
                 }
                 UIAction::ToggleLoop(looping) => {
-                    info!("Setting loop mode to {}", looping);
-                    for player in self.video_players.values_mut() {
+                    info!("Setting loop mode to {} for {} video players", looping, self.video_players.len());
+                    for (paint_id, player) in self.video_players.iter_mut() {
                         player.set_looping(looping);
+                        info!("  - Paint {} now has looping={}", paint_id, player.is_looping());
                     }
                 }
                 UIAction::ToggleMappingVisibility(id, visible) => {
@@ -404,15 +406,33 @@ impl App {
                     let paint = Paint::test_pattern(next_id, &format!("Test Pattern {}", next_id));
                     let paint_id = self.paint_manager.add_paint(paint);
 
-                    // Create a video player for this paint
+                    // Create a video player for this paint (shorter 5-second duration for easier loop testing)
                     let decoder = mapmap_media::FFmpegDecoder::TestPattern(
-                        mapmap_media::TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(60), 30.0)
+                        mapmap_media::TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(5), 30.0)
                     );
                     let mut player = mapmap_media::VideoPlayer::new(decoder);
                     player.set_looping(self.ui_state.looping);
                     player.set_speed(self.ui_state.playback_speed);
                     player.play();
                     self.video_players.insert(paint_id, player);
+                    info!("Created video player for paint {} with looping={}, speed={}",
+                          paint_id, self.ui_state.looping, self.ui_state.playback_speed);
+
+                    // Create a default quad mapping for the new paint so it's visible
+                    let mapping_id = self.mapping_manager.mappings().len() as u64 + 1;
+                    let mut new_mapping = Mapping::quad(
+                        mapping_id,
+                        &format!("Mapping for Paint {}", next_id),
+                        paint_id,
+                    );
+                    // Position it with a slight offset based on count
+                    let offset = (mapping_id as f32 * 0.15) % 1.0 - 0.3;
+                    for vertex in &mut new_mapping.mesh.vertices {
+                        vertex.position.x += offset;
+                        vertex.position.y += offset * 0.5;
+                    }
+                    self.mapping_manager.add_mapping(new_mapping);
+                    info!("Created default quad mapping {} for paint {}", mapping_id, paint_id);
                 }
                 UIAction::RemovePaint(id) => {
                     info!("Removing paint {}", id);
