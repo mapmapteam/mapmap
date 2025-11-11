@@ -331,6 +331,112 @@ impl App {
         Ok(())
     }
 
+    fn handle_ui_actions(&mut self) -> bool {
+        use mapmap_ui::UIAction;
+
+        let actions = self.ui_state.take_actions();
+
+        for action in actions {
+            match action {
+                UIAction::Play => {
+                    info!("Play action triggered");
+                    for player in self.video_players.values_mut() {
+                        player.play();
+                    }
+                }
+                UIAction::Pause => {
+                    info!("Pause action triggered");
+                    for player in self.video_players.values_mut() {
+                        player.pause();
+                    }
+                }
+                UIAction::Stop => {
+                    info!("Stop action triggered");
+                    for player in self.video_players.values_mut() {
+                        player.stop();
+                    }
+                }
+                UIAction::SetSpeed(speed) => {
+                    info!("Setting playback speed to {}", speed);
+                    for player in self.video_players.values_mut() {
+                        player.set_speed(speed);
+                    }
+                }
+                UIAction::ToggleLoop(looping) => {
+                    info!("Setting loop mode to {}", looping);
+                    for player in self.video_players.values_mut() {
+                        player.set_looping(looping);
+                    }
+                }
+                UIAction::ToggleMappingVisibility(id, visible) => {
+                    info!("Toggling mapping {} visibility to {}", id, visible);
+                    if let Some(mapping) = self.mapping_manager.get_mapping_mut(id) {
+                        mapping.visible = visible;
+                    }
+                }
+                UIAction::AddMapping => {
+                    info!("Adding new quad mapping");
+                    let next_id = self.mapping_manager.mappings().len() as u64 + 1;
+                    let paint_id = self.paint_manager.paints().first().map(|p| p.id).unwrap_or(1);
+                    let mut new_mapping = Mapping::quad(
+                        next_id,
+                        &format!("Mapping {}", next_id),
+                        paint_id,
+                    );
+                    // Position it slightly offset from center
+                    let offset = (next_id as f32 * 0.1) % 1.0;
+                    for vertex in &mut new_mapping.mesh.vertices {
+                        vertex.position.x += offset - 0.5;
+                    }
+                    self.mapping_manager.add_mapping(new_mapping);
+                }
+                UIAction::RemoveMapping(id) => {
+                    info!("Removing mapping {}", id);
+                    self.mapping_manager.remove_mapping(id);
+                }
+                UIAction::SelectMapping(id) => {
+                    info!("Selected mapping {}", id);
+                    // TODO: Highlight selected mapping
+                }
+                UIAction::AddPaint => {
+                    info!("Adding new paint");
+                    let next_id = self.paint_manager.paints().len() as u64 + 1;
+                    let paint = Paint::test_pattern(next_id, &format!("Test Pattern {}", next_id));
+                    let paint_id = self.paint_manager.add_paint(paint);
+
+                    // Create a video player for this paint
+                    let decoder = mapmap_media::FFmpegDecoder::TestPattern(
+                        mapmap_media::TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(60), 30.0)
+                    );
+                    let mut player = mapmap_media::VideoPlayer::new(decoder);
+                    player.set_looping(self.ui_state.looping);
+                    player.set_speed(self.ui_state.playback_speed);
+                    player.play();
+                    self.video_players.insert(paint_id, player);
+                }
+                UIAction::RemovePaint(id) => {
+                    info!("Removing paint {}", id);
+                    self.paint_manager.remove_paint(id);
+                    self.video_players.remove(&id);
+                    self.paint_textures.remove(&id);
+                }
+                UIAction::Exit => {
+                    info!("Exit action triggered");
+                    return false;
+                }
+                UIAction::ToggleFullscreen => {
+                    info!("Toggle fullscreen triggered");
+                    // TODO: Implement fullscreen toggle
+                }
+                _ => {
+                    info!("Unhandled action: {:?}", action);
+                }
+            }
+        }
+
+        true
+    }
+
     fn handle_window_event(&mut self, event: &WindowEvent) -> bool {
         match event {
             WindowEvent::CloseRequested => return false,
@@ -374,6 +480,13 @@ fn main() -> Result<()> {
             }
             Event::MainEventsCleared => {
                 app.update();
+
+                // Handle UI actions
+                if !app.handle_ui_actions() {
+                    *control_flow = ControlFlow::Exit;
+                    return;
+                }
+
                 app.window.request_redraw();
             }
             Event::RedrawRequested(_) => {

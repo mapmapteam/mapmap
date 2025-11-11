@@ -10,6 +10,36 @@ use imgui_wgpu::{Renderer, RendererConfig};
 use imgui_winit_support::{HiDpiMode, WinitPlatform};
 use std::time::Instant;
 
+/// UI actions that can be triggered by the user interface
+#[derive(Debug, Clone)]
+pub enum UIAction {
+    // Playback actions
+    Play,
+    Pause,
+    Stop,
+    SetSpeed(f32),
+    ToggleLoop(bool),
+
+    // File actions
+    LoadVideo(String),
+    SaveProject(String),
+    LoadProject(String),
+    Exit,
+
+    // Mapping actions
+    AddMapping,
+    RemoveMapping(u64),
+    ToggleMappingVisibility(u64, bool),
+    SelectMapping(u64),
+
+    // Paint actions
+    AddPaint,
+    RemovePaint(u64),
+
+    // View actions
+    ToggleFullscreen,
+}
+
 pub struct ImGuiContext {
     pub imgui: Context,
     pub platform: WinitPlatform,
@@ -120,6 +150,7 @@ pub struct AppUI {
     pub show_mappings: bool,
     pub playback_speed: f32,
     pub looping: bool,
+    pub actions: Vec<UIAction>,
 }
 
 impl Default for AppUI {
@@ -132,11 +163,17 @@ impl Default for AppUI {
             show_mappings: true,
             playback_speed: 1.0,
             looping: true,
+            actions: Vec::new(),
         }
     }
 }
 
 impl AppUI {
+    /// Take all pending actions and clear the list
+    pub fn take_actions(&mut self) -> Vec<UIAction> {
+        std::mem::take(&mut self.actions)
+    }
+
     /// Render the control panel
     pub fn render_controls(&mut self, ui: &Ui) {
         if !self.show_controls {
@@ -149,21 +186,30 @@ impl AppUI {
                 ui.text("Video Playback");
                 ui.separator();
 
+                let old_speed = self.playback_speed;
                 ui.slider("Speed", 0.1, 2.0, &mut self.playback_speed);
+                if (self.playback_speed - old_speed).abs() > 0.001 {
+                    self.actions.push(UIAction::SetSpeed(self.playback_speed));
+                }
+
+                let old_looping = self.looping;
                 ui.checkbox("Loop", &mut self.looping);
+                if self.looping != old_looping {
+                    self.actions.push(UIAction::ToggleLoop(self.looping));
+                }
 
                 ui.separator();
 
                 if ui.button("Play") {
-                    // Handled by main app
+                    self.actions.push(UIAction::Play);
                 }
                 ui.same_line();
                 if ui.button("Pause") {
-                    // Handled by main app
+                    self.actions.push(UIAction::Pause);
                 }
                 ui.same_line();
                 if ui.button("Stop") {
-                    // Handled by main app
+                    self.actions.push(UIAction::Stop);
                 }
             });
     }
@@ -190,11 +236,18 @@ impl AppUI {
         ui.main_menu_bar(|| {
             ui.menu("File", || {
                 if ui.menu_item("Load Video") {
-                    // Handled by main app
+                    // TODO: Open file dialog
+                    self.actions.push(UIAction::LoadVideo(String::new()));
+                }
+                if ui.menu_item("Save Project") {
+                    self.actions.push(UIAction::SaveProject(String::new()));
+                }
+                if ui.menu_item("Load Project") {
+                    self.actions.push(UIAction::LoadProject(String::new()));
                 }
                 ui.separator();
                 if ui.menu_item("Exit") {
-                    // Handled by main app
+                    self.actions.push(UIAction::Exit);
                 }
             });
 
@@ -204,6 +257,10 @@ impl AppUI {
                 ui.checkbox("Show Paints", &mut self.show_paints);
                 ui.checkbox("Show Mappings", &mut self.show_mappings);
                 ui.checkbox("Show Stats", &mut self.show_stats);
+                ui.separator();
+                if ui.menu_item("Toggle Fullscreen") {
+                    self.actions.push(UIAction::ToggleFullscreen);
+                }
             });
 
             ui.menu("Help", || {
@@ -358,11 +415,7 @@ impl AppUI {
 
                 // Paint management buttons
                 if ui.button("Add Paint") {
-                    // This will be handled by the main app
-                }
-                ui.same_line();
-                if ui.button("Remove") {
-                    // This will be handled by the main app
+                    self.actions.push(UIAction::AddPaint);
                 }
             });
     }
@@ -394,17 +447,29 @@ impl AppUI {
                     .map(|m| m.id)
                     .collect();
 
+                let mut selected_mapping_id: Option<u64> = None;
+
                 for mapping_id in mapping_ids {
                     if let Some(mapping) = mapping_manager.get_mapping_mut(mapping_id) {
                         let _id = ui.push_id_usize(mapping.id as usize);
 
                         // Mapping header with visibility
-                        let mut visible = mapping.visible;
-                        if ui.checkbox(&format!("##visible_{}", mapping.id), &mut visible) {
-                            mapping.visible = visible;
+                        let old_visible = mapping.visible;
+                        if ui.checkbox(&format!("##visible_{}", mapping.id), &mut mapping.visible) {
+                            if mapping.visible != old_visible {
+                                self.actions.push(UIAction::ToggleMappingVisibility(
+                                    mapping.id,
+                                    mapping.visible,
+                                ));
+                            }
                         }
                         ui.same_line();
-                        ui.text(&format!("{} (Paint #{})", mapping.name, mapping.paint_id));
+
+                        // Make the mapping name clickable to select it
+                        if ui.small_button(&format!("{} (Paint #{})", mapping.name, mapping.paint_id)) {
+                            selected_mapping_id = Some(mapping.id);
+                            self.actions.push(UIAction::SelectMapping(mapping.id));
+                        }
 
                         // Indent for mapping properties
                         ui.indent();
@@ -427,6 +492,11 @@ impl AppUI {
                             mapping.mesh.vertex_count()
                         ));
 
+                        // Remove button for this mapping
+                        if ui.button("Remove This") {
+                            self.actions.push(UIAction::RemoveMapping(mapping.id));
+                        }
+
                         ui.unindent();
                         ui.separator();
                     }
@@ -435,12 +505,8 @@ impl AppUI {
                 ui.separator();
 
                 // Mapping management buttons
-                if ui.button("Add Mapping") {
-                    // This will be handled by the main app
-                }
-                ui.same_line();
-                if ui.button("Remove") {
-                    // This will be handled by the main app
+                if ui.button("Add Quad Mapping") {
+                    self.actions.push(UIAction::AddMapping);
                 }
             });
     }
