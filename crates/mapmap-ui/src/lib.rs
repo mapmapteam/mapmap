@@ -182,6 +182,8 @@ pub struct AppUI {
     pub show_transforms: bool,      // Phase 1
     pub show_master_controls: bool, // Phase 1
     pub show_outputs: bool,          // Phase 2
+    pub show_edge_blend: bool,       // Phase 2
+    pub show_color_calibration: bool, // Phase 2
     pub playback_speed: f32,
     pub looping: bool,
     // Phase 1: Advanced playback state
@@ -205,6 +207,8 @@ impl Default for AppUI {
             show_transforms: true,
             show_master_controls: true,
             show_outputs: true,
+            show_edge_blend: false,  // Show only when output selected
+            show_color_calibration: false,  // Show only when output selected
             playback_speed: 1.0,
             looping: true,
             playback_direction: mapmap_media::PlaybackDirection::Forward,
@@ -887,6 +891,26 @@ impl AppUI {
                         if blend.right.enabled { ui.text("  Right"); }
                         if blend.top.enabled { ui.text("  Top"); }
                         if blend.bottom.enabled { ui.text("  Bottom"); }
+                        if !blend.left.enabled && !blend.right.enabled && !blend.top.enabled && !blend.bottom.enabled {
+                            ui.text_disabled("  (None)");
+                        }
+
+                        ui.separator();
+
+                        // Color calibration status
+                        let cal = &output.color_calibration;
+                        ui.text("Color Calibration:");
+                        if cal.brightness != 0.0 { ui.text(format!("  Brightness: {:.2}", cal.brightness)); }
+                        if cal.contrast != 1.0 { ui.text(format!("  Contrast: {:.2}", cal.contrast)); }
+                        if cal.saturation != 1.0 { ui.text(format!("  Saturation: {:.2}", cal.saturation)); }
+                        if cal.brightness == 0.0 && cal.contrast == 1.0 && cal.saturation == 1.0 {
+                            ui.text_disabled("  (Defaults)");
+                        }
+
+                        ui.separator();
+
+                        ui.text_colored([0.5, 0.8, 1.0, 1.0], "Tip:");
+                        ui.text_wrapped("Edge Blending and Color Calibration panels open automatically!");
 
                         ui.separator();
 
@@ -908,7 +932,12 @@ impl AppUI {
 
     /// Phase 2: Render edge blend configuration
     pub fn render_edge_blend_panel(&mut self, ui: &Ui, output_manager: &mut mapmap_core::OutputManager) {
-        if self.selected_output_id.is_none() {
+        // Auto-show when output is selected
+        if self.selected_output_id.is_some() {
+            self.show_edge_blend = true;
+        }
+
+        if !self.show_edge_blend || self.selected_output_id.is_none() {
             return;
         }
 
@@ -987,7 +1016,12 @@ impl AppUI {
 
     /// Phase 2: Render color calibration panel
     pub fn render_color_calibration_panel(&mut self, ui: &Ui, output_manager: &mut mapmap_core::OutputManager) {
-        if self.selected_output_id.is_none() {
+        // Auto-show when output is selected
+        if self.selected_output_id.is_some() {
+            self.show_color_calibration = true;
+        }
+
+        if !self.show_color_calibration || self.selected_output_id.is_none() {
             return;
         }
 

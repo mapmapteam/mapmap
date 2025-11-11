@@ -693,6 +693,8 @@ impl App {
                     ui_state.render_transform_panel(ui, layer_manager);
                     ui_state.render_master_controls(ui, layer_manager);
                     ui_state.render_output_panel(ui, output_manager);
+                    ui_state.render_edge_blend_panel(ui, output_manager);
+                    ui_state.render_color_calibration_panel(ui, output_manager);
                     ui_state.render_stats(ui, fps, frame_time);
                 },
             );
