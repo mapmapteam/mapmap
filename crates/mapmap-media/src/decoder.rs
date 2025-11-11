@@ -84,7 +84,11 @@ fn yuv420p_to_rgba(yuv_data: &[u8], width: u32, height: u32) -> Vec<u8> {
 }
 
 /// Video decoder trait
-pub trait VideoDecoder: Send {
+///
+/// Note: VideoDecoder does not require Send because FFmpeg's scaler context
+/// is not thread-safe. Decoders should be used on a single thread or wrapped
+/// in appropriate synchronization primitives.
+pub trait VideoDecoder {
     fn next_frame(&mut self) -> Result<DecodedFrame>;
     fn seek(&mut self, timestamp: Duration) -> Result<()>;
     fn duration(&self) -> Duration;
@@ -158,8 +162,6 @@ mod ffmpeg_impl {
 
             // Get stream parameters
             let codec_params = video_stream.parameters();
-            let width = codec_params.width();
-            let height = codec_params.height();
 
             // Calculate FPS
             let fps = video_stream.avg_frame_rate();
@@ -168,14 +170,6 @@ mod ffmpeg_impl {
             // Calculate duration
             let duration_secs = video_stream.duration() as f64 * f64::from(time_base);
             let duration = Duration::from_secs_f64(duration_secs);
-
-            info!(
-                "Opening video: {}x{} @ {:.2} fps, duration: {:.2}s",
-                width,
-                height,
-                fps_value,
-                duration_secs
-            );
 
             // Create decoder context
             let mut decoder = ffmpeg::codec::Context::from_parameters(codec_params)
@@ -187,11 +181,15 @@ mod ffmpeg_impl {
             // Setup hardware acceleration if requested
             let actual_hw_accel = Self::setup_hw_accel(&mut decoder, hw_accel)?;
 
+            // Get dimensions from decoder
+            let width = decoder.width();
+            let height = decoder.height();
+
             // Create scaler to convert to RGBA
             let scaler = ffmpeg::software::scaling::Context::get(
                 decoder.format(),
-                decoder.width(),
-                decoder.height(),
+                width,
+                height,
                 ffmpeg::format::Pixel::RGBA,
                 width,
                 height,
@@ -199,7 +197,14 @@ mod ffmpeg_impl {
             )
             .map_err(|e| MediaError::DecoderError(e.to_string()))?;
 
-            info!("Decoder initialized successfully with {:?}", actual_hw_accel);
+            info!(
+                "Decoder initialized successfully: {}x{} @ {:.2} fps, duration: {:.2}s, hw_accel: {:?}",
+                width,
+                height,
+                fps_value,
+                duration_secs,
+                actual_hw_accel
+            );
 
             Ok(Self {
                 input_ctx,
