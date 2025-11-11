@@ -50,33 +50,33 @@ impl ImGuiContext {
         }
     }
 
-    /// Prepare frame for rendering
-    pub fn prepare_frame(&mut self, window: &winit::window::Window) {
-        let now = Instant::now();
-        self.imgui.io_mut().update_delta_time(now - self.last_frame);
-        self.last_frame = now;
-
-        self.platform
-            .prepare_frame(self.imgui.io_mut(), window)
-            .expect("Failed to prepare frame");
-    }
-
-    /// Begin new frame
-    pub fn begin_frame(&mut self) -> &mut Ui {
-        self.imgui.frame()
-    }
-
-    /// Render ImGui
-    pub fn render(
+    /// Render ImGui with a closure for building UI
+    pub fn render<F>(
         &mut self,
         window: &winit::window::Window,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         encoder: &mut wgpu::CommandEncoder,
         view: &wgpu::TextureView,
-    ) {
-        // Get UI reference and prepare render
+        build_ui: F,
+    ) where
+        F: FnOnce(&mut Ui),
+    {
+        // Update delta time
+        let now = Instant::now();
+        self.imgui.io_mut().update_delta_time(now - self.last_frame);
+        self.last_frame = now;
+
+        // Prepare frame
+        self.platform
+            .prepare_frame(self.imgui.io_mut(), window)
+            .expect("Failed to prepare frame");
+
+        // Begin frame and build UI
         let ui = self.imgui.frame();
+        build_ui(ui);
+
+        // End frame and prepare for rendering
         self.platform.prepare_render(ui, window);
         let draw_data = self.imgui.render();
 
