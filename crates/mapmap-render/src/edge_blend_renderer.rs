@@ -10,15 +10,16 @@ use tracing::{debug, info};
 use wgpu::util::DeviceExt;
 
 /// Edge blend uniform parameters matching the WGSL shader
+/// Total size: 48 bytes (std140 layout with vec3 alignment)
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Pod, Zeroable)]
 struct EdgeBlendUniforms {
-    left_width: f32,
-    right_width: f32,
-    top_width: f32,
-    bottom_width: f32,
-    gamma: f32,
-    _padding: [f32; 3],
+    left_width: f32,      // offset 0-3
+    right_width: f32,     // offset 4-7
+    top_width: f32,       // offset 8-11
+    bottom_width: f32,    // offset 12-15
+    gamma: f32,           // offset 16-19
+    _padding: [f32; 7],   // offset 20-47 (vec3 in WGSL needs 16-byte alignment)
 }
 
 /// Vertex for fullscreen quad
@@ -227,7 +228,7 @@ impl EdgeBlendRenderer {
             top_width: if config.top.enabled { config.top.width } else { 0.0 },
             bottom_width: if config.bottom.enabled { config.bottom.width } else { 0.0 },
             gamma: config.gamma,
-            _padding: [0.0; 3],
+            _padding: [0.0; 7],
         };
 
         self.device
@@ -274,7 +275,7 @@ mod tests {
     fn test_edge_blend_uniforms_size() {
         assert_eq!(
             std::mem::size_of::<EdgeBlendUniforms>(),
-            32 // 8 floats * 4 bytes
+            48 // 12 floats * 4 bytes (std140 layout with vec3 alignment)
         );
     }
 
