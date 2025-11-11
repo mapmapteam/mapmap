@@ -6,7 +6,7 @@ use anyhow::Result;
 use tracing::{error, info};
 use glam::{Mat4, Vec2};
 use mapmap_core::{
-    LayerManager, Mapping, MappingManager, Paint, PaintManager,
+    LayerManager, Mapping, MappingManager, Paint, PaintManager, OutputId,
 };
 use mapmap_media::{FFmpegDecoder, TestPatternDecoder, VideoPlayer};
 use mapmap_render::{
@@ -19,13 +19,23 @@ use tracing_subscriber;
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
-    window::WindowBuilder,
+    window::{WindowBuilder, WindowId},
 };
 
-struct App {
+/// Context for a single output window with its surface and configuration
+struct WindowContext {
     window: winit::window::Window,
     surface: wgpu::Surface,
     surface_config: wgpu::SurfaceConfiguration,
+    output_id: OutputId,
+}
+
+struct App {
+    // Multi-window rendering: Each output has its own window and surface
+    windows: HashMap<OutputId, WindowContext>,
+    window_id_map: HashMap<WindowId, OutputId>, // Map winit WindowId to OutputId
+    main_window_id: Option<OutputId>, // Primary window for UI
+
     backend: WgpuBackend,
     quad_renderer: QuadRenderer,
     mesh_renderer: MeshRenderer,
@@ -47,21 +57,23 @@ struct App {
 
 impl App {
     async fn new(event_loop: &EventLoop<()>) -> Result<Self> {
-        info!("Initializing MapMap Phase 2 Demo - Projection Mapping with Warping");
+        info!("Initializing MapMap Phase 2 Demo - Multi-Window Projection Mapping");
 
-        // Create window
-        let window = WindowBuilder::new()
-            .with_title("MapMap - Phase 2 Demo - Projection Mapping with Warping")
+        // Create wgpu backend first (shared across all windows)
+        let backend = WgpuBackend::new().await?;
+
+        // Create main preview window for UI and control
+        let main_window = WindowBuilder::new()
+            .with_title("MapMap - Main Control")
             .with_inner_size(winit::dpi::PhysicalSize::new(1920, 1080))
             .build(event_loop)?;
 
-        // Create wgpu backend
-        let backend = WgpuBackend::new().await?;
+        let main_window_id_winit = main_window.id();
 
-        // Create surface using the backend's instance
-        let surface = unsafe { backend.create_surface(&window) }?;
+        // Create surface for main window
+        let main_surface = unsafe { backend.create_surface(&main_window) }?;
 
-        let surface_config = wgpu::SurfaceConfiguration {
+        let main_surface_config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: wgpu::TextureFormat::Bgra8Unorm,
             width: 1920,
@@ -71,29 +83,49 @@ impl App {
             view_formats: vec![],
         };
 
-        surface.configure(backend.device(), &surface_config);
+        main_surface.configure(backend.device(), &main_surface_config);
+
+        // Use OutputId 0 for main window (non-output window)
+        let main_output_id: OutputId = 0;
+
+        // Store format before moving main_surface_config
+        let surface_format = main_surface_config.format;
+
+        let main_window_context = WindowContext {
+            window: main_window,
+            surface: main_surface,
+            surface_config: main_surface_config,
+            output_id: main_output_id,
+        };
+
+        let mut windows = HashMap::new();
+        windows.insert(main_output_id, main_window_context);
+
+        let mut window_id_map = HashMap::new();
+        window_id_map.insert(main_window_id_winit, main_output_id);
 
         // Create quad renderer
-        let quad_renderer = QuadRenderer::new(backend.device(), surface_config.format)?;
+        let quad_renderer = QuadRenderer::new(backend.device(), surface_format)?;
 
         // Create mesh renderer
         let mesh_renderer = MeshRenderer::new(
             backend.device.clone(),
-            surface_config.format,
+            surface_format,
         )?;
 
         // Create compositor
         let compositor = Compositor::new(
             backend.device.clone(),
-            surface_config.format,
+            surface_format,
         )?;
 
-        // Create ImGui context
+        // Create ImGui context for main window
+        let main_window_ref = &windows.get(&main_output_id).unwrap().window;
         let imgui_context = ImGuiContext::new(
-            &window,
+            main_window_ref,
             backend.device(),
             backend.queue(),
-            surface_config.format,
+            surface_format,
         );
 
         // Initialize layer manager (keeping for future layer system integration)
@@ -156,9 +188,9 @@ impl App {
         );
 
         Ok(Self {
-            window,
-            surface,
-            surface_config,
+            windows,
+            window_id_map,
+            main_window_id: Some(main_output_id),
             backend,
             quad_renderer,
             mesh_renderer,
@@ -177,6 +209,95 @@ impl App {
             frame_count: 0,
             fps: 0.0,
         })
+    }
+
+    /// Create output windows for all configured outputs
+    fn create_output_windows<T>(&mut self, event_loop_target: &winit::event_loop::EventLoopWindowTarget<T>) -> Result<()> {
+        info!("Creating output windows for {} configured outputs", self.output_manager.outputs().len());
+
+        for output_config in self.output_manager.outputs() {
+            let output_id = output_config.id;
+
+            // Skip if window already exists
+            if self.windows.contains_key(&output_id) {
+                continue;
+            }
+
+            info!("Creating window for output '{}' (ID: {})", output_config.name, output_id);
+
+            let window = WindowBuilder::new()
+                .with_title(&format!("MapMap Output - {}", output_config.name))
+                .with_inner_size(winit::dpi::PhysicalSize::new(
+                    output_config.resolution.0,
+                    output_config.resolution.1,
+                ))
+                .with_fullscreen(if output_config.fullscreen {
+                    Some(winit::window::Fullscreen::Borderless(None))
+                } else {
+                    None
+                })
+                .build(event_loop_target)?;
+
+            let window_id_winit = window.id();
+
+            // Create surface for this output window
+            let surface = unsafe { self.backend.create_surface(&window) }?;
+
+            let surface_config = wgpu::SurfaceConfiguration {
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+                format: wgpu::TextureFormat::Bgra8Unorm,
+                width: output_config.resolution.0,
+                height: output_config.resolution.1,
+                present_mode: wgpu::PresentMode::Fifo, // VSync for synchronized output
+                alpha_mode: wgpu::CompositeAlphaMode::Opaque,
+                view_formats: vec![],
+            };
+
+            surface.configure(self.backend.device(), &surface_config);
+
+            let window_context = WindowContext {
+                window,
+                surface,
+                surface_config,
+                output_id,
+            };
+
+            self.windows.insert(output_id, window_context);
+            self.window_id_map.insert(window_id_winit, output_id);
+
+            info!("Created output window for '{}' at {}x{}",
+                  output_config.name,
+                  output_config.resolution.0,
+                  output_config.resolution.1);
+        }
+
+        Ok(())
+    }
+
+    /// Synchronize windows with output manager configuration
+    fn sync_windows(&mut self) {
+        // Remove windows for outputs that no longer exist
+        let output_ids: Vec<OutputId> = self.output_manager.outputs()
+            .iter()
+            .map(|o| o.id)
+            .collect();
+
+        let mut windows_to_remove = Vec::new();
+        for (&window_output_id, _) in &self.windows {
+            // Don't remove main window (id 0)
+            if window_output_id != 0 && !output_ids.contains(&window_output_id) {
+                windows_to_remove.push(window_output_id);
+            }
+        }
+
+        for output_id in windows_to_remove {
+            if let Some(window_context) = self.windows.remove(&output_id) {
+                // Remove from window_id_map
+                let winit_id = window_context.window.id();
+                self.window_id_map.remove(&winit_id);
+                info!("Removed output window for output ID {}", output_id);
+            }
+        }
     }
 
     fn update(&mut self) {
@@ -224,31 +345,119 @@ impl App {
     }
 
     fn render(&mut self) -> Result<()> {
-        let frame = self.surface.get_current_texture()?;
-        let view = frame
-            .texture
-            .create_view(&wgpu::TextureViewDescriptor::default());
+        // Multi-window synchronized rendering
+        let mut frames = Vec::new();
+        let mut encoders = Vec::new();
 
-        let mut encoder = self
-            .backend
-            .device()
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Render Encoder"),
-            });
+        // Get all window IDs to render
+        let window_ids: Vec<OutputId> = self.windows.keys().copied().collect();
+
+        // Acquire frames from all surfaces
+        for &output_id in &window_ids {
+            if let Some(window_context) = self.windows.get(&output_id) {
+                match window_context.surface.get_current_texture() {
+                    Ok(frame) => frames.push((output_id, frame)),
+                    Err(wgpu::SurfaceError::Timeout) => {
+                        info!("Surface timeout for output {}", output_id);
+                        continue;
+                    }
+                    Err(wgpu::SurfaceError::Outdated) => {
+                        info!("Surface outdated for output {}, reconfiguring", output_id);
+                        continue;
+                    }
+                    Err(e) => {
+                        error!("Surface error for output {}: {:?}", output_id, e);
+                        continue;
+                    }
+                }
+            }
+        }
+
+        // Render to each acquired frame
+        for (output_id, frame) in &frames {
+            let view = frame
+                .texture
+                .create_view(&wgpu::TextureViewDescriptor::default());
+
+            let mut encoder = self
+                .backend
+                .device()
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some(&format!("Render Encoder Output {}", output_id)),
+                });
+
+            // Determine if this is the main window or an output window
+            let is_main_window = Some(*output_id) == self.main_window_id;
+
+            // Render content
+            self.render_to_view(&mut encoder, &view, *output_id, is_main_window)?;
+
+            encoders.push(encoder);
+        }
+
+        // Submit all command buffers together for synchronized presentation
+        let command_buffers: Vec<_> = encoders.into_iter().map(|e| e.finish()).collect();
+        self.backend.queue().submit(command_buffers);
+
+        // Present all frames synchronously
+        for (_, frame) in frames {
+            frame.present();
+        }
+
+        Ok(())
+    }
+
+    fn render_to_view(
+        &mut self,
+        encoder: &mut wgpu::CommandEncoder,
+        view: &wgpu::TextureView,
+        output_id: OutputId,
+        is_main_window: bool,
+    ) -> Result<()> {
+        // Get output configuration if this is an output window
+        let output_config = if !is_main_window {
+            self.output_manager.get_output(output_id).cloned()
+        } else {
+            None
+        };
 
         // Render mappings with mesh warping
         {
-            // Prepare all rendering data before creating render pass
             let visible_mappings = self.mapping_manager.visible_mappings();
 
-            // Collect all rendering resources (they need to outlive the render pass)
+            // Collect all rendering resources
             let render_data: Vec<_> = visible_mappings
                 .iter()
                 .filter_map(|mapping| {
+                    // For output windows, filter mappings by canvas region
+                    if let Some(ref _config) = output_config {
+                        // TODO: Add proper canvas region filtering
+                        // For now, render all mappings to all outputs
+                    }
+
                     self.paint_textures.get(&mapping.paint_id).map(|texture| {
                         let (vertex_buffer, index_buffer) =
                             self.mesh_renderer.create_mesh_buffers(&mapping.mesh);
-                        let transform = Mat4::IDENTITY;
+
+                        // Apply canvas region transformation for output windows
+                        let transform = if let Some(ref config) = output_config {
+                            // Transform from canvas space to output window space
+                            let region = &config.canvas_region;
+                            let scale = Mat4::from_scale(glam::Vec3::new(
+                                1.0 / region.width,
+                                1.0 / region.height,
+                                1.0,
+                            ));
+                            let translate = Mat4::from_translation(glam::Vec3::new(
+                                -region.x / region.width,
+                                -region.y / region.height,
+                                0.0,
+                            ));
+                            translate * scale
+                        } else {
+                            Mat4::IDENTITY
+                        };
+
                         let uniform_buffer =
                             self.mesh_renderer.create_uniform_buffer(transform, mapping.opacity);
                         let uniform_bind_group =
@@ -271,15 +480,15 @@ impl App {
 
             // Create render pass
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("Mapping Render Pass"),
+                label: Some(&format!("Mapping Render Pass Output {}", output_id)),
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view: &view,
+                    view,
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.1,
-                            g: 0.1,
-                            b: 0.1,
+                            r: 0.0,
+                            g: 0.0,
+                            b: 0.0,
                             a: 1.0,
                         }),
                         store: true,
@@ -305,37 +514,36 @@ impl App {
             }
         }
 
-        // Render ImGui
-        let ui_state = &mut self.ui_state;
-        let layer_manager = &mut self.layer_manager;
-        let paint_manager = &mut self.paint_manager;
-        let mapping_manager = &mut self.mapping_manager;
-        let output_manager = &mut self.output_manager;
-        let fps = self.fps;
-        let frame_time = self.last_frame.elapsed().as_secs_f32() * 1000.0;
+        // Render ImGui only on main window
+        if is_main_window {
+            let main_window = &self.windows.get(&output_id).unwrap().window;
+            let ui_state = &mut self.ui_state;
+            let layer_manager = &mut self.layer_manager;
+            let paint_manager = &mut self.paint_manager;
+            let mapping_manager = &mut self.mapping_manager;
+            let output_manager = &mut self.output_manager;
+            let fps = self.fps;
+            let frame_time = self.last_frame.elapsed().as_secs_f32() * 1000.0;
 
-        self.imgui_context.render(
-            &self.window,
-            self.backend.device(),
-            self.backend.queue(),
-            &mut encoder,
-            &view,
-            |ui| {
-                ui_state.render_menu_bar(ui);
-                ui_state.render_controls(ui);
-                ui_state.render_layer_panel(ui, layer_manager);
-                ui_state.render_paint_panel(ui, paint_manager);
-                ui_state.render_mapping_panel(ui, mapping_manager);
-                ui_state.render_transform_panel(ui, layer_manager); // Phase 1
-                ui_state.render_master_controls(ui, layer_manager);  // Phase 1
-                ui_state.render_output_panel(ui, output_manager); // Phase 2
-                ui_state.render_stats(ui, fps, frame_time);
-            },
-        );
-
-        // Submit commands
-        self.backend.queue().submit(Some(encoder.finish()));
-        frame.present();
+            self.imgui_context.render(
+                main_window,
+                self.backend.device(),
+                self.backend.queue(),
+                encoder,
+                view,
+                |ui| {
+                    ui_state.render_menu_bar(ui);
+                    ui_state.render_controls(ui);
+                    ui_state.render_layer_panel(ui, layer_manager);
+                    ui_state.render_paint_panel(ui, paint_manager);
+                    ui_state.render_mapping_panel(ui, mapping_manager);
+                    ui_state.render_transform_panel(ui, layer_manager);
+                    ui_state.render_master_controls(ui, layer_manager);
+                    ui_state.render_output_panel(ui, output_manager);
+                    ui_state.render_stats(ui, fps, frame_time);
+                },
+            );
+        }
 
         Ok(())
     }
@@ -731,14 +939,37 @@ impl App {
         }
     }
 
-    fn handle_window_event(&mut self, event: &WindowEvent) -> bool {
+    fn handle_window_event(&mut self, window_id: WindowId, event: &WindowEvent) -> bool {
+        // Map WindowId to OutputId
+        let output_id = match self.window_id_map.get(&window_id) {
+            Some(&id) => id,
+            None => return true, // Unknown window, ignore
+        };
+
         match event {
-            WindowEvent::CloseRequested => return false,
+            WindowEvent::CloseRequested => {
+                // If main window is closed, exit application
+                if Some(output_id) == self.main_window_id {
+                    info!("Main window closed, exiting application");
+                    return false;
+                } else {
+                    // Close specific output window
+                    info!("Closing output window {}", output_id);
+                    self.windows.remove(&output_id);
+                    self.window_id_map.remove(&window_id);
+                    // Remove output from manager
+                    self.output_manager.remove_output(output_id);
+                }
+            }
             WindowEvent::Resized(size) => {
-                self.surface_config.width = size.width;
-                self.surface_config.height = size.height;
-                self.surface
-                    .configure(self.backend.device(), &self.surface_config);
+                if let Some(window_context) = self.windows.get_mut(&output_id) {
+                    info!("Window {} resized to {}x{}", output_id, size.width, size.height);
+                    window_context.surface_config.width = size.width;
+                    window_context.surface_config.height = size.height;
+                    window_context
+                        .surface
+                        .configure(self.backend.device(), &window_context.surface_config);
+                }
             }
             _ => {}
         }
@@ -760,28 +991,41 @@ fn main() -> Result<()> {
     let event_loop = EventLoop::new();
     let mut app = pollster::block_on(App::new(&event_loop))?;
 
-    event_loop.run(move |event, _, control_flow| {
+    event_loop.run(move |event, event_loop_target, control_flow| {
         *control_flow = ControlFlow::Poll;
 
-        // Let ImGui handle events first
-        app.imgui_context.handle_event(&app.window, &event);
+        // Let ImGui handle events only for main window
+        if let Some(main_window_id) = app.main_window_id {
+            if let Some(main_window_context) = app.windows.get(&main_window_id) {
+                app.imgui_context.handle_event(&main_window_context.window, &event);
+            }
+        }
 
         match event {
-            Event::WindowEvent { event, .. } => {
-                if !app.handle_window_event(&event) {
+            Event::WindowEvent { event, window_id } => {
+                if !app.handle_window_event(window_id, &event) {
                     *control_flow = ControlFlow::Exit;
                 }
             }
             Event::MainEventsCleared => {
                 app.update();
 
-                // Handle UI actions
+                // Handle UI actions (may create/remove windows)
                 if !app.handle_ui_actions() {
                     *control_flow = ControlFlow::Exit;
                     return;
                 }
 
-                app.window.request_redraw();
+                // Synchronize windows with output manager and create any new windows
+                app.sync_windows();
+                if let Err(e) = app.create_output_windows(event_loop_target) {
+                    error!("Failed to create output windows: {}", e);
+                }
+
+                // Request redraw for all windows
+                for window_context in app.windows.values() {
+                    window_context.window.request_redraw();
+                }
             }
             Event::RedrawRequested(_) => {
                 if let Err(e) = app.render() {
