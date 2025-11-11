@@ -12,6 +12,10 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 glam = { workspace = true }
+cpal = { workspace = true }
+rustfft = { workspace = true }
+hound = { workspace = true }
+crossbeam-channel = { workspace = true }
 
 [dev-dependencies]
 proptest = { workspace = true }
