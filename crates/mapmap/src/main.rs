@@ -131,8 +131,9 @@ impl App {
         let mut video_players = HashMap::new();
 
         // Use TestPattern decoder for demo (Real FFmpeg decoder requires feature flag)
+        // 5-second duration for easier loop testing
         let decoder1 = FFmpegDecoder::TestPattern(
-            TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(60), 30.0)
+            TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(5), 30.0)
         );
         let mut player1 = VideoPlayer::new(decoder1);
         player1.set_looping(true);
@@ -140,7 +141,7 @@ impl App {
         video_players.insert(paint_id_1, player1);
 
         let decoder2 = FFmpegDecoder::TestPattern(
-            TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(60), 30.0)
+            TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(5), 30.0)
         );
         let mut player2 = VideoPlayer::new(decoder2);
         player2.set_looping(true);
@@ -363,9 +364,10 @@ impl App {
                     }
                 }
                 UIAction::ToggleLoop(looping) => {
-                    info!("Setting loop mode to {}", looping);
-                    for player in self.video_players.values_mut() {
+                    info!("Setting loop mode to {} for {} video players", looping, self.video_players.len());
+                    for (paint_id, player) in self.video_players.iter_mut() {
                         player.set_looping(looping);
+                        info!("  - Paint {} now has looping={}", paint_id, player.is_looping());
                     }
                 }
                 UIAction::ToggleMappingVisibility(id, visible) => {
@@ -404,21 +406,68 @@ impl App {
                     let paint = Paint::test_pattern(next_id, &format!("Test Pattern {}", next_id));
                     let paint_id = self.paint_manager.add_paint(paint);
 
-                    // Create a video player for this paint
+                    // Create a video player for this paint (shorter 5-second duration for easier loop testing)
                     let decoder = mapmap_media::FFmpegDecoder::TestPattern(
-                        mapmap_media::TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(60), 30.0)
+                        mapmap_media::TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(5), 30.0)
                     );
                     let mut player = mapmap_media::VideoPlayer::new(decoder);
                     player.set_looping(self.ui_state.looping);
                     player.set_speed(self.ui_state.playback_speed);
                     player.play();
                     self.video_players.insert(paint_id, player);
+                    info!("Created video player for paint {} with looping={}, speed={}",
+                          paint_id, self.ui_state.looping, self.ui_state.playback_speed);
+
+                    // Create a default quad mapping for the new paint so it's visible
+                    let mapping_id = self.mapping_manager.mappings().len() as u64 + 1;
+                    let mut new_mapping = Mapping::quad(
+                        mapping_id,
+                        &format!("Mapping for Paint {}", next_id),
+                        paint_id,
+                    );
+                    // Position it with a slight offset based on count
+                    let offset = (mapping_id as f32 * 0.15) % 1.0 - 0.3;
+                    for vertex in &mut new_mapping.mesh.vertices {
+                        vertex.position.x += offset;
+                        vertex.position.y += offset * 0.5;
+                    }
+                    self.mapping_manager.add_mapping(new_mapping);
+                    info!("Created default quad mapping {} for paint {}", mapping_id, paint_id);
                 }
                 UIAction::RemovePaint(id) => {
                     info!("Removing paint {}", id);
                     self.paint_manager.remove_paint(id);
                     self.video_players.remove(&id);
                     self.paint_textures.remove(&id);
+                }
+                UIAction::LoadVideo(path) => {
+                    if path.is_empty() {
+                        // Open file picker dialog
+                        info!("Opening file picker for video selection");
+                        if let Some(file_path) = rfd::FileDialog::new()
+                            .add_filter("Video Files", &["mp4", "mov", "avi", "mkv", "webm", "m4v"])
+                            .add_filter("All Files", &["*"])
+                            .set_title("Select Video File")
+                            .pick_file()
+                        {
+                            let path_str = file_path.to_string_lossy().to_string();
+                            info!("Selected video file: {}", path_str);
+                            self.load_video_file(&path_str);
+                        } else {
+                            info!("File picker cancelled");
+                        }
+                    } else {
+                        info!("Loading video from path: {}", path);
+                        self.load_video_file(&path);
+                    }
+                }
+                UIAction::SaveProject(path) => {
+                    info!("Save project: {}", if path.is_empty() { "open dialog" } else { &path });
+                    // TODO: Implement project save
+                }
+                UIAction::LoadProject(path) => {
+                    info!("Load project: {}", if path.is_empty() { "open dialog" } else { &path });
+                    // TODO: Implement project load
                 }
                 UIAction::Exit => {
                     info!("Exit action triggered");
@@ -428,13 +477,83 @@ impl App {
                     info!("Toggle fullscreen triggered");
                     // TODO: Implement fullscreen toggle
                 }
-                _ => {
-                    info!("Unhandled action: {:?}", action);
-                }
             }
         }
 
         true
+    }
+
+    fn load_video_file(&mut self, path: &str) {
+        use mapmap_core::{Paint, PaintType, Mapping};
+        use mapmap_media::{FFmpegDecoder, VideoPlayer, VideoDecoder};
+        use glam::Vec2;
+
+        info!("Loading video file: {}", path);
+
+        // Try to open the video file with FFmpeg
+        match FFmpegDecoder::open(path) {
+            Ok(decoder) => {
+                // Get video info
+                let (width, height) = decoder.resolution();
+                let fps = decoder.fps();
+                let duration = decoder.duration();
+                info!("Video loaded: {}x{} @ {:.2} fps, duration: {:.2}s",
+                      width, height, fps, duration.as_secs_f64());
+
+                // Create a paint for this video
+                let next_id = self.paint_manager.paints().len() as u64 + 1;
+                let filename = std::path::Path::new(path)
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or("Video");
+
+                let mut paint = Paint {
+                    id: next_id,
+                    name: filename.to_string(),
+                    paint_type: PaintType::Video,
+                    opacity: 1.0,
+                    color: [1.0, 1.0, 1.0, 1.0],
+                    is_playing: true,
+                    loop_playback: self.ui_state.looping,
+                    rate: self.ui_state.playback_speed,
+                    source_path: Some(path.to_string()),
+                    dimensions: Vec2::new(width as f32, height as f32),
+                    lock_aspect: true,
+                };
+
+                let paint_id = self.paint_manager.add_paint(paint);
+                info!("Created paint {} for video", paint_id);
+
+                // Create video player
+                let mut player = VideoPlayer::new(decoder);
+                player.set_looping(self.ui_state.looping);
+                player.set_speed(self.ui_state.playback_speed);
+                player.play();
+                self.video_players.insert(paint_id, player);
+                info!("Created video player for paint {}", paint_id);
+
+                // Create a default quad mapping for the video
+                let mapping_id = self.mapping_manager.mappings().len() as u64 + 1;
+                let mut new_mapping = Mapping::quad(
+                    mapping_id,
+                    &format!("Mapping for {}", filename),
+                    paint_id,
+                );
+
+                // Position it with a slight offset
+                let offset = (mapping_id as f32 * 0.15) % 1.0 - 0.3;
+                for vertex in &mut new_mapping.mesh.vertices {
+                    vertex.position.x += offset;
+                    vertex.position.y += offset * 0.5;
+                }
+
+                self.mapping_manager.add_mapping(new_mapping);
+                info!("Created mapping {} for video", mapping_id);
+            }
+            Err(e) => {
+                error!("Failed to load video file '{}': {}", path, e);
+            }
+        }
     }
 
     fn handle_window_event(&mut self, event: &WindowEvent) -> bool {

@@ -13,10 +13,11 @@ Projection mapping (also known as video mapping and spatial augmented reality) i
 
 ## 🚀 Project Status
 
-**Current Phase: Phase 0 (Foundation) - ✅ COMPLETE**
+**Current Phase: Week 2 (Real Video Support) - 🚧 IN PROGRESS**
 
-MapMap is currently in Phase 0 of a comprehensive 7-phase rewrite to Rust. The foundational architecture is complete, featuring:
+MapMap is progressing through rapid feature development. **Phase 0** (Foundation) and **Week 1** (UI Controls) are complete!
 
+### Completed ✅
 - ✅ Modern graphics via **wgpu** (Vulkan/Metal/DX12)
 - ✅ Safe, high-performance **Rust** implementation
 - ✅ **ImGui-based** live operator interface
@@ -25,6 +26,13 @@ MapMap is currently in Phase 0 of a comprehensive 7-phase rewrite to Rust. The f
 - ✅ Comprehensive CI/CD pipeline
 - ✅ Video playback and control system
 - ✅ Mesh rendering with warping support
+- ✅ **Week 1**: Full UI controls (play/pause/stop, speed, loop, add/remove mappings/paints)
+- ✅ **Week 2 (Partial)**: File picker integration, video loading infrastructure
+
+### In Progress 🚧
+- 🚧 **Week 2**: FFmpeg real video decoding (requires FFmpeg libraries on system)
+
+See [WEEK1_COMPLETE.md](WEEK1_COMPLETE.md) and [WEEK2_PROGRESS.md](WEEK2_PROGRESS.md) for detailed status.
 
 ### What's New
 
