@@ -16,6 +16,7 @@ pub trait RenderBackend: Send {
 
 /// wgpu-based rendering backend
 pub struct WgpuBackend {
+    pub instance: Arc<wgpu::Instance>,
     pub device: Arc<wgpu::Device>,
     pub queue: Arc<wgpu::Queue>,
     pub adapter_info: wgpu::AdapterInfo,
@@ -78,6 +79,7 @@ impl WgpuBackend {
         let staging_belt = StagingBelt::new(1024 * 1024); // 1MB chunks
 
         Ok(Self {
+            instance: Arc::new(instance),
             device: Arc::new(device),
             queue: Arc::new(queue),
             adapter_info,
@@ -85,6 +87,19 @@ impl WgpuBackend {
             texture_counter: 0,
             shader_counter: 0,
         })
+    }
+
+    /// Create a surface using the backend's instance
+    ///
+    /// # Safety
+    /// The window must outlive the surface
+    pub unsafe fn create_surface<W: raw_window_handle::HasRawWindowHandle + raw_window_handle::HasRawDisplayHandle>(
+        &self,
+        window: &W,
+    ) -> Result<wgpu::Surface> {
+        self.instance
+            .create_surface(window)
+            .map_err(|e| RenderError::DeviceError(format!("Failed to create surface: {}", e)))
     }
 
     /// Get device limits

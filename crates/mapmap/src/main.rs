@@ -55,15 +55,10 @@ impl App {
             .build(event_loop)?;
 
         // Create wgpu backend
-        let mut backend = WgpuBackend::new().await?;
+        let backend = WgpuBackend::new().await?;
 
-        // Create surface
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
-            backends: wgpu::Backends::all(),
-            ..Default::default()
-        });
-
-        let surface = unsafe { instance.create_surface(&window) }?;
+        // Create surface using the backend's instance
+        let surface = unsafe { backend.create_surface(&window) }?;
 
         let surface_config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
