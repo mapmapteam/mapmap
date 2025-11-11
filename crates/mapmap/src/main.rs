@@ -1,11 +1,14 @@
 //! MapMap - Professional Projection Mapping Suite
 //!
-//! Phase 0 Demo Application
+//! Phase 1 Demo Application - Layer Compositing
 
 use anyhow::Result;
-use mapmap_media::{FFmpegDecoder, VideoPlayer};
-use mapmap_render::{QuadRenderer, TextureDescriptor, WgpuBackend};
+use mapmap_core::{BlendMode, Layer, LayerManager};
+use mapmap_media::{FFmpegDecoder, TestPatternDecoder, VideoPlayer};
+use mapmap_render::{Compositor, QuadRenderer, RenderBackend, TextureDescriptor, WgpuBackend};
 use mapmap_ui::{AppUI, ImGuiContext};
+use std::collections::HashMap;
+use std::sync::Arc;
 use std::time::Instant;
 use tracing::{error, info};
 use tracing_subscriber;
@@ -21,10 +24,13 @@ struct App {
     surface_config: wgpu::SurfaceConfiguration,
     backend: WgpuBackend,
     quad_renderer: QuadRenderer,
+    compositor: Compositor,
     imgui_context: ImGuiContext,
     ui_state: AppUI,
-    video_player: Option<VideoPlayer>,
-    current_texture: Option<mapmap_render::TextureHandle>,
+    layer_manager: LayerManager,
+    video_players: HashMap<u64, VideoPlayer>, // Paint ID -> VideoPlayer
+    layer_textures: HashMap<u64, mapmap_render::TextureHandle>, // Layer ID -> Texture
+    render_target: Option<mapmap_render::TextureHandle>, // Intermediate render target
     last_frame: Instant,
     frame_count: u32,
     fps: f32,
@@ -32,11 +38,11 @@ struct App {
 
 impl App {
     async fn new(event_loop: &EventLoop<()>) -> Result<Self> {
-        info!("Initializing MapMap Phase 0 Demo");
+        info!("Initializing MapMap Phase 1 Demo - Layer Compositing");
 
         // Create window
         let window = WindowBuilder::new()
-            .with_title("MapMap - Phase 0 Demo")
+            .with_title("MapMap - Phase 1 Demo - Layer Compositing")
             .with_inner_size(winit::dpi::PhysicalSize::new(1920, 1080))
             .build(event_loop)?;
 
@@ -66,6 +72,12 @@ impl App {
         // Create quad renderer
         let quad_renderer = QuadRenderer::new(backend.device(), surface_config.format)?;
 
+        // Create compositor
+        let compositor = Compositor::new(
+            backend.device.clone(),
+            surface_config.format,
+        )?;
+
         // Create ImGui context
         let imgui_context = ImGuiContext::new(
             &window,
@@ -74,20 +86,46 @@ impl App {
             surface_config.format,
         );
 
-        // Initialize video player with test pattern
-        let decoder = FFmpegDecoder {
-            width: 1920,
-            height: 1080,
-            duration: std::time::Duration::from_secs(60),
-            fps: 30.0,
-            current_time: std::time::Duration::ZERO,
-            frame_count: 0,
-        };
-        let mut video_player = VideoPlayer::new(decoder);
-        video_player.set_looping(true);
-        video_player.play();
+        // Initialize layer manager with demo layers
+        let mut layer_manager = LayerManager::new();
 
-        info!("Initialization complete");
+        // Create first demo layer with test pattern
+        let paint_id_1 = 1u64;
+        let mut layer1 = Layer::new(0, "Layer 1 - Test Pattern");
+        layer1.paint_id = Some(paint_id_1);
+        layer1.blend_mode = BlendMode::Normal;
+        layer1.opacity = 1.0;
+        layer_manager.add_layer(layer1);
+
+        // Create second demo layer
+        let paint_id_2 = 2u64;
+        let mut layer2 = Layer::new(0, "Layer 2 - Multiply");
+        layer2.paint_id = Some(paint_id_2);
+        layer2.blend_mode = BlendMode::Multiply;
+        layer2.opacity = 0.8;
+        layer_manager.add_layer(layer2);
+
+        // Initialize video players for each paint
+        let mut video_players = HashMap::new();
+
+        // Use TestPattern decoder for demo (Real FFmpeg decoder requires feature flag)
+        let decoder1 = FFmpegDecoder::TestPattern(
+            TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(60), 30.0)
+        );
+        let mut player1 = VideoPlayer::new(decoder1);
+        player1.set_looping(true);
+        player1.play();
+        video_players.insert(paint_id_1, player1);
+
+        let decoder2 = FFmpegDecoder::TestPattern(
+            TestPatternDecoder::new(1920, 1080, std::time::Duration::from_secs(60), 30.0)
+        );
+        let mut player2 = VideoPlayer::new(decoder2);
+        player2.set_looping(true);
+        player2.play();
+        video_players.insert(paint_id_2, player2);
+
+        info!("Initialization complete - {} layers created", layer_manager.layers().len());
 
         Ok(Self {
             window,
@@ -95,10 +133,13 @@ impl App {
             surface_config,
             backend,
             quad_renderer,
+            compositor,
             imgui_context,
             ui_state: AppUI::default(),
-            video_player: Some(video_player),
-            current_texture: None,
+            layer_manager,
+            video_players,
+            layer_textures: HashMap::new(),
+            render_target: None,
             last_frame: Instant::now(),
             frame_count: 0,
             fps: 0.0,
@@ -115,26 +156,34 @@ impl App {
             self.fps = 1.0 / dt.as_secs_f32();
         }
 
-        // Update video player
-        if let Some(ref mut player) = self.video_player {
-            if let Some(frame) = player.update(dt) {
-                // Upload frame to GPU
-                let tex_desc = TextureDescriptor {
-                    width: frame.width,
-                    height: frame.height,
-                    format: wgpu::TextureFormat::Rgba8UnormSrgb,
-                    usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-                    mip_levels: 1,
-                };
+        // Update all video players and upload textures for visible layers
+        let visible_layers = self.layer_manager.visible_layers();
 
-                match self.backend.create_texture(tex_desc) {
-                    Ok(handle) => {
-                        let rgba_data = frame.to_rgba();
-                        if self.backend.upload_texture(handle.clone(), &rgba_data).is_ok() {
-                            self.current_texture = Some(handle);
+        for layer in visible_layers {
+            if let Some(paint_id) = layer.paint_id {
+                if let Some(player) = self.video_players.get_mut(&paint_id) {
+                    if let Some(frame) = player.update(dt) {
+                        // Upload frame to GPU
+                        let tex_desc = TextureDescriptor {
+                            width: frame.width,
+                            height: frame.height,
+                            format: wgpu::TextureFormat::Rgba8UnormSrgb,
+                            usage: wgpu::TextureUsages::TEXTURE_BINDING
+                                | wgpu::TextureUsages::COPY_DST
+                                | wgpu::TextureUsages::RENDER_ATTACHMENT,
+                            mip_levels: 1,
+                        };
+
+                        match self.backend.create_texture(tex_desc) {
+                            Ok(handle) => {
+                                let rgba_data = frame.to_rgba();
+                                if self.backend.upload_texture(handle.clone(), &rgba_data).is_ok() {
+                                    self.layer_textures.insert(layer.id, handle);
+                                }
+                            }
+                            Err(e) => error!("Failed to create texture for layer {}: {}", layer.id, e),
                         }
                     }
-                    Err(e) => error!("Failed to create texture: {}", e),
                 }
             }
         }
@@ -155,34 +204,51 @@ impl App {
                 label: Some("Render Encoder"),
             });
 
-        // Render quad with video texture
+        // Render layers with compositing
         {
+            // Prepare bind groups for all visible layers
+            let visible_layers = self.layer_manager.visible_layers();
+            let layer_data: Vec<_> = visible_layers
+                .iter()
+                .filter_map(|layer| {
+                    self.layer_textures.get(&layer.id).map(|texture| {
+                        let texture_view = texture.create_view();
+                        let bind_group = self
+                            .quad_renderer
+                            .create_bind_group(self.backend.device(), &texture_view);
+                        (texture_view, bind_group)
+                    })
+                })
+                .collect();
+
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("Main Render Pass"),
+                label: Some("Layer Render Pass"),
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                     view: &view,
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.1,
-                            g: 0.1,
-                            b: 0.1,
+                            r: 0.0,
+                            g: 0.0,
+                            b: 0.0,
                             a: 1.0,
                         }),
-                        store: wgpu::StoreOp::Store,
+                        store: true,
                     },
                 })],
                 depth_stencil_attachment: None,
                 ..Default::default()
             });
 
-            if let Some(ref texture) = self.current_texture {
-                let texture_view = texture.create_view();
-                let bind_group = self
-                    .quad_renderer
-                    .create_bind_group(self.backend.device(), &texture_view);
-                self.quad_renderer.draw(&mut render_pass, &bind_group);
+            // For Phase 1 demo, render all visible layers sequentially
+            // In Phase 2, we'll implement proper multi-pass compositing
+            for (_texture_view, bind_group) in &layer_data {
+                self.quad_renderer.draw(&mut render_pass, bind_group);
             }
+
+            // Note: For now, we're just drawing layers on top of each other
+            // The compositor with blend modes will be integrated in a follow-up
+            // when we implement multi-pass rendering with intermediate targets
         }
 
         // Render ImGui
@@ -192,6 +258,10 @@ impl App {
         // Render UI
         self.ui_state.render_menu_bar(ui);
         self.ui_state.render_controls(ui);
+        self.ui_state.render_layer_panel(
+            ui,
+            &mut self.layer_manager,
+        );
         self.ui_state.render_stats(
             ui,
             self.fps,

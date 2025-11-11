@@ -6,7 +6,7 @@ use tracing::{debug, info, warn};
 use wgpu::util::StagingBelt;
 
 /// Trait for rendering backends
-pub trait RenderBackend: Send + Sync {
+pub trait RenderBackend: Send {
     fn device(&self) -> &wgpu::Device;
     fn queue(&self) -> &wgpu::Queue;
     fn create_texture(&mut self, desc: TextureDescriptor) -> Result<TextureHandle>;
@@ -61,9 +61,9 @@ impl WgpuBackend {
             .request_device(
                 &wgpu::DeviceDescriptor {
                     label: Some("MapMap Device"),
-                    required_features: wgpu::Features::TIMESTAMP_QUERY
+                    features: wgpu::Features::TIMESTAMP_QUERY
                         | wgpu::Features::PUSH_CONSTANTS,
-                    required_limits: wgpu::Limits {
+                    limits: wgpu::Limits {
                         max_push_constant_size: 128,
                         ..Default::default()
                     },
@@ -197,12 +197,6 @@ impl RenderBackend for WgpuBackend {
                 self.device.create_shader_module(wgpu::ShaderModuleDescriptor {
                     label: Some(&format!("Shader {}", self.shader_counter)),
                     source: wgpu::ShaderSource::Wgsl(code.clone().into()),
-                })
-            }
-            ShaderSource::SpirV(ref bytes) => {
-                self.device.create_shader_module(wgpu::ShaderModuleDescriptor {
-                    label: Some(&format!("Shader {}", self.shader_counter)),
-                    source: wgpu::ShaderSource::SpirV(std::borrow::Cow::Borrowed(bytes)),
                 })
             }
         };

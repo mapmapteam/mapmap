@@ -75,13 +75,28 @@ impl ImGuiContext {
         encoder: &mut wgpu::CommandEncoder,
         view: &wgpu::TextureView,
     ) {
-        // Prepare draw data
-        self.platform.prepare_render(self.imgui.io_mut(), window);
+        // Get UI reference and prepare render
+        let ui = self.imgui.frame();
+        self.platform.prepare_render(ui, window);
         let draw_data = self.imgui.render();
+
+        // Create render pass for ImGui
+        let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("ImGui Render Pass"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Load,
+                    store: true,
+                },
+            })],
+            depth_stencil_attachment: None,
+        });
 
         // Render
         self.renderer
-            .render(draw_data, queue, device, encoder, view)
+            .render(draw_data, queue, device, &mut render_pass)
             .expect("Failed to render ImGui");
     }
 
@@ -100,6 +115,7 @@ impl ImGuiContext {
 pub struct AppUI {
     pub show_controls: bool,
     pub show_stats: bool,
+    pub show_layers: bool,
     pub playback_speed: f32,
     pub looping: bool,
 }
@@ -109,6 +125,7 @@ impl Default for AppUI {
         Self {
             show_controls: true,
             show_stats: true,
+            show_layers: true,
             playback_speed: 1.0,
             looping: true,
         }
@@ -179,6 +196,7 @@ impl AppUI {
 
             ui.menu("View", || {
                 ui.checkbox("Show Controls", &mut self.show_controls);
+                ui.checkbox("Show Layers", &mut self.show_layers);
                 ui.checkbox("Show Stats", &mut self.show_stats);
             });
 
@@ -188,5 +206,94 @@ impl AppUI {
                 }
             });
         });
+    }
+
+    /// Render layer management panel
+    pub fn render_layer_panel(&mut self, ui: &Ui, layer_manager: &mut mapmap_core::LayerManager) {
+        use mapmap_core::BlendMode;
+
+        if !self.show_layers {
+            return;
+        }
+
+        ui.window("Layers")
+            .size([350.0, 500.0], Condition::FirstUseEver)
+            .position([1550.0, 100.0], Condition::FirstUseEver)
+            .build(|| {
+                ui.text(format!("Total Layers: {}", layer_manager.layers().len()));
+                ui.separator();
+
+                // Collect layer IDs to avoid borrow issues
+                let layer_ids: Vec<u64> = layer_manager.layers().iter().map(|l| l.id).collect();
+
+                // Layer list
+                for layer_id in layer_ids {
+                    if let Some(layer) = layer_manager.get_layer_mut(layer_id) {
+                        let _id = ui.push_id_usize(layer.id as usize);
+
+                        // Layer header with visibility toggle
+                        let mut visible = layer.visible;
+                        if ui.checkbox(&format!("##visible_{}", layer.id), &mut visible) {
+                            layer.visible = visible;
+                        }
+                        ui.same_line();
+
+                        // Layer name (editable)
+                        ui.text(&layer.name);
+
+                        // Indent for layer properties
+                        ui.indent();
+
+                        // Blend mode selector
+                        let blend_modes = [
+                            "Normal", "Add", "Subtract", "Multiply", "Screen",
+                            "Overlay", "Soft Light", "Hard Light", "Lighten", "Darken",
+                            "Color Dodge", "Color Burn", "Difference", "Exclusion",
+                        ];
+
+                        let current_mode_idx = layer.blend_mode as usize;
+                        let mut selected = current_mode_idx;
+
+                        if ui.combo("Blend Mode", &mut selected, &blend_modes, |item| {
+                            std::borrow::Cow::Borrowed(item)
+                        }) {
+                            layer.blend_mode = match selected {
+                                0 => BlendMode::Normal,
+                                1 => BlendMode::Add,
+                                2 => BlendMode::Subtract,
+                                3 => BlendMode::Multiply,
+                                4 => BlendMode::Screen,
+                                5 => BlendMode::Overlay,
+                                6 => BlendMode::SoftLight,
+                                7 => BlendMode::HardLight,
+                                8 => BlendMode::Lighten,
+                                9 => BlendMode::Darken,
+                                10 => BlendMode::ColorDodge,
+                                11 => BlendMode::ColorBurn,
+                                12 => BlendMode::Difference,
+                                13 => BlendMode::Exclusion,
+                                _ => BlendMode::Normal,
+                            };
+                        }
+
+                        // Opacity slider
+                        ui.slider("Opacity", 0.0, 1.0, &mut layer.opacity);
+
+                        ui.unindent();
+                        ui.separator();
+                    }
+                }
+
+                ui.separator();
+
+                // Layer management buttons
+                if ui.button("Add Layer") {
+                    // This will be handled by the main app
+                }
+                ui.same_line();
+                if ui.button("Remove Selected") {
+                    // This will be handled by the main app
+                }
+            });
     }
 }
