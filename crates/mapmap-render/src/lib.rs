@@ -18,12 +18,14 @@ pub mod texture;
 pub mod shader;
 pub mod quad;
 pub mod compositor;
+pub mod mesh_renderer;
 
 pub use backend::{RenderBackend, WgpuBackend};
 pub use texture::{TextureHandle, TexturePool, TextureDescriptor};
 pub use shader::{ShaderHandle, ShaderSource};
 pub use quad::QuadRenderer;
 pub use compositor::Compositor;
+pub use mesh_renderer::MeshRenderer;
 
 /// Rendering errors
 #[derive(Error, Debug)]

@@ -116,6 +116,8 @@ pub struct AppUI {
     pub show_controls: bool,
     pub show_stats: bool,
     pub show_layers: bool,
+    pub show_paints: bool,
+    pub show_mappings: bool,
     pub playback_speed: f32,
     pub looping: bool,
 }
@@ -126,6 +128,8 @@ impl Default for AppUI {
             show_controls: true,
             show_stats: true,
             show_layers: true,
+            show_paints: true,
+            show_mappings: true,
             playback_speed: 1.0,
             looping: true,
         }
@@ -197,6 +201,8 @@ impl AppUI {
             ui.menu("View", || {
                 ui.checkbox("Show Controls", &mut self.show_controls);
                 ui.checkbox("Show Layers", &mut self.show_layers);
+                ui.checkbox("Show Paints", &mut self.show_paints);
+                ui.checkbox("Show Mappings", &mut self.show_mappings);
                 ui.checkbox("Show Stats", &mut self.show_stats);
             });
 
@@ -292,6 +298,148 @@ impl AppUI {
                 }
                 ui.same_line();
                 if ui.button("Remove Selected") {
+                    // This will be handled by the main app
+                }
+            });
+    }
+
+    /// Render paint management panel
+    pub fn render_paint_panel(&mut self, ui: &Ui, paint_manager: &mut mapmap_core::PaintManager) {
+        if !self.show_paints {
+            return;
+        }
+
+        ui.window("Paints")
+            .size([350.0, 400.0], Condition::FirstUseEver)
+            .position([10.0, 400.0], Condition::FirstUseEver)
+            .build(|| {
+                ui.text(format!("Total Paints: {}", paint_manager.paints().len()));
+                ui.separator();
+
+                // Paint list
+                let paint_ids: Vec<mapmap_core::PaintId> = paint_manager
+                    .paints()
+                    .iter()
+                    .map(|p| p.id)
+                    .collect();
+
+                for paint_id in paint_ids {
+                    if let Some(paint) = paint_manager.get_paint_mut(paint_id) {
+                        let _id = ui.push_id_usize(paint.id as usize);
+
+                        // Paint header
+                        ui.text(&format!("{} ({:?})", paint.name, paint.paint_type));
+
+                        // Indent for paint properties
+                        ui.indent();
+
+                        // Opacity slider
+                        ui.slider("Opacity", 0.0, 1.0, &mut paint.opacity);
+
+                        // Playback controls for video
+                        if paint.paint_type == mapmap_core::PaintType::Video {
+                            ui.checkbox("Playing", &mut paint.is_playing);
+                            ui.same_line();
+                            ui.checkbox("Loop", &mut paint.loop_playback);
+                            ui.slider("Speed", 0.1, 2.0, &mut paint.rate);
+                        }
+
+                        // Color picker for color type
+                        if paint.paint_type == mapmap_core::PaintType::Color {
+                            ui.color_edit4("Color", &mut paint.color);
+                        }
+
+                        ui.unindent();
+                        ui.separator();
+                    }
+                }
+
+                ui.separator();
+
+                // Paint management buttons
+                if ui.button("Add Paint") {
+                    // This will be handled by the main app
+                }
+                ui.same_line();
+                if ui.button("Remove") {
+                    // This will be handled by the main app
+                }
+            });
+    }
+
+    /// Render mapping management panel
+    pub fn render_mapping_panel(
+        &mut self,
+        ui: &Ui,
+        mapping_manager: &mut mapmap_core::MappingManager,
+    ) {
+        if !self.show_mappings {
+            return;
+        }
+
+        ui.window("Mappings")
+            .size([350.0, 450.0], Condition::FirstUseEver)
+            .position([380.0, 400.0], Condition::FirstUseEver)
+            .build(|| {
+                ui.text(format!(
+                    "Total Mappings: {}",
+                    mapping_manager.mappings().len()
+                ));
+                ui.separator();
+
+                // Mapping list
+                let mapping_ids: Vec<mapmap_core::MappingId> = mapping_manager
+                    .mappings()
+                    .iter()
+                    .map(|m| m.id)
+                    .collect();
+
+                for mapping_id in mapping_ids {
+                    if let Some(mapping) = mapping_manager.get_mapping_mut(mapping_id) {
+                        let _id = ui.push_id_usize(mapping.id as usize);
+
+                        // Mapping header with visibility
+                        let mut visible = mapping.visible;
+                        if ui.checkbox(&format!("##visible_{}", mapping.id), &mut visible) {
+                            mapping.visible = visible;
+                        }
+                        ui.same_line();
+                        ui.text(&format!("{} (Paint #{})", mapping.name, mapping.paint_id));
+
+                        // Indent for mapping properties
+                        ui.indent();
+
+                        // Solo and Lock toggles
+                        ui.checkbox("Solo", &mut mapping.solo);
+                        ui.same_line();
+                        ui.checkbox("Lock", &mut mapping.locked);
+
+                        // Opacity slider
+                        ui.slider("Opacity", 0.0, 1.0, &mut mapping.opacity);
+
+                        // Depth (Z-order)
+                        ui.slider("Depth", -10.0, 10.0, &mut mapping.depth);
+
+                        // Mesh info
+                        ui.text(format!(
+                            "Mesh: {:?} ({} vertices)",
+                            mapping.mesh.mesh_type,
+                            mapping.mesh.vertex_count()
+                        ));
+
+                        ui.unindent();
+                        ui.separator();
+                    }
+                }
+
+                ui.separator();
+
+                // Mapping management buttons
+                if ui.button("Add Mapping") {
+                    // This will be handled by the main app
+                }
+                ui.same_line();
+                if ui.button("Remove") {
                     // This will be handled by the main app
                 }
             });
