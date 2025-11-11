@@ -122,6 +122,8 @@ mod ffmpeg_impl {
     pub struct RealFFmpegDecoder {
         input_ctx: ffmpeg::format::context::Input,
         decoder: ffmpeg::codec::decoder::Video,
+        // NOTE: Scaler is not thread-safe (SwsContext is not Send)
+        // For multi-threading: Move scaler creation to next_frame() or use thread_local!
         scaler: ffmpeg::software::scaling::Context,
         video_stream_idx: usize,
         time_base: ffmpeg::Rational,
