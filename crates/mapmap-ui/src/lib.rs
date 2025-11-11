@@ -19,6 +19,10 @@ pub enum UIAction {
     Stop,
     SetSpeed(f32),
     ToggleLoop(bool),
+    // Phase 1: Advanced playback
+    SetPlaybackDirection(mapmap_media::PlaybackDirection),
+    TogglePlaybackDirection,
+    SetPlaybackMode(mapmap_media::PlaybackMode),
 
     // File actions
     LoadVideo(String),
@@ -35,6 +39,25 @@ pub enum UIAction {
     // Paint actions
     AddPaint,
     RemovePaint(u64),
+
+    // Layer actions (Phase 1)
+    AddLayer,
+    RemoveLayer(u64),
+    DuplicateLayer(u64),
+    RenameLayer(u64, String),
+    ToggleLayerBypass(u64),
+    ToggleLayerSolo(u64),
+    SetLayerOpacity(u64, f32),
+    EjectAllLayers,
+
+    // Transform actions (Phase 1)
+    SetLayerTransform(u64, mapmap_core::Transform),
+    ApplyResizeMode(u64, mapmap_core::ResizeMode),
+
+    // Master controls (Phase 1)
+    SetMasterOpacity(f32),
+    SetMasterSpeed(f32),
+    SetCompositionName(String),
 
     // View actions
     ToggleFullscreen,
@@ -148,8 +171,15 @@ pub struct AppUI {
     pub show_layers: bool,
     pub show_paints: bool,
     pub show_mappings: bool,
+    pub show_transforms: bool,      // Phase 1
+    pub show_master_controls: bool, // Phase 1
     pub playback_speed: f32,
     pub looping: bool,
+    // Phase 1: Advanced playback state
+    pub playback_direction: mapmap_media::PlaybackDirection,
+    pub playback_mode: mapmap_media::PlaybackMode,
+    // Phase 1: Transform editing state
+    pub selected_layer_id: Option<u64>,
     pub actions: Vec<UIAction>,
 }
 
@@ -161,8 +191,13 @@ impl Default for AppUI {
             show_layers: true,
             show_paints: true,
             show_mappings: true,
+            show_transforms: true,
+            show_master_controls: true,
             playback_speed: 1.0,
             looping: true,
+            playback_direction: mapmap_media::PlaybackDirection::Forward,
+            playback_mode: mapmap_media::PlaybackMode::Loop,
+            selected_layer_id: None,
             actions: Vec::new(),
         }
     }
@@ -181,25 +216,12 @@ impl AppUI {
         }
 
         ui.window("Playback Controls")
-            .size([300.0, 200.0], Condition::FirstUseEver)
+            .size([320.0, 360.0], Condition::FirstUseEver)
             .build(|| {
                 ui.text("Video Playback");
                 ui.separator();
 
-                let old_speed = self.playback_speed;
-                ui.slider("Speed", 0.1, 2.0, &mut self.playback_speed);
-                if (self.playback_speed - old_speed).abs() > 0.001 {
-                    self.actions.push(UIAction::SetSpeed(self.playback_speed));
-                }
-
-                let old_looping = self.looping;
-                ui.checkbox("Loop", &mut self.looping);
-                if self.looping != old_looping {
-                    self.actions.push(UIAction::ToggleLoop(self.looping));
-                }
-
-                ui.separator();
-
+                // Transport controls
                 if ui.button("Play") {
                     self.actions.push(UIAction::Play);
                 }
@@ -210,6 +232,79 @@ impl AppUI {
                 ui.same_line();
                 if ui.button("Stop") {
                     self.actions.push(UIAction::Stop);
+                }
+
+                ui.separator();
+
+                // Speed control
+                let old_speed = self.playback_speed;
+                ui.slider("Speed", 0.1, 2.0, &mut self.playback_speed);
+                if (self.playback_speed - old_speed).abs() > 0.001 {
+                    self.actions.push(UIAction::SetSpeed(self.playback_speed));
+                }
+
+                // Legacy loop control
+                let old_looping = self.looping;
+                ui.checkbox("Loop (legacy)", &mut self.looping);
+                if self.looping != old_looping {
+                    self.actions.push(UIAction::ToggleLoop(self.looping));
+                }
+
+                ui.separator();
+                ui.text("Phase 1: Advanced Playback");
+                ui.separator();
+
+                // Playback Direction (Phase 1)
+                ui.text("Direction:");
+                let direction_names = ["Forward", "Backward"];
+                let mut direction_idx = match self.playback_direction {
+                    mapmap_media::PlaybackDirection::Forward => 0,
+                    mapmap_media::PlaybackDirection::Backward => 1,
+                };
+
+                if ui.combo("##direction", &mut direction_idx, &direction_names, |item| {
+                    std::borrow::Cow::Borrowed(item)
+                }) {
+                    let new_direction = match direction_idx {
+                        0 => mapmap_media::PlaybackDirection::Forward,
+                        1 => mapmap_media::PlaybackDirection::Backward,
+                        _ => mapmap_media::PlaybackDirection::Forward,
+                    };
+                    self.playback_direction = new_direction;
+                    self.actions.push(UIAction::SetPlaybackDirection(new_direction));
+                }
+
+                ui.same_line();
+                if ui.button("Toggle ⇄") {
+                    self.actions.push(UIAction::TogglePlaybackDirection);
+                    self.playback_direction = match self.playback_direction {
+                        mapmap_media::PlaybackDirection::Forward => mapmap_media::PlaybackDirection::Backward,
+                        mapmap_media::PlaybackDirection::Backward => mapmap_media::PlaybackDirection::Forward,
+                    };
+                }
+
+                // Playback Mode (Phase 1)
+                ui.text("Mode:");
+                let mode_names = ["Loop", "Ping Pong", "Play Once & Eject", "Play Once & Hold"];
+                let mut mode_idx = match self.playback_mode {
+                    mapmap_media::PlaybackMode::Loop => 0,
+                    mapmap_media::PlaybackMode::PingPong => 1,
+                    mapmap_media::PlaybackMode::PlayOnceAndEject => 2,
+                    mapmap_media::PlaybackMode::PlayOnceAndHold => 3,
+                };
+
+                if ui.combo("##mode", &mut mode_idx, &mode_names, |item| {
+                    std::borrow::Cow::Borrowed(item)
+                }) {
+                    let new_mode = match mode_idx {
+                        0 => mapmap_media::PlaybackMode::Loop,
+                        1 => mapmap_media::PlaybackMode::PingPong,
+                        2 => mapmap_media::PlaybackMode::PlayOnceAndEject,
+                        3 => mapmap_media::PlaybackMode::PlayOnceAndHold,
+                        _ => mapmap_media::PlaybackMode::Loop,
+                    };
+                    self.playback_mode = new_mode;
+                    self.actions.push(UIAction::SetPlaybackMode(new_mode));
                 }
             });
     }
@@ -256,6 +351,8 @@ impl AppUI {
                 ui.checkbox("Show Layers", &mut self.show_layers);
                 ui.checkbox("Show Paints", &mut self.show_paints);
                 ui.checkbox("Show Mappings", &mut self.show_mappings);
+                ui.checkbox("Show Transforms", &mut self.show_transforms);
+                ui.checkbox("Show Master Controls", &mut self.show_master_controls);
                 ui.checkbox("Show Stats", &mut self.show_stats);
                 ui.separator();
                 if ui.menu_item("Toggle Fullscreen") {
@@ -280,8 +377,8 @@ impl AppUI {
         }
 
         ui.window("Layers")
-            .size([350.0, 500.0], Condition::FirstUseEver)
-            .position([1550.0, 100.0], Condition::FirstUseEver)
+            .size([380.0, 600.0], Condition::FirstUseEver)
+            .position([1520.0, 100.0], Condition::FirstUseEver)
             .build(|| {
                 ui.text(format!("Total Layers: {}", layer_manager.layers().len()));
                 ui.separator();
@@ -301,11 +398,27 @@ impl AppUI {
                         }
                         ui.same_line();
 
-                        // Layer name (editable)
-                        ui.text(&layer.name);
+                        // Layer name (clickable to select)
+                        if ui.small_button(&layer.name) {
+                            self.selected_layer_id = Some(layer.id);
+                        }
 
                         // Indent for layer properties
                         ui.indent();
+
+                        // Phase 1: Bypass, Solo, Lock toggles
+                        let mut bypass = layer.bypass;
+                        if ui.checkbox("Bypass (B)", &mut bypass) {
+                            layer.bypass = bypass;
+                            self.actions.push(UIAction::ToggleLayerBypass(layer.id));
+                        }
+                        ui.same_line();
+
+                        let mut solo = layer.solo;
+                        if ui.checkbox("Solo (S)", &mut solo) {
+                            layer.solo = solo;
+                            self.actions.push(UIAction::ToggleLayerSolo(layer.id));
+                        }
 
                         // Blend mode selector
                         let blend_modes = [
@@ -339,8 +452,21 @@ impl AppUI {
                             };
                         }
 
-                        // Opacity slider
-                        ui.slider("Opacity", 0.0, 1.0, &mut layer.opacity);
+                        // Phase 1: Opacity slider (Video Fader)
+                        let old_opacity = layer.opacity;
+                        ui.slider("Opacity (V)", 0.0, 1.0, &mut layer.opacity);
+                        if (layer.opacity - old_opacity).abs() > 0.001 {
+                            self.actions.push(UIAction::SetLayerOpacity(layer.id, layer.opacity));
+                        }
+
+                        // Phase 1: Layer management buttons
+                        if ui.button("Duplicate") {
+                            self.actions.push(UIAction::DuplicateLayer(layer.id));
+                        }
+                        ui.same_line();
+                        if ui.button("Remove") {
+                            self.actions.push(UIAction::RemoveLayer(layer.id));
+                        }
 
                         ui.unindent();
                         ui.separator();
@@ -351,11 +477,11 @@ impl AppUI {
 
                 // Layer management buttons
                 if ui.button("Add Layer") {
-                    // This will be handled by the main app
+                    self.actions.push(UIAction::AddLayer);
                 }
                 ui.same_line();
-                if ui.button("Remove Selected") {
-                    // This will be handled by the main app
+                if ui.button("Eject All (X)") {
+                    self.actions.push(UIAction::EjectAllLayers);
                 }
             });
     }
@@ -508,6 +634,156 @@ impl AppUI {
                 if ui.button("Add Quad Mapping") {
                     self.actions.push(UIAction::AddMapping);
                 }
+            });
+    }
+
+    /// Render transform controls panel (Phase 1)
+    pub fn render_transform_panel(&mut self, ui: &Ui, layer_manager: &mut mapmap_core::LayerManager) {
+        use mapmap_core::ResizeMode;
+
+        if !self.show_transforms {
+            return;
+        }
+
+        ui.window("Transform Controls")
+            .size([360.0, 520.0], Condition::FirstUseEver)
+            .position([10.0, 150.0], Condition::FirstUseEver)
+            .build(|| {
+                ui.text("Phase 1: Transform System");
+                ui.separator();
+
+                if let Some(selected_id) = self.selected_layer_id {
+                    if let Some(layer) = layer_manager.get_layer_mut(selected_id) {
+                        ui.text(format!("Editing: {}", layer.name));
+                        ui.separator();
+
+                        let transform = &mut layer.transform;
+
+                        // Position controls
+                        ui.text("Position:");
+                        ui.slider("X", -1000.0, 1000.0, &mut transform.position.x);
+                        ui.slider("Y", -1000.0, 1000.0, &mut transform.position.y);
+
+                        ui.separator();
+
+                        // Scale controls
+                        ui.text("Scale:");
+                        ui.slider("Width", 0.1, 5.0, &mut transform.scale.x);
+                        ui.slider("Height", 0.1, 5.0, &mut transform.scale.y);
+
+                        // Uniform scale toggle
+                        if ui.button("Reset Scale (1:1)") {
+                            transform.scale.x = 1.0;
+                            transform.scale.y = 1.0;
+                        }
+
+                        ui.separator();
+
+                        // Rotation controls (in degrees for UI)
+                        ui.text("Rotation (degrees):");
+                        let mut rot_x_deg = transform.rotation.x.to_degrees();
+                        let mut rot_y_deg = transform.rotation.y.to_degrees();
+                        let mut rot_z_deg = transform.rotation.z.to_degrees();
+
+                        ui.slider("X", -180.0, 180.0, &mut rot_x_deg);
+                        ui.slider("Y", -180.0, 180.0, &mut rot_y_deg);
+                        ui.slider("Z", -180.0, 180.0, &mut rot_z_deg);
+
+                        transform.rotation.x = rot_x_deg.to_radians();
+                        transform.rotation.y = rot_y_deg.to_radians();
+                        transform.rotation.z = rot_z_deg.to_radians();
+
+                        if ui.button("Reset Rotation") {
+                            transform.rotation = glam::Vec3::ZERO;
+                        }
+
+                        ui.separator();
+
+                        // Anchor point controls
+                        ui.text("Anchor Point (0-1):");
+                        ui.slider("Anchor X", 0.0, 1.0, &mut transform.anchor.x);
+                        ui.slider("Anchor Y", 0.0, 1.0, &mut transform.anchor.y);
+
+                        if ui.button("Center Anchor (0.5, 0.5)") {
+                            transform.anchor = glam::Vec2::splat(0.5);
+                        }
+
+                        ui.separator();
+
+                        // Resize mode presets (Phase 1, Month 6)
+                        ui.text("Resize Presets:");
+                        if ui.button("Fill (Cover)") {
+                            self.actions.push(UIAction::ApplyResizeMode(selected_id, ResizeMode::Fill));
+                        }
+                        ui.same_line();
+                        if ui.button("Fit (Contain)") {
+                            self.actions.push(UIAction::ApplyResizeMode(selected_id, ResizeMode::Fit));
+                        }
+
+                        if ui.button("Stretch (Distort)") {
+                            self.actions.push(UIAction::ApplyResizeMode(selected_id, ResizeMode::Stretch));
+                        }
+                        ui.same_line();
+                        if ui.button("Original (1:1)") {
+                            self.actions.push(UIAction::ApplyResizeMode(selected_id, ResizeMode::Original));
+                        }
+
+                    } else {
+                        ui.text("Selected layer not found.");
+                    }
+                } else {
+                    ui.text("No layer selected.");
+                    ui.text("Click a layer name in the");
+                    ui.text("Layers panel to select it.");
+                }
+            });
+    }
+
+    /// Render master controls panel (Phase 1)
+    pub fn render_master_controls(&mut self, ui: &Ui, layer_manager: &mut mapmap_core::LayerManager) {
+        if !self.show_master_controls {
+            return;
+        }
+
+        ui.window("Master Controls")
+            .size([340.0, 280.0], Condition::FirstUseEver)
+            .position([10.0, 680.0], Condition::FirstUseEver)
+            .build(|| {
+                ui.text("Phase 1: Master Controls");
+                ui.separator();
+
+                let composition = &mut layer_manager.composition;
+
+                // Composition name (Phase 1, Month 5)
+                ui.text("Composition:");
+                ui.text_wrapped(&composition.name);
+
+                // Note: ImGui text input requires mutable String buffer
+                // For now, just display the name
+                ui.separator();
+
+                // Master Opacity (Phase 1, Month 4)
+                let old_master_opacity = composition.master_opacity;
+                ui.slider("Master Opacity (M)", 0.0, 1.0, &mut composition.master_opacity);
+                if (composition.master_opacity - old_master_opacity).abs() > 0.001 {
+                    self.actions.push(UIAction::SetMasterOpacity(composition.master_opacity));
+                }
+
+                // Master Speed (Phase 1, Month 5)
+                let old_master_speed = composition.master_speed;
+                ui.slider("Master Speed (S)", 0.1, 10.0, &mut composition.master_speed);
+                if (composition.master_speed - old_master_speed).abs() > 0.001 {
+                    self.actions.push(UIAction::SetMasterSpeed(composition.master_speed));
+                }
+
+                ui.separator();
+                ui.text(format!("Size: {}x{}", composition.size.0, composition.size.1));
+                ui.text(format!("Frame Rate: {:.1} fps", composition.frame_rate));
+
+                ui.separator();
+                ui.text("Effective Multipliers:");
+                ui.text("All layer opacity × Master Opacity");
+                ui.text("All playback speed × Master Speed");
             });
     }
 }
