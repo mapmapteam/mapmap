@@ -90,8 +90,9 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 **Ubuntu/Debian:**
 ```bash
 sudo apt-get install -y \
+  build-essential pkg-config \
   libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev \
-  libx11-dev libasound2-dev pkg-config
+  libx11-dev libfontconfig1-dev libfreetype6-dev libasound2-dev
 ```
 
 **macOS:**
