@@ -19,6 +19,8 @@ pub mod shader;
 pub mod quad;
 pub mod compositor;
 pub mod mesh_renderer;
+pub mod edge_blend_renderer;
+pub mod color_calibration_renderer;
 
 pub use backend::{RenderBackend, WgpuBackend};
 pub use texture::{TextureHandle, TexturePool, TextureDescriptor};
@@ -26,6 +28,8 @@ pub use shader::{ShaderHandle, ShaderSource};
 pub use quad::QuadRenderer;
 pub use compositor::Compositor;
 pub use mesh_renderer::MeshRenderer;
+pub use edge_blend_renderer::EdgeBlendRenderer;
+pub use color_calibration_renderer::ColorCalibrationRenderer;
 
 /// Rendering errors
 #[derive(Error, Debug)]

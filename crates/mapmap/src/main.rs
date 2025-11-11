@@ -10,7 +10,8 @@ use mapmap_core::{
 };
 use mapmap_media::{FFmpegDecoder, TestPatternDecoder, VideoPlayer};
 use mapmap_render::{
-    Compositor, MeshRenderer, QuadRenderer, RenderBackend, TextureDescriptor, WgpuBackend,
+    Compositor, EdgeBlendRenderer, ColorCalibrationRenderer, MeshRenderer, QuadRenderer,
+    RenderBackend, TextureDescriptor, WgpuBackend,
 };
 use mapmap_ui::{AppUI, ImGuiContext};
 use std::collections::HashMap;
@@ -40,6 +41,8 @@ struct App {
     quad_renderer: QuadRenderer,
     mesh_renderer: MeshRenderer,
     compositor: Compositor,
+    edge_blend_renderer: EdgeBlendRenderer,
+    color_calibration_renderer: ColorCalibrationRenderer,
     imgui_context: ImGuiContext,
     ui_state: AppUI,
     layer_manager: LayerManager,
@@ -49,7 +52,7 @@ struct App {
     video_players: HashMap<u64, VideoPlayer>, // Paint ID -> VideoPlayer
     paint_textures: HashMap<u64, mapmap_render::TextureHandle>, // Paint ID -> Texture
     layer_textures: HashMap<u64, mapmap_render::TextureHandle>, // Layer ID -> Texture
-    render_target: Option<mapmap_render::TextureHandle>, // Intermediate render target
+    intermediate_textures: HashMap<OutputId, mapmap_render::TextureHandle>, // Per-output intermediate textures
     last_frame: Instant,
     frame_count: u32,
     fps: f32,
@@ -115,6 +118,18 @@ impl App {
 
         // Create compositor
         let compositor = Compositor::new(
+            backend.device.clone(),
+            surface_format,
+        )?;
+
+        // Create edge blend renderer
+        let edge_blend_renderer = EdgeBlendRenderer::new(
+            backend.device.clone(),
+            surface_format,
+        )?;
+
+        // Create color calibration renderer
+        let color_calibration_renderer = ColorCalibrationRenderer::new(
             backend.device.clone(),
             surface_format,
         )?;
@@ -195,6 +210,8 @@ impl App {
             quad_renderer,
             mesh_renderer,
             compositor,
+            edge_blend_renderer,
+            color_calibration_renderer,
             imgui_context,
             ui_state: AppUI::default(),
             layer_manager,
@@ -204,7 +221,7 @@ impl App {
             video_players,
             paint_textures: HashMap::new(),
             layer_textures: HashMap::new(),
-            render_target: None,
+            intermediate_textures: HashMap::new(),
             last_frame: Instant::now(),
             frame_count: 0,
             fps: 0.0,
@@ -421,6 +438,53 @@ impl App {
             None
         };
 
+        // Determine if we need post-processing (edge blend or color calibration)
+        let needs_post_processing = if let Some(ref config) = output_config {
+            config.edge_blend.left.enabled
+                || config.edge_blend.right.enabled
+                || config.edge_blend.top.enabled
+                || config.edge_blend.bottom.enabled
+                || config.color_calibration.brightness != 0.0
+                || config.color_calibration.contrast != 1.0
+                || config.color_calibration.saturation != 1.0
+        } else {
+            false
+        };
+
+        // Create intermediate texture if needed and doesn't exist
+        if needs_post_processing && !self.intermediate_textures.contains_key(&output_id) {
+            let window_context = self.windows.get(&output_id).unwrap();
+            let tex_desc = TextureDescriptor {
+                width: window_context.surface_config.width,
+                height: window_context.surface_config.height,
+                format: wgpu::TextureFormat::Bgra8Unorm,
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+                mip_levels: 1,
+            };
+
+            match self.backend.create_texture(tex_desc) {
+                Ok(handle) => {
+                    self.intermediate_textures.insert(output_id, handle);
+                }
+                Err(e) => {
+                    error!("Failed to create intermediate texture for output {}: {}", output_id, e);
+                }
+            }
+        }
+
+        // Choose render target (intermediate texture or final view)
+        let render_target_view = if needs_post_processing {
+            if let Some(intermediate_tex) = self.intermediate_textures.get(&output_id) {
+                Some(intermediate_tex.create_view())
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        let target_view = render_target_view.as_ref().unwrap_or(view);
+
         // Render mappings with mesh warping
         {
             let visible_mappings = self.mapping_manager.visible_mappings();
@@ -430,9 +494,23 @@ impl App {
                 .iter()
                 .filter_map(|mapping| {
                     // For output windows, filter mappings by canvas region
-                    if let Some(ref _config) = output_config {
-                        // TODO: Add proper canvas region filtering
-                        // For now, render all mappings to all outputs
+                    if let Some(ref config) = output_config {
+                        // Check if mapping intersects with this output's canvas region
+                        if let Some((bounds_min, bounds_max)) = mapping.mesh.bounds() {
+                            let region = &config.canvas_region;
+
+                            // Simple bounding box intersection test
+                            let intersects = !(
+                                bounds_max.x < region.x
+                                    || bounds_min.x > region.x + region.width
+                                    || bounds_max.y < region.y
+                                    || bounds_min.y > region.y + region.height
+                            );
+
+                            if !intersects {
+                                return None; // Skip this mapping for this output
+                            }
+                        }
                     }
 
                     self.paint_textures.get(&mapping.paint_id).map(|texture| {
@@ -478,11 +556,11 @@ impl App {
                 })
                 .collect();
 
-            // Create render pass
+            // Create render pass to intermediate or final target
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some(&format!("Mapping Render Pass Output {}", output_id)),
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view,
+                    view: target_view,
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color {
@@ -512,6 +590,81 @@ impl App {
                     true, // Use perspective correction
                 );
             }
+        }
+
+        // Apply post-processing if needed
+        if needs_post_processing && render_target_view.is_some() {
+            let intermediate_view = render_target_view.as_ref().unwrap();
+            let config = output_config.as_ref().unwrap();
+
+            // Step 1: Apply color calibration
+            // Create another intermediate texture for color calibration result
+            let color_corrected_view = {
+                let window_context = self.windows.get(&output_id).unwrap();
+                let tex_desc = TextureDescriptor {
+                    width: window_context.surface_config.width,
+                    height: window_context.surface_config.height,
+                    format: wgpu::TextureFormat::Bgra8Unorm,
+                    usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+                    mip_levels: 1,
+                };
+
+                let temp_texture = self.backend.create_texture(tex_desc)?;
+                let temp_view = temp_texture.create_view();
+
+                // Apply color calibration
+                let texture_bind_group = self.color_calibration_renderer.create_texture_bind_group(intermediate_view);
+                let uniform_buffer = self.color_calibration_renderer.create_uniform_buffer(&config.color_calibration);
+                let uniform_bind_group = self.color_calibration_renderer.create_uniform_bind_group(&uniform_buffer);
+
+                let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                    label: Some(&format!("Color Calibration Pass Output {}", output_id)),
+                    color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                        view: &temp_view,
+                        resolve_target: None,
+                        ops: wgpu::Operations {
+                            load: wgpu::LoadOp::Clear(wgpu::Color::BLACK),
+                            store: true,
+                        },
+                    })],
+                    depth_stencil_attachment: None,
+                    ..Default::default()
+                });
+
+                self.color_calibration_renderer.render(
+                    &mut render_pass,
+                    &texture_bind_group,
+                    &uniform_bind_group,
+                );
+
+                drop(render_pass);
+                temp_view
+            };
+
+            // Step 2: Apply edge blending to final output
+            let texture_bind_group = self.edge_blend_renderer.create_texture_bind_group(&color_corrected_view);
+            let uniform_buffer = self.edge_blend_renderer.create_uniform_buffer(&config.edge_blend);
+            let uniform_bind_group = self.edge_blend_renderer.create_uniform_bind_group(&uniform_buffer);
+
+            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some(&format!("Edge Blend Pass Output {}", output_id)),
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    view,
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(wgpu::Color::BLACK),
+                        store: true,
+                    },
+                })],
+                depth_stencil_attachment: None,
+                ..Default::default()
+            });
+
+            self.edge_blend_renderer.render(
+                &mut render_pass,
+                &texture_bind_group,
+                &uniform_bind_group,
+            );
         }
 
         // Render ImGui only on main window
