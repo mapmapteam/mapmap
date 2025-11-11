@@ -1,6 +1,6 @@
 //! Video playback control
 
-use crate::{DecodedFrame, Result, VideoDecoder};
+use crate::{DecodedFrame, VideoDecoder};
 use std::time::Duration;
 
 /// Playback state

@@ -14,6 +14,9 @@ crossbeam-channel = { workspace = true }
 parking_lot = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
+# Image decoding for still images, GIF, and sequences
+image = { workspace = true }
+walkdir = "2.4"
 
 [features]
 default = []

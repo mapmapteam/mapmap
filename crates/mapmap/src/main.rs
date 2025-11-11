@@ -447,21 +447,22 @@ impl App {
                 UIAction::LoadVideo(path) => {
                     if path.is_empty() {
                         // Open file picker dialog
-                        info!("Opening file picker for video selection");
+                        info!("Opening file picker for media selection");
                         if let Some(file_path) = rfd::FileDialog::new()
                             .add_filter("Video Files", &["mp4", "mov", "avi", "mkv", "webm", "m4v"])
+                            .add_filter("Image Files", &["png", "jpg", "jpeg", "gif", "tif", "tiff", "bmp", "webp"])
                             .add_filter("All Files", &["*"])
-                            .set_title("Select Video File")
+                            .set_title("Select Media File")
                             .pick_file()
                         {
                             let path_str = file_path.to_string_lossy().to_string();
-                            info!("Selected video file: {}", path_str);
+                            info!("Selected media file: {}", path_str);
                             self.load_video_file(&path_str);
                         } else {
                             info!("File picker cancelled");
                         }
                     } else {
-                        info!("Loading video from path: {}", path);
+                        info!("Loading media from path: {}", path);
                         self.load_video_file(&path);
                     }
                 }
@@ -607,33 +608,44 @@ impl App {
         use mapmap_media::{FFmpegDecoder, VideoPlayer, VideoDecoder};
         use glam::Vec2;
 
-        info!("Loading video file: {}", path);
+        info!("Loading media file: {}", path);
 
-        // Try to open the video file with FFmpeg
+        // Try to open the media file with FFmpeg (which now supports images too)
         match FFmpegDecoder::open(path) {
             Ok(decoder) => {
-                // Get video info
+                // Get media info
                 let (width, height) = decoder.resolution();
                 let fps = decoder.fps();
                 let duration = decoder.duration();
-                info!("Video loaded: {}x{} @ {:.2} fps, duration: {:.2}s",
-                      width, height, fps, duration.as_secs_f64());
 
-                // Create a paint for this video
+                // Detect media type based on decoder variant
+                let is_still_image = matches!(decoder, FFmpegDecoder::StillImage(_));
+                let is_gif = matches!(decoder, FFmpegDecoder::Gif(_));
+                let is_image_sequence = matches!(decoder, FFmpegDecoder::ImageSequence(_));
+                let paint_type = if is_still_image || is_gif || is_image_sequence {
+                    PaintType::Image
+                } else {
+                    PaintType::Video
+                };
+
+                info!("Media loaded: {}x{} @ {:.2} fps, duration: {:.2}s, type: {:?}",
+                      width, height, fps, duration.as_secs_f64(), paint_type);
+
+                // Create a paint for this media
                 let next_id = self.paint_manager.paints().len() as u64 + 1;
                 let filename = std::path::Path::new(path)
                     .file_name()
                     .and_then(|n| n.to_str())
-                    .unwrap_or("Video");
+                    .unwrap_or("Media");
 
                 let paint = Paint {
                     id: next_id,
                     name: filename.to_string(),
-                    paint_type: PaintType::Video,
+                    paint_type,
                     opacity: 1.0,
                     color: [1.0, 1.0, 1.0, 1.0],
-                    is_playing: true,
-                    loop_playback: self.ui_state.looping,
+                    is_playing: !is_still_image, // Still images don't "play"
+                    loop_playback: if is_still_image { false } else { self.ui_state.looping },
                     rate: self.ui_state.playback_speed,
                     source_path: Some(path.to_string()),
                     dimensions: Vec2::new(width as f32, height as f32),
@@ -641,17 +653,25 @@ impl App {
                 };
 
                 let paint_id = self.paint_manager.add_paint(paint);
-                info!("Created paint {} for video", paint_id);
+                info!("Created paint {} for media (type: {:?})", paint_id, paint_type);
 
-                // Create video player
+                // Create video player (works for all decoder types)
                 let mut player = VideoPlayer::new(decoder);
-                player.set_looping(self.ui_state.looping);
-                player.set_speed(self.ui_state.playback_speed);
-                player.play();
-                self.video_players.insert(paint_id, player);
-                info!("Created video player for paint {}", paint_id);
 
-                // Create a default quad mapping for the video
+                // Still images don't need looping or speed control
+                if !is_still_image {
+                    player.set_looping(self.ui_state.looping);
+                    player.set_speed(self.ui_state.playback_speed);
+                    player.play();
+                } else {
+                    // For still images, just load the single frame
+                    player.play();
+                }
+
+                self.video_players.insert(paint_id, player);
+                info!("Created player for paint {}", paint_id);
+
+                // Create a default quad mapping for the media
                 let mapping_id = self.mapping_manager.mappings().len() as u64 + 1;
                 let mut new_mapping = Mapping::quad(
                     mapping_id,
@@ -667,10 +687,10 @@ impl App {
                 }
 
                 self.mapping_manager.add_mapping(new_mapping);
-                info!("Created mapping {} for video", mapping_id);
+                info!("Created mapping {} for media", mapping_id);
             }
             Err(e) => {
-                error!("Failed to load video file '{}': {}", path, e);
+                error!("Failed to load media file '{}': {}", path, e);
             }
         }
     }
