@@ -247,7 +247,7 @@ impl MeshRenderer {
         let uniforms = MeshUniforms {
             transform: transform.to_cols_array_2d(),
             opacity,
-            _padding: [0.0; 3],
+            _padding: [0.0; 7],
         };
 
         self.device
