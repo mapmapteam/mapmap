@@ -3,10 +3,8 @@
 //! Layers provide a hierarchical structure for organizing and compositing
 //! multiple media sources with different blend modes and transforms.
 
-use crate::{Paint, Mapping};
-use glam::{Mat4, Vec2};
+use glam::{Mat4, Vec2, Vec3};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Blend mode for compositing layers
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -89,6 +87,175 @@ impl BlendMode {
     }
 }
 
+/// Resize mode for automatic content fitting (Phase 1, Month 6)
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ResizeMode {
+    /// Fill - Scale to cover entire composition, crop excess
+    Fill,
+    /// Fit - Scale to fit within composition, letterbox/pillarbox
+    Fit,
+    /// Stretch - Non-uniform scale to fill composition exactly
+    Stretch,
+    /// Original - 1:1 pixel mapping, no scaling
+    Original,
+}
+
+impl Default for ResizeMode {
+    fn default() -> Self {
+        ResizeMode::Fit
+    }
+}
+
+impl ResizeMode {
+    /// Calculate transform matrix for this resize mode
+    /// Returns scale and translation to apply
+    pub fn calculate_transform(
+        &self,
+        source_size: Vec2,
+        target_size: Vec2,
+    ) -> (Vec2, Vec2) {
+        match self {
+            ResizeMode::Fill => {
+                // Scale to cover (largest dimension fills, crop other)
+                let scale_x = target_size.x / source_size.x;
+                let scale_y = target_size.y / source_size.y;
+                let scale = scale_x.max(scale_y);
+                (Vec2::splat(scale), Vec2::ZERO)
+            }
+            ResizeMode::Fit => {
+                // Scale to fit (smallest dimension fills, letterbox other)
+                let scale_x = target_size.x / source_size.x;
+                let scale_y = target_size.y / source_size.y;
+                let scale = scale_x.min(scale_y);
+                (Vec2::splat(scale), Vec2::ZERO)
+            }
+            ResizeMode::Stretch => {
+                // Non-uniform scale to fill exactly
+                let scale = target_size / source_size;
+                (scale, Vec2::ZERO)
+            }
+            ResizeMode::Original => {
+                // No scaling, 1:1 pixel mapping
+                (Vec2::ONE, Vec2::ZERO)
+            }
+        }
+    }
+}
+
+/// Transform properties for layers (Phase 1, Month 4)
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct Transform {
+    /// Position offset in pixels (X, Y)
+    pub position: Vec2,
+    /// Scale factor (Width, Height) - 1.0 = 100%
+    pub scale: Vec2,
+    /// Rotation in radians (X, Y, Z) - Euler angles
+    pub rotation: Vec3,
+    /// Anchor point for transform origin (0-1 normalized, 0.5 = center)
+    pub anchor: Vec2,
+}
+
+impl Default for Transform {
+    fn default() -> Self {
+        Self {
+            position: Vec2::ZERO,
+            scale: Vec2::ONE,
+            rotation: Vec3::ZERO,
+            anchor: Vec2::splat(0.5), // Center by default
+        }
+    }
+}
+
+impl Transform {
+    /// Create a new identity transform
+    pub fn identity() -> Self {
+        Self::default()
+    }
+
+    /// Create transform with position
+    pub fn with_position(position: Vec2) -> Self {
+        Self {
+            position,
+            ..Default::default()
+        }
+    }
+
+    /// Create transform with scale
+    pub fn with_scale(scale: Vec2) -> Self {
+        Self {
+            scale,
+            ..Default::default()
+        }
+    }
+
+    /// Create transform with uniform scale
+    pub fn with_uniform_scale(scale: f32) -> Self {
+        Self {
+            scale: Vec2::splat(scale),
+            ..Default::default()
+        }
+    }
+
+    /// Create transform with rotation (in radians)
+    pub fn with_rotation(rotation: Vec3) -> Self {
+        Self {
+            rotation,
+            ..Default::default()
+        }
+    }
+
+    /// Set Z rotation (most common for 2D)
+    pub fn with_rotation_z(angle: f32) -> Self {
+        Self {
+            rotation: Vec3::new(0.0, 0.0, angle),
+            ..Default::default()
+        }
+    }
+
+    /// Calculate 4x4 transformation matrix
+    /// Order: Translate → Rotate → Scale (TRS)
+    pub fn to_matrix(&self, content_size: Vec2) -> Mat4 {
+        // Calculate anchor offset in pixels
+        let anchor_offset = content_size * (self.anchor - Vec2::splat(0.5));
+
+        // Build transformation matrix
+        // 1. Translate to anchor point
+        let translate_to_anchor = Mat4::from_translation(Vec3::new(
+            -anchor_offset.x,
+            -anchor_offset.y,
+            0.0,
+        ));
+
+        // 2. Scale
+        let scale = Mat4::from_scale(Vec3::new(self.scale.x, self.scale.y, 1.0));
+
+        // 3. Rotate (Euler XYZ order)
+        let rotation = Mat4::from_euler(
+            glam::EulerRot::XYZ,
+            self.rotation.x,
+            self.rotation.y,
+            self.rotation.z,
+        );
+
+        // 4. Translate back from anchor and apply position
+        let translate_final = Mat4::from_translation(Vec3::new(
+            anchor_offset.x + self.position.x,
+            anchor_offset.y + self.position.y,
+            0.0,
+        ));
+
+        // Combine: Final Translation → Rotation → Scale → Anchor Translation
+        translate_final * rotation * scale * translate_to_anchor
+    }
+
+    /// Apply resize mode to this transform
+    pub fn apply_resize_mode(&mut self, mode: ResizeMode, source_size: Vec2, target_size: Vec2) {
+        let (scale, position) = mode.calculate_transform(source_size, target_size);
+        self.scale = scale;
+        self.position = position;
+    }
+}
+
 /// A single layer in the composition
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Layer {
@@ -97,11 +264,19 @@ pub struct Layer {
     pub paint_id: Option<u64>,
     pub mapping_ids: Vec<u64>,
     pub blend_mode: BlendMode,
+    /// Opacity/video fader (V) - 0.0 = transparent, 1.0 = opaque (Phase 1, Month 4)
     pub opacity: f32,
     pub visible: bool,
+    /// Solo mode (S) - isolate this layer (Phase 1, Month 4)
     pub solo: bool,
+    /// Bypass mode (B) - skip layer in render pipeline (Phase 1, Month 4)
+    pub bypass: bool,
     pub locked: bool,
-    pub transform: Mat4,
+    /// Layer transform - position, scale, rotation, anchor (Phase 1, Month 4)
+    pub transform: Transform,
+    /// Legacy transform matrix (for backward compatibility)
+    #[serde(skip)]
+    pub legacy_transform: Mat4,
 }
 
 impl Layer {
@@ -116,8 +291,10 @@ impl Layer {
             opacity: 1.0,
             visible: true,
             solo: false,
+            bypass: false,
             locked: false,
-            transform: Mat4::IDENTITY,
+            transform: Transform::default(),
+            legacy_transform: Mat4::IDENTITY,
         }
     }
 
@@ -153,7 +330,92 @@ impl Layer {
 
     /// Check if layer should be rendered
     pub fn should_render(&self) -> bool {
-        self.visible && self.opacity > 0.0 && self.paint_id.is_some()
+        self.visible && !self.bypass && self.opacity > 0.0 && self.paint_id.is_some()
+    }
+
+    /// Rename the layer
+    pub fn rename(&mut self, new_name: impl Into<String>) {
+        self.name = new_name.into();
+    }
+
+    /// Toggle bypass mode
+    pub fn toggle_bypass(&mut self) {
+        self.bypass = !self.bypass;
+    }
+
+    /// Toggle solo mode
+    pub fn toggle_solo(&mut self) {
+        self.solo = !self.solo;
+    }
+
+    /// Set transform with resize mode
+    pub fn set_transform_with_resize(&mut self, mode: ResizeMode, source_size: Vec2, target_size: Vec2) {
+        self.transform.apply_resize_mode(mode, source_size, target_size);
+    }
+
+    /// Get transform matrix for rendering
+    pub fn get_transform_matrix(&self, content_size: Vec2) -> Mat4 {
+        self.transform.to_matrix(content_size)
+    }
+}
+
+/// Composition metadata and master controls (Phase 1, Month 5)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Composition {
+    /// Composition name
+    pub name: String,
+    /// Optional description
+    pub description: String,
+    /// Master opacity (M) - global opacity multiplier (Phase 1, Month 4)
+    pub master_opacity: f32,
+    /// Master speed (S) - global speed multiplier (Phase 1, Month 5)
+    pub master_speed: f32,
+    /// Composition size in pixels
+    pub size: (u32, u32),
+    /// Frame rate (FPS)
+    pub frame_rate: f32,
+}
+
+impl Default for Composition {
+    fn default() -> Self {
+        Self {
+            name: "Untitled Composition".to_string(),
+            description: String::new(),
+            master_opacity: 1.0,
+            master_speed: 1.0,
+            size: (1920, 1080),
+            frame_rate: 60.0,
+        }
+    }
+}
+
+impl Composition {
+    /// Create a new composition
+    pub fn new(name: impl Into<String>, size: (u32, u32), frame_rate: f32) -> Self {
+        Self {
+            name: name.into(),
+            description: String::new(),
+            master_opacity: 1.0,
+            master_speed: 1.0,
+            size,
+            frame_rate,
+        }
+    }
+
+    /// Set description
+    pub fn with_description(mut self, description: impl Into<String>) -> Self {
+        self.description = description.into();
+        self
+    }
+
+    /// Set master opacity (clamped 0.0-1.0)
+    pub fn set_master_opacity(&mut self, opacity: f32) {
+        self.master_opacity = opacity.clamp(0.0, 1.0);
+    }
+
+    /// Set master speed (clamped 0.1-10.0)
+    pub fn set_master_speed(&mut self, speed: f32) {
+        self.master_speed = speed.clamp(0.1, 10.0);
     }
 }
 
@@ -162,6 +424,8 @@ impl Layer {
 pub struct LayerManager {
     layers: Vec<Layer>,
     next_id: u64,
+    /// Composition metadata and master controls
+    pub composition: Composition,
 }
 
 impl LayerManager {
@@ -170,6 +434,16 @@ impl LayerManager {
         Self {
             layers: Vec::new(),
             next_id: 1,
+            composition: Composition::default(),
+        }
+    }
+
+    /// Create layer manager with custom composition
+    pub fn with_composition(composition: Composition) -> Self {
+        Self {
+            layers: Vec::new(),
+            next_id: 1,
+            composition,
         }
     }
 
@@ -297,6 +571,34 @@ impl LayerManager {
         } else {
             None
         }
+    }
+
+    /// Rename a layer (Phase 1, Month 4)
+    pub fn rename_layer(&mut self, id: u64, new_name: impl Into<String>) -> bool {
+        if let Some(layer) = self.get_layer_mut(id) {
+            layer.rename(new_name);
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Eject all content (X) - remove paint from all layers (Phase 1, Month 4)
+    pub fn eject_all(&mut self) {
+        for layer in &mut self.layers {
+            layer.paint_id = None;
+        }
+    }
+
+    /// Get effective opacity for a layer (layer opacity × master opacity)
+    pub fn get_effective_opacity(&self, layer: &Layer) -> f32 {
+        layer.opacity * self.composition.master_opacity
+    }
+
+    /// Get effective speed (layer speed × master speed)
+    /// Note: Individual layer speed not yet implemented, returns master speed
+    pub fn get_effective_speed(&self) -> f32 {
+        self.composition.master_speed
     }
 }
 

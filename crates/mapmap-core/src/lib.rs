@@ -13,7 +13,7 @@ use thiserror::Error;
 
 // Phase 1: Layer system for compositing
 pub mod layer;
-pub use layer::{BlendMode, Layer, LayerManager};
+pub use layer::{BlendMode, Layer, LayerManager, Transform, ResizeMode, Composition};
 
 // Phase 2: Mapping system
 pub mod paint;
