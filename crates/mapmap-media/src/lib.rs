@@ -2,20 +2,21 @@
 //!
 //! This crate provides video decoding capabilities via FFmpeg, including:
 //! - Video decoder abstraction
-//! - Multi-threaded decoding pipeline
 //! - Playback control (seek, speed, loop)
+//!
+//! Multi-threaded decoding pipeline is planned for a future phase.
 
-use std::path::Path;
-use std::time::Duration;
 use thiserror::Error;
 
 pub mod decoder;
 pub mod player;
-pub mod pipeline;
+// TODO: Enable pipeline in future phase when implementing multi-threaded decoding
+// The pipeline module requires VideoDecoder to be Send, but FFmpeg's scaler is not thread-safe
+// pub mod pipeline;
 
 pub use decoder::{VideoDecoder, FFmpegDecoder, TestPatternDecoder, DecodedFrame, PixelFormat, HwAccelType};
 pub use player::{VideoPlayer, PlaybackState};
-pub use pipeline::{FramePipeline, PipelineConfig, PipelineStats, Priority, FrameScheduler};
+// pub use pipeline::{FramePipeline, PipelineConfig, PipelineStats, Priority, FrameScheduler};
 
 /// Media errors
 #[derive(Error, Debug)]
