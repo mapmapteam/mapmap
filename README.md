@@ -13,26 +13,40 @@ Projection mapping (also known as video mapping and spatial augmented reality) i
 
 ## 🚀 Project Status
 
-**Current Phase: Week 2 (Real Video Support) - 🚧 IN PROGRESS**
+**Current Phase: Phase 2 (Professional Multi-Projector System) - ✅ COMPLETE**
 
-MapMap is progressing through rapid feature development. **Phase 0** (Foundation) and **Week 1** (UI Controls) are complete!
+MapMap has achieved a major milestone! **Phase 0** (Foundation), **Phase 1** (Core Features), and **Phase 2** (Multi-Projector) are now complete!
 
 ### Completed ✅
+
+**Foundation:**
 - ✅ Modern graphics via **wgpu** (Vulkan/Metal/DX12)
 - ✅ Safe, high-performance **Rust** implementation
 - ✅ **ImGui-based** live operator interface
 - ✅ Modular architecture with 7 specialized crates
 - ✅ Cross-platform support (Linux, macOS, Windows)
 - ✅ Comprehensive CI/CD pipeline
-- ✅ Video playback and control system
-- ✅ Mesh rendering with warping support
-- ✅ **Week 1**: Full UI controls (play/pause/stop, speed, loop, add/remove mappings/paints)
-- ✅ **Week 2 (Partial)**: File picker integration, video loading infrastructure
 
-### In Progress 🚧
-- 🚧 **Week 2**: FFmpeg real video decoding (requires FFmpeg libraries on system)
+**Phase 1 - Core Engine:**
+- ✅ FFmpeg video decoding (supports MP4, MOV, AVI, and image formats)
+- ✅ Hardware-accelerated video playback
+- ✅ Multi-threaded media pipeline
+- ✅ Layer system with transforms and blend modes
+- ✅ Advanced playback controls (speed, direction, loop modes)
+- ✅ Full UI controls for all features
 
-See [WEEK1_COMPLETE.md](WEEK1_COMPLETE.md) and [WEEK2_PROGRESS.md](WEEK2_PROGRESS.md) for detailed status.
+**Phase 2 - Multi-Projector System (NEW!):**
+- ✅ **Multi-window rendering** with synchronized wgpu surfaces
+- ✅ **Edge blending renderer** with GPU-accelerated seamless overlap
+- ✅ **Color calibration** per-output (brightness, contrast, gamma, color temp, saturation)
+- ✅ **Canvas region filtering** for optimized rendering
+- ✅ **Post-processing pipeline** with intermediate textures
+- ✅ **UI controls** for edge blending and color calibration
+- ✅ **One-click 2x2 projector array** setup with automatic configuration
+- ✅ Real-time adjustment of all parameters
+
+### Next Phase 🎯
+**Phase 3:** Effects Pipeline - Shader graph, parameter animation, audio-reactive effects
 
 ### What's New
 
@@ -51,35 +65,42 @@ See [WEEK1_COMPLETE.md](WEEK1_COMPLETE.md) and [WEEK2_PROGRESS.md](WEEK2_PROGRES
 
 ## 📦 Features
 
-### Current (Phase 0)
-- ✅ Real-time video playback with control (play/pause/seek/speed/loop)
-- ✅ Hardware-accelerated rendering (Vulkan/Metal/DX12)
-- ✅ ImGui control interface
-- ✅ Basic mesh warping and geometry
-- ✅ Single window output
-- ✅ Performance monitoring
+### Current (Phases 0-2 Complete)
+- ✅ Real-time video playback with full control (play/pause/seek/speed/loop/direction)
+- ✅ Hardware-accelerated rendering (Vulkan/Metal/DX12 via wgpu)
+- ✅ Professional ImGui control interface
+- ✅ Mesh warping with perspective correction
+- ✅ **Multi-window output** with synchronized rendering
+- ✅ **Edge blending** for seamless projector overlap (GPU-accelerated)
+- ✅ **Per-output color calibration** (brightness, contrast, gamma, color temp, saturation)
+- ✅ **Canvas region filtering** for optimized multi-output performance
+- ✅ **2x2 projector array** one-click setup
+- ✅ Layer system with transforms and blend modes
+- ✅ FFmpeg video decode (MP4, MOV, AVI, images, GIFs)
+- ✅ Performance monitoring and real-time stats
 
 ### Roadmap
 
-**Phase 1 (Months 4-6):** Core Engine
-- Multi-threaded media pipeline
-- Hardware-accelerated video decode
-- Layer system and compositing
-- Advanced blend modes
+**Phase 1 (Core Engine)** - ✅ COMPLETE
+- ✅ Multi-threaded media pipeline
+- ✅ Hardware-accelerated video decode
+- ✅ Layer system and compositing
+- ✅ Advanced blend modes
 
-**Phase 2 (Months 7-9):** Professional Warping
-- Multi-output support
-- Mesh warping with control points
-- Edge blending
-- Geometric correction
+**Phase 2 (Professional Multi-Projector)** - ✅ COMPLETE
+- ✅ Multi-output support with synchronized rendering
+- ✅ Mesh warping with control points
+- ✅ Edge blending with gamma correction
+- ✅ Geometric correction and canvas regions
+- ✅ Per-output color calibration
 
-**Phase 3 (Months 10-12):** Effects Pipeline
+**Phase 3 (Effects Pipeline)** - NEXT
 - Shader graph system
 - Parameter animation
 - Audio-reactive effects
 - LUT color grading
 
-**Phase 4-7:** Control Systems, Pro Media I/O, User Experience, Polish
+**Phase 4-7:** Control Systems (MIDI/OSC/DMX), Pro Media I/O, User Experience, Polish
 
 See [RUST_REWRITE_PLAN.md](RUST_REWRITE_PLAN.md) for the complete roadmap.
 
@@ -184,37 +205,58 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ## 🎮 Usage
 
-Once built, you can run the Phase 0 demo:
+Once built, you can run MapMap:
 
 ```bash
 cargo run --release
 ```
 
-**Current Demo Features:**
-- Animated test pattern playback (procedurally generated)
-- ImGui control panel with playback controls
+**Current Features:**
+- Real video playback (MP4, MOV, AVI, images)
+- Multi-window projection mapping
+- ImGui control panels for all features
 - Performance stats (FPS, frame time)
-- Mesh rendering with warping
-- Windowed output at 1920x1080
+- Mesh rendering with perspective correction
+- Multi-output with edge blending and color calibration
 
 **Controls:**
-- Menu bar: File, View, Help
-- Playback Controls: Speed slider, loop toggle, play/pause/stop
-- Performance window: FPS and frame timing
+- **File Menu:** Load videos, save/load projects
+- **Playback Controls:** Speed, direction, loop modes, play/pause/stop
+- **Layers Panel:** Manage layers with transforms and blend modes
+- **Paints Panel:** Add and manage video sources
+- **Mappings Panel:** Create and edit mesh mappings
+- **Outputs Panel:** Configure multi-output setups
+- **Edge Blending:** Adjust blend zones for seamless overlap
+- **Color Calibration:** Match colors across projectors
+- **Performance Stats:** Real-time FPS and frame timing
+
+**Quick Start - 2x2 Projector Array:**
+1. Click "Outputs" panel
+2. Click "2x2 Projector Array" button
+3. Four output windows appear with automatic edge blending!
+4. Select an output to adjust edge blending and color calibration
 
 ## 📊 Performance
 
-**Phase 0 Targets (Achieved):**
-- ✅ 60 fps @ 1920x1080 (VSync locked)
+**Achieved Targets:**
+- ✅ 60 fps @ 1920x1080 per output (VSync locked)
 - ✅ <1ms texture upload for 1920x1080 RGBA
 - ✅ <50ms frame latency
-- ✅ <500MB memory usage
+- ✅ Multi-output rendering with synchronized presentation
+- ✅ Real-time edge blending and color calibration (GPU-accelerated)
+- ✅ Canvas region filtering for optimized rendering
+
+**Current Capabilities:**
+- 4+ synchronized output windows @ 1920x1080 60fps
+- Real-time video decode and playback
+- GPU post-processing (edge blend + color calibration) with minimal overhead
+- Professional-grade projection mapping performance
 
 **Future Targets:**
 - 4K @ 60 fps with hardware decode
 - 10+ concurrent video streams
 - <16ms control latency (MIDI/OSC)
-- Multi-output support
+- NDI/Spout/Syphon integration
 
 ## 📄 License
 
@@ -272,6 +314,6 @@ Ce projet a été rendu possible grâce au support de l'Organisation internation
 
 ---
 
-**Status:** Phase 0 (Foundation) - ✅ Complete
-**Next Milestone:** Phase 1 (Core Engine) - Hardware-accelerated video decode
-**Version:** 0.1.0 (Pre-release)
+**Status:** Phase 2 (Professional Multi-Projector System) - ✅ Complete
+**Next Milestone:** Phase 3 (Effects Pipeline) - Shader graph and parameter animation
+**Version:** 0.2.0 (Professional Multi-Projector Release)

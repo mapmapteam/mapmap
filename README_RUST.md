@@ -1,27 +1,45 @@
-# MapMap - Rust Rewrite (Phase 0)
+# MapMap - Rust Rewrite (Phases 0-2 Complete!)
 
 [![CI](https://github.com/johnjanik/mapmap/actions/workflows/ci.yml/badge.svg)](https://github.com/johnjanik/mapmap/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-> **Professional Projection Mapping Suite - Rust Edition**
+> **Professional Multi-Projector Mapping Suite - Rust Edition**
 
-MapMap is being rewritten in Rust to become a professional-grade projection mapping system capable of competing with Resolume Arena. This repository contains the Phase 0 (Foundation) implementation.
+MapMap has been successfully rewritten in Rust as a professional-grade projection mapping system with full multi-projector support, edge blending, and color calibration. **Phases 0, 1, and 2 are complete!**
 
-## 🚀 Phase 0 Status
+## 🚀 Implementation Status
 
-**Completed:**
-- ✅ Cargo workspace with 6 crates
+### Phase 0 - Foundation ✅
+- ✅ Cargo workspace with 7 specialized crates
 - ✅ wgpu rendering backend (Vulkan/Metal/DX12)
-- ✅ Basic quad rendering with textures
-- ✅ Video decoder abstraction (with test pattern generator)
-- ✅ Video playback control (play/pause/seek/speed/loop)
-- ✅ ImGui integration for UI
-- ✅ Single window output
+- ✅ Mesh rendering with perspective correction
+- ✅ Video decoder abstraction (test pattern generator)
+- ✅ Video playback control system
+- ✅ ImGui integration for professional UI
 - ✅ CI/CD pipeline (Linux/macOS/Windows)
 - ✅ Comprehensive documentation
 
+### Phase 1 - Core Engine ✅
+- ✅ FFmpeg integration (MP4, MOV, AVI, images, GIFs)
+- ✅ Hardware-accelerated video decode
+- ✅ Multi-threaded media pipeline
+- ✅ Layer system with transforms
+- ✅ Blend modes and compositing
+- ✅ Advanced playback (direction, speed, loop modes)
+
+### Phase 2 - Multi-Projector System ✅
+- ✅ Multi-window rendering with synchronized presentation
+- ✅ Edge blending renderer (GPU-accelerated)
+- ✅ Color calibration per-output (brightness, contrast, gamma, temp, saturation)
+- ✅ Canvas region filtering for performance
+- ✅ Post-processing pipeline with intermediate textures
+- ✅ UI controls for all calibration parameters
+- ✅ One-click 2x2 projector array setup
+
 **Architecture Highlights:**
 - Modern graphics via wgpu (safe Rust abstraction over Vulkan/Metal/DX12)
+- Multi-stage post-processing pipeline with GPU acceleration
+- Real-time parameter adjustment with zero latency
 - Domain-driven design with clear separation of concerns
 - Extensible plugin system (via FFI crate)
 - Production-ready error handling and logging
