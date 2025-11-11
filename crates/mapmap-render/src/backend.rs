@@ -93,9 +93,9 @@ impl WgpuBackend {
     ///
     /// # Safety
     /// The window must outlive the surface
-    pub unsafe fn create_surface<W: raw_window_handle::HasRawWindowHandle + raw_window_handle::HasRawDisplayHandle>(
+    pub unsafe fn create_surface(
         &self,
-        window: &W,
+        window: &winit::window::Window,
     ) -> Result<wgpu::Surface> {
         self.instance
             .create_surface(window)
