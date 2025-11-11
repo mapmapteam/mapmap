@@ -82,12 +82,15 @@ sudo apt-get install -y \
 # Install audio libraries (for future audio support)
 sudo apt-get install -y libasound2-dev
 
-# Optional: Install FFmpeg development libraries (for Phase 1+)
+# REQUIRED for real video playback: Install FFmpeg development libraries
+# (Week 2+ feature - file picker and video loading)
 sudo apt-get install -y \
   libavcodec-dev \
   libavformat-dev \
   libavutil-dev \
-  libswscale-dev
+  libswscale-dev \
+  libavdevice-dev \
+  libavfilter-dev
 ```
 
 #### Fedora
@@ -155,6 +158,35 @@ cargo run --release
 
 # Run with Wayland backend (if preferred over X11)
 WINIT_UNIX_BACKEND=wayland cargo run --release
+```
+
+### Building with FFmpeg Video Support
+
+To enable real video file playback (Week 2+ feature), you must:
+
+1. **Install FFmpeg development libraries** (see above)
+2. **Build with the `ffmpeg` feature flag**
+
+```bash
+# Build with FFmpeg support (requires FFmpeg dev libraries)
+cargo build --release --features ffmpeg
+
+# Run with FFmpeg support
+cargo run --release --features ffmpeg
+```
+
+**Without FFmpeg feature:**
+- File > Load Video will open dialog but fall back to test patterns
+- Only procedural test patterns will play
+
+**With FFmpeg feature:**
+- Real video files (.mp4, .mov, .avi, etc.) will load and play
+- Hardware acceleration available (when configured)
+
+**Quick install script:**
+```bash
+# Run the helper script to install FFmpeg dev libraries
+./install-ffmpeg-dev.sh
 ```
 
 ### GPU Backend Selection
