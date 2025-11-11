@@ -162,7 +162,7 @@ MapMap provides a **solid proof-of-concept** for projection mapping with clean d
    - Consider JSON for new version (better tooling)
 
 3. **OSC Control Structure** (MEDIUM VALUE)
-   - Path-based addressing (`/mapmap/paint/0/...`) is standard
+   - Path-based addressing (`/mapmap/paint/... i`) is not standard, a better approach would be ('/mapmap/paint/0/...')
    - Can extend to full OSC API spec
    - Good foundation for control system
 
