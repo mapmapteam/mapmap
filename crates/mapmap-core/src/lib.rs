@@ -17,11 +17,13 @@ pub use layer::{BlendMode, Layer, LayerManager, Transform, ResizeMode, Compositi
 
 // Phase 2: Multi-output and projection mapping
 pub mod output;
+pub mod monitor;
 pub mod paint;
 pub mod mesh;
 pub mod mapping;
 
 pub use output::{OutputManager, OutputConfig, OutputId, CanvasRegion, EdgeBlendConfig, EdgeBlendZone, ColorCalibration};
+pub use monitor::{MonitorInfo, MonitorTopology};
 pub use paint::{Paint, PaintId, PaintManager, PaintType};
 pub use mesh::{Mesh, MeshType, MeshVertex, VertexId, BezierPatch, keystone};
 pub use mapping::{Mapping, MappingId, MappingManager};
