@@ -303,25 +303,11 @@ impl App {
         }
 
         // Render ImGui
-        self.imgui_context.prepare_frame(&self.window);
-        let ui = self.imgui_context.begin_frame();
-
-        // Render UI
-        self.ui_state.render_menu_bar(ui);
-        self.ui_state.render_controls(ui);
-        self.ui_state.render_paint_panel(
-            ui,
-            &mut self.paint_manager,
-        );
-        self.ui_state.render_mapping_panel(
-            ui,
-            &mut self.mapping_manager,
-        );
-        self.ui_state.render_stats(
-            ui,
-            self.fps,
-            self.last_frame.elapsed().as_secs_f32() * 1000.0,
-        );
+        let ui_state = &mut self.ui_state;
+        let paint_manager = &mut self.paint_manager;
+        let mapping_manager = &mut self.mapping_manager;
+        let fps = self.fps;
+        let frame_time = self.last_frame.elapsed().as_secs_f32() * 1000.0;
 
         self.imgui_context.render(
             &self.window,
@@ -329,6 +315,13 @@ impl App {
             self.backend.queue(),
             &mut encoder,
             &view,
+            |ui| {
+                ui_state.render_menu_bar(ui);
+                ui_state.render_controls(ui);
+                ui_state.render_paint_panel(ui, paint_manager);
+                ui_state.render_mapping_panel(ui, mapping_manager);
+                ui_state.render_stats(ui, fps, frame_time);
+            },
         );
 
         // Submit commands
