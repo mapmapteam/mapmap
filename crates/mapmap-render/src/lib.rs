@@ -6,12 +6,8 @@
 //! - Shader compilation and hot-reloading
 //! - GPU profiling
 
-use std::collections::HashMap;
-use parking_lot::RwLock;
-use std::sync::Arc;
 use thiserror::Error;
-use tracing::{debug, error, info, warn};
-use wgpu::util::DeviceExt;
+use tracing::error;
 
 pub mod backend;
 pub mod texture;

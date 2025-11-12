@@ -2,7 +2,7 @@
 //!
 //! Supports perspective-correct texture mapping for projection mapping applications.
 
-use crate::{Result, RenderError, TextureHandle};
+use crate::Result;
 use bytemuck::{Pod, Zeroable};
 use glam::Mat4;
 use mapmap_core::{Mesh, MeshVertex};

@@ -155,7 +155,7 @@ impl Dashboard {
     fn render_freeform_layout(&mut self, ui: &mut Ui) -> Option<DashboardAction> {
         let mut action = None;
 
-        let (response, _painter) = ui.allocate_painter(ui.available_size(), Sense::click_and_drag());
+        let (_response, _painter) = ui.allocate_painter(ui.available_size(), Sense::click_and_drag());
 
         for widget in &mut self.widgets {
             // Use egui::Area for freeform positioning

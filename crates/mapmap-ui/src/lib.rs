@@ -619,8 +619,6 @@ impl AppUI {
                     .map(|m| m.id)
                     .collect();
 
-                let mut selected_mapping_id: Option<u64> = None;
-
                 for mapping_id in mapping_ids {
                     if let Some(mapping) = mapping_manager.get_mapping_mut(mapping_id) {
                         let _id = ui.push_id_usize(mapping.id as usize);
@@ -639,7 +637,6 @@ impl AppUI {
 
                         // Make the mapping name clickable to select it
                         if ui.small_button(&format!("{} (Paint #{})", mapping.name, mapping.paint_id)) {
-                            selected_mapping_id = Some(mapping.id);
                             self.actions.push(UIAction::SelectMapping(mapping.id));
                         }
 

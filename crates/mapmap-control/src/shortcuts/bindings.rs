@@ -5,7 +5,7 @@ use crate::error::Result;
 use std::collections::HashMap;
 use std::path::Path;
 use serde::{Deserialize, Serialize};
-use tracing::{info, warn};
+use tracing::info;
 
 /// Key binding manager
 pub struct KeyBindings {

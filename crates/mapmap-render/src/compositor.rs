@@ -3,11 +3,11 @@
 //! The compositor handles rendering multiple layers with different blend modes
 //! and compositing them into a single output.
 
-use crate::{Result, RenderError, TextureHandle};
+use crate::Result;
 use bytemuck::{Pod, Zeroable};
 use mapmap_core::BlendMode;
 use std::sync::Arc;
-use tracing::{debug, info};
+use tracing::info;
 use wgpu::util::DeviceExt;
 
 /// Compositor parameters for blend modes

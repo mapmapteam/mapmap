@@ -505,7 +505,7 @@ impl NodeEditor {
         }
 
         // Draw connection being created
-        if let Some((node_id, socket_id, start_pos)) = self.creating_connection {
+        if let Some((_node_id, _socket_id, start_pos)) = self.creating_connection {
             if let Some(pointer_pos) = response.interact_pointer_pos() {
                 self.draw_connection(
                     &painter,
@@ -665,7 +665,7 @@ impl NodeEditor {
     }
 
     /// Draw a socket
-    fn draw_socket(&self, painter: &egui::Painter, pos: Pos2, socket_type: SocketType, is_input: bool) {
+    fn draw_socket(&self, painter: &egui::Painter, pos: Pos2, socket_type: SocketType, _is_input: bool) {
         let radius = 6.0 * self.zoom;
         painter.circle_filled(pos, radius, socket_type.color());
         painter.circle_stroke(pos, radius, Stroke::new(2.0, Color32::WHITE));

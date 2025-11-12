@@ -203,11 +203,13 @@ impl Drop for RtmpStreamer {
 }
 
 // Stub implementation when stream feature is disabled
+/// RTMP streamer (stub implementation when feature is disabled)
 #[cfg(not(feature = "stream"))]
 pub struct RtmpStreamer;
 
 #[cfg(not(feature = "stream"))]
 impl RtmpStreamer {
+    /// Create a new RTMP streamer (returns error when feature is disabled)
     pub fn new(_url: impl Into<String>, _format: crate::format::VideoFormat, _bitrate: u64) -> crate::error::Result<Self> {
         Err(crate::error::IoError::feature_not_enabled("RTMP streaming", "stream"))
     }
