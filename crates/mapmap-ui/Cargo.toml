@@ -11,10 +11,26 @@ repository.workspace = true
 mapmap-core = { path = "../mapmap-core" }
 mapmap-media = { path = "../mapmap-media" }
 mapmap-render = { path = "../mapmap-render" }
+
+# Legacy ImGui (Phase 0-5)
 imgui = { workspace = true }
 imgui-wgpu = { workspace = true }
 imgui-winit-support = { workspace = true }
+
+# Phase 6: egui migration
+egui = { workspace = true }
+egui-wgpu = { workspace = true }
+egui-winit = { workspace = true }
+egui_dock = { workspace = true }
+egui_extras = { workspace = true }
+
 wgpu = { workspace = true }
 # Use winit 0.27 for imgui compatibility
 winit = { version = "0.27", features = ["x11", "wayland"] }
 glam = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+image = { workspace = true }
+parking_lot = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }

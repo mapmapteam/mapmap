@@ -1,16 +1,38 @@
-//! MapMap UI - ImGui Integration
+//! MapMap UI - ImGui and egui Integration
 //!
-//! This crate provides the user interface layer using ImGui, including:
-//! - ImGui context setup
+//! This crate provides the user interface layer using ImGui (legacy) and egui (Phase 6+), including:
+//! - ImGui context setup (Phase 0-5)
+//! - egui integration (Phase 6+)
 //! - Window management
 //! - Control panels
+//! - Advanced authoring UI (Phase 6)
 
-// Phase 3: Effects Pipeline UI
+// Phase 3: Effects Pipeline UI (ImGui-based)
 pub mod shader_graph_editor;
 pub mod timeline;
 
+// Phase 6: Advanced Authoring UI (egui-based)
+pub mod undo_redo;
+pub mod theme;
+pub mod media_browser;
+pub mod node_editor;
+pub mod timeline_v2;
+pub mod asset_manager;
+pub mod mesh_editor;
+pub mod dashboard;
+
 pub use shader_graph_editor::{ShaderGraphEditor, ShaderGraphAction};
 pub use timeline::{TimelineEditor, TimelineAction};
+
+// Phase 6 exports
+pub use undo_redo::{Command, CommandError, EditorState, UndoManager};
+pub use theme::{Theme, ThemeConfig};
+pub use media_browser::{MediaBrowser, MediaBrowserAction, MediaEntry, MediaType};
+pub use node_editor::{NodeEditor, NodeEditorAction, NodeType, Node};
+pub use timeline_v2::{TimelineV2, TimelineAction as TimelineV2Action, InterpolationType};
+pub use asset_manager::{AssetManager, AssetManagerAction, EffectPreset, TransformPreset};
+pub use mesh_editor::{MeshEditor, MeshEditorAction};
+pub use dashboard::{Dashboard, DashboardAction, DashboardWidget, WidgetType};
 
 use imgui::*;
 use imgui_wgpu::{Renderer, RendererConfig};
