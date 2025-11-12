@@ -144,7 +144,7 @@ impl ShaderGraphEditor {
 
     /// Draw node palette
     fn draw_node_palette(&mut self, ui: &Ui, actions: &mut Vec<ShaderGraphAction>) {
-        Window::new(ui, "Node Palette")
+        ui.window("Node Palette")
             .size([250.0, 400.0], Condition::FirstUseEver)
             .position([10.0, 40.0], Condition::FirstUseEver)
             .build(|| {
@@ -179,7 +179,7 @@ impl ShaderGraphEditor {
 
     /// Draw properties panel for selected node
     fn draw_properties_panel(&mut self, ui: &Ui, actions: &mut Vec<ShaderGraphAction>) {
-        Window::new(ui, "Node Properties")
+        ui.window("Node Properties")
             .size([300.0, 400.0], Condition::FirstUseEver)
             .position([ui.window_size()[0] - 310.0, 40.0], Condition::FirstUseEver)
             .build(|| {
@@ -232,7 +232,7 @@ impl ShaderGraphEditor {
 
     /// Draw code preview panel
     fn draw_code_preview(&self, ui: &Ui) {
-        Window::new(ui, "WGSL Code Preview")
+        ui.window("WGSL Code Preview")
             .size([600.0, 500.0], Condition::FirstUseEver)
             .build(|| {
                 if let Some(code) = &self.generated_code {
@@ -245,7 +245,7 @@ impl ShaderGraphEditor {
 
     /// Draw main canvas
     fn draw_canvas(&mut self, ui: &Ui, _actions: &mut Vec<ShaderGraphAction>) {
-        Window::new(ui, "Shader Graph Canvas")
+        ui.window("Shader Graph Canvas")
             .size([800.0, 600.0], Condition::FirstUseEver)
             .position([260.0, 40.0], Condition::FirstUseEver)
             .build(|| {

@@ -13,8 +13,10 @@ pub struct MeshEditor {
     /// Mesh faces (triangles)
     faces: Vec<Face>,
     /// Selected vertices
+    #[allow(dead_code)]
     selected: Vec<usize>,
     /// Dragging vertex
+    #[allow(dead_code)]
     dragging: Option<usize>,
     /// Editor mode
     mode: EditMode,
@@ -24,9 +26,12 @@ pub struct MeshEditor {
     snap_to_grid: bool,
     grid_size: f32,
     /// Subdivision level
+    #[allow(dead_code)]
     subdivision_level: u32,
     /// Canvas transform
+    #[allow(dead_code)]
     pan_offset: Vec2,
+    #[allow(dead_code)]
     zoom: f32,
 }
 
@@ -180,6 +185,7 @@ impl MeshEditor {
     }
 
     /// Apply symmetry to vertex movement
+    #[allow(dead_code)]
     fn apply_symmetry(&mut self, vertex_idx: usize, new_pos: Pos2) {
         self.vertices[vertex_idx].position = new_pos;
 

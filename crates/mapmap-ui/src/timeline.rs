@@ -185,7 +185,7 @@ impl TimelineEditor {
             return;
         }
 
-        Window::new(ui, "Timeline")
+        ui.window("Timeline")
             .size([ui.window_size()[0] - 20.0, 300.0], Condition::FirstUseEver)
             .build(|| {
                 let draw_list = ui.get_window_draw_list();
@@ -420,7 +420,7 @@ impl TimelineEditor {
 
     /// Draw curve editor
     fn draw_curve_editor(&self, ui: &Ui, _actions: &mut Vec<TimelineAction>) {
-        Window::new(ui, "Curve Editor")
+        ui.window("Curve Editor")
             .size([600.0, 300.0], Condition::FirstUseEver)
             .build(|| {
                 if let Some(track_name) = &self.curve_editor_track {

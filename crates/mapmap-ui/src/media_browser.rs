@@ -75,6 +75,7 @@ pub struct MediaBrowser {
     /// View mode
     view_mode: ViewMode,
     /// Grid size (thumbnails per row)
+    #[allow(dead_code)]
     grid_columns: usize,
     /// Thumbnail size in pixels
     thumbnail_size: f32,

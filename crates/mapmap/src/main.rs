@@ -28,6 +28,7 @@ struct WindowContext {
     window: winit::window::Window,
     surface: wgpu::Surface,
     surface_config: wgpu::SurfaceConfiguration,
+    #[allow(dead_code)]
     output_id: OutputId,
 }
 
@@ -38,8 +39,10 @@ struct App {
     main_window_id: Option<OutputId>, // Primary window for UI
 
     backend: WgpuBackend,
+    #[allow(dead_code)]
     quad_renderer: QuadRenderer,
     mesh_renderer: MeshRenderer,
+    #[allow(dead_code)]
     compositor: Compositor,
     edge_blend_renderer: EdgeBlendRenderer,
     color_calibration_renderer: ColorCalibrationRenderer,
@@ -51,6 +54,7 @@ struct App {
     output_manager: mapmap_core::OutputManager,
     video_players: HashMap<u64, VideoPlayer>, // Paint ID -> VideoPlayer
     paint_textures: HashMap<u64, mapmap_render::TextureHandle>, // Paint ID -> Texture
+    #[allow(dead_code)]
     layer_textures: HashMap<u64, mapmap_render::TextureHandle>, // Layer ID -> Texture
     intermediate_textures: HashMap<OutputId, mapmap_render::TextureHandle>, // Per-output intermediate textures
     last_frame: Instant,

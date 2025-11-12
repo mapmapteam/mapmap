@@ -216,9 +216,9 @@ impl AssetManager {
 
         egui::TopBottomPanel::top("asset_browser_tabs").show_inside(ui, |ui| {
             ui.horizontal(|ui| {
-                ui.selectable_label(false, "Effect Presets");
-                ui.selectable_label(false, "Transform Presets");
-                ui.selectable_label(false, "Project Templates");
+                let _ = ui.selectable_label(false, "Effect Presets");
+                let _ = ui.selectable_label(false, "Transform Presets");
+                let _ = ui.selectable_label(false, "Project Templates");
             });
         });
 
