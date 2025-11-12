@@ -10,7 +10,7 @@ use std::collections::VecDeque;
 const MAX_HISTORY: usize = 100;
 
 /// Core trait for all undoable commands
-pub trait Command: Send + Sync + std::fmt::Debug {
+pub trait Command: Send + Sync + std::fmt::Debug + std::any::Any {
     /// Execute the command forward
     fn execute(&self, state: &mut EditorState) -> Result<(), CommandError>;
 

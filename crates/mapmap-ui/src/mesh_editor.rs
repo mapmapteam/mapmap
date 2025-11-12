@@ -3,7 +3,7 @@
 //! Advanced mesh editing with Bezier control points, subdivision surfaces,
 //! symmetry mode, snap to grid/guides, and copy/paste functionality.
 
-use egui::{Color32, Pos2, Rect, Response, Sense, Stroke, Ui, Vec2};
+use egui::{Color32, Pos2, Rect, Sense, Stroke, Ui, Vec2};
 use serde::{Deserialize, Serialize};
 
 /// Advanced mesh editor
@@ -333,10 +333,20 @@ impl MeshEditor {
                     if response.dragged() {
                         // Drag selected vertices
                         let delta = response.drag_delta();
+                        let snap_to_grid = self.snap_to_grid;
+                        let grid_size = self.grid_size;
                         for vertex in &mut self.vertices {
                             if vertex.selected {
                                 let new_pos = vertex.position + delta;
-                                vertex.position = self.snap_to_grid_pos(new_pos);
+                                // Inline snap_to_grid_pos logic to avoid borrow conflict
+                                vertex.position = if snap_to_grid {
+                                    Pos2::new(
+                                        (new_pos.x / grid_size).round() * grid_size,
+                                        (new_pos.y / grid_size).round() * grid_size,
+                                    )
+                                } else {
+                                    new_pos
+                                };
                             }
                         }
                     }

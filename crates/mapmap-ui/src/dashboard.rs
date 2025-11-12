@@ -3,9 +3,8 @@
 //! Quick-access parameter controls with customizable layouts.
 //! Allows users to assign frequently-used parameters to dashboard dials and sliders.
 
-use egui::{Color32, Pos2, Rect, Response, Sense, Stroke, Ui, Vec2};
+use egui::{Color32, Pos2, Sense, Stroke, Ui, Vec2};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Dashboard control panel
 pub struct Dashboard {
@@ -105,7 +104,7 @@ impl Dashboard {
             if self.layout == LayoutMode::Grid {
                 ui.separator();
                 ui.label("Columns:");
-                ui.add(egui::DragValue::new(&mut self.grid_columns).clamp_range(1..=8));
+                ui.add(egui::DragValue::new(&mut self.grid_columns).range(1..=8));
             }
 
             ui.separator();
@@ -143,7 +142,7 @@ impl Dashboard {
                         ui.end_row();
                     }
 
-                    if let Some(a) = self.render_widget(ui, widget) {
+                    if let Some(a) = Self::render_widget(ui, widget) {
                         action = Some(a);
                     }
                 }
@@ -162,12 +161,12 @@ impl Dashboard {
             // Use egui::Area for freeform positioning
             let widget_pos = widget.position.unwrap_or(Pos2::new(100.0, 100.0));
 
-            egui::Area::new(format!("widget_{}", widget.id))
+            egui::Area::new(egui::Id::new(format!("widget_{}", widget.id)))
                 .fixed_pos(widget_pos)
                 .movable(true)
                 .show(ui.ctx(), |ui| {
                     egui::Frame::group(ui.style()).show(ui, |ui| {
-                        if let Some(a) = self.render_widget(ui, widget) {
+                        if let Some(a) = Self::render_widget(ui, widget) {
                             action = Some(a);
                         }
 
@@ -185,7 +184,7 @@ impl Dashboard {
     }
 
     /// Render a single widget
-    fn render_widget(&mut self, ui: &mut Ui, widget: &mut DashboardWidget) -> Option<DashboardAction> {
+    fn render_widget(ui: &mut Ui, widget: &mut DashboardWidget) -> Option<DashboardAction> {
         let mut action = None;
 
         ui.vertical(|ui| {

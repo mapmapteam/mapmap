@@ -436,7 +436,7 @@ impl NodeEditor {
 
         // Zoom
         if response.hovered() {
-            let scroll = ui.input(|i| i.scroll_delta.y);
+            let scroll = ui.input(|i| i.raw_scroll_delta.y);
             if scroll != 0.0 {
                 self.zoom *= 1.0 + scroll * 0.001;
                 self.zoom = self.zoom.clamp(0.2, 3.0);
@@ -525,7 +525,7 @@ impl NodeEditor {
         // Node palette popup
         if self.show_palette {
             if let Some(pos) = self.palette_pos {
-                egui::Area::new("node_palette")
+                egui::Area::new(egui::Id::new("node_palette"))
                     .fixed_pos(pos)
                     .show(ui.ctx(), |ui| {
                         egui::Frame::popup(ui.style()).show(ui, |ui| {

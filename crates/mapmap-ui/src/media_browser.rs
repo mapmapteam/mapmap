@@ -349,14 +349,15 @@ impl MediaBrowser {
 
         // Content area
         egui::ScrollArea::vertical().show(ui, |ui| {
-            let entries = self.filtered_entries();
+            // Collect indices to avoid borrowing issues
+            let entry_indices: Vec<usize> = self.filtered_entries().into_iter().map(|(i, _)| i).collect();
 
             match self.view_mode {
                 ViewMode::Grid => {
-                    action = self.render_grid_view(ui, &entries);
+                    action = self.render_grid_view(ui, &entry_indices);
                 }
                 ViewMode::List => {
-                    action = self.render_list_view(ui, &entries);
+                    action = self.render_list_view(ui, &entry_indices);
                 }
             }
         });
@@ -368,7 +369,7 @@ impl MediaBrowser {
     fn render_grid_view(
         &mut self,
         ui: &mut Ui,
-        entries: &[(usize, &MediaEntry)],
+        entry_indices: &[usize],
     ) -> Option<MediaBrowserAction> {
         let mut action = None;
         let item_size = Vec2::new(self.thumbnail_size, self.thumbnail_size + 40.0);
@@ -379,15 +380,16 @@ impl MediaBrowser {
             .spacing([8.0, 8.0])
             .min_col_width(item_size.x)
             .show(ui, |ui| {
-                for (i, (idx, entry)) in entries.iter().enumerate() {
+                for (i, &idx) in entry_indices.iter().enumerate() {
                     if i > 0 && i % columns == 0 {
                         ui.end_row();
                     }
 
-                    let response = self.render_thumbnail_item(ui, entry, *idx);
+                    let entry = &self.entries[idx];
+                    let response = self.render_thumbnail_item(ui, entry, idx);
 
                     if response.clicked() {
-                        self.selected = Some(*idx);
+                        self.selected = Some(idx);
                         action = Some(MediaBrowserAction::FileSelected(entry.path.clone()));
                     }
 
@@ -396,8 +398,8 @@ impl MediaBrowser {
                     }
 
                     if response.hovered() {
-                        if self.hovered != Some(*idx) {
-                            self.hovered = Some(*idx);
+                        if self.hovered != Some(idx) {
+                            self.hovered = Some(idx);
                             self.hover_start = Some(Instant::now());
                         }
                     }
@@ -422,11 +424,12 @@ impl MediaBrowser {
     fn render_list_view(
         &mut self,
         ui: &mut Ui,
-        entries: &[(usize, &MediaEntry)],
+        entry_indices: &[usize],
     ) -> Option<MediaBrowserAction> {
         let mut action = None;
 
-        for (idx, entry) in entries {
+        for &idx in entry_indices {
+            let entry = &self.entries[idx];
             ui.horizontal(|ui| {
                 // Icon
                 ui.label(entry.file_type.icon());
@@ -437,9 +440,9 @@ impl MediaBrowser {
                 }
 
                 // Name (clickable)
-                let name_label = ui.selectable_label(self.selected == Some(*idx), &entry.name);
+                let name_label = ui.selectable_label(self.selected == Some(idx), &entry.name);
                 if name_label.clicked() {
-                    self.selected = Some(*idx);
+                    self.selected = Some(idx);
                     action = Some(MediaBrowserAction::FileSelected(entry.path.clone()));
                 }
                 if name_label.double_clicked() {

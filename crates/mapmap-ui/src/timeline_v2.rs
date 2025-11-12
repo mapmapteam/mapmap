@@ -3,9 +3,8 @@
 //! Multi-track timeline with keyframe animation, Bezier interpolation curves,
 //! markers, regions, scrubbing, and curve editor.
 
-use egui::{Color32, Pos2, Rect, Response, Sense, Stroke, Ui, Vec2};
+use egui::{Color32, Pos2, Rect, Sense, Stroke, Ui, Vec2};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Timeline editor with keyframe animation
 pub struct TimelineV2 {

@@ -4,7 +4,7 @@
 //! Node-based visual shader editor using ImGui
 
 use imgui::*;
-use mapmap_core::{ShaderGraph, ShaderNode, NodeType, NodeId, DataType};
+use mapmap_core::{ShaderGraph, ShaderNode, NodeType, NodeId};
 use std::collections::HashMap;
 
 /// Shader graph editor state
@@ -144,10 +144,10 @@ impl ShaderGraphEditor {
 
     /// Draw node palette
     fn draw_node_palette(&mut self, ui: &Ui, actions: &mut Vec<ShaderGraphAction>) {
-        Window::new("Node Palette")
+        Window::new(ui, "Node Palette")
             .size([250.0, 400.0], Condition::FirstUseEver)
             .position([10.0, 40.0], Condition::FirstUseEver)
-            .build(ui, || {
+            .build(|| {
                 // Search box
                 ui.input_text("##search", &mut self.palette_search)
                     .hint("Search nodes...")
@@ -179,10 +179,10 @@ impl ShaderGraphEditor {
 
     /// Draw properties panel for selected node
     fn draw_properties_panel(&mut self, ui: &Ui, actions: &mut Vec<ShaderGraphAction>) {
-        Window::new("Node Properties")
+        Window::new(ui, "Node Properties")
             .size([300.0, 400.0], Condition::FirstUseEver)
             .position([ui.window_size()[0] - 310.0, 40.0], Condition::FirstUseEver)
-            .build(ui, || {
+            .build(|| {
                 if let Some(node_id) = self.selected_nodes.first() {
                     if let Some(graph) = &self.graph {
                         if let Some(node) = graph.nodes.get(node_id) {
@@ -232,9 +232,9 @@ impl ShaderGraphEditor {
 
     /// Draw code preview panel
     fn draw_code_preview(&self, ui: &Ui) {
-        Window::new("WGSL Code Preview")
+        Window::new(ui, "WGSL Code Preview")
             .size([600.0, 500.0], Condition::FirstUseEver)
-            .build(ui, || {
+            .build(|| {
                 if let Some(code) = &self.generated_code {
                     ui.text_wrapped(code);
                 } else {
@@ -245,10 +245,10 @@ impl ShaderGraphEditor {
 
     /// Draw main canvas
     fn draw_canvas(&mut self, ui: &Ui, actions: &mut Vec<ShaderGraphAction>) {
-        Window::new("Shader Graph Canvas")
+        Window::new(ui, "Shader Graph Canvas")
             .size([800.0, 600.0], Condition::FirstUseEver)
             .position([260.0, 40.0], Condition::FirstUseEver)
-            .build(ui, || {
+            .build(|| {
                 let draw_list = ui.get_window_draw_list();
                 let canvas_pos = ui.cursor_screen_pos();
                 let canvas_size = ui.content_region_avail();
@@ -393,7 +393,7 @@ impl ShaderGraphEditor {
                         let ctrl1 = [start[0] + 50.0, start[1]];
                         let ctrl2 = [end[0] - 50.0, end[1]];
 
-                        draw_list.add_bezier_cubic(
+                        draw_list.add_bezier_curve(
                             start,
                             ctrl1,
                             ctrl2,

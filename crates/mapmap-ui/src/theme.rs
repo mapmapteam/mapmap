@@ -3,7 +3,7 @@
 //! Professional theme support with dark, light, and high-contrast modes.
 //! Includes accessibility features and customizable color schemes.
 
-use egui::{Color32, Rgba, Style, Visuals};
+use egui::{Color32, Style, Visuals};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
