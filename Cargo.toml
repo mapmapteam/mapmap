@@ -91,6 +91,7 @@ criterion = "0.5"
 bindgen = "0.69"
 cbindgen = "0.26"
 cc = "1.0"
+winres = "0.1"
 
 [profile.dev]
 opt-level = 1  # Slightly optimize for better wgpu performance in debug
