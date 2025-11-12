@@ -7,6 +7,7 @@ members = [
     "crates/mapmap-ui",
     "crates/mapmap-control",
     "crates/mapmap-ffi",
+    "crates/mapmap-io",
     "crates/mapmap",
 ]
 
@@ -83,6 +84,7 @@ criterion = "0.5"
 # Build dependencies
 bindgen = "0.69"
 cbindgen = "0.26"
+cc = "1.0"
 
 [profile.dev]
 opt-level = 1  # Slightly optimize for better wgpu performance in debug
