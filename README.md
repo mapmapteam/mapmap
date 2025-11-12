@@ -13,9 +13,9 @@ Projection mapping (also known as video mapping and spatial augmented reality) i
 
 ## 🚀 Project Status
 
-**Current Phase: Phase 4 (Control Systems) - ✅ COMPLETE**
+**Current Phase: Phase 5 (Professional Video I/O) - 🚧 FOUNDATION COMPLETE**
 
-MapMap has achieved a major milestone! **Phase 0** (Foundation), **Phase 1** (Core Features), **Phase 2** (Multi-Projector), **Phase 3** (Effects Pipeline), and **Phase 4** (Control Systems) are now complete!
+MapMap has achieved a major milestone! **Phase 0-4** are complete, and **Phase 5** foundation is implemented with architecture ready for SDK integration!
 
 ### Completed ✅
 
@@ -53,7 +53,7 @@ MapMap has achieved a major milestone! **Phase 0** (Foundation), **Phase 1** (Co
 - ✅ **Timeline animation** with keyframe editor
 - ✅ **WGSL code generation** from shader graphs
 
-**Phase 4 - Control Systems (NEW!):**
+**Phase 4 - Control Systems:**
 - ✅ **MIDI input/output** with learn mode and controller profiles
 - ✅ **OSC server/client** for TouchOSC, Lemur, and custom apps
 - ✅ **DMX output** via Art-Net and sACN protocols
@@ -62,8 +62,19 @@ MapMap has achieved a major milestone! **Phase 0** (Foundation), **Phase 1** (Co
 - ✅ **Keyboard shortcuts** and macro recorder
 - ✅ **Unified control manager** integrating all systems
 
+**Phase 5 - Professional Video I/O (NEW!):**
+- ✅ **Video I/O architecture** with trait-based abstractions
+- ✅ **Format conversion** (YUV↔RGB, BT.709 color space, 7 pixel formats)
+- ✅ **Stream output** foundation (RTMP/SRT ready for FFmpeg integration)
+- ✅ **NDI integration** stubs (ready for NDI SDK)
+- ✅ **DeckLink SDI** stubs (ready for Blackmagic SDK)
+- ✅ **Spout** texture sharing stubs (Windows, DX11 ready)
+- ✅ **Syphon** texture sharing stubs (macOS, IOSurface ready)
+- ✅ **Virtual camera** foundation (DirectShow/CoreMediaIO/V4L2)
+- 🚧 **SDK Integration** (requires proprietary SDKs for full functionality)
+
 ### Next Phase 🎯
-**Phase 5:** Professional Video I/O - NDI, DeckLink, Spout, Syphon integration
+**Phase 6:** Advanced Authoring UI - Node editor, timeline, asset browser, dark theme
 
 ### What's New
 

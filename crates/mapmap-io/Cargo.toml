@@ -1,0 +1,58 @@
+[package]
+name = "mapmap-io"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+# Core dependencies
+thiserror = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Format conversion
+image = { workspace = true }
+bytemuck = { workspace = true }
+
+# Async runtime
+tokio = { workspace = true, optional = true }
+
+# Media encoding/decoding
+ffmpeg-next = { workspace = true, optional = true }
+
+# Platform-specific dependencies
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.52", features = [
+    "Win32_Graphics_Direct3D11",
+    "Win32_Graphics_Dxgi",
+    "Win32_System_Com",
+], optional = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+cocoa = { version = "0.25", optional = true }
+core-foundation = { version = "0.9", optional = true }
+objc = { version = "0.2", optional = true }
+
+[build-dependencies]
+bindgen = { workspace = true, optional = true }
+cc = { workspace = true, optional = true }
+
+[features]
+default = []
+# Individual features
+ndi = []  # NDI support (requires NDI SDK)
+decklink = []  # DeckLink SDI support (requires DeckLink SDK)
+spout = ["windows"]  # Spout texture sharing (Windows only)
+syphon = ["cocoa", "core-foundation", "objc"]  # Syphon texture sharing (macOS only)
+stream = ["ffmpeg-next", "tokio"]  # RTMP/SRT streaming
+virtual-camera = []  # Virtual camera output
+
+# Platform-specific features
+texture-sharing = []  # Enable on platforms that support it
+
+# Convenience features
+all-io = ["ndi", "decklink", "spout", "syphon", "stream", "virtual-camera"]
