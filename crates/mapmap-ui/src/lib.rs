@@ -5,6 +5,13 @@
 //! - Window management
 //! - Control panels
 
+// Phase 3: Effects Pipeline UI
+pub mod shader_graph_editor;
+pub mod timeline;
+
+pub use shader_graph_editor::{ShaderGraphEditor, ShaderGraphAction};
+pub use timeline::{TimelineEditor, TimelineAction};
+
 use imgui::*;
 use imgui_wgpu::{Renderer, RendererConfig};
 use imgui_winit_support::{HiDpiMode, WinitPlatform};

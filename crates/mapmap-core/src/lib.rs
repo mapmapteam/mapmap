@@ -25,6 +25,10 @@ pub mod mapping;
 // Phase 3: Effects Pipeline
 pub mod shader_graph;
 pub mod animation;
+pub mod audio;
+pub mod codegen;
+pub mod lut;
+pub mod audio_reactive;
 
 pub use output::{OutputManager, OutputConfig, OutputId, CanvasRegion, EdgeBlendConfig, EdgeBlendZone, ColorCalibration};
 pub use monitor::{MonitorInfo, MonitorTopology};
@@ -38,6 +42,16 @@ pub use shader_graph::{
 pub use animation::{
     AnimationClip, AnimationTrack, AnimationPlayer, Keyframe,
     AnimValue, InterpolationMode, TimePoint,
+};
+pub use audio::{
+    AudioAnalyzer, AudioAnalysis, AudioConfig, AudioSource,
+    AudioReactiveMapping, AudioMappingType, FrequencyBand,
+};
+pub use codegen::{WGSLCodegen, CodegenError};
+pub use lut::{Lut3D, LutManager, LutPreset, LutFormat, LutError};
+pub use audio_reactive::{
+    AudioReactiveController, AudioReactiveAnimationSystem,
+    AudioReactivePreset, AudioAnimationBlendMode,
 };
 
 /// Core error types

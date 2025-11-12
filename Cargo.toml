@@ -43,6 +43,11 @@ arc-swap = "1.6"
 # Media
 ffmpeg-next = "6.1"
 
+# Audio
+cpal = "0.15"
+rustfft = "6.2"
+hound = "3.5"
+
 # UI
 imgui = "0.11"
 imgui-wgpu = "0.24"
