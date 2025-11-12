@@ -147,34 +147,42 @@ impl VideoSink for NdiSender {
 }
 
 // Stub types when NDI feature is disabled
+/// NDI receiver (stub implementation when feature is disabled)
 #[cfg(not(feature = "ndi"))]
 pub struct NdiReceiver;
 
 #[cfg(not(feature = "ndi"))]
 impl NdiReceiver {
+    /// Create a new NDI receiver (returns error when feature is disabled)
     pub fn new() -> crate::error::Result<Self> {
         Err(crate::error::IoError::feature_not_enabled("NDI", "ndi"))
     }
 
+    /// Discover available NDI sources (returns error when feature is disabled)
     pub fn discover_sources(_timeout_ms: u32) -> crate::error::Result<Vec<NdiSource>> {
         Err(crate::error::IoError::feature_not_enabled("NDI", "ndi"))
     }
 }
 
+/// NDI sender (stub implementation when feature is disabled)
 #[cfg(not(feature = "ndi"))]
 pub struct NdiSender;
 
 #[cfg(not(feature = "ndi"))]
 impl NdiSender {
+    /// Create a new NDI sender (returns error when feature is disabled)
     pub fn new(_name: impl Into<String>, _format: crate::format::VideoFormat) -> crate::error::Result<Self> {
         Err(crate::error::IoError::feature_not_enabled("NDI", "ndi"))
     }
 }
 
+/// NDI source information
 #[cfg(not(feature = "ndi"))]
 #[derive(Debug, Clone)]
 pub struct NdiSource {
+    /// NDI source name
     pub name: String,
+    /// NDI source URL
     pub url: String,
 }
 

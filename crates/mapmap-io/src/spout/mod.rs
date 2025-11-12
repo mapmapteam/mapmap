@@ -135,11 +135,13 @@ impl VideoSink for SpoutSender {
 }
 
 // Stub types for non-Windows platforms
+/// Spout receiver (stub implementation when feature is disabled or on non-Windows platforms)
 #[cfg(not(all(feature = "spout", target_os = "windows")))]
 pub struct SpoutReceiver;
 
 #[cfg(not(all(feature = "spout", target_os = "windows")))]
 impl SpoutReceiver {
+    /// Create a new Spout receiver (returns error when feature is disabled or on non-Windows platforms)
     pub fn new() -> crate::error::Result<Self> {
         #[cfg(not(target_os = "windows"))]
         return Err(crate::error::IoError::platform_not_supported("Spout is only available on Windows"));
@@ -148,6 +150,7 @@ impl SpoutReceiver {
         Err(crate::error::IoError::feature_not_enabled("Spout", "spout"))
     }
 
+    /// List available Spout senders (returns error when feature is disabled or on non-Windows platforms)
     pub fn list_senders() -> crate::error::Result<Vec<SpoutSenderInfo>> {
         #[cfg(not(target_os = "windows"))]
         return Err(crate::error::IoError::platform_not_supported("Spout is only available on Windows"));
@@ -157,11 +160,13 @@ impl SpoutReceiver {
     }
 }
 
+/// Spout sender (stub implementation when feature is disabled or on non-Windows platforms)
 #[cfg(not(all(feature = "spout", target_os = "windows")))]
 pub struct SpoutSender;
 
 #[cfg(not(all(feature = "spout", target_os = "windows")))]
 impl SpoutSender {
+    /// Create a new Spout sender (returns error when feature is disabled or on non-Windows platforms)
     pub fn new(_name: impl Into<String>, _format: crate::format::VideoFormat) -> crate::error::Result<Self> {
         #[cfg(not(target_os = "windows"))]
         return Err(crate::error::IoError::platform_not_supported("Spout is only available on Windows"));
@@ -171,10 +176,13 @@ impl SpoutSender {
     }
 }
 
+/// Spout sender information
 #[cfg(not(all(feature = "spout", target_os = "windows")))]
 #[derive(Debug, Clone)]
 pub struct SpoutSenderInfo {
+    /// Sender name
     pub name: String,
+    /// Video format
     pub format: crate::format::VideoFormat,
 }
 

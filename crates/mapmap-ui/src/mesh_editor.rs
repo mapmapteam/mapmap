@@ -275,7 +275,7 @@ impl MeshEditor {
         }
 
         // Draw vertices
-        for (i, vertex) in self.vertices.iter().enumerate() {
+        for (_i, vertex) in self.vertices.iter().enumerate() {
             let color = if vertex.selected {
                 Color32::from_rgb(255, 200, 100)
             } else {
@@ -314,7 +314,7 @@ impl MeshEditor {
                     if response.clicked() {
                         // Select vertex under pointer
                         let mut found = false;
-                        for (i, vertex) in self.vertices.iter_mut().enumerate() {
+                        for (_i, vertex) in self.vertices.iter_mut().enumerate() {
                             if vertex.position.distance(pointer_pos) < 10.0 {
                                 vertex.selected = !vertex.selected;
                                 found = true;

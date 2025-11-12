@@ -2,7 +2,7 @@
 
 use crate::{Result, RenderError, TextureHandle, TextureDescriptor, ShaderHandle, ShaderSource};
 use std::sync::Arc;
-use tracing::{debug, info, warn};
+use tracing::{debug, info};
 use wgpu::util::StagingBelt;
 
 /// Trait for rendering backends

@@ -227,11 +227,13 @@ impl EncodedPacket {
 }
 
 // Stub implementations when stream feature is disabled
+/// Video encoder (stub implementation when feature is disabled)
 #[cfg(not(feature = "stream"))]
 pub struct VideoEncoder;
 
 #[cfg(not(feature = "stream"))]
 impl VideoEncoder {
+    /// Create a new video encoder (returns error when feature is disabled)
     pub fn new() -> crate::error::Result<Self> {
         Err(crate::error::IoError::feature_not_enabled("Stream encoding", "stream"))
     }

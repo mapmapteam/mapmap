@@ -131,7 +131,7 @@ mod ffmpeg_impl {
         fps: f64,
         width: u32,
         height: u32,
-        hw_accel: HwAccelType,
+        _hw_accel: HwAccelType,
     }
 
     impl RealFFmpegDecoder {
@@ -218,7 +218,7 @@ mod ffmpeg_impl {
                 fps: fps_value,
                 width,
                 height,
-                hw_accel: actual_hw_accel,
+                _hw_accel: actual_hw_accel,
             })
         }
 

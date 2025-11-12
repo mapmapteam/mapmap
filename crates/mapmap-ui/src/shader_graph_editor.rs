@@ -244,7 +244,7 @@ impl ShaderGraphEditor {
     }
 
     /// Draw main canvas
-    fn draw_canvas(&mut self, ui: &Ui, actions: &mut Vec<ShaderGraphAction>) {
+    fn draw_canvas(&mut self, ui: &Ui, _actions: &mut Vec<ShaderGraphAction>) {
         Window::new(ui, "Shader Graph Canvas")
             .size([800.0, 600.0], Condition::FirstUseEver)
             .position([260.0, 40.0], Condition::FirstUseEver)

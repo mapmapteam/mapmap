@@ -1,6 +1,6 @@
 //! Macro recording and playback system
 
-use super::{Action, Key, Modifiers, ShortcutContext};
+use super::Action;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 

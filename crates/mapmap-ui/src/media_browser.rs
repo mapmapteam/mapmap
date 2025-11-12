@@ -410,7 +410,8 @@ impl MediaBrowser {
         if let Some(hover_time) = self.hover_start {
             if hover_time.elapsed().as_secs_f32() > self.preview_delay {
                 if let Some(hovered_idx) = self.hovered {
-                    if let Some((_, entry)) = entries.iter().find(|(idx, _)| *idx == hovered_idx) {
+                    if hovered_idx < self.entries.len() {
+                        let entry = &self.entries[hovered_idx];
                         action = Some(MediaBrowserAction::StartPreview(entry.path.clone()));
                     }
                 }

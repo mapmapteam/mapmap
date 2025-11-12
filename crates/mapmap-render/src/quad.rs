@@ -1,8 +1,7 @@
 //! Quad rendering implementation
 
-use crate::{Result, RenderError, TextureHandle, ShaderHandle, ShaderSource};
+use crate::Result;
 use bytemuck::{Pod, Zeroable};
-use std::sync::Arc;
 use wgpu::util::DeviceExt;
 
 /// Vertex format for quad rendering

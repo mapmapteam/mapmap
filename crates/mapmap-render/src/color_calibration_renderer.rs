@@ -3,11 +3,11 @@
 //! Provides GPU-accelerated color calibration including brightness, contrast,
 //! gamma, color temperature, and saturation adjustments
 
-use crate::{Result, RenderError};
+use crate::Result;
 use bytemuck::{Pod, Zeroable};
 use mapmap_core::ColorCalibration;
 use std::sync::Arc;
-use tracing::{debug, info};
+use tracing::info;
 use wgpu::util::DeviceExt;
 
 /// Color calibration uniform parameters matching the WGSL shader

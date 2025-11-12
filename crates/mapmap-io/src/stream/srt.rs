@@ -166,11 +166,13 @@ impl VideoSink for SrtStreamer {
 }
 
 // Stub implementation when stream feature is disabled
+/// SRT streamer (stub implementation when feature is disabled)
 #[cfg(not(feature = "stream"))]
 pub struct SrtStreamer;
 
 #[cfg(not(feature = "stream"))]
 impl SrtStreamer {
+    /// Create a new SRT streamer (returns error when feature is disabled)
     pub fn new(_url: impl Into<String>, _format: crate::format::VideoFormat, _bitrate: u64) -> crate::error::Result<Self> {
         Err(crate::error::IoError::feature_not_enabled("SRT streaming", "stream"))
     }

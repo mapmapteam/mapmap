@@ -137,11 +137,13 @@ impl VideoSink for SyphonServer {
 }
 
 // Stub types for non-macOS platforms
+/// Syphon client (stub implementation when feature is disabled or on non-macOS platforms)
 #[cfg(not(all(feature = "syphon", target_os = "macos")))]
 pub struct SyphonClient;
 
 #[cfg(not(all(feature = "syphon", target_os = "macos")))]
 impl SyphonClient {
+    /// Create a new Syphon client (returns error when feature is disabled or on non-macOS platforms)
     pub fn new() -> crate::error::Result<Self> {
         #[cfg(not(target_os = "macos"))]
         return Err(crate::error::IoError::platform_not_supported("Syphon is only available on macOS"));
@@ -150,6 +152,7 @@ impl SyphonClient {
         Err(crate::error::IoError::feature_not_enabled("Syphon", "syphon"))
     }
 
+    /// List available Syphon servers (returns error when feature is disabled or on non-macOS platforms)
     pub fn list_servers() -> crate::error::Result<Vec<SyphonServerInfo>> {
         #[cfg(not(target_os = "macos"))]
         return Err(crate::error::IoError::platform_not_supported("Syphon is only available on macOS"));
@@ -159,11 +162,13 @@ impl SyphonClient {
     }
 }
 
+/// Syphon server (stub implementation when feature is disabled or on non-macOS platforms)
 #[cfg(not(all(feature = "syphon", target_os = "macos")))]
 pub struct SyphonServer;
 
 #[cfg(not(all(feature = "syphon", target_os = "macos")))]
 impl SyphonServer {
+    /// Create a new Syphon server (returns error when feature is disabled or on non-macOS platforms)
     pub fn new(_name: impl Into<String>, _format: crate::format::VideoFormat) -> crate::error::Result<Self> {
         #[cfg(not(target_os = "macos"))]
         return Err(crate::error::IoError::platform_not_supported("Syphon is only available on macOS"));
@@ -173,11 +178,15 @@ impl SyphonServer {
     }
 }
 
+/// Syphon server information
 #[cfg(not(all(feature = "syphon", target_os = "macos")))]
 #[derive(Debug, Clone)]
 pub struct SyphonServerInfo {
+    /// Server name
     pub name: String,
+    /// Application name hosting the server
     pub app_name: String,
+    /// Video format
     pub format: crate::format::VideoFormat,
 }
 

@@ -114,8 +114,11 @@ pub enum IoError {
     /// Unsupported video format
     #[error("Unsupported video format: {width}x{height} @ {fps}fps")]
     UnsupportedVideoFormat {
+        /// Video width in pixels
         width: u32,
+        /// Video height in pixels
         height: u32,
+        /// Frames per second
         fps: f32,
     },
 
@@ -126,7 +129,9 @@ pub enum IoError {
     /// Frame size mismatch
     #[error("Frame size mismatch: expected {expected} bytes, got {actual} bytes")]
     FrameSizeMismatch {
+        /// Expected frame size in bytes
         expected: usize,
+        /// Actual frame size in bytes
         actual: usize,
     },
 

@@ -2,11 +2,11 @@
 //!
 //! Provides GPU-accelerated edge blending for seamless projector overlap
 
-use crate::{Result, RenderError};
+use crate::Result;
 use bytemuck::{Pod, Zeroable};
 use mapmap_core::EdgeBlendConfig;
 use std::sync::Arc;
-use tracing::{debug, info};
+use tracing::info;
 use wgpu::util::DeviceExt;
 
 /// Edge blend uniform parameters matching the WGSL shader

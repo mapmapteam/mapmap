@@ -180,10 +180,10 @@ impl TimelineEditor {
 
     /// Draw timeline ruler and tracks
     fn draw_timeline(&mut self, ui: &Ui, actions: &mut Vec<TimelineAction>) {
-        let Some(clip) = &self.clip else {
+        if self.clip.is_none() {
             ui.text("No animation clip loaded");
             return;
-        };
+        }
 
         Window::new(ui, "Timeline")
             .size([ui.window_size()[0] - 20.0, 300.0], Condition::FirstUseEver)
@@ -209,10 +209,12 @@ impl TimelineEditor {
                 self.draw_playhead(&draw_list, canvas_pos, canvas_size);
 
                 // Draw tracks
-                let mut y_offset = 40.0; // Start below ruler
-                for track in &clip.tracks {
-                    self.draw_track(&draw_list, canvas_pos, canvas_size, &track.name, track, y_offset);
-                    y_offset += self.track_height;
+                if let Some(clip) = &self.clip {
+                    let mut y_offset = 40.0; // Start below ruler
+                    for track in &clip.tracks {
+                        self.draw_track(&draw_list, canvas_pos, canvas_size, &track.name, track, y_offset);
+                        y_offset += self.track_height;
+                    }
                 }
 
                 // Handle mouse input

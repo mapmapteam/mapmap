@@ -1,7 +1,6 @@
 //! Keyboard shortcut definitions and actions
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 
 /// Keyboard key codes
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]

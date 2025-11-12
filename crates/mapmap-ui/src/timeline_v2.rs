@@ -412,12 +412,12 @@ impl TimelineV2 {
                         let kf1 = &track.keyframes[i];
                         let kf2 = &track.keyframes[i + 1];
 
-                        let x1 = rect.min.x + kf1.time * self.zoom;
-                        let x2 = rect.min.x + kf2.time * self.zoom;
+                        let _x1 = rect.min.x + kf1.time * self.zoom;
+                        let _x2 = rect.min.x + kf2.time * self.zoom;
 
                         // Normalize values to track height
-                        let y1 = track_rect.max.y - (kf1.value * track_rect.height());
-                        let y2 = track_rect.max.y - (kf2.value * track_rect.height());
+                        let _y1 = track_rect.max.y - (kf1.value * track_rect.height());
+                        let _y2 = track_rect.max.y - (kf2.value * track_rect.height());
 
                         // Draw curve with multiple segments
                         let segments = 10;
