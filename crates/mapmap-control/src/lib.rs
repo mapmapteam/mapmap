@@ -1,76 +1,89 @@
-//! MapMap Control - MIDI, OSC, and DMX Control
+//! MapMap Control - Professional Control System Integration
 //!
-//! This crate provides control system integration including:
-//! - MIDI input/output
-//! - OSC (Open Sound Control)
-//! - Art-Net/sACN DMX output
-//! - HTTP REST API
+//! This crate provides comprehensive control system integration for MapMap including:
+//! - **MIDI**: Input/output, learn mode, controller profiles, clock sync
+//! - **OSC**: Server/client for TouchOSC, Lemur, and custom apps
+//! - **DMX**: Art-Net and sACN output for lighting control
+//! - **Web API**: REST API and WebSocket for remote control
+//! - **Cue System**: Automated shows with crossfades and triggers
 //!
-//! NOTE: This is a stub implementation for Phase 0.
-//! Full implementation will be completed in Phase 4.
+//! ## Feature Flags
+//!
+//! - `midi`: Enable MIDI support (requires `midir`)
+//! - `osc`: Enable OSC support (requires `rosc`)
+//! - `http-api`: Enable web API (requires `axum`, `tokio`)
+//! - `full`: Enable all features
+//!
+//! ## Quick Start
+//!
+//! ```rust,no_run
+//! use mapmap_control::{ControlTarget, ControlValue};
+//!
+//! // Define a control target
+//! let target = ControlTarget::LayerOpacity(0);
+//! let value = ControlValue::Float(0.75);
+//! ```
+//!
+//! ## Modules
+//!
+//! - [`midi`]: MIDI input/output system
+//! - [`osc`]: OSC server and client
+//! - [`dmx`]: DMX output via Art-Net and sACN
+//! - [`web`]: Web API and WebSocket
+//! - [`cue`]: Cue system for show automation
+//! - [`shortcuts`]: Keyboard shortcuts and macros
+//! - [`target`]: Control target abstraction
+//! - [`error`]: Error types
 
-use thiserror::Error;
+// Core modules
+pub mod error;
+pub mod target;
+pub mod manager;
 
-/// Control system errors
-#[derive(Error, Debug)]
-pub enum ControlError {
-    #[error("MIDI error: {0}")]
-    MidiError(String),
+// Control system modules
+#[cfg(feature = "midi")]
+pub mod midi;
 
-    #[error("OSC error: {0}")]
-    OscError(String),
+pub mod osc;
+pub mod dmx;
 
-    #[error("DMX error: {0}")]
-    DmxError(String),
+#[cfg(feature = "http-api")]
+pub mod web;
 
-    #[error("HTTP error: {0}")]
-    HttpError(String),
-}
+pub mod cue;
+pub mod shortcuts;
 
-/// Result type for control operations
-pub type Result<T> = std::result::Result<T, ControlError>;
+// Re-exports
+pub use error::{ControlError, Result};
+pub use target::{ControlTarget, ControlValue, EdgeSide};
+pub use manager::ControlManager;
 
-/// MIDI input handler (stub)
-pub struct MidiInput {
-    // Will be implemented in Phase 4
-}
+#[cfg(feature = "midi")]
+pub use midi::{MidiInput, MidiMessage, MidiOutput};
 
-impl MidiInput {
-    pub fn new() -> Result<Self> {
-        Ok(Self {})
-    }
-}
+pub use osc::{OscClient, OscEvent, OscServer};
+pub use dmx::{ArtNetSender, ChannelAssignment, DmxChannel, Fixture, FixtureProfile, SacnSender};
 
-/// OSC server (stub)
-pub struct OscServer {
-    // Will be implemented in Phase 4
-}
+#[cfg(feature = "http-api")]
+pub use web::{WebServer, WebServerConfig};
 
-impl OscServer {
-    pub fn new(port: u16) -> Result<Self> {
-        Ok(Self {})
-    }
-}
-
-/// Art-Net sender (stub)
-pub struct ArtNetSender {
-    // Will be implemented in Phase 4
-}
-
-impl ArtNetSender {
-    pub fn new() -> Result<Self> {
-        Ok(Self {})
-    }
-}
+pub use cue::{Cue, CueList, FadeCurve, LayerState};
+pub use shortcuts::{Action, Key, KeyBindings, Macro, MacroPlayer, MacroRecorder, Modifiers, Shortcut, ShortcutContext};
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_stub_creation() {
-        assert!(MidiInput::new().is_ok());
-        assert!(OscServer::new(8000).is_ok());
-        assert!(ArtNetSender::new().is_ok());
+    fn test_control_value_creation() {
+        let _float_val = ControlValue::Float(0.5);
+        let _int_val = ControlValue::Int(42);
+        let _bool_val = ControlValue::Bool(true);
+    }
+
+    #[test]
+    fn test_control_target_creation() {
+        let _layer_opacity = ControlTarget::LayerOpacity(0);
+        let _playback_speed = ControlTarget::PlaybackSpeed(None);
     }
 }

@@ -13,9 +13,9 @@ Projection mapping (also known as video mapping and spatial augmented reality) i
 
 ## 🚀 Project Status
 
-**Current Phase: Phase 2 (Professional Multi-Projector System) - ✅ COMPLETE**
+**Current Phase: Phase 4 (Control Systems) - ✅ COMPLETE**
 
-MapMap has achieved a major milestone! **Phase 0** (Foundation), **Phase 1** (Core Features), and **Phase 2** (Multi-Projector) are now complete!
+MapMap has achieved a major milestone! **Phase 0** (Foundation), **Phase 1** (Core Features), **Phase 2** (Multi-Projector), **Phase 3** (Effects Pipeline), and **Phase 4** (Control Systems) are now complete!
 
 ### Completed ✅
 
@@ -35,7 +35,7 @@ MapMap has achieved a major milestone! **Phase 0** (Foundation), **Phase 1** (Co
 - ✅ Advanced playback controls (speed, direction, loop modes)
 - ✅ Full UI controls for all features
 
-**Phase 2 - Multi-Projector System (NEW!):**
+**Phase 2 - Multi-Projector System:**
 - ✅ **Multi-window rendering** with synchronized wgpu surfaces
 - ✅ **Edge blending renderer** with GPU-accelerated seamless overlap
 - ✅ **Color calibration** per-output (brightness, contrast, gamma, color temp, saturation)
@@ -45,8 +45,25 @@ MapMap has achieved a major milestone! **Phase 0** (Foundation), **Phase 1** (Co
 - ✅ **One-click 2x2 projector array** setup with automatic configuration
 - ✅ Real-time adjustment of all parameters
 
+**Phase 3 - Effects Pipeline:**
+- ✅ **Shader graph system** with visual node-based editor
+- ✅ **Audio analysis** (FFT, beat detection, frequency bands)
+- ✅ **Audio-reactive effects** with parameter mapping
+- ✅ **LUT color grading** (trilinear/tetrahedral interpolation)
+- ✅ **Timeline animation** with keyframe editor
+- ✅ **WGSL code generation** from shader graphs
+
+**Phase 4 - Control Systems (NEW!):**
+- ✅ **MIDI input/output** with learn mode and controller profiles
+- ✅ **OSC server/client** for TouchOSC, Lemur, and custom apps
+- ✅ **DMX output** via Art-Net and sACN protocols
+- ✅ **Web control interface** (REST API + WebSocket)
+- ✅ **Cue system** with crossfades and triggers
+- ✅ **Keyboard shortcuts** and macro recorder
+- ✅ **Unified control manager** integrating all systems
+
 ### Next Phase 🎯
-**Phase 3:** Effects Pipeline - Shader graph, parameter animation, audio-reactive effects
+**Phase 5:** Professional Video I/O - NDI, DeckLink, Spout, Syphon integration
 
 ### What's New
 
@@ -65,7 +82,7 @@ MapMap has achieved a major milestone! **Phase 0** (Foundation), **Phase 1** (Co
 
 ## 📦 Features
 
-### Current (Phases 0-2 Complete)
+### Current (Phases 0-4 Complete)
 - ✅ Real-time video playback with full control (play/pause/seek/speed/loop/direction)
 - ✅ Hardware-accelerated rendering (Vulkan/Metal/DX12 via wgpu)
 - ✅ Professional ImGui control interface
@@ -75,6 +92,15 @@ MapMap has achieved a major milestone! **Phase 0** (Foundation), **Phase 1** (Co
 - ✅ **Per-output color calibration** (brightness, contrast, gamma, color temp, saturation)
 - ✅ **Canvas region filtering** for optimized multi-output performance
 - ✅ **2x2 projector array** one-click setup
+- ✅ **Shader graph** visual effects editor with 30+ node types
+- ✅ **Audio-reactive effects** with FFT analysis and beat detection
+- ✅ **LUT color grading** with multiple interpolation modes
+- ✅ **MIDI control** with learn mode and controller profiles
+- ✅ **OSC control** for remote apps (TouchOSC, Lemur)
+- ✅ **DMX lighting control** (Art-Net/sACN)
+- ✅ **Web API** with REST + WebSocket for remote control
+- ✅ **Cue system** for automated shows
+- ✅ **Keyboard shortcuts** and macros
 - ✅ Layer system with transforms and blend modes
 - ✅ FFmpeg video decode (MP4, MOV, AVI, images, GIFs)
 - ✅ Performance monitoring and real-time stats
@@ -94,13 +120,21 @@ MapMap has achieved a major milestone! **Phase 0** (Foundation), **Phase 1** (Co
 - ✅ Geometric correction and canvas regions
 - ✅ Per-output color calibration
 
-**Phase 3 (Effects Pipeline)** - NEXT
-- Shader graph system
-- Parameter animation
-- Audio-reactive effects
-- LUT color grading
+**Phase 3 (Effects Pipeline)** - ✅ COMPLETE
+- ✅ Shader graph system
+- ✅ Parameter animation
+- ✅ Audio-reactive effects
+- ✅ LUT color grading
 
-**Phase 4-7:** Control Systems (MIDI/OSC/DMX), Pro Media I/O, User Experience, Polish
+**Phase 4 (Control Systems)** - ✅ COMPLETE
+- ✅ MIDI input/output
+- ✅ OSC server/client
+- ✅ DMX output (Art-Net/sACN)
+- ✅ Web API and WebSocket
+- ✅ Cue system
+- ✅ Keyboard shortcuts and macros
+
+**Phase 5-7:** Professional Video I/O (NDI/DeckLink/Spout/Syphon), Advanced UI, Performance & Polish
 
 See [RUST_REWRITE_PLAN.md](RUST_REWRITE_PLAN.md) for the complete roadmap.
 
