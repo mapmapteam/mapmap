@@ -115,20 +115,53 @@ impl VideoPlayer {
             }
         }
 
-        // Try to get the next frame
+        // For backward playback, we need to seek to current_time each frame
+        // For forward playback, just get next frame sequentially
+        if self.direction == PlaybackDirection::Backward {
+            // Seek to current position for backward playback
+            if self.decoder.seek(self.current_time).is_ok() {
+                match self.decoder.next_frame() {
+                    Ok(frame) => {
+                        self.last_frame = Some(frame.clone());
+                        return Some(frame);
+                    }
+                    Err(_) => {
+                        return self.last_frame.clone();
+                    }
+                }
+            } else {
+                return self.last_frame.clone();
+            }
+        }
+
+        // Forward playback - get next frame sequentially
         match self.decoder.next_frame() {
             Ok(frame) => {
                 self.last_frame = Some(frame.clone());
                 Some(frame)
             }
             Err(_) => {
-                // Handle end of stream based on mode
-                if self.looping || self.playback_mode == PlaybackMode::Loop {
-                    self.seek(Duration::ZERO);
-                    self.decoder.next_frame().ok()
-                } else {
-                    self.state = PlaybackState::Stopped;
-                    self.last_frame.clone()
+                // End of stream reached - handle according to playback mode
+                // The handle_end_of_playback should have already been called
+                // when current_time >= duration, but call it again to be safe
+                self.handle_end_of_playback();
+
+                if self.should_eject {
+                    // Eject mode - return no frame
+                    return None;
+                }
+
+                // After handling end of playback, try to get a frame
+                // This will work for Loop and PingPong modes
+                match self.decoder.next_frame() {
+                    Ok(frame) => {
+                        self.last_frame = Some(frame.clone());
+                        Some(frame)
+                    }
+                    Err(_) => {
+                        // Still can't get frame, return last frame
+                        self.last_frame.clone()
+                    }
                 }
             }
         }
@@ -295,31 +328,13 @@ impl VideoPlayer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::decoder::{DecodedFrame, FFmpegDecoder, PixelFormat};
-    use std::path::PathBuf;
+    use crate::decoder::TestPatternDecoder;
 
     #[test]
     fn test_player_creation() {
-        // Create a mock decoder (requires a dummy file path)
-        // In a real test, we'd use a mock decoder
-        let player = VideoPlayer {
-            decoder: Box::new(FFmpegDecoder {
-                width: 1920,
-                height: 1080,
-                duration: Duration::from_secs(60),
-                fps: 30.0,
-                current_time: Duration::ZERO,
-                frame_count: 0,
-            }),
-            state: PlaybackState::Stopped,
-            current_time: Duration::ZERO,
-            playback_speed: 1.0,
-            looping: false,
-            direction: PlaybackDirection::default(),
-            playback_mode: PlaybackMode::default(),
-            last_frame: None,
-            should_eject: false,
-        };
+        // Use TestPatternDecoder for testing
+        let decoder = TestPatternDecoder::new(1920, 1080, Duration::from_secs(60), 30.0);
+        let player = VideoPlayer::new(decoder);
 
         assert_eq!(player.state(), PlaybackState::Stopped);
         assert_eq!(player.speed(), 1.0);
@@ -330,24 +345,8 @@ mod tests {
 
     #[test]
     fn test_player_playback_control() {
-        let mut player = VideoPlayer {
-            decoder: Box::new(FFmpegDecoder {
-                width: 1920,
-                height: 1080,
-                duration: Duration::from_secs(60),
-                fps: 30.0,
-                current_time: Duration::ZERO,
-                frame_count: 0,
-            }),
-            state: PlaybackState::Stopped,
-            current_time: Duration::ZERO,
-            playback_speed: 1.0,
-            looping: false,
-            direction: PlaybackDirection::default(),
-            playback_mode: PlaybackMode::default(),
-            last_frame: None,
-            should_eject: false,
-        };
+        let decoder = TestPatternDecoder::new(1920, 1080, Duration::from_secs(60), 30.0);
+        let mut player = VideoPlayer::new(decoder);
 
         player.play();
         assert_eq!(player.state(), PlaybackState::Playing);
@@ -361,24 +360,8 @@ mod tests {
 
     #[test]
     fn test_player_speed_control() {
-        let mut player = VideoPlayer {
-            decoder: Box::new(FFmpegDecoder {
-                width: 1920,
-                height: 1080,
-                duration: Duration::from_secs(60),
-                fps: 30.0,
-                current_time: Duration::ZERO,
-                frame_count: 0,
-            }),
-            state: PlaybackState::Stopped,
-            current_time: Duration::ZERO,
-            playback_speed: 1.0,
-            looping: false,
-            direction: PlaybackDirection::default(),
-            playback_mode: PlaybackMode::default(),
-            last_frame: None,
-            should_eject: false,
-        };
+        let decoder = TestPatternDecoder::new(1920, 1080, Duration::from_secs(60), 30.0);
+        let mut player = VideoPlayer::new(decoder);
 
         player.set_speed(2.0);
         assert_eq!(player.speed(), 2.0);
@@ -396,14 +379,8 @@ mod tests {
 
     #[test]
     fn test_playback_direction() {
-        let mut player = VideoPlayer::new(FFmpegDecoder {
-            width: 1920,
-            height: 1080,
-            duration: Duration::from_secs(60),
-            fps: 30.0,
-            current_time: Duration::ZERO,
-            frame_count: 0,
-        });
+        let decoder = TestPatternDecoder::new(1920, 1080, Duration::from_secs(60), 30.0);
+        let mut player = VideoPlayer::new(decoder);
 
         assert_eq!(player.direction(), PlaybackDirection::Forward);
 
@@ -416,14 +393,8 @@ mod tests {
 
     #[test]
     fn test_playback_modes() {
-        let mut player = VideoPlayer::new(FFmpegDecoder {
-            width: 1920,
-            height: 1080,
-            duration: Duration::from_secs(60),
-            fps: 30.0,
-            current_time: Duration::ZERO,
-            frame_count: 0,
-        });
+        let decoder = TestPatternDecoder::new(1920, 1080, Duration::from_secs(60), 30.0);
+        let mut player = VideoPlayer::new(decoder);
 
         assert_eq!(player.playback_mode(), PlaybackMode::Loop);
 
