@@ -5,10 +5,8 @@
 
 use imgui::*;
 use mapmap_core::{
-    AnimationClip, AnimationTrack, Keyframe, InterpolationMode,
-    AnimValue, TimePoint,
+    AnimationClip, AnimationTrack, InterpolationMode,
 };
-use std::collections::HashMap;
 
 /// Timeline editor state
 pub struct TimelineEditor {
@@ -187,9 +185,9 @@ impl TimelineEditor {
             return;
         };
 
-        Window::new("Timeline")
+        Window::new(ui, "Timeline")
             .size([ui.window_size()[0] - 20.0, 300.0], Condition::FirstUseEver)
-            .build(ui, || {
+            .build(|| {
                 let draw_list = ui.get_window_draw_list();
                 let canvas_pos = ui.cursor_screen_pos();
                 let canvas_size = ui.content_region_avail();
@@ -212,8 +210,8 @@ impl TimelineEditor {
 
                 // Draw tracks
                 let mut y_offset = 40.0; // Start below ruler
-                for (track_name, track) in &clip.tracks {
-                    self.draw_track(&draw_list, canvas_pos, canvas_size, track_name, track, y_offset);
+                for track in &clip.tracks {
+                    self.draw_track(&draw_list, canvas_pos, canvas_size, &track.name, track, y_offset);
                     y_offset += self.track_height;
                 }
 
@@ -373,7 +371,7 @@ impl TimelineEditor {
             .build();
 
         // Draw keyframes
-        for (i, keyframe) in track.keyframes.iter().enumerate() {
+        for (i, (_time_us, keyframe)) in track.keyframes.iter().enumerate() {
             let x = canvas_pos[0] + self.track_header_width +
                     ((keyframe.time - self.scroll_offset) * self.zoom as f64) as f32;
 
@@ -389,11 +387,29 @@ impl TimelineEditor {
                 let diamond_size = 6.0;
                 let center_y = track_y + self.track_height * 0.5;
 
-                draw_list.add_quad(
+                // Draw diamond as four triangles since add_quad doesn't exist
+                draw_list.add_triangle(
                     [x, center_y - diamond_size],
                     [x + diamond_size, center_y],
+                    [x, center_y],
+                    keyframe_color,
+                ).filled(true).build();
+                draw_list.add_triangle(
+                    [x + diamond_size, center_y],
+                    [x, center_y + diamond_size],
+                    [x, center_y],
+                    keyframe_color,
+                ).filled(true).build();
+                draw_list.add_triangle(
                     [x, center_y + diamond_size],
                     [x - diamond_size, center_y],
+                    [x, center_y],
+                    keyframe_color,
+                ).filled(true).build();
+                draw_list.add_triangle(
+                    [x - diamond_size, center_y],
+                    [x, center_y - diamond_size],
+                    [x, center_y],
                     keyframe_color,
                 ).filled(true).build();
             }
@@ -402,15 +418,15 @@ impl TimelineEditor {
 
     /// Draw curve editor
     fn draw_curve_editor(&self, ui: &Ui, _actions: &mut Vec<TimelineAction>) {
-        Window::new("Curve Editor")
+        Window::new(ui, "Curve Editor")
             .size([600.0, 300.0], Condition::FirstUseEver)
-            .build(ui, || {
+            .build(|| {
                 if let Some(track_name) = &self.curve_editor_track {
                     ui.text(format!("Editing: {}", track_name));
                     ui.separator();
 
                     if let Some(clip) = &self.clip {
-                        if let Some(track) = clip.tracks.get(track_name) {
+                        if let Some(track) = clip.tracks.iter().find(|t| &t.name == track_name) {
                             // Draw curve graph
                             let draw_list = ui.get_window_draw_list();
                             let canvas_pos = ui.cursor_screen_pos();
@@ -452,11 +468,13 @@ impl TimelineEditor {
 
         // Sample the curve and draw line segments
         let num_samples = 200;
-        let time_range = track.keyframes.last().unwrap().time - track.keyframes.first().unwrap().time;
+        let first_keyframe = track.keyframes.values().next().unwrap();
+        let last_keyframe = track.keyframes.values().last().unwrap();
+        let time_range = last_keyframe.time - first_keyframe.time;
 
         for i in 0..num_samples {
-            let t1 = track.keyframes.first().unwrap().time + (time_range * i as f64 / num_samples as f64);
-            let t2 = track.keyframes.first().unwrap().time + (time_range * (i + 1) as f64 / num_samples as f64);
+            let t1 = first_keyframe.time + (time_range * i as f64 / num_samples as f64);
+            let t2 = first_keyframe.time + (time_range * (i + 1) as f64 / num_samples as f64);
 
             // Map time to x position
             let x1 = canvas_pos[0] + (t1 - self.scroll_offset) as f32 / time_range as f32 * canvas_size[0];
