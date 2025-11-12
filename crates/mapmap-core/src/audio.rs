@@ -242,7 +242,7 @@ impl AudioAnalyzer {
 
     /// Calculate audio analysis from FFT results
     fn calculate_analysis(&mut self) -> AudioAnalysis {
-        let half_size = self.config.fft_size / 2;
+        let _half_size = self.config.fft_size / 2;
 
         // Calculate RMS volume
         let rms_volume = self.calculate_rms();

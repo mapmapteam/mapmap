@@ -4,7 +4,6 @@
 //! its output geometry (Mesh), including transformation and rendering properties.
 
 use crate::{Mesh, PaintId};
-use glam::Mat4;
 use serde::{Deserialize, Serialize};
 
 /// Unique identifier for a Mapping
