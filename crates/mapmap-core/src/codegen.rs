@@ -5,9 +5,9 @@
 
 use crate::shader_graph::{
     ShaderGraph, ShaderNode, NodeType, NodeId, DataType,
-    InputSocket, OutputSocket,
+    InputSocket, ParameterValue,
 };
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::fmt::Write;
 
 /// WGSL code generator error
@@ -562,7 +562,6 @@ impl WGSLCodegen {
 
 impl std::fmt::Display for ParameterValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use crate::shader_graph::ParameterValue;
         match self {
             ParameterValue::Float(v) => write!(f, "{}", v),
             ParameterValue::Vec2(v) => write!(f, "vec2<f32>({}, {})", v[0], v[1]),

@@ -3,7 +3,7 @@
 //! Defines the shape and warping of mapped content
 //! Phase 2: Bezier-based mesh warping with control points
 
-use glam::{Vec2, Vec3};
+use glam::Vec2;
 use serde::{Deserialize, Serialize};
 
 /// Unique identifier for a vertex

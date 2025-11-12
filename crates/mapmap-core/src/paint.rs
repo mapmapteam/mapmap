@@ -3,7 +3,7 @@
 //! A Paint represents a media source (video, image, test pattern) that can be
 //! mapped onto surfaces through Mappings.
 
-use glam::{Mat4, Vec2};
+use glam::Vec2;
 use serde::{Deserialize, Serialize};
 
 /// Unique identifier for a Paint

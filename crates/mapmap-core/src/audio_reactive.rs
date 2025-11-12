@@ -5,7 +5,7 @@
 
 use crate::audio::{AudioAnalysis, AudioReactiveMapping, AudioMappingType, FrequencyBand};
 use crate::shader_graph::{ShaderGraph, NodeId, ParameterValue};
-use crate::animation::{AnimationPlayer, TimePoint};
+use crate::animation::{AnimationPlayer, AnimationClip, AnimValue};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -286,8 +286,9 @@ pub struct AudioReactiveAnimationSystem {
 
 impl Default for AudioReactiveAnimationSystem {
     fn default() -> Self {
+        let empty_clip = AnimationClip::new("empty".to_string());
         Self {
-            animation_player: AnimationPlayer::new(),
+            animation_player: AnimationPlayer::new(empty_clip),
             audio_controller: AudioReactiveController::new(),
             blend_mode: AudioAnimationBlendMode::Add,
             blend_factor: 1.0,
@@ -308,8 +309,14 @@ impl AudioReactiveAnimationSystem {
         graph: &mut ShaderGraph,
     ) {
         // Get animated values
-        self.animation_player.set_time(TimePoint::Seconds(current_time));
-        let animated_values = self.animation_player.sample_all();
+        self.animation_player.seek(current_time);
+        let animated_values_raw = self.animation_player.clip.evaluate(current_time);
+
+        // Convert AnimValue to f32 for blending
+        let animated_values: HashMap<String, f32> = animated_values_raw
+            .into_iter()
+            .map(|(name, value)| (name, Self::anim_value_to_f32(&value)))
+            .collect();
 
         // Get audio-reactive values
         let audio_values = self.audio_controller.update(audio, current_time);
@@ -334,6 +341,18 @@ impl AudioReactiveAnimationSystem {
                     }
                 }
             }
+        }
+    }
+
+    /// Convert AnimValue to f32 (takes first component for vectors)
+    fn anim_value_to_f32(value: &AnimValue) -> f32 {
+        match value {
+            AnimValue::Float(f) => *f,
+            AnimValue::Vec2(v) => v[0],
+            AnimValue::Vec3(v) => v[0],
+            AnimValue::Vec4(v) => v[0],
+            AnimValue::Color(c) => c[0],
+            AnimValue::Bool(b) => if *b { 1.0 } else { 0.0 },
         }
     }
 

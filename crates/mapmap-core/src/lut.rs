@@ -3,7 +3,7 @@
 //! Phase 3: Effects Pipeline
 //! Provides 3D LUT support for advanced color grading and correction
 
-use glam::{Vec3, Vec4};
+use glam::Vec3;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
