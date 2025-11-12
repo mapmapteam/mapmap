@@ -8,19 +8,32 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-# Phase 4 dependencies - currently optional to avoid system dependencies in Phase 0
-midir = { workspace = true, optional = true }
-rosc = { workspace = true, optional = true }
-axum = { workspace = true, optional = true }
-tokio = { workspace = true, optional = true }
+# Core dependencies
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
 
+# MIDI (optional)
+midir = { workspace = true, optional = true }
+
+# OSC (optional)
+rosc = { workspace = true, optional = true }
+
+# DMX dependencies
+uuid = { version = "1.10", features = ["v4"] }
+
+# HTTP API (optional)
+axum = { workspace = true, optional = true, features = ["ws"] }
+tokio = { workspace = true, optional = true, features = ["full"] }
+tower = { version = "0.4", optional = true }
+tower-http = { version = "0.5", features = ["cors"], optional = true }
+futures = { version = "0.3", optional = true }
+http = { version = "1.1", optional = true }
+
 [features]
 default = []
 midi = ["midir"]
 osc = ["rosc"]
-http-api = ["axum", "tokio"]
+http-api = ["axum", "tokio", "tower", "tower-http", "futures", "http"]
 full = ["midi", "osc", "http-api"]
