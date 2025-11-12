@@ -118,7 +118,8 @@ impl MonitorTopology {
 ///
 /// Note: This function requires an active EventLoop, so it's typically
 /// called during application initialization
-#[allow(dead_code)]
+#[allow(unexpected_cfgs)]
+#[cfg(feature = "winit")]
 pub fn detect_monitors_winit<T>(event_loop: &winit::event_loop::EventLoop<T>) -> MonitorTopology {
     use winit::monitor::MonitorHandle;
 
