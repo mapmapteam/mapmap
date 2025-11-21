@@ -17,5 +17,8 @@ rustfft = { workspace = true }
 hound = { workspace = true }
 crossbeam-channel = { workspace = true }
 
+[features]
+winit = []
+
 [dev-dependencies]
 proptest = { workspace = true }
