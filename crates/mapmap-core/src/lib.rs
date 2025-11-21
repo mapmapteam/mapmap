@@ -29,6 +29,7 @@ pub mod audio;
 pub mod codegen;
 pub mod lut;
 pub mod audio_reactive;
+pub mod oscillator;
 
 pub use output::{OutputManager, OutputConfig, OutputId, CanvasRegion, EdgeBlendConfig, EdgeBlendZone, ColorCalibration};
 pub use monitor::{MonitorInfo, MonitorTopology};
@@ -52,6 +53,10 @@ pub use lut::{Lut3D, LutManager, LutPreset, LutFormat, LutError};
 pub use audio_reactive::{
     AudioReactiveController, AudioReactiveAnimationSystem,
     AudioReactivePreset, AudioAnimationBlendMode,
+};
+pub use oscillator::{
+    OscillatorConfig, SimulationResolution, PhaseInitMode,
+    ColorMode, CoordinateMode, RingParams,
 };
 
 /// Core error types

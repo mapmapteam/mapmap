@@ -18,6 +18,7 @@ image = { workspace = true }
 parking_lot = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
+rand = "0.8"
 
 [dev-dependencies]
 criterion = { workspace = true }
