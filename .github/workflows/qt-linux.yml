@@ -1,5 +1,5 @@
 # Build a Qt project on Ubuntu
-name: Build on Ubuntu
+name: Build on Ubuntu (old)
 
 on:
   push:
@@ -9,15 +9,16 @@ on:
 
 jobs:
   build:
+    if: false # Disable for now
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
     - name: Install Qt
-      uses: jurplel/install-qt-action@v2
+      uses: jurplel/install-qt-action@v4
       with:
-        version: '5.12.8'
+        version: '5.12.12'
         host: 'linux'
         target: 'desktop'
         modules: 'gui core serialport network opengl xml'

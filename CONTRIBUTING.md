@@ -4,7 +4,7 @@ Thank you for contributing! MapMap is a community-built, maintained and operated
 
 This document outlines the procedures and what to expect when contributing a bug report, a feature request, or new code via a pull request.
 If you want to contribute documentation have a look at the [Wiki](https://github.com/mapmapteam/mapmap/wiki). 
-To contribute tutorials or help documents, get in touch with the _Documentation leader_, [Alexandre Quessy](http://alexandre.quessy.net/) (aalex).
+To contribute tutorials or help documents, get in touch with the _Documentation leader_, [Alexandre Quessy](https://www.artpluscode.com/) (aalex).
 
 **Please read** and **follow these guidelines** before submitting a bug report, feature request or pull request.
 It really helps us efficiently process your contribution!

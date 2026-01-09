@@ -1,8 +1,6 @@
 MapMap
 ====== 
 
-:warning: **Unfortunately, we are no longer able to maintain nor provide support for MapMap anymore. The code is provided "as is".**
-
 MapMap is a free video mapping software.
 
 Projection mapping, also known as video mapping and spatial augmented
@@ -74,7 +72,7 @@ Contributors
 
 More info
 ---------
-Get more info from http://mapmap.info
+Get more info from [mapmapteam.github.io](https://mapmapteam.github.io/)
 
 Licence
 ---------
