@@ -19,10 +19,8 @@
 
 #ifndef SHORTCUTWINDOW_H
 #define SHORTCUTWINDOW_H
-
-#include <QWebEngineView>
-#include <QWebEnginePage>
-#include <QWebEngineSettings>
+#include <QDialog>
+#include <QTextBrowser>
 #include <QFile>
 #include <QTextCodec>
 #include <QFontDatabase>
@@ -31,18 +29,20 @@
 
 namespace mmp {
 
-class ShortcutWindow : public QWebEngineView
+class ShortcutWindow : public QDialog
 {
   Q_OBJECT
 public:
   ShortcutWindow();
   ~ShortcutWindow() {}
+  void reload();
 
 private:
 
   // Constantes
   static const int SHORTCUT_WINDOW_WIDTH = 960;
   static const int SHORTCUT_WINDOW_HEIGHT = 640;
+  QTextBrowser *_textBrowser;
 
 };
 

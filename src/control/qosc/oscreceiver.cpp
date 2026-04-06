@@ -41,7 +41,7 @@ void OscReceiver::byteArrayToVariantList(QVariantList& outputVariantList, QStrin
             } else if (argument.IsString()) {
                 outputVariantList.append(QVariant(argument.AsString()));
             } else if (argument.IsInt32()) {
-                outputVariantList.append(QVariant(argument.AsInt32()));
+                outputVariantList.append(QVariant::fromValue<qint32>(static_cast<qint32>(argument.AsInt32())));
             } else if (argument.IsFloat()) {
                 outputVariantList.append(QVariant(argument.AsFloat()));
             } else if (argument.IsChar()) {

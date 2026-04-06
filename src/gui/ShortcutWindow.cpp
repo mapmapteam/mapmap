@@ -21,54 +21,70 @@
 
 #include "ConsoleWindow.h"
 #include "MainWindow.h"
+#include <QTextCursor>
+#include <QTextDocument>
+#include <QVBoxLayout>
 
 namespace mmp {
 
-ShortcutWindow::ShortcutWindow()
+ShortcutWindow::ShortcutWindow() :
+  _textBrowser(new QTextBrowser(this))
 {
   // Set window size
   resize(SHORTCUT_WINDOW_WIDTH, SHORTCUT_WINDOW_HEIGHT);
   // Set window title
   setWindowTitle(tr("%1 - Keyboard Shortcuts").arg(MM::APPLICATION_NAME));
-//  setGeometry();
 
-  // Build HTML file to render
-  QString htmlContent("<!DOCTYPE html>\n<html>\n<head>\n");
-  htmlContent.append("<meta charset=\"utf-8\">\n");
-  htmlContent.append("<style>\n");
-  // load CSS file
-  QFile cssFile(":/shortcut-css");
-  cssFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  htmlContent.append(QTextCodec::codecForName("UTF-8")->toUnicode(cssFile.readAll()));
-  htmlContent.append("\n</style>\n");
-  htmlContent.append("</head>\n<body>");
+  QVBoxLayout *layout = new QVBoxLayout(this);
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->addWidget(_textBrowser);
 
-  // Begining of the body content
-  // Load another HTML file
-  QFile htmlFile(":/index-html");
-  htmlFile.open(QIODevice::ReadOnly | QIODevice::Text);
-  htmlContent.append(QTextCodec::codecForName("UTF-8")->toUnicode(htmlFile.readAll()));
-  // End of body content
-
-  htmlContent.append("</body></html>");
-
-  // Set up web page
-  QWebEnginePage *shortcutWebPage = new QWebEnginePage;
-  shortcutWebPage->setHtml(htmlContent);
-  // Set main page
-  setPage(shortcutWebPage);
-
-  // Disable context menu
-  setContextMenuPolicy(Qt::NoContextMenu);
+  _textBrowser->setOpenExternalLinks(true);
+  _textBrowser->setContextMenuPolicy(Qt::NoContextMenu);
 
   // Create and customize font
   int sansSerif = QFontDatabase::addApplicationFont(":/base-font");
   int serif = QFontDatabase::addApplicationFont(":/console-font");
-  QFont sansSerifFont(QFont(QFontDatabase::applicationFontFamilies(sansSerif).at(0), 11, QFont::Normal));
-  QFont serifFont(QFont(QFontDatabase::applicationFontFamilies(serif).at(0), 10, QFont::Normal));
-  // Apply font to the document
-  settings()->setFontFamily(QWebEngineSettings::SansSerifFont, sansSerifFont.family());
-  settings()->setFontFamily(QWebEngineSettings::SerifFont, serifFont.family());
+  if (sansSerif >= 0)
+  {
+    QFont sansSerifFont(QFont(QFontDatabase::applicationFontFamilies(sansSerif).at(0), 11, QFont::Normal));
+    _textBrowser->document()->setDefaultFont(sansSerifFont);
+  }
+  if (serif >= 0)
+  {
+    QFont serifFont(QFont(QFontDatabase::applicationFontFamilies(serif).at(0), 10, QFont::Normal));
+    _textBrowser->setStyleSheet(QString("pre, code { font-family: '%1'; }").arg(serifFont.family()));
+  }
+
+  reload();
+}
+
+void ShortcutWindow::reload()
+{
+  // Build HTML file to render
+  QString htmlContent("<!DOCTYPE html>\n<html>\n<head>\n");
+  htmlContent.append("<meta charset=\"utf-8\">\n");
+  htmlContent.append("<style>\n");
+
+  // Load CSS file.
+  QFile cssFile(":/shortcut-css");
+  if (cssFile.open(QIODevice::ReadOnly | QIODevice::Text))
+  {
+    htmlContent.append(QTextCodec::codecForName("UTF-8")->toUnicode(cssFile.readAll()));
+  }
+  htmlContent.append("\n</style>\n");
+  htmlContent.append("</head>\n<body>");
+
+  // Beginning of body content.
+  QFile htmlFile(":/index-html");
+  if (htmlFile.open(QIODevice::ReadOnly | QIODevice::Text))
+  {
+    htmlContent.append(QTextCodec::codecForName("UTF-8")->toUnicode(htmlFile.readAll()));
+  }
+  htmlContent.append("</body></html>");
+
+  _textBrowser->setHtml(htmlContent);
+  _textBrowser->moveCursor(QTextCursor::Start);
 
 }
 
