@@ -3,13 +3,13 @@ name: Build on Ubuntu
 
 on:
   push:
-    branches: [ develop, master ]
+    branches: [ dev, master ]
   pull_request:
-    branches: [ develop, master ]
+    branches: [ dev, master ]
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     steps:
     - name: Checkout code
@@ -19,15 +19,16 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y \
-          liblo-dev liblo-tools \
-          qt6-base-dev \
-          qt6-tools-dev \
-          qt6-multimedia-dev \
+          build-essential \
+          liblo-dev \
+          liblo-tools \
           libqt6opengl6-dev \
           libqt6openglwidgets6 \
+          pkg-config \
           qmake6 \
-          build-essential \
-          pkg-config
+          qt6-base-dev \
+          qt6-multimedia-dev \
+          qt6-tools-dev
 
     - name: Configure with qmake
       run: qmake6 mapmap.pro
