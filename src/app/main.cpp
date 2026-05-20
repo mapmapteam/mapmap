@@ -1,14 +1,12 @@
 // NOTE: To run, it is recommended not to be in Compiz or Beryl, they have shown some instability.
 
-#define USING_QT_5 (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
-
 #include <iostream>
 #include <QTranslator>
 #include <QDebug>
-#if USING_QT_5
 #include <QCommandLineParser>
 #include <QCommandLineOption>
-#endif
+#include <QOpenGLContext>
+
 #include "MM.h"
 #include "MainWindow.h"
 #include "MainApplication.h"
@@ -19,18 +17,6 @@
 #include <iostream>
 
 MM_USE_NAMESPACE
-
-static void set_env_vars_if_needed()
-{
-#ifdef __MACOSX_CORE__
-  std::cout << "OS X detected. Set environment for GStreamer support." << std::endl;
-  if (0 == setenv("GST_PLUGIN_PATH", "/Library/Frameworks/GStreamer.framework/Libraries", 1))
-      std::cout << " * GST_PLUGIN_PATH=/Library/Frameworks/GStreamer.framework/Libraries" << std::endl;
-  if (0 == setenv("GST_DEBUG", "2", 1))
-      std::cout << " * GST_DEBUG=2" << std::endl;
-  //setenv("LANG", "C", 1);
-#endif // __MACOSX_CORE__
-}
 
 // This class is just used to provide sleep functionalities in the main() method.
 class I : public QThread
@@ -75,18 +61,17 @@ void logMessageHandler(QtMsgType type, const QMessageLogContext &context, const 
 
 int main(int argc, char *argv[])
 {
-  set_env_vars_if_needed();
+  // Enable shared OpenGL contexts so the two canvases share textures.
+  QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
   // Initialize meta-object registry.
   initRegistry();
 
   MainApplication app(argc, argv);
-  
-  // Install message handler
-  // after QGuiApplication has been instanciated
+
+  // Install message handler after QGuiApplication has been instantiated.
   qInstallMessageHandler(logMessageHandler);
 
-#if USING_QT_5
   QCommandLineParser parser;
   parser.setApplicationDescription("Video mapping editor");
 
@@ -150,13 +135,12 @@ int main(int argc, char *argv[])
   QTranslator appTranslator;
   if (MM::SUPPORTED_LANGUAGES.contains(lang))
   {
-    //QLocale::setDefault(QLocale(lang));
 #ifdef Q_OS_WIN32
     qtTranslator.load(QString("qt_%1").arg(lang),
                       QApplication::applicationDirPath().append("/translations"));
 #else
     qtTranslator.load(QString("qtbase_%1").arg(lang),
-                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+                      QLibraryInfo::path(QLibraryInfo::TranslationsPath));
 #endif
     app.installTranslator(&qtTranslator);
 
@@ -165,15 +149,6 @@ int main(int argc, char *argv[])
   }
   else {
     qWarning() << "Unrecognized/unsupported language: " << lang;
-  }
-
-
-#endif // USING_QT_5
-
-  if (! QGLFormat::hasOpenGL())
-  {
-    qFatal("This system has no OpenGL support.");
-    return 1;
   }
 
   // Create splash screen.
@@ -201,7 +176,6 @@ int main(int argc, char *argv[])
   stylesheet.open(QFile::ReadOnly);
   app.setStyleSheet(QLatin1String(stylesheet.readAll()));
 
-#if USING_QT_5
   // read positional argument:
   const QStringList args = parser.positionalArguments();
   QString projectFileValue = QString();
@@ -234,9 +208,6 @@ int main(int argc, char *argv[])
   else
     qFatal("Invalid option <frame-rate>.");
 
-#endif
-
-
   // Terminate splash.
   splash.showMessage("  " + QObject::tr("Done."),
                      Qt::AlignLeft | Qt::AlignTop, MM::WHITE);
@@ -246,12 +217,10 @@ int main(int argc, char *argv[])
   // Launch program.
   win->show();
 
-#if USING_QT_5
   if (parser.isSet(fullscreenOption))
   {
     win->startFullScreen();
   }
-#endif
 
   // Start app.
   int result = app.exec();

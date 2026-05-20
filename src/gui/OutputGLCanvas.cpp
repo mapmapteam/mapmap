@@ -22,9 +22,13 @@
 #include "OutputGLCanvas.h"
 #include "MainWindow.h"
 
+#include <QGuiApplication>
+#include <QScreen>
+#include <QOpenGLWidget>
+
 namespace mmp {
 
-OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, const QGLWidget* shareWidget, QGraphicsScene* scene)
+OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, QOpenGLWidget* shareWidget, QGraphicsScene* scene)
 : MapperGLCanvas(mainWindow, true, parent, shareWidget, scene),
   _displayCrosshair(false),
   _displayTestSignal(false),
@@ -51,7 +55,6 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
   {
     // Draw the preferred signal test card
     int testCard = settings.value("signalTestCard", MM::DEFAULT_TEST_CARD).toInt();
-    glPushMatrix();
     painter->translate(rect.x(), rect.y());
     painter->setRenderHint(QPainter::Antialiasing);
     painter->save();
@@ -69,7 +72,6 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
       break;
     }
     painter->restore();
-    glPopMatrix();
   }
   else if (!controlOnMouseOver || (MainWindow::window()->displayControls() && _windowIsHovered))
   {
@@ -80,12 +82,12 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     {
 #ifdef Q_OS_OSX
       QPoint globalCursorPos = QCursor::pos();
-      int mouseScreen = QApplication::desktop()->screenNumber(globalCursorPos);
-      QRect mouseScreenGeometry = QApplication::desktop()->screen(mouseScreen)->geometry();
+      QScreen* mouseScreenPtr = QGuiApplication::screenAt(globalCursorPos);
+      QRect mouseScreenGeometry = mouseScreenPtr ? mouseScreenPtr->geometry() : QRect();
       QPoint localCursorPos = globalCursorPos - mouseScreenGeometry.topLeft();
       QPointF cursorPosition = mapToScene(localCursorPos);
 //      qDebug() << "Cursor pos " << globalCursorPos << " " << cursorPosition << " " << localCursorPos << mouseScreen << endl;
-      if (rect.contains(cursorPosition) && getMainWindow()->getPreferredScreen() == mouseScreen)
+      if (rect.contains(cursorPosition) && getMainWindow()->getPreferredScreen() == QGuiApplication::screens().indexOf(mouseScreenPtr))
 //      qDebug() << "Cursor pos " << mapToScene(mapFromGlobal(QCursor::pos(QApplication::screens()[1])));
 #else
       QPointF cursorPosition = mapToScene(mapFromGlobal(cursor().pos()));// - rect.topLeft();//(QCursor::pos());///*this->mapFromGlobal(*/QCursor::pos()/*)*/;
@@ -110,7 +112,7 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 
 }
 
-void OutputGLCanvas::enterEvent(QEvent *event)
+void OutputGLCanvas::enterEvent(QEnterEvent *event)
 {
   _windowIsHovered = true;
   QGraphicsView::enterEvent(event);

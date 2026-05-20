@@ -18,6 +18,10 @@
  */
 
 #include "MapperGLCanvasToolbar.h"
+#include <QLabel>
+#include <QToolButton>
+#include <QComboBox>
+#include <QHBoxLayout>
 
 namespace mmp {
 

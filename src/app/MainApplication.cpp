@@ -27,18 +27,9 @@ MainApplication::MainApplication(int &argc, char *argv[])
   : QApplication(argc, argv)
 {
 #ifdef Q_OS_WIN32
- // Set GStreamer plugins path on Windows
-  QString pluginPath = QCoreApplication::applicationDirPath() + "/plugin";
-
-  if (QDir(pluginPath).exists())
-    _putenv_s("GST_PLUGIN_PATH", pluginPath.toLocal8Bit());
-
   // Set settings default format
   QSettings::setDefaultFormat(QSettings::IniFormat);
 #endif
-
-  // Initialize GStreamer.
-  gst_init (NULL, NULL);
 
   // Set application information.
   setApplicationName(MM::APPLICATION_NAME);
@@ -49,8 +40,6 @@ MainApplication::MainApplication(int &argc, char *argv[])
 
 MainApplication::~MainApplication()
 {
-  // Deinitialize GStreamer.
-  gst_deinit();
 }
 
 bool MainApplication::notify(QObject *receiver, QEvent *event)
@@ -61,8 +50,8 @@ bool MainApplication::notify(QObject *receiver, QEvent *event)
   }
   catch (std::exception &ex)
   {
-    qDebug() << "std::exception was caught: " << ex.what() << endl;
-    qDebug() << "event type: " << event->type() << endl;
+    qDebug() << "std::exception was caught: " << ex.what() << Qt::endl;
+    qDebug() << "event type: " << event->type() << Qt::endl;
   }
 
   return false;

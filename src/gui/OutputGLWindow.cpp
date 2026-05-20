@@ -23,13 +23,17 @@
 
 #include "MainWindow.h"
 
+#include <QGuiApplication>
+#include <QScreen>
+#include <QOpenGLWidget>
+
 namespace mmp {
 
 OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) : QDialog(parent)
 {
   resize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 
-  canvas = new OutputGLCanvas(canvas_->getMainWindow(), this, (const QGLWidget*)canvas_->viewport(), canvas_->scene());
+  canvas = new OutputGLCanvas(canvas_->getMainWindow(), this, qobject_cast<QOpenGLWidget*>(canvas_->viewport()), canvas_->scene());
   canvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   canvas->setMinimumSize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 
@@ -105,7 +109,9 @@ void OutputGLWindow::_updateToPreferredScreen()
   // Check if user is on multiple screen (always pre
   int screen = getPreferredScreen();
   //Move window to second screen before fullscreening it.
-  setGeometry(QApplication::desktop()->screenGeometry(screen));
+  const QList<QScreen*> screens = QGuiApplication::screens();
+  if (screen < screens.size())
+    setGeometry(screens.at(screen)->geometry());
 }
 
 void OutputGLWindow::_setFullScreen(bool fullscreen)

@@ -24,7 +24,9 @@
 #include "VideoImpl.h"
 
 #include <QCamera>
-#include <QCameraInfo>
+#include <QMediaCaptureSession>
+#include <QMediaDevices>
+#include <QCameraDevice>
 
 namespace mmp {
 
@@ -34,22 +36,22 @@ public:
   CameraImpl();
   ~CameraImpl();
 
-  bool loadMovie(const QString& deviceName);
-  bool isLive() { return true; }
+  bool loadMovie(const QString& deviceName) override;
+  bool isLive() override { return true; }
+  bool seekTo(qint64) override { return false; }
 
-  int getWidth() const;
-  int getHeight() const;
+  int getWidth() const override;
+  int getHeight() const override;
 
-  const uchar* getBits();
+  const uchar* getBits() override;
 
-  bool hasBits() const { return _cameraSurface->isActive(); }
-
-  bool bitsHaveChanged() const { return true; }
+  bool hasBits() const override { return _cameraSurface && _cameraSurface->isActive(); }
+  bool bitsHaveChanged() const override { return true; }
 
 private:
-  QCamera *_camera;
-  CameraSurface *_cameraSurface;
-
+  QCamera                *_camera;
+  QMediaCaptureSession   *_captureSession;
+  CameraSurface          *_cameraSurface;
 };
 
 }

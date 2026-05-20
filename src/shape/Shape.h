@@ -20,6 +20,7 @@
 #ifndef M_SHAPE_H_
 #define M_SHAPE_H_
 
+#include <algorithm>
 #include <iostream>
 
 #include <QtGlobal>
@@ -144,7 +145,7 @@ public:
   {
     // Deep copy.
     vertices.resize(vertices_.size());
-    qCopy(vertices_.begin(), vertices_.end(), vertices.begin());
+    std::copy(vertices_.begin(), vertices_.end(), vertices.begin());
   }
 
   // Returns true iff vertex index is considered a major (external) control point.

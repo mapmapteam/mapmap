@@ -34,6 +34,7 @@
 
 #include "Shapes.h"
 
+#include <QGraphicsItem>
 #include "Paint.h"
 #include "Mapping.h"
 #include "MapperGLCanvas.h"

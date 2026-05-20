@@ -287,7 +287,7 @@ TextureMappingGui::TextureMappingGui(QSharedPointer<TextureMapping> mapping)
   // Input shape.
   _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
                                             QObject::tr("Input shape"));
-  _buildShapeProperty(_inputItem, inputShape.data());
+  _buildShapeProperty(_inputItem, inputShape.toStrongRef().data());
   _propertyBrowser->insertProperty(_inputItem, _paintItem); // insert
 
   // Collapse input shape.

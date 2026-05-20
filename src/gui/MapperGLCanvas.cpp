@@ -25,10 +25,13 @@
 #include "MainWindow.h"
 #include "Commands.h"
 
+#include <QOpenGLWidget>
+#include <QSurfaceFormat>
+
 namespace mmp {
 
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
-                               bool isOutput, QWidget* parent, const QGLWidget * shareWidget,
+                               bool isOutput, QWidget* parent, QOpenGLWidget* shareWidget,
                                QGraphicsScene* scene)
   : QGraphicsView(parent),
     _mainWindow(mainWindow),
@@ -46,7 +49,7 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
   setDragMode(QGraphicsView::NoDrag);
 
   setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing |
-                 QPainter::HighQualityAntialiasing | QPainter::SmoothPixmapTransform);
+                 QPainter::SmoothPixmapTransform);
   // Dont need to always see scroll bar
   setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -67,7 +70,11 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
   // setAcceptDrops(true);
 
   // Render with OpenGL.
-  setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers), this, shareWidget));
+  QOpenGLWidget* glw = new QOpenGLWidget(this);
+  QSurfaceFormat fmt;
+  fmt.setSamples(4); // replaces QGL::SampleBuffers
+  glw->setFormat(fmt);
+  setViewport(glw);
   setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
   // TODO: do we need to delete scene (or call new QGraphicsScene(this)?)
@@ -170,7 +177,7 @@ void MapperGLCanvas::applyZoomToView()
   // Re-bound zoom (for consistency).
   qreal zoomFactor = getZoomFactor();
   // Resets the view transformation matrix
-  resetMatrix();
+  resetTransform();
   // Scale the current view
   scale(zoomFactor, zoomFactor);
   // And update
@@ -819,7 +826,7 @@ void MapperGLCanvas::fitShapeToView()
     setSceneRect(scene()->itemsBoundingRect());
     centerOn(this->scene()->itemsBoundingRect().center());
     // Get the horizontal scaling factor
-    _scalingFactor = matrix().m11();
+    _scalingFactor = transform().m11();
 
     // Adapt shape
     _shapeIsAdapted = true;

@@ -22,7 +22,6 @@
 #include <QDialog>
 #include <QTextBrowser>
 #include <QFile>
-#include <QTextCodec>
 #include <QFontDatabase>
 
 #include "MM.h"

@@ -6,7 +6,6 @@
  * (c) 2012 Jean-Sebastien Senecal
  * (c) 2004 Mathieu Guindon, Julien Keable
  *           Based on code from Drone http://github.com/sofian/drone
- *           Based on code from the GStreamer Tutorials http://docs.gstreamer.com/display/GstSDK/Tutorials
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,111 +24,61 @@
 #ifndef VIDEO_IMPL_H_
 #define VIDEO_IMPL_H_
 
-// GStreamer includes.
-#include <gst/gst.h>
-#include <gst/app/gstappsink.h>
-#include <gst/pbutils/pbutils.h>
-
-// Other includes.
 #include "MM.h"
-#include <QtOpenGL>
+#include <QImage>
 #include <QMutex>
 #include <QWaitCondition>
-
-#include <glib.h>
-#if __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
 
 namespace mmp {
 
 /**
- * Private declaration of the video player.
- * This is to prevent the GStreamer header to be included in the whole project.
- * (it just needs to be included in this file).
+ * Abstract base class for video playback implementations.
+ * Subclasses supply frames via Qt 6 Multimedia (QMediaPlayer, QCamera).
+ * The _data pointer always points into _currentFrame.bits() so that
+ * callers can pass it directly to glTexImage2D.
  */
 class VideoImpl
 {
 public:
-  /**
-   * Constructor.
-   * This media player works for both video files and shared memory sockets.
-   * If live is true, it's a shared memory socket.
-   */
   VideoImpl();
   virtual ~VideoImpl();
 
-
-
-//  void setUri(const QString uri);
-  /**
-   * Returns whether or not GStreamer video support is ok.
-   */
+  /// Returns whether Qt Multimedia video support is available.
   static bool hasVideoSupport();
 
-  /**
-   * Sets up the player.
-   * Basically calls loadMovie().
-   */
+  /// Sets up the player (calls loadMovie with the stored URI).
   void build();
 
-  /**
-   * Returns the width of the video image.
-   */
   virtual int getWidth() const;
-
-  /**
-   * Returns the height of the video image.
-   */
   virtual int getHeight() const;
 
-  /**
-   * Returns the path to the media file being played.
-   */
   QString getUri() const;
 
-  /**
-   * Returns the raw image of the last video frame.
-   * It is currently unused!
-   */
+  /// Returns raw RGBA bytes of the latest video frame (or NULL if none yet).
   virtual const uchar* getBits();
 
-  /// Returns true iff bits have started flowing (ie. if there is at least a first sample available).
-  virtual bool hasBits() const { return (_currentFrameSample != NULL); }
+  /// Returns true once at least one frame has been received.
+  virtual bool hasBits() const { return (_data != nullptr); }
 
-  /// Returns true iff bits have changed since last call to getBits().
+  /// Returns true if a new frame arrived since the last getBits() call.
   virtual bool bitsHaveChanged() const { return _bitsChanged; }
 
-  /**
-   * Checks if the pipeline is ready.
-   *
-   * Returns whether or not the elements in the pipeline are connected,
-   * and if we are using shmsrc, if the shared memory socket is being read.
-   */
-  bool isReady() const { return _isMovieReady() && videoIsConnected(); }
+  /// Returns true when the pipeline is ready to deliver frames.
+  bool isReady() const { return _movieReady && _videoIsConnected; }
 
   bool videoIsConnected() const { return _videoIsConnected; }
   void videoConnect() { _videoIsConnected = true; }
-  bool videoIsSupported() const { return _queue0 != NULL; }
 
   bool audioIsConnected() const { return _audioIsConnected; }
   void audioConnect() { _audioIsConnected = true; }
-  bool audioIsSupported() const { return _audioqueue0 != NULL; }
 
-  /**
-   * Performs regular updates (checks if movie is ready and checks messages).
-   */
-  void update();
+  /// Performs regular updates (handles loop restart on end-of-stream).
+  virtual void update();
+
+  /// True for live sources (camera, etc.) that cannot be sought.
   virtual bool isLive() = 0;
 
-  /**
-   * Loads a new video stream
-   *
-   * Creates a new GStreamer pipeline, opens a movie, webcam or shmsrc socket,
-   * depending on subclass.
-   */
+  /// Loads a new media source. Subclasses override to set up their player.
   virtual bool loadMovie(const QString& filename);
 
   bool setPlayState(bool play);
@@ -137,147 +86,64 @@ public:
 
   bool seekIsEnabled() const { return _seekEnabled; }
 
+  /// Seek to a fractional position in [0, 1].
   bool seekTo(double position);
-  bool seekTo(guint64 positionNanoSeconds);
+  /// Seek to an absolute position in milliseconds.
+  virtual bool seekTo(qint64 positionMs) = 0;
 
-  void setRate(double rate=1.0);
+  virtual void setRate(double rate = 1.0);
   double getRate() const { return _rate; }
 
-  void setVolume(double rate=0.0);
+  virtual void setVolume(double volume = 0.0);
   double getVolume() const { return _volume; }
 
   void resetMovie();
 
-protected:
-  virtual bool createVideoComponents();
-  virtual bool createAudioComponents();
-
-  void unloadMovie();
-  void freeResources();
-
-private:
-  /**
-   * Checks if we reached the end of the video file.
-   *
-   * Returns false if the pipeline is not ready yet.
-   */
-  bool _eos() const;
-
-  // void _finish();
-  // void _init();
-
-//  bool _preRun();
-  void _checkMessages();
-  void _setMovieReady(bool ready);
-  bool _isMovieReady() const { return _movieReady; }
-  void _setFinished(bool finished);
-
-  // Sends the appropriate seek events to adjust to rate.
-  void _updateRate();
-
-  void _freeCurrentSample();
-
-  void _freeElement(GstElement** element);
-
-public:
-  // GStreamer callback that simply sets the #newSample# flag to point to TRUE.
-  static GstFlowReturn gstNewSampleCallback(GstElement*, VideoImpl *p);
-  //static GstFlowReturn gstNewPreRollCallback (GstAppSink * appsink, gpointer user_data);
-
-  // GStreamer callback that plugs the audio/video pads into the proper elements when they
-  // are made available by the source.
-  //static void gstPadAddedCallback(GstElement *src, GstPad *newPad, VideoImpl* p);
-
-  /// Locks mutex (default = no effect).
+  /// Locks mutex.
   void lockMutex();
-
-  /// Unlocks mutex (default = no effect).
+  /// Unlocks mutex.
   void unlockMutex();
 
-  /// Wait until first data samples are available (blocking).
-  bool waitForNextBits(int timeout, const uchar** bits = 0);
+  /// Blocks until new bits are available (up to timeout ms). Returns false on timeout.
+  bool waitForNextBits(int timeout, const uchar** bits = nullptr);
 
 protected:
+  void unloadMovie();
+  virtual void freeResources();
+
+  void _setMovieReady(bool ready) { _movieReady = ready; }
+
+  // Latest decoded frame — always Format_RGBA8888.
+  QImage _currentFrame;
+  /// Raw pointer into _currentFrame.bits(); kept for ABI with getBits().
+  uchar *_data;
+  bool   _bitsChanged;
+
   int _width;
   int _height;
 
-  guint64 _duration; // duration (in nanoseconds) (unused for now)
+  /// Duration in milliseconds (0 if unknown).
+  qint64 _duration;
 
   bool _videoIsConnected;
   bool _audioIsConnected;
   bool _seekEnabled;
 
-  GstElement *_pipeline;
-
-  GstElement *_queue0;
-  GstElement *_capsfilter0;
-  GstElement *_videoscale0;
-  GstElement *_videoconvert0;
-  GstElement *_appsink0;
-
-  GstElement *_audioqueue0;
-  GstElement *_audioconvert0;
-  GstElement *_audioresample0;
-  GstElement *_audiovolume0;
-  GstElement *_audiosink0;
-
-  // gstreamer elements
-  GstBus *_bus;
-
-  /**
-   * Temporary contains the image data of the last frame.
-   */
-  GstSample  *_currentFrameSample;
-  GstBuffer  *_currentFrameBuffer;
-  GstMapInfo  _mapInfo;
-  bool       _bitsChanged;
-
-  /**
-   * Contains meta informations about current file.
-   */
-
-  /// Raw image data of the last video frame.
-  uchar *_data;
-
-  /// Is seek enabled on the current pipeline?
-
-
-  /// Playback rate (negative ==> reverse).
   double _rate;
-  /// Audio playback volume (0.0 ==> 1.0).
   double _volume;
 
-  /// Whether or not we are reading video from a shmsrc.
-  bool _isSharedMemorySource;
-
-
-
-  // unused
   bool _terminate;
-
-  /// Is the movie (or rather pipeline) ready to play.
   bool _movieReady;
-
-  /// Is the movie playing (as opposed to paused).
   bool _playState;
 
-  /// Main mutex.
   QMutex _mutex;
 
-  /// Main mutex locker (for the lockMutex() / unlockMutex() methods).
-  QMutexLocker* _mutexLocker;
+  bool _playInLoop;
 
 private:
-  /**
-   * Path of the movie file being played.
-   */
   QString _uri;
-
-  static const int MAX_SAMPLES_IN_BUFFER_QUEUES = 30;
-
-  bool _playInLoop;
 };
 
 }
 
-#endif /* ifndef */
+#endif /* VIDEO_IMPL_H_ */

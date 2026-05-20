@@ -17,9 +17,7 @@ HEADERS += $$PWD/Commands.h \
     $$PWD/Serializable.h \
     $$PWD/UidAllocator.h \
     $$PWD/VideoImpl.h \
-    $$PWD/VideoShmSrcImpl.h \
-    $$PWD/VideoUriDecodeBinImpl.h \
-    $$PWD/VideoV4l2SrcImpl.h \
+    $$PWD/VideoPlayerImpl.h \
     $$PWD/Util.h
 
 SOURCES += $$PWD/Commands.cpp \
@@ -37,7 +35,5 @@ SOURCES += $$PWD/Commands.cpp \
     $$PWD/Serializable.cpp \
     $$PWD/UidAllocator.cpp \
     $$PWD/VideoImpl.cpp \
-    $$PWD/VideoShmSrcImpl.cpp \
-    $$PWD/VideoUriDecodeBinImpl.cpp \
-    $$PWD/VideoV4l2SrcImpl.cpp \
+    $$PWD/VideoPlayerImpl.cpp \
     $$PWD/Util.cpp

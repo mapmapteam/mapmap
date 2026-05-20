@@ -308,8 +308,8 @@ void PreferenceDialog::createControlsPage()
   bold.setWeight(QFont::Bold);
   // Set IP Address validator
   QString octet("(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])");
-  QRegExp rx(octet + "\\." + octet + "\\." + octet + "\\." + octet);
-  QRegExpValidator *ipValidator = new QRegExpValidator(rx);
+  QRegularExpression rx(octet + "\\." + octet + "\\." + octet + "\\." + octet);
+  QRegularExpressionValidator *ipValidator = new QRegularExpressionValidator(rx);
   QMargins margins(40, 0, 0, 0);
 
   // _sendMessageBox = new QCheckBox;

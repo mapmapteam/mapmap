@@ -23,6 +23,12 @@
 #include "MM.h"
 #include "MapperGLCanvas.h"
 
+#include <QLabel>
+#include <QToolButton>
+#include <QComboBox>
+
+class QHBoxLayout;
+
 namespace mmp {
 
 class MapperGLCanvasToolbar : public QWidget {

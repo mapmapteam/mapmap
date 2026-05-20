@@ -26,7 +26,7 @@ void OscReceiver::readyReadCb() {
 }
 
 void OscReceiver::byteArrayToVariantList(QVariantList& outputVariantList, QString& outputOscAddress, const QByteArray& inputByteArray) {
-    osc::ReceivedPacket packet(inputByteArray.data(), inputByteArray.size());
+    osc::ReceivedPacket packet(inputByteArray.data(), static_cast<std::size_t>(inputByteArray.size()));
     // TODO: catch parsing exceptions
     if (packet.IsMessage()) {
         osc::ReceivedMessage message(packet);

@@ -136,7 +136,7 @@ PolygonColorGraphicsItem::PolygonColorGraphicsItem(Mapping::ptr mapping, bool ou
 QPainterPath PolygonColorGraphicsItem::shape() const
 {
   QPainterPath path;
-  Polygon* poly = static_cast<Polygon*>(_shape.data());
+  Polygon* poly = static_cast<Polygon*>(_shape.toStrongRef().data());
   Q_ASSERT(poly);
   path.addPolygon(poly->toPolygon());
   return mapFromScene(path);
@@ -146,7 +146,7 @@ void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
                                         const QStyleOptionGraphicsItem *option)
 {
   Q_UNUSED(option);
-  Polygon* poly = static_cast<Polygon*>(_shape.data());
+  Polygon* poly = static_cast<Polygon*>(_shape.toStrongRef().data());
   Q_ASSERT(poly);
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
 }
@@ -162,7 +162,7 @@ void MeshColorGraphicsItem::_doPaint(QPainter *painter,
 {
   Q_UNUSED(option);
 
-  Mesh* mesh = static_cast<Mesh*>(_shape.data());
+  Mesh* mesh = static_cast<Mesh*>(_shape.toStrongRef().data());
   QVector<QVector<Quad::ptr> > quads = mesh->getQuads2d();
 
   // Go through the mesh quad by quad.
@@ -186,7 +186,7 @@ QPainterPath EllipseColorGraphicsItem::shape() const
 {
   // Create path for ellipse.
   QPainterPath path;
-  Ellipse* ellipse = static_cast<Ellipse*>(_shape.data());
+  Ellipse* ellipse = static_cast<Ellipse*>(_shape.toStrongRef().data());
   Q_ASSERT(ellipse);
   QTransform transform;
   transform.translate(ellipse->getCenter().x(), ellipse->getCenter().y());
@@ -319,7 +319,7 @@ QSharedPointer<Texture> TextureGraphicsItem::_getTexture()
 QPainterPath PolygonTextureGraphicsItem::shape() const
 {
   QPainterPath path;
-  Polygon* poly = static_cast<Polygon*>(_shape.data());
+  Polygon* poly = static_cast<Polygon*>(_shape.toStrongRef().data());
   Q_ASSERT(poly);
   path.addPolygon(poly->toPolygon());
   return mapFromScene(path);
@@ -563,7 +563,7 @@ QPainterPath EllipseTextureGraphicsItem::shape() const
 {
   // Create path for ellipse.
   QPainterPath path;
-  Ellipse* ellipse = static_cast<Ellipse*>(_shape.data());
+  Ellipse* ellipse = static_cast<Ellipse*>(_shape.toStrongRef().data());
   Q_ASSERT(ellipse);
   QTransform transform;
   transform.translate(ellipse->getCenter().x(), ellipse->getCenter().y());

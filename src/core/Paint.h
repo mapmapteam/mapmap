@@ -23,10 +23,10 @@
 #define PAINT_H_
 
 #include <QtGlobal>
-#include <QtOpenGL>
 
 #include <string>
 #include <QColor>
+#include <QElapsedTimer>
 #include <QMutex>
 
 #if __APPLE__
@@ -38,14 +38,14 @@
 #include "Element.h"
 #include "Maths.h"
 
-#include <QCameraInfo>
+#include <QMediaDevices>
+#include <QCameraDevice>
 
 namespace mmp {
 
 typedef enum {
   VIDEO_URI,
-  VIDEO_WEBCAM,
-  VIDEO_SHMSRC
+  VIDEO_WEBCAM
 } VideoType;
 
 /**
@@ -209,9 +209,12 @@ public:
   virtual void read(const QDomElement& obj);
   virtual void write(QDomElement& obj);
 
-  // Get Camera human-readable name from url
+  // Get Camera human-readable name from device ID
   QString getCameraNameFromUri(const QString &uri) {
-    return QCameraInfo(uri.toLocal8Bit()).description();
+    for (const QCameraDevice& d : QMediaDevices::videoInputs())
+      if (QString::fromUtf8(d.id()) == uri)
+        return d.description();
+    return uri;
   }
 
 protected:

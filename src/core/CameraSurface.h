@@ -41,28 +41,43 @@
 #ifndef CAMERA_SURFACE_H_
 #define CAMERA_SURFACE_H_
 
-#include <QAbstractVideoSurface>
-#include <QVideoSurfaceFormat>
-#include <QGraphicsItem>
-#include <QAudio>
+#include <QObject>
+#include <QImage>
+#include <QVideoSink>
+#include <QVideoFrame>
 
 namespace mmp {
 
-class CameraSurface : public QAbstractVideoSurface
+/**
+ * Wraps a QVideoSink to receive camera frames and convert them to RGBA.
+ * CameraImpl connects its QMediaCaptureSession to videoSink() and reads
+ * frames via bits().
+ */
+class CameraSurface : public QObject
 {
     Q_OBJECT
 public:
-    CameraSurface(QObject *parent = nullptr);
+    explicit CameraSurface(QObject *parent = nullptr);
     ~CameraSurface() override;
 
-    QList<QVideoFrame::PixelFormat> supportedPixelFormats(
-            QAbstractVideoBuffer::HandleType handleType) const override;
-    bool present(const QVideoFrame &frame) override;
+    /// The QVideoSink that should be connected to the QMediaCaptureSession.
+    QVideoSink* videoSink() const { return _videoSink; }
 
-    const uchar* bits();
+    /// Returns true once at least one frame has been received.
+    bool isActive() const { return !_temporaryImage.isNull(); }
+
+    /// Returns raw RGBA bytes of the latest camera frame.
+    const uchar* bits() const { return _temporaryImage.bits(); }
+
+    int frameWidth()  const { return _temporaryImage.width(); }
+    int frameHeight() const { return _temporaryImage.height(); }
+
+private slots:
+    void onVideoFrameChanged(const QVideoFrame& frame);
 
 private:
-    QImage _temporaryImage;
+    QVideoSink *_videoSink;
+    QImage      _temporaryImage;
 };
 
 }

@@ -18,6 +18,7 @@
  */
 
 #include "MappingListModel.h"
+#include <QIODevice>
 
 namespace mmp {
 

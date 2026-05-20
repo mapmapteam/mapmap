@@ -23,6 +23,7 @@
 
 #include <QVector>
 #include <QMap>
+#include <QRegularExpression>
 
 #include "Paint.h"
 #include "Mapping.h"
@@ -163,10 +164,10 @@ private:
   QVector<QSharedPointer<T> > _getElementsByNameRegExp(const QVector<QSharedPointer<T> >& vector, QString namePattern)
   {
     QVector<QSharedPointer<T> > matchedElems;
-    QRegExp regExp(namePattern, Qt::CaseSensitive, QRegExp::Wildcard);
+    QRegularExpression regExp(QRegularExpression::wildcardToRegularExpression(namePattern));
     for (QSharedPointer<T> it: vector)
     {
-      if (regExp.exactMatch(it->getName()))
+      if (regExp.match(it->getName()).hasMatch())
       {
         matchedElems.push_back(it);
       }

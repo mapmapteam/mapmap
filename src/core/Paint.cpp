@@ -20,10 +20,13 @@
 
 #include "Paint.h"
 #include "VideoImpl.h"
-#include "VideoUriDecodeBinImpl.h"
+#include "VideoPlayerImpl.h"
 #include "CameraImpl.h"
-#include "VideoShmSrcImpl.h"
 #include <iostream>
+#include <QFileIconProvider>
+#include <QFileInfo>
+#include <QImageReader>
+#include <QSettings>
 
 namespace mmp {
 
@@ -104,15 +107,13 @@ bool Image::setUri(const QString &uri)
 
 void Image::build()
 {
-  // Read all images.
+  // Read all images and convert to RGBA for direct upload to OpenGL.
   QImageReader reader(_uri);
   _images.clear();
-  for (int i=0; i<reader.imageCount(); i++)
-    _images.push_back(
-        QGLWidget::convertToGLFormat(reader.read())
-          .mirrored(true, false)
-          .transformed(QTransform().rotate(180))
-      );
+  for (int i = 0; i < reader.imageCount(); i++) {
+    QImage raw = reader.read().convertToFormat(QImage::Format_RGBA8888);
+    _images.push_back(raw.mirrored(true, false).transformed(QTransform().rotate(180)));
+  }
 
   rewind();
 }
@@ -190,7 +191,7 @@ Video::Video(int id) : Texture(id),
     _uri(""),
     _impl(nullptr)
 {
-  _impl = new VideoUriDecodeBinImpl();
+  _impl = new VideoPlayerImpl();
   setRate(1);
   setVolume(1);
 }
@@ -203,13 +204,13 @@ Video::Video(const QString uri_, VideoType type, double rate, uid id):
 {
   switch (type) {
     case VIDEO_URI:
-      _impl = new VideoUriDecodeBinImpl();
+      _impl = new VideoPlayerImpl();
       break;
     case VIDEO_WEBCAM:
       _impl = new CameraImpl();
       break;
-    case VIDEO_SHMSRC:
-      _impl = new VideoShmSrcImpl();
+    default:
+      _impl = new VideoPlayerImpl();
       break;
   }
   setRate(rate);
@@ -313,7 +314,7 @@ bool Video::setUri(const QString &uri)
     // Try to load movie.
     if (!_impl->loadMovie(uri))
     {
-      qDebug() << "Cannot load movie " << uri << "." << endl;
+      qDebug() << "Cannot load movie " << uri << "." << Qt::endl;
       return false;
     }
 
@@ -324,13 +325,13 @@ bool Video::setUri(const QString &uri)
     // Wait for the first samples to be available to make sure we are ready.
     if (!_impl->waitForNextBits(ICON_TIMEOUT))
     {
-      qDebug() << "No bits coming" << endl;
+      qDebug() << "No bits coming" << Qt::endl;
       return false;
     }
 
     if (_videoType != VIDEO_WEBCAM) { // Generated thumbnail if source type is not camera
       if (!_generateThumbnail())
-        qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << endl;
+        qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << Qt::endl;
     }
 
     _emitPropertyChanged("uri");
@@ -379,7 +380,7 @@ bool Video::_generateThumbnail()
   const uchar* bits;
   if (!_impl->waitForNextBits(ICON_TIMEOUT, &bits))
   {
-    qDebug() << "Second waiting wrong..." << endl;
+    qDebug() << "Second waiting wrong..." << Qt::endl;
     return false;
   }
 

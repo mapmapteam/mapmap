@@ -70,7 +70,7 @@ void ShortcutWindow::reload()
   QFile cssFile(":/shortcut-css");
   if (cssFile.open(QIODevice::ReadOnly | QIODevice::Text))
   {
-    htmlContent.append(QTextCodec::codecForName("UTF-8")->toUnicode(cssFile.readAll()));
+    htmlContent.append(QString::fromUtf8(cssFile.readAll()));
   }
   htmlContent.append("\n</style>\n");
   htmlContent.append("</head>\n<body>");
@@ -79,7 +79,7 @@ void ShortcutWindow::reload()
   QFile htmlFile(":/index-html");
   if (htmlFile.open(QIODevice::ReadOnly | QIODevice::Text))
   {
-    htmlContent.append(QTextCodec::codecForName("UTF-8")->toUnicode(htmlFile.readAll()));
+    htmlContent.append(QString::fromUtf8(htmlFile.readAll()));
   }
   htmlContent.append("</body></html>");
 

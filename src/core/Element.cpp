@@ -85,7 +85,7 @@ void Element::write(QDomElement& obj)
 
 void Element::_emitPropertyChanged(const QString& propertyName)
 {
-  emit propertyChanged(getId(), propertyName, property(propertyName.toAscii()));
+  emit propertyChanged(getId(), propertyName, property(propertyName.toLatin1()));
 }
 
 }

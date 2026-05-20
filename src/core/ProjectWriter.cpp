@@ -58,8 +58,8 @@ bool ProjectWriter::writeFile(QIODevice *device)
   doc.appendChild(project);
 
   QTextStream out(device);
-  out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
-  out << "<!DOCTYPE mapmap>" << endl;
+  out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << Qt::endl;
+  out << "<!DOCTYPE mapmap>" << Qt::endl;
   out << doc.toString(2);
 
   return true;

@@ -18,59 +18,81 @@
  */
 
 #include "CameraImpl.h"
+#include <QMessageBox>
+#include <QDebug>
 
 namespace mmp {
 
-CameraImpl::CameraImpl() :
-  _camera(nullptr),
-  _cameraSurface(nullptr)
+CameraImpl::CameraImpl()
+  : _camera(nullptr),
+    _captureSession(nullptr),
+    _cameraSurface(nullptr)
 {
-
 }
 
 CameraImpl::~CameraImpl()
 {
-  _camera->stop();
+  if (_camera)
+    _camera->stop();
   delete _camera;
+  delete _captureSession;
   delete _cameraSurface;
 }
 
-bool CameraImpl::loadMovie(const QString &deviceName)
+bool CameraImpl::loadMovie(const QString &deviceId)
 {
-  VideoImpl::loadMovie(deviceName);
+  VideoImpl::loadMovie(deviceId);
 
-  _camera = new QCamera(deviceName.toLocal8Bit());
+  // Find the camera device matching the given ID.
+  QCameraDevice dev;
+  for (const QCameraDevice& d : QMediaDevices::videoInputs()) {
+    if (QString::fromUtf8(d.id()) == deviceId) {
+      dev = d;
+      break;
+    }
+  }
 
-  _cameraSurface = new CameraSurface();
+  if (dev.isNull()) {
+    // Fall back to default camera.
+    dev = QMediaDevices::defaultVideoInput();
+    if (dev.isNull()) {
+      qWarning() << "No camera available for device:" << deviceId;
+      return false;
+    }
+  }
 
-  _camera->setViewfinder(_cameraSurface);
+  _cameraSurface   = new CameraSurface();
+  _camera          = new QCamera(dev);
+  _captureSession  = new QMediaCaptureSession();
 
-  if (_camera->isAvailable())
-    _camera->start();
+  _captureSession->setCamera(_camera);
+  _captureSession->setVideoSink(_cameraSurface->videoSink());
 
-  if (_camera->state() == QCamera::ActiveState)
-    return true;
+  _camera->start();
 
-  if (_camera->error() != QCamera::NoError)
-    QMessageBox(QMessageBox::Critical, "Camera Error",
-                "Failed to start: " + _camera->errorString()).exec();
+  if (!_camera->isActive()) {
+    qWarning() << "Failed to start camera.";
+    return false;
+  }
 
-  return false;
+  _videoIsConnected = true;
+  _setMovieReady(true);
+  return true;
 }
 
 int CameraImpl::getWidth() const
 {
-  return _cameraSurface->surfaceFormat().frameWidth();
+  return _cameraSurface ? _cameraSurface->frameWidth() : -1;
 }
 
 int CameraImpl::getHeight() const
 {
-  return _cameraSurface->surfaceFormat().frameHeight();
+  return _cameraSurface ? _cameraSurface->frameHeight() : -1;
 }
 
-const uchar *CameraImpl::getBits()
+const uchar* CameraImpl::getBits()
 {
-  return _cameraSurface->bits();
+  return _cameraSurface ? _cameraSurface->bits() : nullptr;
 }
 
 }
