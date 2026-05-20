@@ -53,7 +53,6 @@ system($$QMAKE_LRELEASE mapmap.pro) # Run lrelease
 
 # Linux-specific:
 unix:!macx {
-    QMAKE_CXXFLAGS += -D_GLIBCXX_USE_CXX11_ABI=0
     QMAKE_CXXFLAGS += -Wno-expansion-to-defined
 }
 

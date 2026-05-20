@@ -370,10 +370,6 @@ protected:
   QIcon _icon;
   VideoType _videoType;
 
-  /**
-   * Private implementation, so that GStreamer headers don't need
-   * to be included from every file in the project.
-   */
   VideoImpl *_impl;
 };
 

@@ -20,32 +20,17 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y \
           liblo-dev liblo-tools \
-          qtbase5-dev \
-          qttools5-dev-tools \
-          qtmultimedia5-dev \
-          libqt5opengl5-dev \
-          qtwebengine5-dev \
-          qt5-qmake \
-          libqt5serialport5-dev \
-          libqt5xml5 \
-          libqt5network5 \
-          libqt5multimedia5-plugins \
-          libgstreamer1.0-dev \
-          libgstreamer-plugins-base1.0-dev \
-          gstreamer1.0-plugins-bad \
-          gstreamer1.0-libav \
-          gstreamer1.0-vaapi \
-          gstreamer1.0-plugins-base \
-          gstreamer1.0-plugins-base-apps \
-          gstreamer1.0-plugins-good \
-          gstreamer1.0-plugins-ugly \
-          gstreamer1.0-x \
-          gstreamer1.0-tools \
+          qt6-base-dev \
+          qt6-tools-dev \
+          qt6-multimedia-dev \
+          libqt6opengl6-dev \
+          libqt6openglwidgets6 \
+          qmake6 \
           build-essential \
           pkg-config
 
     - name: Configure with qmake
-      run: qmake mapmap.pro
+      run: qmake6 mapmap.pro
 
     - name: Build
       run: make -j$(nproc)

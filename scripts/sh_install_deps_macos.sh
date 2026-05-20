@@ -2,7 +2,6 @@
 # Install build dependencies for MapMap on macOS using Homebrew.
 #
 # Qt 6 is used as the media backend (QMediaPlayer, QVideoSink, QCamera).
-# GStreamer is not required.
 #
 # Usage:
 #   chmod +x scripts/sh_install_deps_macos.sh

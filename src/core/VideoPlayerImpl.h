@@ -3,8 +3,7 @@
  *
  * (c) 2024 MapMap contributors
  *
- * Replaces the GStreamer-based VideoUriDecodeBinImpl with a Qt 6 Multimedia
- * implementation using QMediaPlayer + QVideoSink + QAudioOutput.
+ * Qt 6 Multimedia video playback using QMediaPlayer + QVideoSink + QAudioOutput.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

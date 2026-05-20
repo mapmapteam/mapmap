@@ -26,7 +26,7 @@ We love hearing about bugs! It's how we get them fixed.
   - Only if you don't find a relevant issue, open a new issue. A new issue does not generate more exposure/visibility than commenting on an existing one.
   - Make sure you give it a good title! A good title explains the core of the problem in about 5-10 words. (It's sometimes easier to write the title after you've written the description.)
   - In the description, include the following details:  
-    1. **relevant system information** such as which MapMap version, operating system, Qt version, Gstreamer version and IDE you are using,
+    1. **relevant system information** such as which MapMap version, operating system, Qt version and IDE you are using,
     2. what you were doing when you noticed the bug,
     3. what you expected to happen,
     4. what actually happened, and how to make it happen again (ie how to reproduce the bug).

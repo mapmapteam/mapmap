@@ -26,7 +26,6 @@ do_create_dmg() {
     cp -R MapMap.app ${DMGDIR}
     cp README.md ${DMGDIR}/README.txt
     cp NEWS ${DMGDIR}/NEWS.txt
-    cp resources/macOS/Get\ GStreamer\ macOS.url ${DMGDIR}/
     hdiutil create \
         -volname ${DMGDIR} \
         -srcfolder ${DMGDIR} \
@@ -68,7 +67,6 @@ if [[ $unamestr == "Darwin" ]]; then
     #export QMAKESPEC=macx-xcode
     qtbindir=~/Qt/${qtversion}/clang_64/bin/
     PATH=$PATH:${qtbindir}
-    gstreamer="GStreamer.framework/Versions/1.0/lib/GStreamer"
     app="MapMap.app"
 
     # XXX
@@ -99,12 +97,6 @@ if [[ $unamestr == "Darwin" ]]; then
 
     sudo killall Finder
     sudo killall Dock
-
-    # Bundle GStreamer framework in app
-    #echo "Bundling GStreamer ..."
-    #cp -R /Library/Frameworks/GStreamer.framework ${app}/Contents/Frameworks/
-    #install_name_tool -id @executable_path/../Frameworks/${gstreamer} ${app}/Contents/Frameworks/${gstreamer}
-    #install_name_tool -change /Library/Frameworks/${gstreamer} @executable_path/../Frameworks/${gstreamer} ${app}/Contents/MacOs/MapMap
 
     # do_fix_qt_plugins_in_app
     echo "Creating DMG ..."

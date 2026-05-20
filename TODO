@@ -6,7 +6,7 @@ TODO before 0.2.0
 * change xy position to integers?
 * "avec le soutien de l'Organisation internationale de la Francophonie", with the logo.
 * integration des icones de mike
-* shmsrc???? non... on a plutot autre chose.. c'est a dire, plus de formes.
+* plus de formes.
 * traduction complete. multilinguisme fonctionnel.
 * video upside-down fixed
 * manuel de base, bilingue. (en HTML dans le Contents?)
@@ -27,7 +27,7 @@ Code
 
 * MapperGLCanvas has a strange name considering we also have a Mapper class; actually I'm thinking we should rename Mapper to MappingView or something (since a Mapper is actually the View of the Mapping class)
 * DONE Override includesPoint() in Mesh
-* video gstreamer
+
 
 Packaging
 ---------
