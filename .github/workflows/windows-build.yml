@@ -1,0 +1,31 @@
+# Build MapMap on Windows with Qt 6
+name: Build on Windows
+
+on:
+  push:
+    branches: [ dev, master ]
+  pull_request:
+    branches: [ dev, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Qt 6
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.0'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_mingw'
+        modules: 'qtmultimedia'
+
+    - name: Configure with qmake
+      run: qmake mapmap.pro CONFIG+=release
+
+    - name: Build
+      run: mingw32-make -j4

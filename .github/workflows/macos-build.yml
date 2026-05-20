@@ -1,0 +1,30 @@
+# Build MapMap on macOS with Qt 6
+name: Build on macOS
+
+on:
+  push:
+    branches: [ dev, master ]
+  pull_request:
+    branches: [ dev, master ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        brew install qt liblo
+
+    - name: Configure with qmake
+      run: |
+        export PATH="$(brew --prefix qt)/bin:$PATH"
+        qmake mapmap.pro CONFIG+=release
+
+    - name: Build
+      run: |
+        export PATH="$(brew --prefix qt)/bin:$PATH"
+        make -j$(sysctl -n hw.logicalcpu)
