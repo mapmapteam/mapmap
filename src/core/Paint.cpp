@@ -40,24 +40,20 @@ void Texture::update()
   }
 }
 
-void Texture::read(const QDomElement& obj)
+void Texture::read(const QJsonObject& obj)
 {
   Paint::read(obj);
-  // Set x and y.
-  QDomElement e;
-  e = obj.firstChildElement("x");
-  if (!e.isNull())
-    setX(e.text().toDouble());
-  e = obj.firstChildElement("y");
-  if (!e.isNull())
-    setY(e.text().toDouble());
+  if (obj.contains("x"))
+    setX(obj["x"].toDouble());
+  if (obj.contains("y"))
+    setY(obj["y"].toDouble());
 }
 
-void Texture::write(QDomElement& obj)
+void Texture::write(QJsonObject& obj)
 {
   Paint::write(obj);
-  _writeNode(obj, "x", QString::number(getX()));
-  _writeNode(obj, "y", QString::number(getY()));
+  obj["x"] = getX();
+  obj["y"] = getY();
 }
 
 Paint::Paint(uid id)

@@ -98,14 +98,12 @@ void Mapping::setPaintById(uid paintId)
   setPaint(MainWindow::window()->getMappingManager().getPaintById(paintId));
 }
 
-void Mapping::read(const QDomElement& obj)
+void Mapping::read(const QJsonObject& obj)
 {
-  // Read basic data.
   Element::read(obj);
 
-  // // Read paint (stored in attributes for backward compatibility).
-  int paintId = obj.attribute(ProjectLabels::PAINT_ID).toInt();
-	setPaintById(paintId);
+  int paintId = obj[ProjectLabels::SOURCE_ID].toInt();
+  setPaintById(paintId);
 
   // Read output shape.
   _readShape(obj, true);
@@ -115,16 +113,13 @@ void Mapping::read(const QDomElement& obj)
   {
     _readShape(obj, false);
   }
-
 }
 
-void Mapping::write(QDomElement& obj)
+void Mapping::write(QJsonObject& obj)
 {
-  // Write basic data.
   Element::write(obj);
 
-  // // Write paint ID.
-  obj.setAttribute("paintId", getPaintId());
+  obj[ProjectLabels::SOURCE_ID] = getPaintId();
 
   // Write output shape.
   _writeShape(obj, true);
@@ -136,49 +131,43 @@ void Mapping::write(QDomElement& obj)
   }
 }
 
-void Mapping::_readShape(const QDomElement& obj, bool isOutput)
+void Mapping::_readShape(const QJsonObject& obj, bool isOutput)
 {
-  QString tag       = isOutput ? ProjectLabels::DESTINATION : ProjectLabels::SOURCE;
+  QString tag = isOutput ? ProjectLabels::DESTINATION : ProjectLabels::SOURCE;
 
-  QDomElement shapeObj = obj.firstChildElement(tag);
+  QJsonObject shapeObj = obj[tag].toObject();
 
-  QString className = Serializable::classNameCleanToReal(shapeObj.attribute(ProjectLabels::CLASS_NAME));
+  QString className = Serializable::classNameCleanToReal(shapeObj[ProjectLabels::CLASS_NAME].toString());
 
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
   if (metaObject)
   {
-    // Create new instance.
-    MShape::ptr shape (qobject_cast<MShape*>(metaObject->newInstance()));
+    MShape::ptr shape(qobject_cast<MShape*>(metaObject->newInstance()));
     if (shape.isNull())
     {
       qDebug() << QObject::tr("Problem at creation of shape.") << Qt::endl;
-//      _xml.raiseError(QObject::tr("Problem at creation of paint."));
     }
 
-    // Read shape.
     shape->read(shapeObj);
 
-    // Set shape.
     if (isOutput)
       setShape(shape);
     else
       setInputShape(shape);
   }
-
   else
   {
-    qDebug() << QObject::tr("Unable to create paint of type '%1'.").arg(className) << Qt::endl;
+    qDebug() << QObject::tr("Unable to create shape of type '%1'.").arg(className) << Qt::endl;
   }
-
 }
 
-void Mapping::_writeShape(QDomElement& obj, bool isOutput)
+void Mapping::_writeShape(QJsonObject& obj, bool isOutput)
 {
-  QString tag       = isOutput ? ProjectLabels::DESTINATION : ProjectLabels::SOURCE;
+  QString tag = isOutput ? ProjectLabels::DESTINATION : ProjectLabels::SOURCE;
   MShape::ptr shape = isOutput ? getShape() : getInputShape();
-  QDomElement shapeObj = obj.ownerDocument().createElement(tag);
+  QJsonObject shapeObj;
   shape->write(shapeObj);
-  obj.appendChild(shapeObj);
+  obj[tag] = shapeObj;
 }
 
 bool ColorMapping::paintIsCompatible(Paint::ptr paint) const

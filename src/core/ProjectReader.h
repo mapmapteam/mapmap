@@ -18,8 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QXmlStreamReader>
-#include <QDomDocument>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonParseError>
 #include "MainWindow.h"
 #include "Mapping.h"
 #include "Paint.h"
@@ -37,17 +39,16 @@ public:
     QString errorString() const;
 
 private:
-    void readProject();
-    void parseProject(const QDomElement& project);
-    Paint::ptr   parsePaint(const QDomElement& paint);
-    Mapping::ptr parseMapping(const QDomElement& mapping);
+    void parseProject(const QJsonObject& project);
+    Paint::ptr   parsePaint(const QJsonObject& obj);
+    Mapping::ptr parseMapping(const QJsonObject& obj);
     /**
      * Checks if the version attribute of the project tag matches the regex of supported versions of MapMap.
      * Some older versions of MapMap might not be supported by this version.
      */
     bool isValidVersion(const QString& versionString);
 
-    QXmlStreamReader _xml;
+    QString _errorString;
     MainWindow *_window;
 };
 

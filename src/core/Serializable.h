@@ -21,7 +21,8 @@
 #define SERIALIZABLE_H_
 
 #include <QObject>
-#include <QDomDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 #include <QMetaProperty>
 #include <QDebug>
 
@@ -48,17 +49,12 @@ public:
   static QString classNameRealToClean(const QString& realClassName);
   static QString classNameCleanToReal(const QString& cleanClassName);
 
-  virtual void read(const QDomElement& obj);
-  virtual void write(QDomElement& obj);
+  virtual void read(const QJsonObject& obj);
+  virtual void write(QJsonObject& obj);
 
 protected:
-  // Lists QProperties that should be represented as XML attributes, not as childen nodes.
-  virtual QList<QString> _propertiesAttributes() const { return QList<QString>(); }
-
   // Lists QProperties that should NOT be parsed automatically.
   virtual QList<QString> _propertiesSpecial() const { return QList<QString>(); }
-
-  void _writeNode(QDomElement& obj, const QString& nodeName, const QString& nodeValue);
 };
 
 }

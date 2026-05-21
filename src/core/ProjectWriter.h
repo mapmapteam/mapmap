@@ -20,7 +20,9 @@
 #ifndef PROJECT_WRITER_H_
 #define PROJECT_WRITER_H_
 
-#include <QXmlStreamWriter>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 #include "MappingManager.h"
 #include "Mapping.h"
 #include "Paint.h"
@@ -39,7 +41,6 @@ public:
     bool writeFile (QIODevice *device);
 
   private:
-    QXmlStreamWriter _xml;
     MainWindow *_window;
 };
 

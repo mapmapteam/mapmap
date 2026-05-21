@@ -101,48 +101,38 @@ QPointF MShape::getCenter() const
   return center;
 }
 
-void MShape::read(const QDomElement& obj)
+void MShape::read(const QJsonObject& obj)
 {
-  // Read basic data.
   Serializable::read(obj);
 
   // Read vertices.
-  QDomElement verticesObj = obj.firstChildElement("vertices");
-  QDomNode vertexNode = verticesObj.firstChild();
+  QJsonArray verticesArray = obj["vertices"].toArray();
   QVector<QPointF> vertices;
-  while (!vertexNode.isNull())
+  for (const auto& v : verticesArray)
   {
-    const QDomElement& vertexElem = vertexNode.toElement();
-    qreal x = vertexElem.attribute("x").toDouble();
-    qreal y = vertexElem.attribute("y").toDouble();
-    vertices.append(QPointF(x, y));
-
-    vertexNode = vertexNode.nextSibling();
+    QJsonArray vertex = v.toArray();
+    vertices.append(QPointF(vertex[0].toDouble(), vertex[1].toDouble()));
   }
 
-  // Set the vertices.
   setVertices(vertices);
-
-  // Rebuild.
   build();
 }
 
-void MShape::write(QDomElement& obj)
+void MShape::write(QJsonObject& obj)
 {
-  // Write basic data.
   Serializable::write(obj);
 
   // Write vertices.
-  QDomElement verticesObj = obj.ownerDocument().createElement("vertices");
+  QJsonArray verticesArray;
   for (int i=0; i<nVertices(); i++)
   {
-    QDomElement vertexObj = obj.ownerDocument().createElement("vertex");
-    vertexObj.setAttribute("x", QString::number(getVertex(i).x()));
-    vertexObj.setAttribute("y", QString::number(getVertex(i).y()));
-    verticesObj.appendChild(vertexObj);
+    QJsonArray vertex;
+    vertex.append(getVertex(i).x());
+    vertex.append(getVertex(i).y());
+    verticesArray.append(vertex);
   }
 
-  obj.appendChild(verticesObj);
+  obj["vertices"] = verticesArray;
 }
 
 }

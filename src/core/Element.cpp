@@ -68,19 +68,19 @@ void Element::setOpacity(float opacity)
   }
 }
 
-void Element::read(const QDomElement& obj)
+void Element::read(const QJsonObject& obj)
 {
   Serializable::read(obj);
 
   // Check id.
-  Q_ASSERT(_id == obj.attribute("id").toInt());
+  Q_ASSERT(_id == obj["id"].toInt());
 }
 
-void Element::write(QDomElement& obj)
+void Element::write(QJsonObject& obj)
 {
   Serializable::write(obj);
   // Set id.
-  obj.setAttribute("id", getId());
+  obj["id"] = getId();
 }
 
 void Element::_emitPropertyChanged(const QString& propertyName)

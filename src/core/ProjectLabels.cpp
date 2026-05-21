@@ -22,10 +22,10 @@
 namespace mmp {
 
 const char* ProjectLabels::CLASS_NAME  = "className";
-const char* ProjectLabels::PAINTS      = "paints";
-const char* ProjectLabels::MAPPINGS    = "mappings";
+const char* ProjectLabels::SOURCES     = "sources";
+const char* ProjectLabels::LAYERS      = "layers";
 const char* ProjectLabels::ID          = "id";
-const char* ProjectLabels::PAINT_ID    = "paintId";
+const char* ProjectLabels::SOURCE_ID   = "sourceId";
 const char* ProjectLabels::NAME        = "name";
 const char* ProjectLabels::SOURCE      = "source";
 const char* ProjectLabels::DESTINATION = "destination";

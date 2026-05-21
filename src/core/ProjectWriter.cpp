@@ -18,49 +18,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ProjectWriter.h"
-#include <sstream>
 
 namespace mmp {
 
 ProjectWriter::ProjectWriter(MainWindow *window) :
     _window(window)
 {
-  _xml.setAutoFormatting(true);
 }
 
 bool ProjectWriter::writeFile(QIODevice *device)
 {
   MappingManager& manager = _window->getMappingManager();
-  QDomDocument doc;
-  QDomElement project = doc.createElement("project");
-  project.setAttribute("version", MM::VERSION);
+  QJsonObject project;
+  project["version"] = MM::VERSION;
 
-  // Paints.
-  QDomElement paints = doc.createElement("paints");
+  // Sources (formerly paints).
+  QJsonArray sources;
   for (int i=0; i<manager.nPaints(); i++)
   {
-    QDomElement paint = doc.createElement("paint");
-    manager.getPaint(i)->write(paint);
-    paints.appendChild(paint);
+    QJsonObject source;
+    manager.getPaint(i)->write(source);
+    sources.append(source);
   }
+  project[ProjectLabels::SOURCES] = sources;
 
-  // Mappings.
-  QDomElement mappings = doc.createElement("mappings");
+  // Layers (formerly mappings).
+  QJsonArray layers;
   for (int i=0; i<manager.nMappings(); i++)
   {
-    QDomElement mapping = doc.createElement("mapping");
-    manager.getMapping(i)->write(mapping);
-    mappings.appendChild(mapping);
+    QJsonObject layer;
+    manager.getMapping(i)->write(layer);
+    layers.append(layer);
   }
+  project[ProjectLabels::LAYERS] = layers;
 
-  project.appendChild(paints);
-  project.appendChild(mappings);
-  doc.appendChild(project);
-
-  QTextStream out(device);
-  out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << Qt::endl;
-  out << "<!DOCTYPE mapmap>" << Qt::endl;
-  out << doc.toString(2);
+  QJsonDocument doc(project);
+  device->write(doc.toJson(QJsonDocument::Indented));
 
   return true;
 }

@@ -18,9 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ProjectReader.h"
-#include <sstream>
 #include <iostream>
-#include <string>
 
 namespace mmp {
 
@@ -37,63 +35,52 @@ bool ProjectReader::isValidVersion(const QString& versionString)
 
 bool ProjectReader::readFile(QIODevice *device)
 {
-  QString errorStr;
-  int errorLine;
-  int errorColumn;
-
-  QDomDocument doc;
-  if (!doc.setContent(device, false, &errorStr, &errorLine, &errorColumn)) {
-    std::cerr << "Error: Parse error at line " << errorLine << ", "
-              << "column " << errorColumn << ": "
-              << qPrintable(errorStr) << std::endl;
+  QJsonParseError parseError;
+  QJsonDocument doc = QJsonDocument::fromJson(device->readAll(), &parseError);
+  if (doc.isNull()) {
+    _errorString = QString("Parse error at offset %1: %2")
+        .arg(parseError.offset).arg(parseError.errorString());
     return false;
   }
 
-  QDomElement root = doc.documentElement();
-  QString projectVersion = root.attribute("version");
-  // The handling of the version number will get fancier as we go.
-  if (root.tagName() != "project") {
-    _xml.raiseError(QObject::tr("The contents of this file does not look like a MapMap project."));
+  QJsonObject root = doc.object();
+  QString projectVersion = root["version"].toString();
+
+  if (projectVersion.isEmpty()) {
+    _errorString = QObject::tr("The contents of this file does not look like a MapMap project.");
     return false;
-  } else if (! this->isValidVersion(projectVersion)) {
-    _xml.raiseError(
-        QObject::tr("The version of MapMap %1 used to save this file is not readable by this MapMap version %2.").arg(
-            projectVersion, MM::VERSION));
+  } else if (!isValidVersion(projectVersion)) {
+    _errorString = QObject::tr("The version of MapMap %1 used to save this file is not readable by this MapMap version %2.")
+        .arg(projectVersion, MM::VERSION);
     return false;
   }
 
   parseProject(root);
 
-  return (! _xml.hasError() );
+  return _errorString.isEmpty();
 }
 
 QString ProjectReader::errorString() const
 {
-  return QObject::tr("%1\nLine %2, column %3")
-    .arg(_xml.errorString())
-    .arg(_xml.lineNumber())
-    .arg(_xml.columnNumber());
+  return _errorString;
 }
 
-
-void ProjectReader::parseProject(const QDomElement& project)
+void ProjectReader::parseProject(const QJsonObject& project)
 {
-  // TODO: this is dangerous if we have
   MappingManager& manager = _window->getMappingManager();
   manager.clearAll();
 
-  QDomElement paints = project.firstChildElement(ProjectLabels::PAINTS);
-  QDomElement mappings = project.firstChildElement(ProjectLabels::MAPPINGS);
+  QJsonArray sources = project[ProjectLabels::SOURCES].toArray();
+  QJsonArray layers  = project[ProjectLabels::LAYERS].toArray();
 
-  // Parse paints.
-  QDomNode paintNode = paints.firstChild();
-  while (!paintNode.isNull())
+  // Parse sources (formerly paints).
+  for (const auto& val : sources)
   {
-    Paint::ptr paint = parsePaint(paintNode.toElement());
+    Paint::ptr paint = parsePaint(val.toObject());
 
     if (paint.isNull())
     {
-      qDebug() << "Problem creating paint." << Qt::endl;
+      qDebug() << "Problem creating source." << Qt::endl;
     }
     else
     {
@@ -116,25 +103,21 @@ void ProjectReader::parseProject(const QDomElement& project)
           image->setUri(_window->locateMediaFile(image->getUri(), true));
       }
     }
-    paintNode = paintNode.nextSibling();
   }
 
-  // Parse mappings.
-  QDomNode mappingNode = mappings.firstChild();
+  // Parse layers (formerly mappings).
   QVector<Mapping::ptr> allMappings;
-  while (!mappingNode.isNull())
+  for (const auto& val : layers)
   {
-    Mapping::ptr mapping = parseMapping(mappingNode.toElement());
+    Mapping::ptr mapping = parseMapping(val.toObject());
     if (mapping.isNull())
     {
-      qDebug() << "Problem creating mapping." << Qt::endl;
+      qDebug() << "Problem creating layer." << Qt::endl;
     }
     else
     {
       allMappings.push_back(mapping);
     }
-
-    mappingNode = mappingNode.nextSibling();
   }
 
   // Add all mappings in reverse order.
@@ -146,64 +129,57 @@ void ProjectReader::parseProject(const QDomElement& project)
   }
 }
 
-Paint::ptr ProjectReader::parsePaint(const QDomElement& paintElem)
+Paint::ptr ProjectReader::parsePaint(const QJsonObject& obj)
 {
-  QString className = Serializable::classNameCleanToReal(paintElem.attribute(ProjectLabels::CLASS_NAME));
-  int id            = paintElem.attribute(ProjectLabels::ID, QString::number(NULL_UID)).toInt();
+  QString className = Serializable::classNameCleanToReal(obj[ProjectLabels::CLASS_NAME].toString());
+  int id            = obj[ProjectLabels::ID].toInt(NULL_UID);
 
-  qDebug() << "Found paint with classname: " << className << Qt::endl;
+  qDebug() << "Found source with classname: " << className << Qt::endl;
 
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
   if (metaObject)
   {
-    // Create new instance.
-    Paint::ptr paint (qobject_cast<Paint*>(metaObject->newInstance( Q_ARG(int, id)) ));
+    Paint::ptr paint(qobject_cast<Paint*>(metaObject->newInstance(Q_ARG(int, id))));
 
     if (paint.isNull())
     {
-      qDebug() << QObject::tr("Problem at creation of paint.") << Qt::endl;
-//      _xml.raiseError(QObject::tr("Problem at creation of paint."));
+      qDebug() << QObject::tr("Problem at creation of source.") << Qt::endl;
     }
     else
       qDebug() << "Created new instance with id: " << paint->getId();
 
-    paint->read(paintElem);
+    paint->read(obj);
 
     return paint;
   }
-
   else
   {
-    _xml.raiseError(QObject::tr("Unable to create paint of type '%1'.").arg(className));
+    _errorString = QObject::tr("Unable to create source of type '%1'.").arg(className);
     return Paint::ptr();
   }
 }
 
-Mapping::ptr ProjectReader::parseMapping(const QDomElement& mappingElem)
+Mapping::ptr ProjectReader::parseMapping(const QJsonObject& obj)
 {
-  // Get attributes.
-  QString className = Serializable::classNameCleanToReal(mappingElem.attribute(ProjectLabels::CLASS_NAME));
-  int id            = mappingElem.attribute(ProjectLabels::ID, QString::number(NULL_UID)).toInt();
+  QString className = Serializable::classNameCleanToReal(obj[ProjectLabels::CLASS_NAME].toString());
+  int id            = obj[ProjectLabels::ID].toInt(NULL_UID);
 
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
   if (metaObject)
   {
-    // Create new instance.
-    Mapping::ptr mapping (qobject_cast<Mapping*>(metaObject->newInstance( Q_ARG(int, id)) ));
+    Mapping::ptr mapping(qobject_cast<Mapping*>(metaObject->newInstance(Q_ARG(int, id))));
     if (mapping.isNull())
     {
-      qDebug() << QObject::tr("Problem at creation of mapping.") << Qt::endl;
-//      _xml.raiseError(QObject::tr("Problem at creation of paint."));
+      qDebug() << QObject::tr("Problem at creation of layer.") << Qt::endl;
     }
 
-    mapping->read(mappingElem);
+    mapping->read(obj);
 
     return mapping;
   }
-
   else
   {
-    _xml.raiseError(QObject::tr("Unable to create paint of type '%1'.").arg(className));
+    _errorString = QObject::tr("Unable to create layer of type '%1'.").arg(className);
     return Mapping::ptr();
   }
 }

@@ -27,12 +27,12 @@ namespace mmp {
 class ProjectLabels {
 public:
   static const char* CLASS_NAME;
-  static const char* PAINTS;
-  static const char* MAPPINGS;
+  static const char* SOURCES;
+  static const char* LAYERS;
 
   static const char* ID;
   static const char* NAME;
-  static const char* PAINT_ID;
+  static const char* SOURCE_ID;
 
   static const char* DESTINATION;
   static const char* SOURCE;

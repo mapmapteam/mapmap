@@ -64,16 +64,13 @@ public:
 
   virtual QIcon getIcon() const { return QIcon(); }
 
-  virtual void read(const QDomElement& obj);
-  virtual void write(QDomElement& obj);
+  virtual void read(const QJsonObject& obj);
+  virtual void write(QJsonObject& obj);
 
 signals:
   void propertyChanged(uid id, QString propertyName, QVariant value);
 
 protected:
-  virtual QList<QString> _propertiesAttributes() const
-  { return Serializable::_propertiesAttributes() << "name" << "locked";  }
-
   void _emitPropertyChanged(const QString& propertyName);
 
 private:

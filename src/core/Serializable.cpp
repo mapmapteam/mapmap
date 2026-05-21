@@ -39,112 +39,54 @@ QString Serializable::classNameCleanToReal(const QString& cleanClassName)
   return MM::NAMESPACE_PREFIX + cleanClassName;
 }
 
-void Serializable::read(const QDomElement& obj)
+void Serializable::read(const QJsonObject& obj)
 {
-  QList<QString> attributeNames = _propertiesAttributes();
-  QList<QString> specialNames   = _propertiesSpecial();
+  QList<QString> specialNames = _propertiesSpecial();
 
-  // Fill up properties.
   int count = metaObject()->propertyCount();
   for (int i=0; i<count; ++i) {
-    // Get property/tag.
     QMetaProperty property = metaObject()->property(i);
+    const char* propertyName = property.name();
 
-    // Name of property.
-    const char* propertyName =  property.name();
-
-    // Don't try to write special properties (leave it to children).
     if (specialNames.contains(propertyName))
       continue;
 
-    // If property is writable, try to find it and rewrite it.
     if (property.isWritable())
     {
-
-      // Always ignore objectName default property.
       if (QString(propertyName) == QString("objectName"))
         continue;
 
-      // Check in attributes.
-      else if (attributeNames.contains(propertyName))
-      {
-        if (obj.hasAttribute(propertyName))
-          setProperty(propertyName, obj.attribute(propertyName));
-      }
-
-      // Check in children.
-      else
-      {
-        // Find element.
-        QDomElement propertyElem = obj.firstChildElement(propertyName);
-        if (!propertyElem.isNull())
-        {
-          // Set property.
-          setProperty(propertyName, propertyElem.text());
-        }
-      }
+      if (obj.contains(propertyName))
+        setProperty(propertyName, obj[propertyName].toString());
     }
   }
 }
 
-void Serializable::write(QDomElement& obj)
+void Serializable::write(QJsonObject& obj)
 {
-  QList<QString> attributeNames = _propertiesAttributes();
-  QList<QString> specialNames   = _propertiesSpecial();
+  QList<QString> specialNames = _propertiesSpecial();
 
-  // Write up classname.
-  obj.setAttribute(ProjectLabels::CLASS_NAME, cleanClassName());
+  obj[ProjectLabels::CLASS_NAME] = cleanClassName();
 
-  // Fill up properties.
   int count = metaObject()->propertyCount();
   for (int i=0; i<count; ++i) {
-    // Get property/tag.
     QMetaProperty property = metaObject()->property(i);
+    const char* propertyName = property.name();
 
-    // Name of property.
-    const char* propertyName =  property.name();
-
-    // Don't try to write special properties (leave it to children).
     if (specialNames.contains(propertyName))
       continue;
 
-    // Don't save unstored properties.
     if (!property.isStored())
       continue;
 
-    // If property is writable, try to find it and rewrite it.
     if (property.isWritable() && property.isReadable())
     {
-      qDebug() << "Read " << propertyName << " : " << property.read(this) << Qt::endl;
-      QString propertyValue = property.read(this).toString();
-
-      // Always ignore objectName default property.
       if (QString(propertyName) == QString("objectName"))
         continue;
 
-      // Add to attributes.
-      if (attributeNames.contains(propertyName))
-      {
-        obj.setAttribute(propertyName, propertyValue);
-      }
-
-      // Add to children.
-      else
-      {
-        _writeNode(obj, propertyName, propertyValue);
-      }
+      obj[propertyName] = property.read(this).toString();
     }
   }
 }
-
-void Serializable::_writeNode(QDomElement& obj, const QString& nodeName, const QString& nodeValue)
-{
-  QDomElement propertyNode = obj.ownerDocument().createElement(nodeName);
-  QDomText    text         = obj.ownerDocument().createTextNode(nodeValue);
-  propertyNode.appendChild(text);
-  obj.appendChild(propertyNode);
-}
-
-
 
 }

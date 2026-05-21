@@ -206,8 +206,8 @@ public:
 
   virtual QRectF getRect() const { return QRectF(getX(), getY(), getWidth(), getHeight()); }
 
-  virtual void read(const QDomElement& obj);
-  virtual void write(QDomElement& obj);
+  virtual void read(const QJsonObject& obj);
+  virtual void write(QJsonObject& obj);
 
   // Get Camera human-readable name from device ID
   QString getCameraNameFromUri(const QString &uri) {

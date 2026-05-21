@@ -152,15 +152,12 @@ public:
   virtual void setShape(MShape::ptr s) { _shape = s; }
   virtual void setInputShape(MShape::ptr s) { _inputShape = s; }
 
-  virtual void read(const QDomElement& obj);
-  virtual void write(QDomElement& obj);
+  virtual void read(const QJsonObject& obj);
+  virtual void write(QJsonObject& obj);
 
 protected:
-  virtual QList<QString> _propertiesAttributes() const
-  { return Element::_propertiesAttributes() << "solo" << "visible" << "depth"; }
-
-  void _readShape(const QDomElement& obj, bool isOutput);
-  void _writeShape(QDomElement& obj, bool isOutput);
+  void _readShape(const QJsonObject& obj, bool isOutput);
+  void _writeShape(QJsonObject& obj, bool isOutput);
 };
 
 /**
