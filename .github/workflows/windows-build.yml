@@ -23,6 +23,7 @@ jobs:
         target: 'desktop'
         arch: 'win64_mingw'
         modules: 'qtmultimedia'
+        tools: 'tools_mingw1310'
 
     - name: Configure with qmake
       run: qmake mapmap.pro CONFIG+=release
