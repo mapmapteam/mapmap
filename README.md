@@ -20,9 +20,7 @@ triggered by, audio to create an audio-visual narrative.
 Build status
 ---------------
 
-Github Actions: ![Build on macOS](https://github.com/mapmapteam/mapmap/workflows/Build%20on%20macOS/badge.svg) ![Build on Ubuntu](https://github.com/mapmapteam/mapmap/workflows/Build%20on%20Ubuntu/badge.svg) ![Build on Windows](https://github.com/mapmapteam/mapmap/workflows/Build%20on%20Windows/badge.svg)
-
-Travis CI: [![Build on Linux and macOS](https://travis-ci.org/mapmapteam/mapmap.svg?branch=develop)](https://travis-ci.org/mapmapteam/mapmap) [![Build on Windows](https://ci.appveyor.com/api/projects/status/5b2ww0n8m8s9p55c?svg=true)](https://ci.appveyor.com/project/baydam/mapmap)
+![Build on macOS](https://github.com/mapmapteam/mapmap/workflows/Build%20on%20macOS/badge.svg) ![Build on Ubuntu](https://github.com/mapmapteam/mapmap/workflows/Build%20on%20Ubuntu/badge.svg) ![Build on Windows](https://github.com/mapmapteam/mapmap/workflows/Build%20on%20Windows/badge.svg)
 
 Ackowledgements
 ---------------
