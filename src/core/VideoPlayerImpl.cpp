@@ -63,6 +63,9 @@ bool VideoPlayerImpl::loadMovie(const QString& path)
 
   _player->setSource(QUrl::fromLocalFile(path));
 
+  if (_playInLoop)
+    _player->setLoops(QMediaPlayer::Infinite);
+
   // Seek is always enabled for file sources in Qt 6.
   _seekEnabled = true;
   _videoIsConnected = true;
