@@ -242,10 +242,9 @@ void MappingListModel::updateModel()
 
 void MappingListModel::clear()
 {
-  for (auto it = mappingList.end() - 1; it >= mappingList.begin(); --it) {
-    mappingList.erase(it);
-    updateModel();
-  }
+  beginResetModel();
+  mappingList.clear();
+  endResetModel();
 }
 
 QModelIndex MappingListModel::getIndexFromRow(int row)
