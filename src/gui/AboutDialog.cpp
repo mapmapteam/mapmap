@@ -125,12 +125,9 @@ void AboutDialog::createLibrariesTab()
   librariesTextBrowser->setOpenExternalLinks(true);
 
   QString qtVersionText = QString("<h4>Qt %1</h4>").arg(QT_VERSION_STR);
-  // TODO: ifdef HAVE_OSC
-  //QString libloVersionText = QString("<h4>%1</h4>").arg(lo_version('str', 0, 0, 0, 0, 0, 0, 0, 0));
 
   QString librairiesText;
   librairiesText.append(qtVersionText);
-  //librairiesText.append(libloVersionText);
 
   // Set librairies main text
   librariesTextBrowser->setText(librairiesText);

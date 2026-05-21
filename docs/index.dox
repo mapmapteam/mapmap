@@ -25,8 +25,5 @@
  *
  * \section install_sec Installation
  *
- * liblo-dev
- * qttools5-dev-tools
- * qt5-default
- * ./build.sh
+ * See INSTALL.md for build instructions.
  */

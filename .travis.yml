@@ -34,12 +34,11 @@ install:
       sudo apt-get install -y
       qt6-base-dev qt6-tools-dev qt6-multimedia-dev
       libqt6opengl6-dev libqt6openglwidgets6
-      liblo-dev liblo-tools
       ccache;
     fi
 
   - if [ "$TARGET" == "osx" ]; then
-      brew install qt liblo ccache;
+      brew install qt ccache;
       export PATH="$(brew --prefix qt)/bin:$PATH";
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
     fi

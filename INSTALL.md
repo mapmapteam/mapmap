@@ -21,11 +21,10 @@ Alternatively:
 
 ### Ubuntu
 
-Install basic development tools for Qt 6 projects, plus liblo for OSC support:
+Install basic development tools for Qt 6 projects:
 
 ```
 sudo apt-get install -y \
-      liblo-dev liblo-tools \
       qt6-tools-dev \
       qt6-multimedia-dev \
       qt6-base-dev \
@@ -45,10 +44,10 @@ sudo apt-get install -y \
 
 ### Arch Linux
 
-Install basic development tools for Qt 6 projects and liblo for OSC support:
+Install basic development tools for Qt 6 projects:
 
 ```
-sudo pacman -S qt6-tools qt6-multimedia qt6-base liblo
+sudo pacman -S qt6-tools qt6-multimedia qt6-base
 ```
 
 Build on macOS

@@ -114,9 +114,7 @@ MainWindow::~MainWindow()
 {
   delete mappingManager;
   //  delete _facade;
-#ifdef HAVE_OSC
   delete osc_timer;
-#endif // ifdef
   delete systemTimer;
 }
 

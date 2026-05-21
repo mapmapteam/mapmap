@@ -27,5 +27,4 @@ You might consider using:
 
 * The txosc library for python. It contains osc-send
 * The oscsend utility
-* The liblo C library
 
