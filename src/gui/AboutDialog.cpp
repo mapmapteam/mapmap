@@ -102,7 +102,7 @@ void AboutDialog::createAboutTab()
   aboutMappingFile.open(QIODevice::ReadOnly | QIODevice::Text);
   QString aboutMappingText = QString::fromUtf8(aboutMappingFile.readAll());
   // Visit our website for more information
-  QString projectWebsiteText = "<p>" + tr("See the ") + QString("<a href=\"http://%1\">").arg(MM::ORGANIZATION_DOMAIN) +
+  QString projectWebsiteText = "<p>" + tr("See the ") + QString("<a href=\"%1\">").arg(MM::WEBSITE_URL) +
                                                  tr("%1 website").arg(MM::APPLICATION_NAME) + "</a> for more information on this software.</p>";
 
   // Append texts

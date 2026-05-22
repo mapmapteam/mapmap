@@ -55,6 +55,7 @@ public:
   static const QString COPYRIGHT_OWNERS;
   static const QString ORGANIZATION_NAME;
   static const QString ORGANIZATION_DOMAIN;
+  static const QString WEBSITE_URL;
   static const QString FILE_EXTENSION;
   static const QString VIDEO_FILES_FILTER;
   static const QString IMAGE_FILES_FILTER;

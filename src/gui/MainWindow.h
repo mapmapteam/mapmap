@@ -148,15 +148,15 @@ private slots:
 
   // Some help links
   void documentation() {
-      QDesktopServices::openUrl(QUrl("http://mapmap.info/"));
+      QDesktopServices::openUrl(QUrl(MM::WEBSITE_URL));
   }
   // Send us feedback
   void sendFeedback() {
-      QDesktopServices::openUrl(QUrl("mailto:mapmap-list@mapmap.info"));
+      QDesktopServices::openUrl(QUrl("mailto:mapmap@artpluscode.com"));
   }
   // Technical support
   void technicalSupport() {
-      QDesktopServices::openUrl(QUrl("http://mapmap.info/"));
+      QDesktopServices::openUrl(QUrl(MM::WEBSITE_URL));
   }
   // Report an issues
   void reportBug() {
