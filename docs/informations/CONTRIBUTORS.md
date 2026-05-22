@@ -1,10 +1,10 @@
 ## Authors
 
-- Sofian Audry: lead developer, user interface designer, project
-    manager.
-- Dame Diongue: developer.
-- Alexandre Quessy: release manager, developer, technical writer,
+- Alexandre Quessy: lead developer, release manager, technical writer,
     project manager.
+- Sofian Audry: original lead developer, user interface designer,
+    project manager.
+- Dame Diongue: developer.
 - Mike Latona: user interface designer.
 - Vasilis Liaskovitis: developer.
 
