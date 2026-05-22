@@ -75,6 +75,17 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 
 void AboutDialog::createAboutTab()
 {
+  QWidget *aboutWidget = new QWidget;
+  QVBoxLayout *aboutLayout = new QVBoxLayout(aboutWidget);
+
+  // Add splash image at the top.
+  QLabel *splashLabel = new QLabel;
+  QPixmap splashPixmap(":/mapmap-splash");
+  int targetWidth = qMin(splashPixmap.width(), ABOUT_WINDOW_WIDTH - 40);
+  splashLabel->setPixmap(splashPixmap.scaledToWidth(targetWidth, Qt::SmoothTransformation));
+  splashLabel->setAlignment(Qt::AlignCenter);
+  aboutLayout->addWidget(splashLabel);
+
   QTextBrowser *aboutTextBrowser = new QTextBrowser;
   aboutTextBrowser->setOpenExternalLinks(true);
 
@@ -104,8 +115,9 @@ void AboutDialog::createAboutTab()
 
   // Set about text
   aboutTextBrowser->setText(aboutText);
+  aboutLayout->addWidget(aboutTextBrowser);
 
-  _tabWidget->addTab(aboutTextBrowser, tr("About"));
+  _tabWidget->addTab(aboutWidget, tr("About"));
 }
 
 void AboutDialog::createChangelogTab()
