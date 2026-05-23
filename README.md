@@ -22,8 +22,11 @@ Build status
 
 ![Build on macOS](https://github.com/mapmapteam/mapmap/workflows/Build%20on%20macOS/badge.svg) ![Build on Ubuntu](https://github.com/mapmapteam/mapmap/workflows/Build%20on%20Ubuntu/badge.svg) ![Build on Windows](https://github.com/mapmapteam/mapmap/workflows/Build%20on%20Windows/badge.svg)
 
-Ackowledgements
----------------
+Acknowledgements
+----------------
+This project is sponsored by Art Plus Code.
+https://www.artpluscode.com/
+
 This project was made possible by the support of the International
 Organization of La Francophonie.
 http://www.francophonie.org/
@@ -31,6 +34,10 @@ http://www.francophonie.org/
 Ce projet a été rendu possible grâce au support de l'Organisation
 internationale de la Francophonie.
 http://www.francophonie.org/
+
+This project also received the support of Perte de Signal.
+https://perte-de-signal.org/
+
 
 Build and installation
 ----------------------
