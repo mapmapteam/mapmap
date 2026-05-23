@@ -386,7 +386,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-#ifdef Q_OS_OSX // On Mac OS X
+#ifdef Q_OS_MACOS // On Mac OS X
   Q_UNUSED(event);
   // Do nothing
 #endif
@@ -850,7 +850,7 @@ void MainWindow::showMenuBar(bool shown)
 {
   _showMenuBar = shown;
 
-#ifdef Q_OS_OSX // On Mac OS X
+#ifdef Q_OS_MACOS // On Mac OS X
   // Do nothing
 #endif
 #ifdef Q_OS_LINUX // On Linux
@@ -3147,12 +3147,10 @@ void MainWindow::moveLayerItem(uid layerId, int idx)
   Q_CHECK_PTR(layer);
 
   // Remove mapping from model.
-  uid exchangeLayerId = mappingManager->getLayer(idx)->getId();
   mappingManager->moveLayer(layerId, idx);
 
   // Remove widget from layerList.
   int row = layerListModel->getItemRowFromId(layerId);
-  int rowTo = layerListModel->getItemRowFromId(exchangeLayerId);
   Q_ASSERT( row >= 0 );
   layerListModel->moveItem(row, idx);
 

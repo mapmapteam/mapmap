@@ -93,3 +93,6 @@ trash
 !resources/macOS/MapMap.icns
 
 *.json
+
+# Local development notes
+KNOWN-WARNINGS.txt

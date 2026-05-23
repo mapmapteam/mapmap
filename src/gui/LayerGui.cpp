@@ -41,13 +41,13 @@ LayerGui::LayerGui(Layer::ptr layer)
   _sourceEnumManager = new QtEnumPropertyManager(this);
 
   // Mapping UID.
-  _idItem = _variantManager->addProperty(QVariant::Int, QObject::tr("ID"));
+  _idItem = _variantManager->addProperty(QMetaType::Int, QObject::tr("ID"));
   _idItem->setEnabled(false);
   _idItem->setValue(_layer->getId());
   _propertyBrowser->addProperty(_idItem);
 
   // Mapping basic properties.
-  _opacityItem = _variantManager->addProperty(QVariant::Double, QObject::tr("Opacity (%)"));
+  _opacityItem = _variantManager->addProperty(QMetaType::Double, QObject::tr("Opacity (%)"));
   _opacityItem->setAttribute("minimum", 0.0);
   _opacityItem->setAttribute("maximum", 100.0);
   _opacityItem->setAttribute("decimals", 1);
@@ -147,7 +147,7 @@ void LayerGui::_buildShapeProperty(QtProperty* shapeItem, MShape* shape)
   for (int i=0; i<shape->nVertices(); i++)
   {
     // Add point.
-    QtVariantProperty* pointItem = _variantManager->addProperty(QVariant::PointF,
+    QtVariantProperty* pointItem = _variantManager->addProperty(QMetaType::QPointF,
                                                                 QObject::tr("Point %1").arg(i));
 
     const QPointF& p = shape->getVertex(i);
@@ -192,7 +192,7 @@ MeshColorLayerGui::MeshColorLayerGui(Layer::ptr layer)
 
   // Add mesh sub property.
   QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_layer->getShape());
-  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Mesh Subdivisions"));
+  _meshItem = _variantManager->addProperty(QMetaType::QSize, QObject::tr("Mesh Subdivisions"));
   _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
   _meshItem->setAttribute("minimum", QSize(2,2));
   _propertyBrowser->insertProperty(_meshItem, _sourceItem); // insert at the beginning
@@ -228,7 +228,7 @@ EllipseColorLayerGui::EllipseColorLayerGui(Layer::ptr layer) : ColorLayerGui(lay
 //  : ColorLayerGui(layer) {
 //  // Add mesh sub property.
 //  Mesh* mesh = (Mesh*)layer->getShape().get();
-//  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Mesh Subdivisions"));
+//  _meshItem = _variantManager->addProperty(QMetaType::QSize, QObject::tr("Mesh Subdivisions"));
 //  _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
 //  _topItem->insertSubProperty(_meshItem, 0); // insert at the beginning
 //}
@@ -421,7 +421,7 @@ MeshTextureLayerGui::MeshTextureLayerGui(QSharedPointer<TextureLayer> mapping)
 
   // Add mesh sub property.
   QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_layer->getShape());
-  _meshItem = _variantManager->addProperty(QVariant::Size, QObject::tr("Subdivisions"));
+  _meshItem = _variantManager->addProperty(QMetaType::QSize, QObject::tr("Subdivisions"));
 
   // Rename subdivision subproperties.
   QList<QtProperty *> subList = _meshItem->subProperties();

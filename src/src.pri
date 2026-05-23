@@ -28,6 +28,7 @@ macx {
   DEFINES += MACOSX
   QMAKE_CXXFLAGS += -D__MACOSX_CORE__
   QMAKE_CXXFLAGS += -stdlib=libc++
+  QMAKE_CXXFLAGS += -DGL_SILENCE_DEPRECATION
   LIBS += -framework OpenGL -framework GLUT
   # With Xcode Tools > 1.5, to reduce the size of your binary even more:
   # LIBS += -dead_strip

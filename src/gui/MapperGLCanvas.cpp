@@ -45,6 +45,7 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
     _zoomLevel(0),
     _shapeIsAdapted(false)
 {
+  Q_UNUSED(shareWidget);
   // For now clicking on the window doesn't do anything.
   setDragMode(QGraphicsView::NoDrag);
 
@@ -383,7 +384,7 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
   if (event->buttons() & Qt::MiddleButton)
   {
     QMouseEvent fakeEvent(
-          event->type(), event->pos(), event->globalPos(),
+          event->type(), event->pos(), event->globalPosition().toPoint(),
           Qt::LeftButton, event->buttons() & ~Qt::LeftButton,
           event->modifiers());
     QGraphicsView::mouseReleaseEvent(&fakeEvent);

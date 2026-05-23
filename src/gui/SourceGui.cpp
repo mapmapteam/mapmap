@@ -35,13 +35,13 @@ SourceGui::SourceGui(Source::ptr source)
           this,            SLOT(setValue(QtProperty*, const QVariant&)));
 
   // Mapping UID.
-  _idItem = _variantManager->addProperty(QVariant::Int, QObject::tr("ID"));
+  _idItem = _variantManager->addProperty(QMetaType::Int, QObject::tr("ID"));
   _idItem->setEnabled(false);
   _idItem->setValue(_source->getId());
   _propertyBrowser->addProperty(_idItem);
 
   // Source basic properties.
-  _opacityItem = _variantManager->addProperty(QVariant::Double, QObject::tr("Opacity (%)"));
+  _opacityItem = _variantManager->addProperty(QMetaType::Double, QObject::tr("Opacity (%)"));
   _opacityItem->setAttribute("minimum", 0.0);
   _opacityItem->setAttribute("maximum", 100.0);
   _opacityItem->setAttribute("decimals", 1);
@@ -84,7 +84,7 @@ ColorGui::ColorGui(Source::ptr source)
   color = qSharedPointerCast<Color>(source);
   Q_CHECK_PTR(color);
 
-  _colorItem = _variantManager->addProperty(QVariant::Color,
+  _colorItem = _variantManager->addProperty(QMetaType::QColor,
                                             QObject::tr("Color"));
 
   _colorItem->setValue(color->getColor());
@@ -124,7 +124,7 @@ _imageFileItem = _variantManager->addProperty(VariantManager::filePathTypeId(),
 _imageFileItem->setAttribute("filter", tr("Image files (%1);;All files (*)").arg(MM::IMAGE_FILES_FILTER));
 _imageFileItem->setValue(image->getUri());
 
-  _imageRateItem = _variantManager->addProperty(QVariant::Double,
+  _imageRateItem = _variantManager->addProperty(QMetaType::Double,
                                                 tr("Speed (%)"));
   // we need to save it because the call to setAttribute will set it to minimum
   double rate = image->getRate()*100;
@@ -172,14 +172,14 @@ VideoGui::VideoGui(Source::ptr source)
   _mediaFileItem->setAttribute("filter", tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER));
   _mediaFileItem->setValue(media->getUri());
 
-  _mediaRateItem = _variantManager->addProperty(QVariant::Double,
+  _mediaRateItem = _variantManager->addProperty(QMetaType::Double,
                                                 tr("Speed (%)"));
   // we need to save it because the call to setAttribute will set it to minimum
   double rate = media->getRate()*100;
   _mediaRateItem->setAttribute("decimals", 1);
   _mediaRateItem->setValue(rate);
 
-  _mediaVolumeItem = _variantManager->addProperty(QVariant::Double,
+  _mediaVolumeItem = _variantManager->addProperty(QMetaType::Double,
                                                 tr("Volume (%)"));
   double volume = media->getVolume()*100;
   _mediaVolumeItem->setAttribute("minimum", 0.0);

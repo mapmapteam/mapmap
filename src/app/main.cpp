@@ -143,12 +143,12 @@ int main(int argc, char *argv[])
     qtTranslator.load(QString("qt_%1").arg(lang),
                       QApplication::applicationDirPath().append("/translations"));
 #else
-    qtTranslator.load(QString("qtbase_%1").arg(lang),
+    (void)qtTranslator.load(QString("qtbase_%1").arg(lang),
                       QLibraryInfo::path(QLibraryInfo::TranslationsPath));
 #endif
     app.installTranslator(&qtTranslator);
 
-    appTranslator.load(QString(":/translations_mapmap_%1").arg(lang));
+    (void)appTranslator.load(QString(":/translations_mapmap_%1").arg(lang));
     app.installTranslator(&appTranslator);
   }
   else {
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 
   // Load stylesheet.
   QFile stylesheet(":/stylesheet");
-  stylesheet.open(QFile::ReadOnly);
+  (void)stylesheet.open(QFile::ReadOnly);
   app.setStyleSheet(QLatin1String(stylesheet.readAll()));
 
   // read positional argument:

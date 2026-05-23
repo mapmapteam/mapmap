@@ -170,7 +170,7 @@ bool LayerListModel::setData(const QModelIndex &index, const QVariant &value, in
   if (!index.isValid())
     return false;
 
-  if (role == Qt::CheckStateRole && value.type() == QVariant::Bool) {
+  if (role == Qt::CheckStateRole && value.typeId() == QMetaType::Bool) {
     if (layerList[index.row()].isVisible != value.toBool()) {
       layerList[index.row()].isVisible = value.toBool();
       emit dataChanged(index, index);
@@ -178,7 +178,7 @@ bool LayerListModel::setData(const QModelIndex &index, const QVariant &value, in
     }
   }
 
-  if (role == Qt::CheckStateRole + 1 && value.type() == QVariant::Bool) {
+  if (role == Qt::CheckStateRole + 1 && value.typeId() == QMetaType::Bool) {
     if (layerList[index.row()].isSolo != value.toBool()) {
       layerList[index.row()].isSolo = value.toBool();
       emit dataChanged(index, index);
@@ -186,7 +186,7 @@ bool LayerListModel::setData(const QModelIndex &index, const QVariant &value, in
     }
   }
 
-  if (role == Qt::CheckStateRole + 2 && value.type() == QVariant::Bool) {
+  if (role == Qt::CheckStateRole + 2 && value.typeId() == QMetaType::Bool) {
     if (layerList[index.row()].isLocked != value.toBool()) {
       layerList[index.row()].isLocked = value.toBool();
       emit dataChanged(index, index);

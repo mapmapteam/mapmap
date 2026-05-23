@@ -90,7 +90,7 @@ void OscInterface::messageReceivedCb(const QString& oscAddress, const QVariantLi
   QString types = "";
   for (int i = 0; i < arguments.count(); ++ i) {
     QVariant argument = arguments[i];
-    QMetaType::Type type = static_cast<QMetaType::Type>(argument.type());
+    QMetaType::Type type = static_cast<QMetaType::Type>(argument.typeId());
 
     if (type == QMetaType::Int) {
       types += "i";
@@ -126,15 +126,15 @@ static void printCommand(QVariantList &command)
 {
   for (int i = 0; i < command.size(); ++i)
   {
-    if (command.at(i).type() == QVariant::Int)
+    if (command.at(i).typeId() == QMetaType::Int)
     {
       qDebug() << command.at(i).toInt() << " ";
     }
-    else if (command.at(i).type() == QVariant::Double)
+    else if (command.at(i).typeId() == QMetaType::Double)
     {
       qDebug() << command.at(i).toDouble() << " ";
     }
-    else if (command.at(i).type() == QVariant::String)
+    else if (command.at(i).typeId() == QMetaType::QString)
     {
       qDebug() << command.at(i).toString() << " ";
     }
@@ -161,11 +161,11 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
   {
     return;
   }
-  if (command.at(0).type() != QVariant::String)
+  if (command.at(0).typeId() != QMetaType::QString)
   {
     return;
   }
-  if (command.at(1).type() != QVariant::String)
+  if (command.at(1).typeId() != QMetaType::QString)
   {
     return;
   }
@@ -192,7 +192,7 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
         if (command.size() >= 3)
         {
           QVector<Source::ptr> sources;
-          if (command.at(2).type() == QVariant::String)
+          if (command.at(2).typeId() == QMetaType::QString)
             sources = main_window.getMappingManager().getSourcesByNameRegExp(command.at(2).toString());
           else
           {
@@ -225,7 +225,7 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
         if (command.size() >= 3)
         {
           QVector<Layer::ptr> layers;
-          if (command.at(2).type() == QVariant::String)
+          if (command.at(2).typeId() == QMetaType::QString)
             layers = main_window.getMappingManager().getLayersByNameRegExp(command.at(2).toString());
           else
           {

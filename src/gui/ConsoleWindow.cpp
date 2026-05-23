@@ -86,7 +86,7 @@ void ConsoleWindow::writeLogFile(const QString &message)
 {
   QString logFilePath = QDir(QDir::tempPath()).filePath("mapmap.log");
   QFile logFile(logFilePath);
-  logFile.open(QIODevice::Append);
+  (void)logFile.open(QIODevice::Append);
   QTextStream stream(&logFile);
   stream << message << Qt::endl;
 }

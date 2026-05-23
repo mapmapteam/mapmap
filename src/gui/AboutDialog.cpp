@@ -95,11 +95,11 @@ void AboutDialog::createAboutTab()
   QString copyrightText = "<p>" + tr("Copyright &copy; 2013 %1.").arg(MM::COPYRIGHT_OWNERS) + "</p>";
   // License short notice
   QFile licenseShortFile(":/license-short");
-  licenseShortFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  (void)licenseShortFile.open(QIODevice::ReadOnly | QIODevice::Text);
   QString licenseNoticeText = Qt::convertFromPlainText(QString::fromUtf8(licenseShortFile.readAll()), Qt::WhiteSpaceNormal);
   // About projection mapping
   QFile aboutMappingFile(":/projection-mapping");
-  aboutMappingFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  (void)aboutMappingFile.open(QIODevice::ReadOnly | QIODevice::Text);
   QString aboutMappingText = QString::fromUtf8(aboutMappingFile.readAll());
   // Visit our website for more information
   QString projectWebsiteText = "<p>" + tr("See the ") + QString("<a href=\"%1\">").arg(MM::WEBSITE_URL) +
@@ -126,7 +126,7 @@ void AboutDialog::createChangelogTab()
   changelogTextBrowser->setOpenExternalLinks(true);
 
   QFile changelogFile(":/changelog_md");
-  changelogFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  (void)changelogFile.open(QIODevice::ReadOnly | QIODevice::Text);
   changelogTextBrowser->setMarkdown(QString::fromUtf8(changelogFile.readAll()));
   _tabWidget->addTab(changelogTextBrowser, tr("Changelog"));
 }
@@ -152,7 +152,7 @@ void AboutDialog::createContributorsTab()
   contributorsTextBrowser->setOpenExternalLinks(true);
 
   QFile contributorsFile(":/contributors_md");
-  contributorsFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  (void)contributorsFile.open(QIODevice::ReadOnly | QIODevice::Text);
   contributorsTextBrowser->setMarkdown(QString::fromUtf8(contributorsFile.readAll()));
   _tabWidget->addTab(contributorsTextBrowser, tr("Contributors"));
 }
@@ -163,7 +163,7 @@ void AboutDialog::createLicenseTab()
   licenseTextBrowser->setOpenExternalLinks(true);
 
   QFile licenseFile(":/license");
-  licenseFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  (void)licenseFile.open(QIODevice::ReadOnly | QIODevice::Text);
   licenseTextBrowser->setText(QString::fromUtf8(licenseFile.readAll()));
 
   _tabWidget->addTab(licenseTextBrowser, tr("License"));
@@ -176,7 +176,7 @@ void AboutDialog::createOscTab()
   oscBrowser->setOpenExternalLinks(true);
 
   QFile oscFile(":/osc-documentation_md");
-  oscFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  (void)oscFile.open(QIODevice::ReadOnly | QIODevice::Text);
   oscBrowser->setMarkdown(QString::fromUtf8(oscFile.readAll()));
   _tabWidget->addTab(oscBrowser, tr("OSC Commands"));
 }

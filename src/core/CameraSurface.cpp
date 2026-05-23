@@ -41,7 +41,10 @@ void CameraSurface::onVideoFrameChanged(const QVideoFrame& frame)
   _temporaryImage = img;
 #else
   // Straighten the image for OpenGL (bottom-left origin convention).
+  QT_WARNING_PUSH
+  QT_WARNING_DISABLE_DEPRECATED
   _temporaryImage = img.mirrored(true, false).transformed(QTransform().rotate(180));
+  QT_WARNING_POP
 #endif
 }
 

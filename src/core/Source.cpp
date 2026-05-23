@@ -108,7 +108,10 @@ void Image::build()
   _images.clear();
   for (int i = 0; i < reader.imageCount(); i++) {
     QImage raw = reader.read().convertToFormat(QImage::Format_RGBA8888);
+    QT_WARNING_PUSH
+    QT_WARNING_DISABLE_DEPRECATED
     _images.push_back(raw.mirrored(true, false).transformed(QTransform().rotate(180)));
+    QT_WARNING_POP
   }
 
   rewind();

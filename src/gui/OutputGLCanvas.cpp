@@ -80,7 +80,7 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     // Display crosshair cursor.
     if (_displayCrosshair)
     {
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
       QPoint globalCursorPos = QCursor::pos();
       QScreen* mouseScreenPtr = QGuiApplication::screenAt(globalCursorPos);
       QRect mouseScreenGeometry = mouseScreenPtr ? mouseScreenPtr->geometry() : QRect();
@@ -250,6 +250,8 @@ void OutputGLCanvas::_drawResolutionText(QPainter *painter, const QRect &rect, i
 
 void OutputGLCanvas::resizeGL(int width, int height)
 {
+  Q_UNUSED(width);
+  Q_UNUSED(height);
   setSceneRectToViewportGeometry();
 }
 
