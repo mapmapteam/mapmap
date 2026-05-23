@@ -30,3 +30,13 @@ jobs:
 
     - name: Build
       run: mingw32-make -j4
+
+    - name: Build and run tests
+      run: |
+        cd tests/
+        qmake6 tests.pro
+        mingw32-make -j4
+        mingw32-make check
+      env:
+        QT_QPA_PLATFORM: offscreen
+
