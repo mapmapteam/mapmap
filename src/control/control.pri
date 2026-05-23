@@ -1,9 +1,11 @@
 include(../src.pri)
 
 HEADERS += $$PWD/ConcurrentQueue.h \
-    $$PWD/OscInterface.h
+    $$PWD/OscInterface.h \
+    $$PWD/McpServer.h
 
-SOURCES += $$PWD/OscInterface.cpp
+SOURCES += $$PWD/OscInterface.cpp \
+    $$PWD/McpServer.cpp
 
 # OSC support:
 INCLUDEPATH += $$PWD/qosc
