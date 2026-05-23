@@ -43,40 +43,40 @@ enum CommandId {
 class MainWindow;
 class MapperGLCanvas;
 
-class AddPaintCommand : public QUndoCommand
+class AddSourceCommand : public QUndoCommand
 {
 public:
-  explicit AddPaintCommand(MainWindow *mainWindow, uid paintId, const QIcon &icon, const QString &name, QUndoCommand *parent = 0);
+  explicit AddSourceCommand(MainWindow *mainWindow, uid sourceId, const QIcon &icon, const QString &name, QUndoCommand *parent = 0);
 
   void undo() Q_DECL_OVERRIDE;
   void redo() Q_DECL_OVERRIDE;
 
 private:
   MainWindow *_mainWindow;
-  Paint::ptr _paint;
-  uid _paintId;
+  Source::ptr _source;
+  uid _sourceId;
   QIcon _icon;
   QString _name;
 };
 
-class AddMappingCommand : public QUndoCommand
+class AddLayerCommand : public QUndoCommand
 {
 public:
-  explicit AddMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent = 0);
+  explicit AddLayerCommand(MainWindow *mainWindow, uid layerId, QUndoCommand *parent = 0);
 
   void undo() Q_DECL_OVERRIDE;
   void redo() Q_DECL_OVERRIDE;
 
 private:
   MainWindow *_mainWindow;
-  Mapping::ptr _mapping;
-  uid _mappingId;
+  Layer::ptr _layer;
+  uid _layerId;
 };
 
-class DuplicateMappingCommand : public AddMappingCommand
+class DuplicateLayerCommand : public AddLayerCommand
 {
 public:
-  explicit DuplicateMappingCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent = 0);
+  explicit DuplicateLayerCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent = 0);
 
 };
 
@@ -194,47 +194,47 @@ protected:
   MShape::ptr _initialShape;
 };
 
-class RemovePaintCommand : public QUndoCommand
+class RemoveSourceCommand : public QUndoCommand
 {
 public:
-  explicit RemovePaintCommand(MainWindow *mainWindow, uid paintId, QUndoCommand *parent = 0);
+  explicit RemoveSourceCommand(MainWindow *mainWindow, uid sourceId, QUndoCommand *parent = 0);
 
   void undo() Q_DECL_OVERRIDE;
   void redo() Q_DECL_OVERRIDE;
 
 private:
   MainWindow *_mainWindow;
-  Paint::ptr _paint;
-  uid _paintId;
-  QMap<uid, Mapping::ptr> _paintMappings; // saves mappings associated with paint
+  Source::ptr _source;
+  uid _sourceId;
+  QMap<uid, Layer::ptr> _sourceLayers; // saves mappings associated with source
 };
 
-class DeleteMappingCommand : public QUndoCommand
+class DeleteLayerCommand : public QUndoCommand
 {
 public:
-  explicit DeleteMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent = 0);
+  explicit DeleteLayerCommand(MainWindow *mainWindow, uid layerId, QUndoCommand *parent = 0);
 
   void undo() Q_DECL_OVERRIDE;
   void redo() Q_DECL_OVERRIDE;
 
 private:
   MainWindow *_mainWindow;
-  Mapping::ptr _mapping;
-  uid _mappingId;
+  Layer::ptr _layer;
+  uid _layerId;
 };
 
-class MoveMappingCommand : public QUndoCommand
+class MoveLayerCommand : public QUndoCommand
 {
 public:
-  explicit MoveMappingCommand(MainWindow *mainWindow, uid mappingId, MM::MoveElement moveType, QUndoCommand *parent = 0);
+  explicit MoveLayerCommand(MainWindow *mainWindow, uid layerId, MM::MoveElement moveType, QUndoCommand *parent = 0);
 
   void undo() Q_DECL_OVERRIDE;
   void redo() Q_DECL_OVERRIDE;
 
 private:
   MainWindow *_mainWindow;
-  Mapping::ptr _mapping;
-  uid _mappingId;
+  Layer::ptr _layer;
+  uid _layerId;
   MM::MoveElement _moveType;
   int _fromIdx;
   int _toIdx;

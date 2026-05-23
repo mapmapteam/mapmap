@@ -28,15 +28,15 @@
 namespace mmp {
 
 static const QString OSC_ROOT("mapmap");
-static const QString OSC_PAINT("paint");
-static const QString OSC_MAPPING("mapping");
+static const QString OSC_SOURCE("source");
+static const QString OSC_LAYER("layer");
 static const QString OSC_QUIT("quit");
 static const QString OSC_PLAY("play");
 static const QString OSC_PAUSE("pause");
 static const QString OSC_REWIND("rewind");
 
-static const QString OSC_PAINT_MEDIA("media");
-static const QString OSC_PAINT_COLOR("color");
+static const QString OSC_SOURCE_MEDIA("media");
+static const QString OSC_SOURCE_COLOR("color");
 
 OscInterface::OscInterface(
     int listen_port) :
@@ -174,7 +174,7 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
   QString typetags = command.at(1).toString();
 
   bool pathIsValid = false;
-  // Walks through each token in the form /mapmap/paint/color - The first token is "mapmap", and then "paint"
+  // Walks through each token in the form /mapmap/source/color - The first token is "mapmap", and then "source"
   QPair<QString,QString> iterator = next(path);
 
   if (iterator.first.isEmpty()) {
@@ -185,24 +185,23 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
       // Check type.
       iterator = next(iterator.second);
 
-      // Paint.
-      if (iterator.first == OSC_PAINT)
+      // Source.
+      if (iterator.first == OSC_SOURCE)
       {
-        // Find paint (or paints).
+        // Find source (or sources).
         if (command.size() >= 3)
         {
-          // Find paint (or paints).
-          QVector<Paint::ptr> paints;
+          QVector<Source::ptr> sources;
           if (command.at(2).type() == QVariant::String)
-            paints = main_window.getMappingManager().getPaintsByNameRegExp(command.at(2).toString());
+            sources = main_window.getMappingManager().getSourcesByNameRegExp(command.at(2).toString());
           else
           {
             int id = command.at(2).toInt();
-            paints.push_back(main_window.getMappingManager().getPaintById(id));
+            sources.push_back(main_window.getMappingManager().getSourceById(id));
           }
-          // Process all paints.
+          // Process all sources.
           iterator = next(iterator.second);
-          for (Paint::ptr elem: paints)
+          for (Source::ptr elem: sources)
           {
             // Rewind.
             if (iterator.first == OSC_REWIND)
@@ -212,35 +211,34 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
             }
             // Property setting (eg. opacity)
             else if (command.size() >= 4) {
-              qDebug() << "Attempt to set a paint property" << iterator.first << command.at(3);
+              qDebug() << "Attempt to set a source property" << iterator.first << command.at(3);
               pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
             }
           }
         }
       }
 
-      // Mapping.
-      else if (iterator.first == OSC_MAPPING)
+      // Layer.
+      else if (iterator.first == OSC_LAYER)
       {
-        // Find mapping (or mappings).
+        // Find layer (or layers).
         if (command.size() >= 3)
         {
-          QVector<Mapping::ptr> mappings;
+          QVector<Layer::ptr> layers;
           if (command.at(2).type() == QVariant::String)
-            mappings = main_window.getMappingManager().getMappingsByNameRegExp(command.at(2).toString());
+            layers = main_window.getMappingManager().getLayersByNameRegExp(command.at(2).toString());
           else
           {
             int id = command.at(2).toInt();
-            main_window.getMappingManager().getMappingById(id);
-            Mapping::ptr mapping = main_window.getMappingManager().getMappingById(id);
-            if (!mapping.isNull())
-              mappings.push_back(mapping);
+            Layer::ptr layer = main_window.getMappingManager().getLayerById(id);
+            if (!layer.isNull())
+              layers.push_back(layer);
           }
-          // Process all mappings (set property).
+          // Process all layers (set property).
           if (command.size() >= 4)
           {
             iterator = next(iterator.second);
-            for (Mapping::ptr elem: mappings)
+            for (Layer::ptr elem: layers)
             {
               pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
             }

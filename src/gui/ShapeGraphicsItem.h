@@ -36,8 +36,8 @@
 
 #include <QGraphicsItem>
 #include <QCoreApplication>
-#include "Paint.h"
-#include "Mapping.h"
+#include "Source.h"
+#include "Layer.h"
 #include "MapperGLCanvas.h"
 
 namespace mmp {
@@ -57,7 +57,7 @@ public:
   typedef QSharedPointer<ShapeGraphicsItem> ptr;
 
 protected:
-  ShapeGraphicsItem(Mapping::ptr mapping, bool output=true);
+  ShapeGraphicsItem(Layer::ptr mapping, bool output=true);
 public:
   virtual ~ShapeGraphicsItem() {}
 
@@ -66,7 +66,7 @@ public:
   MShape::ptr getShape() const { return _shape.toStrongRef(); }
 
   /// Returns the mapping.
-  Mapping::ptr getMapping() const { return _mapping.toStrongRef(); }
+  Layer::ptr getLayer() const { return _mapping.toStrongRef(); }
 
   /// Returns the control painter (see below).
   QSharedPointer<ShapeControlPainter> getControlPainter() { return _controlPainter; }
@@ -78,10 +78,10 @@ public:
   MapperGLCanvas* getCanvas() const;
 
   /// Returns whether the mapping this shape is associated with is currently selected.
-  bool isMappingCurrent() const;
+  bool isLayerCurrent() const;
 
   /// Returns whether the mapping this shape is associated should be visible.
-  bool isMappingVisible() const;
+  bool isLayerVisible() const;
 
   /// Returns the bounding rectangle of this item.
   virtual QRectF boundingRect() const { return shape().boundingRect(); }
@@ -108,7 +108,7 @@ protected:
   { Q_UNUSED(painter); Q_UNUSED(option); }
 
 protected:
-  QWeakPointer<Mapping> _mapping;
+  QWeakPointer<Layer> _mapping;
   QWeakPointer<MShape> _shape;
   QSharedPointer<ShapeControlPainter>  _controlPainter;
   bool _output;
@@ -117,7 +117,7 @@ protected:
 class ColorGraphicsItem : public ShapeGraphicsItem
 {
 protected:
-  ColorGraphicsItem(Mapping::ptr mapping, bool output=true)
+  ColorGraphicsItem(Layer::ptr mapping, bool output=true)
     : ShapeGraphicsItem(mapping, output) {}
 public:
   virtual ~ColorGraphicsItem() {}
@@ -131,7 +131,7 @@ protected:
 class PolygonColorGraphicsItem : public ColorGraphicsItem
 {
 public:
-  PolygonColorGraphicsItem(Mapping::ptr mapping, bool output=true);
+  PolygonColorGraphicsItem(Layer::ptr mapping, bool output=true);
   virtual ~PolygonColorGraphicsItem() {}
 
   virtual QPainterPath shape() const;
@@ -147,7 +147,7 @@ protected:
 class MeshColorGraphicsItem : public PolygonColorGraphicsItem
 {
 public:
-  MeshColorGraphicsItem(Mapping::ptr mapping, bool output=true);
+  MeshColorGraphicsItem(Layer::ptr mapping, bool output=true);
   virtual ~MeshColorGraphicsItem(){}
 
 protected:
@@ -160,7 +160,7 @@ protected:
 class EllipseColorGraphicsItem : public ColorGraphicsItem
 {
 public:
-  EllipseColorGraphicsItem(Mapping::ptr mapping, bool output=true);
+  EllipseColorGraphicsItem(Layer::ptr mapping, bool output=true);
   virtual ~EllipseColorGraphicsItem() {}
 
   virtual QPainterPath shape() const;
@@ -174,7 +174,7 @@ protected:
 class TextureGraphicsItem : public ShapeGraphicsItem
 {
 public:
-  TextureGraphicsItem(Mapping::ptr mapping, bool output=true);
+  TextureGraphicsItem(Layer::ptr mapping, bool output=true);
 
   virtual ~TextureGraphicsItem() {}
 
@@ -187,7 +187,7 @@ protected:
   virtual void _doDrawInput(QPainter* painter);
 
 protected:
-  QWeakPointer<TextureMapping> _textureMapping;
+  QWeakPointer<TextureLayer> _textureMapping;
   QWeakPointer<MShape> _inputShape;
 
 	QSharedPointer<Texture> _getTexture();
@@ -197,7 +197,7 @@ protected:
 class PolygonTextureGraphicsItem : public TextureGraphicsItem
 {
 public:
-  PolygonTextureGraphicsItem(Mapping::ptr mapping, bool output=true);
+  PolygonTextureGraphicsItem(Layer::ptr mapping, bool output=true);
   virtual ~PolygonTextureGraphicsItem(){}
 
 public:
@@ -209,7 +209,7 @@ public:
 class TriangleTextureGraphicsItem : public PolygonTextureGraphicsItem
 {
 public:
-  TriangleTextureGraphicsItem(Mapping::ptr mapping, bool output=true) : PolygonTextureGraphicsItem(mapping, output) {}
+  TriangleTextureGraphicsItem(Layer::ptr mapping, bool output=true) : PolygonTextureGraphicsItem(mapping, output) {}
   virtual ~TriangleTextureGraphicsItem(){}
 
   virtual void _doDrawOutput(QPainter* painter);
@@ -236,7 +236,7 @@ class MeshTextureGraphicsItem : public PolygonTextureGraphicsItem
     QList<CacheQuadMapping> subQuads;
   };
 public:
-  MeshTextureGraphicsItem(Mapping::ptr mapping, bool output=true);
+  MeshTextureGraphicsItem(Layer::ptr mapping, bool output=true);
   virtual ~MeshTextureGraphicsItem(){}
 
   virtual void _doDrawOutput(QPainter* painter);
@@ -282,7 +282,7 @@ class EllipseTextureGraphicsItem : public TextureGraphicsItem
   };
 
 public:
-  EllipseTextureGraphicsItem(Mapping::ptr mapping, bool output=true);
+  EllipseTextureGraphicsItem(Layer::ptr mapping, bool output=true);
   virtual ~EllipseTextureGraphicsItem(){}
 
   virtual QPainterPath shape() const;

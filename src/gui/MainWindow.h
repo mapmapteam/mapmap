@@ -42,15 +42,15 @@
 #include "ConsoleWindow.h"
 
 #include "MappingManager.h"
-#include "MappingItemDelegate.h"
-#include "MappingListModel.h"
+#include "LayerItemDelegate.h"
+#include "LayerListModel.h"
 
 #include "qtpropertymanager.h"
 #include "qtvariantproperty.h"
 #include "qttreepropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 
-#include "PaintGui.h"
+#include "SourceGui.h"
 
 namespace mmp {
 
@@ -108,34 +108,34 @@ private slots:
   // Edit menu.
   void deleteItem();
   // Context menu for mappings.
-  void duplicateMappingItem();
-  void deleteMappingItem();
-  void renameMappingItem();
-  void setMappingItemLocked(bool locked);
-  void setMappingItemHide(bool hide);
-  void setMappingItemSolo(bool solo);
+  void duplicateLayerItem();
+  void deleteLayerItem();
+  void renameLayerItem();
+  void setLayerItemLocked(bool locked);
+  void setLayerItemHide(bool hide);
+  void setLayerItemSolo(bool solo);
   void loadLayerMedia();
-  void transformActionMappingItem();
-  void reorderMappingItem();
-  // Context menu for paints
-  void deletePaintItem();
-  void renamePaintItem();
-  void paintListEditEnd(QWidget* editor);
+  void transformActionLayerItem();
+  void reorderLayerItem();
+  // Context menu for sources
+  void deleteSourceItem();
+  void renameSourceItem();
+  void sourceListEditEnd(QWidget* editor);
   // Output menu
   void setupOutputScreen();
   void updateScreenCount();
 
   // Widget callbacks.
-  void handlePaintItemSelectionChanged();
+  void handleSourceItemSelectionChanged();
 //  void handleItemDoubleClicked(QListWidgetItem* item);
-  void handleMappingItemSelectionChanged(const QModelIndex &index);
-  void handleMappingItemChanged(const QModelIndex &index);
-  void handleMappingIndexesMoved();
-  void handlePaintItemSelected(QListWidgetItem* item);
-  void handlePaintChanged(Paint::ptr paint);
+  void handleLayerItemSelectionChanged(const QModelIndex &index);
+  void handleLayerItemChanged(const QModelIndex &index);
+  void handleLayerIndexesMoved();
+  void handleSourceItemSelected(QListWidgetItem* item);
+  void handleSourceChanged(Source::ptr source);
 
-  void mappingPropertyChanged(uid id, QString propertyName, QVariant value);
-  void paintPropertyChanged(uid id, QString propertyName, QVariant value);
+  void layerPropertyChanged(uid id, QString propertyName, QVariant value);
+  void sourcePropertyChanged(uid id, QString propertyName, QVariant value);
 
   void addMesh();
   void addTriangle();
@@ -167,77 +167,77 @@ private slots:
 
   void updateSettings();
 
-  void updateMappingListColumnWidth();
+  void updateLayerListColumnWidth();
 
 public slots:
 
   // CRUD.
 
-  /// Clears all mappings and paints.
+  /// Clears all mappings and sources.
   bool clearProject();
 
-  /// Create or replace a media paint (or image).
-  uid createMediaPaint(uid paintId, QString uri, float x, float y, bool isImage, VideoType type, double rate=1.0);
+  /// Create or replace a media source (or image).
+  uid createMediaSource(uid sourceId, QString uri, float x, float y, bool isImage, VideoType type, double rate=1.0);
 
-  /// Create or replace a color paint.
-  uid createColorPaint(uid paintId, QColor color);
+  /// Create or replace a color source.
+  uid createColorSource(uid sourceId, QColor color);
 
   // TODO: Remove all these unsed fonctions below
 
   /*======= Start of Unsed fonctions =======*/
   /// Creates a textured mesh.
-  uid createMeshTextureMapping(uid mappingId,
-                               uid paintId,
+  uid createMeshTextureLayer(uid mappingId,
+                               uid sourceId,
                                int nColumns, int nRows,
                                const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
   /// Creates a textured triangle.
-  uid createTriangleTextureMapping(uid mappingId,
-                                   uid paintId,
+  uid createTriangleTextureLayer(uid mappingId,
+                                   uid sourceId,
                                    const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
 
   /// Creates a textured ellipse.
-  uid createEllipseTextureMapping(uid mappingId,
-                                  uid paintId,
+  uid createEllipseTextureLayer(uid mappingId,
+                                  uid sourceId,
                                   const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
   /// Creates a color quad.
-  uid createQuadColorMapping(uid mappingId,
-                             uid paintId,
+  uid createQuadColorLayer(uid mappingId,
+                             uid sourceId,
                              const QVector<QPointF> &dst);
 
   /// Creates a color triangle.
-  uid createTriangleColorMapping(uid mappingId,
-                                 uid paintId,
+  uid createTriangleColorLayer(uid mappingId,
+                                 uid sourceId,
                                  const QVector<QPointF> &dst);
 
   /// Creates a color ellipse.
-  uid createEllipseColorMapping(uid mappingId,
-                                uid paintId,
+  uid createEllipseColorLayer(uid mappingId,
+                                uid sourceId,
                                 const QVector<QPointF> &dst);
   /*======= End of Unsed fonctions =======*/
 
   /// Sets visibility of mapping.
-  void setMappingVisible(uid mappingId, bool visible);
+  void setLayerVisible(uid mappingId, bool visible);
 
   /// Sets solo status of mapping.
-  void setMappingSolo(uid mappingId, bool solo);
+  void setLayerSolo(uid mappingId, bool solo);
 
   /// Sets locked attribute of mapping.
-  void setMappingLocked(uid mappingId, bool locked);
+  void setLayerLocked(uid mappingId, bool locked);
 
   /// Deletes/removes a mapping.
-  void deleteMapping(uid mappingId);
+  void deleteLayer(uid mappingId);
 
   /// Moves a mapping to given index.
-  void moveMapping(uid mappingId, int idx);
+  void moveLayer(uid mappingId, int idx);
 
   /// Clone/duplicate a mapping
-  void duplicateMapping(uid mappingId);
+  void duplicateLayer(uid mappingId);
 
-  /// Deletes/removes a paint and all associated mappigns.
-  void deletePaint(uid paintId, bool replace = false);
+  /// Deletes/removes a source and all associated mappigns.
+  void deleteSource(uid sourceId, bool replace = false);
 
   /// Updates all canvases.
   void updateCanvases();
@@ -252,7 +252,7 @@ public slots:
   void processFrame();
 
   /**
-   * Performs operations related to the playing state, such as making sure to play only paints
+   * Performs operations related to the playing state, such as making sure to play only sources
    * that are visible.
    */
   void updatePlayingState();
@@ -260,14 +260,14 @@ public slots:
   // Editing toggles.
   void setFramesPerSecond(qreal fps);
   void enableDisplayControls(bool display);
-  void enableDisplayPaintControls(bool display);
+  void enableDisplaySourceControls(bool display);
   void enableStickyVertices(bool display);
   void displayUndoHistory(bool display);
 
   // Show Mapping Context Menu
-  void showMappingContextMenu(const QPoint &point);
-  // Show Paint Context Menu
-  void showPaintContextMenu(const QPoint &point);
+  void showLayerContextMenu(const QPoint &point);
+  // Show Source Context Menu
+  void showSourceContextMenu(const QPoint &point);
 
   /// Start playback.
   void play(bool updatePlayPauseActions=true);
@@ -285,8 +285,8 @@ private:
   void createLayout();
   void createActions();
   void createMenus();
-  void createMappingContextMenu();
-  void createPaintContextMenu();
+  void createLayerContextMenu();
+  void createSourceContextMenu();
   void createToolBars();
   void createStatusBar();
   void updateRecentFileActions();
@@ -311,18 +311,18 @@ public:
   void setCurrentFile(const QString &fileName);
   void setCurrentVideo(const QString &filename);
   bool importMediaFile(const QString &fileName, bool isImage = false, bool isCamera = false);
-  bool addColorPaint(const QColor& color);
-  void addMappingItem(uid mappingId);
-  void removeMappingItem(uid mappingId);
-  void moveMappingItem(uid mappingId, int steps);
-  void addPaintItem(uid paintId, const QIcon& icon, const QString& name);
-  void updatePaintItem(uid paintId, const QIcon& icon, const QString& name);
-  void removePaintItem(uid paintId);
-  void renameMapping(uid mappingId, const QString& name);
-  void renamePaint(uid paintId, const QString& name);
+  bool addColorSource(const QColor& color);
+  void addLayerItem(uid mappingId);
+  void removeLayerItem(uid mappingId);
+  void moveLayerItem(uid mappingId, int steps);
+  void addSourceItem(uid sourceId, const QIcon& icon, const QString& name);
+  void updateSourceItem(uid sourceId, const QIcon& icon, const QString& name);
+  void removeSourceItem(uid sourceId);
+  void renameLayer(uid mappingId, const QString& name);
+  void renameSource(uid sourceId, const QString& name);
   void clearWindow();
   // Resync mapping manager order the same as the GUI.
-  void syncMappingManager();
+  void syncLayerManager();
   // Check if the file exists
   bool fileExists(const QString& file);
   // Check if the file is supported
@@ -336,11 +336,11 @@ public:
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
 
-  // Returns the paint icon depending on play/pause state.
-  static const QIcon getPaintIcon(Paint::ptr paint);
+  // Returns the source icon depending on play/pause state.
+  static const QIcon getSourceIcon(Source::ptr source);
 
 private:
-  // Connects/disconnects project-specific widgets (paints and mappings).
+  // Connects/disconnects project-specific widgets (sources and mappings).
   void connectProjectWidgets();
   void disconnectProjectWidgets();
 
@@ -349,7 +349,7 @@ private:
   static void setItemId(QListWidgetItem& item, uid id);
   static QListWidgetItem* getItemFromId(const QListWidget& list, uid id);
   static int getItemRowFromId(const QListWidget& list, uid id);
-  uid currentMappingItemId() const;
+  uid currentLayerItemId() const;
 
   static QIcon createColorIcon(const QColor& color);
   static QIcon createFileIcon(const QString& filename);
@@ -369,8 +369,8 @@ private:
   QMenu *outputScreenMenu;
   QMenu *recentFileMenu;
   QMenu *recentVideoMenu;
-  QMenu *mappingContextMenu;
-  QMenu *paintContextMenu;
+  QMenu *layerContextMenu;
+  QMenu *sourceContextMenu;
 
   // Some menus when need to be separated
   QMenu *sourceMenu;
@@ -395,27 +395,27 @@ private:
   QAction *undoAction;
   QAction *redoAction;
   // Mappings context menu actions
-  QAction *duplicateMappingAction;
-  QAction *deleteMappingAction;
-  QAction *renameMappingAction;
-  QAction *mappingSoloAction;
-  QAction *mappingLockedAction;
-  QAction *mappingHideAction;
+  QAction *duplicateLayerAction;
+  QAction *deleteLayerAction;
+  QAction *renameLayerAction;
+  QAction *layerSoloAction;
+  QAction *layerLockedAction;
+  QAction *layerHideAction;
   // Transform.
-  QAction *mappingRotate90CWAction;
-  QAction *mappingRotate90CCWAction;
-  QAction *mappingRotate180Action;
-  QAction *mappingHorizontalFlipAction;
-  QAction *mappingVerticalFlipAction;
+  QAction *layerRotate90CWAction;
+  QAction *layerRotate90CCWAction;
+  QAction *layerRotate180Action;
+  QAction *layerHorizontalFlipAction;
+  QAction *layerVerticalFlipAction;
   // Layer reordering.
-  QAction *mappingRaiseAction;
-  QAction *mappingLowerAction;
-  QAction *mappingRaiseToTopAction;
-  QAction *mappingLowerToBottomAction;
+  QAction *layerRaiseAction;
+  QAction *layerLowerAction;
+  QAction *layerRaiseToTopAction;
+  QAction *layerLowerToBottomAction;
 
-  // Paints context menu action
-  QAction *deletePaintAction;
-  QAction *renamePaintAction;
+  // Sources context menu action
+  QAction *deleteSourceAction;
+  QAction *renameSourceAction;
   QAction *preferencesAction;
   QAction *aboutAction;
   QAction *clearRecentFileActions;
@@ -431,7 +431,7 @@ private:
 
   QAction *outputFullScreenAction;
   QAction *displayControlsAction;
-  QAction *displayPaintControlsAction;
+  QAction *displaySourceControlsAction;
   QAction *displayTestSignalAction;
   QAction *stickyVerticesAction;
   QAction *displayUndoHistoryAction;
@@ -470,13 +470,13 @@ private:
   // Widgets and layout.
   QTabWidget* contentTab;
 
-  QSplitter* paintSplitter;
-  QListWidget* paintList;
-  QStackedWidget* paintPropertyPanel;
+  QSplitter* sourceSplitter;
+  QListWidget* sourceList;
+  QStackedWidget* sourcePropertyPanel;
 
-  QSplitter* mappingSplitter;
-  QTableView* mappingList;
-  QStackedWidget* mappingPropertyPanel;
+  QSplitter* layerSplitter;
+  QTableView* layerList;
+  QStackedWidget* layerPropertyPanel;
 
   QUndoView* undoView;
 
@@ -510,8 +510,8 @@ private:
 
   // Model.
   MappingManager* mappingManager;
-  MappingListModel *mappingListModel;
-  MappingItemDelegate *mappingItemDelegate;
+  LayerListModel *layerListModel;
+  LayerItemDelegate *layerItemDelegate;
 
   // OSC.
   OscInterface::ptr osc_interface;
@@ -521,14 +521,14 @@ private:
   // View.
 
   // The view counterpart of Mappings.
-  QMap<uid, MappingGui::ptr> mappers;
-  QMap<uid, PaintGui::ptr> paintGuis;
+  QMap<uid, LayerGui::ptr> layerGuis;
+  QMap<uid, SourceGui::ptr> sourceGuis;
 
-  // Current selected paint/mapping.
-  uid currentPaintId;
-  uid currentMappingId;
-  bool _hasCurrentMapping;
-  bool _hasCurrentPaint;
+  // Current selected source/mapping.
+  uid currentSourceId;
+  uid currentLayerId;
+  bool _hasCurrentLayer;
+  bool _hasCurrentSource;
 
   // Number of frames per second.
   qreal _framesPerSecond;
@@ -539,8 +539,8 @@ private:
   // True iff we are displaying the controls.
   bool _displayControls;
 
-  // True iff we are displaying the borders of all controls of all shapes related to a paint.
-  bool _displayPaintControls;
+  // True iff we are displaying the borders of all controls of all shapes related to a source.
+  bool _displaySourceControls;
 
   // True iff we want vertices to stick to each other.
   bool _stickyVertices;
@@ -550,7 +550,7 @@ private:
   // Menu bar hidden state
   bool _showMenuBar;
 
-  // Keeps track of the current selected item, wether it's a paint or mapping.
+  // Keeps track of the current selected item, wether it's a source or mapping.
   QListWidgetItem* currentSelectedItem;
   QModelIndex currentSelectedIndex;
   QTimer *videoTimer;
@@ -573,28 +573,28 @@ private:
   QLabel *mousePosLabel;
   QLabel *trueFramesPerSecondsLabel;
 
-  typedef Paint::SourceType SourceType;
+  typedef Source::SourceType SourceType;
   typedef MShape::ShapeType ShapeType ;
 
 public:
   // Accessor/mutators for the view. ///////////////////////////////////////////////////////////////////
   MappingManager& getMappingManager() const { return *mappingManager; }
 
-  MappingGui::ptr getMappingGuiByMappingId(uint id) const { return mappers[id]; }
-  PaintGui::ptr getPaintGuiByPaintId(uint id) const { return paintGuis[id]; }
+  LayerGui::ptr getLayerGuiByLayerId(uint id) const { return layerGuis[id]; }
+  SourceGui::ptr getSourceGuiBySourceId(uint id) const { return sourceGuis[id]; }
 
-  uid getCurrentPaintId() const { return currentPaintId; }
-  uid getCurrentMappingId() const { return currentMappingId; }
+  uid getCurrentSourceId() const { return currentSourceId; }
+  uid getCurrentLayerId() const { return currentLayerId; }
 
-  Mapping::ptr getCurrentMapping() const { return mappingManager->getMappingById(currentMappingId); }
-  Paint::ptr getCurrentPaint() const { return mappingManager->getPaintById(currentPaintId); }
+  Layer::ptr getCurrentLayer() const { return mappingManager->getLayerById(currentLayerId); }
+  Source::ptr getCurrentSource() const { return mappingManager->getSourceById(currentSourceId); }
 
-  bool hasCurrentPaint() const { return _hasCurrentPaint; }
-  bool hasCurrentMapping() const { return _hasCurrentMapping; }
-  void setCurrentPaint(int uid);
-  void setCurrentMapping(int uid);
-  void removeCurrentPaint();
-  void removeCurrentMapping();
+  bool hasCurrentSource() const { return _hasCurrentSource; }
+  bool hasCurrentLayer() const { return _hasCurrentLayer; }
+  void setCurrentSource(int uid);
+  void setCurrentLayer(int uid);
+  void removeCurrentSource();
+  void removeCurrentLayer();
 
   OutputGLWindow* getOutputWindow() const { return outputWindow; }
   MapperGLCanvas* getSourceCanvas() const { return sourceCanvas; }
@@ -610,8 +610,8 @@ public:
   /// Returns true iff we should display the controls.
   bool displayControls() const { return _displayControls; }
 
-  /// Returns true iff we should display all of the shapes related to a paint.
-  bool displayPaintControls() const { return _displayPaintControls; }
+  /// Returns true iff we should display all of the shapes related to a source.
+  bool displaySourceControls() const { return _displaySourceControls; }
 
   /// Returns true iff we want vertices to stick to each other.
   bool isStickyVertices() const { return _stickyVertices; }

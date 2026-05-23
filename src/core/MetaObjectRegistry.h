@@ -47,6 +47,11 @@ public:
     }
   }
 
+  void addAlias(const QString& aliasClassName, const QMetaObject* metaObj)
+  {
+    metaObjectLookup[aliasClassName] = metaObj;
+  }
+
   const QMetaObject* getMetaObject(QString className) const;
 
   static MetaObjectRegistry& instance();

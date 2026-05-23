@@ -10,12 +10,12 @@ HEADERS += $$PWD/AboutDialog.h \
     $$PWD/MainWindow.h \
     $$PWD/MapperGLCanvas.h \
     $$PWD/MapperGLCanvasToolbar.h \
-    $$PWD/MappingGui.h \
-    $$PWD/MappingItemDelegate.h \
-    $$PWD/MappingListModel.h \
+    $$PWD/LayerGui.h \
+    $$PWD/LayerItemDelegate.h \
+    $$PWD/LayerListModel.h \
     $$PWD/OutputGLCanvas.h \
     $$PWD/OutputGLWindow.h \
-    $$PWD/PaintGui.h \
+    $$PWD/SourceGui.h \
     $$PWD/PreferenceDialog.h \
     $$PWD/ShapeControlPainter.h \
     $$PWD/ShapeGraphicsItem.h \
@@ -26,12 +26,12 @@ SOURCES += $$PWD/AboutDialog.cpp \
     $$PWD/MainWindow.cpp \
     $$PWD/MapperGLCanvas.cpp \
     $$PWD/MapperGLCanvasToolbar.cpp \
-    $$PWD/MappingGui.cpp \
-    $$PWD/MappingItemDelegate.cpp \
-    $$PWD/MappingListModel.cpp \
+    $$PWD/LayerGui.cpp \
+    $$PWD/LayerItemDelegate.cpp \
+    $$PWD/LayerListModel.cpp \
     $$PWD/OutputGLCanvas.cpp \
     $$PWD/OutputGLWindow.cpp \
-    $$PWD/PaintGui.cpp \
+    $$PWD/SourceGui.cpp \
     $$PWD/PreferenceDialog.cpp \
     $$PWD/ShapeControlPainter.cpp \
     $$PWD/ShapeGraphicsItem.cpp \

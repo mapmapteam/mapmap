@@ -1,5 +1,5 @@
 /*
- * Paint.cpp
+ * Source.cpp
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Paint.h"
+#include "Source.h"
 #include "VideoImpl.h"
 #include "VideoPlayerImpl.h"
 #include "CameraImpl.h"
@@ -30,7 +30,7 @@
 
 namespace mmp {
 
-UidAllocator Paint::allocator;
+UidAllocator Source::allocator;
 
 void Texture::update()
 {
@@ -42,7 +42,7 @@ void Texture::update()
 
 void Texture::read(const QJsonObject& obj)
 {
-  Paint::read(obj);
+  Source::read(obj);
   if (obj.contains("x"))
     setX(obj["x"].toDouble());
   if (obj.contains("y"))
@@ -51,18 +51,18 @@ void Texture::read(const QJsonObject& obj)
 
 void Texture::write(QJsonObject& obj)
 {
-  Paint::write(obj);
+  Source::write(obj);
   obj["x"] = getX();
   obj["y"] = getY();
 }
 
-Paint::Paint(uid id)
+Source::Source(uid id)
   : Element(id, &allocator),
     _isPlaying(false)
 {
 }
 
-Paint::~Paint()
+Source::~Source()
 {
   allocator.free(getId());
 }

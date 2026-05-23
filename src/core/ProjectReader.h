@@ -23,8 +23,8 @@
 #include <QJsonArray>
 #include <QJsonParseError>
 #include "MainWindow.h"
-#include "Mapping.h"
-#include "Paint.h"
+#include "Layer.h"
+#include "Source.h"
 
 #include "MetaObjectRegistry.h"
 #include "ProjectLabels.h"
@@ -40,8 +40,8 @@ public:
 
 private:
     void parseProject(const QJsonObject& project);
-    Paint::ptr   parsePaint(const QJsonObject& obj);
-    Mapping::ptr parseMapping(const QJsonObject& obj);
+    Source::ptr   parseSource(const QJsonObject& obj);
+    Layer::ptr parseLayer(const QJsonObject& obj);
     /**
      * Checks if the version attribute of the project tag matches the regex of supported versions of MapMap.
      * Some older versions of MapMap might not be supported by this version.

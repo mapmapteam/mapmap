@@ -25,10 +25,10 @@
 
 namespace mmp {
 
-ShapeGraphicsItem::ShapeGraphicsItem(Mapping::ptr mapping, bool output)
+ShapeGraphicsItem::ShapeGraphicsItem(Layer::ptr mapping, bool output)
   : _mapping(mapping), _output(output)
 {
-  _shape = output ? getMapping()->getShape() : getMapping()->getInputShape();
+  _shape = output ? getLayer()->getShape() : getLayer()->getInputShape();
 }
 
 MapperGLCanvas* ShapeGraphicsItem::getCanvas() const
@@ -37,12 +37,12 @@ MapperGLCanvas* ShapeGraphicsItem::getCanvas() const
   return isOutput() ? win->getDestinationCanvas() : win->getSourceCanvas();
 }
 
-bool ShapeGraphicsItem::isMappingCurrent() const {
-  return MainWindow::window()->getCurrentMappingId() == getMapping()->getId();
+bool ShapeGraphicsItem::isLayerCurrent() const {
+  return MainWindow::window()->getCurrentLayerId() == getLayer()->getId();
 }
 
-bool ShapeGraphicsItem::isMappingVisible() const {
-  return MainWindow::window()->getMappingManager().mappingIsVisible(getMapping());
+bool ShapeGraphicsItem::isLayerVisible() const {
+  return MainWindow::window()->getMappingManager().layerIsVisible(getLayer());
 }
 
 void ShapeGraphicsItem::paint(QPainter *painter,
@@ -52,11 +52,11 @@ void ShapeGraphicsItem::paint(QPainter *painter,
 
   // Sync depth of figure with that of mapping (for layered output).
   if (isOutput())
-    setZValue(MainWindow::window()->getMappingManager().getMappingDepth(getMapping()));
-    //setZValue(getMapping()->getDepth());
+    setZValue(MainWindow::window()->getMappingManager().getLayerDepth(getLayer()));
+    //setZValue(getLayer()->getDepth());
 
   // Paint if visible.
-  if (isMappingVisible())
+  if (isLayerVisible())
   {
     // Paint whatever needs to be painted.
     _prePaint(painter, option);
@@ -68,7 +68,7 @@ void ShapeGraphicsItem::paint(QPainter *painter,
 //void VertexGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
 //{
 //  ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
-//  if (!shapeParent->isMappingVisible())
+//  if (!shapeParent->isLayerVisible())
 //  {
 //    // Prevent mouse grabbing.
 //    event->ignore();
@@ -80,12 +80,12 @@ void ShapeGraphicsItem::paint(QPainter *painter,
 //      QGraphicsItem::mousePressEvent(event);
 //      if (event->button() == Qt::LeftButton)
 //      {
-//        MainWindow::instance()->setCurrentMapping(shapeParent->getMapping()->getId());
+//        MainWindow::instance()->setCurrentMapping(shapeParent->getLayer()->getId());
 //      }
 //    }
 //    else
 //    {
-//      if (shapeParent->isMappingCurrent())
+//      if (shapeParent->isLayerCurrent())
 //        QGraphicsItem::mousePressEvent(event);
 //      else
 //        event->ignore(); // prevent mousegrabbing on non-current mapping
@@ -101,8 +101,8 @@ void ShapeGraphicsItem::paint(QPainter *painter,
 ////  if (MainWindow::instance()->displayControls())
 ////  {
 ////    ShapeGraphicsItem* shapeParent = static_cast<ShapeGraphicsItem*>(parentItem());
-////    if (shapeParent->isMappingVisible() &&
-////        shapeParent->isMappingCurrent())
+////    if (shapeParent->isLayerVisible() &&
+////        shapeParent->isLayerCurrent())
 ////    {
 ////      qreal zoomFactor = 1.0 / shapeParent->getCanvas()->getZoomFactor();
 ////      resetMatrix();
@@ -117,18 +117,18 @@ void ColorGraphicsItem::_prePaint(QPainter *painter,
 {
   Q_UNUSED(option);
 
-  Color* color = static_cast<Color*>(getMapping()->getPaint().data());
+  Color* color = static_cast<Color*>(getLayer()->getSource().data());
   Q_ASSERT(color);
 
   painter->setPen(Qt::NoPen);
 
   // Set brush.
   QColor col = color->getColor();
-  col.setAlphaF(getMapping()->getComputedOpacity());
+  col.setAlphaF(getLayer()->getComputedOpacity());
   painter->setBrush(col);
 }
 
-PolygonColorGraphicsItem::PolygonColorGraphicsItem(Mapping::ptr mapping, bool output)
+PolygonColorGraphicsItem::PolygonColorGraphicsItem(Layer::ptr mapping, bool output)
   : ColorGraphicsItem(mapping, output) {
   _controlPainter.reset(new PolygonControlPainter(this));
 }
@@ -151,7 +151,7 @@ void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
 }
 
-MeshColorGraphicsItem::MeshColorGraphicsItem(Mapping::ptr mapping, bool output)
+MeshColorGraphicsItem::MeshColorGraphicsItem(Layer::ptr mapping, bool output)
 : PolygonColorGraphicsItem(mapping, output)
 {
   _controlPainter.reset(new MeshControlPainter(this));
@@ -177,7 +177,7 @@ void MeshColorGraphicsItem::_doPaint(QPainter *painter,
   }
 }
 
-EllipseColorGraphicsItem::EllipseColorGraphicsItem(Mapping::ptr mapping, bool output)
+EllipseColorGraphicsItem::EllipseColorGraphicsItem(Layer::ptr mapping, bool output)
   : ColorGraphicsItem(mapping, output) {
     _controlPainter.reset(new EllipseControlPainter(this));
   }
@@ -203,10 +203,10 @@ void EllipseColorGraphicsItem::_doPaint(QPainter* painter,
   painter->drawPath(shape());
 }
 
-TextureGraphicsItem::TextureGraphicsItem(Mapping::ptr mapping, bool output)
+TextureGraphicsItem::TextureGraphicsItem(Layer::ptr mapping, bool output)
   : ShapeGraphicsItem(mapping, output)
 {
-  _textureMapping = qSharedPointerCast<TextureMapping>(mapping);
+  _textureMapping = qSharedPointerCast<TextureLayer>(mapping);
   Q_CHECK_PTR(_textureMapping);
 
   _inputShape = qSharedPointerCast<MShape>(_textureMapping.toStrongRef()->getInputShape());
@@ -227,7 +227,7 @@ void TextureGraphicsItem::_doPaint(QPainter *painter,
 void TextureGraphicsItem::_doDrawInput(QPainter* painter)
 {
   Q_UNUSED(painter);
-  if (isMappingCurrent())
+  if (isLayerCurrent())
   {
     // FIXME: Does this draw the quad counterclockwise?
     glBegin (GL_QUADS);
@@ -297,7 +297,7 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
 
   // Set texture color (apply opacity).
   glColor4f(1.0f, 1.0f, 1.0f,
-            isOutput() ? getMapping()->getComputedOpacity() : getMapping()->getPaint()->getOpacity());
+            isOutput() ? getLayer()->getComputedOpacity() : getLayer()->getSource()->getOpacity());
 
 }
 
@@ -313,7 +313,7 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
 
 QSharedPointer<Texture> TextureGraphicsItem::_getTexture()
 {
-  return qSharedPointerCast<Texture>(_textureMapping.toStrongRef()->getPaint());
+  return qSharedPointerCast<Texture>(_textureMapping.toStrongRef()->getSource());
 }
 
 QPainterPath PolygonTextureGraphicsItem::shape() const
@@ -346,11 +346,11 @@ void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   }
 }
 
-PolygonTextureGraphicsItem::PolygonTextureGraphicsItem(Mapping::ptr mapping, bool output) : TextureGraphicsItem(mapping, output) {
+PolygonTextureGraphicsItem::PolygonTextureGraphicsItem(Layer::ptr mapping, bool output) : TextureGraphicsItem(mapping, output) {
   _controlPainter.reset(new PolygonControlPainter(this));
 }
 
-MeshTextureGraphicsItem::MeshTextureGraphicsItem(Mapping::ptr mapping, bool output) : PolygonTextureGraphicsItem(mapping, output) {
+MeshTextureGraphicsItem::MeshTextureGraphicsItem(Layer::ptr mapping, bool output) : PolygonTextureGraphicsItem(mapping, output) {
   _controlPainter.reset(new MeshControlPainter(this));
   _nHorizontalQuads = _nVerticalQuads = -1;
   _wasGrabbing = false;
@@ -379,7 +379,7 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 
     // Keep track of whether we are currently grabbing the shape or a vertex so as to
     // reduce resolution when editing (to prevent lags).
-    bool grabbing = (isMappingCurrent() &&
+    bool grabbing = (isLayerCurrent() &&
                      (getCanvas()->shapeGrabbed() || getCanvas()->vertexGrabbed()));
 
     // Max depth is adjusted to draw less quads during click & drag.
@@ -555,7 +555,7 @@ void EllipseTextureGraphicsItem::DrawingData::setPointOfEllipseAtAngle(QPointF& 
   point.setY( sin(angle + rotation) * distance + center.y() );
 }
 
-EllipseTextureGraphicsItem::EllipseTextureGraphicsItem(Mapping::ptr mapping, bool output) : TextureGraphicsItem(mapping, output) {
+EllipseTextureGraphicsItem::EllipseTextureGraphicsItem(Layer::ptr mapping, bool output) : TextureGraphicsItem(mapping, output) {
   _controlPainter.reset(new EllipseControlPainter(this));
 }
 

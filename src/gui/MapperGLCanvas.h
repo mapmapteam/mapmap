@@ -36,7 +36,7 @@
 #include "UidAllocator.h"
 #include "Shape.h"
 
-#include "MappingGui.h"
+#include "LayerGui.h"
 
 namespace mmp {
 
@@ -58,9 +58,9 @@ public:
   /// Returns shape associated with mapping id.
   virtual bool isOutput() const { return _isOutput; }
 
-  MShape::ptr getShapeFromMapping(Mapping::ptr mapping);
+  MShape::ptr getShapeFromMapping(Layer::ptr mapping);
   MShape::ptr getCurrentShape();
-  QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMapping(Mapping::ptr mapping);
+  QSharedPointer<ShapeGraphicsItem> getShapeGraphicsItemFromMapping(Layer::ptr mapping);
   QSharedPointer<ShapeGraphicsItem> getCurrentShapeGraphicsItem();
 
 //  QSize sizeHint() const;

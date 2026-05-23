@@ -34,20 +34,20 @@ bool ProjectWriter::writeFile(QIODevice *device)
 
   // Sources (formerly paints).
   QJsonArray sources;
-  for (int i=0; i<manager.nPaints(); i++)
+  for (int i=0; i<manager.nSources(); i++)
   {
     QJsonObject source;
-    manager.getPaint(i)->write(source);
+    manager.getSource(i)->write(source);
     sources.append(source);
   }
   project[ProjectLabels::SOURCES] = sources;
 
   // Layers (formerly mappings).
   QJsonArray layers;
-  for (int i=0; i<manager.nMappings(); i++)
+  for (int i=0; i<manager.nLayers(); i++)
   {
     QJsonObject layer;
-    manager.getMapping(i)->write(layer);
+    manager.getLayer(i)->write(layer);
     layers.append(layer);
   }
   project[ProjectLabels::LAYERS] = layers;

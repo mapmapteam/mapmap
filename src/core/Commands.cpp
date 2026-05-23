@@ -26,63 +26,63 @@
 
 namespace mmp {
 
-AddPaintCommand::AddPaintCommand(MainWindow *mainWindow, uid paintId, const QIcon &icon, const QString &name, QUndoCommand *parent) :
+AddSourceCommand::AddSourceCommand(MainWindow *mainWindow, uid sourceId, const QIcon &icon, const QString &name, QUndoCommand *parent) :
   QUndoCommand(parent),
   _mainWindow(mainWindow),
-  _paintId(paintId),
+  _sourceId(sourceId),
   _icon(icon),
   _name(name)
 {
   setText(QObject::tr("Add source"));
 }
 
-void AddPaintCommand::undo()
+void AddSourceCommand::undo()
 {
-  _paint = _mainWindow->getMappingManager().getPaintById(_paintId);
-  _mainWindow->removePaintItem(_paintId);
+  _source = _mainWindow->getMappingManager().getSourceById(_sourceId);
+  _mainWindow->removeSourceItem(_sourceId);
 }
 
-void AddPaintCommand::redo()
+void AddSourceCommand::redo()
 {
-  if (!_paint.isNull())
+  if (!_source.isNull())
   {
-    uid lastId = _mainWindow->getMappingManager().addPaint(_paint);
-    _mainWindow->addPaintItem(lastId, _icon, _name);
+    uid lastId = _mainWindow->getMappingManager().addSource(_source);
+    _mainWindow->addSourceItem(lastId, _icon, _name);
   }
   else {
-    _mainWindow->addPaintItem(_paintId, _icon, _name);
+    _mainWindow->addSourceItem(_sourceId, _icon, _name);
   }
 }
 
-AddMappingCommand::AddMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent):
+AddLayerCommand::AddLayerCommand(MainWindow *mainWindow, uid layerId, QUndoCommand *parent):
   QUndoCommand(parent),
   _mainWindow(mainWindow),
-  _mappingId(mappingId)
+  _layerId(layerId)
 {
   setText(QObject::tr("Add layer"));
 }
 
-void AddMappingCommand::undo()
+void AddLayerCommand::undo()
 {
-  _mapping = _mainWindow->getMappingManager().getMappingById(_mappingId);
-  _mainWindow->deleteMapping(_mappingId);
+  _layer = _mainWindow->getMappingManager().getLayerById(_layerId);
+  _mainWindow->deleteLayer(_layerId);
 }
 
-void AddMappingCommand::redo()
+void AddLayerCommand::redo()
 {
-  if (!_mapping.isNull())
+  if (!_layer.isNull())
   {
-    uid storedId = _mainWindow->getMappingManager().addMapping(_mapping);
-    _mainWindow->addMappingItem(storedId);
+    uid storedId = _mainWindow->getMappingManager().addLayer(_layer);
+    _mainWindow->addLayerItem(storedId);
   }
   else
   {
-    _mainWindow->addMappingItem(_mappingId);
+    _mainWindow->addLayerItem(_layerId);
   }
 }
 
-DuplicateMappingCommand::DuplicateMappingCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent):
-  AddMappingCommand(mainWindow, cloneId, parent)
+DuplicateLayerCommand::DuplicateLayerCommand(MainWindow *mainWindow, uid cloneId, QUndoCommand *parent):
+  AddLayerCommand(mainWindow, cloneId, parent)
 {
   setText(QObject::tr("Duplicate layer"));
 }
@@ -252,73 +252,73 @@ void TranslateShapeCommand::_doTransform(MShape::ptr shape)
   shape->translate(_translation);
 }
 
-RemovePaintCommand::RemovePaintCommand(MainWindow *mainWindow, uid paintId, QUndoCommand *parent):
+RemoveSourceCommand::RemoveSourceCommand(MainWindow *mainWindow, uid sourceId, QUndoCommand *parent):
   QUndoCommand(parent),
   _mainWindow(mainWindow),
-  _paintId(paintId),
-  _paintMappings()
+  _sourceId(sourceId),
+  _sourceLayers()
 {
   setText(QObject::tr("Remove media"));
 }
 
-void RemovePaintCommand::undo()
+void RemoveSourceCommand::undo()
 {
-  if (!_paint.isNull())
+  if (!_source.isNull())
   {
-    MappingManager& mappingManager = _mainWindow->getMappingManager();
-    uid lastId = mappingManager.addPaint(_paint);
-    _mainWindow->addPaintItem(lastId, _paint->getIcon(), _paint->getName());
+    MappingManager& manager = _mainWindow->getMappingManager();
+    uid lastId = manager.addSource(_source);
+    _mainWindow->addSourceItem(lastId, _source->getIcon(), _source->getName());
 
-    // Add all mappings associated with paint.
-    QMap<uid, Mapping::ptr> paintMappings = mappingManager.getPaintMappings(_paint);
-    for (QMap<uid, Mapping::ptr>::const_iterator it = _paintMappings.constBegin();
-         it != _paintMappings.constEnd(); ++it) {
-      uid mid = mappingManager.addMapping( it.value() );
+    // Add all mappings associated with source.
+    QMap<uid, Layer::ptr> sourceLayers = manager.getSourceLayers(_source);
+    for (QMap<uid, Layer::ptr>::const_iterator it = _sourceLayers.constBegin();
+         it != _sourceLayers.constEnd(); ++it) {
+      uid mid = manager.addLayer( it.value() );
       Q_ASSERT( mid == it.key() );
-      _mainWindow->addMappingItem(mid);
+      _mainWindow->addLayerItem(mid);
     }
   }
 }
 
-void RemovePaintCommand::redo()
+void RemoveSourceCommand::redo()
 {
-   MappingManager& mappingManager = _mainWindow->getMappingManager();
-   bool deleteWithoutPrompt = (!_paint.isNull()); // to avoid the pop-up window when redoing after undoing
-  _paint = mappingManager.getPaintById(_paintId);
-  _paintMappings = mappingManager.getPaintMappings(_paint);
-  _mainWindow->deletePaint(_paintId, deleteWithoutPrompt);
+   MappingManager& manager = _mainWindow->getMappingManager();
+   bool deleteWithoutPrompt = (!_source.isNull()); // to avoid the pop-up window when redoing after undoing
+  _source = manager.getSourceById(_sourceId);
+  _sourceLayers = manager.getSourceLayers(_source);
+  _mainWindow->deleteSource(_sourceId, deleteWithoutPrompt);
 }
 
 
 
-DeleteMappingCommand::DeleteMappingCommand(MainWindow *mainWindow, uid mappingId, QUndoCommand *parent) :
+DeleteLayerCommand::DeleteLayerCommand(MainWindow *mainWindow, uid layerId, QUndoCommand *parent) :
   QUndoCommand(parent),
   _mainWindow(mainWindow),
-  _mappingId(mappingId)
+  _layerId(layerId)
 {
   setText(QObject::tr("Delete layer"));
 }
 
-void DeleteMappingCommand::undo()
+void DeleteLayerCommand::undo()
 {
-  if (!_mapping.isNull())
+  if (!_layer.isNull())
   {
-    uid storedId = _mainWindow->getMappingManager().addMapping(_mapping);
-    _mainWindow->addMappingItem(storedId);
+    uid storedId = _mainWindow->getMappingManager().addLayer(_layer);
+    _mainWindow->addLayerItem(storedId);
   }
 }
 
-void DeleteMappingCommand::redo()
+void DeleteLayerCommand::redo()
 {
   // Store mapping pointer before delete it
-  _mapping = _mainWindow->getMappingManager().getMappingById(_mappingId);
-  _mainWindow->deleteMapping(_mappingId);
+  _layer = _mainWindow->getMappingManager().getLayerById(_layerId);
+  _mainWindow->deleteLayer(_layerId);
 }
 
-MoveMappingCommand::MoveMappingCommand(MainWindow *mainWindow, uid mappingId,  MM::MoveElement moveType, QUndoCommand *parent) :
+MoveLayerCommand::MoveLayerCommand(MainWindow *mainWindow, uid layerId,  MM::MoveElement moveType, QUndoCommand *parent) :
   QUndoCommand(parent),
   _mainWindow(mainWindow),
-  _mappingId(mappingId),
+  _layerId(layerId),
   _moveType(moveType)
 {
   switch (moveType) {
@@ -330,32 +330,32 @@ MoveMappingCommand::MoveMappingCommand(MainWindow *mainWindow, uid mappingId,  M
   }
 }
 
-void MoveMappingCommand::undo()
+void MoveLayerCommand::undo()
 {
-  if (!_mapping.isNull())
+  if (!_layer.isNull())
   {
     // Do the inverse move.
-    _mainWindow->moveMapping(_mappingId, _fromIdx);
+    _mainWindow->moveLayer(_layerId, _fromIdx);
   }
 }
 
-void MoveMappingCommand::redo()
+void MoveLayerCommand::redo()
 {
   // Store mapping pointer before delete it
-  _mapping = _mainWindow->getMappingManager().getMappingById(_mappingId);
-  _fromIdx = _mainWindow->getMappingManager().getMappingIndex(_mapping);
-  int maxMappingIdx = _mainWindow->getMappingManager().nMappings()-1;
+  _layer = _mainWindow->getMappingManager().getLayerById(_layerId);
+  _fromIdx = _mainWindow->getMappingManager().getLayerIndex(_layer);
+  int maxLayerIdx = _mainWindow->getMappingManager().nLayers()-1;
 
   switch (_moveType) {
     case MM::Raise:  _toIdx = qMax(_fromIdx - 1, 0); break;
-    case MM::Lower:  _toIdx = qMin(_fromIdx + 1, maxMappingIdx); break;
+    case MM::Lower:  _toIdx = qMin(_fromIdx + 1, maxLayerIdx); break;
     case MM::Top:    _toIdx = 0; break;
-    case MM::Bottom: _toIdx = maxMappingIdx; break;
+    case MM::Bottom: _toIdx = maxLayerIdx; break;
     default:; // should not happen
   }
 
   // Do the move.
-  _mainWindow->moveMapping(_mappingId, _toIdx);
+  _mainWindow->moveLayer(_layerId, _toIdx);
 }
 
 FlipShapeCommand::FlipShapeCommand(MapperGLCanvas *canvas, TransformShapeCommand::TransformShapeOption option, const MShape::ptr &initialShape, MShape::FlipDirection direction, QUndoCommand *parent)

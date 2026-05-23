@@ -29,7 +29,7 @@
 #include "Shapes.h"
 
 #include "MM.h"
-#include "Paint.h"
+#include "Source.h"
 #include <QString>
 
 namespace mmp {

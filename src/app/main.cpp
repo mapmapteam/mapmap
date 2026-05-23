@@ -37,14 +37,18 @@ void initRegistry()
 {
   MetaObjectRegistry& registry = MetaObjectRegistry::instance();
 
-  // Paints.
+  // Sources.
   registry.add<Video>();
   registry.add<Image>();
   registry.add<Color>();
 
-  // Mappings.
-  registry.add<TextureMapping>();
-  registry.add<ColorMapping>();
+  // Layers (formerly Mappings).
+  registry.add<TextureLayer>();
+  registry.add<ColorLayer>();
+
+  // Backward compatibility for old project files.
+  registry.addAlias("mmp::TextureMapping", &TextureLayer::staticMetaObject);
+  registry.addAlias("mmp::ColorMapping", &ColorLayer::staticMetaObject);
 
   // Shapes.
   registry.add<Quad>();

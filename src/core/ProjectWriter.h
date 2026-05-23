@@ -24,8 +24,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include "MappingManager.h"
-#include "Mapping.h"
-#include "Paint.h"
+#include "Layer.h"
+#include "Source.h"
 #include "MainWindow.h"
 
 #include "ProjectLabels.h"

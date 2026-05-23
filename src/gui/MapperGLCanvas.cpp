@@ -90,7 +90,7 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
   undoStack = mainWindow->getUndoStack();
 }
 
-MShape::ptr MapperGLCanvas::getShapeFromMapping(Mapping::ptr mapping)
+MShape::ptr MapperGLCanvas::getShapeFromMapping(Layer::ptr mapping)
 {
   if (mapping.isNull())
   {
@@ -104,10 +104,10 @@ MShape::ptr MapperGLCanvas::getShapeFromMapping(Mapping::ptr mapping)
 
 MShape::ptr MapperGLCanvas::getCurrentShape()
 {
-  return getShapeFromMapping(MainWindow::window()->getCurrentMapping());
+  return getShapeFromMapping(MainWindow::window()->getCurrentLayer());
 }
 
-QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getShapeGraphicsItemFromMapping(Mapping::ptr mapping)
+QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getShapeGraphicsItemFromMapping(Layer::ptr mapping)
 {
   if (mapping.isNull())
   {
@@ -115,14 +115,14 @@ QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getShapeGraphicsItemFromMappin
   }
   else
   {
-    MappingGui::ptr mappingGui = MainWindow::window()->getMappingGuiByMappingId(mapping->getId());
-    return (isOutput() ? mappingGui->getGraphicsItem() : mappingGui->getInputGraphicsItem());
+    LayerGui::ptr layerGui = MainWindow::window()->getLayerGuiByLayerId(mapping->getId());
+    return (isOutput() ? layerGui->getGraphicsItem() : layerGui->getInputGraphicsItem());
   }
 }
 
 QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getCurrentShapeGraphicsItem()
 {
-  return getShapeGraphicsItemFromMapping(_mainWindow->getCurrentMapping());
+  return getShapeGraphicsItemFromMapping(_mainWindow->getCurrentLayer());
 }
 
 // Draws foreground (displays crosshair if needed).
@@ -131,22 +131,22 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
   Q_UNUSED(rect);
   if (MainWindow::window()->displayControls())
   {
-    uid mid = MainWindow::window()->getCurrentMappingId();
+    uid mid = MainWindow::window()->getCurrentLayerId();
     if (mid != NULL_UID)
     {
 
       // Display other controls.
-      if (_mainWindow->displayPaintControls())
+      if (_mainWindow->displaySourceControls())
       {
-        QMap<uid, Mapping::ptr> paintMappings = _mainWindow->getMappingManager().getPaintMappings( _mainWindow->getCurrentPaint() );
-        for (QMap<uid, Mapping::ptr>::const_iterator it = paintMappings.constBegin();
-             it != paintMappings.constEnd(); ++it)
+        QMap<uid, Layer::ptr> sourceLayers = _mainWindow->getMappingManager().getSourceLayers( _mainWindow->getCurrentSource() );
+        for (QMap<uid, Layer::ptr>::const_iterator it = sourceLayers.constBegin();
+             it != sourceLayers.constEnd(); ++it)
         {
           if (it.key() != mid)
           {
-            ShapeGraphicsItem::ptr paintMappingItem = getShapeGraphicsItemFromMapping(it.value());
-            if (paintMappingItem)
-              paintMappingItem->getControlPainter()->paintShape(painter, this, false);
+            ShapeGraphicsItem::ptr sourceLayerItem = getShapeGraphicsItemFromMapping(it.value());
+            if (sourceLayerItem)
+              sourceLayerItem->getControlPainter()->paintShape(painter, this, false);
           }
         }
       }
@@ -311,8 +311,8 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
 
     // Possibility of changing shape in output by clicking on it.
     MappingManager manager = getMainWindow()->getMappingManager();
-    QVector<Mapping::ptr> mappings = manager.getVisibleMappings();
-    for (QVector<Mapping::ptr>::const_iterator it = mappings.begin();
+    QVector<Layer::ptr> mappings = manager.getVisibleLayers();
+    for (QVector<Layer::ptr>::const_iterator it = mappings.begin();
          it != mappings.end(); ++it)
     {
       MShape::ptr shape = getShapeFromMapping(*it);
@@ -329,7 +329,7 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
         if (isOutput() && shape != selectedShape)
         {
           // Change current mapping.
-          getMainWindow()->setCurrentMapping((*it)->getId());
+          getMainWindow()->setCurrentLayer((*it)->getId());
 
           // Reset selected shape to new one.
           selectedShape = getCurrentShape();
@@ -856,9 +856,9 @@ void MapperGLCanvas::_snapVertex(QPointF* p)
   int vertexStickRadius = settings.value("vertexStickRadius", MM::VERTEX_STICK_RADIUS).toInt();
   MappingManager manager = MainWindow::window()->getMappingManager();
   MShape::ptr currentShape = getCurrentShape();
-  for (int i = 0; i < manager.nMappings(); i++)
+  for (int i = 0; i < manager.nLayers(); i++)
   {
-    MShape::ptr shape = getShapeFromMapping(manager.getMapping(i));
+    MShape::ptr shape = getShapeFromMapping(manager.getLayer(i));
     if (shape && shape != currentShape)
     {
       for (int vertex = 0; vertex < shape->nVertices(); vertex++)

@@ -1,5 +1,5 @@
 /*
- * Paint.h
+ * Source.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -19,8 +19,8 @@
  */
 
 
-#ifndef PAINT_H_
-#define PAINT_H_
+#ifndef SOURCE_H_
+#define SOURCE_H_
 
 #include <QtGlobal>
 
@@ -49,13 +49,13 @@ typedef enum {
 } VideoType;
 
 /**
- * A Paint is a style that can be applied when drawing potentially any shape.
+ * A Source is a style that can be applied when drawing potentially any shape.
  *
  * Defines the way to draw any shape.
- * There must be a MappingGui that implements this paint for every shape
+ * There must be a MappingGui that implements this source for every shape
  * so that this shape might be drawn with it.
  */
-class Paint : public Element
+class Source : public Element
 {
   Q_OBJECT
 
@@ -65,7 +65,7 @@ private:
   uid _id;
 
 protected:
-  Paint(uid id=NULL_UID);
+  Source(uid id=NULL_UID);
 
 public:
 
@@ -73,16 +73,16 @@ public:
     Video, Image, Color
   };
 
-  typedef QSharedPointer<Paint> ptr;
+  typedef QSharedPointer<Source> ptr;
 
-  virtual ~Paint();
+  virtual ~Source();
 
   static const UidAllocator& getUidAllocator() { return allocator; }
 
   /// This method should be called at each call of draw().
   virtual void update() {}
 
-  /// Is the paint currently playing?
+  /// Is the source currently playing?
   virtual bool isPlaying() const { return _isPlaying; }
 
   /// Starts playback.
@@ -116,7 +116,7 @@ private:
   bool _isPlaying;
 };
 
-class Color : public Paint
+class Color : public Source
 {
   Q_OBJECT
 
@@ -126,8 +126,8 @@ protected:
   QColor color;
 
 public:
-  Q_INVOKABLE Color(int id=NULL_UID) : Paint(id) {}
-  Color(const QColor& color_, uid id=NULL_UID) : Paint(id), color(color_) {}
+  Q_INVOKABLE Color(int id=NULL_UID) : Source(id) {}
+  Color(const QColor& color_, uid id=NULL_UID) : Source(id), color(color_) {}
 
   QColor getColor() const { return color; }
   void setColor(const QColor& color_) { color = color_; }
@@ -142,11 +142,11 @@ public:
 };
 
 /**
- * Paint that uses an OpenGL texture to paint on potentially any MappingGui.
+ * Source that uses an OpenGL texture to render on potentially any MappingGui.
  *
  * This video texture is actually an OpenGL texture.
  */
-class Texture : public Paint
+class Texture : public Source
 {
   Q_OBJECT
 
@@ -160,7 +160,7 @@ protected:
   mutable bool bitsChanged;
 
   Texture(uid id=NULL_UID) :
-    Paint(id),
+    Source(id),
     textureId(0),
     x(0),
     y(0)
@@ -219,11 +219,11 @@ public:
 
 protected:
   // Lists QProperties that should NOT be parsed automatically.
-  virtual QList<QString> _propertiesSpecial() const { return Paint::_propertiesSpecial() << "x" << "y"; }
+  virtual QList<QString> _propertiesSpecial() const { return Source::_propertiesSpecial() << "x" << "y"; }
 };
 
 /**
- * Paint that is a Texture loaded from an image file.
+ * Source that is a Texture loaded from an image file.
  */
 class Image : public Texture
 {
@@ -292,7 +292,7 @@ protected:
 class VideoImpl; // forward declaration
 
 /**
- * Paint that is a Texture retrieved via a video file.
+ * Source that is a Texture retrieved via a video file.
  */
 class Video : public Texture
 {
@@ -375,4 +375,4 @@ protected:
 
 }
 
-#endif /* PAINT_H_ */
+#endif /* SOURCE_H_ */

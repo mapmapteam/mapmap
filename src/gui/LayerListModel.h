@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAPPINGLISTMODEL_H
-#define MAPPINGLISTMODEL_H
+#ifndef LAYERLISTMODEL_H
+#define LAYERLISTMODEL_H
 
 #include <QAbstractTableModel>
 #include <QList>
@@ -27,19 +27,19 @@
 #include <QMimeData>
 
 #include "MM.h"
-#include "Mapping.h"
+#include "Layer.h"
 
 namespace mmp {
 
 typedef int uid;
 
-class MappingListModel : public QAbstractTableModel
+class LayerListModel : public QAbstractTableModel
 {
   Q_OBJECT
 
 public:
-  MappingListModel(QObject *parent = nullptr);
-  ~MappingListModel() override {}
+  LayerListModel(QObject *parent = nullptr);
+  ~LayerListModel() override {}
 
   int rowCount(const QModelIndex & parent = QModelIndex()) const override;
   int columnCount(const QModelIndex & parent = QModelIndex()) const override;
@@ -56,7 +56,7 @@ public:
   bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 
   void removeItem(int index);
-  void addItem(Mapping::ptr mapping, const QIcon &icon, const QString &label);
+  void addItem(Layer::ptr mapping, const QIcon &icon, const QString &label);
   void moveItem(int row, int endRow);
 
   void updateModel();
@@ -68,7 +68,7 @@ public:
   QModelIndex getIndexFromId(uid id) const;
 
 private:
-  struct MappingItem {
+  struct LayerItem {
     int id;
     QIcon icon;
     QString label;
@@ -77,9 +77,9 @@ private:
     bool isSolo;
   };
 
-  QList<MappingItem> mappingList;
+  QList<LayerItem> layerList;
 };
 
 }
 
-#endif // MAPPINGLISTMODEL_H
+#endif // LAYERLISTMODEL_H

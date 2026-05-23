@@ -1,5 +1,5 @@
 /*
- * PaintGui.h
+ * SourceGui.h
  *
  * (c) 2014 Sofian Audry -- info(@)sofianaudry(.)com
  *
@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PAINTGUI_H_
-#define PAINTGUI_H_
+#ifndef SOURCEGUI_H_
+#define SOURCEGUI_H_
 
 
 #include <QtGlobal>
@@ -31,7 +31,7 @@
 
 #include "MM.h"
 
-#include "Paint.h"
+#include "Source.h"
 
 #include "qtpropertymanager.h"
 #include "qtvariantproperty.h"
@@ -45,22 +45,22 @@
 namespace mmp {
 
 /**
- * The view components corresponding to a Paint (which is the model) in the interface.
- * Mainly manages the property browser for the Paint.
+ * The view components corresponding to a Source (which is the model) in the interface.
+ * Mainly manages the property browser for the Source.
  *
- * In other words the PaintGui is to Paint what MappingGui is to Mapping.
+ * In other words the SourceGui is to Source what MappingGui is to Mapping.
  */
-class PaintGui : public QObject {
+class SourceGui : public QObject {
   Q_OBJECT
 
 public:
-  typedef QSharedPointer<PaintGui> ptr;
+  typedef QSharedPointer<SourceGui> ptr;
 
 public:
   // TODO: should be protected
-  /// Constructor. A paint gui applies to a paint.
-  PaintGui(Paint::ptr paint);
-  virtual ~PaintGui();
+  /// Constructor. A source gui applies to a source.
+  SourceGui(Source::ptr source);
+  virtual ~SourceGui();
 
 public:
   /// Returns a pointer to the properties editor for that mapper.
@@ -71,10 +71,10 @@ public slots:
   virtual void setValue(QString propertyName, QVariant value);
 
 signals:
-  void valueChanged(Paint::ptr);
+  void valueChanged(Source::ptr);
 
 protected:
-  Paint::ptr _paint;
+  Source::ptr _source;
   QtAbstractPropertyBrowser* _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
@@ -83,11 +83,11 @@ protected:
   QtVariantProperty* _opacityItem;
 };
 
-class ColorGui : public PaintGui {
+class ColorGui : public SourceGui {
   Q_OBJECT
 
 public:
-  ColorGui(Paint::ptr paint);
+  ColorGui(Source::ptr source);
   virtual ~ColorGui() {}
 
 public slots:
@@ -99,11 +99,11 @@ protected:
   QtVariantProperty* _colorItem;
 };
 
-class TextureGui : public PaintGui {
+class TextureGui : public SourceGui {
   Q_OBJECT
 
 public:
-  TextureGui(Paint::ptr paint);
+  TextureGui(Source::ptr source);
   virtual ~TextureGui() {}
 };
 
@@ -111,7 +111,7 @@ class ImageGui : public TextureGui {
   Q_OBJECT
 
 public:
-  ImageGui(Paint::ptr paint);
+  ImageGui(Source::ptr source);
   virtual ~ImageGui() {}
 
 public slots:
@@ -128,7 +128,7 @@ class VideoGui : public TextureGui {
   Q_OBJECT
 
 public:
-  VideoGui(Paint::ptr paint);
+  VideoGui(Source::ptr source);
   virtual ~VideoGui() {}
 
 public slots:
@@ -145,4 +145,4 @@ protected:
 
 }
 
-#endif /* PAINTGUI_H_ */
+#endif /* SOURCEGUI_H_ */

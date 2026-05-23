@@ -17,18 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MappingItemDelegate.h"
+#include "LayerItemDelegate.h"
 #include <QPainterPath>
 
 namespace mmp {
 
-MappingItemDelegate::MappingItemDelegate(QObject *parent) :
+LayerItemDelegate::LayerItemDelegate(QObject *parent) :
   QStyledItemDelegate(parent)
 {
 
 }
 
-void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void LayerItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
   painter->setRenderHint(QPainter::Antialiasing);
 
@@ -173,7 +173,7 @@ void MappingItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
   }
 }
 
-QWidget *MappingItemDelegate::createEditor(QWidget *parent,
+QWidget *LayerItemDelegate::createEditor(QWidget *parent,
         const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
   if (index.column() == MM::IconAndNameColum)
@@ -189,7 +189,7 @@ QWidget *MappingItemDelegate::createEditor(QWidget *parent,
   }
 }
 
-void MappingItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void LayerItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
   QString value = index.model()->data(index, Qt::EditRole).toString();
 
@@ -197,20 +197,20 @@ void MappingItemDelegate::setEditorData(QWidget *editor, const QModelIndex &inde
   nameEdit->setText(value);
 }
 
-void MappingItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+void LayerItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
   QLineEdit *nameEdit = static_cast<QLineEdit*>(editor); // TODO: use reinterpret_cast instead static_cast
   model->setData(index, nameEdit->text(), Qt::EditRole);
 }
 
-void MappingItemDelegate::updateEditorGeometry(QWidget *editor,
+void LayerItemDelegate::updateEditorGeometry(QWidget *editor,
         const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
   Q_UNUSED(index)
   editor->setGeometry(option.rect);
 }
 
-bool MappingItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
+bool LayerItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
         const QStyleOptionViewItem &option, const QModelIndex &index)
 {
   QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);

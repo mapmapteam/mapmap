@@ -1,5 +1,5 @@
 /*
- * MappingGui.h
+ * LayerGui.h
  *
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
@@ -19,8 +19,8 @@
  */
 
 
-#ifndef MAPPING_GUI_
-#define MAPPING_GUI_
+#ifndef LAYER_GUI_
+#define LAYER_GUI_
 
 #include <QtGlobal>
 
@@ -34,8 +34,8 @@
 #include <stdio.h>
 
 #include "Shape.h"
-#include "Paint.h"
-#include "Mapping.h"
+#include "Source.h"
+#include "Layer.h"
 #include "MappingManager.h"
 
 #include "MapperGLCanvas.h"
@@ -62,19 +62,19 @@ class MainWindow;
  * This is the "view" side of the Mapping class (model). It contains the graphic items for
  * both input and output as well as the properties editor.
  */
-class MappingGui : public QObject
+class LayerGui : public QObject
 {
   Q_OBJECT
 
 public:
-  typedef QSharedPointer<MappingGui> ptr;
+  typedef QSharedPointer<LayerGui> ptr;
 
 protected:
   /// Constructor. A mapper applies to a mapping.
-  MappingGui(Mapping::ptr mapping);
+  LayerGui(Layer::ptr mapping);
 
 public:
-  virtual ~MappingGui() {}
+  virtual ~LayerGui() {}
 
 public:
   /// Returns a pointer to the properties editor for that mapper.
@@ -90,23 +90,23 @@ public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
   virtual void setValue(QString propertyName, QVariant value);
   virtual void updateShape(MShape* shape);
-	virtual void updatePaints();
+	virtual void updateSources();
 
 signals:
   void valueChanged();
-  void paintChanged();
+  void sourceChanged();
   
 protected:
-  Mapping::ptr _mapping;
+  Layer::ptr _layer;
 
   QSharedPointer<QtTreePropertyBrowser> _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
-	QtEnumPropertyManager* _paintEnumManager;
+	QtEnumPropertyManager* _sourceEnumManager;
 
   QtVariantProperty* _idItem;
   QtVariantProperty* _opacityItem;
-	QtVariantProperty* _paintItem;
+	QtVariantProperty* _sourceItem;
   QtProperty* _outputItem;
 
   std::map<QtProperty*, std::pair<MShape*, int> > _propertyToVertex;
@@ -122,34 +122,34 @@ protected:
 };
 
 /// Parent class for color -> color mappings.
-class ColorMappingGui : public MappingGui
+class ColorLayerGui : public LayerGui
 {
   Q_OBJECT
 
 protected:
-  ColorMappingGui(Mapping::ptr mapping);
-  virtual ~ColorMappingGui() {}
+  ColorLayerGui(Layer::ptr mapping);
+  virtual ~ColorLayerGui() {}
 
 protected:
   QSharedPointer<Color> color;
 };
 
-class PolygonColorMappingGui : public ColorMappingGui
+class PolygonColorLayerGui : public ColorLayerGui
 {
   Q_OBJECT
 
 public:
-  PolygonColorMappingGui(Mapping::ptr mapping);
-  virtual ~PolygonColorMappingGui() {}
+  PolygonColorLayerGui(Layer::ptr mapping);
+  virtual ~PolygonColorLayerGui() {}
 };
 
-class MeshColorMappingGui : public PolygonColorMappingGui
+class MeshColorLayerGui : public PolygonColorLayerGui
 {
   Q_OBJECT
 
 public:
-  MeshColorMappingGui(Mapping::ptr mapping);
-  virtual ~MeshColorMappingGui() {}
+  MeshColorLayerGui(Layer::ptr mapping);
+  virtual ~MeshColorLayerGui() {}
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
@@ -158,23 +158,23 @@ private:
   QtVariantProperty* _meshItem;
 };
 
-class EllipseColorMappingGui : public ColorMappingGui
+class EllipseColorLayerGui : public ColorLayerGui
 {
   Q_OBJECT
 
 public:
-  EllipseColorMappingGui(Mapping::ptr mapping);
-  virtual ~EllipseColorMappingGui() {}
+  EllipseColorLayerGui(Layer::ptr mapping);
+  virtual ~EllipseColorLayerGui() {}
 };
 
 /// Parent class for texture -> texture mapping.
-class TextureMappingGui : public MappingGui
+class TextureLayerGui : public LayerGui
 {
   Q_OBJECT
 
 public:
-  TextureMappingGui(QSharedPointer<TextureMapping> mapping);
-  virtual ~TextureMappingGui() {}
+  TextureLayerGui(QSharedPointer<TextureLayer> mapping);
+  virtual ~TextureLayerGui() {}
 
 public slots:
   virtual void updateShape(MShape* shape);
@@ -184,35 +184,35 @@ protected:
   QtVariantProperty* _meshItem;
 
   // FIXME: use typedefs, member of the class for type names that are too long to type:
-  QWeakPointer<TextureMapping> textureMapping;
+  QWeakPointer<TextureLayer> textureLayer;
   QWeakPointer<MShape> inputShape;
 };
 
-class PolygonTextureMappingGui : public TextureMappingGui
+class PolygonTextureLayerGui : public TextureLayerGui
 {
   Q_OBJECT
 
 public:
-  PolygonTextureMappingGui(QSharedPointer<TextureMapping> mapping) : TextureMappingGui(mapping) {}
-  virtual ~PolygonTextureMappingGui() {}
+  PolygonTextureLayerGui(QSharedPointer<TextureLayer> mapping) : TextureLayerGui(mapping) {}
+  virtual ~PolygonTextureLayerGui() {}
 };
 
-class TriangleTextureMappingGui : public PolygonTextureMappingGui
+class TriangleTextureLayerGui : public PolygonTextureLayerGui
 {
   Q_OBJECT
 
 public:
-  TriangleTextureMappingGui(QSharedPointer<TextureMapping> mapping);
-  virtual ~TriangleTextureMappingGui() {}
+  TriangleTextureLayerGui(QSharedPointer<TextureLayer> mapping);
+  virtual ~TriangleTextureLayerGui() {}
 };
 
-class MeshTextureMappingGui : public PolygonTextureMappingGui
+class MeshTextureLayerGui : public PolygonTextureLayerGui
 {
   Q_OBJECT
 
 public:
-  MeshTextureMappingGui(QSharedPointer<TextureMapping> mapping);
-  virtual ~MeshTextureMappingGui() {}
+  MeshTextureLayerGui(QSharedPointer<TextureLayer> mapping);
+  virtual ~MeshTextureLayerGui() {}
 
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
@@ -221,12 +221,12 @@ private:
   QtVariantProperty* _meshItem;
 };
 
-class EllipseTextureMappingGui : public PolygonTextureMappingGui {
+class EllipseTextureLayerGui : public PolygonTextureLayerGui {
   Q_OBJECT
 
 public:
-  EllipseTextureMappingGui(QSharedPointer<TextureMapping> mapping);
-  virtual ~EllipseTextureMappingGui() {}
+  EllipseTextureLayerGui(QSharedPointer<TextureLayer> mapping);
+  virtual ~EllipseTextureLayerGui() {}
 
 protected:
   static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
@@ -234,4 +234,4 @@ protected:
 
 }
 
-#endif /* MAPPER_H_ */
+#endif /* LAYER_GUI_H_ */

@@ -19,13 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAPPING_H_
-#define MAPPING_H_
+#ifndef LAYER_H_
+#define LAYER_H_
 
 #include <QtGlobal>
 
 #include "Shape.h"
-#include "Paint.h"
+#include "Source.h"
 
 #include "Element.h"
 
@@ -43,8 +43,8 @@ namespace mmp {
 /**
  * Mapping is the central concept of this software.
  *
- * A Mapping represents a relationship between an input Paint and
- * and output Shape where the paint (possibly modified by some other
+ * A Mapping represents a relationship between an input Source and
+ * and output Shape where the source (possibly modified by some other
  * attributes or an input Shape in the case of TextureMapping) is
  * projected on the output shape.
  *
@@ -52,7 +52,7 @@ namespace mmp {
  * can thus change their opacity level, toggle their visibility, set
  * them in "solo" mode and lock them.
  */
-class Mapping : public Element
+class Layer : public Element
 {
   Q_OBJECT
 
@@ -64,12 +64,12 @@ class Mapping : public Element
 //  Q_PROPERTY(MShape::ptr inputShape READ getInputShape)
 
   Q_PROPERTY(bool hasInputShape READ hasInputShape STORED false)
-  Q_PROPERTY(uid  paintId  READ getPaintId WRITE setPaintById STORED false)
-//  Q_PROPERTY(Paint::ptr paint READ getPaint WRITE setPaint)
+  Q_PROPERTY(uid  sourceId  READ getSourceId WRITE setSourceById STORED false)
+//  Q_PROPERTY(Source::ptr source READ getSource WRITE setSource)
 
 protected:
-  /// The input Paint instance.
-  Paint::ptr _paint;
+  /// The input Source instance.
+  Source::ptr _source;
 
   /// The output Shape instance.
   MShape::ptr _shape;
@@ -85,24 +85,24 @@ private:
   int _depth; // depth of the layer
 
 protected:
-  Mapping(int id=NULL_UID);
-  Mapping(Paint::ptr paint, uid id=NULL_UID);
-  Mapping(Paint::ptr paint, MShape::ptr shape, uid id=NULL_UID);
-  Mapping(Paint::ptr paint, MShape::ptr shape, MShape::ptr inputShape, uid id=NULL_UID);
+  Layer(int id=NULL_UID);
+  Layer(Source::ptr source, uid id=NULL_UID);
+  Layer(Source::ptr source, MShape::ptr shape, uid id=NULL_UID);
+  Layer(Source::ptr source, MShape::ptr shape, MShape::ptr inputShape, uid id=NULL_UID);
 
 public:
-  typedef QSharedPointer<Mapping> ptr;
+  typedef QSharedPointer<Layer> ptr;
 
-  virtual ~Mapping();
+  virtual ~Layer();
 
   static const UidAllocator& getUidAllocator() { return allocator; }
 
   /**
-   * Sets up this Mapping: its Paint and its Shape.
-   * Calls the build() method of its Paint and Shape.
+   * Sets up this Mapping: its Source and its Shape.
+   * Calls the build() method of its Source and Shape.
    */
   virtual void build() {
-    _paint->build();
+    _source->build();
     _shape->build();
     if (hasInputShape())
       _inputShape->build();
@@ -112,16 +112,16 @@ public:
   virtual MShape::ShapeType getType() const = 0;
 
   // Return copy of this mapping.
-  virtual Mapping* clone() const = 0;
+  virtual Layer* clone() const = 0;
 
-	/// Returns true iff paint is compatible with mapping.
-	virtual bool paintIsCompatible(Paint::ptr paint) const = 0;
+	/// Returns true iff source is compatible with mapping.
+	virtual bool sourceIsCompatible(Source::ptr source) const = 0;
 
-  /// Returns the paint.
-  Paint::ptr getPaint() const { return _paint; }
+  /// Returns the source.
+  Source::ptr getSource() const { return _source; }
 
-	/// Returns paint id.
-	uid getPaintId() const { return _paint->getId(); }
+	/// Returns source id.
+	uid getSourceId() const { return _source->getId(); }
 
   /// Returns the (output) shape.
   MShape::ptr getShape() const { return _shape; }
@@ -145,10 +145,10 @@ public:
   virtual void toggleSolo()    { setSolo(!isSolo()); }
   virtual void toggleVisible() { setVisible(!isVisible()); }
 
-  virtual float getComputedOpacity() const { return getOpacity() * _paint->getOpacity(); }
+  virtual float getComputedOpacity() const { return getOpacity() * _source->getOpacity(); }
 
-  virtual void setPaint(Paint::ptr paint);
-	virtual void setPaintById(uid paintId);
+  virtual void setSource(Source::ptr source);
+	virtual void setSourceById(uid sourceId);
   virtual void setShape(MShape::ptr s) { _shape = s; }
   virtual void setInputShape(MShape::ptr s) { _inputShape = s; }
 
@@ -161,30 +161,30 @@ protected:
 };
 
 /**
- * Mapping of a Color paint into a shape.
+ * Mapping of a Color source into a shape.
  */
-class ColorMapping : public Mapping
+class ColorLayer : public Layer
 {
   Q_OBJECT
 public:
-  Q_INVOKABLE ColorMapping(int id=NULL_UID)
-    : Mapping(id) {}
+  Q_INVOKABLE ColorLayer(int id=NULL_UID)
+    : Layer(id) {}
 
-  ColorMapping(Paint::ptr paint, MShape::ptr shape,
+  ColorLayer(Source::ptr source, MShape::ptr shape,
                uid id=NULL_UID)
-    : Mapping(paint, shape, id) {}
+    : Layer(source, shape, id) {}
 
   // Return copy of this mapping.
-  virtual Mapping* clone() const {
+  virtual Layer* clone() const {
     MShape::ptr shape(_shape->clone());
-    return new ColorMapping(_paint, shape);
+    return new ColorLayer(_source, shape);
   }
 
   /// Returns true iff the mapping possesses an input (source) shape.
   virtual bool hasInputShape() const { return false; }
 
-	/// Returns true iff paint is compatible with mapping.
-	virtual bool paintIsCompatible(Paint::ptr paint) const;
+	/// Returns true iff source is compatible with mapping.
+	virtual bool sourceIsCompatible(Source::ptr source) const;
 
   virtual MShape::ShapeType getType() const {
     return getShape()->getType();
@@ -193,37 +193,37 @@ public:
 };
 
 /**
- * Object whose paint is an image texture. In the case of a texture mapping we require
+ * Object whose source is an image texture. In the case of a texture mapping we require
  * an additional input shape to specify the area on the image where we pick the pixels.
  */
-class TextureMapping : public Mapping
+class TextureLayer : public Layer
 {
   Q_OBJECT
 public:
-  Q_INVOKABLE TextureMapping(int id=NULL_UID)
-    : Mapping(id) {}
+  Q_INVOKABLE TextureLayer(int id=NULL_UID)
+    : Layer(id) {}
 
-  TextureMapping(Paint::ptr paint,
+  TextureLayer(Source::ptr source,
                  MShape::ptr shape,
                  MShape::ptr inputShape, uid id=NULL_UID)
-    : Mapping(paint, shape, inputShape, id)
+    : Layer(source, shape, inputShape, id)
   {
     // Only supports shape of the same type (for now).
     Q_ASSERT(shape->getType() == inputShape->getType());
   }
 
   // Return copy of this mapping.
-  virtual Mapping* clone() const {
+  virtual Layer* clone() const {
     MShape::ptr shape(_shape->clone());
     MShape::ptr inputShape(_inputShape->clone());
-    return new TextureMapping(_paint, shape, inputShape);
+    return new TextureLayer(_source, shape, inputShape);
   }
 
   /// Returns true iff the mapping possesses an input (source) shape.
   virtual bool hasInputShape() const { return true; }
 
-	/// Returns true iff paint is compatible with mapping.
-	virtual bool paintIsCompatible(Paint::ptr paint) const;
+	/// Returns true iff source is compatible with mapping.
+	virtual bool sourceIsCompatible(Source::ptr source) const;
 
   virtual MShape::ShapeType getType() const {
     return getShape()->getType();
@@ -232,4 +232,4 @@ public:
 
 }
 
-#endif /* MAPPING_H_ */
+#endif /* LAYER_H_ */

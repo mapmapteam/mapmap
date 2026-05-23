@@ -29,82 +29,82 @@ MappingManager::MappingManager()
 
 }
 
-QMap<uid, Mapping::ptr> MappingManager::getPaintMappings(const Paint::ptr paint) const
+QMap<uid, Layer::ptr> MappingManager::getSourceLayers(const Source::ptr source) const
 {
-  QMap<uid, Mapping::ptr> paintMappings;
-  for (QVector<Mapping::ptr>::const_iterator it = mappingVector.begin(); it != mappingVector.end(); ++it)
+  QMap<uid, Layer::ptr> sourceLayers;
+  for (QVector<Layer::ptr>::const_iterator it = layerVector.begin(); it != layerVector.end(); ++it)
   {
-    if ((*it)->getPaint() == paint)
+    if ((*it)->getSource() == source)
     {
-      paintMappings[(*it)->getId()] = *it;
+      sourceLayers[(*it)->getId()] = *it;
     }
   }
-  return paintMappings;
+  return sourceLayers;
 }
 
 
-Paint::ptr MappingManager::getPaintByName(QString name)
+Source::ptr MappingManager::getSourceByName(QString name)
 {
-  return _getElementByName(paintVector, name);
+  return _getElementByName(sourceVector, name);
 }
 
-QVector<Paint::ptr> MappingManager::getPaintsByNameRegExp(QString namePattern)
+QVector<Source::ptr> MappingManager::getSourcesByNameRegExp(QString namePattern)
 {
-  return _getElementsByNameRegExp(paintVector, namePattern);
+  return _getElementsByNameRegExp(sourceVector, namePattern);
 }
 
-QVector<Paint::ptr> MappingManager::getPaintsCompatibleWith(Mapping::ptr mapping)
+QVector<Source::ptr> MappingManager::getSourcesCompatibleWith(Layer::ptr layer)
 {
-	QVector<Paint::ptr> paints;
-	for (QVector<Paint::ptr>::const_iterator it = paintVector.constBegin();
-	     it != paintVector.constEnd(); ++it)
-		if (mapping->paintIsCompatible(*it))
+	QVector<Source::ptr> paints;
+	for (QVector<Source::ptr>::const_iterator it = sourceVector.constBegin();
+	     it != sourceVector.constEnd(); ++it)
+		if (layer->sourceIsCompatible(*it))
 			paints.append(*it);
 	return paints;
 }
 
-Mapping::ptr MappingManager::getMappingByName(QString name)
+Layer::ptr MappingManager::getLayerByName(QString name)
 {
-  return _getElementByName(mappingVector, name);
+  return _getElementByName(layerVector, name);
 }
 
-QVector<Mapping::ptr> MappingManager::getMappingsByNameRegExp(QString namePattern)
+QVector<Layer::ptr> MappingManager::getLayersByNameRegExp(QString namePattern)
 {
-  return _getElementsByNameRegExp(mappingVector, namePattern);
+  return _getElementsByNameRegExp(layerVector, namePattern);
 }
 
-QMap<uid, Mapping::ptr> MappingManager::getPaintMappingsById(uid paintId) const
+QMap<uid, Layer::ptr> MappingManager::getSourceLayersById(uid sourceId) const
 {
-  return getPaintMappings(paintMap[paintId]);
+  return getSourceLayers(sourceMap[sourceId]);
 }
 
-uid MappingManager::addPaint(Paint::ptr paint)
+uid MappingManager::addSource(Source::ptr source)
 {
-  paintVector.push_back(paint);
-  paintMap[paint->getId()] = paint;
-  return paint->getId();
+  sourceVector.push_back(source);
+  sourceMap[source->getId()] = source;
+  return source->getId();
 }
 
-bool MappingManager::removePaint(uid paintId)
+bool MappingManager::removeSource(uid sourceId)
 {
-  // Make sure the paint to which this paint refers to exists in the manager.
-  Paint::ptr paint = getPaintById(paintId);
-  if (paint)
+  // Make sure the source to which this source refers to exists in the manager.
+  Source::ptr source = getSourceById(sourceId);
+  if (source)
   {
-    // Remove all mappings associated with paint.
-    QMap<uid, Mapping::ptr> paintMappings = getPaintMappings(paint);
-    for (QMap<uid, Mapping::ptr>::const_iterator it = paintMappings.constBegin();
-         it != paintMappings.constEnd(); ++it)
+    // Remove all mappings associated with source.
+    QMap<uid, Layer::ptr> sourceLayers = getSourceLayers(source);
+    for (QMap<uid, Layer::ptr>::const_iterator it = sourceLayers.constBegin();
+         it != sourceLayers.constEnd(); ++it)
     {
-      removeMapping(it.key());
+      removeLayer(it.key());
     }
 
-    // Remove paint.
-    int idx = paintVector.lastIndexOf(paint);
+    // Remove source.
+    int idx = sourceVector.lastIndexOf(source);
     Q_ASSERT(idx != -1);
-    paintVector.remove(idx);
-    paintMap.remove(paintId);
-    paint->~Paint(); // FIX ME: Explicit call of paint destructor in order add Camera more than once
+    sourceVector.remove(idx);
+    sourceMap.remove(sourceId);
+    source->~Source(); // FIX ME: Explicit call of source destructor in order add Camera more than once
     return true;
   }
   else
@@ -113,18 +113,18 @@ bool MappingManager::removePaint(uid paintId)
   }
 }
 
-bool MappingManager::replacePaintMappings(Paint::ptr oldpaint,
-        Paint::ptr newpaint)
+bool MappingManager::replaceSourceLayers(Source::ptr oldSource,
+        Source::ptr newSource)
 {
-  // Make sure the paint to which this paint refers to exists in the manager.
-  if (oldpaint && newpaint)
+  // Make sure the source to which this source refers to exists in the manager.
+  if (oldSource && newSource)
   {
-    QMap<uid, Mapping::ptr> paintMappings = getPaintMappings(oldpaint);
-    for (QMap<uid, Mapping::ptr>::const_iterator it = paintMappings.constBegin();
-         it != paintMappings.constEnd(); ++it)
+    QMap<uid, Layer::ptr> sourceLayers = getSourceLayers(oldSource);
+    for (QMap<uid, Layer::ptr>::const_iterator it = sourceLayers.constBegin();
+         it != sourceLayers.constEnd(); ++it)
     {
-      Mapping::ptr mapping = it.value();
-      mapping->setPaint(newpaint);
+      Layer::ptr layer = it.value();
+      layer->setSource(newSource);
     }
     return true;
   }
@@ -134,28 +134,28 @@ bool MappingManager::replacePaintMappings(Paint::ptr oldpaint,
   }
 }
 
-uid MappingManager::addMapping(Mapping::ptr mapping)
+uid MappingManager::addLayer(Layer::ptr layer)
 {
-  // Make sure the paint to which this mapping refers to exists in the manager.
-  Q_ASSERT ( paintVector.contains(mapping->getPaint()) );
+  // Make sure the source to which this mapping refers to exists in the manager.
+  Q_ASSERT ( sourceVector.contains(layer->getSource()) );
 
-  mappingVector.insert(0, mapping);
-  mappingMap[mapping->getId()] = mapping;
+  layerVector.insert(0, layer);
+  layerMap[layer->getId()] = layer;
 
-  return mapping->getId();
+  return layer->getId();
 }
 
-bool MappingManager::removeMapping(uid mappingId)
+bool MappingManager::removeLayer(uid mappingId)
 {
-  // Make sure the paint to which this mapping refers to exists in the manager.
-  Mapping::ptr mapping = getMappingById(mappingId);
-  if (mapping)
+  // Make sure the source to which this mapping refers to exists in the manager.
+  Layer::ptr layer = getLayerById(mappingId);
+  if (layer)
   {
-    int idx = mappingVector.lastIndexOf(mapping);
-    Q_ASSERT( idx != -1 ); // Q_ASSERT(mappingVector.contains(mapping));
-    mappingVector.remove(idx);
-    mappingMap.remove(mappingId);
-    updateMappingsDepths();
+    int idx = layerVector.lastIndexOf(layer);
+    Q_ASSERT( idx != -1 ); // Q_ASSERT(layerVector.contains(layer));
+    layerVector.remove(idx);
+    layerMap.remove(mappingId);
+    updateLayerDepths();
 
     return true;
   }
@@ -166,14 +166,14 @@ bool MappingManager::removeMapping(uid mappingId)
 }
 
 /// Moves a mapping of given uid by a certain number of steps up or down.
-bool MappingManager::moveMapping(uid mappingId, int toIndex)
+bool MappingManager::moveLayer(uid mappingId, int toIndex)
 {
-  // Make sure the paint to which this mapping refers to exists in the manager.
-  int idx = getMappingIndex(mappingId);
+  // Make sure the source to which this mapping refers to exists in the manager.
+  int idx = getLayerIndex(mappingId);
   if (idx >= 0)
   {
-    mappingVector.move(idx, toIndex);
-    updateMappingsDepths();
+    layerVector.move(idx, toIndex);
+    updateLayerDepths();
     return true;
   }
   else
@@ -182,14 +182,14 @@ bool MappingManager::moveMapping(uid mappingId, int toIndex)
   }
 }
 
-QVector<Mapping::ptr> MappingManager::getVisibleMappings() const
+QVector<Layer::ptr> MappingManager::getVisibleLayers() const
 {
-  QVector<Mapping::ptr> visible;
+  QVector<Layer::ptr> visible;
 
   // First pass: check if one of the mappings is in solo mode.
   bool hasSolo = false;
-  for (QVector<Mapping::ptr>::const_iterator it = mappingVector.begin();
-          it != mappingVector.end(); ++it)
+  for (QVector<Layer::ptr>::const_iterator it = layerVector.begin();
+          it != layerVector.end(); ++it)
   {
     if ((*it)->isSolo())
     {
@@ -199,8 +199,8 @@ QVector<Mapping::ptr> MappingManager::getVisibleMappings() const
   }
 
   // Second pass: fill the visible vector.
-  for (QVector<Mapping::ptr>::const_iterator it = mappingVector.begin();
-          it != mappingVector.end(); ++it)
+  for (QVector<Layer::ptr>::const_iterator it = layerVector.begin();
+          it != layerVector.end(); ++it)
   {
     // Solo has priority over invisible (mute)
     if ( (hasSolo && (*it)->isSolo()) ||
@@ -214,16 +214,16 @@ QVector<Mapping::ptr> MappingManager::getVisibleMappings() const
 }
 
 /// Returns true iff the mapping is visible.
-bool MappingManager::mappingIsVisible(Mapping::ptr mapping) const
+bool MappingManager::layerIsVisible(Layer::ptr layer) const
 {
   // Solo mappings are always visible.
-  if (mapping->isSolo())
+  if (layer->isSolo())
   {
     return true;
   }
 
   // Non-solo invisible mappings are always invisible.
-  else if (! mapping->isVisible())
+  else if (! layer->isVisible())
   {
     return false;
   }
@@ -232,8 +232,8 @@ bool MappingManager::mappingIsVisible(Mapping::ptr mapping) const
   // (which would thus make it invisible).
   else
   {
-    for (QVector<Mapping::ptr>::const_iterator it = mappingVector.begin();
-            it != mappingVector.end(); ++it)
+    for (QVector<Layer::ptr>::const_iterator it = layerVector.begin();
+            it != layerVector.end(); ++it)
     {
       if ((*it)->isSolo())
       {
@@ -247,63 +247,63 @@ bool MappingManager::mappingIsVisible(Mapping::ptr mapping) const
 }
 
 /// Returns the list of visible paints (ie. paints for which at least one mapping is visible).
-QVector<Paint::ptr> MappingManager::getVisiblePaints() const
+QVector<Source::ptr> MappingManager::getVisibleSources() const
 {
-  QVector<Paint::ptr> visiblePaints;
-  QVector<Mapping::ptr> visibleMappings = getVisibleMappings();
-  for (QVector<Mapping::ptr>::const_iterator it = visibleMappings.begin();
-          it != visibleMappings.end(); ++it)
+  QVector<Source::ptr> visibleSources;
+  QVector<Layer::ptr> visibleLayers = getVisibleLayers();
+  for (QVector<Layer::ptr>::const_iterator it = visibleLayers.begin();
+          it != visibleLayers.end(); ++it)
   {
-    Paint::ptr paint((*it)->getPaint());
-    if (!visiblePaints.contains(paint))
-      visiblePaints.push_back(paint);
+    Source::ptr source((*it)->getSource());
+    if (!visibleSources.contains(source))
+      visibleSources.push_back(source);
   }
-  return visiblePaints;
+  return visibleSources;
 }
 
-void MappingManager::reorderMappings(QVector<uid> mappingIds)
+void MappingManager::reorderLayers(QVector<uid> mappingIds)
 {
   // Both vector needs to have the same size.
-  Q_ASSERT( mappingIds.size() == mappingVector.size() );
-  mappingVector.clear();
+  Q_ASSERT( mappingIds.size() == layerVector.size() );
+  layerVector.clear();
   int depth = 0;
   for (QVector<uid>::iterator it = mappingIds.begin();
           it != mappingIds.end(); ++it)
   {
-    // Uid should be a key of the mappingMap.
-    Q_ASSERT( mappingMap.contains(*it) );
+    // Uid should be a key of the layerMap.
+    Q_ASSERT( layerMap.contains(*it) );
     // Makes sure the uids are not repeated.
-    Q_ASSERT( ! mappingVector.contains(mappingMap[*it]) );
+    Q_ASSERT( ! layerVector.contains(layerMap[*it]) );
     // Adds the mapping at the right place in the vector.
-    Mapping::ptr mapping = mappingMap[*it];
-    mapping->setDepth(depth);
-    mappingVector.push_back( mapping );
+    Layer::ptr layer = layerMap[*it];
+    layer->setDepth(depth);
+    layerVector.push_back( layer );
 
     depth++;
   }
 }
 
-void MappingManager::updateMappingsDepths()
+void MappingManager::updateLayerDepths()
 {
   int depth = 0;
-  for (QVector<Mapping::ptr>::iterator it = mappingVector.begin();
-          it != mappingVector.end(); ++it)
+  for (QVector<Layer::ptr>::iterator it = layerVector.begin();
+          it != layerVector.end(); ++it)
   {
     (*it)->setDepth(depth);
     depth++;
   }
 }
 
-//bool MappingManager::removeMapping(Mapping::ptr mapping)
+//bool MappingManager::removeLayer(Layer::ptr layer)
 //{
 //}
 
 void MappingManager::clearAll()
 {
-  paintVector.clear();
-  mappingVector.clear();
-  paintMap.clear();
-  mappingMap.clear();
+  sourceVector.clear();
+  layerVector.clear();
+  sourceMap.clear();
+  layerMap.clear();
 }
 
 }

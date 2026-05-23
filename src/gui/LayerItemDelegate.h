@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAPPINGITEMDELEGATE_H
-#define MAPPINGITEMDELEGATE_H
+#ifndef LAYERITEMDELEGATE_H
+#define LAYERITEMDELEGATE_H
 
 #include <QStyledItemDelegate>
 #include <QLineEdit>
@@ -34,12 +34,12 @@ namespace mmp {
 
 typedef int uid;
 
-class MappingItemDelegate : public QStyledItemDelegate
+class LayerItemDelegate : public QStyledItemDelegate
 {
   Q_OBJECT
 
 public:
-  MappingItemDelegate(QObject *parent = nullptr);
+  LayerItemDelegate(QObject *parent = nullptr);
 
   void paint(QPainter *painter, const QStyleOptionViewItem &option,
              const QModelIndex &index) const override;
@@ -63,4 +63,4 @@ protected:
 
 }
 
-#endif // MAPPINGITEMDELEGATE_H
+#endif // LAYERITEMDELEGATE_H

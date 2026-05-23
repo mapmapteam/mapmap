@@ -19,36 +19,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Mapping.h"
+#include "Layer.h"
 #include "MainWindow.h"
 
 namespace mmp {
 
-UidAllocator Mapping::allocator;
+UidAllocator Layer::allocator;
 
-Mapping::Mapping(uid id)
-: Mapping(Paint::ptr(), MShape::ptr(), MShape::ptr(), id) {}
+Layer::Layer(uid id)
+: Layer(Source::ptr(), MShape::ptr(), MShape::ptr(), id) {}
 
-Mapping::Mapping(Paint::ptr paint, uid id)
-: Mapping(paint, MShape::ptr(), MShape::ptr(), id) {}
+Layer::Layer(Source::ptr source, uid id)
+: Layer(source, MShape::ptr(), MShape::ptr(), id) {}
 
-Mapping::Mapping(Paint::ptr paint, MShape::ptr shape, uid id)
-: Mapping(paint, shape, MShape::ptr(), id) {}
+Layer::Layer(Source::ptr source, MShape::ptr shape, uid id)
+: Layer(source, shape, MShape::ptr(), id) {}
 
-Mapping::Mapping(Paint::ptr paint, MShape::ptr shape, MShape::ptr inputShape, uid id)
+Layer::Layer(Source::ptr source, MShape::ptr shape, MShape::ptr inputShape, uid id)
   : Element(id, &allocator),
-    _paint(paint), _shape(shape), _inputShape(inputShape),
+    _source(source), _shape(shape), _inputShape(inputShape),
     _isSolo(false), _isVisible(true)
 {
   // Default.
   _depth = getId();
 }
 
-Mapping::~Mapping() {
+Layer::~Layer() {
   allocator.free(getId());
 }
 
-void Mapping::setSolo(bool solo)
+void Layer::setSolo(bool solo)
 {
   if (solo != _isSolo)
   {
@@ -57,7 +57,7 @@ void Mapping::setSolo(bool solo)
   }
 }
 
-void Mapping::setVisible(bool visible)
+void Layer::setVisible(bool visible)
 {
   if (visible != _isVisible)
   {
@@ -66,7 +66,7 @@ void Mapping::setVisible(bool visible)
   }
 }
 
-void Mapping::setDepth(int depth)
+void Layer::setDepth(int depth)
 {
   if (depth != _depth)
   {
@@ -75,7 +75,7 @@ void Mapping::setDepth(int depth)
   }
 }
 
-void Mapping::setLocked(bool locked)
+void Layer::setLocked(bool locked)
 {
   if (!_shape.isNull())
     _shape->setLocked(locked);
@@ -84,26 +84,26 @@ void Mapping::setLocked(bool locked)
   Element::setLocked(locked);
 }
 
-void Mapping::setPaint(Paint::ptr paint)
+void Layer::setSource(Source::ptr source)
 {
-	if (paintIsCompatible(paint))
+	if (sourceIsCompatible(source))
 	{
-		_paint = paint;
-	  _emitPropertyChanged("paintId");
+		_source = source;
+	  _emitPropertyChanged("sourceId");
 	}
 }
 
-void Mapping::setPaintById(uid paintId)
+void Layer::setSourceById(uid sourceId)
 {
-  setPaint(MainWindow::window()->getMappingManager().getPaintById(paintId));
+  setSource(MainWindow::window()->getMappingManager().getSourceById(sourceId));
 }
 
-void Mapping::read(const QJsonObject& obj)
+void Layer::read(const QJsonObject& obj)
 {
   Element::read(obj);
 
-  int paintId = obj[ProjectLabels::SOURCE_ID].toInt();
-  setPaintById(paintId);
+  int sourceId = obj[ProjectLabels::SOURCE_ID].toInt();
+  setSourceById(sourceId);
 
   // Read output shape.
   _readShape(obj, true);
@@ -115,11 +115,11 @@ void Mapping::read(const QJsonObject& obj)
   }
 }
 
-void Mapping::write(QJsonObject& obj)
+void Layer::write(QJsonObject& obj)
 {
   Element::write(obj);
 
-  obj[ProjectLabels::SOURCE_ID] = getPaintId();
+  obj[ProjectLabels::SOURCE_ID] = getSourceId();
 
   // Write output shape.
   _writeShape(obj, true);
@@ -131,7 +131,7 @@ void Mapping::write(QJsonObject& obj)
   }
 }
 
-void Mapping::_readShape(const QJsonObject& obj, bool isOutput)
+void Layer::_readShape(const QJsonObject& obj, bool isOutput)
 {
   QString tag = isOutput ? ProjectLabels::DESTINATION : ProjectLabels::SOURCE;
 
@@ -161,7 +161,7 @@ void Mapping::_readShape(const QJsonObject& obj, bool isOutput)
   }
 }
 
-void Mapping::_writeShape(QJsonObject& obj, bool isOutput)
+void Layer::_writeShape(QJsonObject& obj, bool isOutput)
 {
   QString tag = isOutput ? ProjectLabels::DESTINATION : ProjectLabels::SOURCE;
   MShape::ptr shape = isOutput ? getShape() : getInputShape();
@@ -170,14 +170,14 @@ void Mapping::_writeShape(QJsonObject& obj, bool isOutput)
   obj[tag] = shapeObj;
 }
 
-bool ColorMapping::paintIsCompatible(Paint::ptr paint) const
+bool ColorLayer::sourceIsCompatible(Source::ptr source) const
 {
-	return paint->inherits("mmp::Color");
+	return source->inherits("mmp::Color");
 }
 
-bool TextureMapping::paintIsCompatible(Paint::ptr paint) const
+bool TextureLayer::sourceIsCompatible(Source::ptr source) const
 {
-	return paint->inherits("mmp::Texture");
+	return source->inherits("mmp::Texture");
 }
 
 }

@@ -1,5 +1,5 @@
 /*
- * PaintGui.cpp
+ * SourceGui.cpp
  *
  * (c) 2014 Sofian Audry -- info(@)sofianaudry(.)com
  *
@@ -17,12 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <PaintGui.h>
+#include <SourceGui.h>
 
 namespace mmp {
 
-PaintGui::PaintGui(Paint::ptr paint)
-  : _paint(paint)
+SourceGui::SourceGui(Source::ptr source)
+  : _source(source)
 {
   // Create editor.
   _propertyBrowser = new QtTreePropertyBrowser;
@@ -37,51 +37,51 @@ PaintGui::PaintGui(Paint::ptr paint)
   // Mapping UID.
   _idItem = _variantManager->addProperty(QVariant::Int, QObject::tr("ID"));
   _idItem->setEnabled(false);
-  _idItem->setValue(_paint->getId());
+  _idItem->setValue(_source->getId());
   _propertyBrowser->addProperty(_idItem);
 
-  // Paint basic properties.
+  // Source basic properties.
   _opacityItem = _variantManager->addProperty(QVariant::Double, QObject::tr("Opacity (%)"));
   _opacityItem->setAttribute("minimum", 0.0);
   _opacityItem->setAttribute("maximum", 100.0);
   _opacityItem->setAttribute("decimals", 1);
-  _opacityItem->setValue(_paint->getOpacity()*100.0);
+  _opacityItem->setValue(_source->getOpacity()*100.0);
   _propertyBrowser->addProperty(_opacityItem);
 }
 
-PaintGui::~PaintGui()
+SourceGui::~SourceGui()
 {
   delete _propertyBrowser;
 }
 
-QWidget* PaintGui::getPropertiesEditor()
+QWidget* SourceGui::getPropertiesEditor()
 {
   return _propertyBrowser;
 }
 
-void PaintGui::setValue(QtProperty* property, const QVariant& value)
+void SourceGui::setValue(QtProperty* property, const QVariant& value)
 {
   if (property == _opacityItem)
   {
     double opacity = qBound(value.toDouble() / 100.0, 0.0, 1.0);
-    if (opacity != _paint->getOpacity())
+    if (opacity != _source->getOpacity())
     {
-      _paint->setOpacity(opacity);
-      emit valueChanged(_paint);
+      _source->setOpacity(opacity);
+      emit valueChanged(_source);
     }
   }
 }
 
-void PaintGui::setValue(QString propertyName, QVariant value)
+void SourceGui::setValue(QString propertyName, QVariant value)
 {
   if (propertyName == "opacity")
     _opacityItem->setValue(value.toDouble() * 100);
 }
 
-ColorGui::ColorGui(Paint::ptr paint)
-  : PaintGui(paint)
+ColorGui::ColorGui(Source::ptr source)
+  : SourceGui(source)
 {
-  color = qSharedPointerCast<Color>(paint);
+  color = qSharedPointerCast<Color>(source);
   Q_CHECK_PTR(color);
 
   _colorItem = _variantManager->addProperty(QVariant::Color,
@@ -95,10 +95,10 @@ ColorGui::ColorGui(Paint::ptr paint)
 void ColorGui::setValue(QtProperty* property, const QVariant& value) {
   if (property == _colorItem) {
     color->setColor(value.value<QColor>());
-    emit valueChanged(_paint);
+    emit valueChanged(_source);
   }
   else
-    PaintGui::setValue(property, value);
+    SourceGui::setValue(property, value);
 }
 
 void ColorGui::setValue(QString propertyName, QVariant value)
@@ -106,16 +106,16 @@ void ColorGui::setValue(QString propertyName, QVariant value)
   if (propertyName == "color")
     setValue(_colorItem, value);
   else
-    PaintGui::setValue(propertyName, value);
+    SourceGui::setValue(propertyName, value);
 }
 
-TextureGui::TextureGui(Paint::ptr paint) : PaintGui(paint) {
+TextureGui::TextureGui(Source::ptr source) : SourceGui(source) {
 }
 
-ImageGui::ImageGui(Paint::ptr paint)
-  : TextureGui(paint)
+ImageGui::ImageGui(Source::ptr source)
+  : TextureGui(source)
 {
-  image = qSharedPointerCast<Image>(paint);
+  image = qSharedPointerCast<Image>(source);
   Q_CHECK_PTR(image);
 
 _imageFileItem = _variantManager->addProperty(VariantManager::filePathTypeId(),
@@ -138,13 +138,13 @@ _imageFileItem->setValue(image->getUri());
 void ImageGui::setValue(QtProperty* property, const QVariant& value) {
   if (property == _imageFileItem) {
     image->setUri(value.toString());
-    emit valueChanged(_paint);
+    emit valueChanged(_source);
   }
   else if (property == _imageRateItem)
   {
     //double rateSign = (media->getRate() <= 0 ? -1 : +1);
     image->setRate(value.toDouble()/100.0);
-    emit valueChanged(_paint);
+    emit valueChanged(_source);
   }
   else
     TextureGui::setValue(property, value);
@@ -160,10 +160,10 @@ void ImageGui::setValue(QString propertyName, QVariant value)
     TextureGui::setValue(propertyName, value);
 }
 
-VideoGui::VideoGui(Paint::ptr paint)
-: TextureGui(paint)
+VideoGui::VideoGui(Source::ptr source)
+: TextureGui(source)
 {
-  media = qSharedPointerCast<Video>(paint);
+  media = qSharedPointerCast<Video>(source);
   Q_CHECK_PTR(media);
 
   _mediaFileItem = _variantManager->addProperty(VariantManager::filePathTypeId(),
@@ -202,24 +202,24 @@ void VideoGui::setValue(QtProperty* property, const QVariant& value)
   if (property == _mediaFileItem)
   {
     media->setUri(value.toString());
-    emit valueChanged(_paint);
+    emit valueChanged(_source);
   }
   else if (property == _mediaRateItem)
   {
     //double rateSign = (media->getRate() <= 0 ? -1 : +1);
     media->setRate(value.toDouble()/100.0);
-    emit valueChanged(_paint);
+    emit valueChanged(_source);
   }
 //    else if (property == _mediaReverseItem)
 //    {
 //      double absoluteRate = abs( media->getRate() );
 //      media->setRate( (value.toBool() ? -1 : +1) * absoluteRate );
-//      emit valueChanged(_paint);
+//      emit valueChanged(_source);
 //    }
   else if (property == _mediaVolumeItem)
   {
     media->setVolume(value.toDouble()/100.0);
-    emit valueChanged(_paint);
+    emit valueChanged(_source);
   }
   else
     TextureGui::setValue(property, value);

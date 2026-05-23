@@ -73,31 +73,31 @@ void ProjectReader::parseProject(const QJsonObject& project)
   QJsonArray sources = project[ProjectLabels::SOURCES].toArray();
   QJsonArray layers  = project[ProjectLabels::LAYERS].toArray();
 
-  // Parse sources (formerly paints).
+  // Parse sources (formerly sources).
   for (const auto& val : sources)
   {
-    Paint::ptr paint = parsePaint(val.toObject());
+    Source::ptr source = parseSource(val.toObject());
 
-    if (paint.isNull())
+    if (source.isNull())
     {
       qDebug() << "Problem creating source." << Qt::endl;
     }
     else
     {
-      manager.addPaint(paint);
-      _window->addPaintItem(paint->getId(), paint->getIcon(), paint->getName());
+      manager.addSource(source);
+      _window->addSourceItem(source->getId(), source->getIcon(), source->getName());
 
       // Locate media file if not found
-      if (paint->getSourceType() == Paint::SourceType::Video)
+      if (source->getSourceType() == Source::SourceType::Video)
       {
-        QSharedPointer<Video> media = qSharedPointerCast<Video>(paint);
+        QSharedPointer<Video> media = qSharedPointerCast<Video>(source);
         Q_CHECK_PTR(media);
         if (!_window->fileExists(media->getUri()))
           media->setUri(_window->locateMediaFile(media->getUri(), false));
       }
-      if (paint->getSourceType() == Paint::SourceType::Image)
+      if (source->getSourceType() == Source::SourceType::Image)
       {
-        QSharedPointer<Image> image = qSharedPointerCast<Image>(paint);
+        QSharedPointer<Image> image = qSharedPointerCast<Image>(source);
         Q_CHECK_PTR(image);
         if (!_window->fileExists(image->getUri()))
           image->setUri(_window->locateMediaFile(image->getUri(), true));
@@ -106,30 +106,30 @@ void ProjectReader::parseProject(const QJsonObject& project)
   }
 
   // Parse layers (formerly mappings).
-  QVector<Mapping::ptr> allMappings;
+  QVector<Layer::ptr> allLayers;
   for (const auto& val : layers)
   {
-    Mapping::ptr mapping = parseMapping(val.toObject());
-    if (mapping.isNull())
+    Layer::ptr layer = parseLayer(val.toObject());
+    if (layer.isNull())
     {
       qDebug() << "Problem creating layer." << Qt::endl;
     }
     else
     {
-      allMappings.push_back(mapping);
+      allLayers.push_back(layer);
     }
   }
 
   // Add all mappings in reverse order.
-  for (QVector<Mapping::ptr>::const_reverse_iterator it = allMappings.rbegin();
-          it != allMappings.rend(); ++it)
+  for (QVector<Layer::ptr>::const_reverse_iterator it = allLayers.rbegin();
+          it != allLayers.rend(); ++it)
   {
-    manager.addMapping(*it);
-    _window->addMappingItem((*it)->getId());
+    manager.addLayer(*it);
+    _window->addLayerItem((*it)->getId());
   }
 }
 
-Paint::ptr ProjectReader::parsePaint(const QJsonObject& obj)
+Source::ptr ProjectReader::parseSource(const QJsonObject& obj)
 {
   QString className = Serializable::classNameCleanToReal(obj[ProjectLabels::CLASS_NAME].toString());
   int id            = obj[ProjectLabels::ID].toInt(NULL_UID);
@@ -139,27 +139,27 @@ Paint::ptr ProjectReader::parsePaint(const QJsonObject& obj)
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
   if (metaObject)
   {
-    Paint::ptr paint(qobject_cast<Paint*>(metaObject->newInstance(Q_ARG(int, id))));
+    Source::ptr source(qobject_cast<Source*>(metaObject->newInstance(Q_ARG(int, id))));
 
-    if (paint.isNull())
+    if (source.isNull())
     {
       qDebug() << QObject::tr("Problem at creation of source.") << Qt::endl;
     }
     else
-      qDebug() << "Created new instance with id: " << paint->getId();
+      qDebug() << "Created new instance with id: " << source->getId();
 
-    paint->read(obj);
+    source->read(obj);
 
-    return paint;
+    return source;
   }
   else
   {
     _errorString = QObject::tr("Unable to create source of type '%1'.").arg(className);
-    return Paint::ptr();
+    return Source::ptr();
   }
 }
 
-Mapping::ptr ProjectReader::parseMapping(const QJsonObject& obj)
+Layer::ptr ProjectReader::parseLayer(const QJsonObject& obj)
 {
   QString className = Serializable::classNameCleanToReal(obj[ProjectLabels::CLASS_NAME].toString());
   int id            = obj[ProjectLabels::ID].toInt(NULL_UID);
@@ -167,20 +167,20 @@ Mapping::ptr ProjectReader::parseMapping(const QJsonObject& obj)
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
   if (metaObject)
   {
-    Mapping::ptr mapping(qobject_cast<Mapping*>(metaObject->newInstance(Q_ARG(int, id))));
-    if (mapping.isNull())
+    Layer::ptr layer(qobject_cast<Layer*>(metaObject->newInstance(Q_ARG(int, id))));
+    if (layer.isNull())
     {
       qDebug() << QObject::tr("Problem at creation of layer.") << Qt::endl;
     }
 
-    mapping->read(obj);
+    layer->read(obj);
 
-    return mapping;
+    return layer;
   }
   else
   {
     _errorString = QObject::tr("Unable to create layer of type '%1'.").arg(className);
-    return Mapping::ptr();
+    return Layer::ptr();
   }
 }
 

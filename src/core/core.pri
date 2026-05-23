@@ -5,12 +5,12 @@ HEADERS += $$PWD/Commands.h \
     $$PWD/CameraImpl.h \
     $$PWD/CameraSurface.h \
     $$PWD/Element.h \
-    $$PWD/Mapping.h \
+    $$PWD/Layer.h \
     $$PWD/MappingManager.h \
     $$PWD/Maths.h \
     $$PWD/MetaObjectRegistry.h \
     $$PWD/MM.h \
-    $$PWD/Paint.h \
+    $$PWD/Source.h \
     $$PWD/ProjectLabels.h \
     $$PWD/ProjectReader.h \
     $$PWD/ProjectWriter.h \
@@ -24,11 +24,11 @@ SOURCES += $$PWD/Commands.cpp \
     $$PWD/CameraImpl.cpp \
     $$PWD/CameraSurface.cpp \
     $$PWD/Element.cpp \
-    $$PWD/Mapping.cpp \
+    $$PWD/Layer.cpp \
     $$PWD/MappingManager.cpp \
     $$PWD/MetaObjectRegistry.cpp \
     $$PWD/MM.cpp \
-    $$PWD/Paint.cpp \
+    $$PWD/Source.cpp \
     $$PWD/ProjectLabels.cpp \
     $$PWD/ProjectReader.cpp \
     $$PWD/ProjectWriter.cpp \

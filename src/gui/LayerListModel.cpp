@@ -17,33 +17,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MappingListModel.h"
+#include "LayerListModel.h"
 #include <QIODevice>
 
 namespace mmp {
 
-MappingListModel::MappingListModel(QObject *parent) :
+LayerListModel::LayerListModel(QObject *parent) :
   QAbstractTableModel(parent) {}
 
-int MappingListModel::rowCount(const QModelIndex &parent) const
+int LayerListModel::rowCount(const QModelIndex &parent) const
 {
-  return (parent.isValid() && parent.column() != 0) ? 0 : mappingList.size();
+  return (parent.isValid() && parent.column() != 0) ? 0 : layerList.size();
 }
 
-int MappingListModel::columnCount(const QModelIndex &parent) const
+int LayerListModel::columnCount(const QModelIndex &parent) const
 {
   Q_UNUSED(parent)
   return 3;
 }
 
-QVariant MappingListModel::data(const QModelIndex &index, int role) const
+QVariant LayerListModel::data(const QModelIndex &index, int role) const
 {
   if (!index.isValid())
     return QVariant();
 
   switch (role) {
   case Qt::CheckStateRole:
-    return mappingList.at(index.row()).isVisible ? Qt::Checked : Qt::Unchecked;
+    return layerList.at(index.row()).isVisible ? Qt::Checked : Qt::Unchecked;
 
   case Qt::SizeHintRole:
     if (index.column() == MM::HideColumn)
@@ -54,25 +54,25 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
       return QSize(MM::MAPPING_LIST_BUTTONS_COLUMN, 40);
    break;
   case Qt::CheckStateRole + 1:
-    return mappingList.at(index.row()).isSolo ? Qt::Checked : Qt::Unchecked;
+    return layerList.at(index.row()).isSolo ? Qt::Checked : Qt::Unchecked;
 
   case Qt::CheckStateRole + 2:
-    return mappingList.at(index.row()).isLocked ? Qt::Checked : Qt::Unchecked;
+    return layerList.at(index.row()).isLocked ? Qt::Checked : Qt::Unchecked;
 
   case Qt::UserRole:
-    return QVariant(mappingList.at(index.row()).id);
+    return QVariant(layerList.at(index.row()).id);
 
   case Qt::EditRole:
-    return QVariant(mappingList.at(index.row()).label);
+    return QVariant(layerList.at(index.row()).label);
 
   case Qt::DisplayRole:
-    return QVariant(mappingList.at(index.row()).label);
+    return QVariant(layerList.at(index.row()).label);
 
   case Qt::DecorationRole:
-    return mappingList.at(index.row()).icon;
+    return layerList.at(index.row()).icon;
 
   case Qt::ToolTipRole:
-    return QString("ID: %1").arg(mappingList.at(index.row()).id);
+    return QString("ID: %1").arg(layerList.at(index.row()).id);
 
   default:
     return QVariant();
@@ -81,7 +81,7 @@ QVariant MappingListModel::data(const QModelIndex &index, int role) const
   return QVariant();
 }
 
-Qt::ItemFlags MappingListModel::flags(const QModelIndex &index) const
+Qt::ItemFlags LayerListModel::flags(const QModelIndex &index) const
 {
   if (!index.isValid())
     return Qt::NoItemFlags;
@@ -94,21 +94,21 @@ Qt::ItemFlags MappingListModel::flags(const QModelIndex &index) const
       Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
-Qt::DropActions MappingListModel::supportedDropActions() const
+Qt::DropActions LayerListModel::supportedDropActions() const
 {
   return Qt::MoveAction;
 }
 
 #define MIMETYPE QLatin1String("mapping/model.item.list")
 
-QStringList MappingListModel::mimeTypes() const
+QStringList LayerListModel::mimeTypes() const
 {
   QStringList types;
   types << MIMETYPE;
   return types;
 }
 
-QMimeData *MappingListModel::mimeData(const QModelIndexList &indexes) const
+QMimeData *LayerListModel::mimeData(const QModelIndexList &indexes) const
 {
   QMimeData *mimeData = QAbstractTableModel::mimeData(indexes);
   QByteArray encodeData;
@@ -129,7 +129,7 @@ QMimeData *MappingListModel::mimeData(const QModelIndexList &indexes) const
   return mimeData;
 }
 
-bool MappingListModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+bool LayerListModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
   if (!data->hasFormat(MIMETYPE)
       || column > 0)
@@ -142,9 +142,9 @@ bool MappingListModel::dropMimeData(const QMimeData *data, Qt::DropAction action
 
   if (!parent.isValid()) {
     if (row < 0)
-      endRow = mappingList.size();
+      endRow = layerList.size();
     else
-      endRow = qMin(row, mappingList.size());
+      endRow = qMin(row, layerList.size());
   } else {
     endRow = parent.row();
   }
@@ -165,30 +165,30 @@ bool MappingListModel::dropMimeData(const QMimeData *data, Qt::DropAction action
   return true;
 }
 
-bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool LayerListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
   if (!index.isValid())
     return false;
 
   if (role == Qt::CheckStateRole && value.type() == QVariant::Bool) {
-    if (mappingList[index.row()].isVisible != value.toBool()) {
-      mappingList[index.row()].isVisible = value.toBool();
+    if (layerList[index.row()].isVisible != value.toBool()) {
+      layerList[index.row()].isVisible = value.toBool();
       emit dataChanged(index, index);
       return true;
     }
   }
 
   if (role == Qt::CheckStateRole + 1 && value.type() == QVariant::Bool) {
-    if (mappingList[index.row()].isSolo != value.toBool()) {
-      mappingList[index.row()].isSolo = value.toBool();
+    if (layerList[index.row()].isSolo != value.toBool()) {
+      layerList[index.row()].isSolo = value.toBool();
       emit dataChanged(index, index);
       return true;
     }
   }
 
   if (role == Qt::CheckStateRole + 2 && value.type() == QVariant::Bool) {
-    if (mappingList[index.row()].isLocked != value.toBool()) {
-      mappingList[index.row()].isLocked = value.toBool();
+    if (layerList[index.row()].isLocked != value.toBool()) {
+      layerList[index.row()].isLocked = value.toBool();
       emit dataChanged(index, index);
       return true;
     }
@@ -196,8 +196,8 @@ bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, 
 
   // Note: Removed the check for column as this was blocking OSC from changing name.
   if (role == Qt::EditRole /* && index.column() == MM::IconAndNameColum*/) {
-    if (mappingList[index.row()].label != value.toString()) {
-      mappingList[index.row()].label = value.toString();
+    if (layerList[index.row()].label != value.toString()) {
+      layerList[index.row()].label = value.toString();
       emit dataChanged(index, index);
       return true;
     }
@@ -206,24 +206,24 @@ bool MappingListModel::setData(const QModelIndex &index, const QVariant &value, 
   return false;
 }
 
-void MappingListModel::removeItem(int index)
+void LayerListModel::removeItem(int index)
 {
-  auto it = mappingList.begin();
-  mappingList.erase(it + index);
+  auto it = layerList.begin();
+  layerList.erase(it + index);
 }
 
-void MappingListModel::moveItem(int row, int endRow)
+void LayerListModel::moveItem(int row, int endRow)
 {
   if (beginMoveRows(QModelIndex(), row, row, QModelIndex(), (row < endRow ? endRow+1 : endRow)))
   {
-    mappingList.move(row, endRow);
+    layerList.move(row, endRow);
     endMoveRows();
   }
 }
 
-void MappingListModel::addItem(Mapping::ptr mapping, const QIcon &icon, const QString &label)
+void LayerListModel::addItem(Layer::ptr mapping, const QIcon &icon, const QString &label)
 {
-  MappingItem item;
+  LayerItem item;
 
   item.id = mapping->getId();
   item.icon = icon;
@@ -231,31 +231,31 @@ void MappingListModel::addItem(Mapping::ptr mapping, const QIcon &icon, const QS
   item.isVisible = mapping->isVisible();
   item.isLocked = mapping->isLocked();
   item.isSolo = mapping->isSolo();
-  mappingList.insert(0, item);
+  layerList.insert(0, item);
 }
 
-void MappingListModel::updateModel()
+void LayerListModel::updateModel()
 {
   beginResetModel();
   endResetModel();
 }
 
-void MappingListModel::clear()
+void LayerListModel::clear()
 {
   beginResetModel();
-  mappingList.clear();
+  layerList.clear();
   endResetModel();
 }
 
-QModelIndex MappingListModel::getIndexFromRow(int row)
+QModelIndex LayerListModel::getIndexFromRow(int row)
 {
   return this->createIndex(row, 1);
 }
 
-int MappingListModel::getItemRowFromId(uid id) const
+int LayerListModel::getItemRowFromId(uid id) const
 {
-  for ( int row = 0; row < mappingList.size(); row++) {
-    int itemId = mappingList.at(row).id;
+  for ( int row = 0; row < layerList.size(); row++) {
+    int itemId = layerList.at(row).id;
     if (itemId == id)
       return row;
   }
@@ -263,14 +263,14 @@ int MappingListModel::getItemRowFromId(uid id) const
   return -1;
 }
 
-QModelIndex MappingListModel::getIndexFromId(uid id) const
+QModelIndex LayerListModel::getIndexFromId(uid id) const
 {
   return this->createIndex(getItemRowFromId(id), 0);
 }
 
-uid MappingListModel::getItemId(const QModelIndex &index) const
+uid LayerListModel::getItemId(const QModelIndex &index) const
 {
-  return mappingList.at(index.row()).id;
+  return layerList.at(index.row()).id;
 }
 
 }
