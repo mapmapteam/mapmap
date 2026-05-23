@@ -148,9 +148,8 @@ static void printCommand(QVariantList &command)
 
 void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & command) {
   Q_UNUSED(main_window);
-  bool VERBOSE = false;
 
-  if (VERBOSE)
+  if (is_verbose())
   {
     std::cout << "OscInterface::applyOscCommand: Receive OSC: " << std::endl;
     printCommand(command);
@@ -211,7 +210,8 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
             }
             // Property setting (eg. opacity)
             else if (command.size() >= 4) {
-              qDebug() << "Attempt to set a source property" << iterator.first << command.at(3);
+              if (is_verbose())
+                qDebug() << "Attempt to set a source property" << iterator.first << command.at(3);
               pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
             }
           }
@@ -266,7 +266,7 @@ void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & comma
     }
   }
 
-  if (! pathIsValid)
+  if (! pathIsValid && is_verbose())
   {
     qDebug() << "Path could not be processed: " << path << Qt::endl;
     printCommand(command);

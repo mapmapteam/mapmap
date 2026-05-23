@@ -45,6 +45,8 @@ public:
   OscInterface(int listen_port);
   ~OscInterface();
 
+  void setVerbose(bool verbose) { verbose_ = verbose; }
+
   /// Starts listening if receiving is enabled.
   void start();
 
@@ -59,9 +61,10 @@ public:
   // FIXME use QObject signals instead of polling
 
 private:
-  bool is_verbose() const { return false; }
+  bool is_verbose() const { return verbose_; }
   void push_command(QVariantList command);
 
+  bool verbose_ = false;
   bool receiving_enabled_;
   OscReceiver receiver_;
   ConcurrentQueue<QVariantList> messaging_queue_;

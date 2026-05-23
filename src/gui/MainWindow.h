@@ -623,6 +623,7 @@ public:
   bool setOscPort(QString portNumber);
   bool setOscPort(int portNumber);
   int getOscPort() const;
+  void setVerbose(bool verbose);
   void setOutputWindowFullScreen(bool enable);
 
 public:

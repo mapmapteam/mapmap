@@ -3714,6 +3714,12 @@ int MainWindow::getOscPort() const
   return oscListeningPort;
 }
 
+void MainWindow::setVerbose(bool verbose)
+{
+  if (osc_interface)
+    osc_interface->setVerbose(verbose);
+}
+
 bool MainWindow::setOscPort(QString portNumber)
 {
   bool ok;

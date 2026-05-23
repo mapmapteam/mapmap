@@ -110,6 +110,11 @@ int main(int argc, char *argv[])
     "Use language <lang>.", "lang", "");
   parser.addOption(localeOption);
 
+  // --verbose option
+  QCommandLineOption verboseOption(QStringList() << "V" << "verbose",
+    "Enable verbose output, including OSC message logging.");
+  parser.addOption(verboseOption);
+
   // --frame-rate option
   QCommandLineOption frameRateOption(QStringList() << "r" << "frame-rate",
     "Use a framerate of <frame-rate> per second.", "frame-rate", QString::number(MM::DEFAULT_FRAMES_PER_SECOND));
@@ -204,6 +209,9 @@ int main(int argc, char *argv[])
   QString oscPortValue = parser.value("osc-port");
   if (oscPortValue != "")
     win->setOscPort(oscPortValue);
+
+  if (parser.isSet(verboseOption))
+    win->setVerbose(true);
 
   bool optionOk;
   qreal fps = parser.value("frame-rate").toDouble(&optionOk);
