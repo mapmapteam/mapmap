@@ -109,6 +109,9 @@ private:
   QSpinBox *_listenPortNumber;
   QPushButton *_ipRefreshButton;
   QCheckBox *_oscSameMediaSourceBox;
+  // MCP
+  QWidget *_mcpWidget;
+  QSpinBox *_mcpPortNumber;
 
   // Advanced widgets
   // Playback

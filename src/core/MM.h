@@ -77,6 +77,10 @@ public:
   // OSC
   static const int DEFAULT_OSC_PORT = 12345;
 
+  // MCP (Model Context Protocol) server. Uses a port in the IANA
+  // dynamic/private range (49152-65535) to minimise collisions.
+  static const int DEFAULT_MCP_PORT = 49452;
+
   // Default values
   static const bool DISPLAY_TEST_SIGNAL = false;
   static const bool DISPLAY_OUTPUT_WINDOW = false;

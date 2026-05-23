@@ -89,6 +89,9 @@ MainWindow::MainWindow()
   // Start osc.
   startOscReceiver();
 
+  // Start MCP server.
+  startMcpServer();
+
   // Defaults.
   setWindowIcon(QIcon(":/mapmap-logo"));
   setCurrentFile("");
@@ -2527,6 +2530,7 @@ void MainWindow::readSettings()
   displayControlsAction->setChecked(settings.value("displayControls", MM::DISPLAY_CONTROLS).toBool());
   outputWindow->setCanvasDisplayCrosshair(settings.value("displayControls", MM::DISPLAY_CONTROLS).toBool());
   oscListeningPort = settings.value("oscListeningPort", MM::DEFAULT_OSC_PORT).toInt();
+  mcpListeningPort = settings.value("mcpListeningPort", MM::DEFAULT_MCP_PORT).toInt();
 
   // Update Recent files and video
   updateRecentFileActions();
@@ -2560,6 +2564,7 @@ void MainWindow::writeSettings()
   settings.setValue("displayControls", displayControlsAction->isChecked());
   settings.setValue("displayAllControls", displaySourceControlsAction->isChecked());
   settings.setValue("oscListeningPort", oscListeningPort);
+  settings.setValue("mcpListeningPort", mcpListeningPort);
   settings.setValue("displayUndoStack", displayUndoHistoryAction->isChecked());
   settings.setValue("zoomToolBar", displayZoomToolAction->isChecked());
   settings.setValue("showMenuBar", showMenuBarAction->isChecked());
@@ -3734,6 +3739,57 @@ bool MainWindow::setOscPort(QString portNumber)
     return false;
   }
   return true;
+}
+
+void MainWindow::startMcpServer()
+{
+  if (mcp_server.isNull())
+    mcp_server.reset(new McpServer(this));
+
+  if (mcpListeningPort == 0)
+  {
+    QMessageLogger(__FILE__, __LINE__, 0).info() << "MCP server disabled (port 0).";
+    return;
+  }
+
+  quint16 boundPort = mcp_server->start(static_cast<quint16>(mcpListeningPort));
+  if (boundPort != 0)
+    QMessageLogger(__FILE__, __LINE__, 0).info()
+      << "MCP server listening on http://localhost:" << boundPort << "/mcp";
+  else
+    qWarning() << "MCP server could not start on port" << mcpListeningPort;
+}
+
+bool MainWindow::setMcpPort(int port)
+{
+  if (port != 0 && (port <= 1023 || port > 65535))
+  {
+    qWarning() << "MCP port is out of range: " << port << Qt::endl;
+    return false;
+  }
+  mcpListeningPort = port;
+  startMcpServer();
+  return true;
+}
+
+int MainWindow::getMcpPort() const
+{
+  return mcpListeningPort;
+}
+
+bool MainWindow::setMcpPort(QString portNumber)
+{
+  bool ok;
+  int port = portNumber.toInt(&ok);
+  if (ok)
+  {
+    return setMcpPort(port);
+  }
+  else
+  {
+    qWarning() << "MCP port is not a number: " << portNumber << Qt::endl;
+    return false;
+  }
 }
 
 void MainWindow::pollOscInterface()

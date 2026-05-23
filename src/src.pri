@@ -6,6 +6,7 @@ QT += network
 QT += multimedia
 QT += multimediawidgets
 QT += widgets
+QT += httpserver
 
 #Includes common configuration for all subdirectory .pro files.
 INCLUDEPATH += $$PWD/core \

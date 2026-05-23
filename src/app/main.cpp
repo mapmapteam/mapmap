@@ -105,6 +105,11 @@ int main(int argc, char *argv[])
     "Use OSC port number <osc-port>.", "osc-port", "");
   parser.addOption(oscPortOption);
 
+  // --mcp-port option
+  QCommandLineOption mcpPortOption(QStringList() << "m" << "mcp-port",
+    "Use MCP server port number <mcp-port> (0 to disable).", "mcp-port", "");
+  parser.addOption(mcpPortOption);
+
   // --lang option
   QCommandLineOption localeOption(QStringList() << "l" << "lang",
     "Use language <lang>.", "lang", "");
@@ -212,6 +217,10 @@ int main(int argc, char *argv[])
 
   if (parser.isSet(verboseOption))
     win->setVerbose(true);
+
+  QString mcpPortValue = parser.value("mcp-port");
+  if (mcpPortValue != "")
+    win->setMcpPort(mcpPortValue);
 
   bool optionOk;
   qreal fps = parser.value("frame-rate").toDouble(&optionOk);
