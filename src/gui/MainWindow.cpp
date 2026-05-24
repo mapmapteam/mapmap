@@ -54,7 +54,7 @@ MainWindow::MainWindow()
   // TODO: not sure we need this anymore since we have NULL_UID
   _hasCurrentSource = false;
   _hasCurrentLayer = false;
-  currentSelectedItem = NULL;
+  currentSelectedItem = nullptr;
 
   // Frames per second.
   _framesPerSecond = (-1);
@@ -2225,7 +2225,7 @@ void MainWindow::startFullScreen()
 
 void MainWindow::createMenus()
 {
-  QMenuBar *menuBar = NULL;
+  QMenuBar *menuBar = nullptr;
 
 #ifdef __MACOSX_CORE__
   menuBar = new QMenuBar(0);
@@ -2624,7 +2624,9 @@ bool MainWindow::loadFile(const QString &fileName)
 
 bool MainWindow::saveFile(const QString &fileName)
 {
-  QFile file(fileName);
+  // Write to a temporary file first, then rename for atomic save.
+  QString tmpFileName = fileName + ".tmp";
+  QFile file(tmpFileName);
   if (! file.open(QFile::WriteOnly | QFile::Text))
   {
     QMessageBox::warning(this, tr("Error saving mapping project"),
@@ -2637,12 +2639,26 @@ bool MainWindow::saveFile(const QString &fileName)
   ProjectWriter writer(this);
   if (writer.writeFile(&file))
   {
+    file.close();
+    // Remove original and rename temp file over it.
+    QFile::remove(fileName);
+    if (!QFile::rename(tmpFileName, fileName))
+    {
+      QMessageBox::warning(this, tr("Error saving mapping project"),
+                           tr("Cannot rename temporary file to %1.")
+                           .arg(fileName));
+      return false;
+    }
     setCurrentFile(fileName);
     statusBar()->showMessage(tr("File saved"), 2000);
     return true;
   }
   else
+  {
+    file.close();
+    QFile::remove(tmpFileName);
     return false;
+  }
 }
 
 void MainWindow::setCurrentFile(const QString &fileName)
@@ -2972,7 +2988,7 @@ void MainWindow::addSourceItem(uid sourceId, const QIcon& icon, const QString& n
 
 void MainWindow::updateSourceItem(uid sourceId, const QIcon& icon, const QString& name) {
   QListWidgetItem* item = getItemFromId(*sourceList, sourceId);
-  if (item == NULL) {
+  if (item == nullptr) {
     // FIXME there was an assert that seemed to make MapMap crash, here.
     return;
   }
@@ -3196,7 +3212,7 @@ void MainWindow::removeSourceItem(uid sourceId)
   Q_ASSERT( row >= 0 );
   QListWidgetItem* item = sourceList->takeItem(row);
   if (item == currentSelectedItem)
-    currentSelectedItem = NULL;
+    currentSelectedItem = nullptr;
   delete item;
 
   // Update list.
@@ -3601,7 +3617,7 @@ QListWidgetItem* MainWindow::getItemFromId(const QListWidget& list, uid id) {
   if (row >= 0)
     return list.item( row );
   else
-    return NULL;
+    return nullptr;
 }
 
 int MainWindow::getItemRowFromId(const QListWidget& list, uid id)

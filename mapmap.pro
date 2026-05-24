@@ -1,6 +1,6 @@
 CONFIG += qt
 CONFIG += debug
-CONFIG += c++11
+CONFIG += c++17
 
 TEMPLATE = app
 
@@ -27,8 +27,7 @@ RESOURCES = \
     main.qrc \
     translations/translation.qrc \
     docs/documentation.qrc \
-    resources/interface.qrc \
-    main.qrc # Main resource file
+    resources/interface.qrc
 
 # Manage lrelease (for translations)
 isEmpty(QMAKE_LRELEASE) {

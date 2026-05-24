@@ -41,7 +41,6 @@ class OscInterface {
 public:
   typedef QSharedPointer<OscInterface> ptr;
 
-  // FIXME: change listen_port to a int
   OscInterface(int listen_port);
   ~OscInterface();
 

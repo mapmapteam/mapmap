@@ -14,7 +14,6 @@
 #include "MetaObjectRegistry.h"
 
 #include <stdlib.h>
-#include <iostream>
 
 MM_USE_NAMESPACE
 

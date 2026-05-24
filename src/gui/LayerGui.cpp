@@ -25,8 +25,8 @@ namespace mmp {
 
 LayerGui::LayerGui(Layer::ptr layer)
   : _layer(layer),
-    _graphicsItem(NULL),
-    _inputGraphicsItem(NULL)
+    _graphicsItem(nullptr),
+    _inputGraphicsItem(nullptr)
 {
   outputShape = layer->getShape();
   Q_CHECK_PTR(outputShape);
@@ -275,7 +275,7 @@ EllipseColorLayerGui::EllipseColorLayerGui(Layer::ptr layer) : ColorLayerGui(lay
 
 TextureLayerGui::TextureLayerGui(QSharedPointer<TextureLayer> mapping)
   : LayerGui(mapping),
-    _meshItem(NULL)
+    _meshItem(nullptr)
 {
   // Assign members pointers.
   textureLayer = qSharedPointerCast<TextureLayer>(_layer);

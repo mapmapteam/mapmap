@@ -136,8 +136,9 @@ PolygonColorGraphicsItem::PolygonColorGraphicsItem(Layer::ptr mapping, bool outp
 QPainterPath PolygonColorGraphicsItem::shape() const
 {
   QPainterPath path;
-  Polygon* poly = static_cast<Polygon*>(_shape.toStrongRef().data());
-  Q_ASSERT(poly);
+  auto strong = _shape.toStrongRef();
+  if (!strong) return path;
+  Polygon* poly = static_cast<Polygon*>(strong.data());
   path.addPolygon(poly->toPolygon());
   return mapFromScene(path);
 }
@@ -146,8 +147,9 @@ void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
                                         const QStyleOptionGraphicsItem *option)
 {
   Q_UNUSED(option);
-  Polygon* poly = static_cast<Polygon*>(_shape.toStrongRef().data());
-  Q_ASSERT(poly);
+  auto strong = _shape.toStrongRef();
+  if (!strong) return;
+  Polygon* poly = static_cast<Polygon*>(strong.data());
   painter->drawPolygon(mapFromScene(poly->toPolygon()));
 }
 
@@ -162,7 +164,9 @@ void MeshColorGraphicsItem::_doPaint(QPainter *painter,
 {
   Q_UNUSED(option);
 
-  Mesh* mesh = static_cast<Mesh*>(_shape.toStrongRef().data());
+  auto strong = _shape.toStrongRef();
+  if (!strong) return;
+  Mesh* mesh = static_cast<Mesh*>(strong.data());
   QVector<QVector<Quad::ptr> > quads = mesh->getQuads2d();
 
   // Go through the mesh quad by quad.
@@ -186,8 +190,9 @@ QPainterPath EllipseColorGraphicsItem::shape() const
 {
   // Create path for ellipse.
   QPainterPath path;
-  Ellipse* ellipse = static_cast<Ellipse*>(_shape.toStrongRef().data());
-  Q_ASSERT(ellipse);
+  auto strong = _shape.toStrongRef();
+  if (!strong) return path;
+  Ellipse* ellipse = static_cast<Ellipse*>(strong.data());
   QTransform transform;
   transform.translate(ellipse->getCenter().x(), ellipse->getCenter().y());
   transform.rotate(ellipse->getRotation());
@@ -313,14 +318,17 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
 
 QSharedPointer<Texture> TextureGraphicsItem::_getTexture()
 {
-  return qSharedPointerCast<Texture>(_textureMapping.toStrongRef()->getSource());
+  auto strong = _textureMapping.toStrongRef();
+  if (!strong) return QSharedPointer<Texture>();
+  return qSharedPointerCast<Texture>(strong->getSource());
 }
 
 QPainterPath PolygonTextureGraphicsItem::shape() const
 {
   QPainterPath path;
-  Polygon* poly = static_cast<Polygon*>(_shape.toStrongRef().data());
-  Q_ASSERT(poly);
+  auto strong = _shape.toStrongRef();
+  if (!strong) return path;
+  Polygon* poly = static_cast<Polygon*>(strong.data());
   path.addPolygon(poly->toPolygon());
   return mapFromScene(path);
 }
@@ -335,6 +343,7 @@ void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   if (isOutput())
   {
     MShape::ptr inputShape = _inputShape.toStrongRef();
+    if (!inputShape) return;
     glBegin(GL_TRIANGLES);
     {
       for (int i=0; i<inputShape->nVertices(); i++)
@@ -563,8 +572,9 @@ QPainterPath EllipseTextureGraphicsItem::shape() const
 {
   // Create path for ellipse.
   QPainterPath path;
-  Ellipse* ellipse = static_cast<Ellipse*>(_shape.toStrongRef().data());
-  Q_ASSERT(ellipse);
+  auto strong = _shape.toStrongRef();
+  if (!strong) return path;
+  Ellipse* ellipse = static_cast<Ellipse*>(strong.data());
   QTransform transform;
   transform.translate(ellipse->getCenter().x(), ellipse->getCenter().y());
   transform.rotate(ellipse->getRotation());

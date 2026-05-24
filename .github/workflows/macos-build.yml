@@ -31,7 +31,7 @@ jobs:
 
     - name: Build and run tests
       run: |
-        export PATH="($brew --prefix=qt)/bin:$PATH"
+        export PATH="$(brew --prefix qt)/bin:$PATH"
         cd tests/
         qmake6 tests.pro
         make -j$(sysctl -n hw.logicalcpu)

@@ -95,12 +95,16 @@ TransformShapeCommand::TransformShapeCommand(MapperGLCanvas* canvas, TransformSh
   _option = option;
 
   // Clone shape before applying transform.
-  _originalShape.reset(_shape.toStrongRef()->clone());
+  auto strong = _shape.toStrongRef();
+  if (strong)
+    _originalShape.reset(strong->clone());
 }
 
 void TransformShapeCommand::undo() {
   // Copy back shape.
-  _shape.toStrongRef()->copyFrom(*_originalShape);
+  auto strong = _shape.toStrongRef();
+  if (!strong) return;
+  strong->copyFrom(*_originalShape);
 
   // Update everything.
   _canvas->currentShapeWasChanged();

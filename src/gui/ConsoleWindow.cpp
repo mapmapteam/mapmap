@@ -22,7 +22,7 @@
 
 namespace mmp {
 
-ConsoleWindow* ConsoleWindow::instance = NULL;
+ConsoleWindow* ConsoleWindow::instance = nullptr;
 
 ConsoleWindow::ConsoleWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -142,7 +142,7 @@ void ConsoleWindow::kill()
 {
   if (instance) {
     delete instance;
-    instance = NULL;
+    instance = nullptr;
   }
 }
 
