@@ -6,7 +6,13 @@ QT += network
 QT += multimedia
 QT += multimediawidgets
 QT += widgets
-QT += httpserver
+qtHaveModule(httpserver) {
+  QT += httpserver
+  DEFINES += HAVE_MCP
+  message("Qt HttpServer module found — MCP server enabled")
+} else {
+  message("Qt HttpServer module not found — MCP server disabled")
+}
 
 #Includes common configuration for all subdirectory .pro files.
 INCLUDEPATH += $$PWD/core \

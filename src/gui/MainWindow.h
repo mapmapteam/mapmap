@@ -37,7 +37,9 @@
 #include "MapperGLCanvas.h"
 #include "MapperGLCanvasToolbar.h"
 #include "OscInterface.h"
+#ifdef HAVE_MCP
 #include "McpServer.h"
+#endif
 
 #include "OutputGLWindow.h"
 #include "ConsoleWindow.h"
@@ -303,8 +305,10 @@ private:
   // OSC.
   void startOscReceiver();
 
+#ifdef HAVE_MCP
   // MCP server.
   void startMcpServer();
+#endif
 
   // Actions-related.
   bool okToContinue();
@@ -522,9 +526,11 @@ private:
   int oscListeningPort;
   QTimer *osc_timer;
 
+#ifdef HAVE_MCP
   // MCP server.
   QScopedPointer<McpServer> mcp_server;
   int mcpListeningPort;
+#endif
 
   // View.
 
@@ -632,9 +638,11 @@ public:
   bool setOscPort(int portNumber);
   int getOscPort() const;
   void setVerbose(bool verbose);
+#ifdef HAVE_MCP
   bool setMcpPort(QString portNumber);
   bool setMcpPort(int portNumber);
   int getMcpPort() const;
+#endif
   void setOutputWindowFullScreen(bool enable);
 
 public:

@@ -89,8 +89,10 @@ MainWindow::MainWindow()
   // Start osc.
   startOscReceiver();
 
+#ifdef HAVE_MCP
   // Start MCP server.
   startMcpServer();
+#endif
 
   // Defaults.
   setWindowIcon(QIcon(":/mapmap-logo"));
@@ -2530,7 +2532,9 @@ void MainWindow::readSettings()
   displayControlsAction->setChecked(settings.value("displayControls", MM::DISPLAY_CONTROLS).toBool());
   outputWindow->setCanvasDisplayCrosshair(settings.value("displayControls", MM::DISPLAY_CONTROLS).toBool());
   oscListeningPort = settings.value("oscListeningPort", MM::DEFAULT_OSC_PORT).toInt();
+#ifdef HAVE_MCP
   mcpListeningPort = settings.value("mcpListeningPort", MM::DEFAULT_MCP_PORT).toInt();
+#endif
 
   // Update Recent files and video
   updateRecentFileActions();
@@ -3741,6 +3745,7 @@ bool MainWindow::setOscPort(QString portNumber)
   return true;
 }
 
+#ifdef HAVE_MCP
 void MainWindow::startMcpServer()
 {
   if (mcp_server.isNull())
@@ -3791,6 +3796,7 @@ bool MainWindow::setMcpPort(QString portNumber)
     return false;
   }
 }
+#endif // HAVE_MCP
 
 void MainWindow::pollOscInterface()
 {
