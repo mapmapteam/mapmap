@@ -140,9 +140,6 @@ private slots:
   void layerPropertyChanged(uid id, QString propertyName, QVariant value);
   void sourcePropertyChanged(uid id, QString propertyName, QVariant value);
 
-  void addMesh();
-  void addTriangle();
-  void addEllipse();
 
   // Other.
   void windowModified();
@@ -173,6 +170,11 @@ private slots:
   void updateLayerListColumnWidth();
 
 public slots:
+
+  // Layer creation.
+  void addMesh();
+  void addTriangle();
+  void addEllipse();
 
   // CRUD.
 

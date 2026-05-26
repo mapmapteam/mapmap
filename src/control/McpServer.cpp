@@ -251,6 +251,25 @@ QJsonObject McpServer::handleToolsCall(const QJsonObject& params)
       return textResult(QString("Failed to import media: %1").arg(uri), true);
     return jsonResult(sourceSummary(_mainWindow->getCurrentSourceId()));
   }
+  if (name == "create_layer")
+  {
+    const int sourceId = static_cast<int>(args.value("source_id").toInteger(0));
+    if (mm.getSourceById(sourceId).isNull())
+      return textResult(QString("No source with id %1.").arg(sourceId), true);
+    const QString shape = args.value("shape").toString("quad").toLower();
+
+    // Select the source so addTriangle/addMesh/addEllipse use it.
+    _mainWindow->setCurrentSource(sourceId);
+
+    if (shape == "triangle")       _mainWindow->addTriangle();
+    else if (shape == "quad")      _mainWindow->addMesh();
+    else if (shape == "ellipse")   _mainWindow->addEllipse();
+    else return textResult(QString("Unknown shape '%1'. Use triangle, quad or ellipse.").arg(shape), true);
+
+    const int layerId = static_cast<int>(_mainWindow->getCurrentLayerId());
+    if (layerId == 0) return textResult("Failed to create layer.", true);
+    return jsonResult(layerSummary(layerId));
+  }
   if (name == "delete_source")
   {
     const int id = static_cast<int>(args.value("id").toInteger(0));
@@ -478,6 +497,13 @@ QJsonArray McpServer::toolDefinitions() const
                       {"is_image", prop("boolean", "True for an image, false for a video (default false).")}
                     },
                     QJsonArray{"uri"}));
+  tools.append(tool("create_layer",
+                    "Create a layer with a given shape for a source. Returns the new layer.",
+                    QJsonObject{
+                      {"source_id", prop("integer", "Source id to use.")},
+                      {"shape", prop("string", "Shape type: \"triangle\", \"quad\" or \"ellipse\" (default \"quad\").")}
+                    },
+                    QJsonArray{"source_id", "shape"}));
   tools.append(tool("delete_source", "Delete a source and its associated layers.",
                     QJsonObject{{"id", prop("integer", "Source id.")}}, QJsonArray{"id"}));
 
