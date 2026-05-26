@@ -34,6 +34,7 @@
 #include "Element.h"
 #include "Source.h"
 #include "Layer.h"
+#include "Shape.h"
 #include "MappingManager.h"
 #include "MainWindow.h"
 
@@ -312,6 +313,28 @@ QJsonObject McpServer::handleToolsCall(const QJsonObject& params)
     return jsonResult(layerSummary(id));
   }
 
+  if (name == "set_vertices")
+  {
+    const int id = static_cast<int>(args.value("id").toInteger(0));
+    Layer::ptr layer = mm.getLayerById(id);
+    if (layer.isNull()) return textResult(QString("No layer with id %1.").arg(id), true);
+    const QJsonArray verts = args.value("vertices").toArray();
+    if (verts.isEmpty()) return textResult("Missing or empty 'vertices' array.", true);
+    QVector<QPointF> points;
+    for (const QJsonValue& v : verts)
+    {
+      const QJsonObject pt = v.toObject();
+      points.append(QPointF(pt.value("x").toDouble(), pt.value("y").toDouble()));
+    }
+    MShape::ptr shape = layer->getShape();
+    if (shape.isNull()) return textResult("Layer has no shape.", true);
+    if (points.size() != shape->nVertices())
+      return textResult(QString("Expected %1 vertices, got %2.").arg(shape->nVertices()).arg(points.size()), true);
+    shape->setVertices(points);
+    _mainWindow->updateCanvases();
+    return textResult(QString("Set %1 vertices on layer %2.").arg(points.size()).arg(id));
+  }
+
   // ---- Generic property set ----
   if (name == "set_property")
   {
@@ -536,6 +559,13 @@ QJsonArray McpServer::toolDefinitions() const
                     },
                     QJsonArray{"id", "value"}));
 
+  tools.append(tool("set_vertices",
+                    "Set the output vertices of a layer's shape.",
+                    QJsonObject{
+                      {"id", prop("integer", "Layer id.")},
+                      {"vertices", QJsonObject{{"type", "array"}, {"description", "Array of {x, y} points. Count must match shape (3 for triangle, 4 for quad)."}}}
+                    },
+                    QJsonArray{"id", "vertices"}));
   tools.append(tool("set_property",
                     "Set an arbitrary property on a source or layer (e.g. name, opacity, color, uri).",
                     QJsonObject{

@@ -61,6 +61,16 @@ curl -s -X POST http://localhost:49452/mcp \
 | `set_layer_solo` | `id` (int), `value` (bool) | Solo a layer |
 | `set_layer_locked` | `id` (int), `value` (bool) | Lock/unlock layer |
 
+### Geometry
+| Tool | Args | Description |
+|------|------|-------------|
+| `set_vertices` | `id` (int, layer id), `vertices` (array of `{x, y}`) | Set the output vertices of a layer's shape |
+
+Vertex order is **clockwise from top-left**: top-left, top-right, bottom-right, bottom-left.
+- Quad: 4 vertices
+- Triangle: 3 vertices (bottom-left, bottom-right, top-center)
+- Ellipse: 5 vertices (left, top, right, bottom, rotation-handle)
+
 ### Properties
 | Tool | Args | Description |
 |------|------|-------------|
@@ -83,8 +93,9 @@ Common properties:
 
 1. Create a source (`create_color_source` or `create_media_source`)
 2. Create a layer for it (`create_layer` with `source_id` from step 1)
-3. Adjust properties as needed (`set_property`, `set_layer_visible`, etc.)
-4. Control playback (`play`, `pause`, `rewind`)
+3. Position the layer (`set_vertices` with the desired corner positions)
+4. Adjust properties as needed (`set_property`, `set_layer_visible`, etc.)
+5. Control playback (`play`, `pause`, `rewind`)
 
 ## Response format
 
