@@ -2568,7 +2568,9 @@ void MainWindow::writeSettings()
   settings.setValue("displayControls", displayControlsAction->isChecked());
   settings.setValue("displayAllControls", displaySourceControlsAction->isChecked());
   settings.setValue("oscListeningPort", oscListeningPort);
+#ifdef HAVE_MCP
   settings.setValue("mcpListeningPort", mcpListeningPort);
+#endif
   settings.setValue("displayUndoStack", displayUndoHistoryAction->isChecked());
   settings.setValue("zoomToolBar", displayZoomToolAction->isChecked());
   settings.setValue("showMenuBar", showMenuBarAction->isChecked());
