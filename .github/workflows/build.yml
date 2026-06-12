@@ -1,0 +1,143 @@
+# Build MapMap with Qt 6
+name: Build
+
+on:
+  push:
+    branches: [ dev, master ]
+  pull_request:
+    branches: [ dev, master ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Install Qt 6
+      uses: jurplel/install-qt-action@v4
+      with:
+        cache: true
+        version: '6.8.0'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_mingw'
+        modules: 'qtmultimedia'
+        tools: 'tools_mingw1310'
+
+    - name: Configure with qmake
+      run: qmake mapmap.pro CONFIG+=release
+
+    - name: Build
+      run: mingw32-make -j4
+
+    - name: Build and run tests
+      run: |
+        cd tests/
+        qmake6 tests.pro
+        mingw32-make -j4
+        mingw32-make check
+      env:
+        QT_QPA_PLATFORM: offscreen
+
+    - name: Deploy Qt
+      run: windeployqt --release --no-system-d3d-compiler "MapMap\MapMap.exe"
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: MapMap-windows
+        path: MapMap/
+
+
+  build-ubuntu:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          libqt6opengl6-dev \
+          libqt6openglwidgets6 \
+          pkg-config \
+          qmake6 \
+          qt6-base-dev \
+          qt6-multimedia-dev \
+          qt6-tools-dev
+
+    - name: Configure with qmake
+      run: qmake6 mapmap.pro
+
+    - name: Build
+      run: make -j$(nproc)
+
+    - name: Build and run tests
+      run: |
+        cd tests/
+        qmake6 tests.pro
+        make -j$(nproc)
+        QT_QPA_PLATFORM=offscreen make check
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: MapMap-ubuntu
+        path: mapmap
+
+
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Cache Homebrew
+      id: cache-brew
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ~/Library/Caches/Homebrew
+          /opt/homebrew/Cellar/qt
+        key: brew-${{ runner.os }}-v1
+
+    - name: Install dependencies
+      if: steps.cache-brew.outputs.cache-hit != 'true'
+      run: |
+        brew install qt
+
+    - name: Configure with qmake
+      run: |
+        export PATH="$(brew --prefix qt)/bin:$PATH"
+        qmake mapmap.pro CONFIG+=release
+
+    - name: Build
+      run: |
+        export PATH="$(brew --prefix qt)/bin:$PATH"
+        make -j$(sysctl -n hw.logicalcpu)
+
+    - name: Build and run tests
+      run: |
+        export PATH="$(brew --prefix qt)/bin:$PATH"
+        cd tests/
+        qmake6 tests.pro
+        make -j$(sysctl -n hw.logicalcpu)
+        QT_QPA_PLATFORM=offscreen make check
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: MapMap-macos
+        path: MapMap.app/
+
+    - name: Always cache brew
+      if: always() && steps.cache-brew.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v5
+      with:
+        key: ${{ steps.cache-brew.outputs.cache-primary-key }}
+        path: |
+          ~/Library/Caches/Homebrew
+          /opt/homebrew/Cellar/qt

@@ -84,7 +84,7 @@ macx {
 # Windows-specific:
 win32 {
   DEFINES += WIN32
-  TARGET = ../../../MapMap/MapMap # Just for release
+  TARGET = ../MapMap/MapMap # Just for release
 
   LIBS += -lopengl32
 
