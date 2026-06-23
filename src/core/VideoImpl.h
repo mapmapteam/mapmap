@@ -99,6 +99,10 @@ public:
 
   void resetMovie();
 
+  /// Unloads the current movie and releases the capture device / player
+  /// (reversible via build(), which re-opens the stored URI/device).
+  void unloadMovie();
+
   /// Locks mutex.
   void lockMutex();
   /// Unlocks mutex.
@@ -108,7 +112,6 @@ public:
   bool waitForNextBits(int timeout, const uchar** bits = nullptr);
 
 protected:
-  void unloadMovie();
   virtual void freeResources();
 
   void _setMovieReady(bool ready) { _movieReady = ready; }

@@ -133,6 +133,11 @@ bool MappingManager::removeSource(uid sourceId)
     Q_ASSERT(idx != -1);
     sourceVector.remove(idx);
     sourceMap.remove(sourceId);
+
+    // Release the source's heavy external resources (e.g. a camera device)
+    // immediately, even though the object itself may live on in the undo stack.
+    // reacquireResources() restores them if the removal is undone.
+    source->releaseResources();
     return true;
   }
   else

@@ -25,12 +25,22 @@ VideoPlayerImpl::VideoPlayerImpl()
 
 VideoPlayerImpl::~VideoPlayerImpl()
 {
+  freeResources();
+}
+
+void VideoPlayerImpl::freeResources()
+{
   if (_player) {
     _player->stop();
     delete _player;
+    _player = nullptr;
   }
   delete _audioOutput;
+  _audioOutput = nullptr;
   delete _videoSink;
+  _videoSink = nullptr;
+  _eos = false;
+  VideoImpl::freeResources();
 }
 
 bool VideoPlayerImpl::loadMovie(const QString& path)
@@ -38,15 +48,7 @@ bool VideoPlayerImpl::loadMovie(const QString& path)
   // Store URI in base class.
   VideoImpl::loadMovie(path);
 
-  // Tear down any previous player.
-  if (_player) {
-    _player->stop();
-    delete _player;
-    delete _audioOutput;
-    delete _videoSink;
-  }
-
-  _eos = false;
+  // Tear down any previous player and reset frame state.
   freeResources();
 
   _player      = new QMediaPlayer(this);

@@ -48,6 +48,10 @@ public:
   bool hasBits() const override { return _cameraSurface && _cameraSurface->isActive(); }
   bool bitsHaveChanged() const override { return true; }
 
+protected:
+  // Stops and releases the capture device (called by unloadMovie() and dtor).
+  void freeResources() override;
+
 private:
   QCamera                *_camera;
   QMediaCaptureSession   *_captureSession;

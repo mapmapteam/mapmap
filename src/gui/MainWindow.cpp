@@ -3380,8 +3380,12 @@ void MainWindow::removeSourceItem(uid sourceId)
        it != sourceLayers.constEnd(); ++it) {
     removeLayerItem(it.key());
   }
-  // Remove source from model.
-  Q_ASSERT( mappingManager->removeSource(sourceId) );
+  // Remove source from model. Call unconditionally (not inside Q_ASSERT, which
+  // is compiled out in release builds and would skip the removal + the source's
+  // resource release).
+  bool sourceRemoved = mappingManager->removeSource(sourceId);
+  Q_ASSERT(sourceRemoved);
+  Q_UNUSED(sourceRemoved);
 
   // Remove associated mapper.
   sourcePropertyPanel->removeWidget(sourceGuis[sourceId]->getPropertiesEditor());

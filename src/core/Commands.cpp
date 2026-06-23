@@ -270,6 +270,10 @@ void RemoveSourceCommand::undo()
   if (!_source.isNull())
   {
     MappingManager& manager = _mainWindow->getMappingManager();
+
+    // Re-open any device/player released when the source was removed.
+    _source->reacquireResources();
+
     uid lastId = manager.addSource(_source);
     _mainWindow->addSourceItem(lastId, _source->getIcon(), _source->getName());
 

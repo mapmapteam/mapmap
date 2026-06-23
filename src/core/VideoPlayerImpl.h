@@ -47,6 +47,10 @@ public:
 
   void update() override;
 
+protected:
+  // Releases the player/audio/sink (called by unloadMovie() and the destructor).
+  void freeResources() override;
+
 private slots:
   void onVideoFrameChanged(const QVideoFrame& frame);
   void onMediaStatusChanged(QMediaPlayer::MediaStatus status);

@@ -268,6 +268,22 @@ void Video::rewind()
   _impl->resetMovie();
 }
 
+void Video::releaseResources()
+{
+  // Release the capture device / media player but keep the impl object, so the
+  // device is freed as soon as the source is removed (e.g. to let the same
+  // camera be re-opened) without invalidating the source. See reacquireResources().
+  if (_impl)
+    _impl->unloadMovie();
+}
+
+void Video::reacquireResources()
+{
+  // Re-open using the stored URI/device id (set by loadMovie()).
+  if (_impl)
+    _impl->build();
+}
+
 void Video::lockMutex() {
   _impl->lockMutex();
 }

@@ -32,16 +32,28 @@ CameraImpl::CameraImpl()
 
 CameraImpl::~CameraImpl()
 {
+  freeResources();
+}
+
+void CameraImpl::freeResources()
+{
   if (_camera)
     _camera->stop();
   delete _camera;
+  _camera = nullptr;
   delete _captureSession;
+  _captureSession = nullptr;
   delete _cameraSurface;
+  _cameraSurface = nullptr;
+  VideoImpl::freeResources();
 }
 
 bool CameraImpl::loadMovie(const QString &deviceId)
 {
   VideoImpl::loadMovie(deviceId);
+
+  // Release any previously-opened device before re-acquiring.
+  freeResources();
 
   // Find the camera device matching the given ID.
   QCameraDevice dev;

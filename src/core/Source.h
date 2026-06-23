@@ -101,6 +101,14 @@ public:
   /// Rewinds.
   virtual void rewind() {}
 
+  /// Releases heavy external resources (capture devices, players, network
+  /// clients) while keeping the object valid — e.g. when the source is removed
+  /// but kept in the undo history. Reversible via reacquireResources().
+  virtual void releaseResources() {}
+
+  /// Re-acquires resources released by releaseResources() (e.g. on undo).
+  virtual void reacquireResources() {}
+
   /// Locks mutex (default = no effect).
   virtual void lockMutex() {}
 
@@ -337,6 +345,11 @@ public:
 
   /// Rewinds.
   virtual void rewind();
+
+  /// Releases the capture device / player (keeps the object valid).
+  virtual void releaseResources();
+  /// Re-opens the capture device / player released by releaseResources().
+  virtual void reacquireResources();
 
   /// Locks mutex (default = no effect).
   virtual void lockMutex();
