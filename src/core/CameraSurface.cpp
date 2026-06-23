@@ -37,10 +37,13 @@ void CameraSurface::onVideoFrameChanged(const QVideoFrame& frame)
   if (img.isNull())
     return;
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+  // Qt 6 delivers upright, top-left-origin frames here — the same as the
+  // video-file path (VideoPlayerImpl), which shares the OpenGL upload — so no
+  // flip is needed. The old flip made macOS camera sources appear upside-down.
   _temporaryImage = img;
 #else
-  // Straighten the image for OpenGL (bottom-left origin convention).
+  // Linux: historical orientation fix (kept; adjust if cameras look flipped).
   QT_WARNING_PUSH
   QT_WARNING_DISABLE_DEPRECATED
   _temporaryImage = img.mirrored(true, false).transformed(QTransform().rotate(180));
