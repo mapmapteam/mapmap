@@ -31,6 +31,7 @@
 
 class QListWidget;
 class QTimer;
+class QLabel;
 
 namespace mmp {
 
@@ -57,6 +58,7 @@ private slots:
 
 private:
   QListWidget* _list;
+  QLabel* _statusLabel;
   QTimer* _timer;
   QList<SyphonServerDescription> _servers;
 };

@@ -321,8 +321,16 @@ void SyphonGui::_rebuildServerEnum()
 
 void SyphonGui::_updateStatus()
 {
-  _statusItem->setValue(syphon->isConnected() ? tr("Connected")
-                                              : tr("Waiting for server…"));
+  QString status;
+  if (syphon->isConnected())
+    status = tr("Connected");
+  else if (syphon->getServerUUID().isEmpty() &&
+           syphon->getServerName().isEmpty() &&
+           syphon->getAppName().isEmpty())
+    status = tr("No server selected");
+  else
+    status = tr("Waiting for server…");
+  _statusItem->setValue(status);
 }
 
 void SyphonGui::refreshServers()

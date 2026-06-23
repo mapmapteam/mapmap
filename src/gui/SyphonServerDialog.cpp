@@ -28,12 +28,14 @@
 #include <QTimer>
 #include <QIcon>
 #include <QPixmap>
+#include <QStringList>
 
 namespace mmp {
 
 SyphonServerDialog::SyphonServerDialog(QWidget* parent)
   : QDialog(parent),
     _list(nullptr),
+    _statusLabel(nullptr),
     _timer(nullptr)
 {
   setWindowTitle(tr("Add Syphon Source"));
@@ -47,6 +49,12 @@ SyphonServerDialog::SyphonServerDialog(QWidget* parent)
 
   _list = new QListWidget(this);
   layout->addWidget(_list);
+
+  // Live status line (updated by refresh()); the list refreshes automatically.
+  _statusLabel = new QLabel(this);
+  _statusLabel->setWordWrap(true);
+  _statusLabel->setEnabled(false); // muted look
+  layout->addWidget(_statusLabel);
 
   QDialogButtonBox* buttons =
       new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
@@ -85,7 +93,23 @@ void SyphonServerDialog::refresh()
     QListWidgetItem* item = new QListWidgetItem(text, _list);
     if (!_servers[i].icon.isNull())
       item->setIcon(QIcon(QPixmap::fromImage(_servers[i].icon)));
+
+    // Tooltip with the full identity (app, server name, UUID).
+    QStringList tip;
+    if (!_servers[i].appName.isEmpty()) tip << tr("Application: %1").arg(_servers[i].appName);
+    if (!_servers[i].name.isEmpty())    tip << tr("Server: %1").arg(_servers[i].name);
+    if (!_servers[i].uuid.isEmpty())    tip << tr("ID: %1").arg(_servers[i].uuid);
+    item->setToolTip(tip.join('\n'));
   }
+
+  // Update the live status line (also serves as the "no servers" empty state).
+  if (_servers.isEmpty())
+    _statusLabel->setText(tr("No Syphon servers found yet. Open a Syphon-enabled "
+                             "app (Resolume, VDMX, a Simple Server, …), or create "
+                             "the source now and connect it later."));
+  else
+    _statusLabel->setText(tr("%n Syphon server(s) available. The list updates "
+                             "automatically.", "", _servers.size()));
 
   // Restore a sensible selection.
   int restore;
