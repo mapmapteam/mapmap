@@ -34,9 +34,8 @@
 
 #include "MM.h"
 
-#include <QPainter>
-#include <QPixmap>
-#include <QFont>
+#include <QIcon>
+#include <QImage>
 #include <QDebug>
 
 #import <Foundation/Foundation.h>
@@ -428,36 +427,9 @@ QList<SyphonServerDescription> Syphon::availableServers()
   return SyphonImpl::availableServers();
 }
 
-QIcon Syphon::defaultIcon(int size, const QColor& color)
-{
-  QPixmap pixmap(size, size);
-  pixmap.fill(Qt::transparent);
-
-  QPainter p(&pixmap);
-  p.setRenderHint(QPainter::Antialiasing, true);
-
-  // Rounded square outline.
-  QPen pen(color);
-  pen.setWidthF(qMax(1.0, size / 16.0));
-  p.setPen(pen);
-  const qreal m = size * 0.12;
-  const qreal r = size * 0.18;
-  p.drawRoundedRect(QRectF(m, m, size - 2 * m, size - 2 * m), r, r);
-
-  // "S" glyph for Syphon.
-  QFont font = p.font();
-  font.setBold(true);
-  font.setPixelSize(int(size * 0.6));
-  p.setFont(font);
-  p.drawText(pixmap.rect(), Qt::AlignCenter, QStringLiteral("S"));
-  p.end();
-
-  return QIcon(pixmap);
-}
-
 QIcon Syphon::getIcon() const
 {
-  return defaultIcon(MM::MAPPING_LIST_ICON_SIZE, QColor(220, 220, 220));
+  return QIcon(":/add-syphon");
 }
 
 }

@@ -125,9 +125,6 @@ public:
   /// Lists the Syphon servers currently available on the system.
   static QList<SyphonServerDescription> availableServers();
 
-  /// Builds the default Syphon glyph icon (drawn, no binary asset required).
-  static QIcon defaultIcon(int size, const QColor& color);
-
 signals:
   /// Emitted once, the first time a real frame resolution becomes known, so the
   /// UI can fit input shapes created before any frame had arrived.

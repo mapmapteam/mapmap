@@ -1892,7 +1892,7 @@ void MainWindow::createActions()
   // Add Syphon source (macOS only).
   addSyphonAction = new QAction(tr("Add &Syphon Source..."), this);
   addSyphonAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_Y);
-  addSyphonAction->setIcon(Syphon::defaultIcon(24, QColor(230, 230, 230)));
+  addSyphonAction->setIcon(QIcon(":/add-syphon"));
   addSyphonAction->setToolTip(tr("Receive live video from another application via Syphon..."));
   addSyphonAction->setIconVisibleInMenu(false);
   addSyphonAction->setShortcutContext(Qt::ApplicationShortcut);
