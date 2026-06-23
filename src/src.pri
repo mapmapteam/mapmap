@@ -37,6 +37,23 @@ macx {
   QMAKE_CXXFLAGS += -stdlib=libc++
   QMAKE_CXXFLAGS += -DGL_SILENCE_DEPRECATION
   LIBS += -framework OpenGL -framework GLUT
+
+  # Syphon: vendored, prebuilt framework (BSD 2-Clause). See third_party/macos/.
+  # HAVE_SYPHON is passed to both the compiler and moc (like HAVE_MCP), so
+  # guarded Q_OBJECT classes are handled consistently.
+  DEFINES += HAVE_SYPHON
+  SYPHON_FRAMEWORK_DIR = $$PWD/../third_party/macos
+  # -F on the compiler so framework-style imports (<Syphon/...>) resolve, both
+  # in our .mm and inside Syphon's own headers; -F on the linker to find it.
+  QMAKE_CXXFLAGS += -F$$SYPHON_FRAMEWORK_DIR
+  QMAKE_OBJECTIVE_CFLAGS += -F$$SYPHON_FRAMEWORK_DIR
+  LIBS += -F$$SYPHON_FRAMEWORK_DIR -framework Syphon -framework Foundation
+  # Embed Syphon.framework into the app bundle and resolve it via @rpath.
+  QMAKE_LFLAGS += -Wl,-rpath,@executable_path/../Frameworks
+  syphon_framework.files = $$SYPHON_FRAMEWORK_DIR/Syphon.framework
+  syphon_framework.path = Contents/Frameworks
+  QMAKE_BUNDLE_DATA += syphon_framework
+
   # With Xcode Tools > 1.5, to reduce the size of your binary even more:
   # LIBS += -dead_strip
   # This tells qmake not to put the executable inside a bundle.

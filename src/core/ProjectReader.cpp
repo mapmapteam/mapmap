@@ -154,7 +154,9 @@ Source::ptr ProjectReader::parseSource(const QJsonObject& obj)
   }
   else
   {
-    _errorString = QObject::tr("Unable to create source of type '%1'.").arg(className);
+    // Unknown source type (e.g. a macOS-only Syphon source opened on another
+    // platform). Skip it with a warning rather than failing the whole load.
+    qWarning() << "Skipping unsupported source of type" << className;
     return Source::ptr();
   }
 }

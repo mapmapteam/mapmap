@@ -33,6 +33,11 @@
 
 #include "Source.h"
 
+#ifdef HAVE_SYPHON
+#include "Syphon.h"
+class QTimer;
+#endif
+
 #include "qtpropertymanager.h"
 #include "qtvariantproperty.h"
 #include "qttreepropertybrowser.h"
@@ -142,6 +147,43 @@ protected:
   QtVariantProperty* _mediaVolumeItem;
 //  QtVariantProperty* _mediaReverseItem;
 };
+
+#ifdef HAVE_SYPHON
+/**
+ * Property editor for a Syphon source (macOS only). Exposes a live-refreshed
+ * "Server" dropdown so the source can be re-pointed at any available Syphon
+ * server, plus a read-only connection status.
+ */
+class SyphonGui : public TextureGui {
+  Q_OBJECT
+
+public:
+  SyphonGui(Source::ptr source);
+  virtual ~SyphonGui() {}
+
+public slots:
+  virtual void setValue(QtProperty* property, const QVariant& value);
+  virtual void setValue(QString propertyName, QVariant value);
+
+private slots:
+  /// Polls the Syphon directory and refreshes the dropdown/status.
+  void refreshServers();
+
+protected:
+  void _rebuildServerEnum();
+  void _updateStatus();
+
+  QSharedPointer<Syphon> syphon;
+  QtVariantProperty* _serverItem;
+  QtVariantProperty* _statusItem;
+
+  // _servers[i] corresponds to dropdown index i+1 (index 0 is "(none)").
+  QList<SyphonServerDescription> _servers;
+  QStringList _lastSignature;
+  bool _updatingEnum;
+  QTimer* _refreshTimer;
+};
+#endif // HAVE_SYPHON
 
 }
 

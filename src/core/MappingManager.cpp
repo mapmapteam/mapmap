@@ -48,6 +48,26 @@ Source::ptr MappingManager::getSourceByName(QString name)
   return _getElementByName(sourceVector, name);
 }
 
+QString MappingManager::generateUniqueSourceName(const QString& baseName) const
+{
+  auto isTaken = [this](const QString& candidate) {
+    for (const Source::ptr& source : sourceVector)
+      if (source->getName() == candidate)
+        return true;
+    return false;
+  };
+
+  if (!isTaken(baseName))
+    return baseName;
+
+  for (int n = 2; ; ++n)
+  {
+    const QString candidate = QString("%1 %2").arg(baseName).arg(n);
+    if (!isTaken(candidate))
+      return candidate;
+  }
+}
+
 QVector<Source::ptr> MappingManager::getSourcesByNameRegExp(QString namePattern)
 {
   return _getElementsByNameRegExp(sourceVector, namePattern);

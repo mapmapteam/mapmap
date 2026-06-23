@@ -36,3 +36,9 @@ SOURCES += $$PWD/AboutDialog.cpp \
     $$PWD/ShapeControlPainter.cpp \
     $$PWD/ShapeGraphicsItem.cpp \
     $$PWD/ShortcutWindow.cpp
+
+# Syphon source picker (macOS-only).
+macx {
+    HEADERS += $$PWD/SyphonServerDialog.h
+    SOURCES += $$PWD/SyphonServerDialog.cpp
+}

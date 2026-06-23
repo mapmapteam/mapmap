@@ -101,6 +101,7 @@ private slots:
   void importMedia();
   void openCameraDevice();
   void addColor();
+  void addSyphon();
   void about();
   void updateStatusBar();
   void showMenuBar(bool shown);
@@ -186,6 +187,10 @@ public slots:
 
   /// Create or replace a color source.
   uid createColorSource(uid sourceId, QColor color);
+
+  /// Create a Syphon source pointing at the given server (macOS only).
+  uid createSyphonSource(uid sourceId, const QString& serverUUID,
+                         const QString& serverName, const QString& appName);
 
   // TODO: Remove all these unsed fonctions below
 
@@ -399,6 +404,7 @@ private:
   QAction *importMediaAction;
   QAction *AddCameraAction;
   QAction *addColorAction;
+  QAction *addSyphonAction;
   QAction *saveAction;
   QAction *saveAsAction;
   QAction *exitAction;

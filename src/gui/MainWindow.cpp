@@ -26,6 +26,10 @@
 #include "Commands.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
+#ifdef Q_OS_MAC
+#include "Syphon.h"
+#include "SyphonServerDialog.h"
+#endif
 #include <sstream>
 #include <string>
 #include <QOpenGLWidget>
@@ -279,6 +283,13 @@ void MainWindow::handleSourceChanged(Source::ptr source)
     Q_CHECK_PTR(color);
     updateSourceItem(sourceId, getSourceIcon(source), strippedName(color->getColor().name()));
   }
+#ifdef Q_OS_MAC
+  else if (source->getSourceType() == SourceType::Syphon)
+  {
+    // Keep the list item label/icon in sync (e.g. after re-pointing the server).
+    updateSourceItem(sourceId, getSourceIcon(source), source->getName());
+  }
+#endif
 
   if (curLayerId != NULL_UID)
   {
@@ -719,6 +730,35 @@ void MainWindow::addColor()
   // Restart video playback if it was previously playing. XXX Hack
   if (pauseAction->isVisible())
     play(false);
+}
+
+void MainWindow::addSyphon()
+{
+#ifdef Q_OS_MAC
+  // Stop video playback, if it is playing, to avoid lags. XXX Hack
+  if (pauseAction->isVisible())
+    pause(false);
+
+  SyphonServerDialog dialog(this);
+  if (dialog.exec() == QDialog::Accepted)
+  {
+    if (dialog.hasSelection())
+    {
+      const SyphonServerDescription server = dialog.selectedServer();
+      createSyphonSource(NULL_UID, server.uuid, server.name, server.appName);
+    }
+    else
+    {
+      // Create an unbound source; the user can pick a server later.
+      createSyphonSource(NULL_UID, QString(), QString(), QString());
+    }
+    statusBar()->showMessage(tr("Syphon source added"), 2000);
+  }
+
+  // Restart video playback if it was previously playing. XXX Hack
+  if (pauseAction->isVisible())
+    play(false);
+#endif
 }
 
 void MainWindow::addMesh()
@@ -1212,6 +1252,41 @@ uid MainWindow::createColorSource(uid sourceId, QColor color)
 
     return id;
   }
+}
+
+uid MainWindow::createSyphonSource(uid sourceId, const QString& serverUUID,
+                                   const QString& serverName, const QString& appName)
+{
+#ifdef Q_OS_MAC
+  // Cannot create a source with an already existing id.
+  if (Source::getUidAllocator().exists(sourceId))
+    return NULL_UID;
+
+  Syphon* syph = new Syphon(sourceId);
+  syph->connectToServer(serverUUID, serverName, appName);
+
+  Source::ptr source(syph);
+
+  // Default name: the server's description, falling back to a numbered
+  // "Syphon N" when created unbound or when the name is already taken.
+  SyphonServerDescription desc;
+  desc.uuid = serverUUID;
+  desc.name = serverName;
+  desc.appName = appName;
+  const QString base = desc.isEmpty() ? QString("Syphon") : desc.displayName();
+  source->setName(mappingManager->generateUniqueSourceName(base));
+
+  // Add source to model and return its uid.
+  uid id = mappingManager->addSource(source);
+
+  // Add source widget item.
+  undoStack->push(new AddSourceCommand(this, id, source->getIcon(), source->getName()));
+
+  return id;
+#else
+  Q_UNUSED(sourceId); Q_UNUSED(serverUUID); Q_UNUSED(serverName); Q_UNUSED(appName);
+  return NULL_UID;
+#endif
 }
 
 uid MainWindow::createMeshTextureLayer(uid layerId,
@@ -1754,6 +1829,18 @@ void MainWindow::createActions()
   addAction(addColorAction);
   connect(addColorAction, SIGNAL(triggered()), this, SLOT(addColor()));
 
+#ifdef Q_OS_MAC
+  // Add Syphon source (macOS only).
+  addSyphonAction = new QAction(tr("Add &Syphon Source..."), this);
+  addSyphonAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_Y);
+  addSyphonAction->setIcon(Syphon::defaultIcon(24, QColor(230, 230, 230)));
+  addSyphonAction->setToolTip(tr("Receive live video from another application via Syphon..."));
+  addSyphonAction->setIconVisibleInMenu(false);
+  addSyphonAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(addSyphonAction);
+  connect(addSyphonAction, SIGNAL(triggered()), this, SLOT(addSyphon()));
+#endif
+
   // Exit/quit.
   exitAction = new QAction(tr("E&xit"), this);
   exitAction->setShortcut(QKeySequence::Quit);
@@ -2249,6 +2336,9 @@ void MainWindow::createMenus()
   fileMenu->addAction(importMediaAction);
   fileMenu->addAction(AddCameraAction);
   fileMenu->addAction(addColorAction);
+#ifdef Q_OS_MAC
+  fileMenu->addAction(addSyphonAction);
+#endif
 
   // Recent file separator
   separatorAction = fileMenu->addSeparator();
@@ -2438,6 +2528,9 @@ void MainWindow::createToolBars()
   mainToolBar->addAction(importMediaAction);
   mainToolBar->addAction(AddCameraAction);
   mainToolBar->addAction(addColorAction);
+#ifdef Q_OS_MAC
+  mainToolBar->addAction(addSyphonAction);
+#endif
 
   mainToolBar->addSeparator();
 
@@ -2946,6 +3039,10 @@ void MainWindow::addSourceItem(uid sourceId, const QIcon& icon, const QString& n
     sourceGui = SourceGui::ptr(new ImageGui(source));
   else if (sourceType == SourceType::Color)
     sourceGui = SourceGui::ptr(new ColorGui(source));
+#ifdef Q_OS_MAC
+  else if (sourceType == SourceType::Syphon)
+    sourceGui = SourceGui::ptr(new SyphonGui(source));
+#endif
   else
     sourceGui = SourceGui::ptr(new SourceGui(source));
 
@@ -3029,7 +3126,11 @@ void MainWindow::addLayerItem(uid layerId)
   // Add mapper.
   // XXX hardcoded for textures
   QSharedPointer<TextureLayer> textureLayer;
-  if (sourceType == SourceType::Video || sourceType == SourceType::Image)
+  if (sourceType == SourceType::Video || sourceType == SourceType::Image
+#ifdef Q_OS_MAC
+      || sourceType == SourceType::Syphon
+#endif
+     )
   {
     textureLayer = qSharedPointerCast<TextureLayer>(layer);
     Q_CHECK_PTR(textureLayer);

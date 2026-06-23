@@ -70,7 +70,7 @@ protected:
 public:
 
   enum SourceType {
-    Video, Image, Color
+    Video, Image, Color, Syphon
   };
 
   typedef QSharedPointer<Source> ptr;

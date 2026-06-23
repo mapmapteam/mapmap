@@ -89,6 +89,12 @@ public:
   /// Returns mapping with given name (first match).
   Source::ptr getSourceByName(QString name);
 
+  /**
+   * Returns a source name based on baseName that is not already used by any
+   * source, appending " 2", " 3", ... when needed (e.g. "Syphon", "Syphon 2").
+   */
+  QString generateUniqueSourceName(const QString& baseName) const;
+
   /// Returns all mappings with given regexp.
   QVector<Source::ptr> getSourcesByNameRegExp(QString namePattern);
 

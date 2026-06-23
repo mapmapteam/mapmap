@@ -13,6 +13,10 @@
 
 #include "MetaObjectRegistry.h"
 
+#ifdef Q_OS_MAC
+#include "Syphon.h"
+#endif
+
 #include <stdlib.h>
 
 MM_USE_NAMESPACE
@@ -40,6 +44,9 @@ void initRegistry()
   registry.add<Video>();
   registry.add<Image>();
   registry.add<Color>();
+#ifdef Q_OS_MAC
+  registry.add<Syphon>();
+#endif
 
   // Layers (formerly Mappings).
   registry.add<TextureLayer>();
