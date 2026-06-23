@@ -23,7 +23,12 @@
 <key>NSPrincipalClass</key>
 <string>NSApplication</string>
 <key>NSSupportsAutomaticGraphicsSwitching</key>
-<true/><key>NOTE</key>
+<true/>
+<key>NSCameraUsageDescription</key>
+<string>MapMap uses the camera to display a live camera feed as a video-mapping source.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>MapMap may access the microphone when capturing audio from a camera device.</string>
+<key>NOTE</key>
 <string>This file need to be update at every release</string>
 
 </dict>

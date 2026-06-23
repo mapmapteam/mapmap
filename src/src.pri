@@ -61,6 +61,11 @@ macx {
   # just for reference. Do not uncomment.
   # CONFIG-=app_bundle
   ICON = resources/app_icons/mapmap.icns
+
+  # Custom Info.plist: real bundle identity + camera/microphone usage
+  # descriptions (required by macOS to access the camera; without them
+  # QCamera cannot start and camera sources show no video).
+  QMAKE_INFO_PLIST = $$PWD/../resources/macos/Info.plist
 }
 
 
