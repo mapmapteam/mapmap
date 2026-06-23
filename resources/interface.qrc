@@ -10,7 +10,7 @@
         <file alias="add-video">images/icons/add_movie_w.png</file>
         <file alias="add-camera">images/icons/add_camera_w.png</file>
         <file alias="add-color">images/icons/add_paint_w.png</file>
-        <file alias="add-syphon">images/icons/syphon.png</file>
+        <file alias="add-syphon">images/icons/syphon-white.png</file>
         <file alias="add-mesh">images/shapes/add_quad.png</file>
         <file alias="add-triangle">images/shapes/add_triangle.png</file>
         <file alias="add-ellipse">images/shapes/add_circle.png</file>
