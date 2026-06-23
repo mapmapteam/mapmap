@@ -52,6 +52,11 @@ qrc_*.cpp
 src/*/mocs/*
 src/*/objs/*
 src/*/qrc/*
+*_plugin_import.cpp
+tests/target_wrapper.sh
+
+# Shadow build directory
+build/
 
 # Folders not to be included
 html/
