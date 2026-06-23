@@ -28,6 +28,7 @@
 #include <QColor>
 #include <QElapsedTimer>
 #include <QMutex>
+#include <QVector>
 
 #if __APPLE__
 #include <OpenGL/gl.h>
@@ -169,11 +170,21 @@ protected:
 
 public:
   virtual ~Texture() {
-    // TODO: this needs to be fixed: it will not work unless it is executed from within a GL context
-    // see issue #229
+    // A Texture is usually destroyed (e.g. when its source is removed) when no
+    // GL context is current, so we cannot call glDeleteTextures here (issue
+    // #229). Instead the id is queued and freed by deleteOrphanedTextures(),
+    // which the renderer calls while a context is current.
     if (textureId != 0)
-      glDeleteTextures(1, &textureId);
+      orphanTexture(textureId);
   }
+
+  /// Frees textures queued by destroyed Texture objects. MUST be called with a
+  /// current GL context (the renderer calls it at the start of painting).
+  static void deleteOrphanedTextures();
+
+protected:
+  /// Queues a texture id for deferred deletion (see issue #229).
+  static void orphanTexture(GLuint id);
 
 public:
   virtual void update();
@@ -220,6 +231,12 @@ public:
 protected:
   // Lists QProperties that should NOT be parsed automatically.
   virtual QList<QString> _propertiesSpecial() const { return Source::_propertiesSpecial() << "x" << "y"; }
+
+private:
+  // Texture ids whose Texture objects were destroyed without a current GL
+  // context; freed later by deleteOrphanedTextures(). See issue #229.
+  static QVector<GLuint> _orphanedTextures;
+  static QMutex          _orphanedTexturesMutex;
 };
 
 /**

@@ -264,6 +264,10 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   Q_UNUSED(option);
   painter->beginNativePainting();
 
+  // Free any textures orphaned by destroyed sources now that a GL context is
+  // current (see issue #229).
+  Texture::deleteOrphanedTextures();
+
   // Project source texture and sent it to destination.
   texture->update();
 

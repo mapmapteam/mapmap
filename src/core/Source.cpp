@@ -32,6 +32,24 @@ namespace mmp {
 
 UidAllocator Source::allocator;
 
+QVector<GLuint> Texture::_orphanedTextures;
+QMutex          Texture::_orphanedTexturesMutex;
+
+void Texture::orphanTexture(GLuint id)
+{
+  QMutexLocker locker(&_orphanedTexturesMutex);
+  _orphanedTextures.append(id);
+}
+
+void Texture::deleteOrphanedTextures()
+{
+  QMutexLocker locker(&_orphanedTexturesMutex);
+  if (_orphanedTextures.isEmpty())
+    return;
+  glDeleteTextures((GLsizei) _orphanedTextures.size(), _orphanedTextures.constData());
+  _orphanedTextures.clear();
+}
+
 void Texture::update()
 {
   if (textureId == 0)
