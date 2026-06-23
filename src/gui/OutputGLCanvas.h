@@ -24,6 +24,10 @@
 
 #include "MapperGLCanvas.h"
 
+#ifdef HAVE_SYPHON
+#include "SyphonOutput.h"
+#endif
+
 namespace mmp {
 
 class OutputGLCanvas: public MapperGLCanvas
@@ -49,6 +53,12 @@ public:
     _displayTestSignal = displayTestSignal;
   }
 
+  // Syphon output (macOS): publish the rendered output as a Syphon server.
+  // No-ops on platforms without Syphon support.
+  void setSyphonOutputEnabled(bool on);
+  bool isSyphonOutputEnabled() const;
+  void setSyphonServerName(const QString& name);
+
 private:
   void _drawClassicTestSignal(QPainter* painter);
   void _drawPALTestCard(QPainter *painter);
@@ -63,6 +73,10 @@ private:
   QImage _palTestCard;
   QImage _ntscTestCard;
   bool _windowIsHovered;
+
+#ifdef HAVE_SYPHON
+  SyphonOutput _syphonOutput;
+#endif
 
 protected:
   // overriden from QGlWidget:

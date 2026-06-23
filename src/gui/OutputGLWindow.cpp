@@ -87,6 +87,11 @@ void OutputGLWindow::setCanvasDisplayCrosshair(bool crosshair)
   _resetCursor(_isFullScreen);
 }
 
+void OutputGLWindow::setSyphonOutputEnabled(bool on)
+{
+  canvas->setSyphonOutputEnabled(on);
+}
+
 void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
 {
   canvas->setDisplayTestSignal(displayTestSignal);

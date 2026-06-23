@@ -48,6 +48,7 @@ public slots:
   void setFullScreen(bool fullScreen);
   void setCanvasDisplayCrosshair(bool crosshair);
   void setDisplayTestSignal(bool displayTestSignal);
+  void setSyphonOutputEnabled(bool on);
 
 signals:
   void closed();

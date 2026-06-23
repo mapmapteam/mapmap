@@ -46,8 +46,50 @@ void OutputGLCanvas::setSceneRectToViewportGeometry()
   setSceneRect(viewport()->geometry());
 }
 
+void OutputGLCanvas::setSyphonOutputEnabled(bool on)
+{
+#ifdef HAVE_SYPHON
+  _syphonOutput.setEnabled(on);
+  // Repaint so the server starts/stops publishing promptly.
+  if (viewport())
+    viewport()->update();
+#else
+  Q_UNUSED(on);
+#endif
+}
+
+bool OutputGLCanvas::isSyphonOutputEnabled() const
+{
+#ifdef HAVE_SYPHON
+  return _syphonOutput.isEnabled();
+#else
+  return false;
+#endif
+}
+
+void OutputGLCanvas::setSyphonServerName(const QString& name)
+{
+#ifdef HAVE_SYPHON
+  _syphonOutput.setServerName(name);
+#else
+  Q_UNUSED(name);
+#endif
+}
+
 void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 {
+#ifdef HAVE_SYPHON
+  // Publish the clean composition (background + mappings, no editing overlays or
+  // test signal) to Syphon before the foreground is drawn. drawForeground runs
+  // after the background and all items, so the framebuffer holds the full frame.
+  if (_syphonOutput.isEnabled())
+  {
+    painter->beginNativePainting();
+    _syphonOutput.publishCurrentFramebuffer();
+    painter->endNativePainting();
+  }
+#endif
+
   QSettings settings;
   bool controlOnMouseOver = settings.value("showControlOnMouseOver", MM::SHOW_OUTPUT_ON_MOUSE_HOVER).toBool();
 

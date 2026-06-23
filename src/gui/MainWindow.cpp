@@ -2248,6 +2248,23 @@ void MainWindow::createActions()
   connect(displayTestSignalAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setDisplayTestSignal(bool)));
 //  connect(displayTestSignalAction, SIGNAL(toggled(bool)), this, SLOT(update()));
 
+#ifdef HAVE_SYPHON
+  // Publish the output as a Syphon server (opt-in, macOS only).
+  publishSyphonOutputAction = new QAction(tr("&Publish Syphon Output"), this);
+  publishSyphonOutputAction->setToolTip(tr("Publish the output composition as a Syphon server other apps can receive"));
+  publishSyphonOutputAction->setIconVisibleInMenu(false);
+  publishSyphonOutputAction->setCheckable(true);
+  publishSyphonOutputAction->setChecked(false);
+  publishSyphonOutputAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(publishSyphonOutputAction);
+  connect(publishSyphonOutputAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setSyphonOutputEnabled(bool)));
+  connect(publishSyphonOutputAction, &QAction::toggled, this, [](bool on) {
+    QSettings s; s.setValue("publishSyphonOutput", on);
+  });
+  // Restore the persisted state (this fires the connections above).
+  publishSyphonOutputAction->setChecked(settings.value("publishSyphonOutput", false).toBool());
+#endif
+
   // Toggle display of Undo History
   displayUndoHistoryAction = new QAction(tr("Display &Undo History"), this);
   displayUndoHistoryAction->setShortcut(Qt::ALT | Qt::Key_U);
@@ -2467,6 +2484,9 @@ void MainWindow::createMenus()
   viewMenu->addSeparator();
   viewMenu->addAction(outputFullScreenAction);
   viewMenu->addAction(displayTestSignalAction);
+#ifdef HAVE_SYPHON
+  viewMenu->addAction(publishSyphonOutputAction);
+#endif
   viewMenu->addAction(displayControlsAction);
   viewMenu->addAction(displaySourceControlsAction);
   outputScreenMenu = viewMenu->addMenu(tr("&Output screen"));
