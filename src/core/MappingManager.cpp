@@ -119,12 +119,20 @@ bool MappingManager::removeSource(uid sourceId)
       removeLayer(it.key());
     }
 
-    // Remove source.
+    // Remove source. Its lifetime is managed by QSharedPointer: dropping the
+    // manager's references here is enough. The source may still be held by the
+    // undo stack (so it can be restored), and is freed once the last shared
+    // pointer is released.
+    //
+    // NOTE: do NOT call source->~Source() explicitly. Because ~Source() is
+    // virtual, that runs the full destructor chain on an object the shared
+    // pointers still own, so the object is destroyed a second time when the
+    // last reference is released — a double-free that crashes on quit/undo
+    // (notably with Syphon sources, which carry extra state).
     int idx = sourceVector.lastIndexOf(source);
     Q_ASSERT(idx != -1);
     sourceVector.remove(idx);
     sourceMap.remove(sourceId);
-    source->~Source(); // FIX ME: Explicit call of source destructor in order add Camera more than once
     return true;
   }
   else
