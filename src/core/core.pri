@@ -40,6 +40,6 @@ SOURCES += $$PWD/Commands.cpp \
 
 # Syphon (macOS-only) inter-application video sharing.
 macx {
-    HEADERS += $$PWD/Syphon.h
-    OBJECTIVE_SOURCES += $$PWD/SyphonImpl.mm
+    HEADERS += $$PWD/Syphon.h $$PWD/SyphonOutput.h
+    OBJECTIVE_SOURCES += $$PWD/SyphonImpl.mm $$PWD/SyphonServerImpl.mm
 }

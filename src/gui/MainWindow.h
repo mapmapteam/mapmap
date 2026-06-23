@@ -452,6 +452,7 @@ private:
   QAction *displayControlsAction;
   QAction *displaySourceControlsAction;
   QAction *displayTestSignalAction;
+  QAction *publishSyphonOutputAction;
   QAction *stickyVerticesAction;
   QAction *displayUndoHistoryAction;
   QAction *displayZoomToolAction;
