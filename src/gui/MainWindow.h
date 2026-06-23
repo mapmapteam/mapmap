@@ -138,6 +138,9 @@ private slots:
   void handleSourceItemSelected(QListWidgetItem* item);
   void handleSourceChanged(Source::ptr source);
 
+  // Fits a Syphon source's input shapes to its real resolution once known.
+  void autoFitSyphonInputShapes(int sourceId, int width, int height);
+
   void layerPropertyChanged(uid id, QString propertyName, QVariant value);
   void sourcePropertyChanged(uid id, QString propertyName, QVariant value);
 

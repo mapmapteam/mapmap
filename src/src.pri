@@ -47,7 +47,8 @@ macx {
   # in our .mm and inside Syphon's own headers; -F on the linker to find it.
   QMAKE_CXXFLAGS += -F$$SYPHON_FRAMEWORK_DIR
   QMAKE_OBJECTIVE_CFLAGS += -F$$SYPHON_FRAMEWORK_DIR
-  LIBS += -F$$SYPHON_FRAMEWORK_DIR -framework Syphon -framework Foundation
+  LIBS += -F$$SYPHON_FRAMEWORK_DIR -framework Syphon -framework Foundation \
+          -framework AppKit -framework CoreGraphics
   # Embed Syphon.framework into the app bundle and resolve it via @rpath.
   QMAKE_LFLAGS += -Wl,-rpath,@executable_path/../Frameworks
   syphon_framework.files = $$SYPHON_FRAMEWORK_DIR/Syphon.framework

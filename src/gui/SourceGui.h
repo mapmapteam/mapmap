@@ -176,6 +176,7 @@ protected:
   QSharedPointer<Syphon> syphon;
   QtVariantProperty* _serverItem;
   QtVariantProperty* _statusItem;
+  QtVariantProperty* _alphaItem;
 
   // _servers[i] corresponds to dropdown index i+1 (index 0 is "(none)").
   QList<SyphonServerDescription> _servers;

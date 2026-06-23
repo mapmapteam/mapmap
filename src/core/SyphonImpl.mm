@@ -40,6 +40,7 @@
 #include <QDebug>
 
 #import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
 #import <OpenGL/OpenGL.h>
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>
@@ -90,7 +91,8 @@ public:
    * Per-frame entry point. Must be called with a current GL context.
    * @param targetTex MapMap's GL_TEXTURE_2D name to blit the frame into.
    */
-  void process(const QString& uuid, const QString& name, const QString& appName, GLuint targetTex)
+  void process(const QString& uuid, const QString& name, const QString& appName,
+               GLuint targetTex, bool forceOpaque)
   {
     CGLContextObj cgl = CGLGetCurrentContext();
     if (cgl == NULL || targetTex == 0)
@@ -114,7 +116,7 @@ public:
         SyphonOpenGLImage* image = [_client newFrameImage];
         if (image != nil)
         {
-          blit(image, targetTex);
+          blit(image, targetTex, forceOpaque);
           [image release];
         }
       }
@@ -144,12 +146,43 @@ private:
     return s ? QString::fromUtf8([s UTF8String]) : QString();
   }
 
+  /// Converts a hosting app's NSImage to a small QImage for the picker UI.
+  static QImage nsImageToQImage(NSImage* image)
+  {
+    if (image == nil)
+      return QImage();
+
+    CGImageRef cg = [image CGImageForProposedRect:NULL context:nil hints:nil];
+    if (cg == NULL)
+      return QImage();
+
+    const int w = (int) CGImageGetWidth(cg);
+    const int h = (int) CGImageGetHeight(cg);
+    if (w <= 0 || h <= 0)
+      return QImage();
+
+    QImage out(w, h, QImage::Format_RGBA8888_Premultiplied);
+    out.fill(Qt::transparent);
+    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+    CGContextRef ctx = CGBitmapContextCreate(
+        out.bits(), w, h, 8, out.bytesPerLine(), cs,
+        kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+    if (ctx != NULL)
+    {
+      CGContextDrawImage(ctx, CGRectMake(0, 0, w, h), cg);
+      CGContextRelease(ctx);
+    }
+    CGColorSpaceRelease(cs);
+    return out;
+  }
+
   static SyphonServerDescription describe(NSDictionary* desc)
   {
     SyphonServerDescription out;
     out.uuid    = nsToQString([desc objectForKey:SyphonServerDescriptionUUIDKey]);
     out.name    = nsToQString([desc objectForKey:SyphonServerDescriptionNameKey]);
     out.appName = nsToQString([desc objectForKey:SyphonServerDescriptionAppNameKey]);
+    out.icon    = nsImageToQImage([desc objectForKey:SyphonServerDescriptionIconKey]);
     return out;
   }
 
@@ -209,7 +242,7 @@ private:
   }
 
   /// GPU-only blit of the Syphon rectangle texture into targetTex (a 2D texture).
-  void blit(SyphonOpenGLImage* image, GLuint targetTex)
+  void blit(SyphonOpenGLImage* image, GLuint targetTex, bool forceOpaque)
   {
     const GLuint rectTex = [image textureName];
     const NSSize size    = [image textureSize];
@@ -261,14 +294,18 @@ private:
 
       // Force the destination alpha to 1: Syphon servers frequently publish a
       // zero/garbage alpha, which would make the (GL_SRC_ALPHA-blended) source
-      // invisible. RGB is left untouched.
-      glDisable(GL_TEXTURE_RECTANGLE);
-      glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
-      glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-      glBegin(GL_QUADS);
-        glVertex2f(0, 0); glVertex2f(w, 0); glVertex2f(w, h); glVertex2f(0, h);
-      glEnd();
-      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+      // invisible. RGB is left untouched. Skipped when the user opts to keep the
+      // server's own alpha (respectAlpha).
+      if (forceOpaque)
+      {
+        glDisable(GL_TEXTURE_RECTANGLE);
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+        glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+        glBegin(GL_QUADS);
+          glVertex2f(0, 0); glVertex2f(w, 0); glVertex2f(w, h); glVertex2f(0, h);
+        glEnd();
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+      }
 
       _width = w;
       _height = h;
@@ -315,11 +352,6 @@ private:
 // shares a single Objective-C++ translation unit with its implementation.
 // ---------------------------------------------------------------------------
 
-// Default frame size used before the first frame arrives, so a freshly created
-// source still yields a sensibly-sized mapping shape.
-static const int SYPHON_DEFAULT_WIDTH  = 640;
-static const int SYPHON_DEFAULT_HEIGHT = 480;
-
 Syphon::Syphon(int id)
   : Texture(id),
     _impl(new SyphonImpl())
@@ -341,20 +373,30 @@ void Syphon::build()
 void Syphon::update()
 {
   Texture::update(); // Allocates our GL_TEXTURE_2D name on first call.
-  if (_impl)
-    _impl->process(_serverUUID, _serverName, _appName, textureId);
+  if (!_impl)
+    return;
+
+  _impl->process(_serverUUID, _serverName, _appName, textureId, !_respectAlpha);
+
+  // Announce the real resolution once, so the UI can fit input shapes that were
+  // created (at the default size) before any frame had arrived.
+  if (!_frameAnnounced && _impl->width() > 0 && _impl->height() > 0)
+  {
+    _frameAnnounced = true;
+    emit frameSizeKnown(getId(), _impl->width(), _impl->height());
+  }
 }
 
 int Syphon::getWidth() const
 {
   const int w = _impl ? _impl->width() : 0;
-  return w > 0 ? w : SYPHON_DEFAULT_WIDTH;
+  return w > 0 ? w : DEFAULT_WIDTH;
 }
 
 int Syphon::getHeight() const
 {
   const int h = _impl ? _impl->height() : 0;
-  return h > 0 ? h : SYPHON_DEFAULT_HEIGHT;
+  return h > 0 ? h : DEFAULT_HEIGHT;
 }
 
 // The frame is blitted straight into our GL_TEXTURE_2D, so there is no CPU-side

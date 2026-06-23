@@ -254,9 +254,12 @@ SyphonGui::SyphonGui(Source::ptr source)
                                               tr("Server"));
   _statusItem = _variantManager->addProperty(QMetaType::QString, tr("Status"));
   _statusItem->setEnabled(false);
+  _alphaItem = _variantManager->addProperty(QMetaType::Bool, tr("Respect source alpha"));
+  _alphaItem->setValue(syphon->getRespectAlpha());
 
   _propertyBrowser->addProperty(_serverItem);
   _propertyBrowser->addProperty(_statusItem);
+  _propertyBrowser->addProperty(_alphaItem);
 
   // Populate the dropdown and status now, then keep them current. Syphon has
   // no Qt-native change signal, so we poll the shared directory on a timer.
@@ -358,6 +361,11 @@ void SyphonGui::setValue(QtProperty* property, const QVariant& value)
     }
     emit valueChanged(_source);
     _updateStatus();
+  }
+  else if (property == _alphaItem)
+  {
+    syphon->setRespectAlpha(value.toBool());
+    emit valueChanged(_source);
   }
   else
     TextureGui::setValue(property, value);

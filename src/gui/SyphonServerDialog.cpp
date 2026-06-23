@@ -26,6 +26,8 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QTimer>
+#include <QIcon>
+#include <QPixmap>
 
 namespace mmp {
 
@@ -79,7 +81,10 @@ void SyphonServerDialog::refresh()
     QString text = _servers[i].displayName();
     if (text.isEmpty())
       text = tr("Unknown server");
-    _list->addItem(text);
+
+    QListWidgetItem* item = new QListWidgetItem(text, _list);
+    if (!_servers[i].icon.isNull())
+      item->setIcon(QIcon(QPixmap::fromImage(_servers[i].icon)));
   }
 
   // Restore a sensible selection.

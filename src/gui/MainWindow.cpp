@@ -761,6 +761,65 @@ void MainWindow::addSyphon()
 #endif
 }
 
+void MainWindow::autoFitSyphonInputShapes(int sourceId, int width, int height)
+{
+#ifdef HAVE_SYPHON
+  if (width <= 0 || height <= 0)
+    return;
+
+  Source::ptr source = mappingManager->getSourceById(sourceId);
+  if (source.isNull() || source->getSourceType() != SourceType::Syphon)
+    return;
+
+  const qreal defW = Syphon::DEFAULT_WIDTH;
+  const qreal defH = Syphon::DEFAULT_HEIGHT;
+  const qreal sx = width / defW;
+  const qreal sy = height / defH;
+  const qreal eps = 1.0;
+
+  bool changed = false;
+  QMap<uid, Layer::ptr> layers = mappingManager->getSourceLayers(source);
+  for (QMap<uid, Layer::ptr>::const_iterator it = layers.constBegin();
+       it != layers.constEnd(); ++it)
+  {
+    Layer::ptr layer = it.value();
+    if (layer.isNull() || !layer->hasInputShape())
+      continue;
+
+    MShape::ptr input = layer->getInputShape();
+    QVector<QPointF> verts = input->getVertices();
+    if (verts.isEmpty())
+      continue;
+
+    // Only rescale shapes still at the untouched default size, so we never
+    // clobber a shape the user has already adjusted.
+    qreal minX = verts[0].x(), maxX = verts[0].x();
+    qreal minY = verts[0].y(), maxY = verts[0].y();
+    for (const QPointF& v : verts)
+    {
+      minX = qMin(minX, v.x()); maxX = qMax(maxX, v.x());
+      minY = qMin(minY, v.y()); maxY = qMax(maxY, v.y());
+    }
+    if (qAbs((maxX - minX) - defW) > eps || qAbs((maxY - minY) - defH) > eps)
+      continue;
+
+    for (QPointF& v : verts)
+      v = QPointF(v.x() * sx, v.y() * sy);
+    input->setVertices(verts);
+    input->build();
+    changed = true;
+  }
+
+  if (changed)
+  {
+    updateMappers();
+    updateCanvases();
+  }
+#else
+  Q_UNUSED(sourceId); Q_UNUSED(width); Q_UNUSED(height);
+#endif
+}
+
 void MainWindow::addMesh()
 {
   // A source must be selected to add a mapping.
@@ -3066,6 +3125,17 @@ void MainWindow::addSourceItem(uid sourceId, const QIcon& icon, const QString& n
   // TODO: attention: if mapping is invisible canvases will be updated for no reason
   connect(source.data(), SIGNAL(propertyChanged(uid, QString, QVariant)),
           this,           SLOT(updateCanvases()));
+
+#ifdef HAVE_SYPHON
+  // Fit input shapes once a Syphon source's real resolution becomes known.
+  // Queued so the shapes are not mutated mid-paint (the signal fires while
+  // rendering the source).
+  if (sourceType == SourceType::Syphon)
+    connect(qSharedPointerCast<Syphon>(source).data(),
+            SIGNAL(frameSizeKnown(int, int, int)),
+            this, SLOT(autoFitSyphonInputShapes(int, int, int)),
+            Qt::QueuedConnection);
+#endif
 
   // Add source item to sourceList widget.
   QListWidgetItem* item = new QListWidgetItem(icon, name);
