@@ -2365,9 +2365,14 @@ void MainWindow::createActions()
   // Bug report
   bugReportAction = new QAction(tr("Report an issue"), this);
   connect(bugReportAction, SIGNAL(triggered()), this, SLOT(reportBug()));
-  // Support
-  supportAction = new QAction(tr("Technical support"), this);
-  connect(supportAction, SIGNAL(triggered()), this, SLOT(technicalSupport()));
+  // Professional services & custom development by Art Plus Code (sponsor).
+  servicesAction = new QAction(tr("Professional services && custom development…"), this);
+  servicesAction->setToolTip(tr("Hire Art Plus Code for video mapping installations, custom features, integration and training"));
+  connect(servicesAction, SIGNAL(triggered()), this, SLOT(professionalServices()));
+  // Support the project (donations, consolidated on Open Collective).
+  donateAction = new QAction(tr("Support the project (donate)…"), this);
+  donateAction->setToolTip(tr("Help fund MapMap's ongoing development"));
+  connect(donateAction, SIGNAL(triggered()), this, SLOT(donate()));
   // Documentation
   docAction = new QAction(tr("Documentation"), this);
   connect(docAction, SIGNAL(triggered()), this, SLOT(documentation()));
@@ -2526,9 +2531,12 @@ void MainWindow::createMenus()
   helpMenu = menuBar->addMenu(tr("&Help"));
   helpMenu->addAction(docAction);
   helpMenu->addAction(shortcutAction);
-  helpMenu->addAction(feedbackAction);
-  helpMenu->addAction(supportAction);
+  helpMenu->addSeparator();
   helpMenu->addAction(bugReportAction);
+  helpMenu->addAction(feedbackAction);
+  helpMenu->addSeparator();
+  helpMenu->addAction(servicesAction);
+  helpMenu->addAction(donateAction);
   helpMenu->addSeparator();
   helpMenu->addAction(aboutAction);
 

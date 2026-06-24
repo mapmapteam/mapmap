@@ -28,6 +28,15 @@ const QString MM::COPYRIGHT_OWNERS = "Alexandre Quessy, Sofian Audry, Dame Diong
 const QString MM::ORGANIZATION_NAME = "MapMap";
 const QString MM::ORGANIZATION_DOMAIN = "artpluscode.com";
 const QString MM::WEBSITE_URL = "https://mapmapteam.github.io";
+// Commercial services landing page operated by Art Plus Code, the company that
+// sponsors MapMap. This is the high-intent lead-generation entry point for paid
+// work (installations, custom development, integration, training, support).
+const QString MM::SERVICES_URL = "https://www.artpluscode.com/en/services/video-mapping-projection/";
+// Primary, consolidated destination for project donations. GitHub Sponsors is
+// the simplest path for the typical donor (already on GitHub); the project's
+// Open Collective (opencollective.com/mapmap) remains for organisations that
+// need a receipt.
+const QString MM::DONATE_URL = "https://github.com/sponsors/mapmapteam";
 const QString MM::FILE_EXTENSION = "mmp";
 const QString MM::VIDEO_FILES_FILTER = "*.mov *.mp4 *.avi *.ogg *.ogv *.mpeg *.mpeg1 *.mpeg4 *.mpg *.mpg2 *.mp2 *.mjpq *.mjp *.wmv *.webm *sock";
 const QString MM::IMAGE_FILES_FILTER = "*.jpg *.jpeg *.gif *.png *.tiff *.tif *.bmp";
