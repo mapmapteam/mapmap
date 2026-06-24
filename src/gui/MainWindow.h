@@ -158,9 +158,15 @@ private slots:
   void sendFeedback() {
       QDesktopServices::openUrl(QUrl("mailto:mapmap@artpluscode.com"));
   }
-  // Technical support
-  void technicalSupport() {
-      QDesktopServices::openUrl(QUrl(MM::WEBSITE_URL));
+  // Professional services and custom development by Art Plus Code, the company
+  // that sponsors MapMap (video mapping installations, custom features,
+  // integration, training and paid support).
+  void professionalServices() {
+      QDesktopServices::openUrl(QUrl(MM::SERVICES_URL));
+  }
+  // Support the project with a donation (consolidated on Open Collective).
+  void donate() {
+      QDesktopServices::openUrl(QUrl(MM::DONATE_URL));
   }
   // Report an issues
   void reportBug() {
@@ -472,7 +478,8 @@ private:
 
   // help actions
   QAction *bugReportAction;
-  QAction *supportAction;
+  QAction *servicesAction;
+  QAction *donateAction;
   QAction *docAction;
   QAction *feedbackAction;
   QAction *shortcutAction;

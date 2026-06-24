@@ -56,6 +56,8 @@ public:
   static const QString ORGANIZATION_NAME;
   static const QString ORGANIZATION_DOMAIN;
   static const QString WEBSITE_URL;
+  static const QString SERVICES_URL;
+  static const QString DONATE_URL;
   static const QString FILE_EXTENSION;
   static const QString VIDEO_FILES_FILTER;
   static const QString IMAGE_FILES_FILTER;

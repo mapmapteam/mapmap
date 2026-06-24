@@ -104,6 +104,14 @@ void AboutDialog::createAboutTab()
   // Visit our website for more information
   QString projectWebsiteText = "<p>" + tr("See the ") + QString("<a href=\"%1\">").arg(MM::WEBSITE_URL) +
                                                  tr("%1 website").arg(MM::APPLICATION_NAME) + "</a> for more information on this software.</p>";
+  // Sponsor + commercial services. MapMap is the funnel; Art Plus Code is the
+  // business. Keep the two calls to action distinct (services vs. donation).
+  QString servicesText = "<p>" + tr("%1 is developed and sponsored by Art Plus Code. "
+                                    "Need a custom video mapping installation, a new feature, integration or training? ")
+                                     .arg(MM::APPLICATION_NAME)
+                         + QString("<a href=\"%1\">").arg(MM::SERVICES_URL) + tr("Hire us") + "</a>.</p>";
+  QString supportText = "<p>" + tr("Enjoying %1? ").arg(MM::APPLICATION_NAME)
+                        + QString("<a href=\"%1\">").arg(MM::DONATE_URL) + tr("Support the project") + "</a>.</p>";
 
   // Append texts
   QString aboutText;
@@ -112,6 +120,8 @@ void AboutDialog::createAboutTab()
   aboutText.append(licenseNoticeText);
   aboutText.append(aboutMappingText);
   aboutText.append(projectWebsiteText);
+  aboutText.append(servicesText);
+  aboutText.append(supportText);
 
   // Set about text
   aboutTextBrowser->setText(aboutText);
