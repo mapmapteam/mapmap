@@ -55,6 +55,15 @@ macx {
   syphon_framework.path = Contents/Frameworks
   QMAKE_BUNDLE_DATA += syphon_framework
 
+  # Syphon OUTPUT (publishing MapMap's output as a Syphon server) is EXPERIMENTAL
+  # and DISABLED by default: SyphonOpenGLServer cannot create its IOSurface
+  # texture in MapMap's legacy-OpenGL-over-Metal context on Apple Silicon (it
+  # floods "cannot create texture, Metal texture cache was released" and never
+  # publishes). The implementation is kept (SyphonOutput / SyphonServerImpl.mm +
+  # the OutputGLCanvas hook + the "Publish Syphon Output" menu item) but compiled
+  # out. Uncomment to build it back in for development. Tracked on the roadmap.
+  # DEFINES += SYPHON_OUTPUT_EXPERIMENTAL
+
   # With Xcode Tools > 1.5, to reduce the size of your binary even more:
   # LIBS += -dead_strip
   # This tells qmake not to put the executable inside a bundle.

@@ -2248,8 +2248,9 @@ void MainWindow::createActions()
   connect(displayTestSignalAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setDisplayTestSignal(bool)));
 //  connect(displayTestSignalAction, SIGNAL(toggled(bool)), this, SLOT(update()));
 
-#ifdef HAVE_SYPHON
+#if defined(HAVE_SYPHON) && defined(SYPHON_OUTPUT_EXPERIMENTAL)
   // Publish the output as a Syphon server (opt-in, macOS only).
+  // EXPERIMENTAL / DISABLED — see the SYPHON_OUTPUT_EXPERIMENTAL note in src/src.pri.
   publishSyphonOutputAction = new QAction(tr("&Publish Syphon Output"), this);
   publishSyphonOutputAction->setToolTip(tr("Publish the output composition as a Syphon server other apps can receive"));
   publishSyphonOutputAction->setIconVisibleInMenu(false);
@@ -2484,7 +2485,7 @@ void MainWindow::createMenus()
   viewMenu->addSeparator();
   viewMenu->addAction(outputFullScreenAction);
   viewMenu->addAction(displayTestSignalAction);
-#ifdef HAVE_SYPHON
+#if defined(HAVE_SYPHON) && defined(SYPHON_OUTPUT_EXPERIMENTAL)
   viewMenu->addAction(publishSyphonOutputAction);
 #endif
   viewMenu->addAction(displayControlsAction);

@@ -48,7 +48,8 @@ static NSString* qStringToNS(const QString& s)
 class SyphonServerImpl
 {
 public:
-  SyphonServerImpl() : _server(nil), _serverCtx(NULL) {}
+  SyphonServerImpl()
+    : _server(nil), _serverCtx(NULL), _failed(false), _logged(false) {}
 
   ~SyphonServerImpl() { teardown(); }
 
@@ -61,6 +62,8 @@ public:
       _server = nil;
     }
     _serverCtx = NULL;
+    _failed = false;
+    _logged = false;
   }
 
   void setName(const QString& name)
@@ -87,13 +90,24 @@ public:
 
       if (_server == nil)
       {
+        if (_failed)
+          return; // Already failed on this context; don't retry every frame.
+
         _server = [[SyphonOpenGLServer alloc] initWithName:qStringToNS(name)
                                                    context:cgl
                                                    options:nil];
         if (_server == nil)
+        {
+          _failed = true;
+          NSLog(@"[SyphonOutput] SyphonOpenGLServer init FAILED for context %p "
+                @"(legacy OpenGL output may be unsupported on this GPU).", cgl);
           return;
+        }
         _serverCtx = cgl;
+        NSLog(@"[SyphonOutput] server started: %@ context %p", qStringToNS(name), cgl);
       }
+
+      glGetError(); // clear any pre-existing error
 
       // Bind the server's FBO and blit our composition into it. A same-size
       // blit from the (multisampled) widget FBO resolves MSAA in one step.
@@ -108,6 +122,18 @@ public:
         glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, (GLuint) prevRead);
 
         [_server unbindAndPublish]; // restores the previously-bound FBO + flushes
+
+        if (!_logged)
+        {
+          _logged = true;
+          NSLog(@"[SyphonOutput] first publish %dx%d hasClients=%d glError=0x%x",
+                w, h, (int) [_server hasClients], (unsigned) glGetError());
+        }
+      }
+      else if (!_logged)
+      {
+        _logged = true;
+        NSLog(@"[SyphonOutput] bindToDrawFrameOfSize FAILED at %dx%d", w, h);
       }
     }
   }
@@ -115,6 +141,8 @@ public:
 private:
   SyphonOpenGLServer* _server;
   CGLContextObj       _serverCtx; // context the server was created with
+  bool                _failed;    // init failed on _serverCtx; stop retrying
+  bool                _logged;     // one-shot diagnostics
 };
 
 // ---------------------------------------------------------------------------

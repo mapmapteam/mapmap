@@ -78,10 +78,11 @@ void OutputGLCanvas::setSyphonServerName(const QString& name)
 
 void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 {
-#ifdef HAVE_SYPHON
+#if defined(HAVE_SYPHON) && defined(SYPHON_OUTPUT_EXPERIMENTAL)
   // Publish the clean composition (background + mappings, no editing overlays or
   // test signal) to Syphon before the foreground is drawn. drawForeground runs
   // after the background and all items, so the framebuffer holds the full frame.
+  // DISABLED — see the SYPHON_OUTPUT_EXPERIMENTAL note in src/src.pri.
   if (_syphonOutput.isEnabled())
   {
     painter->beginNativePainting();
