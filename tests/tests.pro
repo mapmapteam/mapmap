@@ -11,10 +11,11 @@ DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB QT_MESSAGELOGCONTEXT
 unix:!macx: DEFINES += UNIX
 win32: LIBS += -lopengl32
 
-CORE  = $$PWD/../src/core
-SHAPE = $$PWD/../src/shape
+CORE    = $$PWD/../src/core
+SHAPE   = $$PWD/../src/shape
+CONTROL = $$PWD/../src/control
 
-INCLUDEPATH += $$CORE $$SHAPE
+INCLUDEPATH += $$CORE $$SHAPE $$CONTROL
 
 # Production sources under test plus the minimal set of dependencies they
 # need to link. We deliberately avoid pulling in the whole core/shape .pri
@@ -34,10 +35,12 @@ HEADERS += \
     $$SHAPE/Mesh.h \
     $$SHAPE/Ellipse.h \
     $$SHAPE/Shapes.h \
+    $$CONTROL/OscAction.h \
     TestMaths.h \
     TestUtil.h \
     TestUidAllocator.h \
-    TestShape.h
+    TestShape.h \
+    TestOsc.h
 
 SOURCES += \
     $$CORE/MM.cpp \
@@ -49,8 +52,10 @@ SOURCES += \
     $$SHAPE/Polygon.cpp \
     $$SHAPE/Mesh.cpp \
     $$SHAPE/Ellipse.cpp \
+    $$CONTROL/OscAction.cpp \
     main.cpp \
     TestMaths.cpp \
     TestUtil.cpp \
     TestUidAllocator.cpp \
-    TestShape.cpp
+    TestShape.cpp \
+    TestOsc.cpp
