@@ -1,30 +1,130 @@
 MapMap OSC Interface
 ====================
 
-API Reference
--------------
+MapMap can be controlled remotely over `Open Sound Control
+<https://opensoundcontrol.stanford.edu/>`_ (OSC) messages sent over UDP. This
+is handy for live performance: a sequencer, a hardware controller bridged to
+OSC, or another program can drive MapMap while a show runs.
 
-/mapmap/paint/media/load
-~~~~~~~~~~~~
-Change a media URI::
-  
-  /mapmap/paint/media/load ,is <paintId> <path>
+By default MapMap listens on UDP port **12345**. Change it from the
+Preferences dialog, or at launch with ``mapmap --osc-port <port>``.
 
-paintID: A number. Usually 0, or 1 or 2... depending on how many paints you have in your project.
-path: Path to a file.
 
-Examples
+Conventions
+-----------
+
+Every address starts with ``/mapmap``. Commands that act on a source or a
+layer take the **target as their first argument**:
+
+* an **integer** selects a single element by its id, or
+* a **string** selects every element whose name matches the given pattern
+  (shell-style wildcards, e.g. ``clip*``).
+
+"layer" and "mapping" are accepted as synonyms (a layer *is* a mapping).
+
+Coordinates (for ``move``, ``translate`` and ``vertex``) are expressed in
+MapMap's internal coordinate space — the same numbers stored for each vertex
+in the ``.mmp`` project file. These are pixel coordinates relative to the
+canvas, with the origin at its top-left corner. Open a saved project to read
+the actual values you want to target.
+
+
+Global transport
+-----------------
+
+::
+
+  /mapmap/play              Start playback of every source.
+  /mapmap/pause             Pause playback of every source.
+  /mapmap/rewind            Rewind every source.
+  /mapmap/quit              Quit MapMap.
+
+
+Sources
+-------
+
+``<target>`` is an integer id or a name pattern (see Conventions).
+
+::
+
+  /mapmap/source/play     ,i|s  <target>            Start playback of the source(s).
+  /mapmap/source/pause    ,i|s  <target>            Pause the source(s).
+  /mapmap/source/rewind   ,i|s  <target>            Rewind the source(s).
+  /mapmap/source/<prop>   ,i|s ...  <target> <val>  Set a property (see below).
+
+Settable source properties (``<prop>``):
+
+::
+
+  opacity   float    0.0 .. 1.0
+  name      string
+  uri       string   path of a video/image source
+  rate      float    playback rate, in % (negative = reverse)
+  volume    float    audio volume, in % (video sources)
+  color     string   "#rrggbb" or a colour name (color sources)
+  locked    int/bool
+
+Examples::
+
+  /mapmap/source/opacity  ,if  2 0.5
+  /mapmap/source/color    ,is  3 #ff0000
+  /mapmap/source/uri      ,is  "Clip *" /home/vj/loops/a.mov
+  /mapmap/source/play     ,i   2
+
+
+Layers
+------
+
+``<target>`` is an integer id or a name pattern (see Conventions).
+
+::
+
+  /mapmap/layer/<prop>                ,i|s ...  <target> <val>           Set a property.
+  /mapmap/layer/move/xy               ,iff      <target> <x> <y>         Move so the layer's centre is at (x, y).
+  /mapmap/layer/translate/xy          ,iff      <target> <dx> <dy>       Translate the layer by (dx, dy).
+  /mapmap/layer/vertex/xy             ,iiff     <target> <index> <x> <y> Set a destination-shape vertex.
+  /mapmap/layer/vertex/destination/xy ,iiff     <target> <index> <x> <y> Same, explicit.
+  /mapmap/layer/vertex/source/xy      ,iiff     <target> <index> <x> <y> Set a source-shape vertex (texture layers).
+
+Settable layer properties (``<prop>``):
+
+::
+
+  opacity   float    0.0 .. 1.0
+  visible   int/bool
+  solo      int/bool
+  locked    int/bool
+  depth     int
+  name      string
+
+Examples::
+
+  /mapmap/layer/opacity          ,if    0 0.8
+  /mapmap/layer/visible          ,ii    0 1
+  /mapmap/layer/move/xy          ,iff   0 640.0 360.0
+  /mapmap/layer/translate/xy     ,iff   0 -10.0 0.0
+  /mapmap/layer/vertex/source/xy ,iiff  0 2 320.0 240.0
+
+
+Security
 --------
 
-Change a media path::
-  
-  osc-send osc.udp://localhost:12345 /mapmap/paint/media/load ,is 0 ~/Videos/clips_finaux_ok/lys_flou_net.mov
+There is no authentication on the OSC port. Anyone able to reach it can
+control MapMap. If you do not want incoming messages during a show, block the
+port at the firewall (or run MapMap on an isolated network). For the same
+reason, MapMap deliberately does NOT expose loading or saving project files
+over OSC.
+
 
 See also
 --------
 
-You might consider using:
+* ``scripts/mapmap-osc.py`` — a small, dependency-free OSC client shipped with
+  MapMap. Run ``python3 scripts/mapmap-osc.py --help``.
+* The ``oscsend`` utility from `liblo <https://github.com/radarsat1/liblo>`_.
+* The ``python-osc`` library for Python.
 
-* The txosc library for python. It contains osc-send
-* The oscsend utility
+Example with ``mapmap-osc.py``::
 
+  python3 scripts/mapmap-osc.py /mapmap/layer/opacity 0 0.5
+  python3 scripts/mapmap-osc.py --port 12345 /mapmap/source/color 3 '#ff0000'

@@ -68,7 +68,7 @@ Fonctionnalités cool à faire plus tard
 --------------------------------------
 * lignes des quads assignable on/off, voire animales, en midi
 * animation de stroke par groupe
-* OSC pour controler les positions et l'alpha des quads
+* DONE OSC pour controler les positions et l'alpha des quads (voir le fichier OSC)
 
 OSC INTERFACE ADDITIONAL CALLBACKS
 ----------------------------------
@@ -76,21 +76,25 @@ Instead of using boolean values (true or false) we use numbers, where 0 means fa
 
 You should make sure to block all incoming messages on that port if you don't want to be hacked during a show.
 
-/mapmap/mapping/move/xy ,iff <mapping identifier> <x> <y>
-/mapmap/mapping/vertex/source/xy ,iiff <mapping identifier> <vertex index> <x> <y>
-/mapmap/mapping/vertex/destination/xy ,iiff <mapping identifier> <vertex index> <x> <y>
-/mapmap/mapping/visible ,ii <mapping identifier> <enable>
-/mapmap/mapping/highlight ,ii <mapping identifier> <enable>
-/mapmap/mapping/vertex/highlight ,iii <mapping identifier> <vertex identifier> <enable>
-/mapmap/project/load ,s <file>
-/mapmap/project/save ,s <file>
-/mapmap/paint/color/rgba ,iffff <paint identifier> <red> <green> <blue> <alpha> (each channel within [0,1])
-/mapmap/paint/media/load ,is <paint identifier> <file>
-/mapmap/paint/media/speed ,if <paint identifier> <speed ratio> (1.0 means 100% speed)
-/mapmap/paint/media/seek ,il <paint identifier> <time position> (in milliseconds)
-/mapmap/output/fullscreen ,i <enable>
-/mapmap/output/size ,ii <width> <height>
-/mapmap/output/position ,ii <x> <y>
+The full, current address scheme lives in the `OSC` file at the root of the
+repo. Status of the originally-wished-for callbacks below ("mapping" is now
+spelled "layer", but kept as an alias; "paint" is now "source"):
+
+DONE /mapmap/layer/move/xy ,iff <layer> <x> <y>
+DONE /mapmap/layer/vertex/source/xy ,iiff <layer> <vertex index> <x> <y>
+DONE /mapmap/layer/vertex/destination/xy ,iiff <layer> <vertex index> <x> <y>
+DONE /mapmap/layer/visible ,ii <layer> <enable>
+DONE /mapmap/source/color ,is <source> <#rrggbb>   (replaces paint/color/rgba)
+DONE /mapmap/source/uri ,is <source> <file>        (replaces paint/media/load)
+DONE /mapmap/source/rate ,if <source> <speed %>    (replaces paint/media/speed)
+TODO /mapmap/layer/highlight ,ii <layer> <enable>
+TODO /mapmap/layer/vertex/highlight ,iii <layer> <vertex identifier> <enable>
+TODO /mapmap/source/seek ,if <source> <time position>   (no seek API exposed yet)
+TODO /mapmap/output/fullscreen ,i <enable>
+TODO /mapmap/output/size ,ii <width> <height>
+TODO /mapmap/output/position ,ii <x> <y>
+WONTDO /mapmap/project/load ,s <file>   (file I/O over OSC is a security risk)
+WONTDO /mapmap/project/save ,s <file>   (file I/O over OSC is a security risk)
 
 
 Roadmap (to do)
