@@ -17,6 +17,7 @@
 #include "TestUtil.h"
 #include "TestUidAllocator.h"
 #include "TestShape.h"
+#include "TestOsc.h"
 
 int main(int argc, char** argv)
 {
@@ -37,6 +38,10 @@ int main(int argc, char** argv)
   }
   {
     TestShape test;
+    status |= QTest::qExec(&test, argc, argv);
+  }
+  {
+    TestOsc test;
     status |= QTest::qExec(&test, argc, argv);
   }
 
