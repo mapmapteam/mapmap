@@ -6,6 +6,7 @@
  * (c) 2013 Sofian Audry -- info(@)sofianaudry(.)com
  * (c) 2013 Alexandre Quessy -- alexandre(@)quessy(.)net
  * (c) 2020 Alexandre Quessy -- alexandre(@)quessy(.)net
+ * (c) 2026 Alexandre Quessy -- alexandre(@)quessy(.)net
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,19 +25,54 @@
 #include "OscInterface.h"
 #include "MainWindow.h"
 #include <QVariant>
+#include <QColor>
+#include <QPointF>
 
 namespace mmp {
 
-static const QString OSC_ROOT("mapmap");
-static const QString OSC_SOURCE("source");
-static const QString OSC_LAYER("layer");
-static const QString OSC_QUIT("quit");
-static const QString OSC_PLAY("play");
-static const QString OSC_PAUSE("pause");
-static const QString OSC_REWIND("rewind");
+namespace {
 
-static const QString OSC_SOURCE_MEDIA("media");
-static const QString OSC_SOURCE_COLOR("color");
+/// Returns the source with the given id, or a null pointer, WITHOUT mutating
+/// the manager (MappingManager::getSourceById() would insert a null entry for
+/// an unknown id, since QMap::operator[] is non-const there).
+Source::ptr findSourceById(MappingManager& manager, int id)
+{
+  for (int i = 0; i < manager.nSources(); ++i)
+  {
+    Source::ptr source = manager.getSource(i);
+    if (!source.isNull() && static_cast<int>(source->getId()) == id)
+      return source;
+  }
+  return Source::ptr();
+}
+
+/// Resolves the source(s) targeted by an action (by id or by name pattern).
+QVector<Source::ptr> resolveSources(MappingManager& manager, const OscAction& action)
+{
+  if (action.selectByName)
+    return manager.getSourcesByNameRegExp(action.name);
+
+  QVector<Source::ptr> sources;
+  Source::ptr source = findSourceById(manager, action.id);
+  if (!source.isNull())
+    sources.push_back(source);
+  return sources;
+}
+
+/// Resolves the layer(s) targeted by an action (by id or by name pattern).
+QVector<Layer::ptr> resolveLayers(MappingManager& manager, const OscAction& action)
+{
+  if (action.selectByName)
+    return manager.getLayersByNameRegExp(action.name);
+
+  QVector<Layer::ptr> layers;
+  Layer::ptr layer = manager.getLayerById(action.id);
+  if (!layer.isNull())
+    layers.push_back(layer);
+  return layers;
+}
+
+} // namespace
 
 OscInterface::OscInterface(
     int listen_port) :
@@ -71,9 +107,6 @@ void OscInterface::consume_commands(MainWindow &main_window)
     success = messaging_queue_.try_pop(command);
     if (success)
     {
-      //if (is_verbose())
-      // std::cout << __FUNCTION__ << ": apply " <<
-      //     command.first().toString().toStdString() << std::endl;
       this->applyOscCommand(main_window, command);
     }
   }
@@ -147,157 +180,148 @@ static void printCommand(QVariantList &command)
 }
 
 void OscInterface::applyOscCommand(MainWindow &main_window, QVariantList & command) {
-  Q_UNUSED(main_window);
-
   if (is_verbose())
   {
     std::cout << "OscInterface::applyOscCommand: Receive OSC: " << std::endl;
     printCommand(command);
   }
 
-  // The two first QVariant objects are: path, typeTags
+  // The two first QVariant objects are: path, typeTags. The rest are the args.
   if (command.size() < 2)
-  {
     return;
-  }
   if (command.at(0).typeId() != QMetaType::QString)
-  {
     return;
-  }
   if (command.at(1).typeId() != QMetaType::QString)
-  {
     return;
-  }
 
-  QString path = command.at(0).toString();
-  QString typetags = command.at(1).toString();
+  const QString path = command.at(0).toString();
+  const QVariantList args = command.mid(2);
 
-  bool pathIsValid = false;
-  // Walks through each token in the form /mapmap/source/color - The first token is "mapmap", and then "source"
-  QPair<QString,QString> iterator = next(path);
+  OscAction action = parseOscAction(path, args);
+  bool handled = applyAction(main_window, action);
 
-  if (iterator.first.isEmpty()) {
-    // Check root tag.
-    iterator = next(iterator.second);
-    if (iterator.first == OSC_ROOT)
-    {
-      // Check type.
-      iterator = next(iterator.second);
-
-      // Source.
-      if (iterator.first == OSC_SOURCE)
-      {
-        // Find source (or sources).
-        if (command.size() >= 3)
-        {
-          QVector<Source::ptr> sources;
-          if (command.at(2).typeId() == QMetaType::QString)
-            sources = main_window.getMappingManager().getSourcesByNameRegExp(command.at(2).toString());
-          else
-          {
-            int id = command.at(2).toInt();
-            sources.push_back(main_window.getMappingManager().getSourceById(id));
-          }
-          // Process all sources.
-          iterator = next(iterator.second);
-          for (Source::ptr elem: sources)
-          {
-            // Rewind.
-            if (iterator.first == OSC_REWIND)
-            {
-              elem->rewind();
-              pathIsValid = true;
-            }
-            // Property setting (eg. opacity)
-            else if (command.size() >= 4) {
-              if (is_verbose())
-                qDebug() << "Attempt to set a source property" << iterator.first << command.at(3);
-              pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
-            }
-          }
-        }
-      }
-
-      // Layer.
-      else if (iterator.first == OSC_LAYER)
-      {
-        // Find layer (or layers).
-        if (command.size() >= 3)
-        {
-          QVector<Layer::ptr> layers;
-          if (command.at(2).typeId() == QMetaType::QString)
-            layers = main_window.getMappingManager().getLayersByNameRegExp(command.at(2).toString());
-          else
-          {
-            int id = command.at(2).toInt();
-            Layer::ptr layer = main_window.getMappingManager().getLayerById(id);
-            if (!layer.isNull())
-              layers.push_back(layer);
-          }
-          // Process all layers (set property).
-          if (command.size() >= 4)
-          {
-            iterator = next(iterator.second);
-            for (Layer::ptr elem: layers)
-            {
-              pathIsValid |= setElementProperty(elem, iterator.first, command.at(3));
-            }
-          }
-        }
-      }
-
-      // Play / pause / rewind / quit.
-      else if (iterator.first == OSC_PLAY)
-      {
-        main_window.play();
-      }
-      else if (iterator.first == OSC_PAUSE)
-      {
-        main_window.pause();
-      }
-      else if (iterator.first == OSC_REWIND)
-      {
-        main_window.rewind();
-      }
-      else if (iterator.first == OSC_QUIT)
-      {
-        main_window.close();
-      }
-    }
-  }
-
-  if (! pathIsValid && is_verbose())
+  if (!handled && is_verbose())
   {
-    qDebug() << "Path could not be processed: " << path << Qt::endl;
+    qDebug() << "OSC path could not be processed: " << path
+             << (action.isValid() ? QString("(no matching target)") : action.error)
+             << Qt::endl;
     printCommand(command);
   }
-
 }
 
-QPair<QString,QString> OscInterface::next(const QString& path)
+bool OscInterface::applyAction(MainWindow &main_window, const OscAction& action)
 {
-  int idx = path.indexOf('/');
-  if (idx >= 0)
+  MappingManager& manager = main_window.getMappingManager();
+
+  switch (action.type)
   {
-    return QPair<QString,QString>(path.left(idx), path.right(path.size() - idx - 1));
-  }
-  else
+  case OscAction::Invalid:
+    return false;
+
+  // Global transport.
+  case OscAction::Quit:      main_window.close();  return true;
+  case OscAction::PlayAll:   main_window.play();   return true;
+  case OscAction::PauseAll:  main_window.pause();  return true;
+  case OscAction::RewindAll: main_window.rewind(); return true;
+
+  // Per-source commands.
+  case OscAction::SourcePlay:
+  case OscAction::SourcePause:
+  case OscAction::SourceRewind:
+  case OscAction::SourceProperty:
   {
-    return QPair<QString,QString>(path, "");
+    bool handled = false;
+    for (Source::ptr source : resolveSources(manager, action))
+    {
+      if (source.isNull())
+        continue;
+      switch (action.type)
+      {
+      case OscAction::SourcePlay:     source->play();   handled = true; break;
+      case OscAction::SourcePause:    source->pause();  handled = true; break;
+      case OscAction::SourceRewind:   source->rewind(); handled = true; break;
+      case OscAction::SourceProperty: handled |= setElementProperty(source, action.property, action.value); break;
+      default: break;
+      }
+    }
+    return handled;
   }
+
+  // Per-layer commands.
+  case OscAction::LayerProperty:
+  case OscAction::LayerMove:
+  case OscAction::LayerTranslate:
+  case OscAction::LayerVertex:
+  {
+    bool handled = false;
+    for (Layer::ptr layer : resolveLayers(manager, action))
+    {
+      if (layer.isNull())
+        continue;
+
+      if (action.type == OscAction::LayerProperty)
+      {
+        handled |= setElementProperty(layer, action.property, action.value);
+        continue;
+      }
+
+      // The shape that move/translate/vertex operate on.
+      MShape::ptr shape = (action.shapeRole == OscAction::InputShape)
+          ? layer->getInputShape()
+          : layer->getShape();
+      if (shape.isNull())
+        continue;
+
+      switch (action.type)
+      {
+      case OscAction::LayerMove:
+      {
+        // Absolute: translate so the shape's center lands on (x, y).
+        const QPointF center = shape->getCenter();
+        shape->translate(QPointF(action.x - center.x(), action.y - center.y()));
+        handled = true;
+        break;
+      }
+      case OscAction::LayerTranslate:
+        shape->translate(QPointF(action.x, action.y));
+        handled = true;
+        break;
+      case OscAction::LayerVertex:
+        if (action.vertexIndex >= 0 && action.vertexIndex < shape->nVertices())
+        {
+          shape->setVertex(action.vertexIndex, action.x, action.y);
+          handled = true;
+        }
+        break;
+      default:
+        break;
+      }
+    }
+    return handled;
+  }
+  }
+
+  return false;
 }
 
 bool OscInterface::setElementProperty(const QSharedPointer<Element>& elem, const QString& property, const QVariant& value)
 {
   if (elem.isNull())
-  {
     return false;
-  }
-  else
+
+  const QByteArray name = property.toUtf8();
+
+  // Colors arrive over OSC as strings ("#ff0000", "red", ...). Convert them to
+  // a QColor when the target property is a color, since QVariant won't do it.
+  const QVariant existing = elem->property(name.constData());
+  if (existing.isValid()
+      && existing.typeId() == QMetaType::QColor
+      && value.typeId() == QMetaType::QString)
   {
-    return elem->setProperty(property.toUtf8().data(), value);
+    return elem->setProperty(name.constData(), QColor(value.toString()));
   }
+
+  return elem->setProperty(name.constData(), value);
 }
 
 }
-
