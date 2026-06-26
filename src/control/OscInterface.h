@@ -28,6 +28,7 @@
 
 #include "ConcurrentQueue.h"
 #include "oscreceiver.h"
+#include "OscAction.h"
 
 namespace mmp {
 
@@ -71,8 +72,10 @@ private:
   // In the main thread, handles the messages.
   void applyOscCommand(MainWindow &main_window, QVariantList & command);
 
-  // For path = "path_item/rest_of_path" returns (path_item, rest_of_path).
-  static QPair<QString,QString> next(const QString& path);
+  // Applies a parsed action to the model. Returns true iff it matched at least
+  // one target and did something. Lives here (rather than in OscAction) because
+  // it needs access to the running MainWindow and its MappingManager.
+  bool applyAction(MainWindow &main_window, const OscAction& action);
 
   void messageReceivedCb(const QString& oscAddress, const QVariantList& arguments);
 
