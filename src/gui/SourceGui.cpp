@@ -266,7 +266,7 @@ SyphonGui::SyphonGui(Source::ptr source)
   refreshServers();
 
   _refreshTimer = new QTimer(this);
-  connect(_refreshTimer, SIGNAL(timeout()), this, SLOT(refreshServers()));
+  connect(_refreshTimer, &QTimer::timeout, this, &SyphonGui::refreshServers);
   _refreshTimer->start(1000);
 }
 

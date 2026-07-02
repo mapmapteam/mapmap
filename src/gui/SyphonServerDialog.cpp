@@ -60,15 +60,15 @@ SyphonServerDialog::SyphonServerDialog(QWidget* parent)
       new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
   layout->addWidget(buttons);
 
-  connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
-  connect(_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(accept()));
+  connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+  connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+  connect(_list, &QListWidget::itemDoubleClicked, this, &QDialog::accept);
 
   refresh();
 
   // Syphon servers can appear/disappear at any time; keep the list current.
   _timer = new QTimer(this);
-  connect(_timer, SIGNAL(timeout()), this, SLOT(refresh()));
+  connect(_timer, &QTimer::timeout, this, &SyphonServerDialog::refresh);
   _timer->start(1000);
 }
 
