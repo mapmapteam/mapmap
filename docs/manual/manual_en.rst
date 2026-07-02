@@ -49,7 +49,7 @@ Paints can be destroyed simply by selecting it in the paint list, and then choos
 
 Save the project to a file
 --------------------------
-To save the current project, choose "File > Save as..." and then choose a file name. The extension file is ".mmp", but the file format is simply XML, a very common one.
+To save the current project, choose "File > Save as..." and then choose a file name. The extension file is ".mmp", but the file format is simply JSON, a very common one.
 
 Load a project from a file
 --------------------------

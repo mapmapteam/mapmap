@@ -9,8 +9,8 @@ MapMap allows its users to:
 * Create and destroy an unlimited amount of mappings. Each mapping is a shape on which a source paint is drawn.
 * Color paints can be used as masks.
 * Move layers.
-* Save the project to a human-readable XML file.
-* Load the project from a human-readable XML file.
+* Save the project to a human-readable JSON file.
+* Load the project from a human-readable JSON file.
 * Turn any quad into a mesh.
 * Inspect properties.
 
