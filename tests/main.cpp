@@ -18,6 +18,7 @@
 #include "TestUidAllocator.h"
 #include "TestShape.h"
 #include "TestOsc.h"
+#include "TestFileVersion.h"
 
 int main(int argc, char** argv)
 {
@@ -42,6 +43,10 @@ int main(int argc, char** argv)
   }
   {
     TestOsc test;
+    status |= QTest::qExec(&test, argc, argv);
+  }
+  {
+    TestFileVersion test;
     status |= QTest::qExec(&test, argc, argv);
   }
 

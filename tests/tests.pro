@@ -40,7 +40,8 @@ HEADERS += \
     TestUtil.h \
     TestUidAllocator.h \
     TestShape.h \
-    TestOsc.h
+    TestOsc.h \
+    TestFileVersion.h
 
 SOURCES += \
     $$CORE/MM.cpp \
@@ -58,4 +59,5 @@ SOURCES += \
     TestUtil.cpp \
     TestUidAllocator.cpp \
     TestShape.cpp \
-    TestOsc.cpp
+    TestOsc.cpp \
+    TestFileVersion.cpp
