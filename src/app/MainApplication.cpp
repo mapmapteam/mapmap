@@ -44,14 +44,23 @@ MainApplication::~MainApplication()
 
 bool MainApplication::notify(QObject *receiver, QEvent *event)
 {
+  // Last-resort guard: a stray exception during event delivery must never take
+  // down a running show. Log loudly (qCritical survives in release builds,
+  // unlike qDebug) and drop the offending event instead of terminating.
+  const int eventType = event ? static_cast<int>(event->type()) : -1;
   try
   {
     return QApplication::notify(receiver, event);
   }
-  catch (std::exception &ex)
+  catch (const std::exception &ex)
   {
-    qDebug() << "std::exception was caught: " << ex.what() << Qt::endl;
-    qDebug() << "event type: " << event->type() << Qt::endl;
+    qCritical() << "Unhandled std::exception during event delivery:" << ex.what()
+                << "(event type" << eventType << ")";
+  }
+  catch (...)
+  {
+    qCritical() << "Unhandled non-standard exception during event delivery"
+                << "(event type" << eventType << ")";
   }
 
   return false;
