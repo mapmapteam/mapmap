@@ -122,6 +122,8 @@ bool PreferenceDialog::loadSettings()
 
   // Allow OSC message with same media source
   _oscSameMediaSourceBox->setChecked(settings.value("oscSameMediaSource", MM::OSC_SAME_MEDIA_SOURCE).toBool());
+  // Accept OSC from the network (off by default: OSC is unauthenticated)
+  _oscAcceptNetworkBox->setChecked(settings.value("oscAcceptNetwork", false).toBool());
 #ifdef HAVE_MCP
   // MCP port
   _mcpPortNumber->setValue(settings.value("mcpListeningPort", MM::DEFAULT_MCP_PORT).toInt());
@@ -136,6 +138,9 @@ void PreferenceDialog::applySettings()
 {
   QSettings settings;
   MainWindow *mainWindow = MainWindow::window();
+  // OSC network exposure. Set before setOscPort(), which rebinds the receiver.
+  settings.setValue("oscAcceptNetwork", _oscAcceptNetworkBox->isChecked());
+  mainWindow->setOscAcceptNetwork(_oscAcceptNetworkBox->isChecked());
   // Listen port
   settings.setValue("oscListeningPort", _listenPortNumber->value());
   mainWindow->setOscPort(settings.value("oscListeningPort").toInt());
@@ -353,6 +358,11 @@ void PreferenceDialog::createControlsPage()
   _oscSameMediaSourceBox = new QCheckBox(tr("Allow message with existing media source"));
   _oscSameMediaSourceBox->setChecked(false);
 
+  _oscAcceptNetworkBox = new QCheckBox(tr("Accept OSC from the network (less secure)"));
+  _oscAcceptNetworkBox->setChecked(false);
+  _oscAcceptNetworkBox->setToolTip(tr("When off, OSC is only reachable from this computer (127.0.0.1). "
+                                      "Enable only on a trusted show network — OSC has no authentication."));
+
   QFormLayout *listenPortForm = new QFormLayout;
   listenPortForm->setContentsMargins(margins);
   listenPortForm->addRow(tr("on port"), _listenPortNumber);
@@ -376,6 +386,7 @@ void PreferenceDialog::createControlsPage()
   oscLayout->addWidget(_listenMessageBox, 1);
   oscLayout->addLayout(listenPortForm, 1);
   oscLayout->addWidget(_oscSameMediaSourceBox, 1);
+  oscLayout->addWidget(_oscAcceptNetworkBox, 1);
   oscLayout->addLayout(listenAddressForm, 3);
 
   _oscWidget->setLayout(oscLayout);

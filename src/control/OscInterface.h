@@ -42,7 +42,7 @@ class OscInterface {
 public:
   typedef QSharedPointer<OscInterface> ptr;
 
-  OscInterface(int listen_port);
+  OscInterface(int listen_port, bool acceptFromNetwork = false);
   ~OscInterface();
 
   void setVerbose(bool verbose) { verbose_ = verbose; }
