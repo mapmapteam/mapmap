@@ -143,13 +143,14 @@ Source::ptr ProjectReader::parseSource(const QJsonObject& obj)
 
     if (source.isNull())
     {
-      qDebug() << QObject::tr("Problem at creation of source.") << Qt::endl;
+      // Registered type that could not be instantiated (malformed or
+      // incompatible entry). Bail out instead of dereferencing a null source.
+      qWarning() << "Could not instantiate source of type" << className;
+      return Source::ptr();
     }
-    else
-      qDebug() << "Created new instance with id: " << source->getId();
 
+    qDebug() << "Created new instance with id: " << source->getId();
     source->read(obj);
-
     return source;
   }
   else
@@ -172,11 +173,13 @@ Layer::ptr ProjectReader::parseLayer(const QJsonObject& obj)
     Layer::ptr layer(qobject_cast<Layer*>(metaObject->newInstance(Q_ARG(int, id))));
     if (layer.isNull())
     {
-      qDebug() << QObject::tr("Problem at creation of layer.") << Qt::endl;
+      // Registered type that could not be instantiated. Report and bail out
+      // instead of dereferencing a null layer.
+      _errorString = QObject::tr("Unable to create layer of type '%1'.").arg(className);
+      return Layer::ptr();
     }
 
     layer->read(obj);
-
     return layer;
   }
   else
