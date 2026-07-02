@@ -45,7 +45,7 @@ public:
   OscInterface(int listen_port, bool acceptFromNetwork = false);
   ~OscInterface();
 
-  void setVerbose(bool verbose) { verbose_ = verbose; }
+  void setVerbose(bool verbose) { verbose_ = verbose; receiver_.setVerbose(verbose); }
 
   /// Starts listening if receiving is enabled.
   void start();
