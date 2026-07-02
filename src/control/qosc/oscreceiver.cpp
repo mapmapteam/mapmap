@@ -32,7 +32,8 @@ void OscReceiver::readyReadCb() {
         // message when it parsed cleanly, and keep draining the queue otherwise.
         if (this->byteArrayToVariantList(arguments, oscAddress, data)) {
             emit messageReceived(oscAddress, arguments);
-            qDebug() << "C++OscReceiver Received: " << oscAddress << arguments;
+            if (m_verbose)
+                qDebug() << "OscReceiver received:" << oscAddress << arguments;
         }
     }
 }

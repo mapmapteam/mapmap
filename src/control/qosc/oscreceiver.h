@@ -28,6 +28,10 @@ public:
      */
     explicit OscReceiver(quint16 receivePort, bool acceptFromNetwork = false, QObject *parent = nullptr);
 
+    /// When false (default), per-message receive logging is suppressed to keep
+    /// the hot path quiet under high OSC rates.
+    void setVerbose(bool verbose) { m_verbose = verbose; }
+
 signals:
     /**
      * @brief Signal triggered each time we receive a message.
@@ -41,6 +45,7 @@ public slots:
 
 private:
     QUdpSocket* m_udpSocket;
+    bool m_verbose = false;
     bool byteArrayToVariantList(QVariantList& outputVariantList, QString& outputOscAddress, const QByteArray& inputByteArray);
 };
 
