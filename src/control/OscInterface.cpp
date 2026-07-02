@@ -75,8 +75,8 @@ QVector<Layer::ptr> resolveLayers(MappingManager& manager, const OscAction& acti
 } // namespace
 
 OscInterface::OscInterface(
-    int listen_port) :
-    receiver_(listen_port),
+    int listen_port, bool acceptFromNetwork) :
+    receiver_(listen_port, acceptFromNetwork),
     messaging_queue_() {
   receiving_enabled_ = true;
   if (receiving_enabled_) {

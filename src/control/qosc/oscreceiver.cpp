@@ -3,13 +3,21 @@
 #include "contrib/oscpack/OscReceivedElements.h"
 #include "contrib/oscpack/OscException.h"
 
-OscReceiver::OscReceiver(quint16 receivePort, QObject* parent) :
+OscReceiver::OscReceiver(quint16 receivePort, bool acceptFromNetwork, QObject* parent) :
         QObject(parent)
 {
     m_udpSocket = new QUdpSocket(this);
-    // m_udpSocket->bind(QHostAddress::LocalHost, receivePort);
-    qDebug() << "Listening for OSC on " << receivePort;
-    m_udpSocket->bind(QHostAddress::Any, receivePort);
+    // OSC has no authentication, so bind to loopback by default: the control
+    // surface must not be reachable from the venue network unless the user
+    // explicitly opts in (Preferences > OSC Setup).
+    const QHostAddress bindAddress = acceptFromNetwork ? QHostAddress(QHostAddress::Any)
+                                                       : QHostAddress(QHostAddress::LocalHost);
+    if (!m_udpSocket->bind(bindAddress, receivePort)) {
+        qWarning() << "OscReceiver: could not bind OSC port" << receivePort
+                   << "on" << bindAddress.toString();
+    } else {
+        qInfo() << "Listening for OSC on" << bindAddress.toString() << "port" << receivePort;
+    }
     connect(m_udpSocket, &QUdpSocket::readyRead, this, &OscReceiver::readyReadCb);
 }
 

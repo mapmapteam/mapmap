@@ -26,7 +26,7 @@ public:
      * @brief Constructor.
      * @param receivePort Port number to listen to.
      */
-    explicit OscReceiver(quint16 receivePort, QObject *parent = nullptr);
+    explicit OscReceiver(quint16 receivePort, bool acceptFromNetwork = false, QObject *parent = nullptr);
 
 signals:
     /**

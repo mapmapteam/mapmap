@@ -543,6 +543,9 @@ private:
   // OSC.
   OscInterface::ptr osc_interface;
   int oscListeningPort;
+  // When false (default), OSC binds to loopback only; true widens it to all
+  // network interfaces. OSC is unauthenticated, so network access is opt-in.
+  bool oscAcceptNetwork;
   QTimer *osc_timer;
 
 #ifdef HAVE_MCP
@@ -655,6 +658,9 @@ public:
   void startFullScreen();
   bool setOscPort(QString portNumber);
   bool setOscPort(int portNumber);
+  // Stores whether OSC accepts datagrams from the network. Takes effect the
+  // next time startOscReceiver() runs (setOscPort triggers it on Apply).
+  void setOscAcceptNetwork(bool accept) { oscAcceptNetwork = accept; }
   int getOscPort() const;
   void setVerbose(bool verbose);
 #ifdef HAVE_MCP

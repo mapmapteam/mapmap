@@ -2713,6 +2713,7 @@ void MainWindow::readSettings()
   displayControlsAction->setChecked(settings.value("displayControls", MM::DISPLAY_CONTROLS).toBool());
   outputWindow->setCanvasDisplayCrosshair(settings.value("displayControls", MM::DISPLAY_CONTROLS).toBool());
   oscListeningPort = settings.value("oscListeningPort", MM::DEFAULT_OSC_PORT).toInt();
+  oscAcceptNetwork = settings.value("oscAcceptNetwork", false).toBool();
 #ifdef HAVE_MCP
   mcpListeningPort = settings.value("mcpListeningPort", MM::DEFAULT_MCP_PORT).toInt();
 #endif
@@ -2749,6 +2750,7 @@ void MainWindow::writeSettings()
   settings.setValue("displayControls", displayControlsAction->isChecked());
   settings.setValue("displayAllControls", displaySourceControlsAction->isChecked());
   settings.setValue("oscListeningPort", oscListeningPort);
+  settings.setValue("oscAcceptNetwork", oscAcceptNetwork);
 #ifdef HAVE_MCP
   settings.setValue("mcpListeningPort", mcpListeningPort);
 #endif
@@ -3918,7 +3920,7 @@ void MainWindow::startOscReceiver()
 #else
   QMessageLogger(__FILE__, __LINE__, 0).debug() << "OSC port: " << oscListeningPort;
 #endif
-  osc_interface.reset(new OscInterface(oscListeningPort));
+  osc_interface.reset(new OscInterface(oscListeningPort, oscAcceptNetwork));
   if (oscListeningPort != 0)
   {
     osc_interface->start();
