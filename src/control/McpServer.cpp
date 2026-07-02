@@ -23,6 +23,7 @@
 #include <QHttpServerRequest>
 #include <QHttpServerResponse>
 #include <QHostAddress>
+#include <QUuid>
 #include <QTcpServer>
 #include <QJsonDocument>
 #include <QMetaObject>
@@ -40,9 +41,38 @@
 
 namespace mmp {
 
+namespace {
+// Host/Origin values that identify the local machine, used to reject
+// DNS-rebinding and cross-origin requests to the control surface.
+bool isLoopbackHost(QByteArray host)
+{
+  host = host.trimmed();
+  if (host.startsWith('['))            // IPv6 literal, e.g. [::1]:port
+  {
+    const int end = host.indexOf(']');
+    if (end > 0) host = host.mid(1, end - 1);
+  }
+  else                                 // host:port
+  {
+    const int colon = host.indexOf(':');
+    if (colon >= 0) host = host.left(colon);
+  }
+  return host == "localhost" || host == "127.0.0.1" || host == "::1";
+}
+
+bool isLoopbackOrigin(QByteArray origin)
+{
+  const int scheme = origin.indexOf("://");
+  if (scheme >= 0) origin = origin.mid(scheme + 3);
+  return isLoopbackHost(origin);
+}
+} // namespace
+
 McpServer::McpServer(MainWindow* mainWindow, QObject* parent)
   : QObject(parent), _mainWindow(mainWindow), _httpServer(nullptr), _port(0)
 {
+  // Per-process shared secret required on every request (see isAuthorized).
+  _token = QUuid::createUuid().toString(QUuid::WithoutBraces);
 }
 
 McpServer::~McpServer()
@@ -61,6 +91,9 @@ quint16 McpServer::start(quint16 port)
     if (request.method() != QHttpServerRequest::Method::Post)
       return QHttpServerResponse("text/plain", QByteArray("Method Not Allowed"),
                                  QHttpServerResponse::StatusCode::MethodNotAllowed);
+    if (!isAuthorized(request))
+      return QHttpServerResponse("text/plain", QByteArray("Forbidden"),
+                                 QHttpServerResponse::StatusCode::Forbidden);
     const QByteArray out = handleRpc(request.body());
     if (out.isEmpty()) // notification: acknowledge with no body
       return QHttpServerResponse(QHttpServerResponse::StatusCode::Accepted);
@@ -83,6 +116,19 @@ quint16 McpServer::start(quint16 port)
 bool McpServer::isListening() const
 {
   return _httpServer != nullptr && _port != 0;
+}
+
+bool McpServer::isAuthorized(const QHttpServerRequest& request) const
+{
+  // 1. DNS-rebinding guard: the Host header must name the loopback interface.
+  if (!isLoopbackHost(request.value("Host")))
+    return false;
+  // 2. If a browser sent an Origin, it must be loopback too ("null" is allowed).
+  const QByteArray origin = request.value("Origin");
+  if (!origin.isEmpty() && origin != "null" && !isLoopbackOrigin(origin))
+    return false;
+  // 3. Shared-secret bearer token generated at startup.
+  return request.value("Authorization") == QByteArray("Bearer ") + _token.toUtf8();
 }
 
 QByteArray McpServer::handleRpc(const QByteArray& body)
