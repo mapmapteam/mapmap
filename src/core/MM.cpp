@@ -23,7 +23,13 @@
 namespace mmp {
 
 const QString MM::APPLICATION_NAME = "MapMap";
-const QString MM::VERSION = "0.6.3";
+// Single source of truth is MAPMAP_VERSION in mapmap.pro, injected via DEFINES.
+// The literal fallback keeps direct compiles working and must match the .pro.
+#ifdef MAPMAP_VERSION_STRING
+const QString MM::VERSION = MAPMAP_VERSION_STRING;
+#else
+const QString MM::VERSION = "1.0.0-alpha.1";
+#endif
 const QString MM::COPYRIGHT_OWNERS = "Alexandre Quessy, Sofian Audry, Dame Diongue, Mike Latona, Vasilis Liaskovitis";
 const QString MM::ORGANIZATION_NAME = "MapMap";
 const QString MM::ORGANIZATION_DOMAIN = "artpluscode.com";
@@ -42,7 +48,9 @@ const QString MM::VIDEO_FILES_FILTER = "*.mov *.mp4 *.avi *.ogg *.ogv *.mpeg *.m
 const QString MM::IMAGE_FILES_FILTER = "*.jpg *.jpeg *.gif *.png *.tiff *.tif *.bmp";
 const QString MM::NAMESPACE_PREFIX = QString("%1::").arg(TOSTRING(MM_NAMESPACE));
 const QString MM::SUPPORTED_LANGUAGES = "en, es, fr, zh_CN, zh_TW";
-const QString MM::SUPPORTED_FILE_VERSIONS = "\\d+\\.\\d+\\.\\d+"; // regex
+// x.y.z with an optional -prerelease / +build suffix (e.g. 1.0.0-alpha.1), so
+// projects saved by pre-release builds remain loadable. Anchored to reject junk.
+const QString MM::SUPPORTED_FILE_VERSIONS = "^\\d+\\.\\d+\\.\\d+([-+][0-9A-Za-z.-]+)?$"; // regex
 
 const QColor MM::WHITE("#f6f5f5");
 const QColor MM::BLUE_GRAY("#323541");

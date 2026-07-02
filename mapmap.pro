@@ -4,11 +4,16 @@ CONFIG += c++17
 
 TEMPLATE = app
 
-# Always use major.minor.micro version number format
-VERSION = 0.6.3
+# Always use major.minor.micro version number format (kept numeric so bundle
+# and library versioning stay valid).
+VERSION = 1.0.0
+# Human-facing version shown in-app (About box, window title, app version).
+# Single source of truth for MM::VERSION, injected via DEFINES below.
+MAPMAP_VERSION = 1.0.0-alpha.1
 TARGET = mapmap
 
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB QT_MESSAGELOGCONTEXT
+DEFINES += MAPMAP_VERSION_STRING=\\\"$$MAPMAP_VERSION\\\"
 
 include(src/core/core.pri)
 include(src/shape/shape.pri)
