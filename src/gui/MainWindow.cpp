@@ -3974,14 +3974,17 @@ bool MainWindow::setOscPort(QString portNumber)
 #ifdef HAVE_MCP
 void MainWindow::startMcpServer()
 {
-  if (mcp_server.isNull())
-    mcp_server.reset(new McpServer(this));
-
   if (mcpListeningPort == 0)
   {
+    // Disabled (the default): tear down any running server so that setting the
+    // port to 0 at runtime actually stops listening.
+    mcp_server.reset();
     QMessageLogger(__FILE__, __LINE__, 0).info() << "MCP server disabled (port 0).";
     return;
   }
+
+  if (mcp_server.isNull())
+    mcp_server.reset(new McpServer(this));
 
   quint16 boundPort = mcp_server->start(static_cast<quint16>(mcpListeningPort));
   if (boundPort != 0)
