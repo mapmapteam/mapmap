@@ -53,7 +53,10 @@ macx {
   QMAKE_LFLAGS += -Wl,-rpath,@executable_path/../Frameworks
   syphon_framework.files = $$SYPHON_FRAMEWORK_DIR/Syphon.framework
   syphon_framework.path = Contents/Frameworks
-  QMAKE_BUNDLE_DATA += syphon_framework
+  # src.pri is pulled in once per sub-project (.pri), so guard the bundle-data
+  # entry to avoid emitting duplicate copy rules for Syphon.framework (which
+  # qmake reports as "overriding commands for target ...Syphon.framework").
+  !contains(QMAKE_BUNDLE_DATA, syphon_framework): QMAKE_BUNDLE_DATA += syphon_framework
 
   # Syphon OUTPUT (publishing MapMap's output as a Syphon server) is EXPERIMENTAL
   # and DISABLED by default: SyphonOpenGLServer cannot create its IOSurface
