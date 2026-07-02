@@ -95,11 +95,13 @@ void AboutDialog::createAboutTab()
   QString copyrightText = "<p>" + tr("Copyright &copy; 2013 %1.").arg(MM::COPYRIGHT_OWNERS) + "</p>";
   // License short notice
   QFile licenseShortFile(":/license-short");
-  (void)licenseShortFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  if (!licenseShortFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    qWarning() << "AboutDialog: could not open" << licenseShortFile.fileName();
   QString licenseNoticeText = Qt::convertFromPlainText(QString::fromUtf8(licenseShortFile.readAll()), Qt::WhiteSpaceNormal);
   // About projection mapping
   QFile aboutMappingFile(":/projection-mapping");
-  (void)aboutMappingFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  if (!aboutMappingFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    qWarning() << "AboutDialog: could not open" << aboutMappingFile.fileName();
   QString aboutMappingText = QString::fromUtf8(aboutMappingFile.readAll());
   // Visit our website for more information
   QString projectWebsiteText = "<p>" + tr("See the ") + QString("<a href=\"%1\">").arg(MM::WEBSITE_URL) +
@@ -136,7 +138,8 @@ void AboutDialog::createChangelogTab()
   changelogTextBrowser->setOpenExternalLinks(true);
 
   QFile changelogFile(":/changelog_md");
-  (void)changelogFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  if (!changelogFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    qWarning() << "AboutDialog: could not open" << changelogFile.fileName();
   changelogTextBrowser->setMarkdown(QString::fromUtf8(changelogFile.readAll()));
   _tabWidget->addTab(changelogTextBrowser, tr("Changelog"));
 }
@@ -173,7 +176,8 @@ void AboutDialog::createLicenseTab()
   licenseTextBrowser->setOpenExternalLinks(true);
 
   QFile licenseFile(":/license");
-  (void)licenseFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  if (!licenseFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    qWarning() << "AboutDialog: could not open" << licenseFile.fileName();
   licenseTextBrowser->setText(QString::fromUtf8(licenseFile.readAll()));
 
   _tabWidget->addTab(licenseTextBrowser, tr("License"));
@@ -186,7 +190,8 @@ void AboutDialog::createOscTab()
   oscBrowser->setOpenExternalLinks(true);
 
   QFile oscFile(":/osc-documentation_md");
-  (void)oscFile.open(QIODevice::ReadOnly | QIODevice::Text);
+  if (!oscFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    qWarning() << "AboutDialog: could not open" << oscFile.fileName();
   oscBrowser->setMarkdown(QString::fromUtf8(oscFile.readAll()));
   _tabWidget->addTab(oscBrowser, tr("OSC Commands"));
 }
