@@ -56,7 +56,7 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 
   // Close button
   QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
-  connect(buttonBox, SIGNAL(rejected()), this, SLOT(close()));
+  connect(buttonBox, &QDialogButtonBox::rejected, this, &QWidget::close);
   mainLayout->addWidget(buttonBox, 2, 0, 1, 4);
 
   // Create and fill different tabs

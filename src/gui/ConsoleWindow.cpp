@@ -71,7 +71,7 @@ void ConsoleWindow::createActions()
   quitAction = new QAction(tr("&Close"), this);
   quitAction->setShortcut(QKeySequence::Close);
   quitAction->setStatusTip(tr("Close the console"));
-  connect(quitAction, SIGNAL(triggered(bool)), this, SLOT(close()));
+  connect(quitAction, &QAction::triggered, this, &QWidget::close);
 }
 
 void ConsoleWindow::createMenu()
