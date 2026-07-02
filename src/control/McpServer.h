@@ -30,6 +30,7 @@
 
 QT_BEGIN_NAMESPACE
 class QHttpServer;
+class QHttpServerRequest;
 QT_END_NAMESPACE
 
 namespace mmp {
@@ -56,11 +57,18 @@ public:
   /// Currently bound port (0 if not listening).
   quint16 port() const { return _port; }
 
+  /// Bearer token that every request must present in its Authorization header.
+  QString token() const { return _token; }
+
 private:
   // --- JSON-RPC plumbing ---
   // Returns the response body, or an empty array for notifications (no reply).
   QByteArray handleRpc(const QByteArray& body);
   QJsonObject dispatch(const QJsonObject& request);
+
+  // Rejects requests that are non-loopback (DNS-rebinding), cross-origin, or
+  // missing the bearer token.
+  bool isAuthorized(const QHttpServerRequest& request) const;
 
   static QJsonObject makeResult(const QJsonValue& id, const QJsonValue& result);
   static QJsonObject makeError(const QJsonValue& id, int code, const QString& message);
@@ -83,6 +91,7 @@ private:
   MainWindow* _mainWindow;
   QHttpServer* _httpServer;
   quint16 _port;
+  QString _token;
 };
 
 }
