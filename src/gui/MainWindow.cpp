@@ -2714,6 +2714,7 @@ void MainWindow::readSettings()
   outputWindow->setCanvasDisplayCrosshair(settings.value("displayControls", MM::DISPLAY_CONTROLS).toBool());
   oscListeningPort = settings.value("oscListeningPort", MM::DEFAULT_OSC_PORT).toInt();
   oscAcceptNetwork = settings.value("oscAcceptNetwork", false).toBool();
+  oscAllowQuit = settings.value("oscAllowQuit", false).toBool();
 #ifdef HAVE_MCP
   mcpListeningPort = settings.value("mcpListeningPort", MM::DEFAULT_MCP_PORT).toInt();
 #endif
@@ -2751,6 +2752,7 @@ void MainWindow::writeSettings()
   settings.setValue("displayAllControls", displaySourceControlsAction->isChecked());
   settings.setValue("oscListeningPort", oscListeningPort);
   settings.setValue("oscAcceptNetwork", oscAcceptNetwork);
+  settings.setValue("oscAllowQuit", oscAllowQuit);
 #ifdef HAVE_MCP
   settings.setValue("mcpListeningPort", mcpListeningPort);
 #endif

@@ -219,7 +219,11 @@ bool OscInterface::applyAction(MainWindow &main_window, const OscAction& action)
     return false;
 
   // Global transport.
-  case OscAction::Quit:      main_window.close();  return true;
+  case OscAction::Quit:
+    if (main_window.isOscQuitAllowed()) { main_window.close(); return true; }
+    qWarning() << "Ignoring OSC /mapmap/quit: remote quit is disabled "
+                  "(enable it in Preferences > OSC Setup).";
+    return false;
   case OscAction::PlayAll:   main_window.play();   return true;
   case OscAction::PauseAll:  main_window.pause();  return true;
   case OscAction::RewindAll: main_window.rewind(); return true;
