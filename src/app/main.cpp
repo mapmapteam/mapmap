@@ -195,7 +195,8 @@ int main(int argc, char *argv[])
 
   // Load stylesheet.
   QFile stylesheet(":/stylesheet");
-  (void)stylesheet.open(QFile::ReadOnly);
+  if (!stylesheet.open(QFile::ReadOnly))
+    qWarning() << "Could not open embedded stylesheet" << stylesheet.fileName();
   app.setStyleSheet(QLatin1String(stylesheet.readAll()));
 
   // read positional argument:

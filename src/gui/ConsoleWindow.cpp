@@ -86,7 +86,10 @@ void ConsoleWindow::writeLogFile(const QString &message)
 {
   QString logFilePath = QDir(QDir::tempPath()).filePath("mapmap.log");
   QFile logFile(logFilePath);
-  (void)logFile.open(QIODevice::Append);
+  // Don't qWarning() on failure: printMessage() routes warnings back here and
+  // would recurse. Silently skip writing if the log file can't be opened.
+  if (!logFile.open(QIODevice::Append))
+    return;
   QTextStream stream(&logFile);
   stream << message << Qt::endl;
 }
