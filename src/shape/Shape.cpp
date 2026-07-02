@@ -110,8 +110,13 @@ void MShape::read(const QJsonObject& obj)
   QVector<QPointF> vertices;
   for (const auto& v : verticesArray)
   {
-    QJsonArray vertex = v.toArray();
-    vertices.append(QPointF(vertex[0].toDouble(), vertex[1].toDouble()));
+    const QJsonArray vertex = v.toArray();
+    if (vertex.size() < 2)
+    {
+      qWarning() << "Skipping malformed vertex (expected [x, y]) while reading shape.";
+      continue;
+    }
+    vertices.append(QPointF(vertex.at(0).toDouble(), vertex.at(1).toDouble()));
   }
 
   setVertices(vertices);

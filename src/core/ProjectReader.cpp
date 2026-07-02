@@ -87,19 +87,19 @@ void ProjectReader::parseProject(const QJsonObject& project)
       manager.addSource(source);
       _window->addSourceItem(source->getId(), source->getIcon(), source->getName());
 
-      // Locate media file if not found
+      // Locate media file if not found. Guard the cast: a source that claims
+      // to be Video/Image but cannot be cast (corrupt entry) must not be
+      // dereferenced — Q_CHECK_PTR is a no-op in release builds.
       if (source->getSourceType() == Source::SourceType::Video)
       {
         QSharedPointer<Video> media = qSharedPointerCast<Video>(source);
-        Q_CHECK_PTR(media);
-        if (!_window->fileExists(media->getUri()))
+        if (!media.isNull() && !_window->fileExists(media->getUri()))
           media->setUri(_window->locateMediaFile(media->getUri(), false));
       }
       if (source->getSourceType() == Source::SourceType::Image)
       {
         QSharedPointer<Image> image = qSharedPointerCast<Image>(source);
-        Q_CHECK_PTR(image);
-        if (!_window->fileExists(image->getUri()))
+        if (!image.isNull() && !_window->fileExists(image->getUri()))
           image->setUri(_window->locateMediaFile(image->getUri(), true));
       }
     }
