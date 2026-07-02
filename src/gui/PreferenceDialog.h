@@ -110,6 +110,7 @@ private:
   QPushButton *_ipRefreshButton;
   QCheckBox *_oscSameMediaSourceBox;
   QCheckBox *_oscAcceptNetworkBox;
+  QCheckBox *_oscAllowQuitBox;
 #ifdef HAVE_MCP
   // MCP
   QWidget *_mcpWidget;

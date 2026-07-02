@@ -124,6 +124,8 @@ bool PreferenceDialog::loadSettings()
   _oscSameMediaSourceBox->setChecked(settings.value("oscSameMediaSource", MM::OSC_SAME_MEDIA_SOURCE).toBool());
   // Accept OSC from the network (off by default: OSC is unauthenticated)
   _oscAcceptNetworkBox->setChecked(settings.value("oscAcceptNetwork", false).toBool());
+  // Allow the OSC quit command (off by default)
+  _oscAllowQuitBox->setChecked(settings.value("oscAllowQuit", false).toBool());
 #ifdef HAVE_MCP
   // MCP port
   _mcpPortNumber->setValue(settings.value("mcpListeningPort", MM::DEFAULT_MCP_PORT).toInt());
@@ -141,6 +143,9 @@ void PreferenceDialog::applySettings()
   // OSC network exposure. Set before setOscPort(), which rebinds the receiver.
   settings.setValue("oscAcceptNetwork", _oscAcceptNetworkBox->isChecked());
   mainWindow->setOscAcceptNetwork(_oscAcceptNetworkBox->isChecked());
+  // Whether OSC may quit the application.
+  settings.setValue("oscAllowQuit", _oscAllowQuitBox->isChecked());
+  mainWindow->setOscAllowQuit(_oscAllowQuitBox->isChecked());
   // Listen port
   settings.setValue("oscListeningPort", _listenPortNumber->value());
   mainWindow->setOscPort(settings.value("oscListeningPort").toInt());
@@ -363,6 +368,11 @@ void PreferenceDialog::createControlsPage()
   _oscAcceptNetworkBox->setToolTip(tr("When off, OSC is only reachable from this computer (127.0.0.1). "
                                       "Enable only on a trusted show network — OSC has no authentication."));
 
+  _oscAllowQuitBox = new QCheckBox(tr("Allow OSC to quit the application"));
+  _oscAllowQuitBox->setChecked(false);
+  _oscAllowQuitBox->setToolTip(tr("When off, the /mapmap/quit OSC command is ignored so a remote "
+                                  "sender cannot close the application during a show."));
+
   QFormLayout *listenPortForm = new QFormLayout;
   listenPortForm->setContentsMargins(margins);
   listenPortForm->addRow(tr("on port"), _listenPortNumber);
@@ -387,6 +397,7 @@ void PreferenceDialog::createControlsPage()
   oscLayout->addLayout(listenPortForm, 1);
   oscLayout->addWidget(_oscSameMediaSourceBox, 1);
   oscLayout->addWidget(_oscAcceptNetworkBox, 1);
+  oscLayout->addWidget(_oscAllowQuitBox, 1);
   oscLayout->addLayout(listenAddressForm, 3);
 
   _oscWidget->setLayout(oscLayout);

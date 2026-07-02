@@ -57,3 +57,14 @@ Pause: `/mapmap/pause`
 Play: `/mapmap/play`  
 Rewind/reset: `/mapmap/rewind`  
 Quit: `/mapmap/quit`
+
+## Security
+
+OSC has no authentication. By default MapMap listens on the loopback
+interface only (`127.0.0.1`), so OSC is reachable solely from the same
+computer. To control MapMap from another device, enable **Accept OSC from
+the network** in *Preferences > OSC Setup* — only on a trusted show network.
+
+The `/mapmap/quit` command is ignored unless **Allow OSC to quit the
+application** is enabled in the same panel, so a remote sender cannot close
+the app during a show.

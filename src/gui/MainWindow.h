@@ -546,6 +546,9 @@ private:
   // When false (default), OSC binds to loopback only; true widens it to all
   // network interfaces. OSC is unauthenticated, so network access is opt-in.
   bool oscAcceptNetwork;
+  // When false (default), the OSC /mapmap/quit command is ignored so a remote
+  // sender cannot close the application mid-show.
+  bool oscAllowQuit;
   QTimer *osc_timer;
 
 #ifdef HAVE_MCP
@@ -661,6 +664,9 @@ public:
   // Stores whether OSC accepts datagrams from the network. Takes effect the
   // next time startOscReceiver() runs (setOscPort triggers it on Apply).
   void setOscAcceptNetwork(bool accept) { oscAcceptNetwork = accept; }
+  // Whether the OSC /mapmap/quit command may close the application.
+  bool isOscQuitAllowed() const { return oscAllowQuit; }
+  void setOscAllowQuit(bool allow) { oscAllowQuit = allow; }
   int getOscPort() const;
   void setVerbose(bool verbose);
 #ifdef HAVE_MCP
