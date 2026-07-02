@@ -41,7 +41,7 @@ public slots:
 
 private:
     QUdpSocket* m_udpSocket;
-    void byteArrayToVariantList(QVariantList& outputVariantList, QString& outputOscAddress, const QByteArray& inputByteArray);
+    bool byteArrayToVariantList(QVariantList& outputVariantList, QString& outputOscAddress, const QByteArray& inputByteArray);
 };
 
 #endif // OSCRECEIVER_H
