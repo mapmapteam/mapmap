@@ -119,6 +119,8 @@ bool PreferenceDialog::loadSettings()
                                          settings.value("toolbarIconSize", MM::TOOLBAR_ICON_SIZE)));
   // Set language
   _languageBox->setCurrentIndex(_languageBox->findData(settings.value("language", MM::DEFAULT_LANGUAGE)));
+  // Show the welcome dialog at startup (same key WelcomeDialog reads/writes).
+  _showWelcomeBox->setChecked(settings.value("showWelcomeOnStartup", true).toBool());
 
   // Allow OSC message with same media source
   _oscSameMediaSourceBox->setChecked(settings.value("oscSameMediaSource", MM::OSC_SAME_MEDIA_SOURCE).toBool());
@@ -157,6 +159,7 @@ void PreferenceDialog::applySettings()
   settings.setValue("showResolution", _showResolutionBox->isChecked());
   // Show control on mouse hover
   settings.setValue("showControlOnMouseOver", _showControlOnOverBox->isChecked());
+  settings.setValue("showWelcomeOnStartup", _showWelcomeBox->isChecked());
   // Set preferred test signal pattern
   for (QRadioButton *radio: _radioGroup) {
     if (radio->isChecked()) {
@@ -210,9 +213,12 @@ void PreferenceDialog::createInterfacePage()
   toolbarIconSizeForm->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
   toolbarIconSizeForm->addRow(tr("Toolbar icon size (requires restart)"), _toolbarIconSizeBox);
 
+  _showWelcomeBox = new QCheckBox(tr("Show the welcome dialog at startup"));
+
   QVBoxLayout *interfaceLayout = new QVBoxLayout;
   interfaceLayout->addLayout(languageForm);
   interfaceLayout->addLayout(toolbarIconSizeForm);
+  interfaceLayout->addWidget(_showWelcomeBox);
 
   _interfacePage->setLayout(interfaceLayout);
 }
@@ -362,6 +368,11 @@ void PreferenceDialog::createControlsPage()
 
   _oscSameMediaSourceBox = new QCheckBox(tr("Allow message with existing media source"));
   _oscSameMediaSourceBox->setChecked(false);
+  _oscSameMediaSourceBox->setToolTip(tr(
+      "When off (the default), an OSC message that sets a paint's media to the "
+      "file it already uses is ignored, so repeated messages don't reload — and "
+      "restart — the same video. Turn it on to reload the media anyway, for "
+      "example to restart a clip from the beginning over OSC."));
 
   _oscAcceptNetworkBox = new QCheckBox(tr("Accept OSC from the network (less secure)"));
   _oscAcceptNetworkBox->setChecked(false);

@@ -97,6 +97,7 @@ private:
   QLabel *_palTestImg;
   QLabel *_ntscTestImg;
   QCheckBox *_showControlOnOverBox;
+  QCheckBox *_showWelcomeBox;
 
   // Controls widgets
   // OSC
