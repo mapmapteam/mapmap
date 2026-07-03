@@ -121,8 +121,8 @@ No camera available in your system</translation>
         <translation type="vanished">Create a new project</translation>
     </message>
     <message>
-        <source>&amp;Open...</source>
-        <translation type="vanished">&amp;Open...</translation>
+        <source>&amp;Open…</source>
+        <translation type="vanished">&amp;Open…</translation>
     </message>
     <message>
         <source>Open an existing project</source>
@@ -137,32 +137,32 @@ No camera available in your system</translation>
         <translation type="vanished">Save the project</translation>
     </message>
     <message>
-        <source>Save &amp;As...</source>
-        <translation type="vanished">Save &amp;As...</translation>
+        <source>Save &amp;As…</source>
+        <translation type="vanished">Save &amp;As…</translation>
     </message>
     <message>
-        <source>Save the project as...</source>
-        <translation type="vanished">Save the project as...</translation>
+        <source>Save the project as…</source>
+        <translation type="vanished">Save the project as…</translation>
     </message>
     <message>
         <source>No Recents Videos</source>
         <translation type="vanished">No Recents Videos</translation>
     </message>
     <message>
-        <source>&amp;Import Media File...</source>
-        <translation type="vanished">&amp;Import Media File...</translation>
+        <source>&amp;Import Media File…</source>
+        <translation type="vanished">&amp;Import Media File…</translation>
     </message>
     <message>
-        <source>Import a video or image file...</source>
-        <translation type="vanished">Import a video or image file...</translation>
+        <source>Import a video or image file…</source>
+        <translation type="vanished">Import a video or image file…</translation>
     </message>
     <message>
-        <source>Open &amp;Camera Device...</source>
-        <translation type="vanished">Open &amp;Camera Device...</translation>
+        <source>Open &amp;Camera Device…</source>
+        <translation type="vanished">Open &amp;Camera Device…</translation>
     </message>
     <message>
-        <source>Choose your camera device...</source>
-        <translation type="vanished">Choose your camera device...</translation>
+        <source>Choose your camera device…</source>
+        <translation type="vanished">Choose your camera device…</translation>
     </message>
     <message>
         <source>Add &amp;Color Paint...</source>
@@ -249,12 +249,12 @@ No camera available in your system</translation>
         <translation type="vanished">Delete paint</translation>
     </message>
     <message>
-        <source>&amp;Preferences...</source>
-        <translation type="vanished">&amp;Preferences...</translation>
+        <source>&amp;Preferences…</source>
+        <translation type="vanished">&amp;Preferences…</translation>
     </message>
     <message>
-        <source>Configure preferences...</source>
-        <translation type="vanished">Configure preferences...</translation>
+        <source>Configure preferences…</source>
+        <translation type="vanished">Configure preferences…</translation>
     </message>
     <message>
         <source>Add &amp;Mesh</source>
@@ -1608,8 +1608,8 @@ No camera available in your system</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1805"/>
-        <source>&amp;Open...</source>
-        <translation type="unfinished">&amp;Open...</translation>
+        <source>&amp;Open…</source>
+        <translation type="unfinished">&amp;Open…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1808"/>
@@ -1628,13 +1628,13 @@ No camera available in your system</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1825"/>
-        <source>Save &amp;As...</source>
-        <translation type="unfinished">Save &amp;As...</translation>
+        <source>Save &amp;As…</source>
+        <translation type="unfinished">Save &amp;As…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1828"/>
-        <source>Save the project as...</source>
-        <translation type="unfinished">Save the project as...</translation>
+        <source>Save the project as…</source>
+        <translation type="unfinished">Save the project as…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1857"/>
@@ -1643,23 +1643,23 @@ No camera available in your system</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1862"/>
-        <source>&amp;Import Media File...</source>
-        <translation type="unfinished">&amp;Import Media File...</translation>
+        <source>&amp;Import Media File…</source>
+        <translation type="unfinished">&amp;Import Media File…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1865"/>
-        <source>Import a video or image file...</source>
-        <translation type="unfinished">Import a video or image file...</translation>
+        <source>Import a video or image file…</source>
+        <translation type="unfinished">Import a video or image file…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1872"/>
-        <source>Open &amp;Camera Device...</source>
-        <translation type="unfinished">Open &amp;Camera Device...</translation>
+        <source>Open &amp;Camera Device…</source>
+        <translation type="unfinished">Open &amp;Camera Device…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1876"/>
-        <source>Choose your camera device...</source>
-        <translation type="unfinished">Choose your camera device...</translation>
+        <source>Choose your camera device…</source>
+        <translation type="unfinished">Choose your camera device…</translation>
     </message>
     <message>
         <source>Add &amp;Color Paint...</source>
@@ -1753,13 +1753,13 @@ No camera available in your system</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2099"/>
-        <source>&amp;Preferences...</source>
-        <translation type="unfinished">&amp;Preferences...</translation>
+        <source>&amp;Preferences…</source>
+        <translation type="unfinished">&amp;Preferences…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2102"/>
-        <source>Configure preferences...</source>
-        <translation type="unfinished">Configure preferences...</translation>
+        <source>Configure preferences…</source>
+        <translation type="unfinished">Configure preferences…</translation>
     </message>
     <message>
         <source>Add &amp;Mesh</source>
@@ -2042,22 +2042,22 @@ The original file is not found. Please locate.</source>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1882"/>
-        <source>Add &amp;Color Source...</source>
+        <source>Add &amp;Color Source…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1885"/>
-        <source>Add a color source...</source>
+        <source>Add a color source…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1893"/>
-        <source>Add &amp;Syphon Source...</source>
+        <source>Add &amp;Syphon Source…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1896"/>
-        <source>Receive live video from another application via Syphon...</source>
+        <source>Receive live video from another application via Syphon…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -875,8 +875,8 @@ No camera available in your system</source>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1805"/>
-        <source>&amp;Open...</source>
-        <translation>&amp;Abrir...</translation>
+        <source>&amp;Open…</source>
+        <translation>&amp;Abrir…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1808"/>
@@ -895,13 +895,13 @@ No camera available in your system</source>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1825"/>
-        <source>Save &amp;As...</source>
-        <translation>Guardar &amp;como...</translation>
+        <source>Save &amp;As…</source>
+        <translation>Guardar &amp;como…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1828"/>
-        <source>Save the project as...</source>
-        <translation>Guardar el proyecto como...</translation>
+        <source>Save the project as…</source>
+        <translation>Guardar el proyecto como…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1857"/>
@@ -910,23 +910,23 @@ No camera available in your system</source>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1862"/>
-        <source>&amp;Import Media File...</source>
-        <translation>&amp;Importar archivo multimedia...</translation>
+        <source>&amp;Import Media File…</source>
+        <translation>&amp;Importar archivo multimedia…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1865"/>
-        <source>Import a video or image file...</source>
-        <translation>Importar un archivo de vídeo o imagen...</translation>
+        <source>Import a video or image file…</source>
+        <translation>Importar un archivo de vídeo o imagen…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1872"/>
-        <source>Open &amp;Camera Device...</source>
-        <translation>Abrir dispositivo de &amp;cámara...</translation>
+        <source>Open &amp;Camera Device…</source>
+        <translation>Abrir dispositivo de &amp;cámara…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1876"/>
-        <source>Choose your camera device...</source>
-        <translation>Elija su dispositivo de cámara...</translation>
+        <source>Choose your camera device…</source>
+        <translation>Elija su dispositivo de cámara…</translation>
     </message>
     <message>
         <source>Add a color paint...</source>
@@ -983,13 +983,13 @@ No camera available in your system</source>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2099"/>
-        <source>&amp;Preferences...</source>
-        <translation>&amp;Preferencias...</translation>
+        <source>&amp;Preferences…</source>
+        <translation>&amp;Preferencias…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2102"/>
-        <source>Configure preferences...</source>
-        <translation>Configurar preferencias...</translation>
+        <source>Configure preferences…</source>
+        <translation>Configurar preferencias…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2143"/>
@@ -1100,23 +1100,23 @@ No camera available in your system</source>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1882"/>
-        <source>Add &amp;Color Source...</source>
-        <translation>Añadir fuente de &amp;color...</translation>
+        <source>Add &amp;Color Source…</source>
+        <translation>Añadir fuente de &amp;color…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1885"/>
-        <source>Add a color source...</source>
-        <translation>Añadir una fuente de color...</translation>
+        <source>Add a color source…</source>
+        <translation>Añadir una fuente de color…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1893"/>
-        <source>Add &amp;Syphon Source...</source>
-        <translation>Añadir fuente &amp;Syphon...</translation>
+        <source>Add &amp;Syphon Source…</source>
+        <translation>Añadir fuente &amp;Syphon…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1896"/>
-        <source>Receive live video from another application via Syphon...</source>
-        <translation>Recibir vídeo en directo de otra aplicación mediante Syphon...</translation>
+        <source>Receive live video from another application via Syphon…</source>
+        <translation>Recibir vídeo en directo de otra aplicación mediante Syphon…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1935"/>

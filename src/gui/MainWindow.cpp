@@ -1800,7 +1800,7 @@ void MainWindow::createActions()
   connect(newAction, &QAction::triggered, this, &MainWindow::newFile);
 
   // Open.
-  openAction = new QAction(tr("&Open..."), this);
+  openAction = new QAction(tr("&Open…"), this);
   openAction->setIcon(QIcon(":/open"));
   openAction->setShortcut(QKeySequence::Open);
   openAction->setToolTip(tr("Open an existing project"));
@@ -1820,10 +1820,10 @@ void MainWindow::createActions()
   connect(saveAction, &QAction::triggered, this, &MainWindow::save);
 
   // Save as.
-  saveAsAction = new QAction(tr("Save &As..."), this);
+  saveAsAction = new QAction(tr("Save &As…"), this);
   saveAsAction->setIcon(QIcon(":/save-as"));
   saveAsAction->setShortcut(QKeySequence::SaveAs);
-  saveAsAction->setToolTip(tr("Save the project as..."));
+  saveAsAction->setToolTip(tr("Save the project as…"));
   saveAsAction->setIconVisibleInMenu(false);
   saveAsAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(saveAsAction);
@@ -1856,30 +1856,30 @@ void MainWindow::createActions()
 
 
   // Import Media.
-  importMediaAction = new QAction(tr("&Import Media File..."), this);
+  importMediaAction = new QAction(tr("&Import Media File…"), this);
   importMediaAction->setShortcut(Qt::CTRL | Qt::Key_I);
   importMediaAction->setIcon(QIcon(":/add-video"));
-  importMediaAction->setToolTip(tr("Import a video or image file..."));
+  importMediaAction->setToolTip(tr("Import a video or image file…"));
   importMediaAction->setIconVisibleInMenu(false);
   importMediaAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(importMediaAction);
   connect(importMediaAction, &QAction::triggered, this, &MainWindow::importMedia);
 
   // Open camera.
-  AddCameraAction = new QAction(tr("Open &Camera Device..."), this);
+  AddCameraAction = new QAction(tr("Open &Camera Device…"), this);
   AddCameraAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_C);
   AddCameraAction->setIcon(QIcon(":/add-camera"));
   AddCameraAction->setIconVisibleInMenu(false);
-  AddCameraAction->setToolTip(tr("Choose your camera device..."));
+  AddCameraAction->setToolTip(tr("Choose your camera device…"));
   AddCameraAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(AddCameraAction);
   connect(AddCameraAction, &QAction::triggered, this, &MainWindow::openCameraDevice);
 
   // Add color.
-  addColorAction = new QAction(tr("Add &Color Source..."), this);
+  addColorAction = new QAction(tr("Add &Color Source…"), this);
   addColorAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_A);
   addColorAction->setIcon(QIcon(":/add-color"));
-  addColorAction->setToolTip(tr("Add a color source..."));
+  addColorAction->setToolTip(tr("Add a color source…"));
   addColorAction->setIconVisibleInMenu(false);
   addColorAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(addColorAction);
@@ -1887,10 +1887,10 @@ void MainWindow::createActions()
 
 #ifdef Q_OS_MAC
   // Add Syphon source (macOS only).
-  addSyphonAction = new QAction(tr("Add &Syphon Source..."), this);
+  addSyphonAction = new QAction(tr("Add &Syphon Source…"), this);
   addSyphonAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_Y);
   addSyphonAction->setIcon(QIcon(":/add-syphon"));
-  addSyphonAction->setToolTip(tr("Receive live video from another application via Syphon..."));
+  addSyphonAction->setToolTip(tr("Receive live video from another application via Syphon…"));
   addSyphonAction->setIconVisibleInMenu(false);
   addSyphonAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(addSyphonAction);
@@ -2093,10 +2093,10 @@ void MainWindow::createActions()
   connect(_importLayerMediaAction, &QAction::triggered, this, &MainWindow::loadLayerMedia);
 
   // Preferences...
-  preferencesAction = new QAction(tr("&Preferences..."), this);
+  preferencesAction = new QAction(tr("&Preferences…"), this);
   //preferencesAction->setIcon(QIcon(":/preferences"));
   preferencesAction->setShortcut(Qt::CTRL | Qt::Key_Comma);
-  preferencesAction->setToolTip(tr("Configure preferences..."));
+  preferencesAction->setToolTip(tr("Configure preferences…"));
   //preferencesAction->setIconVisibleInMenu(false);
   preferencesAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(preferencesAction);
