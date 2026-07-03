@@ -35,8 +35,8 @@ SourceGui::SourceGui(Source::ptr source)
 
   _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
 
-  connect(_variantManager, SIGNAL(valueChanged(QtProperty*, const QVariant&)),
-          this,            SLOT(setValue(QtProperty*, const QVariant&)));
+  connect(_variantManager, &QtVariantPropertyManager::valueChanged,
+          this, qOverload<QtProperty*, const QVariant&>(&SourceGui::setValue));
 
   // Mapping UID.
   _idItem = _variantManager->addProperty(QMetaType::Int, QObject::tr("ID"));

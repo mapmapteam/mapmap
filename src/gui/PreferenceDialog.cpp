@@ -53,8 +53,8 @@ PreferenceDialog::PreferenceDialog(QWidget* parent) :
   mainLayout->addWidget(_buttonBox, 1, 0, 1, 2);
   setLayout(mainLayout);
 
-  connect(_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+  connect(_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+  connect(_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
   setWindowTitle(tr("Preferences"));
   _listWidget->setCurrentRow(0);
@@ -231,7 +231,7 @@ void PreferenceDialog::createMappingPage()
     stickList.append(QString::number(i * 10));
   _stickyRadiusBox->addItems(stickList);
   // Enable box only if sticky vertices is enabled
-  connect(_stickyVerticesBox, SIGNAL(toggled(bool)), _stickyRadiusBox, SLOT(setEnabled(bool)));
+  connect(_stickyVerticesBox, &QCheckBox::toggled, _stickyRadiusBox, &QWidget::setEnabled);
 
   QFormLayout *stickRadiusForm = new QFormLayout;
   stickRadiusForm->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
@@ -379,7 +379,7 @@ void PreferenceDialog::createControlsPage()
 
   _machineAddressLabel = new QLabel;
   _ipRefreshButton = new QPushButton(tr("Refresh"));
-  connect(_ipRefreshButton, SIGNAL(clicked()), this, SLOT(refreshCurrentIP()));
+  connect(_ipRefreshButton, &QAbstractButton::clicked, this, &PreferenceDialog::refreshCurrentIP);
 
   QHBoxLayout *listenAddressLayout = new QHBoxLayout;
   listenAddressLayout->addWidget(_machineAddressLabel);
@@ -486,7 +486,7 @@ void PreferenceDialog::createPreferencesList()
   _stackedLayout->addWidget(_controlsPage);
   _stackedLayout->addWidget(_advancedPage);
   // Sync list and pages
-  connect(_listWidget, SIGNAL(currentRowChanged(int)), _stackedLayout, SLOT(setCurrentIndex(int)));
+  connect(_listWidget, &QListWidget::currentRowChanged, _stackedLayout, &QStackedLayout::setCurrentIndex);
 }
 
 void PreferenceDialog::createLanguageList()

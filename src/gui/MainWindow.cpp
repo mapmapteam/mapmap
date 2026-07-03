@@ -107,7 +107,7 @@ MainWindow::MainWindow()
 
   // Create and start timer.
   videoTimer = new QTimer(this);
-  connect(videoTimer, SIGNAL(timeout()), this, SLOT(processFrame()));
+  connect(videoTimer, &QTimer::timeout, this, &MainWindow::processFrame);
   setFramesPerSecond(MM::DEFAULT_FRAMES_PER_SECOND);
   videoTimer->start();
 
@@ -1723,12 +1723,10 @@ void MainWindow::createLayout()
   outputWindow->installEventFilter(destinationCanvas);
 
   // Source scene changed -> change destination.
-  connect(sourceCanvas->scene(), SIGNAL(changed(const QList<QRectF>&)),
-          destinationCanvas,     SLOT(update()));
+  connect(sourceCanvas->scene(), &QGraphicsScene::changed, destinationCanvas, qOverload<>(&QWidget::update));
 
   // Destination scene changed -> change output window.
-  connect(destinationCanvas->scene(), SIGNAL(changed(const QList<QRectF>&)),
-          outputWindow->getCanvas(),  SLOT(update()));
+  connect(destinationCanvas->scene(), &QGraphicsScene::changed, outputWindow->getCanvas(), qOverload<>(&QWidget::update));
 
   // Output changed -> change destinatioin
   // XXX si je decommente cette ligne alors quand je clique sur ajouter media ca gele...
@@ -1765,7 +1763,7 @@ void MainWindow::createLayout()
   mainSplitter = new QSplitter(Qt::Horizontal);
   mainSplitter->addWidget(canvasSplitter);
   mainSplitter->addWidget(contentTab);
-  connect(mainSplitter, SIGNAL(splitterMoved(int, int)), this, SLOT(updateLayerListColumnWidth()));
+  connect(mainSplitter, &QSplitter::splitterMoved, this, &MainWindow::updateLayerListColumnWidth);
 
   // Initialize size to 9:1 proportions.
   QSize sz = mainSplitter->size();
@@ -1799,7 +1797,7 @@ void MainWindow::createActions()
   newAction->setIconVisibleInMenu(false);
   newAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(newAction);
-  connect(newAction, SIGNAL(triggered()), this, SLOT(newFile()));
+  connect(newAction, &QAction::triggered, this, &MainWindow::newFile);
 
   // Open.
   openAction = new QAction(tr("&Open..."), this);
@@ -1809,7 +1807,7 @@ void MainWindow::createActions()
   openAction->setIconVisibleInMenu(false);
   openAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(openAction);
-  connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
+  connect(openAction, &QAction::triggered, this, &MainWindow::open);
 
   // Save.
   saveAction = new QAction(tr("&Save"), this);
@@ -1819,7 +1817,7 @@ void MainWindow::createActions()
   saveAction->setIconVisibleInMenu(false);
   saveAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(saveAction);
-  connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
+  connect(saveAction, &QAction::triggered, this, &MainWindow::save);
 
   // Save as.
   saveAsAction = new QAction(tr("Save &As..."), this);
@@ -1829,15 +1827,14 @@ void MainWindow::createActions()
   saveAsAction->setIconVisibleInMenu(false);
   saveAsAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(saveAsAction);
-  connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
+  connect(saveAsAction, &QAction::triggered, this, &MainWindow::saveAs);
 
   // Recents file
   for (int i = 0; i < MaxRecentFiles; i++)
   {
     recentFileActions[i] = new QAction(this);
     recentFileActions[i]->setVisible(false);
-    connect(recentFileActions[i], SIGNAL(triggered()),
-            this, SLOT(openRecentFile()));
+    connect(recentFileActions[i], &QAction::triggered, this, &MainWindow::openRecentFile);
   }
 
   // Recent video
@@ -1845,13 +1842,13 @@ void MainWindow::createActions()
   {
     recentVideoActions[i] = new QAction(this);
     recentVideoActions[i]->setVisible(false);
-    connect(recentVideoActions[i], SIGNAL(triggered()), this, SLOT(openRecentVideo()));
+    connect(recentVideoActions[i], &QAction::triggered, this, &MainWindow::openRecentVideo);
   }
 
   // Clear recent video list action
   clearRecentFileActions = new QAction(this);
   clearRecentFileActions->setVisible(true);
-  connect(clearRecentFileActions, SIGNAL(triggered()), this, SLOT(clearRecentFileList()));
+  connect(clearRecentFileActions, &QAction::triggered, this, &MainWindow::clearRecentFileList);
 
   // Empty list of recent video action
   emptyRecentVideos = new QAction(tr("No Recents Videos"), this);
@@ -1866,7 +1863,7 @@ void MainWindow::createActions()
   importMediaAction->setIconVisibleInMenu(false);
   importMediaAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(importMediaAction);
-  connect(importMediaAction, SIGNAL(triggered()), this, SLOT(importMedia()));
+  connect(importMediaAction, &QAction::triggered, this, &MainWindow::importMedia);
 
   // Open camera.
   AddCameraAction = new QAction(tr("Open &Camera Device..."), this);
@@ -1876,7 +1873,7 @@ void MainWindow::createActions()
   AddCameraAction->setToolTip(tr("Choose your camera device..."));
   AddCameraAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(AddCameraAction);
-  connect(AddCameraAction, SIGNAL(triggered()), this, SLOT(openCameraDevice()));
+  connect(AddCameraAction, &QAction::triggered, this, &MainWindow::openCameraDevice);
 
   // Add color.
   addColorAction = new QAction(tr("Add &Color Source..."), this);
@@ -1886,7 +1883,7 @@ void MainWindow::createActions()
   addColorAction->setIconVisibleInMenu(false);
   addColorAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(addColorAction);
-  connect(addColorAction, SIGNAL(triggered()), this, SLOT(addColor()));
+  connect(addColorAction, &QAction::triggered, this, &MainWindow::addColor);
 
 #ifdef Q_OS_MAC
   // Add Syphon source (macOS only).
@@ -1897,7 +1894,7 @@ void MainWindow::createActions()
   addSyphonAction->setIconVisibleInMenu(false);
   addSyphonAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(addSyphonAction);
-  connect(addSyphonAction, SIGNAL(triggered()), this, SLOT(addSyphon()));
+  connect(addSyphonAction, &QAction::triggered, this, &MainWindow::addSyphon);
 #endif
 
   // Exit/quit.
@@ -1907,7 +1904,7 @@ void MainWindow::createActions()
   exitAction->setIconVisibleInMenu(false);
   exitAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(exitAction);
-  connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+  connect(exitAction, &QAction::triggered, this, &QWidget::close);
 
   // Undo action
   undoAction = undoStack->createUndoAction(this, tr("&Undo"));
@@ -1929,7 +1926,7 @@ void MainWindow::createActions()
   aboutAction->setIconVisibleInMenu(false);
   aboutAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(aboutAction);
-  connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
+  connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
 
   // Duplicate.
   duplicateLayerAction = new QAction(tr("Duplicate Layer"), this);
@@ -1939,7 +1936,7 @@ void MainWindow::createActions()
   duplicateLayerAction->setEnabled(false);
   duplicateLayerAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(duplicateLayerAction);
-  connect(duplicateLayerAction, SIGNAL(triggered()), this, SLOT(duplicateLayerItem()));
+  connect(duplicateLayerAction, &QAction::triggered, this, &MainWindow::duplicateLayerItem);
 
   // Delete mapping.
   deleteLayerAction = new QAction(tr("Delete Layer"), this);
@@ -1949,7 +1946,7 @@ void MainWindow::createActions()
   deleteLayerAction->setEnabled(false);
   deleteLayerAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(deleteLayerAction);
-  connect(deleteLayerAction, SIGNAL(triggered()), this, SLOT(deleteLayerItem()));
+  connect(deleteLayerAction, &QAction::triggered, this, &MainWindow::deleteLayerItem);
 
   // Rename mapping.
   renameLayerAction = new QAction(tr("Rename Layer"), this);
@@ -1959,7 +1956,7 @@ void MainWindow::createActions()
   renameLayerAction->setEnabled(false);
   renameLayerAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(renameLayerAction);
-  connect(renameLayerAction, SIGNAL(triggered()), this, SLOT(renameLayerItem()));
+  connect(renameLayerAction, &QAction::triggered, this, &MainWindow::renameLayerItem);
 
   // Lock mapping.
   layerLockedAction = new QAction(tr("Lock Layer"), this);
@@ -1970,7 +1967,7 @@ void MainWindow::createActions()
   layerLockedAction->setEnabled(false);
   layerLockedAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(layerLockedAction);
-  connect(layerLockedAction, SIGNAL(triggered(bool)), this, SLOT(setLayerItemLocked(bool)));
+  connect(layerLockedAction, &QAction::triggered, this, &MainWindow::setLayerItemLocked);
 
   // Hide mapping.
   layerHideAction = new QAction(tr("Hide Layer"), this);
@@ -1981,7 +1978,7 @@ void MainWindow::createActions()
   layerHideAction->setEnabled(false);
   layerHideAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(layerHideAction);
-  connect(layerHideAction, SIGNAL(triggered(bool)), this, SLOT(setLayerItemHide(bool)));
+  connect(layerHideAction, &QAction::triggered, this, &MainWindow::setLayerItemHide);
 
   // Solo mapping.
   layerSoloAction = new QAction(tr("Solo Layer"), this);
@@ -1992,7 +1989,7 @@ void MainWindow::createActions()
   layerSoloAction->setEnabled(false);
   layerSoloAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(layerSoloAction);
-  connect(layerSoloAction, SIGNAL(triggered(bool)), this, SLOT(setLayerItemSolo(bool)));
+  connect(layerSoloAction, &QAction::triggered, this, &MainWindow::setLayerItemSolo);
 
   // Rotate 90 degrees CW action.
   layerRotate90CWAction = new QAction(tr("Rotate 90° CW"), this);
@@ -2000,7 +1997,7 @@ void MainWindow::createActions()
   layerRotate90CWAction->setIconVisibleInMenu(true);
   layerRotate90CWAction->setEnabled(false);
   addAction(layerRotate90CWAction);
-  connect(layerRotate90CWAction, SIGNAL(triggered()), SLOT(transformActionLayerItem()));
+  connect(layerRotate90CWAction, &QAction::triggered, this, &MainWindow::transformActionLayerItem);
 
   // Rotate 90 degrees CW action.
   layerRotate90CCWAction = new QAction(tr("Rotate 90° CW"), this);
@@ -2008,7 +2005,7 @@ void MainWindow::createActions()
   layerRotate90CCWAction->setIconVisibleInMenu(true);
   layerRotate90CCWAction->setEnabled(false);
   addAction(layerRotate90CCWAction);
-  connect(layerRotate90CCWAction, SIGNAL(triggered()), SLOT(transformActionLayerItem()));
+  connect(layerRotate90CCWAction, &QAction::triggered, this, &MainWindow::transformActionLayerItem);
 
   // Rotate 180 degrees action.
   layerRotate180Action = new QAction(tr("Rotate 180°"), this);
@@ -2016,7 +2013,7 @@ void MainWindow::createActions()
   layerRotate180Action->setIconVisibleInMenu(true);
   layerRotate180Action->setEnabled(false);
   addAction(layerRotate180Action);
-  connect(layerRotate180Action, SIGNAL(triggered()), SLOT(transformActionLayerItem()));
+  connect(layerRotate180Action, &QAction::triggered, this, &MainWindow::transformActionLayerItem);
 
   // Horizontal Flip Action
   layerHorizontalFlipAction = new QAction(tr("Flip Horizontally"), this);
@@ -2025,7 +2022,7 @@ void MainWindow::createActions()
   layerHorizontalFlipAction->setIconVisibleInMenu(true);
   layerHorizontalFlipAction->setEnabled(false);
   addAction(layerHorizontalFlipAction);
-  connect(layerHorizontalFlipAction, SIGNAL(triggered()), SLOT(transformActionLayerItem()));
+  connect(layerHorizontalFlipAction, &QAction::triggered, this, &MainWindow::transformActionLayerItem);
 
   // Vertical Flip Action
   layerVerticalFlipAction = new QAction(tr("Flip Vertically"), this);
@@ -2034,7 +2031,7 @@ void MainWindow::createActions()
   layerVerticalFlipAction->setIconVisibleInMenu(true);
   layerVerticalFlipAction->setEnabled(false);
   addAction(layerVerticalFlipAction);
-  connect(layerVerticalFlipAction, SIGNAL(triggered()), SLOT(transformActionLayerItem()));
+  connect(layerVerticalFlipAction, &QAction::triggered, this, &MainWindow::transformActionLayerItem);
 
   layerRaiseAction = new QAction(tr("Raise"), this);
   layerRaiseAction->setShortcut(Qt::Key_PageUp);
@@ -2042,7 +2039,7 @@ void MainWindow::createActions()
   layerRaiseAction->setIconVisibleInMenu(true);
   layerRaiseAction->setEnabled(false);
   addAction(layerRaiseAction);
-  connect(layerRaiseAction, SIGNAL(triggered()), SLOT(reorderLayerItem()));
+  connect(layerRaiseAction, &QAction::triggered, this, &MainWindow::reorderLayerItem);
 
   layerLowerAction = new QAction(tr("Lower"), this);
   layerLowerAction->setShortcut(Qt::Key_PageDown);
@@ -2050,7 +2047,7 @@ void MainWindow::createActions()
   layerLowerAction->setIconVisibleInMenu(true);
   layerLowerAction->setEnabled(false);
   addAction(layerLowerAction);
-  connect(layerLowerAction, SIGNAL(triggered()), SLOT(reorderLayerItem()));
+  connect(layerLowerAction, &QAction::triggered, this, &MainWindow::reorderLayerItem);
 
   layerRaiseToTopAction = new QAction(tr("Raise to Top"), this);
   layerRaiseToTopAction->setShortcut(Qt::Key_Home); // bottom = end
@@ -2058,7 +2055,7 @@ void MainWindow::createActions()
   layerRaiseToTopAction->setIconVisibleInMenu(true);
   layerRaiseToTopAction->setEnabled(false);
   addAction(layerRaiseToTopAction);
-  connect(layerRaiseToTopAction, SIGNAL(triggered()), SLOT(reorderLayerItem()));
+  connect(layerRaiseToTopAction, &QAction::triggered, this, &MainWindow::reorderLayerItem);
 
   layerLowerToBottomAction = new QAction(tr("Lower to Bottom"), this);
   layerLowerToBottomAction->setShortcut(Qt::Key_End);
@@ -2066,7 +2063,7 @@ void MainWindow::createActions()
   layerLowerToBottomAction->setIconVisibleInMenu(true);
   layerLowerToBottomAction->setEnabled(false);
   addAction(layerLowerToBottomAction);
-  connect(layerLowerToBottomAction, SIGNAL(triggered()), SLOT(reorderLayerItem()));
+  connect(layerLowerToBottomAction, &QAction::triggered, this, &MainWindow::reorderLayerItem);
 
   // Delete source.
   deleteSourceAction = new QAction(tr("Delete Source"), this);
@@ -2076,7 +2073,7 @@ void MainWindow::createActions()
   deleteSourceAction->setEnabled(false);
   deleteSourceAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(deleteSourceAction);
-  connect(deleteSourceAction, SIGNAL(triggered()), this, SLOT(deleteSourceItem()));
+  connect(deleteSourceAction, &QAction::triggered, this, &MainWindow::deleteSourceItem);
 
   // Rename source.
   renameSourceAction = new QAction(tr("Rename Source"), this);
@@ -2086,14 +2083,14 @@ void MainWindow::createActions()
   renameSourceAction->setEnabled(false);
   renameSourceAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(renameSourceAction);
-  connect(renameSourceAction, SIGNAL(triggered()), this, SLOT(renameSourceItem()));
+  connect(renameSourceAction, &QAction::triggered, this, &MainWindow::renameSourceItem);
 
   // Import a new media for current layer
   _importLayerMediaAction = new QAction(tr("Import New Media"), this);
   _importLayerMediaAction->setToolTip(tr("Import new media file if not exists on the list"));
   _importLayerMediaAction->setIconVisibleInMenu(false);
   _importLayerMediaAction->setData("import-new-media"); // Important
-  connect(_importLayerMediaAction, SIGNAL(triggered()), this, SLOT(loadLayerMedia()));
+  connect(_importLayerMediaAction, &QAction::triggered, this, &MainWindow::loadLayerMedia);
 
   // Preferences...
   preferencesAction = new QAction(tr("&Preferences..."), this);
@@ -2103,6 +2100,8 @@ void MainWindow::createActions()
   //preferencesAction->setIconVisibleInMenu(false);
   preferencesAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(preferencesAction);
+  // exec() is a private custom override of PreferenceDialog, reachable only via
+  // the string-based connection.
   connect(preferencesAction, SIGNAL(triggered()), _preferenceDialog, SLOT(exec()));
 
   // Add mesh.
@@ -2113,7 +2112,7 @@ void MainWindow::createActions()
   addMeshAction->setIconVisibleInMenu(false);
   addMeshAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(addMeshAction);
-  connect(addMeshAction, SIGNAL(triggered()), this, SLOT(addMesh()));
+  connect(addMeshAction, &QAction::triggered, this, &MainWindow::addMesh);
   addMeshAction->setEnabled(false);
 
   // Add triangle.
@@ -2124,7 +2123,7 @@ void MainWindow::createActions()
   addTriangleAction->setIconVisibleInMenu(false);
   addTriangleAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(addTriangleAction);
-  connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
+  connect(addTriangleAction, &QAction::triggered, this, &MainWindow::addTriangle);
   addTriangleAction->setEnabled(false);
 
   // Add ellipse.
@@ -2135,7 +2134,7 @@ void MainWindow::createActions()
   addEllipseAction->setIconVisibleInMenu(false);
   addEllipseAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(addEllipseAction);
-  connect(addEllipseAction, SIGNAL(triggered()), this, SLOT(addEllipse()));
+  connect(addEllipseAction, &QAction::triggered, this, &MainWindow::addEllipse);
   addEllipseAction->setEnabled(false);
 
   // Play.
@@ -2147,7 +2146,7 @@ void MainWindow::createActions()
   playAction->setIconVisibleInMenu(false);
   playAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(playAction);
-  connect(playAction, SIGNAL(triggered()), this, SLOT(play()));
+  connect(playAction, &QAction::triggered, this, &MainWindow::play);
   playAction->setVisible(true);
 
   // Pause.
@@ -2158,7 +2157,7 @@ void MainWindow::createActions()
   pauseAction->setIconVisibleInMenu(false);
   pauseAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(pauseAction);
-  connect(pauseAction, SIGNAL(triggered()), this, SLOT(pause()));
+  connect(pauseAction, &QAction::triggered, this, &MainWindow::pause);
   pauseAction->setVisible(false);
 
   // Rewind.
@@ -2169,7 +2168,7 @@ void MainWindow::createActions()
   rewindAction->setIconVisibleInMenu(false);
   rewindAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(rewindAction);
-  connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
+  connect(rewindAction, &QAction::triggered, this, &MainWindow::rewind);
 
   // Toggle display of output window.
   outputFullScreenAction = new QAction(tr("Toggle &Fullscreen"), this);
@@ -2183,7 +2182,7 @@ void MainWindow::createActions()
   outputFullScreenAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(outputFullScreenAction);
   // Manage fullscreen/modal show of GL output window.
-  connect(outputFullScreenAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setFullScreen(bool)));
+  connect(outputFullScreenAction, &QAction::toggled, outputWindow, &OutputGLWindow::setFullScreen);
   connect(qApp, &QGuiApplication::screenAdded,   this, [this](QScreen*){ updateScreenCount(); });
   connect(qApp, &QGuiApplication::screenRemoved,  this, [this](QScreen*){ updateScreenCount(); });
   // Create hiden action for closing output window
@@ -2191,7 +2190,7 @@ void MainWindow::createActions()
   closeOutput->setShortcut(Qt::Key_Escape);
   closeOutput->setShortcutContext(Qt::ApplicationShortcut);
   addAction(closeOutput);
-  connect(closeOutput, SIGNAL(triggered(bool)), this, SLOT(exitFullScreen()));
+  connect(closeOutput, &QAction::triggered, this, &MainWindow::exitFullScreen);
 
   // Toggle display of canvas controls.
   displayControlsAction = new QAction(tr("&Display Controls"), this);
@@ -2204,8 +2203,8 @@ void MainWindow::createActions()
   displayControlsAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(displayControlsAction);
   // Manage show/hide of canvas controls.
-  connect(displayControlsAction, SIGNAL(toggled(bool)), this, SLOT(enableDisplayControls(bool)));
-  connect(displayControlsAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setCanvasDisplayCrosshair(bool)));
+  connect(displayControlsAction, &QAction::toggled, this, &MainWindow::enableDisplayControls);
+  connect(displayControlsAction, &QAction::toggled, outputWindow, &OutputGLWindow::setCanvasDisplayCrosshair);
 
   // Toggle display of canvas controls.
   displaySourceControlsAction = new QAction(tr("&Display Controls of Layers of a Source"), this);
@@ -2218,9 +2217,9 @@ void MainWindow::createActions()
   displaySourceControlsAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(displaySourceControlsAction);
   // Manage show/hide of canvas controls.
-  connect(displaySourceControlsAction, SIGNAL(toggled(bool)), this, SLOT(enableDisplaySourceControls(bool)));
+  connect(displaySourceControlsAction, &QAction::toggled, this, &MainWindow::enableDisplaySourceControls);
 //  connect(displaySourceControlsAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setDisplayCrosshair(bool)));
-  connect(displayControlsAction, SIGNAL(toggled(bool)), displaySourceControlsAction, SLOT(setEnabled(bool)));
+  connect(displayControlsAction, &QAction::toggled, displaySourceControlsAction, &QAction::setEnabled);
 
   // Toggle sticky vertices
   stickyVerticesAction = new QAction(tr("&Sticky Vertices"), this);
@@ -2233,7 +2232,7 @@ void MainWindow::createActions()
   stickyVerticesAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(stickyVerticesAction);
   // Manage sticky vertices
-  connect(stickyVerticesAction, SIGNAL(toggled(bool)), this, SLOT(enableStickyVertices(bool)));
+  connect(stickyVerticesAction, &QAction::toggled, this, &MainWindow::enableStickyVertices);
 
   displayTestSignalAction = new QAction(tr("Show &Test Signal"), this);
   displayTestSignalAction->setShortcut(Qt::ALT | Qt::Key_T);
@@ -2245,7 +2244,7 @@ void MainWindow::createActions()
   displayTestSignalAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(displayTestSignalAction);
   // Manage show/hide of test signal
-  connect(displayTestSignalAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setDisplayTestSignal(bool)));
+  connect(displayTestSignalAction, &QAction::toggled, outputWindow, &OutputGLWindow::setDisplayTestSignal);
 //  connect(displayTestSignalAction, SIGNAL(toggled(bool)), this, SLOT(update()));
 
 #if defined(HAVE_SYPHON) && defined(SYPHON_OUTPUT_EXPERIMENTAL)
@@ -2258,7 +2257,7 @@ void MainWindow::createActions()
   publishSyphonOutputAction->setChecked(false);
   publishSyphonOutputAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(publishSyphonOutputAction);
-  connect(publishSyphonOutputAction, SIGNAL(toggled(bool)), outputWindow, SLOT(setSyphonOutputEnabled(bool)));
+  connect(publishSyphonOutputAction, &QAction::toggled, outputWindow, &OutputGLWindow::setSyphonOutputEnabled);
   connect(publishSyphonOutputAction, &QAction::toggled, this, [](bool on) {
     QSettings s; s.setValue("publishSyphonOutput", on);
   });
@@ -2274,7 +2273,7 @@ void MainWindow::createActions()
   displayUndoHistoryAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(displayUndoHistoryAction);
   // Manage show/hide of Undo History
-  connect(displayUndoHistoryAction, SIGNAL(toggled(bool)), this, SLOT(displayUndoHistory(bool)));
+  connect(displayUndoHistoryAction, &QAction::toggled, this, &MainWindow::displayUndoHistory);
 
   // Toggle display of Console output
   openConsoleAction = new QAction(tr("Open Conso&le"), this);
@@ -2283,9 +2282,9 @@ void MainWindow::createActions()
   openConsoleAction->setChecked(false);
   openConsoleAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(openConsoleAction);
-  connect(openConsoleAction, SIGNAL(toggled(bool)), consoleWindow, SLOT(setVisible(bool)));
+  connect(openConsoleAction, &QAction::toggled, consoleWindow, &ConsoleWindow::setVisible);
   // uncheck action when window is closed
-  connect(consoleWindow, SIGNAL(windowClosed()), openConsoleAction, SLOT(toggle()));
+  connect(consoleWindow, &ConsoleWindow::windowClosed, openConsoleAction, &QAction::toggle);
 
   // Toggle display of zoom tool buttons
   displayZoomToolAction = new QAction(tr("Display &Zoom Toolbar"), this);
@@ -2294,14 +2293,14 @@ void MainWindow::createActions()
   displayZoomToolAction->setChecked(true);
   displayZoomToolAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(displayZoomToolAction);
-  connect(displayZoomToolAction, SIGNAL(toggled(bool)), sourceCanvasToolbar, SLOT(showZoomToolBar(bool)));
-  connect(displayZoomToolAction, SIGNAL(toggled(bool)), destinationCanvasToolbar, SLOT(showZoomToolBar(bool)));
+  connect(displayZoomToolAction, &QAction::toggled, sourceCanvasToolbar, &MapperGLCanvasToolbar::showZoomToolBar);
+  connect(displayZoomToolAction, &QAction::toggled, destinationCanvasToolbar, &MapperGLCanvasToolbar::showZoomToolBar);
 
   // Toggle show/hide menuBar
   showMenuBarAction = new QAction(tr("&Menu Bar"), this);
   showMenuBarAction->setCheckable(true);
   showMenuBarAction->setChecked(_showMenuBar);
-  connect(showMenuBarAction, SIGNAL(toggled(bool)), this, SLOT(showMenuBar(bool)));
+  connect(showMenuBarAction, &QAction::toggled, this, &MainWindow::showMenuBar);
 
   // Perspectives
   // Main perspective (Source + destination)
@@ -2310,22 +2309,22 @@ void MainWindow::createActions()
   mainViewAction->setChecked(true);
   mainViewAction->setShortcut(Qt::CTRL | Qt::Key_1);
   mainViewAction->setToolTip(tr("Switch to the Main layout."));
-  connect(mainViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setVisible(bool)));
-  connect(mainViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setVisible(bool)));
+  connect(mainViewAction, &QAction::triggered, canvasSplitter->widget(0), &QWidget::setVisible);
+  connect(mainViewAction, &QAction::triggered, canvasSplitter->widget(1), &QWidget::setVisible);
   // Source Only
   sourceViewAction = new QAction(tr("Input editor Layout"), this);
   sourceViewAction->setCheckable(true);
   sourceViewAction->setShortcut(Qt::CTRL | Qt::Key_2);
   sourceViewAction->setToolTip(tr("Switch to the Input editor Layout."));
-  connect(sourceViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setVisible(bool)));
-  connect(sourceViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setHidden(bool)));
+  connect(sourceViewAction, &QAction::triggered, canvasSplitter->widget(0), &QWidget::setVisible);
+  connect(sourceViewAction, &QAction::triggered, canvasSplitter->widget(1), &QWidget::setHidden);
   // Destination Only
   destViewAction = new QAction(tr("Output Editor Layout"), this);
   destViewAction->setCheckable(true);
   destViewAction->setShortcut(Qt::CTRL | Qt::Key_3);
   destViewAction->setToolTip(tr("Switch to the Output Editors Layout."));
-  connect(destViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(0), SLOT(setHidden(bool)));
-  connect(destViewAction, SIGNAL(triggered(bool)), canvasSplitter->widget(1), SLOT(setVisible(bool)));
+  connect(destViewAction, &QAction::triggered, canvasSplitter->widget(0), &QWidget::setHidden);
+  connect(destViewAction, &QAction::triggered, canvasSplitter->widget(1), &QWidget::setVisible);
   // Groups all actions
   perspectiveActionGroup = new QActionGroup(this);
   perspectiveActionGroup->addAction(mainViewAction);
@@ -2338,51 +2337,51 @@ void MainWindow::createActions()
   zoomInAction->setShortcut(QKeySequence::ZoomIn);
   zoomInAction->setToolTip(tr("Zoom In"));
   zoomInAction->setEnabled(false);
-  connect(zoomInAction, SIGNAL(triggered()), sourceCanvas, SLOT(increaseZoomLevel()));
-  connect(zoomInAction, SIGNAL(triggered()), destinationCanvas, SLOT(increaseZoomLevel()));
+  connect(zoomInAction, &QAction::triggered, sourceCanvas, &MapperGLCanvas::increaseZoomLevel);
+  connect(zoomInAction, &QAction::triggered, destinationCanvas, &MapperGLCanvas::increaseZoomLevel);
   // Zoom Out
   zoomOutAction = new QAction(tr("Zoom Out"), this);
   zoomOutAction->setShortcut(QKeySequence::ZoomOut);
   zoomOutAction->setToolTip(tr("Zoom Out"));
   zoomOutAction->setEnabled(false);
-  connect(zoomOutAction, SIGNAL(triggered()), sourceCanvas, SLOT(decreaseZoomLevel()));
-  connect(zoomOutAction, SIGNAL(triggered()), destinationCanvas, SLOT(decreaseZoomLevel()));
+  connect(zoomOutAction, &QAction::triggered, sourceCanvas, &MapperGLCanvas::decreaseZoomLevel);
+  connect(zoomOutAction, &QAction::triggered, destinationCanvas, &MapperGLCanvas::decreaseZoomLevel);
   // Reset zoom
   resetZoomAction = new QAction(tr("Original Size"), this);
   resetZoomAction->setShortcut(Qt::CTRL | Qt::Key_0);
   resetZoomAction->setToolTip(tr("Reset zoom to original size"));
   resetZoomAction->setEnabled(false);
-  connect(resetZoomAction, SIGNAL(triggered()), sourceCanvas, SLOT(resetZoomLevel()));
-  connect(resetZoomAction, SIGNAL(triggered()), destinationCanvas, SLOT(resetZoomLevel()));
+  connect(resetZoomAction, &QAction::triggered, sourceCanvas, &MapperGLCanvas::resetZoomLevel);
+  connect(resetZoomAction, &QAction::triggered, destinationCanvas, &MapperGLCanvas::resetZoomLevel);
   // Fit to view
   fitToViewAction = new QAction(tr("Fit To View"), this);
   fitToViewAction->setToolTip(tr("Fit to viewport"));
   fitToViewAction->setEnabled(false);
-  connect(fitToViewAction, SIGNAL(triggered()), sourceCanvas, SLOT(fitShapeToView()));
-  connect(fitToViewAction, SIGNAL(triggered()), destinationCanvas, SLOT(fitShapeToView()));
+  connect(fitToViewAction, &QAction::triggered, sourceCanvas, &MapperGLCanvas::fitShapeToView);
+  connect(fitToViewAction, &QAction::triggered, destinationCanvas, &MapperGLCanvas::fitShapeToView);
 
   // Helps
   // Bug report
   bugReportAction = new QAction(tr("Report an issue"), this);
-  connect(bugReportAction, SIGNAL(triggered()), this, SLOT(reportBug()));
+  connect(bugReportAction, &QAction::triggered, this, &MainWindow::reportBug);
   // Professional services & custom development by Art Plus Code (sponsor).
   servicesAction = new QAction(tr("Professional services && custom development…"), this);
   servicesAction->setToolTip(tr("Hire Art Plus Code for video mapping installations, custom features, integration and training"));
-  connect(servicesAction, SIGNAL(triggered()), this, SLOT(professionalServices()));
+  connect(servicesAction, &QAction::triggered, this, &MainWindow::professionalServices);
   // Support the project (donations, consolidated on Open Collective).
   donateAction = new QAction(tr("Support the project (donate)…"), this);
   donateAction->setToolTip(tr("Help fund MapMap's ongoing development"));
-  connect(donateAction, SIGNAL(triggered()), this, SLOT(donate()));
+  connect(donateAction, &QAction::triggered, this, &MainWindow::donate);
   // Documentation
   docAction = new QAction(tr("Documentation"), this);
-  connect(docAction, SIGNAL(triggered()), this, SLOT(documentation()));
+  connect(docAction, &QAction::triggered, this, &MainWindow::documentation);
   // Send us feedback
   feedbackAction = new QAction(tr("Submit feedback via email"), this);
-  connect(feedbackAction, SIGNAL(triggered()), this, SLOT(sendFeedback()));
+  connect(feedbackAction, &QAction::triggered, this, &MainWindow::sendFeedback);
   // Keyboard shortcuts
   shortcutAction = new QAction(tr("&Keyboard shortcuts"), this);
   shortcutAction->setShortcut(Qt::CTRL | Qt::Key_K);
-  connect(shortcutAction, SIGNAL(triggered()), this, SLOT(openShortcutWindow()));
+  connect(shortcutAction, &QAction::triggered, this, &MainWindow::openShortcutWindow);
 
   // All available screen as action
   updateScreenActions();
@@ -2584,10 +2583,9 @@ void MainWindow::createLayerContextMenu()
   outputWindow->setContextMenuPolicy(Qt::CustomContextMenu);
 
   // Context Menu Connexions
-  connect(layerItemDelegate, SIGNAL(itemContextMenuRequested(const QPoint&)),
-          this, SLOT(showLayerContextMenu(const QPoint&)), Qt::QueuedConnection);
-  connect(destinationCanvas, SIGNAL(shapeContextMenuRequested(const QPoint&)), this, SLOT(showLayerContextMenu(const QPoint&)));
-  connect(outputWindow->getCanvas(), SIGNAL(shapeContextMenuRequested(const QPoint&)), this, SLOT(showLayerContextMenu(const QPoint&)));
+  connect(layerItemDelegate, &LayerItemDelegate::itemContextMenuRequested, this, &MainWindow::showLayerContextMenu, Qt::QueuedConnection);
+  connect(destinationCanvas, &MapperGLCanvas::shapeContextMenuRequested, this, &MainWindow::showLayerContextMenu);
+  connect(outputWindow->getCanvas(), &MapperGLCanvas::shapeContextMenuRequested, this, &MainWindow::showLayerContextMenu);
 }
 
 void MainWindow::createSourceContextMenu()
@@ -2605,8 +2603,8 @@ void MainWindow::createSourceContextMenu()
   sourceCanvas->setContextMenuPolicy(Qt::CustomContextMenu);
 
   // Connexions
-  connect(sourceList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showSourceContextMenu(const QPoint&)));
-  connect(sourceCanvas, SIGNAL(shapeContextMenuRequested(const QPoint&)), this, SLOT(showSourceContextMenu(const QPoint&)));
+  connect(sourceList, &QListWidget::customContextMenuRequested, this, &MainWindow::showSourceContextMenu);
+  connect(sourceCanvas, &MapperGLCanvas::shapeContextMenuRequested, this, &MainWindow::showSourceContextMenu);
 }
 
 void MainWindow::createToolBars()
@@ -2973,7 +2971,7 @@ void MainWindow::updateScreenActions()
     if (action == screenActions.at(preferredScreen)) {
       action->setChecked(true);
     }
-    connect(action, SIGNAL(triggered()), this, SLOT(setupOutputScreen()));
+    connect(action, &QAction::triggered, this, &MainWindow::setupOutputScreen);
     screenActionGroup->addAction(action);
   }
 }
@@ -2989,8 +2987,7 @@ void MainWindow::updateMediaListActions()
       mediaAction->setText(tr("&%1 %2").arg(i + 1).arg(mappingManager->getSource(i)->getName()));
       mediaAction->setData(mappingManager->getSource(i)->getId());
       mediaAction->setVisible(true);
-      connect(mediaAction, SIGNAL(triggered()),
-              this, SLOT(loadLayerMedia()));
+      connect(mediaAction, &QAction::triggered, this, &MainWindow::loadLayerMedia);
       // Add new media on action list
       _changeLayerMediaMenu->addAction(mediaAction);
     }
@@ -3149,25 +3146,19 @@ void MainWindow::addSourceItem(uid sourceId, const QIcon& icon, const QString& n
   //  connect(sourceGui.get(), SIGNAL(valueChanged()),
   //          this,           SLOT(updateCanvases()));
 
-  connect(sourceGui.data(), SIGNAL(valueChanged(Source::ptr)),
-          this,            SLOT(handleSourceChanged(Source::ptr)));
+  connect(sourceGui.data(), &SourceGui::valueChanged, this, &MainWindow::handleSourceChanged);
 
-  connect(source.data(), SIGNAL(propertyChanged(uid, QString, QVariant)),
-          this,           SLOT(sourcePropertyChanged(uid, QString, QVariant)));
+  connect(source.data(), &Source::propertyChanged, this, &MainWindow::sourcePropertyChanged);
 
   // TODO: attention: if mapping is invisible canvases will be updated for no reason
-  connect(source.data(), SIGNAL(propertyChanged(uid, QString, QVariant)),
-          this,           SLOT(updateCanvases()));
+  connect(source.data(), &Source::propertyChanged, this, &MainWindow::updateCanvases);
 
 #ifdef HAVE_SYPHON
   // Fit input shapes once a Syphon source's real resolution becomes known.
   // Queued so the shapes are not mutated mid-paint (the signal fires while
   // rendering the source).
   if (sourceType == SourceType::Syphon)
-    connect(qSharedPointerCast<Syphon>(source).data(),
-            SIGNAL(frameSizeKnown(int, int, int)),
-            this, SLOT(autoFitSyphonInputShapes(int, int, int)),
-            Qt::QueuedConnection);
+    connect(qSharedPointerCast<Syphon>(source).data(), &Syphon::frameSizeKnown, this, &MainWindow::autoFitSyphonInputShapes, Qt::QueuedConnection);
 #endif
 
   // Add source item to sourceList widget.
@@ -3291,25 +3282,19 @@ void MainWindow::addLayerItem(uid layerId)
   layerPropertyPanel->setEnabled(true);
 
   // When mapper value is changed, update canvases.
-  connect(mapper.data(), SIGNAL(valueChanged()),
-          this,          SLOT(updateCanvases()));
+  connect(mapper.data(), &LayerGui::valueChanged, this, &MainWindow::updateCanvases);
 
   // Also update playing state in case source was changed.
-  connect(mapper.data(), SIGNAL(sourceChanged()),
-          this,          SLOT(updatePlayingState()));
+  connect(mapper.data(), &LayerGui::sourceChanged, this, &MainWindow::updatePlayingState);
 
-  connect(sourceCanvas,  SIGNAL(shapeChanged(MShape*)),
-          mapper.data(), SLOT(updateShape(MShape*)));
+  connect(sourceCanvas, &MapperGLCanvas::shapeChanged, mapper.data(), &LayerGui::updateShape);
 
-  connect(destinationCanvas, SIGNAL(shapeChanged(MShape*)),
-          mapper.data(),     SLOT(updateShape(MShape*)));
+  connect(destinationCanvas, &MapperGLCanvas::shapeChanged, mapper.data(), &LayerGui::updateShape);
 
-  connect(layer.data(), SIGNAL(propertyChanged(uid, QString, QVariant)),
-          this,           SLOT(layerPropertyChanged(uid, QString, QVariant)));
+  connect(layer.data(), &Layer::propertyChanged, this, &MainWindow::layerPropertyChanged);
 
   // TODO: attention: if mapping is invisible canvases will be updated for no reason
-  connect(layer.data(), SIGNAL(propertyChanged(uid, QString, QVariant)),
-          this,           SLOT(updateCanvases()));
+  connect(layer.data(), &Layer::propertyChanged, this, &MainWindow::updateCanvases);
 
   // Switch to mapping tab.
   contentTab->setCurrentWidget(layerSplitter);
@@ -3759,66 +3744,48 @@ const QIcon MainWindow::getSourceIcon(Source::ptr source)
 
 void MainWindow::connectProjectWidgets()
 {
-  connect(sourceList, SIGNAL(itemSelectionChanged()),
-          this,      SLOT(handleSourceItemSelectionChanged()));
+  connect(sourceList, &QListWidget::itemSelectionChanged, this, &MainWindow::handleSourceItemSelectionChanged);
 
-  connect(sourceList, SIGNAL(itemPressed(QListWidgetItem*)),
-          this,      SLOT(handleSourceItemSelected(QListWidgetItem*)));
+  connect(sourceList, &QListWidget::itemPressed, this, &MainWindow::handleSourceItemSelected);
 
-  connect(sourceList, SIGNAL(itemActivated(QListWidgetItem*)),
-          this,      SLOT(handleSourceItemSelected(QListWidgetItem*)));
+  connect(sourceList, &QListWidget::itemActivated, this, &MainWindow::handleSourceItemSelected);
   // Rename Source with double click
-  connect(sourceList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-          this,      SLOT(renameSourceItem()));
+  connect(sourceList, &QListWidget::itemDoubleClicked, this, &MainWindow::renameSourceItem);
   // When finish to edit mapping item
-  connect(sourceList->itemDelegate(), SIGNAL(commitData(QWidget*)),
-          this, SLOT(sourceListEditEnd(QWidget*)));
+  connect(sourceList->itemDelegate(), &QAbstractItemDelegate::commitData, this, &MainWindow::sourceListEditEnd);
 
-  connect(layerList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-          this,        SLOT(handleLayerItemSelectionChanged(QModelIndex)));
+  connect(layerList->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MainWindow::handleLayerItemSelectionChanged);
 
-  connect(layerListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-          this,        SLOT(handleLayerItemChanged(QModelIndex)));
+  connect(layerListModel, &LayerListModel::dataChanged, this, &MainWindow::handleLayerItemChanged);
 
-  connect(layerListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
-          this,                 SLOT(handleLayerIndexesMoved()));
+  connect(layerListModel, &LayerListModel::rowsMoved, this, &MainWindow::handleLayerIndexesMoved);
 
-  connect(layerItemDelegate, SIGNAL(itemDuplicated(uid)),
-          this, SLOT(duplicateLayer(uid)));
+  connect(layerItemDelegate, &LayerItemDelegate::itemDuplicated, this, &MainWindow::duplicateLayer);
 
-  connect(layerItemDelegate, SIGNAL(itemRemoved(uid)),
-          this, SLOT(deleteLayer(uid)));
+  connect(layerItemDelegate, &LayerItemDelegate::itemRemoved, this, &MainWindow::deleteLayer);
 
-  connect(_preferenceDialog, SIGNAL(settingSaved()), this, SLOT(updateSettings()));
+  connect(_preferenceDialog, &PreferenceDialog::settingSaved, this, &MainWindow::updateSettings);
 }
 
 void MainWindow::disconnectProjectWidgets()
 {
-  disconnect(sourceList, SIGNAL(itemSelectionChanged()),
-             this,      SLOT(handleSourceItemSelectionChanged()));
+  disconnect(sourceList, &QListWidget::itemSelectionChanged, this, &MainWindow::handleSourceItemSelectionChanged);
 
-  disconnect(sourceList, SIGNAL(itemPressed(QListWidgetItem*)),
-             this,      SLOT(handleSourceItemSelected(QListWidgetItem*)));
+  disconnect(sourceList, &QListWidget::itemPressed, this, &MainWindow::handleSourceItemSelected);
 
-  disconnect(sourceList, SIGNAL(itemActivated(QListWidgetItem*)),
-             this,      SLOT(handleSourceItemSelected(QListWidgetItem*)));
+  disconnect(sourceList, &QListWidget::itemActivated, this, &MainWindow::handleSourceItemSelected);
 
-  disconnect(layerList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-          this,        SLOT(handleLayerItemSelectionChanged(QModelIndex)));
+  disconnect(layerList->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MainWindow::handleLayerItemSelectionChanged);
 
-  disconnect(layerListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-          this,        SLOT(handleLayerItemChanged(QModelIndex)));
+  disconnect(layerListModel, &LayerListModel::dataChanged, this, &MainWindow::handleLayerItemChanged);
 
-  disconnect(layerListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
-          this,                 SLOT(handleLayerIndexesMoved()));
+  disconnect(layerListModel, &LayerListModel::rowsMoved, this, &MainWindow::handleLayerIndexesMoved);
 
-  disconnect(layerItemDelegate, SIGNAL(itemDuplicated(uid)),
-          this, SLOT(duplicateLayer(uid)));
+  disconnect(layerItemDelegate, &LayerItemDelegate::itemDuplicated, this, &MainWindow::duplicateLayer);
 
-  disconnect(layerItemDelegate, SIGNAL(itemRemoved(uid)),
-          this, SLOT(deleteLayer(uid)));
+  disconnect(layerItemDelegate, &LayerItemDelegate::itemRemoved, this, &MainWindow::deleteLayer);
 
-  disconnect(_preferenceDialog, SIGNAL(settingSaved()), this, SLOT(updateSettings()));
+  disconnect(_preferenceDialog, &PreferenceDialog::settingSaved, this, &MainWindow::updateSettings);
 }
 
 uid MainWindow::getItemId(const QListWidgetItem& item)
@@ -3928,7 +3895,7 @@ void MainWindow::startOscReceiver()
     osc_interface->start();
   }
   osc_timer = new QTimer(this); // FIXME: memleak?
-  connect(osc_timer, SIGNAL(timeout()), this, SLOT(pollOscInterface()));
+  connect(osc_timer, &QTimer::timeout, this, &MainWindow::pollOscInterface);
   osc_timer->start();
 }
 
