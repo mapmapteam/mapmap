@@ -919,8 +919,8 @@ No camera available in your system</source>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1805"/>
-        <source>&amp;Open...</source>
-        <translation>&amp;開放...</translation>
+        <source>&amp;Open…</source>
+        <translation>&amp;開放…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1808"/>
@@ -939,13 +939,13 @@ No camera available in your system</source>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1825"/>
-        <source>Save &amp;As...</source>
-        <translation>&amp;儲存至...</translation>
+        <source>Save &amp;As…</source>
+        <translation>&amp;儲存至…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1828"/>
-        <source>Save the project as...</source>
-        <translation>儲存至...</translation>
+        <source>Save the project as…</source>
+        <translation>儲存至…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1857"/>
@@ -954,23 +954,23 @@ No camera available in your system</source>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1862"/>
-        <source>&amp;Import Media File...</source>
-        <translation>&amp;匯入媒體文件...</translation>
+        <source>&amp;Import Media File…</source>
+        <translation>&amp;匯入媒體文件…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1865"/>
-        <source>Import a video or image file...</source>
-        <translation>導入影片或圖像...</translation>
+        <source>Import a video or image file…</source>
+        <translation>導入影片或圖像…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1872"/>
-        <source>Open &amp;Camera Device...</source>
-        <translation>打開 &amp;相機設備...</translation>
+        <source>Open &amp;Camera Device…</source>
+        <translation>打開 &amp;相機設備…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1876"/>
-        <source>Choose your camera device...</source>
-        <translation>選擇相機設備...</translation>
+        <source>Choose your camera device…</source>
+        <translation>選擇相機設備…</translation>
     </message>
     <message>
         <source>Add &amp;Color Paint...</source>
@@ -1076,13 +1076,13 @@ No camera available in your system</source>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2099"/>
-        <source>&amp;Preferences...</source>
-        <translation>&amp;偏好...</translation>
+        <source>&amp;Preferences…</source>
+        <translation>&amp;偏好…</translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="2102"/>
-        <source>Configure preferences...</source>
-        <translation>配置偏好...</translation>
+        <source>Configure preferences…</source>
+        <translation>配置偏好…</translation>
     </message>
     <message>
         <source>Add &amp;Mesh</source>
@@ -1245,22 +1245,22 @@ No camera available in your system</source>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1882"/>
-        <source>Add &amp;Color Source...</source>
+        <source>Add &amp;Color Source…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1885"/>
-        <source>Add a color source...</source>
+        <source>Add a color source…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1893"/>
-        <source>Add &amp;Syphon Source...</source>
+        <source>Add &amp;Syphon Source…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/MainWindow.cpp" line="1896"/>
-        <source>Receive live video from another application via Syphon...</source>
+        <source>Receive live video from another application via Syphon…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
