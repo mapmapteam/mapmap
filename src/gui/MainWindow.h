@@ -175,6 +175,9 @@ private slots:
 
   void openShortcutWindow();
 
+  /// Shows the first-run / onboarding welcome dialog.
+  void showWelcomeDialog();
+
   void updateSettings();
 
   void updateLayerListColumnWidth();
@@ -483,6 +486,7 @@ private:
   QAction *docAction;
   QAction *feedbackAction;
   QAction *shortcutAction;
+  QAction *welcomeAction;
 
   // Screen output action
   QList<QAction *> screenActions;

@@ -22,6 +22,7 @@
 #include "MainWindow.h"
 #include "PreferenceDialog.h"
 #include "AboutDialog.h"
+#include "WelcomeDialog.h"
 #include "ShortcutWindow.h"
 #include "Commands.h"
 #include "ProjectWriter.h"
@@ -117,6 +118,10 @@ MainWindow::MainWindow()
 
   // Start playing by default.
   play();
+
+  // Greet the user on first launch (until they opt out from the dialog).
+  if (WelcomeDialog::showOnStartup())
+    QTimer::singleShot(0, this, &MainWindow::showWelcomeDialog);
 }
 
 MainWindow::~MainWindow()
@@ -1787,6 +1792,13 @@ void MainWindow::createLayout()
   setFocus();
 }
 
+void MainWindow::showWelcomeDialog()
+{
+  WelcomeDialog dialog(this);
+  connect(&dialog, &WelcomeDialog::importMediaRequested, this, &MainWindow::importMedia);
+  dialog.exec();
+}
+
 void MainWindow::createActions()
 {
   // New.
@@ -2382,6 +2394,9 @@ void MainWindow::createActions()
   shortcutAction = new QAction(tr("&Keyboard shortcuts"), this);
   shortcutAction->setShortcut(Qt::CTRL | Qt::Key_K);
   connect(shortcutAction, &QAction::triggered, this, &MainWindow::openShortcutWindow);
+  // Welcome / onboarding dialog
+  welcomeAction = new QAction(tr("Welcome to %1…").arg(MM::APPLICATION_NAME), this);
+  connect(welcomeAction, &QAction::triggered, this, &MainWindow::showWelcomeDialog);
 
   // All available screen as action
   updateScreenActions();
@@ -2528,6 +2543,7 @@ void MainWindow::createMenus()
 
   // Help.
   helpMenu = menuBar->addMenu(tr("&Help"));
+  helpMenu->addAction(welcomeAction);
   helpMenu->addAction(docAction);
   helpMenu->addAction(shortcutAction);
   helpMenu->addSeparator();
