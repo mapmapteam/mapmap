@@ -68,8 +68,8 @@ LayerGui::LayerGui(Layer::ptr layer)
   // Collapse output shape.
   _propertyBrowser->setExpanded(_propertyBrowser->items(_outputItem).at(0), false);
 
-  connect(_variantManager, SIGNAL(valueChanged(QtProperty*, const QVariant&)),
-          this,            SLOT(setValue(QtProperty*, const QVariant&)));
+  connect(_variantManager, &QtVariantPropertyManager::valueChanged,
+          this, qOverload<QtProperty*, const QVariant&>(&LayerGui::setValue));
   //qDebug() << "Creating mapper" << endl;
 }
 
