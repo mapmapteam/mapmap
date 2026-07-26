@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "VideoImpl.h"
-#include <QElapsedTimer>
 #include <QSettings>
 #include <QDebug>
 
@@ -151,19 +150,5 @@ void VideoImpl::update()
 
 void VideoImpl::lockMutex()   { _mutex.lock(); }
 void VideoImpl::unlockMutex() { _mutex.unlock(); }
-
-bool VideoImpl::waitForNextBits(int timeout, const uchar** bits)
-{
-  QElapsedTimer timer;
-  timer.start();
-  while (timer.elapsed() < timeout) {
-    if (hasBits() && bitsHaveChanged()) {
-      if (bits)
-        *bits = getBits();
-      return true;
-    }
-  }
-  return false;
-}
 
 }

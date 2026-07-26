@@ -24,6 +24,7 @@
 
 #include <QtGlobal>
 
+#include <functional>
 #include <string>
 #include <QColor>
 #include <QElapsedTimer>
@@ -332,6 +333,9 @@ public:
   // Thumbnail generation timeout (in ms).
   static const int ICON_TIMEOUT = 1000;
 
+  // How often to re-check for a decoded frame while polling (in ms).
+  static const int THUMBNAIL_POLL_INTERVAL = 50;
+
 public:
   Q_INVOKABLE Video(int id=NULL_UID);
   Video(const QString uri_, VideoType type, double rate, uid id=NULL_UID);
@@ -393,8 +397,24 @@ protected:
   /// Pauses playback.
   virtual void _doPause();
 
-  // Try to generate a thumbnail from currently loaded movie.
+  // Sets a generic fallback icon (file icon, or a generic video/camera icon).
+  void _setFallbackIcon();
+
+  // Builds a thumbnail icon from the frame currently held by _impl. Assumes
+  // the caller has already confirmed a fresh frame is available (see
+  // _pollForBits()).
   bool _generateThumbnail();
+
+  // Polls (via the Qt event loop, never blocking) until _impl has a fresh
+  // frame, then calls onReady. Gives up silently after attemptsLeft tries.
+  //
+  // Qt Multimedia delivers frames asynchronously through the event loop of
+  // the thread that created the QMediaPlayer/QVideoSink (here, the GUI
+  // thread), so this cannot be replaced by a synchronous/blocking wait:
+  // blocking the GUI thread also blocks the delivery of the very frame being
+  // waited for, and starves the media backend's own event processing while
+  // doing so. See the removed VideoImpl::waitForNextBits().
+  void _pollForBits(std::function<void()> onReady, int attemptsLeft);
 
   QString _uri;
   QIcon _icon;
