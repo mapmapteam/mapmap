@@ -40,7 +40,7 @@ public:
   bool loadMovie(const QString& path) override;
   bool isLive() override { return false; }
 
-  bool setPlayState(bool play);
+  bool setPlayState(bool play) override;
   bool seekTo(qint64 positionMs) override;
   void setRate(double rate) override;
   void setVolume(double volume) override;
