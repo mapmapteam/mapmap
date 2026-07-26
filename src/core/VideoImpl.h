@@ -108,9 +108,6 @@ public:
   /// Unlocks mutex.
   void unlockMutex();
 
-  /// Blocks until new bits are available (up to timeout ms). Returns false on timeout.
-  bool waitForNextBits(int timeout, const uchar** bits = nullptr);
-
 protected:
   virtual void freeResources();
 

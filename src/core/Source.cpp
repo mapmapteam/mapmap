@@ -27,6 +27,7 @@
 #include <QFileInfo>
 #include <QImageReader>
 #include <QSettings>
+#include <QTimer>
 
 namespace mmp {
 
@@ -355,17 +356,40 @@ bool Video::setUri(const QString &uri)
     // Set uri.
     _uri = uri;
 
-    // Try to get thumbnail.
-    // Wait for the first samples to be available to make sure we are ready.
-    if (!_impl->waitForNextBits(ICON_TIMEOUT))
-    {
-      qDebug() << "No bits coming" << Qt::endl;
-      return false;
-    }
+    // Show a generic icon right away. A real thumbnail (video files only) is
+    // filled in below, asynchronously, once frames actually start arriving:
+    // we cannot wait for it here without blocking the GUI thread, which is
+    // also the thread Qt Multimedia needs free to deliver those frames.
+    _setFallbackIcon();
 
-    if (_videoType != VIDEO_WEBCAM) { // Generated thumbnail if source type is not camera
-      if (!_generateThumbnail())
-        qDebug() << "Could not generate thumbnail for " << uri << ": using generic icon." << Qt::endl;
+    const int maxAttempts = ICON_TIMEOUT / THUMBNAIL_POLL_INTERVAL;
+
+    if (_videoType == VIDEO_WEBCAM)
+    {
+      // No thumbnail to generate for a camera: just confirm the feed comes up.
+      _pollForBits([this]() {
+        _emitPropertyChanged("icon");
+      }, maxAttempts);
+    }
+    else
+    {
+      _pollForBits([this, maxAttempts]() {
+        // Try seeking to the middle of the movie for a representative frame.
+        if (_impl->seekTo(0.5))
+        {
+          _pollForBits([this]() {
+            if (!_generateThumbnail())
+              qDebug() << "Could not generate thumbnail for " << _uri << ": using generic icon." << Qt::endl;
+            _impl->resetMovie();
+            _emitPropertyChanged("icon");
+          }, maxAttempts);
+        }
+        else
+        {
+          _impl->resetMovie();
+          _emitPropertyChanged("icon");
+        }
+      }, maxAttempts);
     }
 
     _emitPropertyChanged("uri");
@@ -387,36 +411,43 @@ void Video::_doPause()
   _impl->setPlayState(false);
 }
 
-bool Video::_generateThumbnail()
+void Video::_setFallbackIcon()
 {
   static QFileIconProvider provider;
 
-  // Default (in case seeking and loading don't work).
   _icon = provider.icon(QFileInfo(_uri));
-  if (_icon.isNull()) {
-    if (_uri.startsWith(QString("/dev/video"))) {
-      _icon = QIcon(":/add-camera");
-    }
-    else {
-      _icon = QIcon(":/add-video");
-    }
+  if (_icon.isNull())
+    _icon = (_videoType == VIDEO_WEBCAM) ? QIcon(":/add-camera") : QIcon(":/add-video");
+}
+
+void Video::_pollForBits(std::function<void()> onReady, int attemptsLeft)
+{
+  if (_impl->hasBits() && _impl->bitsHaveChanged())
+  {
+    onReady();
+    return;
   }
 
-  // Try seeking to the middle of the movie.
-  if (!_impl->seekTo(0.5))
+  if (attemptsLeft <= 0)
   {
-    _impl->resetMovie();
-    return false;
+    qDebug() << "No bits coming for " << _uri << Qt::endl;
+    return;
   }
 
-  // Try to get a sample from the current position.
-  // NOTE: There is no guarantee the sample has yet been acquired.
-  const uchar* bits;
-  if (!_impl->waitForNextBits(ICON_TIMEOUT, &bits))
-  {
-    qDebug() << "Second waiting wrong..." << Qt::endl;
+  // Re-check shortly, giving the Qt event loop a chance to actually run and
+  // deliver the frame we're waiting for.
+  QTimer::singleShot(THUMBNAIL_POLL_INTERVAL, this, [this, onReady, attemptsLeft]() {
+    _pollForBits(onReady, attemptsLeft - 1);
+  });
+}
+
+bool Video::_generateThumbnail()
+{
+  // Assumes the caller (_pollForBits()'s onReady callback) has already
+  // confirmed a fresh frame is available.
+  const uchar* bits = _impl->getBits();
+  if (!bits)
     return false;
-  }
 
   // Copy bits into thumbnail QImage.
   QImage thumbnail(getWidth(), getHeight(), QImage::Format_ARGB32);
@@ -434,9 +465,6 @@ bool Video::_generateThumbnail()
   // Generate icon.
   _icon = QIcon(QPixmap::fromImage(thumbnail).scaled(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE,
                                                      Qt::IgnoreAspectRatio));
-
-  // Reset movie.
-  _impl->resetMovie();
 
   return true;
 }
