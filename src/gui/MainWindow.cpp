@@ -375,6 +375,8 @@ void MainWindow::sourcePropertyChanged(uid id, QString propertyName, QVariant va
   QListWidgetItem* sourceItem = getItemFromId(*sourceList, id);
   if (propertyName == "name")
     sourceItem->setText(source->getName());
+  else if (propertyName == "icon")
+    sourceItem->setIcon(source->getIcon());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
