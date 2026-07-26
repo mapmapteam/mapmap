@@ -81,7 +81,7 @@ public:
   /// Loads a new media source. Subclasses override to set up their player.
   virtual bool loadMovie(const QString& filename);
 
-  bool setPlayState(bool play);
+  virtual bool setPlayState(bool play);
   bool getPlayState() const { return _playState; }
 
   bool seekIsEnabled() const { return _seekEnabled; }
