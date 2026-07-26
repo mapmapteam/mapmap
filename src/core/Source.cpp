@@ -206,6 +206,7 @@ void Image::_doPlay()
 /* Implementation of the Video class */
 Video::Video(int id) : Texture(id),
     _uri(""),
+    _videoType(VIDEO_URI),
     _impl(nullptr)
 {
   _impl = new VideoPlayerImpl();
