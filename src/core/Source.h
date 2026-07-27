@@ -330,11 +330,25 @@ class Video : public Texture
   Q_PROPERTY(double rate READ getRate WRITE setRate)
 
 public:
-  // Thumbnail generation timeout (in ms).
+  // Thumbnail generation timeout (in ms): how long to wait for the *seeked*
+  // frame once _generateThumbnail() has asked to seek to it. Fine to give up
+  // quickly here — worst case is a generic icon instead of a real thumbnail.
   static const int ICON_TIMEOUT = 1000;
+
+  // How long to wait for the *first* decoded frame (gates both the thumbnail
+  // attempt and frameSizeKnown, i.e. shape auto-fit). Much more generous than
+  // ICON_TIMEOUT: giving up here permanently strands any shape created before
+  // the deadline at the DEFAULT_WIDTH/HEIGHT placeholder, which is a real
+  // mis-crop, not just a missing thumbnail.
+  static const int FIRST_FRAME_TIMEOUT = 15000;
 
   // How often to re-check for a decoded frame while polling (in ms).
   static const int THUMBNAIL_POLL_INTERVAL = 50;
+
+  /// Frame size assumed before the first frame arrives (drives a new mapping's
+  /// initial input shape; auto-fitted once the real resolution is known).
+  static const int DEFAULT_WIDTH  = 640;
+  static const int DEFAULT_HEIGHT = 480;
 
 public:
   Q_INVOKABLE Video(int id=NULL_UID);
@@ -388,6 +402,12 @@ public:
   static bool hasVideoSupport();
 
   virtual QIcon getIcon() const { return _icon; }
+
+signals:
+  /// Emitted once, the first time a real frame's resolution becomes known, so
+  /// the UI can fit input shapes created (at the default size) before any
+  /// frame had arrived.
+  void frameSizeKnown(int sourceId, int width, int height);
 
 protected:
 
