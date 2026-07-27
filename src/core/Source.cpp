@@ -252,12 +252,14 @@ void Video::build()
 
 int Video::getWidth() const
 {
-  return this->_impl->getWidth();
+  int w = this->_impl->getWidth();
+  return w > 0 ? w : DEFAULT_WIDTH;
 }
 
 int Video::getHeight() const
 {
-  return this->_impl->getHeight();
+  int h = this->_impl->getHeight();
+  return h > 0 ? h : DEFAULT_HEIGHT;
 }
 
 void Video::update() {
@@ -362,18 +364,24 @@ bool Video::setUri(const QString &uri)
     // also the thread Qt Multimedia needs free to deliver those frames.
     _setFallbackIcon();
 
-    const int maxAttempts = ICON_TIMEOUT / THUMBNAIL_POLL_INTERVAL;
+    const int firstFrameMaxAttempts = FIRST_FRAME_TIMEOUT / THUMBNAIL_POLL_INTERVAL;
+    const int thumbnailMaxAttempts  = ICON_TIMEOUT / THUMBNAIL_POLL_INTERVAL;
 
     if (_videoType == VIDEO_WEBCAM)
     {
       // No thumbnail to generate for a camera: just confirm the feed comes up.
       _pollForBits([this]() {
+        emit frameSizeKnown(getId(), getWidth(), getHeight());
         _emitPropertyChanged("icon");
-      }, maxAttempts);
+      }, firstFrameMaxAttempts);
     }
     else
     {
-      _pollForBits([this, maxAttempts]() {
+      _pollForBits([this, thumbnailMaxAttempts]() {
+        // The first frame just arrived, so getWidth()/getHeight() now report
+        // the real resolution instead of the DEFAULT_WIDTH/HEIGHT placeholder.
+        emit frameSizeKnown(getId(), getWidth(), getHeight());
+
         // Try seeking to the middle of the movie for a representative frame.
         if (_impl->seekTo(0.5))
         {
@@ -382,14 +390,14 @@ bool Video::setUri(const QString &uri)
               qDebug() << "Could not generate thumbnail for " << _uri << ": using generic icon." << Qt::endl;
             _impl->resetMovie();
             _emitPropertyChanged("icon");
-          }, maxAttempts);
+          }, thumbnailMaxAttempts);
         }
         else
         {
           _impl->resetMovie();
           _emitPropertyChanged("icon");
         }
-      }, maxAttempts);
+      }, firstFrameMaxAttempts);
     }
 
     _emitPropertyChanged("uri");
