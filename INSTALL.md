@@ -18,6 +18,15 @@ Alternatively:
 ```
 ./scripts/build.sh
 ```
+### Docker
+
+U will need: https://github.com/mviereck/x11docker
+
+`$ docker build -t mapmap .`
+
+the run using:
+`$ x11docker mapmap`
+
 
 ### Ubuntu
 
