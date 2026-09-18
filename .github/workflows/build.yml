@@ -96,33 +96,34 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v6
 
-    - name: Cache Homebrew
-      id: cache-brew
-      uses: actions/cache/restore@v5
+    # Only the downloaded bottles are cached. Caching /opt/homebrew/Cellar is a
+    # trap: the files come back, but Homebrew's symlinks (/opt/homebrew/opt/qt
+    # and the bin/ entries) do not, so `brew --prefix qt`/bin points to a
+    # directory that does not exist and qmake is not found.
+    - name: Cache Homebrew downloads
+      uses: actions/cache@v5
       with:
-        path: |
-          ~/Library/Caches/Homebrew
-          /opt/homebrew/Cellar/qt
-        key: brew-${{ runner.os }}-v1
+        path: ~/Library/Caches/Homebrew/downloads
+        key: brew-${{ runner.os }}-qt-v2
 
+    # Always run: `brew install` is a no-op when Qt is already installed, and it
+    # is what creates the symlinks the following steps rely on.
     - name: Install dependencies
-      if: steps.cache-brew.outputs.cache-hit != 'true'
       run: |
         brew install qt
+        echo "$(brew --prefix qt)/bin" >> "$GITHUB_PATH"
+
+    - name: Check Qt installation
+      run: qmake --version
 
     - name: Configure with qmake
-      run: |
-        export PATH="$(brew --prefix qt)/bin:$PATH"
-        qmake mapmap.pro CONFIG+=release
+      run: qmake mapmap.pro CONFIG+=release
 
     - name: Build
-      run: |
-        export PATH="$(brew --prefix qt)/bin:$PATH"
-        make -j$(sysctl -n hw.logicalcpu)
+      run: make -j$(sysctl -n hw.logicalcpu)
 
     - name: Build and run tests
       run: |
-        export PATH="$(brew --prefix qt)/bin:$PATH"
         cd tests/
         qmake6 tests.pro
         make -j$(sysctl -n hw.logicalcpu)
@@ -132,12 +133,3 @@ jobs:
       with:
         name: MapMap-macos
         path: MapMap.app/
-
-    - name: Always cache brew
-      if: always() && steps.cache-brew.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v5
-      with:
-        key: ${{ steps.cache-brew.outputs.cache-primary-key }}
-        path: |
-          ~/Library/Caches/Homebrew
-          /opt/homebrew/Cellar/qt
