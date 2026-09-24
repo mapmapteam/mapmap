@@ -14,7 +14,7 @@ modules:
   - name: mapmap
     buildsystem: simple
     build-commands:
-      - qmake6 PREFIX=/app mapmap.pro
+      - qmake PREFIX=/app mapmap.pro
       - make -j$FLATPAK_BUILDER_N_JOBS
       - make install
     sources:
