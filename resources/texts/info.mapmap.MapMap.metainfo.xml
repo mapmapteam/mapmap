@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>info.mapmap.MapMap</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>MapMap</name>
+  <summary>Video projection mapping editor</summary>
+  <description>
+    <p>MapMap is a free video mapping software for artists and small teams. Draw quads, triangles, meshes and ellipses over the surfaces you project on, then fill them with video, images, colours or a camera feed.</p>
+  </description>
+  <launchable type="desktop-id">info.mapmap.MapMap.desktop</launchable>
+  <provides>
+    <binary>mapmap</binary>
+  </provides>
+  <url type="homepage">https://mapmapteam.github.io/</url>
+  <url type="bugtracker">https://github.com/mapmapteam/mapmap/issues</url>
+  <url type="vcs-browser">https://github.com/mapmapteam/mapmap</url>
+  <developer id="info.mapmap">
+    <name>The MapMap team</name>
+  </developer>
+  <categories>
+    <category>AudioVideo</category>
+    <category>Video</category>
+  </categories>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="1.0.0~alpha.1" date="2026-09-18" type="development"/>
+  </releases>
+</component>

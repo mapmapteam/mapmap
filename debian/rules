@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	qmake6 PREFIX=/usr mapmap.pro
+
+override_dh_auto_install:
+	$(MAKE) install INSTALL_ROOT=$(CURDIR)/debian/mapmap

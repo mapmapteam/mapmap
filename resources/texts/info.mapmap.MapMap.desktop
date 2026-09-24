@@ -11,4 +11,4 @@ Terminal=false
 StartupNotify=true
 Type=Application
 Categories=Qt;AudioVideo;Video;
-Icon=/usr/share/icons/hicolor/scalable/apps/mapmap.svg
+Icon=info.mapmap.MapMap
