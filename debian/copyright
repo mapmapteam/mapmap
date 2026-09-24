@@ -1,0 +1,9 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: MapMap
+Source: https://github.com/mapmapteam/mapmap
+
+Files: *
+Copyright: 2013-2026 Sofian Audry, Alexandre Quessy, Dame Diongue and MapMap contributors
+License: GPL-3.0+
+ On Debian systems, the full text of the GNU General Public License
+ version 3 can be found in /usr/share/common-licenses/GPL-3.

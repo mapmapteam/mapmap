@@ -1,0 +1,116 @@
+name: Linux packages
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  appimage:
+    # Built on the oldest supported Ubuntu so the AppImage runs on newer systems too.
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v6
+
+    - uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.3'
+        modules: 'qtmultimedia'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev libxcb-cursor0 libxkbcommon-x11-0 xvfb
+
+    - name: Build
+      run: |
+        qmake PREFIX=/usr mapmap.pro
+        make -j$(nproc)
+        make install INSTALL_ROOT=AppDir
+
+    - name: Make AppImage
+      env:
+        APPIMAGE_EXTRACT_AND_RUN: 1
+        EXTRA_QT_MODULES: multimedia
+      run: |
+        export LINUXDEPLOY_OUTPUT_VERSION=$(sed -n 's/^MAPMAP_VERSION = //p' mapmap.pro)
+        wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+        wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+        chmod +x linuxdeploy*.AppImage
+        ./linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage
+
+    - name: Check the AppImage
+      run: |
+        find AppDir -name 'libffmpegmediaplugin.so' | grep -q . || { echo "video plugin missing"; exit 1; }
+        # The app should still be running when timeout stops it (exit 124).
+        xvfb-run -a timeout 10 ./MapMap-*-x86_64.AppImage --appimage-extract-and-run || test $? -eq 124
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: MapMap-AppImage
+        path: MapMap-*-x86_64.AppImage
+
+  deb:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y debhelper qmake6 qt6-base-dev libqt6opengl6-dev qt6-multimedia-dev qt6-tools-dev xvfb
+
+    - name: Build
+      run: |
+        dpkg-buildpackage -b -us -uc
+        mv ../mapmap_*.deb .
+
+    - name: Check the package
+      run: |
+        sudo apt-get install -y ./mapmap_*.deb
+        xvfb-run -a timeout 10 mapmap || test $? -eq 124
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: MapMap-deb
+        path: mapmap_*.deb
+
+  flatpak:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Install Flatpak tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y flatpak flatpak-builder
+        flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+    - name: Build
+      run: |
+        flatpak-builder --user --install-deps-from=flathub --repo=repo build packaging/flatpak/info.mapmap.MapMap.yml
+        flatpak build-bundle repo MapMap.flatpak info.mapmap.MapMap --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: MapMap-flatpak
+        path: MapMap.flatpak
+
+  release:
+    # Attaches the three packages to the GitHub release when a version tag is pushed.
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [appimage, deb, flatpak]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/download-artifact@v7
+      with:
+        merge-multiple: true
+
+    - uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          MapMap-*-x86_64.AppImage
+          mapmap_*.deb
+          MapMap.flatpak

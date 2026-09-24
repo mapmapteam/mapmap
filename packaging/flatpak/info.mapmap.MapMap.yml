@@ -1,0 +1,26 @@
+app-id: info.mapmap.MapMap
+runtime: org.kde.Platform
+runtime-version: '6.11'
+sdk: org.kde.Sdk
+command: mapmap
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=all
+  - --filesystem=home
+modules:
+  - name: mapmap
+    buildsystem: simple
+    build-commands:
+      - qmake6 PREFIX=/app mapmap.pro
+      - make -j$FLATPAK_BUILDER_N_JOBS
+      - make install
+    sources:
+      - type: dir
+        path: ../..
+        skip:
+          - .flatpak-builder
+          - build
+          - repo

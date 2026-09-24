@@ -1,0 +1,21 @@
+Source: mapmap
+Section: video
+Priority: optional
+Maintainer: MapMap team <mapmap@artpluscode.com>
+Build-Depends: debhelper-compat (= 13),
+               qmake6,
+               qt6-base-dev,
+               libqt6opengl6-dev,
+               qt6-multimedia-dev,
+               qt6-tools-dev
+Standards-Version: 4.7.0
+Homepage: https://mapmapteam.github.io/
+Vcs-Browser: https://github.com/mapmapteam/mapmap
+
+Package: mapmap
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: video projection mapping editor
+ MapMap is a free video mapping software for artists and small teams.
+ Draw quads, triangles, meshes and ellipses over the surfaces you project
+ on, then fill them with video, images, colours or a camera feed.

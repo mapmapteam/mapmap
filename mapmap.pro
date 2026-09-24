@@ -58,6 +58,17 @@ system($$QMAKE_LRELEASE mapmap.pro) # Run lrelease
 # Linux-specific:
 unix:!macx {
     QMAKE_CXXFLAGS += -Wno-expansion-to-defined
+
+    # "make install" layout shared by the AppImage, Flatpak and .deb builds.
+    isEmpty(PREFIX): PREFIX = /usr
+    target.path = $$PREFIX/bin
+    desktop.files = resources/texts/info.mapmap.MapMap.desktop
+    desktop.path = $$PREFIX/share/applications
+    metainfo.files = resources/texts/info.mapmap.MapMap.metainfo.xml
+    metainfo.path = $$PREFIX/share/metainfo
+    icon.path = $$PREFIX/share/icons/hicolor/scalable/apps
+    icon.extra = install -Dm644 $$PWD/resources/images/logo/mapmap.svg $(INSTALL_ROOT)$$PREFIX/share/icons/hicolor/scalable/apps/info.mapmap.MapMap.svg
+    INSTALLS += target desktop metainfo icon
 }
 
 CONFIG -= qtquickcompiler

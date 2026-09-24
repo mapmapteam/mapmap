@@ -50,6 +50,20 @@ Install basic development tools for Qt 6 projects:
 sudo pacman -S qt6-tools qt6-multimedia qt6-base
 ```
 
+### Linux packages
+
+The "Linux packages" workflow builds an AppImage, a Flatpak bundle and a .deb on every push, and attaches them to the GitHub release when a version tag is pushed. To build them locally:
+
+```
+# .deb (Debian, Ubuntu 24.04 and later)
+dpkg-buildpackage -b -us -uc
+
+# Flatpak
+flatpak-builder --user --install-deps-from=flathub --install build packaging/flatpak/info.mapmap.MapMap.yml
+```
+
+The AppImage steps are in `.github/workflows/linux-packages.yml`.
+
 Build on macOS
 --------------
 
