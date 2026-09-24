@@ -51,28 +51,38 @@ jobs:
         path: MapMap-*-x86_64.AppImage
 
   deb:
+    # Each distribution names its Qt packages differently, so each gets its own .deb.
+    strategy:
+      matrix:
+        distro: ['ubuntu:24.04', 'ubuntu:26.04', 'debian:13']
     runs-on: ubuntu-24.04
+    container: ${{ matrix.distro }}
+    env:
+      DEBIAN_FRONTEND: noninteractive
     steps:
     - uses: actions/checkout@v6
 
     - name: Install build dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential debhelper qmake6 qt6-base-dev libqt6opengl6-dev qt6-multimedia-dev qt6-tools-dev xvfb
+        apt-get update
+        apt-get install -y build-essential debhelper qmake6 qt6-base-dev libqt6opengl6-dev qt6-multimedia-dev qt6-tools-dev xvfb xauth
+
+    - id: name
+      run: echo "suffix=$(echo '${{ matrix.distro }}' | tr ':' '-')" >> "$GITHUB_OUTPUT"
 
     - name: Build
       run: |
         dpkg-buildpackage -b -us -uc
-        mv ../mapmap_*.deb .
+        for f in ../mapmap_*_amd64.deb; do mv "$f" "$(basename "$f" _amd64.deb)_${{ steps.name.outputs.suffix }}_amd64.deb"; done
 
     - name: Check the package
       run: |
-        sudo apt-get install -y ./mapmap_*.deb
+        apt-get install -y ./mapmap_*.deb
         xvfb-run -a timeout 10 mapmap || test $? -eq 124
 
     - uses: actions/upload-artifact@v7
       with:
-        name: MapMap-deb
+        name: MapMap-deb-${{ steps.name.outputs.suffix }}
         path: mapmap_*.deb
 
   flatpak:

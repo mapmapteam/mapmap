@@ -52,10 +52,10 @@ sudo pacman -S qt6-tools qt6-multimedia qt6-base
 
 ### Linux packages
 
-The "Linux packages" workflow builds an AppImage, a Flatpak bundle and a .deb on every push, and attaches them to the GitHub release when a version tag is pushed. To build them locally:
+The "Linux packages" workflow builds an AppImage, a Flatpak bundle and a .deb each for Ubuntu 24.04, Ubuntu 26.04 and Debian 13 on every push, and attaches them to the GitHub release when a version tag is pushed. To build them locally:
 
 ```
-# .deb (Debian, Ubuntu 24.04 and later)
+# .deb, for the distribution you build it on
 dpkg-buildpackage -b -us -uc
 
 # Flatpak
