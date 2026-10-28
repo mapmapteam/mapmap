@@ -39,8 +39,12 @@
 
 namespace mmp {
 
+MainWindow* MainWindow::_instance = nullptr;
+
 MainWindow::MainWindow()
 {
+  _instance = this;
+
   // Create model.
 #if QT_VERSION >= 0x050500
   QMessageLogger(__FILE__, __LINE__, nullptr).info() << "Video support: " <<
@@ -3617,11 +3621,10 @@ QString MainWindow::locateMediaFile(const QString &uri, bool isImage)
 }
 
 MainWindow* MainWindow::window() {
-  static MainWindow* instance = nullptr;
-  if (!instance) {
-    instance = new MainWindow;
+  if (!_instance) {
+    new MainWindow; // sets _instance first thing
   }
-  return instance;
+  return _instance;
 }
 
 void MainWindow::updateCanvases()
