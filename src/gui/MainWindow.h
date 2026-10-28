@@ -363,6 +363,15 @@ public:
 
   static MainWindow* window();
 
+private:
+  // The singleton, published as soon as construction starts so that anything
+  // triggered from inside the constructor (e.g. restoring the output window in
+  // fullscreen repaints OutputGLCanvas, which asks for the main window) gets
+  // this instance instead of constructing a second one recursively.
+  static MainWindow* _instance;
+
+public:
+
   // Returns a short version of filename.
   static QString strippedName(const QString &fullFileName);
 
