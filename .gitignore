@@ -103,3 +103,6 @@ trash
 
 # Local development notes
 KNOWN-WARNINGS.txt
+
+# Parallel working copies (git worktrees) created by coding agents
+.claude/worktrees/
