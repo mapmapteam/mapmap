@@ -1,0 +1,93 @@
+{
+    "layers": [
+        {
+            "className": "TextureLayer",
+            "depth": "1",
+            "destination": {
+                "className": "Mesh",
+                "locked": "false",
+                "nColumns": "3",
+                "nRows": "2",
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        50,
+                        0
+                    ],
+                    [
+                        100,
+                        0
+                    ],
+                    [
+                        0,
+                        50
+                    ],
+                    [
+                        50,
+                        55
+                    ],
+                    [
+                        100,
+                        50
+                    ]
+                ]
+            },
+            "id": 1,
+            "locked": "false",
+            "name": "Mesh",
+            "opacity": "1",
+            "solo": "false",
+            "source": {
+                "className": "Mesh",
+                "locked": "false",
+                "nColumns": "3",
+                "nRows": "2",
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        0
+                    ],
+                    [
+                        2,
+                        0
+                    ],
+                    [
+                        0,
+                        2
+                    ],
+                    [
+                        1,
+                        2
+                    ],
+                    [
+                        2,
+                        2
+                    ]
+                ]
+            },
+            "sourceId": 1,
+            "visible": "true"
+        }
+    ],
+    "sources": [
+        {
+            "className": "Image",
+            "id": 1,
+            "locked": "false",
+            "name": "tiny",
+            "opacity": "1",
+            "rate": "1",
+            "uri": "media/tiny.png",
+            "x": 0,
+            "y": 0
+        }
+    ],
+    "version": "1.0.0-alpha.1"
+}
