@@ -48,6 +48,26 @@ void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPoi
   );
 }
 
+void uploadTextureBits(int width, int height, GLenum format, GLenum type,
+                       const uchar* bits, int& allocWidth, int& allocHeight)
+{
+  if (!bits || width <= 0 || height <= 0)
+    return;
+
+  if (width != allocWidth || height != allocHeight)
+  {
+    // (Re)allocate texture storage.
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, type, bits);
+    allocWidth  = width;
+    allocHeight = height;
+  }
+  else
+  {
+    // Same size: update in place, avoiding a GPU reallocation.
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, format, type, bits);
+  }
+}
+
 /**
  * Convenience function to map a variable from one coordinate space
  * to another.
