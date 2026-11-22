@@ -279,7 +279,7 @@ QJsonObject McpServer::handleToolsCall(const QJsonObject& params)
     const qreal fps = args.value("fps").toDouble();
     if (fps <= 0) return textResult("'fps' must be greater than 0.", true);
     _mainWindow->setFramesPerSecond(fps);
-    return textResult(QString("Frame rate set to %1 fps.").arg(fps));
+    return textResult(QString("Frame rate set to %1 fps.").arg(_mainWindow->framesPerSecond()));
   }
 
   // ---- Sources ----

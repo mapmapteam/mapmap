@@ -172,7 +172,7 @@ MainWindow::MainWindow()
   // Create and start timer.
   videoTimer = new QTimer(this);
   connect(videoTimer, &QTimer::timeout, this, &MainWindow::processFrame);
-  setFramesPerSecond(MM::DEFAULT_FRAMES_PER_SECOND);
+  setFramesPerSecond(QSettings().value("framesPerSecond", MM::DEFAULT_FRAMES_PER_SECOND).toDouble());
   videoTimer->start();
 
   // Create elapsed timer.
@@ -3870,8 +3870,9 @@ void MainWindow::enableDisplayControls(bool display)
 
 void MainWindow::setFramesPerSecond(qreal fps)
 {
-  _framesPerSecond = qMax(fps, 0.0);
-  videoTimer->setInterval( int( 1000 / _framesPerSecond ) );
+  // Clamp, which also guards the division below against zero.
+  _framesPerSecond = qBound(MM::MIN_FRAMES_PER_SECOND, fps, MM::MAX_FRAMES_PER_SECOND);
+  videoTimer->setInterval(qRound(MM::MILLISECONDS_PER_SECOND / _framesPerSecond));
 }
 
 void MainWindow::enableDisplaySourceControls(bool display)

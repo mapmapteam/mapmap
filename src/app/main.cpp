@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 
   // --frame-rate option
   QCommandLineOption frameRateOption(QStringList() << "r" << "frame-rate",
-    "Use a framerate of <frame-rate> per second.", "frame-rate", QString::number(MM::DEFAULT_FRAMES_PER_SECOND));
+    "Use a framerate of <frame-rate> per second (default: the one set in the preferences).", "frame-rate");
   parser.addOption(frameRateOption);
 
   // Positional argument: file
@@ -215,12 +215,16 @@ int main(int argc, char *argv[])
     win->setMcpPort(mcpPortValue);
 #endif
 
-  bool optionOk;
-  qreal fps = parser.value("frame-rate").toDouble(&optionOk);
-  if (optionOk)
-    win->setFramesPerSecond(fps);
-  else
-    qFatal("Invalid option <frame-rate>.");
+  // When not given, the frame rate saved in the preferences is used.
+  if (parser.isSet(frameRateOption))
+  {
+    bool optionOk;
+    qreal fps = parser.value(frameRateOption).toDouble(&optionOk);
+    if (optionOk)
+      win->setFramesPerSecond(fps);
+    else
+      qFatal("Invalid option <frame-rate>.");
+  }
 
   // Terminate splash.
   splash.showMessage("  " + QObject::tr("Done."),
