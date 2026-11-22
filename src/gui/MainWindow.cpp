@@ -105,6 +105,11 @@ MainWindow::MainWindow()
 
   mappingManager = new MappingManager;
 
+  // Lets layers find their source when "sourceId" is set (OSC, MCP).
+  Layer::setSourceResolver([this](uid sourceId) {
+    return mappingManager->getSourceById(sourceId);
+  });
+
 
   // Initialize internal variables.
   currentSourceId = NULL_UID;
@@ -2929,8 +2934,23 @@ bool MainWindow::loadFile(const QString &fileName)
   clearProject();
 
   // Read new project
-  ProjectReader reader(this);
-  if (! reader.readFile(&file))
+  ProjectReader reader(*mappingManager, [this](const QString& uri, bool isImage) {
+    return fileExists(uri) ? uri : locateMediaFile(uri, isImage);
+  });
+  bool readOk = reader.readFile(&file);
+
+  // Create the list items of what was read (even partially). Layers are
+  // added bottom first, in the same order the reader added them to the
+  // manager (which inserts each new layer at index 0).
+  for (int i = 0; i < mappingManager->nSources(); i++)
+  {
+    Source::ptr source = mappingManager->getSource(i);
+    addSourceItem(source->getId(), source->getIcon(), source->getName());
+  }
+  for (int i = mappingManager->nLayers() - 1; i >= 0; i--)
+    addLayerItem(mappingManager->getLayer(i)->getId());
+
+  if (! readOk)
   {
     QMessageBox::warning(this, tr("Error reading mapping project file"),
                          tr("Parse error in file %1:\n\n%2")
@@ -2961,7 +2981,7 @@ bool MainWindow::saveFile(const QString &fileName)
     return false;
   }
 
-  ProjectWriter writer(this);
+  ProjectWriter writer(*mappingManager);
   if (writer.writeFile(&file))
   {
     file.close();

@@ -84,7 +84,7 @@ public:
   Source::ptr getSource(int i) { return sourceVector[i]; }
 
   /// Returns source with given uid.
-  Source::ptr getSourceById(uid id) { return sourceMap[id]; }
+  Source::ptr getSourceById(uid id) const { return sourceMap.value(id); }
 
   /// Returns mapping with given name (first match).
   Source::ptr getSourceByName(QString name);

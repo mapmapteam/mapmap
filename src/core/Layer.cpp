@@ -20,12 +20,12 @@
  */
 
 #include "Layer.h"
-#include "MainWindow.h"
 #include "Ellipse.h"
 
 namespace mmp {
 
 UidAllocator Layer::allocator;
+Layer::SourceResolver Layer::_sourceResolver;
 
 Layer::Layer(uid id)
 : Layer(Source::ptr(), MShape::ptr(), MShape::ptr(), id) {}
@@ -98,7 +98,7 @@ void Layer::setLocked(bool locked)
 
 void Layer::setSource(Source::ptr source)
 {
-	if (sourceIsCompatible(source))
+	if (!source.isNull() && sourceIsCompatible(source))
 	{
 		_source = source;
 	  _emitPropertyChanged("sourceId");
@@ -107,15 +107,22 @@ void Layer::setSource(Source::ptr source)
 
 void Layer::setSourceById(uid sourceId)
 {
-  setSource(MainWindow::window()->getMappingManager().getSourceById(sourceId));
+  if (_sourceResolver)
+    setSource(_sourceResolver(sourceId));
+  else
+    qWarning() << "Cannot set source by id: no source resolver installed.";
+}
+
+void Layer::setSourceResolver(SourceResolver resolver)
+{
+  _sourceResolver = resolver;
 }
 
 void Layer::read(const QJsonObject& obj)
 {
+  // The source is not read here: its id is resolved by the caller (see
+  // ProjectReader), which knows which set of sources this layer belongs to.
   Element::read(obj);
-
-  int sourceId = obj[ProjectLabels::SOURCE_ID].toInt();
-  setSourceById(sourceId);
 
   // Read output shape.
   _readShape(obj, true);
