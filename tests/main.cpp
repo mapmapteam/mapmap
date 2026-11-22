@@ -10,7 +10,7 @@
  * (at your option) any later version.
  */
 
-#include <QCoreApplication>
+#include <QGuiApplication>
 #include <QtTest/QtTest>
 
 #include "TestMaths.h"
@@ -19,10 +19,13 @@
 #include "TestShape.h"
 #include "TestOsc.h"
 #include "TestFileVersion.h"
+#include "TestVideo.h"
 
 int main(int argc, char** argv)
 {
-  QCoreApplication app(argc, argv);
+  // QGuiApplication: video decoding and OpenGL tests need a GUI platform
+  // (CI runs with QT_QPA_PLATFORM=offscreen).
+  QGuiApplication app(argc, argv);
 
   int status = 0;
   {
@@ -47,6 +50,10 @@ int main(int argc, char** argv)
   }
   {
     TestFileVersion test;
+    status |= QTest::qExec(&test, argc, argv);
+  }
+  {
+    TestVideo test;
     status |= QTest::qExec(&test, argc, argv);
   }
 
