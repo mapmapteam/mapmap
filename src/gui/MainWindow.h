@@ -273,8 +273,23 @@ public slots:
   /**
    * This function is triggered framesPerSeconds() times per second. It makes sure
    * the image is refreshed (updateCanvases()) and performs other necessary operations.
+   * The canvases are left alone when nothing can have changed (see canvasesNeedRedraw()).
    */
   void processFrame();
+
+  /**
+   * Tells the window that something which may change what is displayed just
+   * happened (user input, OSC or MCP command): the canvases are then redrawn
+   * at every tick for MM::REDRAW_GRACE_PERIOD_AFTER_ACTIVITY milliseconds.
+   */
+  void notifyActivity();
+
+  /**
+   * Returns true if the canvases have to be redrawn at this tick: there was
+   * recent activity (see notifyActivity()), or a source shown by a visible
+   * layer has a new image (Source::needsRedraw()).
+   */
+  bool canvasesNeedRedraw() const;
 
   /**
    * Performs operations related to the playing state, such as making sure to play only sources
@@ -601,6 +616,8 @@ private:
   QModelIndex currentSelectedIndex;
   QTimer *videoTimer;
   QElapsedTimer *systemTimer;
+  // Time elapsed since the last call to notifyActivity().
+  QElapsedTimer _activityTimer;
   // Preference dialog
   PreferenceDialog* _preferenceDialog;
   // About dialog

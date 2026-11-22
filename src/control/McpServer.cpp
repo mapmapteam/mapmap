@@ -244,6 +244,9 @@ QJsonObject McpServer::handleToolsCall(const QJsonObject& params)
   const QJsonObject args = params.value("arguments").toObject();
   MappingManager& mm = _mainWindow->getMappingManager();
 
+  // A tool may change what is displayed: keep the canvases redrawn for a while.
+  _mainWindow->notifyActivity();
+
   // ---- Playback / project ----
   if (name == "play")    { _mainWindow->play();    return textResult("Playback started."); }
   if (name == "pause")   { _mainWindow->pause();   return textResult("Playback paused."); }

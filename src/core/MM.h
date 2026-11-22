@@ -69,6 +69,9 @@ public:
   static const int DEFAULT_WINDOW_WIDTH = 640;
   static const int DEFAULT_WINDOW_HEIGHT = 480;
   static const int TOOLBAR_ICON_SIZE = 48;
+  // How long (in ms) the canvases keep being redrawn at every tick after the
+  // last user input or remote command, before going idle (see issue #555).
+  static const int REDRAW_GRACE_PERIOD_AFTER_ACTIVITY = 1000;
   static const int ZOOM_TOOLBAR_ICON_SIZE = 16;
   static const int ZOOM_TOOLBAR_BUTTON_SIZE = 20;
   static const int MAPPING_LIST_ICON_SIZE = 16;

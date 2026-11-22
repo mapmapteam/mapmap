@@ -39,6 +39,59 @@
 
 namespace mmp {
 
+namespace {
+
+/**
+ * Application-wide event filter that tells the main window whenever the user
+ * touches the mouse, the keyboard or a tablet, in any window. It never
+ * consumes an event.
+ */
+class UserActivityFilter : public QObject
+{
+public:
+  /// Creates the filter; it reports to (and is owned by) the given window.
+  explicit UserActivityFilter(MainWindow* window) : QObject(window), _window(window) {}
+
+protected:
+  bool eventFilter(QObject* watched, QEvent* event) override
+  {
+    switch (event->type())
+    {
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+    case QEvent::MouseMove:
+    case QEvent::HoverMove:
+    case QEvent::Enter:
+    case QEvent::Leave:
+    case QEvent::Wheel:
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+    case QEvent::Shortcut:
+    case QEvent::TabletPress:
+    case QEvent::TabletMove:
+    case QEvent::TabletRelease:
+    case QEvent::TouchBegin:
+    case QEvent::TouchUpdate:
+    case QEvent::TouchEnd:
+    case QEvent::DragEnter:
+    case QEvent::DragMove:
+    case QEvent::Drop:
+    case QEvent::ContextMenu:
+      _window->notifyActivity();
+      break;
+    default:
+      break;
+    }
+    return QObject::eventFilter(watched, event);
+  }
+
+private:
+  MainWindow* _window;
+};
+
+}
+
 MainWindow::MainWindow()
 {
   // Create model.
@@ -115,6 +168,10 @@ MainWindow::MainWindow()
   // Create elapsed timer.
   systemTimer = new QElapsedTimer;
   systemTimer->start();
+
+  // Redraw the canvases at every tick only while something is happening.
+  notifyActivity();
+  qApp->installEventFilter(new UserActivityFilter(this));
 
   // Start playing by default.
   play();
@@ -3652,8 +3709,9 @@ void MainWindow::processFrame()
   // Number of frames processed (restarted every second).
   static unsigned int nFrames = 0;
 
-  // Update canvases.
-  updateCanvases();
+  // Update canvases, unless nothing can have changed since the last tick.
+  if (canvasesNeedRedraw())
+    updateCanvases();
 
   // Update true FPS.
   nFrames++;
@@ -3666,6 +3724,26 @@ void MainWindow::processFrame()
         QString::number(framesPerSecond()  , 'f', 2));
     nFrames = 0;
   }
+}
+
+void MainWindow::notifyActivity()
+{
+  _activityTimer.start();
+}
+
+bool MainWindow::canvasesNeedRedraw() const
+{
+  if (_activityTimer.isValid()
+      && !_activityTimer.hasExpired(MM::REDRAW_GRACE_PERIOD_AFTER_ACTIVITY))
+    return true;
+
+  const QVector<Source::ptr> visibleSources = mappingManager->getVisibleSources();
+  for (const Source::ptr& source : visibleSources)
+  {
+    if (source->needsRedraw())
+      return true;
+  }
+  return false;
 }
 
 void MainWindow::updatePlayingState()

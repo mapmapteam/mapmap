@@ -95,6 +95,13 @@ public:
   /// Is the source currently playing?
   virtual bool isPlaying() const { return _isPlaying; }
 
+  /**
+   * Tells whether the views showing this source have to be redrawn even
+   * though nobody touched the project: true while the source has, or may
+   * soon have, a new image to show. A still source returns false.
+   */
+  virtual bool needsRedraw() const { return false; }
+
   /// Starts playback.
   virtual void play() {
     _doPlay();
@@ -219,6 +226,9 @@ public:
   /// Returns true iff bits have changed since last call to getBits().
   virtual bool bitsHaveChanged() const = 0;
 
+  /// A texture needs a redraw when it holds an image not yet shown.
+  virtual bool needsRedraw() const { return bitsHaveChanged(); }
+
   /// OpenGL pixel format / type of the data returned by getBits().
   virtual GLenum getBitsFormat() const { return GL_RGBA; }
   virtual GLenum getBitsType() const { return GL_UNSIGNED_BYTE; }
@@ -322,6 +332,9 @@ public:
 
   virtual bool bitsHaveChanged() const { return bitsChanged; }
 
+  /// An animation picks its next frame in update(), which runs at each draw.
+  virtual bool needsRedraw() const { return bitsHaveChanged() || (isAnimation() && isPlaying()); }
+
   virtual QIcon getIcon() const;
 
   /// Sets playback rate (in %). Negative values mean reverse playback.
@@ -407,6 +420,10 @@ public:
   virtual const uchar* getBits();
 
   virtual bool bitsHaveChanged() const;
+
+  /// A playing video is redrawn at every tick: update(), which runs at each
+  /// draw, is also what restarts a looping movie when it reaches its end.
+  virtual bool needsRedraw() const { return bitsHaveChanged() || isPlaying(); }
 
   /// Upload format of the current frame, which depends on what Qt delivers
   /// (BGRA or RGBA, see VideoImpl::frameToImage()).

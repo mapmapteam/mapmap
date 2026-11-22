@@ -100,6 +100,10 @@ public:
   virtual const uchar* getBits();
   virtual bool bitsHaveChanged() const;
 
+  /// Frames are blitted on the GPU in update(), with no flag telling that a
+  /// new one arrived: a Syphon source is redrawn at every tick.
+  virtual bool needsRedraw() const { return true; }
+
   virtual QIcon getIcon() const;
 
   // --- Persisted server identity ---------------------------------------
