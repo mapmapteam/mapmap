@@ -21,14 +21,14 @@
 
 namespace mmp {
 
-ProjectWriter::ProjectWriter(MainWindow *window) :
-    _window(window)
+ProjectWriter::ProjectWriter(MappingManager& manager) :
+    _manager(manager)
 {
 }
 
 bool ProjectWriter::writeFile(QIODevice *device)
 {
-  MappingManager& manager = _window->getMappingManager();
+  MappingManager& manager = _manager;
   QJsonObject project;
   project["version"] = MM::VERSION;
 

@@ -19,6 +19,7 @@
  */
 #include "ProjectReader.h"
 #include <iostream>
+#include <QRegularExpression>
 
 namespace mmp {
 
@@ -27,7 +28,8 @@ namespace {
 const char* const VIDEO_URI_PROPERTY = "uri";
 }
 
-ProjectReader::ProjectReader(MainWindow *window) : _window(window)
+ProjectReader::ProjectReader(MappingManager& manager, MediaLocator mediaLocator)
+  : _manager(manager), _mediaLocator(mediaLocator)
 {
 }
 
@@ -40,9 +42,21 @@ bool ProjectReader::isValidVersion(const QString& versionString)
 
 bool ProjectReader::readFile(QIODevice *device)
 {
+  QByteArray data = device->readAll();
   QJsonParseError parseError;
-  QJsonDocument doc = QJsonDocument::fromJson(device->readAll(), &parseError);
+  QJsonDocument doc = QJsonDocument::fromJson(data, &parseError);
   if (doc.isNull()) {
+    // Projects saved by MapMap 0.6 and earlier are XML: they cannot be
+    // opened anymore, so say so plainly instead of reporting a parse error.
+    if (data.trimmed().startsWith('<')) {
+      QRegularExpressionMatch match =
+          QRegularExpression("<project[^>]*\\sversion=\"([^\"]*)\"").match(QString::fromUtf8(data));
+      QString oldVersion = match.hasMatch() ? match.captured(1) : QObject::tr("unknown");
+      _errorString = QObject::tr("This project was saved in the old XML format by MapMap %1. "
+                                 "This version of MapMap (%2) only opens JSON projects.")
+          .arg(oldVersion, MM::VERSION);
+      return false;
+    }
     _errorString = QString("Parse error at offset %1: %2")
         .arg(parseError.offset).arg(parseError.errorString());
     return false;
@@ -72,7 +86,7 @@ QString ProjectReader::errorString() const
 
 void ProjectReader::parseProject(const QJsonObject& project)
 {
-  MappingManager& manager = _window->getMappingManager();
+  MappingManager& manager = _manager;
   manager.clearAll();
 
   QJsonArray sources = project[ProjectLabels::SOURCES].toArray();
@@ -90,24 +104,7 @@ void ProjectReader::parseProject(const QJsonObject& project)
     else
     {
       manager.addSource(source);
-      _window->addSourceItem(source->getId(), source->getIcon(), source->getName());
-
-      // Locate media file if not found. Guard the cast: a source that claims
-      // to be Video/Image but cannot be cast (corrupt entry) must not be
-      // dereferenced — Q_CHECK_PTR is a no-op in release builds.
-      // A camera has a capture device ID for URI, not a file to locate.
-      if (source->getSourceType() == Source::SourceType::Video)
-      {
-        QSharedPointer<Video> media = qSharedPointerCast<Video>(source);
-        if (!media.isNull() && !media->isCamera() && !_window->fileExists(media->getUri()))
-          media->setUri(_window->locateMediaFile(media->getUri(), false));
-      }
-      if (source->getSourceType() == Source::SourceType::Image)
-      {
-        QSharedPointer<Image> image = qSharedPointerCast<Image>(source);
-        if (!image.isNull() && !_window->fileExists(image->getUri()))
-          image->setUri(_window->locateMediaFile(image->getUri(), true));
-      }
+      locateMedia(source);
     }
   }
 
@@ -131,7 +128,37 @@ void ProjectReader::parseProject(const QJsonObject& project)
           it != allLayers.rend(); ++it)
   {
     manager.addLayer(*it);
-    _window->addLayerItem((*it)->getId());
+  }
+}
+
+void ProjectReader::locateMedia(Source::ptr source)
+{
+  if (!_mediaLocator)
+    return;
+
+  // Guard the casts: a source that claims to be Video/Image but cannot be
+  // cast (corrupt entry) must not be dereferenced — Q_CHECK_PTR is a no-op
+  // in release builds. A camera has a capture device ID for URI, not a file
+  // to locate.
+  if (source->getSourceType() == Source::SourceType::Video)
+  {
+    QSharedPointer<Video> media = qSharedPointerCast<Video>(source);
+    if (!media.isNull() && !media->isCamera())
+    {
+      QString uri = _mediaLocator(media->getUri(), false);
+      if (uri != media->getUri())
+        media->setUri(uri);
+    }
+  }
+  else if (source->getSourceType() == Source::SourceType::Image)
+  {
+    QSharedPointer<Image> image = qSharedPointerCast<Image>(source);
+    if (!image.isNull())
+    {
+      QString uri = _mediaLocator(image->getUri(), true);
+      if (uri != image->getUri())
+        image->setUri(uri);
+    }
   }
 }
 
@@ -191,6 +218,19 @@ Layer::ptr ProjectReader::parseLayer(const QJsonObject& obj)
       // Registered type that could not be instantiated. Report and bail out
       // instead of dereferencing a null layer.
       _errorString = QObject::tr("Unable to create layer of type '%1'.").arg(className);
+      return Layer::ptr();
+    }
+
+    // Resolve the source first: reading the shapes may depend on it.
+    uid sourceId = obj[ProjectLabels::SOURCE_ID].toInt(NULL_UID);
+    layer->setSource(_manager.getSourceById(sourceId));
+    if (layer->getSource().isNull())
+    {
+      // Missing or incompatible source (eg. a macOS-only Syphon source that
+      // was skipped on another platform). Skip the layer rather than keep a
+      // layer without a source, which cannot be drawn nor saved.
+      qWarning() << "Skipping layer" << id << "of type" << className
+                 << ": no compatible source with id" << sourceId;
       return Layer::ptr();
     }
 

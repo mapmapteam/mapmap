@@ -20,13 +20,13 @@
 #ifndef PROJECT_WRITER_H_
 #define PROJECT_WRITER_H_
 
+#include <QIODevice>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include "MappingManager.h"
 #include "Layer.h"
 #include "Source.h"
-#include "MainWindow.h"
 
 #include "ProjectLabels.h"
 
@@ -34,14 +34,18 @@
 
 namespace mmp {
 
+/**
+ * Writes the contents of a MappingManager to a JSON project file. Has no
+ * dependency on the GUI, so it can be used by the tests.
+ */
 class ProjectWriter
 {
 public:
-    ProjectWriter (MainWindow *window);
+    ProjectWriter (MappingManager& manager);
     bool writeFile (QIODevice *device);
 
   private:
-    MainWindow *_window;
+    MappingManager& _manager;
 };
 
 }

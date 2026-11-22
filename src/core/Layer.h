@@ -23,6 +23,7 @@
 #define LAYER_H_
 
 #include <QtGlobal>
+#include <functional>
 
 #include "Shape.h"
 #include "Source.h"
@@ -152,12 +153,25 @@ public:
   virtual void setShape(MShape::ptr s) { _shape = s; _assignShapeRole(s, true); }
   virtual void setInputShape(MShape::ptr s) { _inputShape = s; _assignShapeRole(s, false); }
 
+  /// Reads the layer from JSON. Does not set the source: see ProjectReader.
   virtual void read(const QJsonObject& obj);
   virtual void write(QJsonObject& obj);
+
+  /// Function used to find a source from its uid (eg. a MappingManager lookup).
+  typedef std::function<Source::ptr(uid)> SourceResolver;
+
+  /// Sets the function used by setSourceById() (eg. when the "sourceId"
+  /// property is changed through OSC or MCP).
+  static void setSourceResolver(SourceResolver resolver);
 
 protected:
   /// Configures shape according to its role (output shapes may be distorted in perspective).
   static void _assignShapeRole(const MShape::ptr& shape, bool isOutput);
+
+  // The source id is resolved by the caller, not by Serializable::read().
+  virtual QList<QString> _propertiesSpecial() const { return Element::_propertiesSpecial() << "sourceId"; }
+
+  static SourceResolver _sourceResolver;
 
   void _readShape(const QJsonObject& obj, bool isOutput);
   void _writeShape(QJsonObject& obj, bool isOutput);
