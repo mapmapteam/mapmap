@@ -174,7 +174,9 @@ protected:
     textureId(0),
     x(0),
     y(0),
-    bitsChanged(false)
+    bitsChanged(false),
+    _uploadedWidth(0),
+    _uploadedHeight(0)
   {
   }
 
@@ -208,6 +210,15 @@ public:
 
   /// Returns true iff bits have changed since last call to getBits().
   virtual bool bitsHaveChanged() const = 0;
+
+  /// OpenGL pixel format / type of the data returned by getBits().
+  virtual GLenum getBitsFormat() const { return GL_RGBA; }
+  virtual GLenum getBitsType() const { return GL_UNSIGNED_BYTE; }
+
+  /// Uploads the current bits to the (bound) texture if they have changed.
+  /// Reallocates the texture storage only when the frame size changes.
+  /// MUST be called with a current GL context and this texture bound.
+  void uploadBits();
 
   virtual GLfloat getX() const { return x; }
   virtual GLfloat getY() const { return y; }
@@ -247,6 +258,10 @@ private:
   // context; freed later by deleteOrphanedTextures(). See issue #229.
   static QVector<GLuint> _orphanedTextures;
   static QMutex          _orphanedTexturesMutex;
+
+  // Size of the texture storage currently allocated on the GPU.
+  int _uploadedWidth;
+  int _uploadedHeight;
 };
 
 /**

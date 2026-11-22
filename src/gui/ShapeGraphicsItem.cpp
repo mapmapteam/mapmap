@@ -283,21 +283,8 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   glEnable (GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
 
-  // Copy bits to texture iff necessary.
-  texture->lockMutex();
-  if (texture->bitsHaveChanged())
-  {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                 texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, texture->getBits());
-    // NOTE: We would gain in efficiency if we were able to just update the texture using glTexSubImage2D
-    // See: http://stackoverflow.com/questions/11217121/how-to-manage-memory-with-texture-in-opengl
-//    glTexSubImage2D(GL_TEXTURE_2D,
-//        0, 0,
-//        texture->getWidth(), texture->getHeight(), 0,
-//        GL_RGBA, GL_UNSIGNED_BYTE, texture->getBits());
-  }
-  texture->unlockMutex();
+  // Copy bits to texture iff necessary (glTexSubImage2D when size is unchanged).
+  texture->uploadBits();
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);

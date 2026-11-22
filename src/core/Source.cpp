@@ -22,6 +22,7 @@
 #include "VideoImpl.h"
 #include "VideoPlayerImpl.h"
 #include "CameraImpl.h"
+#include "Util.h"
 #include <iostream>
 #include <QFileIconProvider>
 #include <QFileInfo>
@@ -57,6 +58,20 @@ void Texture::update()
   {
     glGenTextures(1, &textureId);
   }
+}
+
+void Texture::uploadBits()
+{
+  lockMutex();
+  if (bitsHaveChanged())
+  {
+    int width  = getWidth();
+    int height = getHeight();
+    const uchar* bits = getBits(); // Resets bitsHaveChanged().
+    Util::uploadTextureBits(width, height, getBitsFormat(), getBitsType(), bits,
+                            _uploadedWidth, _uploadedHeight);
+  }
+  unlockMutex();
 }
 
 void Texture::read(const QJsonObject& obj)

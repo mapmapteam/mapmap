@@ -50,6 +50,15 @@ void correctGlTexCoord(GLfloat x, GLfloat y);
 void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint);
 
 /**
+ * Uploads pixel data into the currently bound GL_TEXTURE_2D. Storage is
+ * (re)allocated with glTexImage2D only when the size differs from
+ * allocWidth x allocHeight (which are then updated); otherwise the texture is
+ * updated in place with glTexSubImage2D. Requires a current GL context.
+ */
+void uploadTextureBits(int width, int height, GLenum format, GLenum type,
+                       const uchar* bits, int& allocWidth, int& allocHeight);
+
+/**
  * Maps a number from a range to another.
  */
 float map_float(float value, float istart, float istop, float ostart, float ostop);
