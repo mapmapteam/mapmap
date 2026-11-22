@@ -138,6 +138,9 @@ void Image::build()
 
 void Image::update()
 {
+  // Allocate our own texture name (images used to share texture 0).
+  Texture::update();
+
   if (isAnimation() && isPlaying())
   {
     // Compute the interval of time since last call to update().
@@ -177,6 +180,7 @@ void Image::rewind()
 }
 
 const uchar* Image::getBits() {
+  bitsChanged = false;
   return _bits;
 }
 

@@ -18,7 +18,8 @@ namespace mmp {
 
 CameraSurface::CameraSurface(QObject *parent)
   : QObject(parent),
-    _videoSink(new QVideoSink(this))
+    _videoSink(new QVideoSink(this)),
+    _bitsChanged(false)
 {
   connect(_videoSink, &QVideoSink::videoFrameChanged,
           this, &CameraSurface::onVideoFrameChanged);
@@ -46,6 +47,7 @@ void CameraSurface::onVideoFrameChanged(const QVideoFrame& frame)
   // injecting a synthetic top-red/bottom-blue QVideoFrame directly into this
   // class and observing the flip.
   _temporaryImage = img;
+  _bitsChanged = true;
 }
 
 }

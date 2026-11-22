@@ -46,7 +46,7 @@ public:
   const uchar* getBits() override;
 
   bool hasBits() const override { return _cameraSurface && _cameraSurface->isActive(); }
-  bool bitsHaveChanged() const override { return true; }
+  bool bitsHaveChanged() const override { return _cameraSurface && _cameraSurface->bitsHaveChanged(); }
 
 protected:
   // Stops and releases the capture device (called by unloadMovie() and dtor).

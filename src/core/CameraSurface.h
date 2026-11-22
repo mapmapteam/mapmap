@@ -66,8 +66,11 @@ public:
     /// Returns true once at least one frame has been received.
     bool isActive() const { return !_temporaryImage.isNull(); }
 
-    /// Returns raw RGBA bytes of the latest camera frame.
-    const uchar* bits() const { return _temporaryImage.bits(); }
+    /// Returns true if a new frame arrived since the last bits() call.
+    bool bitsHaveChanged() const { return _bitsChanged; }
+
+    /// Returns raw RGBA bytes of the latest camera frame. Resets bitsHaveChanged().
+    const uchar* bits() { _bitsChanged = false; return _temporaryImage.constBits(); }
 
     int frameWidth()  const { return _temporaryImage.width(); }
     int frameHeight() const { return _temporaryImage.height(); }
@@ -78,6 +81,7 @@ private slots:
 private:
     QVideoSink *_videoSink;
     QImage      _temporaryImage;
+    bool        _bitsChanged;
 };
 
 }
