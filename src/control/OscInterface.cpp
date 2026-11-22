@@ -108,6 +108,7 @@ void OscInterface::consume_commands(MainWindow &main_window)
     if (success)
     {
       this->applyOscCommand(main_window, command);
+      main_window.notifyActivity();
     }
   }
 }
