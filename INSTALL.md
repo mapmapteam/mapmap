@@ -32,6 +32,20 @@ sudo apt-get install -y \
       libqt6openglwidgets6
 ```
 
+Install these optional packages to enable the MCP server (control by an AI
+assistant). The Qt HttpServer module needs Qt WebSockets, which Ubuntu does not
+install with it:
+
+```
+sudo apt-get install -y \
+      qt6-httpserver-dev \
+      qt6-websockets-dev
+```
+
+If MapMap was already built without them, rebuild from scratch (`qmake6
+mapmap.pro && make clean && make`): `qmake6` should print "MCP server enabled".
+Start MapMap with an MCP port, eg. `./mapmap -m 8765`.
+
 Install extra packages if you want to build the documentation:
 
 ```
