@@ -39,29 +39,10 @@ public:
 void initRegistry()
 {
   MetaObjectRegistry& registry = MetaObjectRegistry::instance();
-
-  // Sources.
-  registry.add<Video>();
-  registry.add<Camera>();
-  registry.add<Image>();
-  registry.add<Color>();
+  registry.addBuiltinTypes();
 #ifdef Q_OS_MAC
   registry.add<Syphon>();
 #endif
-
-  // Layers (formerly Mappings).
-  registry.add<TextureLayer>();
-  registry.add<ColorLayer>();
-
-  // Backward compatibility for old project files.
-  registry.addAlias("mmp::TextureMapping", &TextureLayer::staticMetaObject);
-  registry.addAlias("mmp::ColorMapping", &ColorLayer::staticMetaObject);
-
-  // Shapes.
-  registry.add<Quad>();
-  registry.add<Mesh>();
-  registry.add<MM_PREPEND_NAMESPACE(Ellipse)>();
-  registry.add<Triangle>();
 }
 
 // Intercept all logging message and display it in the console
