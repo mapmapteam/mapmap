@@ -106,3 +106,7 @@ KNOWN-WARNINGS.txt
 
 # Parallel working copies (git worktrees) created by coding agents
 .claude/worktrees/
+
+# The Info.plist of the vendored Syphon framework is not a generated file:
+# without it, macOS refuses to sign the application.
+!third_party/macos/Syphon.framework/Versions/A/Resources/Info.plist
