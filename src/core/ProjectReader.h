@@ -59,6 +59,10 @@ private:
     void parseProject(const QJsonObject& project);
     Source::ptr   parseSource(const QJsonObject& obj);
     Layer::ptr parseLayer(const QJsonObject& obj);
+
+    /// Returns why a freshly read layer cannot be shown (missing source,
+    /// missing or unsupported shape), or an empty string if it is usable.
+    static QString unusableLayerReason(const Layer::ptr& layer);
     /**
      * Checks if the version attribute of the project tag matches the regex of supported versions of MapMap.
      * Some older versions of MapMap might not be supported by this version.

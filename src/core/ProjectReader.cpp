@@ -207,6 +207,41 @@ Source::ptr ProjectReader::parseSource(const QJsonObject& obj)
   }
 }
 
+QString ProjectReader::unusableLayerReason(const Layer::ptr& layer)
+{
+  // The interface has an editor for these shapes only (see
+  // MainWindow::addLayerItem): color layers draw any polygon, including a
+  // plain Quad; texture layers need a triangle, mesh or ellipse.
+  const bool isColorLayer = !layer->hasInputShape();
+  auto isSupported = [isColorLayer](const MShape::ptr& shape) {
+    return shape->getType() == MShape::Triangle
+        || shape->getType() == MShape::Mesh
+        || shape->getType() == MShape::Ellipse
+        || (isColorLayer && shape->getType() == MShape::Quad);
+  };
+
+  if (layer->getSource().isNull())
+    return "its source is missing";
+
+  const MShape::ptr output = layer->getShape();
+  if (output.isNull())
+    return "its destination shape is missing or of an unknown type";
+  if (!isSupported(output))
+    return QString("its destination shape is of an unsupported type (%1)").arg(output->metaObject()->className());
+
+  if (layer->hasInputShape())
+  {
+    const MShape::ptr input = layer->getInputShape();
+    if (input.isNull())
+      return "its source shape is missing or of an unknown type";
+    if (input->getType() != output->getType())
+      return QString("its source shape (%1) does not match its destination shape (%2)")
+          .arg(input->metaObject()->className(), output->metaObject()->className());
+  }
+
+  return QString();
+}
+
 Layer::ptr ProjectReader::parseLayer(const QJsonObject& obj)
 {
   QString className = Serializable::classNameCleanToReal(obj[ProjectLabels::CLASS_NAME].toString());
@@ -238,6 +273,16 @@ Layer::ptr ProjectReader::parseLayer(const QJsonObject& obj)
     }
 
     layer->read(obj);
+
+    // A hand-written or damaged file can describe a layer MapMap cannot show.
+    // Skip it with a warning, like an unsupported source, rather than crash
+    // later when the interface builds its editor.
+    const QString problem = unusableLayerReason(layer);
+    if (!problem.isEmpty())
+    {
+      qWarning() << "Skipping layer" << id << ":" << problem;
+      return Layer::ptr();
+    }
     return layer;
   }
   else

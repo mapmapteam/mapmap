@@ -264,3 +264,45 @@ void TestProjectRoundTrip::skipsLayerWithoutSource()
   QCOMPARE(manager.nLayers(), 1);
   QCOMPARE(manager.getLayer(0)->getName(), QString("kept"));
 }
+
+void TestProjectRoundTrip::skipsUnusableLayers()
+{
+  // Layers MapMap cannot show are dropped instead of crashing the interface:
+  // a texture layer drawn with a plain Quad (MapMap writes Mesh), a shape
+  // field naming a class that is not a shape, and mismatched source and
+  // destination shapes. A color layer drawn with a Quad is fine.
+  const QByteArray project = R"({
+    "version": "1.0.0-alpha.1",
+    "sources": [
+      { "className": "Color", "id": 1, "name": "red", "color": "#ff0000" },
+      { "className": "Image", "id": 2, "name": "picture", "uri": "/nonexistent.png" }
+    ],
+    "layers": [
+      { "className": "ColorLayer", "id": 1, "name": "color-quad", "sourceId": 1,
+        "destination": { "className": "Quad", "vertices": [[0,0],[1,0],[1,1],[0,1]] } },
+      { "className": "TextureLayer", "id": 2, "name": "texture-quad", "sourceId": 2,
+        "destination": { "className": "Quad", "vertices": [[0,0],[1,0],[1,1],[0,1]] },
+        "source":      { "className": "Quad", "vertices": [[0,0],[1,0],[1,1],[0,1]] } },
+      { "className": "TextureLayer", "id": 3, "name": "not-a-shape", "sourceId": 2,
+        "destination": { "className": "Image", "vertices": [[0,0]] },
+        "source":      { "className": "Triangle", "vertices": [[0,0],[1,0],[0,1]] } },
+      { "className": "TextureLayer", "id": 4, "name": "mismatched", "sourceId": 2,
+        "destination": { "className": "Triangle", "vertices": [[0,0],[1,0],[0,1]] },
+        "source":      { "className": "Mesh", "nColumns": 2, "nRows": 2,
+                         "vertices": [[0,0],[1,0],[0,1],[1,1]] } },
+      { "className": "TextureLayer", "id": 5, "name": "texture-triangle", "sourceId": 2,
+        "destination": { "className": "Triangle", "vertices": [[0,0],[1,0],[0,1]] },
+        "source":      { "className": "Triangle", "vertices": [[0,0],[1,0],[0,1]] } }
+    ]
+  })";
+
+  MappingManager manager;
+  QString error;
+  QVERIFY2(readProject(manager, project, &error), qPrintable(error));
+  QCOMPARE(manager.nLayers(), 2);
+  QStringList names;
+  for (int i = 0; i < manager.nLayers(); i++)
+    names << manager.getLayer(i)->getName();
+  names.sort();
+  QCOMPARE(names, QStringList() << "color-quad" << "texture-triangle");
+}

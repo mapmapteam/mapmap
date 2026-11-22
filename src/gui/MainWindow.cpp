@@ -3428,6 +3428,18 @@ void MainWindow::addLayerItem(uid layerId)
   {
     defaultName = QString("Polygon %1").arg(layerId);
     icon = QIcon(":/shape-polygon");
+    // Color layers draw any polygon (e.g. a Quad from createQuadColorLayer).
+    // There is no texture editor for other polygons: ProjectReader refuses
+    // such layers.
+    if (sourceType == SourceType::Color)
+      mapper = LayerGui::ptr(new PolygonColorLayerGui(layer));
+  }
+
+  if (mapper.isNull())
+  {
+    // Never dereference a missing editor (this used to crash).
+    qWarning() << "No editor for layer" << layerId << "of shape type" << int(shapeType);
+    return;
   }
 
   // Label is only going to be applied if no name is present.
