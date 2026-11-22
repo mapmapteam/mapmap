@@ -78,6 +78,9 @@ public:
 
   // OSC
   static const int DEFAULT_OSC_PORT = 12345;
+  // How often (in ms) the queue of received OSC messages is emptied. Kept well
+  // below the duration of a frame, so a command never waits a visible time.
+  static const int OSC_POLLING_INTERVAL = 5;
 
   // MCP (Model Context Protocol) server. Disabled by default (0): the user
   // opts in by setting a port in Preferences > MCP Setup. A good enabled value

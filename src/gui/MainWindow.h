@@ -556,7 +556,7 @@ private:
   // When false (default), the OSC /mapmap/quit command is ignored so a remote
   // sender cannot close the application mid-show.
   bool oscAllowQuit;
-  QTimer *osc_timer;
+  QTimer *osc_timer = nullptr;
 
 #ifdef HAVE_MCP
   // MCP server.

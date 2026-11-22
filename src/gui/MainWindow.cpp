@@ -3976,9 +3976,16 @@ void MainWindow::startOscReceiver()
   {
     osc_interface->start();
   }
-  osc_timer = new QTimer(this); // FIXME: memleak?
-  connect(osc_timer, &QTimer::timeout, this, &MainWindow::pollOscInterface);
-  osc_timer->start();
+  // Empty the queue of received messages at a fixed pace. A timer without an
+  // interval fires as fast as the event loop turns and keeps a processor core
+  // busy even when nothing happens (issue #555). The timer is created once and
+  // reused when the receiver is restarted, e.g. after a change of port.
+  if (!osc_timer)
+  {
+    osc_timer = new QTimer(this);
+    connect(osc_timer, &QTimer::timeout, this, &MainWindow::pollOscInterface);
+  }
+  osc_timer->start(MM::OSC_POLLING_INTERVAL);
 }
 
 bool MainWindow::setOscPort(int port)
