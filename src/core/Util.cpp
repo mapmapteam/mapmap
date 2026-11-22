@@ -48,6 +48,22 @@ void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPoi
   );
 }
 
+void glUploadFormat(QImage::Format imageFormat, GLenum& format, GLenum& type)
+{
+  switch (imageFormat) {
+  case QImage::Format_RGB32:
+  case QImage::Format_ARGB32:
+  case QImage::Format_ARGB32_Premultiplied:
+    format = GL_BGRA;
+    type   = GL_UNSIGNED_INT_8_8_8_8_REV;
+    break;
+  default:
+    format = GL_RGBA;
+    type   = GL_UNSIGNED_BYTE;
+    break;
+  }
+}
+
 void uploadTextureBits(int width, int height, GLenum format, GLenum type,
                        const uchar* bits, int& allocWidth, int& allocHeight)
 {

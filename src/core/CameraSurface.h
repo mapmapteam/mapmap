@@ -69,7 +69,8 @@ public:
     /// Returns true if a new frame arrived since the last bits() call.
     bool bitsHaveChanged() const { return _bitsChanged; }
 
-    /// Returns raw RGBA bytes of the latest camera frame. Resets bitsHaveChanged().
+    /// Returns raw bytes of the latest camera frame (layout given by
+    /// image().format(), see VideoImpl::frameToImage()). Resets bitsHaveChanged().
     const uchar* bits() { _bitsChanged = false; return _temporaryImage.constBits(); }
 
     /// Returns a (shallow) copy of the latest frame, without resetting

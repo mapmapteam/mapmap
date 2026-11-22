@@ -31,6 +31,7 @@
 #include "MM.h"
 #include "Source.h"
 #include <QString>
+#include <QImage>
 
 namespace mmp {
 
@@ -48,6 +49,14 @@ void correctGlTexCoord(GLfloat x, GLfloat y);
  * between glBegin(<GL_SHAPE>) and glEnd() calls.
  */
 void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint);
+
+/**
+ * Gives the glTexImage2D format/type that reads a 32-bit QImage's bits
+ * directly: Format_RGB32/ARGB32 -> GL_BGRA + GL_UNSIGNED_INT_8_8_8_8_REV
+ * (endian-safe), everything else (Format_RGBA8888/RGBX8888) -> GL_RGBA +
+ * GL_UNSIGNED_BYTE.
+ */
+void glUploadFormat(QImage::Format imageFormat, GLenum& format, GLenum& type);
 
 /**
  * Uploads pixel data into the currently bound GL_TEXTURE_2D. Storage is

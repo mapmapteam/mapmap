@@ -26,6 +26,7 @@
 
 #include "MM.h"
 #include <QImage>
+#include <QVideoFrame>
 #include <QMutex>
 #include <QWaitCondition>
 
@@ -63,6 +64,15 @@ public:
   /// Returns a (shallow) copy of the latest frame, without resetting
   /// bitsHaveChanged(). Null image if no frame yet.
   virtual QImage getFrameImage() const { return _currentFrame; }
+
+  /// Returns the QImage format of the latest frame (Format_Invalid if none).
+  virtual QImage::Format getFrameFormat() const { return _currentFrame.format(); }
+
+  /// Converts a video frame to a QImage ready for direct OpenGL upload (see
+  /// Util::glUploadFormat()): Format_RGB32, Format_ARGB32, Format_RGBX8888 or
+  /// Format_RGBA8888, straight alpha. Opaque frames are never copied or
+  /// converted beyond what QVideoFrame::toImage() does.
+  static QImage frameToImage(const QVideoFrame& frame);
 
   /// Returns true if a new frame arrived since the last getBits() call.
   virtual bool bitsHaveChanged() const { return _bitsChanged; }
@@ -117,7 +127,7 @@ protected:
 
   void _setMovieReady(bool ready) { _movieReady = ready; }
 
-  // Latest decoded frame — always Format_RGBA8888.
+  // Latest decoded frame, ready for upload (see frameToImage()).
   QImage _currentFrame;
   /// Raw pointer into _currentFrame.bits(); kept for ABI with getBits().
   uchar *_data;

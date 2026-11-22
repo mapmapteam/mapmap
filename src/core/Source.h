@@ -37,6 +37,14 @@
 #include <GL/gl.h>
 #endif
 
+// OpenGL 1.2 tokens, missing from some platform headers (e.g. Windows gl.h).
+#ifndef GL_BGRA
+#define GL_BGRA 0x80E1
+#endif
+#ifndef GL_UNSIGNED_INT_8_8_8_8_REV
+#define GL_UNSIGNED_INT_8_8_8_8_REV 0x8367
+#endif
+
 #include "Element.h"
 #include "Maths.h"
 
@@ -399,6 +407,11 @@ public:
   virtual const uchar* getBits();
 
   virtual bool bitsHaveChanged() const;
+
+  /// Upload format of the current frame, which depends on what Qt delivers
+  /// (BGRA or RGBA, see VideoImpl::frameToImage()).
+  virtual GLenum getBitsFormat() const;
+  virtual GLenum getBitsType() const;
 
   /// Sets playback rate (in %). Negative values mean reverse playback.
   virtual void setRate(double rate);
