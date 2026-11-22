@@ -298,6 +298,8 @@ public slots:
   void updatePlayingState();
 
   // Editing toggles.
+  /// Sets the frame rate, clamped between MM::MIN_FRAMES_PER_SECOND and
+  /// MM::MAX_FRAMES_PER_SECOND. Not saved: see the preferences for that.
   void setFramesPerSecond(qreal fps);
   void enableDisplayControls(bool display);
   void enableDisplaySourceControls(bool display);

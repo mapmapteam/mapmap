@@ -122,6 +122,13 @@ private:
   // Playback
   QWidget *_playbackWidget;
   QCheckBox *_playInLoopBox;
+  QComboBox *_frameRateBox;
+  QDoubleSpinBox *_customFrameRateBox;
+
+  /// Selects fps in the frame rate list, or "Custom..." with fps in the number box.
+  void selectFrameRate(qreal fps);
+  /// Returns the frame rate chosen in the list, or in the number box for "Custom...".
+  qreal selectedFrameRate() const;
 
 
   // Common widgets
@@ -133,6 +140,11 @@ private:
   static const int PREFERENCES_WINDOW_WIDTH = 720;
   static const int PREFERENCES_WINDOW_HEIGHT = 540;
   static const int LIST_ITEM_HEIGHT = 36;
+  // Item data of the "Custom..." frame rate entry.
+  static constexpr qreal CUSTOM_FRAME_RATE = -1;
+  // Two frame rates closer than this are the same list entry.
+  static constexpr qreal FRAME_RATE_TOLERANCE = 0.001;
+  static const int FRAME_RATE_DECIMALS = 3;
 };
 
 }

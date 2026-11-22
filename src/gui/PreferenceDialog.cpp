@@ -134,6 +134,8 @@ bool PreferenceDialog::loadSettings()
 #endif
   // Play in loop
   _playInLoopBox->setChecked(settings.value("playInLoop", MM::PLAY_IN_LOOP).toBool());
+  // Frame rate
+  selectFrameRate(settings.value("framesPerSecond", MM::DEFAULT_FRAMES_PER_SECOND).toDouble());
 
   return true;
 }
@@ -180,6 +182,29 @@ void PreferenceDialog::applySettings()
 #endif
   // Play in loop
   settings.setValue("playInLoop", _playInLoopBox->isChecked());
+  // Frame rate
+  settings.setValue("framesPerSecond", selectedFrameRate());
+  mainWindow->setFramesPerSecond(selectedFrameRate());
+}
+
+void PreferenceDialog::selectFrameRate(qreal fps)
+{
+  for (int i = 0; i < _frameRateBox->count(); i++)
+  {
+    if (qAbs(_frameRateBox->itemData(i).toDouble() - fps) < FRAME_RATE_TOLERANCE)
+    {
+      _frameRateBox->setCurrentIndex(i);
+      return;
+    }
+  }
+  _frameRateBox->setCurrentIndex(_frameRateBox->findData(CUSTOM_FRAME_RATE));
+  _customFrameRateBox->setValue(fps);
+}
+
+qreal PreferenceDialog::selectedFrameRate() const
+{
+  const qreal fps = _frameRateBox->currentData().toDouble();
+  return (fps == CUSTOM_FRAME_RATE) ? _customFrameRateBox->value() : fps;
 }
 
 void PreferenceDialog::refreshCurrentIP()
@@ -451,7 +476,37 @@ void PreferenceDialog::createAdvancedPage()
   _playInLoopBox = new QCheckBox(tr("Play in loop (requires restart)"));
   _playInLoopBox->setChecked(true); // Loop by default
 
+  // Frame rate: standard rates, or a custom one (issue #249).
+  _frameRateBox = new QComboBox;
+  const QList<qreal> standardFrameRates = { 23.976, 24, 25, 29.97, 30, 50, 59.94, 60 };
+  for (qreal fps : standardFrameRates)
+    _frameRateBox->addItem(QString::number(fps), fps);
+  _frameRateBox->addItem(tr("Custom..."), CUSTOM_FRAME_RATE);
+
+  _customFrameRateBox = new QDoubleSpinBox;
+  _customFrameRateBox->setRange(MM::MIN_FRAMES_PER_SECOND, MM::MAX_FRAMES_PER_SECOND);
+  _customFrameRateBox->setDecimals(FRAME_RATE_DECIMALS);
+  _customFrameRateBox->setValue(MM::DEFAULT_FRAMES_PER_SECOND);
+  _customFrameRateBox->setEnabled(false);
+
+  // The number box is only used for "Custom...".
+  connect(_frameRateBox, &QComboBox::currentIndexChanged, this, [this] {
+    const bool custom = (_frameRateBox->currentData().toDouble() == CUSTOM_FRAME_RATE);
+    _customFrameRateBox->setEnabled(custom);
+    if (!custom)
+      _customFrameRateBox->setValue(_frameRateBox->currentData().toDouble());
+  });
+
+  QHBoxLayout *frameRateFields = new QHBoxLayout;
+  frameRateFields->addWidget(_frameRateBox);
+  frameRateFields->addWidget(_customFrameRateBox);
+  frameRateFields->addStretch();
+
+  QFormLayout *frameRateForm = new QFormLayout;
+  frameRateForm->addRow(tr("Frame rate (frames per second)"), frameRateFields);
+
   QVBoxLayout *playbackLayout = new QVBoxLayout;
+  playbackLayout->addLayout(frameRateForm);
   playbackLayout->addWidget(_playInLoopBox, 1, Qt::AlignTop);
 
   _playbackWidget->setLayout(playbackLayout);
