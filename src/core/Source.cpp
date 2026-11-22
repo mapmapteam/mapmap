@@ -141,11 +141,10 @@ void Image::build()
   QImageReader reader(_uri);
   _images.clear();
   for (int i = 0; i < reader.imageCount(); i++) {
-    QImage raw = reader.read().convertToFormat(QImage::Format_RGBA8888);
-    QT_WARNING_PUSH
-    QT_WARNING_DISABLE_DEPRECATED
-    _images.push_back(raw.mirrored(true, false).transformed(QTransform().rotate(180)));
-    QT_WARNING_POP
+    // Upload rows top-first, like video and camera frames (see
+    // CameraSurface::onVideoFrameChanged): the old mirror + 180-degree
+    // rotation, a net vertical flip, made images appear upside-down.
+    _images.push_back(reader.read().convertToFormat(QImage::Format_RGBA8888));
   }
 
   rewind();
