@@ -19,8 +19,9 @@ INCLUDEPATH += $$CORE $$SHAPE $$CONTROL
 
 # Production sources under test plus the minimal set of dependencies they
 # need to link. We deliberately avoid pulling in the whole core/shape .pri
-# files because some core sources (Commands, Paint, ...) depend on the GUI
-# and multimedia back-ends, which are out of scope for these unit tests.
+# files because some core sources (Commands, ...) depend on the GUI, which is
+# out of scope for these unit tests. The model (sources, layers,
+# MappingManager) and the project reader/writer have no GUI dependency.
 HEADERS += \
     $$CORE/MM.h \
     $$CORE/Maths.h \
@@ -43,6 +44,10 @@ HEADERS += \
     $$CORE/VideoPlayerImpl.h \
     $$CORE/CameraImpl.h \
     $$CORE/CameraSurface.h \
+    $$CORE/Layer.h \
+    $$CORE/MappingManager.h \
+    $$CORE/ProjectReader.h \
+    $$CORE/ProjectWriter.h \
     TestMaths.h \
     TestUtil.h \
     TestUidAllocator.h \
@@ -50,7 +55,9 @@ HEADERS += \
     TestOsc.h \
     TestFileVersion.h \
     TestVideo.h \
-    TestCameraSource.h
+    TestCameraSource.h \
+    TestMappingManager.h \
+    TestProjectRoundTrip.h
 
 SOURCES += \
     $$CORE/MM.cpp \
@@ -70,6 +77,11 @@ SOURCES += \
     $$CORE/VideoPlayerImpl.cpp \
     $$CORE/CameraImpl.cpp \
     $$CORE/CameraSurface.cpp \
+    $$CORE/Layer.cpp \
+    $$CORE/MappingManager.cpp \
+    $$CORE/ProjectReader.cpp \
+    $$CORE/ProjectWriter.cpp \
+    $$CORE/MetaObjectRegistryBuiltins.cpp \
     main.cpp \
     TestMaths.cpp \
     TestUtil.cpp \
@@ -78,4 +90,9 @@ SOURCES += \
     TestOsc.cpp \
     TestFileVersion.cpp \
     TestVideo.cpp \
-    TestCameraSource.cpp
+    TestCameraSource.cpp \
+    TestMappingManager.cpp \
+    TestProjectRoundTrip.cpp
+
+# Projects read by TestProjectRoundTrip.
+DEFINES += MAPMAP_TEST_FIXTURES_DIR=\\\"$$PWD/fixtures\\\"

@@ -1,0 +1,3 @@
+# Project files are ignored at the root of the repository, but these ones are
+# test fixtures and must be committed.
+!*.mmp

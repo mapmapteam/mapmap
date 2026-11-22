@@ -1,0 +1,77 @@
+{
+    "layers": [
+        {
+            "className": "TextureLayer",
+            "depth": "1",
+            "destination": {
+                "className": "Mesh",
+                "locked": "false",
+                "nColumns": "2",
+                "nRows": "2",
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        200,
+                        10
+                    ],
+                    [
+                        5,
+                        140
+                    ],
+                    [
+                        190,
+                        150
+                    ]
+                ]
+            },
+            "id": 1,
+            "locked": "false",
+            "name": "Quad",
+            "opacity": "1",
+            "solo": "false",
+            "source": {
+                "className": "Mesh",
+                "locked": "false",
+                "nColumns": "2",
+                "nRows": "2",
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        2,
+                        0
+                    ],
+                    [
+                        0,
+                        2
+                    ],
+                    [
+                        2,
+                        2
+                    ]
+                ]
+            },
+            "sourceId": 1,
+            "visible": "true"
+        }
+    ],
+    "sources": [
+        {
+            "className": "Image",
+            "id": 1,
+            "locked": "false",
+            "name": "tiny",
+            "opacity": "1",
+            "rate": "1",
+            "uri": "media/tiny.png",
+            "x": 12.5,
+            "y": -4
+        }
+    ],
+    "version": "1.0.0-alpha.1"
+}

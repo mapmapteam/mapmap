@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapmap>
+<project version="0.6.3">
+  <paints>
+    <paint id="1" locked="false" name="#55aa7f" className="Color">
+      <opacity>1</opacity>
+      <color>#55aa7f</color>
+    </paint>
+    <paint id="2" locked="false" name="#ffaa00" className="Color">
+      <opacity>1</opacity>
+      <color>#ffaa00</color>
+    </paint>
+    <paint id="3" locked="false" name="#ff5500" className="Color">
+      <opacity>1</opacity>
+      <color>#ff5500</color>
+    </paint>
+    <paint id="4" locked="false" name="#005500" className="Color">
+      <opacity>1</opacity>
+      <color>#005500</color>
+    </paint>
+  </paints>
+  <mappings>
+    <mapping solo="false" depth="0" id="4" visible="true" locked="false" paintId="4" name="Mojojojo" className="ColorMapping">
+      <opacity>0.8999999761581421</opacity>
+      <destination className="Triangle">
+        <locked>false</locked>
+        <vertices>
+          <vertex x="211" y="71"/>
+          <vertex x="570" y="107"/>
+          <vertex x="401" y="-35"/>
+        </vertices>
+      </destination>
+    </mapping>
+    <mapping solo="false" depth="1" id="3" visible="true" locked="false" paintId="3" name="Ellipse 3" className="ColorMapping">
+      <opacity>0.699999988079071</opacity>
+      <destination className="Ellipse">
+        <locked>false</locked>
+        <vertices>
+          <vertex x="67.2" y="208.6"/>
+          <vertex x="203.303" y="44.5997"/>
+          <vertex x="401" y="-35"/>
+          <vertex x="264.897" y="129"/>
+        </vertices>
+      </destination>
+    </mapping>
+    <mapping solo="false" depth="2" id="2" visible="true" locked="false" paintId="2" name="Mesh 2" className="ColorMapping">
+      <opacity>0.5</opacity>
+      <destination className="Mesh">
+        <locked>false</locked>
+        <nColumns>2</nColumns>
+        <nRows>2</nRows>
+        <vertices>
+          <vertex x="42" y="213"/>
+          <vertex x="570" y="107"/>
+          <vertex x="144.2" y="280"/>
+          <vertex x="520" y="180"/>
+        </vertices>
+      </destination>
+    </mapping>
+    <mapping solo="false" depth="3" id="1" visible="true" locked="false" paintId="1" name="Triangle 1" className="ColorMapping">
+      <opacity>1</opacity>
+      <destination className="Triangle">
+        <locked>false</locked>
+        <vertices>
+          <vertex x="42" y="213"/>
+          <vertex x="570" y="107"/>
+          <vertex x="211" y="71"/>
+        </vertices>
+      </destination>
+    </mapping>
+  </mappings>
+</project>

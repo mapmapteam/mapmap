@@ -1,0 +1,50 @@
+{
+    "layers": [
+        {
+            "className": "ColorLayer",
+            "depth": "1",
+            "destination": {
+                "className": "Mesh",
+                "locked": "false",
+                "nColumns": "2",
+                "nRows": "2",
+                "vertices": [
+                    [
+                        10.5,
+                        20
+                    ],
+                    [
+                        300,
+                        15.25
+                    ],
+                    [
+                        5,
+                        250
+                    ],
+                    [
+                        310,
+                        240
+                    ]
+                ]
+            },
+            "id": 1,
+            "locked": "false",
+            "name": "Quad 1",
+            "opacity": "0.5",
+            "solo": "false",
+            "sourceId": 1,
+            "visible": "true"
+        }
+    ],
+    "sources": [
+        {
+            "className": "Color",
+            "color": "#ffaa00",
+            "id": 1,
+            "locked": "false",
+            "name": "orange",
+            "opacity": "0.800000011920929"
+        }
+    ],
+    "version": "1.0.0-alpha.1"
+}
