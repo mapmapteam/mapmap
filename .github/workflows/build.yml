@@ -83,10 +83,13 @@ jobs:
         make -j$(nproc)
         QT_QPA_PLATFORM=offscreen make check
 
+    - name: Package
+      run: bash scripts/sh_package_linux.sh --skip-build
+
     - uses: actions/upload-artifact@v7
       with:
         name: MapMap-ubuntu
-        path: mapmap
+        path: dist/*.tar.gz
 
 
   build-macos:
@@ -129,7 +132,10 @@ jobs:
         make -j$(sysctl -n hw.logicalcpu)
         QT_QPA_PLATFORM=offscreen make check
 
+    - name: Package
+      run: bash scripts/sh_package_macos.sh --skip-build
+
     - uses: actions/upload-artifact@v7
       with:
         name: MapMap-macos
-        path: MapMap.app/
+        path: dist/*.dmg
