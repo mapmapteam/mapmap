@@ -2278,7 +2278,8 @@ void MainWindow::createActions()
   playAction->setIconVisibleInMenu(false);
   playAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(playAction);
-  connect(playAction, &QAction::triggered, this, &MainWindow::play);
+  // Lambdas: triggered(bool) would pass false as updatePlayPauseActions.
+  connect(playAction, &QAction::triggered, this, [this] { play(); });
   playAction->setVisible(true);
 
   // Pause.
@@ -2289,7 +2290,7 @@ void MainWindow::createActions()
   pauseAction->setIconVisibleInMenu(false);
   pauseAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(pauseAction);
-  connect(pauseAction, &QAction::triggered, this, &MainWindow::pause);
+  connect(pauseAction, &QAction::triggered, this, [this] { pause(); });
   pauseAction->setVisible(false);
 
   // Rewind.
@@ -2469,15 +2470,16 @@ void MainWindow::createActions()
   zoomInAction->setShortcut(QKeySequence::ZoomIn);
   zoomInAction->setToolTip(tr("Zoom In"));
   zoomInAction->setEnabled(false);
-  connect(zoomInAction, &QAction::triggered, sourceCanvas, &MapperGLCanvas::increaseZoomLevel);
-  connect(zoomInAction, &QAction::triggered, destinationCanvas, &MapperGLCanvas::increaseZoomLevel);
+  // Lambdas: triggered(bool) would pass false (0) as the number of zoom steps.
+  connect(zoomInAction, &QAction::triggered, sourceCanvas, [this] { sourceCanvas->increaseZoomLevel(); });
+  connect(zoomInAction, &QAction::triggered, destinationCanvas, [this] { destinationCanvas->increaseZoomLevel(); });
   // Zoom Out
   zoomOutAction = new QAction(tr("Zoom Out"), this);
   zoomOutAction->setShortcut(QKeySequence::ZoomOut);
   zoomOutAction->setToolTip(tr("Zoom Out"));
   zoomOutAction->setEnabled(false);
-  connect(zoomOutAction, &QAction::triggered, sourceCanvas, &MapperGLCanvas::decreaseZoomLevel);
-  connect(zoomOutAction, &QAction::triggered, destinationCanvas, &MapperGLCanvas::decreaseZoomLevel);
+  connect(zoomOutAction, &QAction::triggered, sourceCanvas, [this] { sourceCanvas->decreaseZoomLevel(); });
+  connect(zoomOutAction, &QAction::triggered, destinationCanvas, [this] { destinationCanvas->decreaseZoomLevel(); });
   // Reset zoom
   resetZoomAction = new QAction(tr("Original Size"), this);
   resetZoomAction->setShortcut(Qt::CTRL | Qt::Key_0);

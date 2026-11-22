@@ -58,7 +58,9 @@ void MapperGLCanvasToolbar::createZoomToolsLayout()
   _zoomInButton->setToolTip(tr("Enlarge the shape"));
   _zoomInButton->setFixedSize(QSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE));
   _zoomInButton->setObjectName("zoom-in");
-  connect(_zoomInButton, &QAbstractButton::clicked, _canvas, &MapperGLCanvas::increaseZoomLevel);
+  // Lambdas, not direct slot pointers: clicked(bool) would pass false (0)
+  // as the number of zoom steps.
+  connect(_zoomInButton, &QAbstractButton::clicked, _canvas, [this] { _canvas->increaseZoomLevel(); });
   // Zoom Out button
   _zoomOutButton = new QToolButton;
   _zoomOutButton->setIcon(QIcon(":/zoom-out"));
@@ -66,7 +68,7 @@ void MapperGLCanvasToolbar::createZoomToolsLayout()
   _zoomOutButton->setToolTip(tr("Shrink the shape"));
   _zoomOutButton->setFixedSize(QSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE));
   _zoomOutButton->setObjectName("zoom-out");
-  connect(_zoomOutButton, &QAbstractButton::clicked, _canvas, &MapperGLCanvas::decreaseZoomLevel);
+  connect(_zoomOutButton, &QAbstractButton::clicked, _canvas, [this] { _canvas->decreaseZoomLevel(); });
   // Reset to normal size button.
   _resetZoomButton = new QToolButton;
   _resetZoomButton->setIcon(QIcon(":/reset-zoom"));
