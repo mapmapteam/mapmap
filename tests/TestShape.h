@@ -25,6 +25,13 @@ private slots:
   void translate();
   void applyTransform();
   void polygonRoundTrip();
+  void ellipseAffineCenter();
+  void ellipseAxisModeConstrainsVertices();
+  void ellipsePerspectiveVerticesAreFree();
+  void ellipsePerspectiveContour();
+  void ellipseRejectsInvalidPerspective();
+  void ellipseCenterDragTranslates();
+  void ellipseResetsOffCenterControl();
 };
 
 #endif /* TEST_SHAPE_H_ */

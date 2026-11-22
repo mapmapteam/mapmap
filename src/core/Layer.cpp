@@ -21,6 +21,7 @@
 
 #include "Layer.h"
 #include "MainWindow.h"
+#include "Ellipse.h"
 
 namespace mmp {
 
@@ -42,6 +43,17 @@ Layer::Layer(Source::ptr source, MShape::ptr shape, MShape::ptr inputShape, uid 
 {
   // Default.
   _depth = getId();
+
+  _assignShapeRole(_shape, true);
+  _assignShapeRole(_inputShape, false);
+}
+
+void Layer::_assignShapeRole(const MShape::ptr& shape, bool isOutput)
+{
+  // Output ellipses can be distorted in perspective; input ellipses remain axis-aligned.
+  Ellipse* ellipse = qobject_cast<Ellipse*>(shape.data());
+  if (ellipse)
+    ellipse->setPerspective(isOutput);
 }
 
 Layer::~Layer() {

@@ -265,22 +265,6 @@ private:
 /// Graphics item for textured mesh.
 class EllipseTextureGraphicsItem : public TextureGraphicsItem
 {
-  static const int N_QUARTERS = 4;
-
-  class DrawingData {
-  public:
-    QPointF center;
-    QPointF controlCenter;
-    float   horizontalRadius;
-    float   verticalRadius;
-    float   rotation;
-    float   quarterAngles[N_QUARTERS];
-
-    DrawingData(const QSharedPointer<Ellipse>& ellipse);
-    float getSpanInQuarter(int quarter) const;
-    void setPointOfEllipseAtAngle(QPointF& point, float circularAngle);
-  };
-
 public:
   EllipseTextureGraphicsItem(Layer::ptr mapping, bool output=true);
   virtual ~EllipseTextureGraphicsItem(){}
@@ -290,7 +274,9 @@ public:
 
   virtual void _doDrawOutput(QPainter* painter);
 
-  static void _setPointOfEllipseAtAngle(QPointF& point, const QPointF& center, float hRadius, float vRadius, float rotation, float circularAngle);
+protected:
+  /// Sets texture point using homogeneous coordinates for an exact projective mapping.
+  void _setGlProjectiveTexPoint(const Texture& texture, const QTransform& outputToInput, const QPointF& outputPoint);
 };
 
 }

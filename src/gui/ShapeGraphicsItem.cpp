@@ -193,11 +193,9 @@ QPainterPath EllipseColorGraphicsItem::shape() const
   auto strong = _shape.toStrongRef();
   if (!strong) return path;
   Ellipse* ellipse = static_cast<Ellipse*>(strong.data());
-  QTransform transform;
-  transform.translate(ellipse->getCenter().x(), ellipse->getCenter().y());
-  transform.rotate(ellipse->getRotation());
-  path.addEllipse(QPoint(0,0), ellipse->getHorizontalRadius(), ellipse->getVerticalRadius());
-  return mapFromScene(transform.map(path));
+  path.addPolygon(ellipse->toPolygon());
+  path.closeSubpath();
+  return mapFromScene(path);
 }
 
 void EllipseColorGraphicsItem::_doPaint(QPainter* painter,
@@ -520,42 +518,6 @@ QList<Quad::ptr> MeshTextureGraphicsItem::_split(const Quad& quad)
   return quads;
 }
 
-EllipseTextureGraphicsItem::DrawingData::DrawingData(const QSharedPointer<Ellipse>& ellipse)
-{
-  // Gather basic definitions.
-  center           = ellipse->getCenter();
-  controlCenter    = ellipse->getVertex(4);
-  horizontalRadius = ellipse->getHorizontalRadius();
-  verticalRadius   = ellipse->getVerticalRadius();
-  rotation         = ellipse->getRotationRadians();
-
-  // Compute quarter angles.
-  const QPointF& unitControlCenter  = ellipse->toUnitCircle().map(controlCenter);
-  float inputAngle1 = asin(unitControlCenter.y());
-  float inputAngle2 = acos(unitControlCenter.x());
-  quarterAngles[0] = inputAngle1;
-  quarterAngles[1] = inputAngle2;
-  quarterAngles[2] = M_PI   - inputAngle1;
-  quarterAngles[3] = 2*M_PI - inputAngle2;
-}
-
-float EllipseTextureGraphicsItem::DrawingData::getSpanInQuarter(int quarter) const
-{
-  float angleSpan = quarterAngles[(quarter+1)%N_QUARTERS] - quarterAngles[quarter];
-  while (angleSpan < 0) angleSpan += 2*M_PI;
-  return angleSpan;
-}
-
-void EllipseTextureGraphicsItem::DrawingData::setPointOfEllipseAtAngle(QPointF& point, float circularAngle)
-{
-  float xCirc = cos(circularAngle) * horizontalRadius; // this looks really weird...
-  float yCirc = sin(circularAngle) * verticalRadius;
-  float distance = sqrt( xCirc*xCirc + yCirc*yCirc );
-  float angle    = atan2( yCirc, xCirc );
-  point.setX( cos(angle + rotation) * distance + center.x() );
-  point.setY( sin(angle + rotation) * distance + center.y() );
-}
-
 EllipseTextureGraphicsItem::EllipseTextureGraphicsItem(Layer::ptr mapping, bool output) : TextureGraphicsItem(mapping, output) {
   _controlPainter.reset(new EllipseControlPainter(this));
 }
@@ -567,11 +529,9 @@ QPainterPath EllipseTextureGraphicsItem::shape() const
   auto strong = _shape.toStrongRef();
   if (!strong) return path;
   Ellipse* ellipse = static_cast<Ellipse*>(strong.data());
-  QTransform transform;
-  transform.translate(ellipse->getCenter().x(), ellipse->getCenter().y());
-  transform.rotate(ellipse->getRotation());
-  path.addEllipse(QPoint(0,0), ellipse->getHorizontalRadius(), ellipse->getVerticalRadius());
-  return mapFromScene(transform.map(path));
+  path.addPolygon(ellipse->toPolygon());
+  path.closeSubpath();
+  return mapFromScene(path);
 }
 
 QRectF EllipseTextureGraphicsItem::boundingRect() const
@@ -579,64 +539,49 @@ QRectF EllipseTextureGraphicsItem::boundingRect() const
   return shape().boundingRect();
 }
 
+void EllipseTextureGraphicsItem::_setGlProjectiveTexPoint(const Texture& texture,
+                                                          const QTransform& outputToInput,
+                                                          const QPointF& outputPoint)
+{
+  // Homogeneous input coordinates (a, b, q) of output point: the input point is (a/q, b/q).
+  // Since (a, b, q) varies linearly across each output triangle, letting OpenGL divide by q
+  // per fragment yields an exact perspective mapping.
+  const qreal x = outputPoint.x();
+  const qreal y = outputPoint.y();
+  const qreal a = outputToInput.m11()*x + outputToInput.m21()*y + outputToInput.m31();
+  const qreal b = outputToInput.m12()*x + outputToInput.m22()*y + outputToInput.m32();
+  const qreal q = outputToInput.m13()*x + outputToInput.m23()*y + outputToInput.m33();
+  glTexCoord4f((a - texture.getX()*q) / texture.getWidth(),
+               (b - texture.getY()*q) / texture.getHeight(),
+               0, q);
+
+  const QPointF& drawnPoint = mapFromScene(outputPoint);
+  glVertex2f(drawnPoint.x(), drawnPoint.y());
+}
+
 void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 {
   Q_UNUSED(painter);
   // Get input and output ellipses.
-  QSharedPointer<Ellipse> inputEllipse  = qSharedPointerCast<Ellipse>(_inputShape);
-  QSharedPointer<Ellipse> outputEllipse = qSharedPointerCast<Ellipse>(_shape);
+  QSharedPointer<Ellipse> inputEllipse  = qSharedPointerCast<Ellipse>(_inputShape.toStrongRef());
+  QSharedPointer<Ellipse> outputEllipse = qSharedPointerCast<Ellipse>(_shape.toStrongRef());
   QSharedPointer<Texture> texture = _getTexture();
+  if (!inputEllipse || !outputEllipse || !texture)
+    return;
 
-  // Data for calculating drawing.
-  DrawingData inputData(inputEllipse);
-  DrawingData outputData(outputEllipse);
+  // Projective mapping output -> unit circle -> input.
+  const QTransform outputToInput = outputEllipse->toUnitCircle() * inputEllipse->fromUnitCircle();
+  const QTransform fromUnitCircle = outputEllipse->fromUnitCircle();
 
-  // Points that contain the triangle positions on the border of the ellipse.
-  QPointF currentInputPoint;
-  QPointF prevInputPoint(0, 0);
-  QPointF currentOutputPoint;
-  QPointF prevOutputPoint(0, 0);
-
-  // Draw each quarter of the ellipse.
-  for (int i=0; i<N_QUARTERS; i++)
+  // Draw a fan of triangles around the perspective center.
+  glBegin(GL_TRIANGLE_FAN);
+  _setGlProjectiveTexPoint(*texture, outputToInput, outputEllipse->getCenter());
+  for (int i=0; i<=MM::ELLIPSE_N_TRIANGLES; i++)
   {
-    // Total angle range of current quarter.
-    float inputAngleSpanInQuarter  = inputData.getSpanInQuarter(i);
-    float outputAngleSpanInQuarter = outputData.getSpanInQuarter(i);
-
-    // N. triangles (computed according to output).
-    int nTrianglesInQuarter  = ceil(outputAngleSpanInQuarter / (2*M_PI) * MM::ELLIPSE_N_TRIANGLES);
-
-    // Angle per triangle.
-    float inputAnglePerTriangle  = inputAngleSpanInQuarter / nTrianglesInQuarter;
-    float outputAnglePerTriangle = outputAngleSpanInQuarter / nTrianglesInQuarter;
-
-    float inputAngle  = inputData.quarterAngles[i];
-    float outputAngle = outputData.quarterAngles[i];
-    for (int j=0; j<=nTrianglesInQuarter; j++, inputAngle += inputAnglePerTriangle, outputAngle += outputAnglePerTriangle)
-    {
-      // Set next (current) points.
-      inputData.setPointOfEllipseAtAngle(currentInputPoint, inputAngle);
-      outputData.setPointOfEllipseAtAngle(currentOutputPoint, outputAngle);
-
-      if (j > 0) // We don't draw the first triangle.
-      {
-        // Draw triangle.
-        glBegin(GL_TRIANGLES);
-        Util::setGlTexPoint(*texture, inputData.controlCenter, outputData.controlCenter);
-        Util::setGlTexPoint(*texture, prevInputPoint,     prevOutputPoint);
-        Util::setGlTexPoint(*texture, currentInputPoint,  currentOutputPoint);
-        glEnd();
-      }
-
-      // Save point for next iteration.
-      prevInputPoint.setX(currentInputPoint.x());
-      prevInputPoint.setY(currentInputPoint.y());
-      prevOutputPoint.setX(currentOutputPoint.x());
-      prevOutputPoint.setY(currentOutputPoint.y());
-    }
-
+    qreal angle = 2 * M_PI * i / MM::ELLIPSE_N_TRIANGLES;
+    _setGlProjectiveTexPoint(*texture, outputToInput, fromUnitCircle.map(QPointF(cos(angle), sin(angle))));
   }
+  glEnd();
 }
 
 }

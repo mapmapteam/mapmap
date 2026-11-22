@@ -149,13 +149,16 @@ public:
 
   virtual void setSource(Source::ptr source);
 	virtual void setSourceById(uid sourceId);
-  virtual void setShape(MShape::ptr s) { _shape = s; }
-  virtual void setInputShape(MShape::ptr s) { _inputShape = s; }
+  virtual void setShape(MShape::ptr s) { _shape = s; _assignShapeRole(s, true); }
+  virtual void setInputShape(MShape::ptr s) { _inputShape = s; _assignShapeRole(s, false); }
 
   virtual void read(const QJsonObject& obj);
   virtual void write(QJsonObject& obj);
 
 protected:
+  /// Configures shape according to its role (output shapes may be distorted in perspective).
+  static void _assignShapeRole(const MShape::ptr& shape, bool isOutput);
+
   void _readShape(const QJsonObject& obj, bool isOutput);
   void _writeShape(QJsonObject& obj, bool isOutput);
 };
