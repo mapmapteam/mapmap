@@ -172,6 +172,10 @@ private:
   // The zoom level (in number of steps).
   int _zoomLevel;
 
+  // Wheel movement not yet turned into a zoom step (in 1/8 of a degree,
+  // 120 per notch); see wheelEvent().
+  int _wheelZoomRemainder;
+
   // The scaling factor
   qreal _scalingFactor;
 
