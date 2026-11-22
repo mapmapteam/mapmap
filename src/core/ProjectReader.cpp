@@ -136,6 +136,9 @@ void ProjectReader::locateMedia(Source::ptr source)
   if (!_mediaLocator)
     return;
 
+  // An empty uri means the user cancelled: keep the original one, so that
+  // saving the project does not lose the path to the missing file.
+  //
   // Guard the casts: a source that claims to be Video/Image but cannot be
   // cast (corrupt entry) must not be dereferenced — Q_CHECK_PTR is a no-op
   // in release builds. A camera has a capture device ID for URI, not a file
@@ -146,7 +149,7 @@ void ProjectReader::locateMedia(Source::ptr source)
     if (!media.isNull() && !media->isCamera())
     {
       QString uri = _mediaLocator(media->getUri(), false);
-      if (uri != media->getUri())
+      if (!uri.isEmpty() && uri != media->getUri())
         media->setUri(uri);
     }
   }
@@ -156,7 +159,7 @@ void ProjectReader::locateMedia(Source::ptr source)
     if (!image.isNull())
     {
       QString uri = _mediaLocator(image->getUri(), true);
-      if (uri != image->getUri())
+      if (!uri.isEmpty() && uri != image->getUri())
         image->setUri(uri);
     }
   }

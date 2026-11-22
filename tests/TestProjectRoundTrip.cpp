@@ -211,6 +211,34 @@ void TestProjectRoundTrip::rejectsInvalidJson()
   QVERIFY(!error.contains("XML"));
 }
 
+void TestProjectRoundTrip::keepsMediaUriWhenLocateIsCancelled()
+{
+  // When a media file is missing, MapMap asks the user to locate it. If the
+  // user cancels, the original path must be kept so that saving the project
+  // does not lose it.
+  const QStringList fixtures = QStringList() << "quad-missing-video.mmp" << "quad-image.mmp";
+  for (const QString& fixture : fixtures)
+  {
+    const QByteArray original = readFixture(fixturesDir() + "/" + fixture);
+    const QString uri = parse(original)["sources"].toArray()[0].toObject()["uri"].toString();
+
+    QBuffer buffer;
+    buffer.setData(original);
+    buffer.open(QIODevice::ReadOnly);
+    MappingManager manager;
+    int nCalls = 0;
+    ProjectReader reader(manager, [&nCalls](const QString&, bool) {
+      nCalls++;
+      return QString(); // Cancelled.
+    });
+    QVERIFY2(reader.readFile(&buffer), qPrintable(reader.errorString()));
+    QCOMPARE(nCalls, 1);
+
+    const QJsonObject written = parse(writeProject(manager));
+    QCOMPARE(written["sources"].toArray()[0].toObject()["uri"].toString(), uri);
+  }
+}
+
 void TestProjectRoundTrip::skipsLayerWithoutSource()
 {
   // A layer whose source is missing (eg. a macOS-only Syphon source skipped
