@@ -25,12 +25,31 @@
 
 namespace mmp {
 
+/**
+ * Ellipse defined as the projective image of a unit circle.
+ *
+ * Vertices 0-3 are the images of the circle's quarter points (-1,0), (0,-1), (1,0), (0,1)
+ * and fully define a homography from the unit circle to the ellipse. Vertex 4 (optional)
+ * is the image of the circle's center, ie. the perspective-correct center of the ellipse:
+ * it is derived from the other vertices and dragging it moves the whole shape.
+ *
+ * In perspective mode (default) vertices 0-3 can be moved freely, as long as the circle's
+ * image remains an ellipse. Otherwise the shape is constrained to an axis-aligned ellipse,
+ * with vertices 1-3 kept perpendicular to vertices 0-2.
+ */
 class Ellipse : public MShape
 {
   Q_OBJECT
 public:
-  Q_INVOKABLE Ellipse() {}
+  /// Maximum perspective strength allowed (0 = none, 1 = degenerate).
+  static constexpr qreal MAX_PERSPECTIVE = 0.95;
+
+  /// Default number of segments used to approximate the contour.
+  static const int N_POLYGON_SEGMENTS = 100;
+
+  Q_INVOKABLE Ellipse() : _perspective(true) {}
   Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4, QPointF p5)
+    : _perspective(true)
   {
     _addVertex(p1);
     _addVertex(p2);
@@ -41,6 +60,7 @@ public:
   }
 
   Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4, bool hasCenterControl=true)
+    : _perspective(true)
   {
     _addVertex(p1);
     _addVertex(p2);
@@ -53,8 +73,7 @@ public:
 
   virtual ~Ellipse() {}
 
-  /// Remaps points so as to make sure this is a correct ellipse, keeping vertices 0 and 2 as
-  /// reference for the horizzontal axis.
+  /// Makes sure this is a correct ellipse and updates the center control point.
   void sanitize();
 
   virtual void build() {
@@ -62,6 +81,12 @@ public:
   }
 
   virtual ShapeType getType() const { return ShapeType::Ellipse; }
+
+  /// Returns true iff vertices 0-3 can be moved freely (perspective ellipse).
+  bool isPerspective() const { return _perspective; }
+
+  /// Enables or disables perspective mode (disabling it remaps the shape to an axis-aligned ellipse).
+  void setPerspective(bool perspective);
 
   qreal getRotationRadians() const
   {
@@ -79,18 +104,8 @@ public:
     return (nVertices() == 5);
   }
 
-  /// If v is outside boundaries, remap it to the border.
-  QPointF clipInside(const QPointF& v) const;
-
-//  QRect getBoundingRect() const {
-//    return QRect(0,                                     getVerticalAxis().manhattanLength(),
-//                 getHorizontalAxis().manhattanLength(), getVerticalAxis().manhattanLength());
-//  }
-//
-  QPointF getCenter() const
-  {
-    return (QVector2D(getVertex(0)) - (getHorizontalAxis() / 2)).toPointF();
-  }
+  /// Returns the perspective-correct center (image of the unit circle's center).
+  QPointF getCenter() const;
 
   QVector2D getHorizontalAxis() const
   {
@@ -112,16 +127,19 @@ public:
     return getVerticalAxis().length() / 2;
   }
 
-  /// Remaps point from ellipse to a circle with radius 1 set at origin (0,0).
-  QTransform toUnitCircle() const;
-
-  /// Remaps point from circle with radius 1 set at origin (0,0) to ellipse coordinates.
+  /// Homography mapping the unit circle (centered at origin) to this ellipse.
   QTransform fromUnitCircle() const;
 
-  /** Return true if Shape includes point (x,y), false otherwise
-   *  Algorithm should work for all polygons, including non-convex
-   *  Found at http://www.cs.tufts.edu/comp/163/notes05/point_inclusion_handout.pdf
-   */
+  /// Homography mapping this ellipse to the unit circle (centered at origin).
+  QTransform toUnitCircle() const;
+
+  /// Returns true iff vertices 0-3 define a valid ellipse.
+  bool isValid() const;
+
+  /// Returns the contour of the ellipse as a polygon.
+  QPolygonF toPolygon(int nSegments=N_POLYGON_SEGMENTS) const;
+
+  /// Return true if the ellipse includes point (x,y), false otherwise.
   virtual bool includesPoint(qreal x, qreal y);
 
   virtual bool includesPoint(const QPointF& p)
@@ -135,16 +153,37 @@ public:
   // Returns true iff vertex index is considered a major (external) control point.
   virtual bool isMajorVertex(int idx) const;
 
+  virtual void copyFrom(const MShape& shape);
+
 protected:
   /// Returns a new MShape (using default constructor).
   virtual MShape* _create() const { return new Ellipse(); }
 
-//protected:
-//  virtual void _vertexChanged(int i, Point* p=NULL) {
-//    // Get horizontal and vertical axis length.
-//    qreal hAxisLength = Point::dist(getVertex(0)->toPoint(), getVertex(2)->toPoint());
-//    qreal vAxisLength = Point::dist(getVertex(1)->toPoint(), getVertex(3)->toPoint());
-//  }
+  /// Computes the homography unit circle -> ellipse; returns false if degenerate.
+  bool _computeFromUnitCircle(QTransform& transform) const;
+
+  /// Returns true iff transform maps the unit circle to a (non-degenerate) ellipse.
+  static bool _isValidTransform(const QTransform& transform);
+
+  /// Center of the ellipse according to the horizontal axis (vertices 0 and 2).
+  QPointF _axisCenter() const
+  {
+    return (QVector2D(getVertex(0)) - (getHorizontalAxis() / 2)).toPointF();
+  }
+
+  /// Affine version of toUnitCircle() based on the axes (used in non-perspective mode).
+  QTransform _axisToUnitCircle() const;
+
+  /// Remaps vertices 1 and 3 so as to make an axis-aligned ellipse.
+  void _sanitizeAxes();
+
+  /// Sets vertex in non-perspective mode.
+  void _setAxisVertex(int i, const QPointF& v);
+
+  /// Sets vertex in perspective mode, clamping it to remain a valid ellipse.
+  void _setPerspectiveVertex(int i, const QPointF& v);
+
+  bool _perspective;
 };
 
 }

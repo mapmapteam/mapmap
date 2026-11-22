@@ -69,7 +69,7 @@ curl -s -X POST http://localhost:49452/mcp \
 Vertex order is **clockwise from top-left**: top-left, top-right, bottom-right, bottom-left.
 - Quad: 4 vertices
 - Triangle: 3 vertices (bottom-left, bottom-right, top-center)
-- Ellipse: 5 vertices (left, top, right, bottom, rotation-handle)
+- Ellipse: 5 vertices (left, top, right, bottom, center). Output ellipses are perspective: the first 4 are free rim points (images of the input's quarter points); the center is derived (perspective-correct) and recomputed automatically.
 
 ### Properties
 | Tool | Args | Description |

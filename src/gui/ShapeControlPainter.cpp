@@ -79,12 +79,7 @@ void EllipseControlPainter::paintShape(QPainter *painter, MapperGLCanvas* canvas
   painter->setBrush(Qt::NoBrush);
 
   // Draw ellipse contour.
-  QPainterPath path;
-  QTransform transform;
-  transform.translate(ellipse->getCenter().x(), ellipse->getCenter().y());
-  transform.rotate(ellipse->getRotation());
-  path.addEllipse(QPoint(0,0), ellipse->getHorizontalRadius(), ellipse->getVerticalRadius());
-  painter->drawPath(transform.map(path));
+  painter->drawPolygon(ellipse->toPolygon());
 }
 
 void MeshControlPainter::paintShape(QPainter *painter, MapperGLCanvas* canvas, bool selected)

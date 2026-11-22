@@ -377,6 +377,7 @@ QJsonObject McpServer::handleToolsCall(const QJsonObject& params)
     if (points.size() != shape->nVertices())
       return textResult(QString("Expected %1 vertices, got %2.").arg(shape->nVertices()).arg(points.size()), true);
     shape->setVertices(points);
+    shape->build();
     _mainWindow->updateCanvases();
     return textResult(QString("Set %1 vertices on layer %2.").arg(points.size()).arg(id));
   }
