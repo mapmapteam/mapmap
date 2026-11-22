@@ -36,12 +36,17 @@ HEADERS += \
     $$SHAPE/Ellipse.h \
     $$SHAPE/Shapes.h \
     $$CONTROL/OscAction.h \
+    $$CORE/VideoImpl.h \
+    $$CORE/VideoPlayerImpl.h \
+    $$CORE/CameraImpl.h \
+    $$CORE/CameraSurface.h \
     TestMaths.h \
     TestUtil.h \
     TestUidAllocator.h \
     TestShape.h \
     TestOsc.h \
-    TestFileVersion.h
+    TestFileVersion.h \
+    TestVideo.h
 
 SOURCES += \
     $$CORE/MM.cpp \
@@ -54,10 +59,15 @@ SOURCES += \
     $$SHAPE/Mesh.cpp \
     $$SHAPE/Ellipse.cpp \
     $$CONTROL/OscAction.cpp \
+    $$CORE/VideoImpl.cpp \
+    $$CORE/VideoPlayerImpl.cpp \
+    $$CORE/CameraImpl.cpp \
+    $$CORE/CameraSurface.cpp \
     main.cpp \
     TestMaths.cpp \
     TestUtil.cpp \
     TestUidAllocator.cpp \
     TestShape.cpp \
     TestOsc.cpp \
-    TestFileVersion.cpp
+    TestFileVersion.cpp \
+    TestVideo.cpp
