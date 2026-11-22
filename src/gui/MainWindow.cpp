@@ -169,11 +169,14 @@ MainWindow::MainWindow()
   // Allow drag n drop
   setAcceptDrops(true);
 
-  // Create and start timer.
+  // Create and start timer. It is re-armed after each frame towards the next
+  // frame's deadline (see scheduleNextFrame()): a repeating timer would only
+  // tick at a whole number of milliseconds, eg. 42 ms (23.81 fps) for 24 fps.
   videoTimer = new QTimer(this);
+  videoTimer->setSingleShot(true);
+  videoTimer->setTimerType(Qt::PreciseTimer);
   connect(videoTimer, &QTimer::timeout, this, &MainWindow::processFrame);
   setFramesPerSecond(QSettings().value("framesPerSecond", MM::DEFAULT_FRAMES_PER_SECOND).toDouble());
-  videoTimer->start();
 
   // Create elapsed timer.
   systemTimer = new QElapsedTimer;
@@ -3793,15 +3796,44 @@ void MainWindow::processFrame()
   {
     // Frames counted over the real time elapsed since the last update. Divide
     // as floating point: an integer division of frames by milliseconds is 0.
-    const qint64 elapsedMs = systemTimer->restart();
-    const qreal trueFramesPerSecond = (elapsedMs > 0)
-        ? nFrames * MM::MILLISECONDS_PER_SECOND / qreal(elapsedMs)
+    const qint64 elapsedNs = systemTimer->nsecsElapsed();
+    systemTimer->restart();
+    const qreal trueFramesPerSecond = (elapsedNs > 0)
+        ? nFrames * qreal(MM::NANOSECONDS_PER_SECOND) / elapsedNs
         : 0;
     trueFramesPerSecondsLabel->setText(
         "FPS: " + QString::number(trueFramesPerSecond, 'f', 2) + " / " +
         QString::number(framesPerSecond()  , 'f', 2));
     nFrames = 0;
   }
+
+  scheduleNextFrame();
+}
+
+void MainWindow::scheduleNextFrame()
+{
+  // Frame k is due k frame periods after the start of the frame clock, so the
+  // rounding of each timer interval to whole milliseconds does not add up.
+  _frameCount++;
+  const qint64 deadlineNs = qRound64(_frameCount * MM::NANOSECONDS_PER_SECOND / _framesPerSecond);
+  const qint64 remainingNs = deadlineNs - _frameClock.nsecsElapsed();
+
+  // Too late by more than a frame (eg. a slow frame or a stall): start over
+  // from now rather than rushing through the missed frames.
+  if (remainingNs < -qRound64(MM::NANOSECONDS_PER_SECOND / _framesPerSecond))
+  {
+    restartFrameClock();
+    return;
+  }
+
+  videoTimer->start(int(qMax<qint64>(0, qRound64(qreal(remainingNs) / MM::NANOSECONDS_PER_MILLISECOND))));
+}
+
+void MainWindow::restartFrameClock()
+{
+  _frameClock.start();
+  _frameCount = 0;
+  scheduleNextFrame();
 }
 
 void MainWindow::notifyActivity()
@@ -3870,9 +3902,9 @@ void MainWindow::enableDisplayControls(bool display)
 
 void MainWindow::setFramesPerSecond(qreal fps)
 {
-  // Clamp, which also guards the division below against zero.
+  // Clamp, which also guards the divisions in scheduleNextFrame() against zero.
   _framesPerSecond = qBound(MM::MIN_FRAMES_PER_SECOND, fps, MM::MAX_FRAMES_PER_SECOND);
-  videoTimer->setInterval(qRound(MM::MILLISECONDS_PER_SECOND / _framesPerSecond));
+  restartFrameClock();
 }
 
 void MainWindow::enableDisplaySourceControls(bool display)

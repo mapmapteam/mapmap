@@ -277,6 +277,12 @@ public slots:
    */
   void processFrame();
 
+  /// Arms the frame timer for the next frame's deadline on the frame clock.
+  void scheduleNextFrame();
+  /// Restarts the frame clock from now (eg. after a frame rate change) and
+  /// schedules the next frame.
+  void restartFrameClock();
+
   /**
    * Tells the window that something which may change what is displayed just
    * happened (user input, OSC or MCP command): the canvases are then redrawn
@@ -637,6 +643,9 @@ private:
   QListWidgetItem* currentSelectedItem;
   QModelIndex currentSelectedIndex;
   QTimer *videoTimer;
+  // Time since the frame schedule started, and frames scheduled since then.
+  QElapsedTimer _frameClock;
+  qint64 _frameCount;
   QElapsedTimer *systemTimer;
   // Time elapsed since the last call to notifyActivity().
   QElapsedTimer _activityTimer;

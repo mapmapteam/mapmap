@@ -138,6 +138,8 @@ public:
   static const qreal MIN_FRAMES_PER_SECOND;
   static const qreal MAX_FRAMES_PER_SECOND;
   static const int MILLISECONDS_PER_SECOND = 1000;
+  static constexpr qint64 NANOSECONDS_PER_SECOND = 1000000000;
+  static constexpr qint64 NANOSECONDS_PER_MILLISECOND = 1000000;
 
   // Zoom.
   static const qreal ZOOM_FACTOR;
