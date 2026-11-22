@@ -27,6 +27,7 @@ SOURCES += $$PWD/Commands.cpp \
     $$PWD/Layer.cpp \
     $$PWD/MappingManager.cpp \
     $$PWD/MetaObjectRegistry.cpp \
+    $$PWD/MetaObjectRegistryBuiltins.cpp \
     $$PWD/MM.cpp \
     $$PWD/Source.cpp \
     $$PWD/ProjectLabels.cpp \

@@ -56,6 +56,13 @@ public:
 
   static MetaObjectRegistry& instance();
 
+  /**
+   * Registers the cross-platform sources, layers and shapes that can be read
+   * from a project file. Platform-specific types (eg. Syphon) are registered
+   * by the application itself.
+   */
+  void addBuiltinTypes();
+
 };
 
 }
