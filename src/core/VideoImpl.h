@@ -60,6 +60,10 @@ public:
   /// Returns true once at least one frame has been received.
   virtual bool hasBits() const { return (_data != nullptr); }
 
+  /// Returns a (shallow) copy of the latest frame, without resetting
+  /// bitsHaveChanged(). Null image if no frame yet.
+  virtual QImage getFrameImage() const { return _currentFrame; }
+
   /// Returns true if a new frame arrived since the last getBits() call.
   virtual bool bitsHaveChanged() const { return _bitsChanged; }
 

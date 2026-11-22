@@ -72,6 +72,10 @@ public:
     /// Returns raw RGBA bytes of the latest camera frame. Resets bitsHaveChanged().
     const uchar* bits() { _bitsChanged = false; return _temporaryImage.constBits(); }
 
+    /// Returns a (shallow) copy of the latest frame, without resetting
+    /// bitsHaveChanged().
+    QImage image() const { return _temporaryImage; }
+
     int frameWidth()  const { return _temporaryImage.width(); }
     int frameHeight() const { return _temporaryImage.height(); }
 

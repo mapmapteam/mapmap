@@ -472,22 +472,11 @@ bool Video::_generateThumbnail()
 {
   // Assumes the caller (_pollForBits()'s onReady callback) has already
   // confirmed a fresh frame is available.
-  const uchar* bits = _impl->getBits();
-  if (!bits)
+  // Copy the frame without consuming it (getBits() would reset
+  // bitsHaveChanged() and delay the first texture upload).
+  QImage thumbnail = _impl->getFrameImage();
+  if (thumbnail.isNull())
     return false;
-
-  // Copy bits into thumbnail QImage.
-  QImage thumbnail(getWidth(), getHeight(), QImage::Format_ARGB32);
-  for (int y=0; y<getHeight(); y++)
-    for (int x=0; x<getWidth(); x++)
-    {
-      // Transfer RGBA to ARGB.
-      uint r = *bits++;
-      uint b = *bits++;
-      uint g = *bits++;
-      bits++; // skip alpha
-      thumbnail.setPixel(x, y, qRgb(r, g, b));
-    }
 
   // Generate icon.
   _icon = QIcon(QPixmap::fromImage(thumbnail).scaled(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE,
