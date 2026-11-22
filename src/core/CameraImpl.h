@@ -47,6 +47,7 @@ public:
 
   bool hasBits() const override { return _cameraSurface && _cameraSurface->isActive(); }
   bool bitsHaveChanged() const override { return _cameraSurface && _cameraSurface->bitsHaveChanged(); }
+  QImage getFrameImage() const override { return _cameraSurface ? _cameraSurface->image() : QImage(); }
 
 protected:
   // Stops and releases the capture device (called by unloadMovie() and dtor).
