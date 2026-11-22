@@ -43,6 +43,7 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
     _shapeMoved(false),
     _shapeFirstGrab(false), // comment out?
     _zoomLevel(0),
+    _wheelZoomRemainder(0),
     _shapeIsAdapted(false)
 {
   Q_UNUSED(shareWidget);
@@ -722,15 +723,30 @@ void MapperGLCanvas::wheelEvent(QWheelEvent *event)
 #else
   int deltaLevel = event->delta() / 120;
 #endif
-  bool control_is_pressed = event->modifiers().testFlag(Qt::ControlModifier);
+  // On macOS, Qt reports the Command key as ControlModifier and the physical
+  // Control key as MetaModifier: accept both, so Cmd+scroll and Ctrl+scroll
+  // both zoom. Elsewhere MetaModifier is the Windows/Super key, which the
+  // window manager usually keeps for itself.
+  bool control_is_pressed = event->modifiers().testFlag(Qt::ControlModifier)
+#ifdef Q_OS_MAC
+      || event->modifiers().testFlag(Qt::MetaModifier)
+#endif
+      ;
   bool shift_is_pressed = event->modifiers().testFlag(Qt::ShiftModifier);
 
   if (control_is_pressed) { // control is pressed: zoom
+    // Trackpads and high-resolution wheels send many small deltas (less than
+    // one 120-unit notch), which the integer division above rounds to zero.
+    // Accumulate them so that they zoom too.
+    _wheelZoomRemainder += event->angleDelta().y();
+    deltaLevel = _wheelZoomRemainder / 120;
+    _wheelZoomRemainder -= deltaLevel * 120;
+
     // zoom in or out:
     if (deltaLevel > 0) {
       // Increase zoom level
       increaseZoomLevel(deltaLevel);
-    } else {
+    } else if (deltaLevel < 0) {
       // Decrease zoom level
       decreaseZoomLevel(-deltaLevel);
     }
