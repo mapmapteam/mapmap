@@ -42,6 +42,7 @@ void initRegistry()
 
   // Sources.
   registry.add<Video>();
+  registry.add<Camera>();
   registry.add<Image>();
   registry.add<Color>();
 #ifdef Q_OS_MAC

@@ -414,6 +414,9 @@ public:
 
   virtual SourceType getSourceType() const { return SourceType::Video; }
 
+  /// Returns true if this source reads a live capture device, not a file.
+  bool isCamera() const { return _videoType == VIDEO_WEBCAM; }
+
   virtual int getWidth() const;
   virtual int getHeight() const;
 
@@ -456,6 +459,13 @@ signals:
   void frameSizeKnown(int sourceId, int width, int height);
 
 protected:
+  /**
+   * Creates a source of the given type with no media loaded yet.
+   *
+   * @param type Whether frames come from a file or from a capture device.
+   * @param id Unique ID of the source.
+   */
+  Video(VideoType type, int id);
 
   /// Starts playback.
   virtual void _doPlay();
@@ -487,6 +497,39 @@ protected:
   VideoType _videoType;
 
   VideoImpl *_impl;
+};
+
+/**
+ * Source that is a Texture retrieved from a live capture device (camera).
+ *
+ * This is a class of its own so that a project file records that the source
+ * is a camera: its URI is a capture device ID rather than a file path, and it
+ * has to be reopened with the capture back-end when the project is loaded.
+ */
+class Camera : public Video
+{
+  Q_OBJECT
+
+public:
+  /// Creates a camera source with no device opened yet (used by ProjectReader).
+  Q_INVOKABLE Camera(int id=NULL_UID);
+
+  /**
+   * Creates a camera source and opens its capture device.
+   *
+   * @param deviceId ID of the capture device, as given by QCameraDevice::id().
+   * @param rate Playback rate, kept for symmetry with Video.
+   * @param id Unique ID of the source.
+   */
+  Camera(const QString deviceId, double rate, uid id=NULL_UID);
+
+  /**
+   * Tells whether a URI names a capture device currently available.
+   *
+   * @param uri URI read from a project file.
+   * @return True if it equals the ID of one of the system's video inputs.
+   */
+  static bool isCaptureDeviceId(const QString& uri);
 };
 
 }

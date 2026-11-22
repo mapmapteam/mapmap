@@ -224,37 +224,33 @@ void Image::_doPlay()
 }
 
 /* Implementation of the Video class */
-Video::Video(int id) : Texture(id),
-    _uri(""),
-    _videoType(VIDEO_URI),
-    _impl(nullptr)
+Video::Video(int id) : Video(VIDEO_URI, id)
 {
-  _impl = new VideoPlayerImpl();
-  setRate(1);
-  setVolume(1);
 }
 
-Video::Video(const QString uri_, VideoType type, double rate, uid id):
-    Texture(id),
+Video::Video(VideoType type, int id) : Texture(id),
     _uri(""),
     _videoType(type),
     _impl(nullptr)
 {
   switch (type) {
-    case VIDEO_URI:
-      _impl = new VideoPlayerImpl();
-      break;
     case VIDEO_WEBCAM:
       _impl = new CameraImpl();
       break;
+    case VIDEO_URI:
     default:
       _impl = new VideoPlayerImpl();
       break;
   }
-  setRate(rate);
+  setRate(1);
   setVolume(1);
+}
+
+Video::Video(const QString uri_, VideoType type, double rate, uid id):
+    Video(type, id)
+{
+  setRate(rate);
   setUri(uri_);
-  _videoType = type;
 }
 
 // vertigo
@@ -262,6 +258,29 @@ Video::Video(const QString uri_, VideoType type, double rate, uid id):
 Video::~Video()
 {
   delete _impl;
+}
+
+/* Implementation of the Camera class */
+Camera::Camera(int id) : Video(VIDEO_WEBCAM, id)
+{
+}
+
+Camera::Camera(const QString deviceId, double rate, uid id):
+    Video(deviceId, VIDEO_WEBCAM, rate, id)
+{
+}
+
+bool Camera::isCaptureDeviceId(const QString& uri)
+{
+  if (uri.isEmpty())
+    return false;
+
+  for (const QCameraDevice& device : QMediaDevices::videoInputs())
+  {
+    if (QString::fromUtf8(device.id()) == uri)
+      return true;
+  }
+  return false;
 }
 
 void Video::build()
