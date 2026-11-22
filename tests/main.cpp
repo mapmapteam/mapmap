@@ -20,6 +20,7 @@
 #include "TestOsc.h"
 #include "TestFileVersion.h"
 #include "TestVideo.h"
+#include "TestCameraSource.h"
 
 int main(int argc, char** argv)
 {
@@ -54,6 +55,10 @@ int main(int argc, char** argv)
   }
   {
     TestVideo test;
+    status |= QTest::qExec(&test, argc, argv);
+  }
+  {
+    TestCameraSource test;
     status |= QTest::qExec(&test, argc, argv);
   }
 

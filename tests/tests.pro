@@ -28,6 +28,9 @@ HEADERS += \
     $$CORE/Serializable.h \
     $$CORE/ProjectLabels.h \
     $$CORE/UidAllocator.h \
+    $$CORE/Element.h \
+    $$CORE/MetaObjectRegistry.h \
+    $$CORE/Source.h \
     $$SHAPE/Shape.h \
     $$SHAPE/Polygon.h \
     $$SHAPE/Triangle.h \
@@ -46,7 +49,8 @@ HEADERS += \
     TestShape.h \
     TestOsc.h \
     TestFileVersion.h \
-    TestVideo.h
+    TestVideo.h \
+    TestCameraSource.h
 
 SOURCES += \
     $$CORE/MM.cpp \
@@ -54,6 +58,9 @@ SOURCES += \
     $$CORE/Serializable.cpp \
     $$CORE/ProjectLabels.cpp \
     $$CORE/UidAllocator.cpp \
+    $$CORE/Element.cpp \
+    $$CORE/MetaObjectRegistry.cpp \
+    $$CORE/Source.cpp \
     $$SHAPE/Shape.cpp \
     $$SHAPE/Polygon.cpp \
     $$SHAPE/Mesh.cpp \
@@ -70,4 +77,5 @@ SOURCES += \
     TestShape.cpp \
     TestOsc.cpp \
     TestFileVersion.cpp \
-    TestVideo.cpp
+    TestVideo.cpp \
+    TestCameraSource.cpp

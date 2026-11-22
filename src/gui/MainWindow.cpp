@@ -1326,9 +1326,10 @@ uid MainWindow::createMediaSource(uid sourceId, QString uri, float x, float y,
     Texture* tex = nullptr;
     if (isImage)
       tex = new Image(uri, sourceId);
-    else {
+    else if (type == VIDEO_WEBCAM)
+      tex = new Camera(uri, rate, sourceId);
+    else
       tex = new Video(uri, type, rate, sourceId);
-    }
 
     // Create new image with corresponding ID.
     tex->setPosition(x, y);

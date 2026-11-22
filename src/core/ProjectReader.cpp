@@ -22,6 +22,11 @@
 
 namespace mmp {
 
+namespace {
+// Name of the Video property that holds the file path or capture device ID.
+const char* const VIDEO_URI_PROPERTY = "uri";
+}
+
 ProjectReader::ProjectReader(MainWindow *window) : _window(window)
 {
 }
@@ -90,10 +95,11 @@ void ProjectReader::parseProject(const QJsonObject& project)
       // Locate media file if not found. Guard the cast: a source that claims
       // to be Video/Image but cannot be cast (corrupt entry) must not be
       // dereferenced — Q_CHECK_PTR is a no-op in release builds.
+      // A camera has a capture device ID for URI, not a file to locate.
       if (source->getSourceType() == Source::SourceType::Video)
       {
         QSharedPointer<Video> media = qSharedPointerCast<Video>(source);
-        if (!media.isNull() && !_window->fileExists(media->getUri()))
+        if (!media.isNull() && !media->isCamera() && !_window->fileExists(media->getUri()))
           media->setUri(_window->locateMediaFile(media->getUri(), false));
       }
       if (source->getSourceType() == Source::SourceType::Image)
@@ -137,6 +143,15 @@ Source::ptr ProjectReader::parseSource(const QJsonObject& obj)
   qDebug() << "Found source with classname: " << className << Qt::endl;
 
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
+
+  // Projects saved before the Camera class existed recorded a camera as a
+  // plain Video whose URI is a capture device ID: reopen those as cameras.
+  if (metaObject == &Video::staticMetaObject
+      && Camera::isCaptureDeviceId(obj[VIDEO_URI_PROPERTY].toString()))
+  {
+    metaObject = &Camera::staticMetaObject;
+  }
+
   if (metaObject)
   {
     Source::ptr source(qobject_cast<Source*>(metaObject->newInstance(Q_ARG(int, id))));
