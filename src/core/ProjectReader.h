@@ -46,7 +46,8 @@ public:
     /**
      * Called for each image and video source with its uri and whether it is
      * an image. Returns the uri to use instead (eg. after asking the user to
-     * locate a missing file), or the same uri to keep it.
+     * locate a missing file), or the same uri (or an empty one, eg. when the
+     * user cancels) to keep it.
      */
     typedef std::function<QString(const QString& uri, bool isImage)> MediaLocator;
 
