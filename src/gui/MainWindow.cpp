@@ -3791,8 +3791,12 @@ void MainWindow::processFrame()
   nFrames++;
   if (nFrames > framesPerSecond())
   {
-    // This is the real time needed to process one second.
-    qreal trueFramesPerSecond = nFrames / systemTimer->restart() * 1000.0;
+    // Frames counted over the real time elapsed since the last update. Divide
+    // as floating point: an integer division of frames by milliseconds is 0.
+    const qint64 elapsedMs = systemTimer->restart();
+    const qreal trueFramesPerSecond = (elapsedMs > 0)
+        ? nFrames * MM::MILLISECONDS_PER_SECOND / qreal(elapsedMs)
+        : 0;
     trueFramesPerSecondsLabel->setText(
         "FPS: " + QString::number(trueFramesPerSecond, 'f', 2) + " / " +
         QString::number(framesPerSecond()  , 'f', 2));

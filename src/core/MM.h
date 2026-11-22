@@ -135,6 +135,7 @@ public:
 
   // Time.
   static const qreal DEFAULT_FRAMES_PER_SECOND;
+  static const int MILLISECONDS_PER_SECOND = 1000;
 
   // Zoom.
   static const qreal ZOOM_FACTOR;
