@@ -38,6 +38,57 @@ int VideoImpl::getWidth() const  { return _width; }
 int VideoImpl::getHeight() const { return _height; }
 QString VideoImpl::getUri() const { return _uri; }
 
+// Returns true if the video pixel format carries an alpha channel.
+static bool _pixelFormatHasAlpha(QVideoFrameFormat::PixelFormat format)
+{
+  switch (format) {
+  case QVideoFrameFormat::Format_ARGB8888:
+  case QVideoFrameFormat::Format_ARGB8888_Premultiplied:
+  case QVideoFrameFormat::Format_BGRA8888:
+  case QVideoFrameFormat::Format_BGRA8888_Premultiplied:
+  case QVideoFrameFormat::Format_ABGR8888:
+  case QVideoFrameFormat::Format_RGBA8888:
+  case QVideoFrameFormat::Format_AYUV:
+  case QVideoFrameFormat::Format_AYUV_Premultiplied:
+    return true;
+  default:
+    return false;
+  }
+}
+
+QImage VideoImpl::frameToImage(const QVideoFrame& frame)
+{
+  QImage img = frame.toImage();
+  switch (img.format()) {
+  // Directly uploadable (see Util::glUploadFormat()).
+  case QImage::Format_RGB32:
+  case QImage::Format_ARGB32:
+  case QImage::Format_RGBX8888:
+  case QImage::Format_RGBA8888:
+    return img;
+
+  // Qt 6 delivers decoded YUV video as premultiplied RGBA. Opaque pixels are
+  // identical premultiplied or not, so just relabel (no copy, no per-pixel pass).
+  case QImage::Format_RGBA8888_Premultiplied:
+    if (!_pixelFormatHasAlpha(frame.pixelFormat()) &&
+        img.reinterpretAsFormat(QImage::Format_RGBX8888))
+      return img;
+    break;
+  case QImage::Format_ARGB32_Premultiplied:
+    if (!_pixelFormatHasAlpha(frame.pixelFormat()) &&
+        img.reinterpretAsFormat(QImage::Format_RGB32))
+      return img;
+    break;
+
+  default:
+    break;
+  }
+
+  // Anything else (real alpha, other layouts): convert to straight alpha to
+  // match our GL_SRC_ALPHA blending.
+  return img.convertToFormat(QImage::Format_ARGB32);
+}
+
 const uchar* VideoImpl::getBits()
 {
   _bitsChanged = false;

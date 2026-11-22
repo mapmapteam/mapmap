@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "CameraSurface.h"
+#include "VideoImpl.h"
 #include <QDebug>
 
 namespace mmp {
@@ -34,7 +35,7 @@ void CameraSurface::onVideoFrameChanged(const QVideoFrame& frame)
   if (!frame.isValid())
     return;
 
-  QImage img = frame.toImage().convertToFormat(QImage::Format_RGBA8888);
+  QImage img = VideoImpl::frameToImage(frame);
   if (img.isNull())
     return;
 

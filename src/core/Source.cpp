@@ -325,6 +325,20 @@ bool Video::bitsHaveChanged() const
   return this->_impl->bitsHaveChanged();
 }
 
+GLenum Video::getBitsFormat() const
+{
+  GLenum format, type;
+  Util::glUploadFormat(_impl->getFrameFormat(), format, type);
+  return format;
+}
+
+GLenum Video::getBitsType() const
+{
+  GLenum format, type;
+  Util::glUploadFormat(_impl->getFrameFormat(), format, type);
+  return type;
+}
+
 void Video::setRate(double rate)
 {
   if (rate != _impl->getRate())

@@ -88,7 +88,7 @@ void VideoPlayerImpl::onVideoFrameChanged(const QVideoFrame& frame)
 
   lockMutex();
 
-  QImage img = frame.toImage().convertToFormat(QImage::Format_RGBA8888);
+  QImage img = frameToImage(frame);
   if (!img.isNull()) {
     _currentFrame = img;
     _width  = _currentFrame.width();
