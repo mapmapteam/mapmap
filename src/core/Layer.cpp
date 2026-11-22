@@ -164,7 +164,10 @@ void Layer::_readShape(const QJsonObject& obj, bool isOutput)
     MShape::ptr shape(qobject_cast<MShape*>(metaObject->newInstance()));
     if (shape.isNull())
     {
+      // Not a shape class (e.g. a source class name in the shape field).
+      // Leave the shape unset; ProjectReader then skips this layer.
       qDebug() << QObject::tr("Problem at creation of shape.") << Qt::endl;
+      return;
     }
 
     shape->read(shapeObj);
