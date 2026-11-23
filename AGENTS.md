@@ -36,9 +36,15 @@ bash scripts/sh_package_macos.sh
 bash scripts/sh_package_linux.sh
 ```
 
-The first one writes `dist/MapMap-<version>-macos-<processor>.dmg`, a disk image with MapMap and the Qt libraries it needs. For a release, give it the Qt of the Qt Company with `--qt-directory`: the disk image then runs on macOS 13 and later, on Apple Silicon and Intel. With the Qt of Homebrew, it may only run on the version of macOS it was made on. The second one writes `dist/mapmap-<version>-linux-<processor>.tar.gz`, the program without the Qt libraries. Both build the last commit in a clean copy of the sources; run them with `--help` for their options. The automated builds run them with `--skip-build`, once a change is in `dev` or `master`, or when asked to: `gh workflow run build.yml --ref <branch>`, or "Run workflow" on the Actions page of GitHub. A pull request is only built and tested.
+The first one writes `dist/MapMap-<version>-macos-<processor>.dmg`, a disk image with MapMap and the Qt libraries it needs. It is for trying MapMap, not for a public release. With the Qt of the Qt Company, given with `--qt-directory`, the disk image runs on macOS 13 and later, on Apple Silicon and Intel. With the Qt of Homebrew, it may only run on the version of macOS it was made on. The second one writes `dist/mapmap-<version>-linux-<processor>.tar.gz`, the program without the Qt libraries. Both build the last commit in a clean copy of the sources; run them with `--help` for their options. The automated builds run them with `--skip-build`, once a change is in `dev` or `master`, or when asked to: `gh workflow run build.yml --ref <branch>`, or "Run workflow" on the Actions page of GitHub. A pull request is only built and tested.
 
-Without `--sign-identity`, the macOS disk image is only signed ad hoc: macOS warns that the developer cannot be verified. A public release needs a "Developer ID Application" identity and Apple's notarization.
+The macOS disk image of `sh_package_macos.sh` is only signed ad hoc: macOS warns that the developer cannot be verified. A public release is made with another script, which signs with a "Developer ID Application" certificate and refuses to go on at the first doubt:
+
+```
+bash scripts/sh_release_macos.sh --qt-directory <dir>
+```
+
+It sends nothing to Apple. Once the disk image has been tried by hand, the maintainer has it notarized with `--submit-to-apple`. An agent never uses that option.
 
 ## Test
 

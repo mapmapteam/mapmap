@@ -4,6 +4,9 @@
 #
 # Run scripts/sh_install_deps_macos.sh first if Qt 6 is not yet installed.
 #
+# The app gets an ad-hoc signature: it runs, but macOS warns that the developer
+# cannot be verified. For a public release, use scripts/sh_release_macos.sh.
+#
 # Usage:
 #   ./scripts/sh_package_macos.sh [options]
 #
@@ -12,20 +15,17 @@
 #                              of the repository (it must be a release build).
 #                              Without this option, the script builds the
 #                              last commit in a clean copy of the sources.
-#   --sign-identity <name>     Sign with this "Developer ID Application"
-#                              identity. Without it the app gets an ad-hoc
-#                              signature: it runs, but macOS warns that the
-#                              developer cannot be verified.
 #   --output-directory <dir>   Where to write the disk image (default: dist).
 #   --qt-directory <dir>       Build and package with this Qt, for example
 #                              ~/Qt/6.11.3/macos. Without it, the Qt whose qmake
 #                              is found first is used, then that of Homebrew.
 #   --help                     Show this help.
 #
-# Use the Qt of the Qt Company for a release (see https://www.qt.io or aqtinstall):
-# its libraries run on older versions of macOS, and on both Apple Silicon and
-# Intel. Those of Homebrew only run on the version of macOS and the type of
-# processor of the machine they were installed on.
+# Use the Qt of the Qt Company (see https://www.qt.io or aqtinstall) for a disk
+# image that goes on other computers: its libraries run on older versions of
+# macOS, and on both Apple Silicon and Intel. Those of Homebrew only run on the
+# version of macOS and the type of processor of the machine they were installed
+# on.
 
 set -euo pipefail
 
@@ -53,7 +53,6 @@ DISK_IMAGE_MAXIMUM_ATTEMPTS=5
 DISK_IMAGE_RETRY_DELAY_SECONDS=10
 
 skip_build=false
-sign_identity="${AD_HOC_IDENTITY}"
 output_directory="${PROJECT_ROOT}/dist"
 qt_directory=""
 
@@ -66,11 +65,6 @@ while [ $# -gt 0 ]; do
     case "$1" in
         --skip-build)
             skip_build=true
-            ;;
-        --sign-identity)
-            [ $# -ge 2 ] || { echo "Error: --sign-identity needs a value." >&2; exit 2; }
-            sign_identity="$2"
-            shift
             ;;
         --output-directory)
             [ $# -ge 2 ] || { echo "Error: --output-directory needs a value." >&2; exit 2; }
@@ -297,13 +291,7 @@ info_plist="${staged_app}/Contents/Info.plist"
 # ---------------------------------------------------------------------------
 # Sign: required on Apple Silicon, where unsigned code does not run
 # ---------------------------------------------------------------------------
-if [ "${sign_identity}" = "${AD_HOC_IDENTITY}" ]; then
-    codesign --force --deep --sign "${AD_HOC_IDENTITY}" "${staged_app}"
-else
-    # The hardened runtime and a secure timestamp are required for notarization.
-    codesign --force --deep --options runtime --timestamp \
-        --sign "${sign_identity}" "${staged_app}"
-fi
+codesign --force --deep --sign "${AD_HOC_IDENTITY}" "${staged_app}"
 codesign --verify --deep --strict "${staged_app}"
 
 # Nothing in the bundle may still point to the libraries of the build machine.
@@ -348,7 +336,5 @@ done
 echo
 echo "Disk image: ${disk_image}"
 shasum -a 256 "${disk_image}"
-if [ "${sign_identity}" = "${AD_HOC_IDENTITY}" ]; then
-    echo "Ad-hoc signature only: macOS will warn that the developer cannot be verified."
-    echo "For a public release, sign with --sign-identity and notarize the disk image."
-fi
+echo "Ad-hoc signature only: macOS will warn that the developer cannot be verified."
+echo "For a public release, use scripts/sh_release_macos.sh."
