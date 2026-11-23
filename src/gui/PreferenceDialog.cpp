@@ -21,6 +21,8 @@
 
 #include "PreferenceDialog.h"
 
+#include <QPushButton>
+
 namespace mmp {
 
 PreferenceDialog::PreferenceDialog(QWidget* parent) :
@@ -110,6 +112,13 @@ bool PreferenceDialog::loadSettings()
   _stickyRadiusBox->setCurrentText(settings.value("vertexStickRadius", MM::VERTEX_STICK_RADIUS).toString());
   // Show screen resolution on output
   _showResolutionBox->setChecked(settings.value("showResolution", MM::SHOW_OUTPUT_RESOLUTION).toBool());
+  // Output resolution of new projects, and of the current one
+  _resolutionEditor->setScreenResolution(MainWindow::window()->outputScreenResolution());
+  if (settings.value("outputResolutionFollowsScreen", false).toBool())
+    _resolutionEditor->setFollowsScreen();
+  else
+    _resolutionEditor->setResolution(MainWindow::window()->defaultOutputResolution());
+  _updateCurrentProjectResolution();
   // Show control on mouse hover
   _showControlOnOverBox->setChecked(settings.value("showControlOnMouseOver", MM::SHOW_OUTPUT_ON_MOUSE_HOVER).toBool());
   // Set preferred test signal pattern
@@ -140,6 +149,13 @@ bool PreferenceDialog::loadSettings()
   return true;
 }
 
+void PreferenceDialog::_updateCurrentProjectResolution()
+{
+  const QSize resolution = MainWindow::window()->getMappingManager().getOutputResolution();
+  _currentProjectResolutionLabel->setText(tr("Current project: %1 × %2")
+                                          .arg(resolution.width()).arg(resolution.height()));
+}
+
 void PreferenceDialog::applySettings()
 {
   QSettings settings;
@@ -159,6 +175,10 @@ void PreferenceDialog::applySettings()
   settings.setValue("vertexStickRadius", _stickyRadiusBox->currentText());
   // Show screen resolution on output
   settings.setValue("showResolution", _showResolutionBox->isChecked());
+  // Output resolution of new projects (the current project keeps its own).
+  settings.setValue("outputResolutionFollowsScreen", _resolutionEditor->followsScreen());
+  if (!_resolutionEditor->followsScreen())
+    settings.setValue("outputResolution", _resolutionEditor->resolution());
   // Show control on mouse hover
   settings.setValue("showControlOnMouseOver", _showControlOnOverBox->isChecked());
   settings.setValue("showWelcomeOnStartup", _showWelcomeBox->isChecked());
@@ -303,6 +323,30 @@ void PreferenceDialog::createOutputPage()
   QGroupBox *outputGroupBox = new QGroupBox(tr("Output Layers"));
   outputGroupBox->setLayout(outputLayout);
 
+  // The output screen is only known once the main window is built (see loadSettings()).
+  _resolutionEditor = new OutputResolutionEditor(QSize());
+  QLabel *resolutionHelp = new QLabel(tr("Size of the output frame, usually the resolution of the projector. "
+                                         "\"Output screen\" follows the screen chosen for the output."));
+  resolutionHelp->setWordWrap(true);
+
+  // Each project keeps its own resolution; it is changed with the project.
+  _currentProjectResolutionLabel = new QLabel;
+  QPushButton *changeProjectResolutionButton = new QPushButton(tr("Change..."));
+  connect(changeProjectResolutionButton, &QPushButton::clicked, this, [this] {
+    MainWindow::window()->showOutputResolutionDialog();
+    _updateCurrentProjectResolution();
+  });
+  QHBoxLayout *currentProjectLayout = new QHBoxLayout;
+  currentProjectLayout->addWidget(_currentProjectResolutionLabel, 1);
+  currentProjectLayout->addWidget(changeProjectResolutionButton);
+
+  QVBoxLayout *resolutionLayout = new QVBoxLayout;
+  resolutionLayout->addWidget(_resolutionEditor);
+  resolutionLayout->addWidget(resolutionHelp);
+  resolutionLayout->addLayout(currentProjectLayout);
+  QGroupBox *resolutionGroupBox = new QGroupBox(tr("Default Output Resolution for New Projects"));
+  resolutionGroupBox->setLayout(resolutionLayout);
+
 
   _showResolutionBox = new QCheckBox(tr("Show resolution on output test cards"));
 
@@ -342,6 +386,7 @@ void PreferenceDialog::createOutputPage()
 
   QVBoxLayout *outputPageLayout = new QVBoxLayout;
   outputPageLayout->addWidget(outputGroupBox);
+  outputPageLayout->addWidget(resolutionGroupBox);
   outputPageLayout->addWidget(testCardGroupbox);
 
   _outputPage->setLayout(outputPageLayout);

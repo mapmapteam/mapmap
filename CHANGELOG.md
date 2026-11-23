@@ -6,6 +6,7 @@ New:
 
 - Convert the colors of camera sources on the graphics card when the camera gives YUV images, like videos.
 - Measure the time of each step of the image path with the option `--frame-stats`: one line per second in the log. `--frame-stats-sync` waits for the graphics card to give the real cost of each step, and `--force-cpu-conversion` converts the colors of videos on the processor, to compare.
+- Give each project an output resolution, chosen in View > Output Resolution among common projector resolutions, or set by hand. The output window scales it to fill the output screen. New projects take the resolution set in the preferences, which can follow the output screen; older projects take the size of the output screen.
 
 Improvements:
 

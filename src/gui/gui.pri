@@ -15,6 +15,7 @@ HEADERS += $$PWD/AboutDialog.h \
     $$PWD/LayerListModel.h \
     $$PWD/OutputGLCanvas.h \
     $$PWD/OutputGLWindow.h \
+    $$PWD/OutputResolutionEditor.h \
     $$PWD/SourceGui.h \
     $$PWD/PreferenceDialog.h \
     $$PWD/ShapeControlPainter.h \
@@ -32,6 +33,7 @@ SOURCES += $$PWD/AboutDialog.cpp \
     $$PWD/LayerListModel.cpp \
     $$PWD/OutputGLCanvas.cpp \
     $$PWD/OutputGLWindow.cpp \
+    $$PWD/OutputResolutionEditor.cpp \
     $$PWD/SourceGui.cpp \
     $$PWD/PreferenceDialog.cpp \
     $$PWD/ShapeControlPainter.cpp \

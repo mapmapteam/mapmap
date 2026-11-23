@@ -23,6 +23,7 @@
 #include "MapperGLCanvas.h"
 
 #include "Commands.h"
+#include "Util.h"
 
 namespace mmp {
 
@@ -422,6 +423,55 @@ void RotateShapeCommand::_doTransform(MShape::ptr shape)
     return;
   shape->copyFrom(*_originalShape);
   shape->applyTransform(_transform);
+}
+
+SetOutputResolutionCommand::SetOutputResolutionCommand(MainWindow *mainWindow, const QSize& resolution,
+                                                       bool scaleShapes, QUndoCommand *parent)
+  : QUndoCommand(parent),
+    _mainWindow(mainWindow),
+    _before(mainWindow->getMappingManager().getOutputResolution()),
+    _after(resolution)
+{
+  setText(QObject::tr("Change output resolution"));
+
+  if (!scaleShapes)
+    return;
+
+  MappingManager& manager = mainWindow->getMappingManager();
+  const QRectF from(QPointF(0, 0), _before), to(QPointF(0, 0), _after);
+  for (int i = 0; i < manager.nLayers(); i++)
+  {
+    Layer::ptr layer = manager.getLayer(i);
+    if (layer.isNull() || layer->getShape().isNull())
+      continue;
+    const QVector<QPointF> vertices = layer->getShape()->getVertices();
+    _shapeChanges.append({ layer, vertices, Util::mapRectToRect(vertices, from, to) });
+  }
+}
+
+void SetOutputResolutionCommand::undo()
+{
+  _apply(_before, false);
+}
+
+void SetOutputResolutionCommand::redo()
+{
+  _apply(_after, true);
+}
+
+void SetOutputResolutionCommand::_apply(const QSize& resolution, bool after)
+{
+  for (const ShapeChange& change : _shapeChanges)
+  {
+    MShape::ptr shape = change.layer->getShape();
+    shape->setVertices(after ? change.after : change.before);
+    shape->build();
+    LayerGui::ptr gui = _mainWindow->getLayerGuiByLayerId(change.layer->getId());
+    if (gui)
+      gui->updateShape(shape.data());
+  }
+  _mainWindow->setOutputResolution(resolution);
+  _mainWindow->windowModified();
 }
 
 }

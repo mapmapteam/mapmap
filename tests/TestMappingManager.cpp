@@ -162,3 +162,33 @@ void TestMappingManager::clearAll()
   QCOMPARE(manager.nLayers(), 0);
   QVERIFY(manager.getSourceById(red->getId()).isNull());
 }
+
+void TestMappingManager::outputResolutionPresets()
+{
+  // Every preset is usable, named, and listed once; the default is one of them.
+  const QVector<MappingManager::OutputResolutionPreset>& presets = MappingManager::outputResolutionPresets();
+  QVERIFY(presets.size() > 1);
+  QSet<QPair<int, int>> sizes;
+  for (const MappingManager::OutputResolutionPreset& preset : presets)
+  {
+    QVERIFY2(MappingManager::isValidOutputResolution(preset.size), qPrintable(preset.name));
+    QVERIFY(!preset.name.isEmpty());
+    sizes.insert(qMakePair(preset.size.width(), preset.size.height()));
+  }
+  QCOMPARE(sizes.size(), presets.size());
+
+  // The common ones come first, starting with the default.
+  QCOMPARE(presets.first().size, QSize(MM::DEFAULT_OUTPUT_WIDTH, MM::DEFAULT_OUTPUT_HEIGHT));
+  bool seenUncommon = false;
+  for (const MappingManager::OutputResolutionPreset& preset : presets)
+  {
+    QVERIFY2(!(preset.common && seenUncommon), qPrintable(preset.name));
+    seenUncommon |= !preset.common;
+  }
+  QVERIFY(sizes.contains(qMakePair(int(MM::DEFAULT_OUTPUT_WIDTH), int(MM::DEFAULT_OUTPUT_HEIGHT))));
+
+  // Sizes the reader must refuse.
+  QVERIFY(!MappingManager::isValidOutputResolution(QSize()));
+  QVERIFY(!MappingManager::isValidOutputResolution(QSize(0, 1080)));
+  QVERIFY(!MappingManager::isValidOutputResolution(QSize(MM::OUTPUT_RESOLUTION_MAX + 1, 1080)));
+}
