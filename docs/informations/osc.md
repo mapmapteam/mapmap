@@ -2,58 +2,66 @@
 
 General rules:
 
- - Paint and mapping ids are numbered starting from 1.
- - On/off properties such as *solo*, *visible* and *lock* are set using 1 (on) or 0 (off)
- - Percentage properties such as *opacity* and *volume* are set using a real-value in the [0, 1] range.
+ - Every address starts with `/mapmap`.
+ - The first argument selects the source or the layer: its id (an integer), or a pattern matched against names (a string).
+ - On/off properties such as *solo*, *visible* and *locked* are set using 1 (on) or 0 (off).
+ - *opacity* and *volume* are real values in the [0, 1] range.
+ - "mapping" is still accepted in place of "layer". The former "paint" addresses are now "source" addresses.
 
-## Paints
+## Sources
 
-Rename: `/mapmap/paint/name ,is <id> <name>`  
-Adjust opacity: `/mapmap/paint/opacity ,if <id> <opacity>`
+Rename: `/mapmap/source/name ,is <id> <name>`  
+Adjust opacity: `/mapmap/source/opacity ,if <id> <opacity>`  
+Play: `/mapmap/source/play ,i <id>`  
+Pause: `/mapmap/source/pause ,i <id>`  
+Rewind: `/mapmap/source/rewind ,i <id>`
 
-### Color paint
+### Color source
 
-Adjust color (eg. "#ff0000"): `/mapmap/paint/color ,is <id> <color>`
+Adjust color (eg. "#ff0000"): `/mapmap/source/color ,is <id> <color>`
 
-### Image/Video paint
+### Image/Video source
 
-Change URI (eg. "file:///path/to/clip.mov"): `/mapmap/paint/uri ,is <id> <uri>`  
-Change rate (speed) (*): `/mapmap/paint/rate ,if <id> <rate>`  
-Adjust audio volume: `/mapmap/paint/volume ,if <id> <volume>`  
-Rewind: `/mapmap/paint/rewind ,i <id>`
- 
+Change file (eg. "/path/to/clip.mov"): `/mapmap/source/uri ,is <id> <uri>`  
+Change rate (speed) (*): `/mapmap/source/rate ,if <id> <rate>`  
+Adjust audio volume: `/mapmap/source/volume ,if <id> <volume>`
+
 (*) 1 = same speed, 0.5 = half speed, 2 = double speed
 
-## Mappings
+## Layers
 
-Rename: `/mapmap/mapping/name ,is <id> <name>`  
-Adjust opacity: `/mapmap/mapping/opacity ,if <id> <opacity>`  
-Set visibility status: `/mapmap/mapping/visible ,ii <id> <visible>`  
-Set solo status: `/mapmap/mapping/solo ,ii <id> <solo>`  
-Set lock status: `/mapmap/mapping/locked ,ii <id> <locked>`  
-Adjust depth (layer order): `/mapmap/mapping/depth ,ii <id> <depth>`  
-Flip the shape: `/mapmap/mapping/flip/horizontal ,i <id>` (or `/vertical`)  
-Rotate the shape by a quarter or half turn: `/mapmap/mapping/rotate/cw ,i <id>` (or `/ccw`, `/180`)  
-Flip the image inside the shape, without moving it: `/mapmap/mapping/flip/source/horizontal ,i <id>` (or `/vertical`)  
-Rotate the image inside the shape, without moving it: `/mapmap/mapping/rotate/source/cw ,i <id>` (or `/ccw`, `/180`)
+Rename: `/mapmap/layer/name ,is <id> <name>`  
+Adjust opacity: `/mapmap/layer/opacity ,if <id> <opacity>`  
+Set visibility status: `/mapmap/layer/visible ,ii <id> <visible>`  
+Set solo status: `/mapmap/layer/solo ,ii <id> <solo>`  
+Set lock status: `/mapmap/layer/locked ,ii <id> <locked>`  
+Adjust depth (layer order): `/mapmap/layer/depth ,ii <id> <depth>`  
+Move so the centre of the layer is at (x, y): `/mapmap/layer/move/xy ,iff <id> <x> <y>`  
+Move by (dx, dy): `/mapmap/layer/translate/xy ,iff <id> <dx> <dy>`  
+Move a vertex of the output shape: `/mapmap/layer/vertex/xy ,iiff <id> <index> <x> <y>`  
+Move a vertex of the input shape: `/mapmap/layer/vertex/source/xy ,iiff <id> <index> <x> <y>`  
+Flip the shape: `/mapmap/layer/flip/horizontal ,i <id>` (or `/vertical`)  
+Rotate the shape by a quarter or half turn: `/mapmap/layer/rotate/cw ,i <id>` (or `/ccw`, `/180`)  
+Flip the image inside the shape, without moving it: `/mapmap/layer/flip/source/horizontal ,i <id>` (or `/vertical`)  
+Rotate the image inside the shape, without moving it: `/mapmap/layer/rotate/source/cw ,i <id>` (or `/ccw`, `/180`)
 
-## Regular expressions
+## Name patterns
 
-Paint and mapping ids are hard to remember and manipulate. Alternatively, one can use a string pattern describing a regexp over the paint or mapping names. The regular expression follows a [simple "file globbing" / wildcard syntax](http://doc.qt.io/qt-5/qregexp.html#wildcard-matching). It is case-sensitive.
+Ids are hard to remember and manipulate. Alternatively, one can give a string pattern matched against the names of sources or layers. The pattern follows a simple "file globbing" / wildcard syntax (`*`, `?`, `[0-9]`). It is case-sensitive.
 
 ### Examples
 
-Change opacity of paint named "movie.mov" to 0.1 (10%):  
-`/mapmap/paint/opacity ,sf "movie.mov" 0.1`
+Change opacity of the source named "movie.mov" to 0.1 (10%):  
+`/mapmap/source/opacity ,sf "movie.mov" 0.1`
 
-Change opacity of all paints whose name begins by "movie-" to 0.5 (50%):  
-`/mapmap/paint/opacity ,sf "movie-*" 0.5`
+Change opacity of all sources whose name begins by "movie-" to 0.5 (50%):  
+`/mapmap/source/opacity ,sf "movie-*" 0.5`
 
-Rewind all .mov paints:  
-`/mapmap/paint/rewind ,s "*.mov"`
+Rewind all .mov sources:  
+`/mapmap/source/rewind ,s "*.mov"`
 
-Set all mappings that begin with "mesh-" followed by a single digit to solo mode:  
-`/mapmap/mapping/solo ,si "mesh-[0-9]" 1`
+Set all layers that begin with "mesh-" followed by a single digit to solo mode:  
+`/mapmap/layer/solo ,si "mesh-[0-9]" 1`
 
 ## Playback
 
