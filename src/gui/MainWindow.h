@@ -553,7 +553,7 @@ private:
   MapperGLCanvasToolbar* destinationCanvasToolbar;
   QWidget* destinationPanel;
 
-  OutputGLWindow* outputWindow;
+  OutputGLWindow* outputWindow = nullptr;
   ConsoleWindow* consoleWindow;
 
   QSplitter* mainSplitter;
@@ -691,6 +691,8 @@ public:
   void removeCurrentLayer();
 
   OutputGLWindow* getOutputWindow() const { return outputWindow; }
+  /// Shows the position of the mouse in the output, when it is over it.
+  void updateMouseCoordinates();
   MapperGLCanvas* getSourceCanvas() const { return sourceCanvas; }
   MapperGLCanvas* getDestinationCanvas() const { return destinationCanvas; }
   int getPreferredScreen() const { return outputWindow->getPreferredScreen(); }

@@ -11,8 +11,20 @@ Examples::
     python3 scripts/convert-xml-project.py show.mmp
     python3 scripts/convert-xml-project.py *.mmp
     python3 scripts/convert-xml-project.py show.mmp --output new-show.mmp
+    python3 scripts/convert-xml-project.py show.mmp --output-size 1920x1080
 
 Without ``--output``, ``show.mmp`` becomes ``show-converted.mmp``.
+
+Before MapMap 1.0.0-beta.1, the point (0, 0) was near the middle of the output
+screen instead of its top left corner, at a place that depends on the size of
+the screen. Projects do not save that size: give the one of the screen or
+projector the project was made for with ``--output-size``, and the script moves
+the output shapes so that they stay at the same place on that screen. They may
+be a few pixels off, since the old position also depended on the system.
+
+With ``--output-size``, a JSON project made with a development version of 1.0,
+before that was fixed, is accepted too: its shapes are moved. Do it only once
+per project, and never for a project made after that.
 
 The exit status is 0 when every project was converted, 1 when at least one
 could not be, and 2 when the command line is wrong.
@@ -49,6 +61,12 @@ SHAPE_CLASSES = ("Triangle", "Mesh", "Ellipse")
 # A quad is saved as a mesh of 2 by 2 vertices.
 QUAD_VERTEX_COUNT = 4
 QUAD_AS_MESH_SIZE = 2
+
+
+# Before MapMap 1.0.0-beta.1, the output was as large as a new Qt widget, in the
+# middle of the screen, instead of as large as the screen.
+OLD_OUTPUT_WIDTH = 100
+OLD_OUTPUT_HEIGHT = 30
 
 
 class ConversionError(Exception):
@@ -180,6 +198,66 @@ def convert_elements(elements, convert, kind, warn):
     return converted
 
 
+def old_origin(output_size):
+    """Return where MapMap used to show the point (0, 0) on the output screen.
+
+    Args:
+        output_size: width and height of the screen.
+    """
+    width, height = output_size
+    return (width - OLD_OUTPUT_WIDTH) // 2, (height - OLD_OUTPUT_HEIGHT) // 2
+
+
+def move_output_shapes(project, output_size):
+    """Move the output shapes of a JSON project made before 1.0.0-beta.1.
+
+    They are displayed at the same place as before on a screen of this size.
+    The shapes that cut the image (the input shapes) do not change.
+
+    Raises:
+        ConversionError: if a shape of the project cannot be read.
+    """
+    x_offset, y_offset = old_origin(output_size)
+    try:
+        for layer in project["layers"]:
+            shape = layer["destination"]
+            shape["vertices"] = [[x + x_offset, y + y_offset] for x, y in shape["vertices"]]
+    except (KeyError, TypeError, ValueError):
+        raise ConversionError("an output shape cannot be read")
+
+
+def is_json(contents):
+    """Return whether the contents of a project (bytes) look like JSON."""
+    return contents.lstrip(b"\xef\xbb\xbf \t\r\n").startswith(b"{")
+
+
+def read_project(contents, output_size, warn):
+    """Read the contents of an old project; return the new one as a dict.
+
+    Args:
+        contents: contents of the file, as bytes.
+        output_size: width and height of the screen the project was made for,
+            or None to leave the output shapes where they are.
+        warn: function called with the message of each warning.
+
+    Raises:
+        ConversionError: if this is not a project that can be converted.
+    """
+    if output_size and is_json(contents):
+        try:
+            project = json.loads(contents.decode("utf-8-sig"))
+        except ValueError as error:
+            raise ConversionError("this is not a valid JSON file ({})".format(error))
+    else:
+        project = convert_project(contents, warn)
+        if not output_size and project["layers"]:
+            warn("the output shapes are not moved, and will not be at the same place on the "
+                 "output screen: give its size with --output-size to move them")
+    if output_size:
+        move_output_shapes(project, output_size)
+    return project
+
+
 def convert_project(xml_text, warn):
     """Convert the text of an XML project; return the JSON project as a dict.
 
@@ -191,8 +269,9 @@ def convert_project(xml_text, warn):
     Raises:
         ConversionError: if this is not a project that can be converted.
     """
-    if xml_text.lstrip(b"\xef\xbb\xbf \t\r\n").startswith(b"{"):
-        raise ConversionError("this project is already in the JSON format")
+    if is_json(xml_text):
+        raise ConversionError("this project is already in the JSON format (use --output-size "
+                              "to move its output shapes)")
     try:
         project = ElementTree.fromstring(xml_text)
     except (ElementTree.ParseError, ValueError, LookupError) as error:
@@ -227,7 +306,7 @@ def default_output_path(input_path):
     return root + CONVERTED_SUFFIX + extension
 
 
-def convert_file(input_path, output_path, overwrite):
+def convert_file(input_path, output_path, output_size, overwrite):
     """Convert one file, and report what happens. Return True if it worked."""
     def warn(message):
         print("{}: warning: {}".format(input_path, message), file=sys.stderr)
@@ -236,7 +315,7 @@ def convert_file(input_path, output_path, overwrite):
         if os.path.realpath(input_path) == os.path.realpath(output_path):
             raise ConversionError("the converted project cannot replace the original one")
         with open(input_path, "rb") as input_file:
-            project = convert_project(input_file.read(), warn)
+            project = read_project(input_file.read(), output_size, warn)
         text = json.dumps(project, ensure_ascii=False, indent=4, sort_keys=True) + "\n"
         with open(output_path, "w" if overwrite else "x", encoding="utf-8") as output_file:
             output_file.write(text)
@@ -249,8 +328,19 @@ def convert_file(input_path, output_path, overwrite):
         return False
 
     print("{} -> {} ({} sources, {} layers)".format(
-        input_path, output_path, len(project["sources"]), len(project["layers"])))
+        input_path, output_path, len(project.get("sources", [])), len(project["layers"])))
     return True
+
+
+def parse_output_size(text):
+    """Read a size such as "1920x1080"; return the width and the height."""
+    try:
+        width, height = (int(number) for number in text.lower().split("x"))
+    except ValueError:
+        raise argparse.ArgumentTypeError("{!r} is not a size such as 1920x1080".format(text))
+    if width < OLD_OUTPUT_WIDTH or height < OLD_OUTPUT_HEIGHT:
+        raise argparse.ArgumentTypeError("{!r} is too small for a screen".format(text))
+    return width, height
 
 
 def parse_arguments(arguments):
@@ -258,10 +348,14 @@ def parse_arguments(arguments):
     parser = argparse.ArgumentParser(
         description="Convert MapMap projects from the XML format of MapMap 0.4 to 0.6 "
                     "to the JSON format of MapMap 1.0. The original files are not changed.")
-    parser.add_argument("projects", nargs="+", metavar="PROJECT", help="XML project to convert")
+    parser.add_argument("projects", nargs="+", metavar="PROJECT", help="project to convert")
     parser.add_argument("--output", metavar="FILE",
                         help="where to write the converted project (with a single project; "
                              "default: its name followed by '" + CONVERTED_SUFFIX + "')")
+    parser.add_argument("--output-size", metavar="WIDTHxHEIGHT", type=parse_output_size,
+                        help="size of the output screen the projects were made for, such as "
+                             "1920x1080: move the output shapes so that they stay at the same "
+                             "place on that screen")
     parser.add_argument("--overwrite", action="store_true",
                         help="replace the converted project if it already exists")
     options = parser.parse_args(arguments)
@@ -273,7 +367,8 @@ def parse_arguments(arguments):
 def main(arguments=None):
     """Run the program; return its exit status."""
     options = parse_arguments(arguments)
-    results = [convert_file(path, options.output or default_output_path(path), options.overwrite)
+    results = [convert_file(path, options.output or default_output_path(path),
+                            options.output_size, options.overwrite)
                for path in options.projects]
     return 0 if all(results) else 1
 

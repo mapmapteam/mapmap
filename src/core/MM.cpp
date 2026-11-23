@@ -60,6 +60,8 @@ const QColor MM::LIGHT_RED("#69020B");
 const QColor MM::DARK_RED("#380b19");
 
 const QColor MM::CROSSHAIR_STROKE(QColor(0, 0, 0, 63));
+const QColor MM::OUTPUT_FRAME_COLOR("#7d8296");
+const QColor MM::OUTSIDE_OUTPUT_COLOR("#1b1d25");
 const QColor MM::CONTROL_COLOR(WHITE);
 const QColor MM::CONTROL_COLOR_NON_SELECTED(QColor(CONTROL_COLOR.red(), CONTROL_COLOR.green(), CONTROL_COLOR.blue(), 63));
 const QColor MM::CONTROL_LOCKED_COLOR(LIGHT_RED);

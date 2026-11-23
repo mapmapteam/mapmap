@@ -115,6 +115,9 @@ public:
   static const QColor DARK_RED;
 
   static const QColor CROSSHAIR_STROKE;
+  // Output editor: frame of the output screen, and what is outside of it.
+  static const QColor OUTPUT_FRAME_COLOR;
+  static const QColor OUTSIDE_OUTPUT_COLOR;
   static const QColor CONTROL_COLOR;
   static const QColor CONTROL_COLOR_NON_SELECTED;
   static const QColor CONTROL_LOCKED_COLOR;

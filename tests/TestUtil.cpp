@@ -10,6 +10,7 @@
 #include "TestUtil.h"
 
 #include "Util.h"
+#include "Shapes.h"
 
 #include <QTemporaryDir>
 #include <QFile>
@@ -75,4 +76,35 @@ void TestUtil::fileExistsAndErase()
   QVERIFY(Util::fileExists(path));
   QVERIFY(Util::eraseFile(path));
   QVERIFY(!Util::fileExists(path));
+}
+
+void TestUtil::placeLargeShapeInArea()
+{
+  // Wider than the area: as wide as it, with the same proportions.
+  Triangle triangle(QPointF(100, 2100), QPointF(4100, 2100), QPointF(2100, 100));
+  Util::placeShapeInArea(&triangle, QRectF(0, 0, 1920, 1080));
+  QCOMPARE(triangle.getBoundingRect(), QRectF(0, 60, 1920, 960));
+  QCOMPARE(triangle.getVertex(2), QPointF(960, 60));
+
+  // Higher than the area.
+  mmp::Ellipse ellipse(QPointF(0, 2000), QPointF(1000, 0), QPointF(2000, 2000), QPointF(1000, 4000), true);
+  Util::placeShapeInArea(&ellipse, QRectF(0, 0, 1920, 1080));
+  QCOMPARE(ellipse.getBoundingRect(), QRectF(690, 0, 540, 1080));
+  QCOMPARE(ellipse.getVertex(4), QPointF(960, 540)); // center
+}
+
+void TestUtil::placeSmallShapeInArea()
+{
+  // Moved, with the same size.
+  Mesh mesh(QPointF(-640, -480), QPointF(0, -480), QPointF(0, 0), QPointF(-640, 0));
+  Util::placeShapeInArea(&mesh, QRectF(0, 0, 1920, 1080));
+  QCOMPARE(mesh.getBoundingRect(), QRectF(640, 300, 640, 480));
+  QCOMPARE(mesh.getVertex(0), QPointF(640, 300));
+}
+
+void TestUtil::placeShapeInEmptyArea()
+{
+  Triangle triangle(QPointF(0, 10), QPointF(10, 10), QPointF(5, 0));
+  Util::placeShapeInArea(&triangle, QRectF());
+  QCOMPARE(triangle.getBoundingRect(), QRectF(0, 0, 10, 10));
 }

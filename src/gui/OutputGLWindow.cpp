@@ -37,6 +37,11 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) 
   canvas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   canvas->setMinimumSize(MainWindow::OUTPUT_WINDOW_MINIMUM_WIDTH, MainWindow::OUTPUT_WINDOW_MINIMUM_HEIGHT);
 
+  // Use the whole screen, even next to the notch of a laptop: Qt would otherwise
+  // move the output below it.
+  setAttribute(Qt::WA_ContentsMarginsRespectsSafeArea, false);
+  canvas->setAttribute(Qt::WA_ContentsMarginsRespectsSafeArea, false);
+
   QLayout* layout = new QVBoxLayout;
   layout->setContentsMargins(0,0,0,0); // remove margin
   layout->addWidget(canvas);
@@ -46,6 +51,8 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) 
 
   _isFullScreen = false;
   _preferredScreen = QApplication::screens().size() - 1;
+
+  connect(canvas, &OutputGLCanvas::outputResized, this, &OutputGLWindow::outputRectChanged);
 }
 
 //OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
@@ -105,7 +112,18 @@ void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
 
 void OutputGLWindow::setPreferredScreen(int screen)
 {
-  _preferredScreen = qBound(screen, 0, QApplication::screens().size() - 1);
+  _preferredScreen = qBound(0, screen, int(QApplication::screens().size()) - 1);
+  emit outputRectChanged();
+}
+
+QRectF OutputGLWindow::getOutputRect() const
+{
+  if (isVisible())
+    return QRectF(canvas->viewport()->rect());
+
+  const QList<QScreen*> screens = QGuiApplication::screens();
+  const int screen = qBound(0, _preferredScreen, int(screens.size()) - 1);
+  return QRectF(QPointF(0, 0), screens.at(screen)->geometry().size());
 }
 
 
@@ -137,6 +155,7 @@ void OutputGLWindow::_setFullScreen(bool fullscreen)
   {
     hide();
   }
+  emit outputRectChanged();
 }
 
 }

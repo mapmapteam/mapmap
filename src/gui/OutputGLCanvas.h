@@ -38,6 +38,9 @@ public:
   OutputGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, QOpenGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
   virtual ~OutputGLCanvas() {}
 
+  /// The output itself: never shows the frame of the output screen.
+  bool showsOutputFrame() const { return false; }
+
   // Adjust viewable scene to correspond to absolute coordinates.
   void setSceneRectToViewportGeometry();
 
@@ -59,6 +62,10 @@ public:
   bool isSyphonOutputEnabled() const;
   void setSyphonServerName(const QString& name);
 
+signals:
+  /// Emitted when the size of the output changes.
+  void outputResized();
+
 private:
   void _drawClassicTestSignal(QPainter* painter);
   void _drawPALTestCard(QPainter *painter);
@@ -79,8 +86,8 @@ private:
 #endif
 
 protected:
-  // overriden from QGlWidget:
-  virtual void resizeGL(int width, int height);
+  // Keeps scene point (0, 0) on the top left corner of the output.
+  void resizeEvent(QResizeEvent* event);
 
   void wheelEvent(QWheelEvent *event);
   void mouseMoveEvent(QMouseEvent *event);

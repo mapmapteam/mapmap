@@ -963,10 +963,11 @@ void MainWindow::addMesh()
   Q_CHECK_PTR(source);
 
   // Create input and output quads.
+  const QRectF outputRect = outputWindow->getOutputRect();
   Layer* layerPtr;
   if (source->getSourceType() == SourceType::Color)
   {
-    MShape::ptr outputQuad = MShape::ptr(Util::createMeshForColor(sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputQuad = MShape::ptr(Util::createMeshForColor(outputRect.width(), outputRect.height()));
     layerPtr = new ColorLayer(source, outputQuad);
   }
   else
@@ -975,6 +976,7 @@ void MainWindow::addMesh()
     Q_CHECK_PTR(texture);
 
     MShape::ptr outputQuad = MShape::ptr(Util::createMeshForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
+    Util::placeShapeInArea(outputQuad.data(), outputRect);
     MShape::ptr  inputQuad = MShape::ptr(Util::createMeshForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
     layerPtr = new TextureLayer(source, outputQuad, inputQuad);
   }
@@ -998,10 +1000,11 @@ void MainWindow::addTriangle()
   Q_CHECK_PTR(source);
 
   // Create input and output quads.
+  const QRectF outputRect = outputWindow->getOutputRect();
   Layer* layerPtr;
   if (source->getSourceType() == SourceType::Color)
   {
-    MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForColor(sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForColor(outputRect.width(), outputRect.height()));
     layerPtr = new ColorLayer(source, outputTriangle);
   }
   else
@@ -1010,8 +1013,9 @@ void MainWindow::addTriangle()
     Q_CHECK_PTR(texture);
 
     MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
+    Util::placeShapeInArea(outputTriangle.data(), outputRect);
     MShape::ptr inputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
-    layerPtr = new TextureLayer(source, inputTriangle, outputTriangle);
+    layerPtr = new TextureLayer(source, outputTriangle, inputTriangle);
   }
 
   // Create mapping.
@@ -1033,10 +1037,11 @@ void MainWindow::addEllipse()
   Q_CHECK_PTR(source);
 
   // Create input and output ellipses.
+  const QRectF outputRect = outputWindow->getOutputRect();
   Layer* layerPtr;
   if (source->getSourceType() == SourceType::Color)
   {
-    MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForColor(sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForColor(outputRect.width(), outputRect.height()));
     layerPtr = new ColorLayer(source, outputEllipse);
   }
   else
@@ -1045,8 +1050,9 @@ void MainWindow::addEllipse()
     Q_CHECK_PTR(texture);
 
     MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
+    Util::placeShapeInArea(outputEllipse.data(), outputRect);
     MShape::ptr inputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
-    layerPtr = new TextureLayer(source, inputEllipse, outputEllipse);
+    layerPtr = new TextureLayer(source, outputEllipse, inputEllipse);
   }
 
   // Create mapping.
@@ -1071,15 +1077,29 @@ void MainWindow::about()
 
 void MainWindow::updateStatusBar()
 {
-  QPointF mousePos = destinationCanvas->mapToScene(destinationCanvas->mapFromGlobal(destinationCanvas->cursor().pos()));
-  if (currentSelectedItem) // Show mouse coordinate only if layerList is not empty
-    mousePosLabel->setText("Mouse coordinate:   X " + QString::number(mousePos.x()) + "   Y " + QString::number(mousePos.y()));
-  else
-    mousePosLabel->setText(""); // Otherwise set empty text.
+  updateMouseCoordinates();
   currentMessageLabel->setText(statusBar()->currentMessage());
   sourceZoomLabel->setText("Input Editor: " + QString::number(int(sourceCanvas->getZoomFactor() * 100)).append(QChar('%')));
   destinationZoomLabel->setText("Output Editor: " + QString::number(int(destinationCanvas->getZoomFactor() * 100)).append(QChar('%')));
   lastActionLabel->setText(undoStack->text(undoStack->count() - 1));
+}
+
+void MainWindow::updateMouseCoordinates()
+{
+  // Position of the mouse in the output: pixels from its top left corner.
+  // The output covers everything else when it is displayed.
+  const QList<MapperGLCanvas*> canvases = { outputWindow->getCanvas(), destinationCanvas };
+  for (const MapperGLCanvas* canvas : canvases)
+  {
+    const QPoint position = canvas->viewport()->mapFromGlobal(QCursor::pos());
+    if (canvas->isVisible() && canvas->viewport()->rect().contains(position))
+    {
+      const QPoint outputPosition = canvas->mapToScene(position).toPoint();
+      mousePosLabel->setText(QString("Mouse coordinate:   X %1   Y %2").arg(outputPosition.x()).arg(outputPosition.y()));
+      return;
+    }
+  }
+  mousePosLabel->setText(""); // The mouse is elsewhere.
 }
 
 void MainWindow::showMenuBar(bool shown)
@@ -1357,6 +1377,8 @@ void MainWindow::updateScreenCount()
   // Update Output menu
   outputScreenMenu->clear();
   outputScreenMenu->addActions(screenActions);
+  // The output screen may be another one
+  destinationCanvas->updateOutputArea();
 }
 
 void MainWindow::openRecentFile()
@@ -1885,6 +1907,11 @@ void MainWindow::createLayout()
 
   outputWindow = new OutputGLWindow(this, destinationCanvas);
   outputWindow->installEventFilter(destinationCanvas);
+
+  // Size of the output changed -> change its frame in the output editor.
+  connect(outputWindow, &OutputGLWindow::outputRectChanged, destinationCanvas, &MapperGLCanvas::updateOutputArea);
+  connect(destinationCanvas->scene(), &QGraphicsScene::sceneRectChanged, destinationCanvas, &MapperGLCanvas::updateOutputArea);
+  destinationCanvas->updateOutputArea();
 
   // Source scene changed -> change destination.
   connect(sourceCanvas->scene(), &QGraphicsScene::changed, destinationCanvas, qOverload<>(&QWidget::update));
