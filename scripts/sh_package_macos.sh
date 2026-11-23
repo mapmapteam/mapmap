@@ -283,9 +283,10 @@ while [ "${pass}" -lt "${MAXIMUM_RELOCATION_PASSES}" ]; do
     [ "${relocated_something}" = true ] || break
 done
 
-# Stamp the version of this release in the bundle.
+# Stamp the version of this release in the bundle: the one the Finder shows
+# (1.0.0-beta.1), and the internal one, which stays numeric (1.0.0).
 info_plist="${staged_app}/Contents/Info.plist"
-/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${numeric_version}" "${info_plist}"
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${display_version}" "${info_plist}"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${numeric_version}" "${info_plist}"
 
 # ---------------------------------------------------------------------------
