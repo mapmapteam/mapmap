@@ -1,5 +1,9 @@
 CONFIG += qt
-CONFIG += debug
+# A debug version is built, unless a release version is asked for on the
+# command line: qmake mapmap.pro CONFIG+=release
+# qmake reads the command line before this file: adding "debug" here without
+# this test would override the request and build an unoptimized program.
+!contains(QMAKE_ARGS, "CONFIG+=release"): CONFIG += debug
 CONFIG += c++17
 
 TEMPLATE = app
