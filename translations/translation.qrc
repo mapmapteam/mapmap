@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file alias="translations_mapmap_de">mapmap_de.qm</file>
         <file alias="translations_mapmap_en">mapmap_en.qm</file>
         <file alias="translations_mapmap_es">mapmap_es.qm</file>
         <file alias="translations_mapmap_fr">mapmap_fr.qm</file>

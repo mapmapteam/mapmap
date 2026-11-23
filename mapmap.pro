@@ -26,6 +26,7 @@ include(src/control/control.pri)
 include(src/app/app.pri)
 
 TRANSLATIONS += \
+    translations/mapmap_de.ts \
     translations/mapmap_en.ts \
     translations/mapmap_es.ts \
     translations/mapmap_fr.ts \
