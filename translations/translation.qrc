@@ -4,6 +4,7 @@
         <file alias="translations_mapmap_en">mapmap_en.qm</file>
         <file alias="translations_mapmap_es">mapmap_es.qm</file>
         <file alias="translations_mapmap_fr">mapmap_fr.qm</file>
+        <file alias="translations_mapmap_pt">mapmap_pt.qm</file>
         <file alias="translations_mapmap_zh_CN">mapmap_zh_CN.qm</file>
         <file alias="translations_mapmap_zh_TW">mapmap_zh_TW.qm</file>
     </qresource>
