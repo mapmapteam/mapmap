@@ -15,7 +15,8 @@ MapMap allows its users to:
 * Inspect and edit the properties of sources and layers.
 * Play the sound of video files, with a volume for each source.
 
-Projects saved by MapMap 0.6 and earlier (XML files) cannot be opened.
+Projects saved by MapMap 0.6 and earlier (XML files) cannot be opened. Those of
+MapMap 0.4 to 0.6 can be converted with ``scripts/convert-xml-project.py``.
 
 Supported codecs and file formats
 ---------------------------------

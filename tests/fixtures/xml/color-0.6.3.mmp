@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapmap>
+<project version="0.6.3">
+  <paints>
+    <paint className="Color" name="#cc49ff" locked="false" id="1">
+      <opacity>1</opacity>
+      <color>#cc49ff</color>
+    </paint>
+  </paints>
+  <mappings>
+    <mapping className="ColorMapping" name="Triangle 1" visible="true" locked="false" paintId="1" depth="1" id="1" solo="false">
+      <opacity>1</opacity>
+      <destination className="Triangle">
+        <locked>false</locked>
+        <vertices>
+          <vertex y="223" x="265"/>
+          <vertex y="223" x="795"/>
+          <vertex y="74" x="530"/>
+        </vertices>
+      </destination>
+    </mapping>
+  </mappings>
+</project>

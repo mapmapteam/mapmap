@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapmap>
+<project version="0.6.2">
+  <paints>
+    <paint className="Image" name="tiny.png" locked="false" id="1">
+      <opacity>0.5</opacity>
+      <uri>/media/été/tiny.png</uri>
+      <rate>1</rate>
+      <x>0</x>
+      <y>12.5</y>
+    </paint>
+    <paint className="Video" name="clip &amp; loop" locked="true" id="2">
+      <opacity>1</opacity>
+      <uri>/media/clip.mov</uri>
+      <volume>0.25</volume>
+      <rate>-2</rate>
+      <x>0</x>
+      <y>0</y>
+    </paint>
+  </paints>
+  <mappings>
+    <mapping className="TextureMapping" name="Mesh 1" visible="true" locked="false" paintId="1" depth="2" id="1" solo="false">
+      <opacity>1</opacity>
+      <destination className="Mesh">
+        <locked>false</locked>
+        <nColumns>3</nColumns>
+        <nRows>2</nRows>
+        <vertices>
+          <vertex x="0" y="0"/>
+          <vertex x="50" y="0"/>
+          <vertex x="100" y="0"/>
+          <vertex x="0" y="50"/>
+          <vertex x="50" y="55.5"/>
+          <vertex x="100" y="50"/>
+        </vertices>
+      </destination>
+      <source className="Mesh">
+        <locked>false</locked>
+        <nColumns>3</nColumns>
+        <nRows>2</nRows>
+        <vertices>
+          <vertex x="0" y="0"/>
+          <vertex x="1" y="0"/>
+          <vertex x="2" y="0"/>
+          <vertex x="0" y="2"/>
+          <vertex x="1" y="2"/>
+          <vertex x="2" y="2"/>
+        </vertices>
+      </source>
+    </mapping>
+    <mapping className="TextureMapping" name="Quad 2" visible="false" locked="true" paintId="2" depth="1" id="2" solo="true">
+      <opacity>0.75</opacity>
+      <destination className="Quad">
+        <locked>false</locked>
+        <vertices>
+          <vertex x="0" y="0"/>
+          <vertex x="100" y="0"/>
+          <vertex x="100" y="80"/>
+          <vertex x="0" y="80"/>
+        </vertices>
+      </destination>
+      <source className="Quad">
+        <locked>false</locked>
+        <vertices>
+          <vertex x="0" y="0"/>
+          <vertex x="640" y="0"/>
+          <vertex x="640" y="480"/>
+          <vertex x="0" y="480"/>
+        </vertices>
+      </source>
+    </mapping>
+  </mappings>
+</project>
