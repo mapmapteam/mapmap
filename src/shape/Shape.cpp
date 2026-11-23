@@ -92,6 +92,73 @@ void MShape::scale(qreal scaling)
 	transform(QPointF(), scaling, 0);
 }
 
+QRectF MShape::getBoundingRect() const
+{
+  return QPolygonF(vertices).boundingRect();
+}
+
+QTransform MShape::flipTransform(FlipDirection direction, bool keepBounds) const
+{
+  const QPointF center = keepBounds ? getBoundingRect().center() : getCenter();
+
+  QTransform transform;
+  transform.translate(center.x(), center.y());
+  if (direction == Horizontal)
+    transform.scale(-1, 1);
+  else
+    transform.scale(1, -1);
+  transform.translate(-center.x(), -center.y());
+  return transform;
+}
+
+QTransform MShape::rotateTransform(Rotation rotation, bool keepBounds) const
+{
+  const QRectF bounds = getBoundingRect();
+  const QPointF center = keepBounds ? bounds.center() : getCenter();
+
+  qreal angle = 0;
+  switch (rotation)
+  {
+  case Rotate90CW:  angle =  90; break;
+  case Rotate90CCW: angle = -90; break;
+  case Rotate180:   angle = 180; break;
+  }
+
+  // QTransform applies the last-added operation first: rotate about the
+  // center, then (for quarter turns that keep bounds) stretch the rotated
+  // bounding box (height x width) back to width x height.
+  QTransform transform;
+  transform.translate(center.x(), center.y());
+  if (keepBounds && rotation != Rotate180
+      && bounds.width() > 0 && bounds.height() > 0)
+    transform.scale(bounds.width() / bounds.height(),
+                    bounds.height() / bounds.width());
+  transform.rotate(angle);
+  transform.translate(-center.x(), -center.y());
+  return transform;
+}
+
+QTransform MShape::imageFlipTransform(FlipDirection direction) const
+{
+  return flipTransform(direction, true);
+}
+
+QTransform MShape::imageRotateTransform(Rotation rotation) const
+{
+  return rotateTransform(inverseRotation(rotation), true);
+}
+
+MShape::Rotation MShape::inverseRotation(Rotation rotation)
+{
+  switch (rotation)
+  {
+  case Rotate90CW:  return Rotate90CCW;
+  case Rotate90CCW: return Rotate90CW;
+  case Rotate180:   return Rotate180;
+  }
+  return rotation;
+}
+
 QPointF MShape::getCenter() const
 {
   QPointF center;

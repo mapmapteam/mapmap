@@ -14,6 +14,10 @@
 | <kbd>Ctrl</kbd> + <kbd>M</kbd>                  | Add quad layer         |
 | <kbd>Ctrl</kbd> + <kbd>T</kbd>                  | Add triangle layer     |
 | <kbd>Ctrl</kbd> + <kbd>E</kbd>                  | Add ellipse layer      |
+| <kbd>H</kbd>                                    | Flip horizontally (in the input view: flip the image inside the layer) |
+| <kbd>V</kbd>                                    | Flip vertically (in the input view: flip the image inside the layer) |
+| <kbd>Shift</kbd> + <kbd>R</kbd>                 | Rotate 90° clockwise (in the input view: rotate the image inside the layer) |
+| <kbd>Shift</kbd> + <kbd>L</kbd>                 | Rotate 90° counterclockwise (in the input view: rotate the image inside the layer) |
 | <kbd>Space</kbd>                                | Play/Pause             |
 | <kbd>Ctrl</kbd> + <kbd>R</kbd>                  | Rewind/Reset           |
 | <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>1</kbd> | Main perspective       |

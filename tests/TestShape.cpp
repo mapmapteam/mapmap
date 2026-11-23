@@ -45,6 +45,23 @@ QPointF intersect(const QPointF& a, const QPointF& b, const QPointF& c, const QP
   QLineF(a, b).intersects(QLineF(c, d), &p);
   return p;
 }
+
+// A non-square rectangle from (0,0) to (4,2), corners in drawing order:
+// top-left, top-right, bottom-right, bottom-left.
+Quad makeRectangle()
+{
+  return Quad(QPointF(0, 0), QPointF(4, 0), QPointF(4, 2), QPointF(0, 2));
+}
+
+bool sameVertices(const MShape& shape, const QVector<QPointF>& expected)
+{
+  if (shape.nVertices() != expected.size())
+    return false;
+  for (int i = 0; i < expected.size(); ++i)
+    if (!nearPoint(shape.getVertex(i), expected.at(i)))
+      return false;
+  return true;
+}
 }
 
 void TestShape::verticesAccessors()
@@ -228,4 +245,140 @@ void TestShape::ellipseResetsOffCenterControl()
   // Old projects stored a free center control point: it now gets recomputed.
   Ellipse ellipse(QPointF(6, 20), QPointF(10, 18), QPointF(14, 20), QPointF(10, 22), QPointF(12, 21));
   QVERIFY(nearPoint(ellipse.getVertex(4), QPointF(10, 20)));
+}
+
+void TestShape::flipTwiceRestoresShape()
+{
+  const Quad original = makeRectangle();
+  for (MShape::FlipDirection d : { MShape::Horizontal, MShape::Vertical })
+  {
+    Quad shape = makeRectangle();
+    shape.applyTransform(shape.flipTransform(d));
+    QVERIFY(!sameVertices(shape, original.getVertices()));
+    shape.applyTransform(shape.flipTransform(d));
+    QVERIFY(sameVertices(shape, original.getVertices()));
+
+    Quad image = makeRectangle();
+    image.applyTransform(image.imageFlipTransform(d));
+    image.applyTransform(image.imageFlipTransform(d));
+    QVERIFY(sameVertices(image, original.getVertices()));
+  }
+}
+
+void TestShape::rotateShapeTurnsOutline()
+{
+  // In the output view, a quarter turn turns the outline itself:
+  // a 4 x 2 rectangle becomes 2 x 4, around the same center.
+  Quad shape = makeRectangle();
+  shape.applyTransform(shape.rotateTransform(MShape::Rotate90CW));
+
+  const QRectF bounds = shape.getBoundingRect();
+  QVERIFY(qAbs(bounds.width() - 2) < 1e-9);
+  QVERIFY(qAbs(bounds.height() - 4) < 1e-9);
+  QVERIFY(nearPoint(bounds.center(), QPointF(2, 1)));
+  // Clockwise on screen (y down): the top-left corner goes to the top-right.
+  QVERIFY(nearPoint(shape.getVertex(0), QPointF(3, -1)));
+}
+
+void TestShape::rotateFullTurnRestoresShape()
+{
+  const Quad original = makeRectangle();
+
+  Quad shape = makeRectangle();
+  for (int i = 0; i < 4; ++i)
+    shape.applyTransform(shape.rotateTransform(MShape::Rotate90CW));
+  QVERIFY(sameVertices(shape, original.getVertices()));
+
+  Quad image = makeRectangle();
+  for (int i = 0; i < 4; ++i)
+    image.applyTransform(image.imageRotateTransform(MShape::Rotate90CW));
+  QVERIFY(sameVertices(image, original.getVertices()));
+
+  Quad back = makeRectangle();
+  back.applyTransform(back.imageRotateTransform(MShape::Rotate90CW));
+  back.applyTransform(back.imageRotateTransform(MShape::Rotate90CCW));
+  QVERIFY(sameVertices(back, original.getVertices()));
+
+  Quad half = makeRectangle();
+  half.applyTransform(half.imageRotateTransform(MShape::Rotate180));
+  half.applyTransform(half.imageRotateTransform(MShape::Rotate180));
+  QVERIFY(sameVertices(half, original.getVertices()));
+}
+
+void TestShape::imageFlipKeepsOutline()
+{
+  // Flipping the picked region swaps which corner of the image each output
+  // corner shows; the outline in the input view does not move.
+  Quad image = makeRectangle();
+  image.applyTransform(image.imageFlipTransform(MShape::Horizontal));
+  QVERIFY(sameVertices(image, { QPointF(4, 0), QPointF(0, 0), QPointF(0, 2), QPointF(4, 2) }));
+
+  Quad vertical = makeRectangle();
+  vertical.applyTransform(vertical.imageFlipTransform(MShape::Vertical));
+  QVERIFY(sameVertices(vertical, { QPointF(0, 2), QPointF(4, 2), QPointF(4, 0), QPointF(0, 0) }));
+}
+
+void TestShape::imageRotateKeepsOutline()
+{
+  // Turning the image clockwise: the output's top-left corner must now show
+  // the image's bottom-left corner, and so on around. The input outline stays
+  // the same 4 x 2 rectangle (it is not squashed into 2 x 4).
+  Quad cw = makeRectangle();
+  cw.applyTransform(cw.imageRotateTransform(MShape::Rotate90CW));
+  QVERIFY(sameVertices(cw, { QPointF(0, 2), QPointF(0, 0), QPointF(4, 0), QPointF(4, 2) }));
+
+  Quad ccw = makeRectangle();
+  ccw.applyTransform(ccw.imageRotateTransform(MShape::Rotate90CCW));
+  QVERIFY(sameVertices(ccw, { QPointF(4, 0), QPointF(4, 2), QPointF(0, 2), QPointF(0, 0) }));
+
+  Quad half = makeRectangle();
+  half.applyTransform(half.imageRotateTransform(MShape::Rotate180));
+  QVERIFY(sameVertices(half, { QPointF(4, 2), QPointF(0, 2), QPointF(0, 0), QPointF(4, 0) }));
+}
+
+void TestShape::imageOrientationsAreAllDistinct()
+{
+  // The eight orientations of an image (four quarter turns, each with or
+  // without a mirror) must each keep the outline and be different from one
+  // another: no two combinations of commands may collapse to the same result
+  // unless they really are the same orientation.
+  const QVector<QPointF> corners = makeRectangle().getVertices();
+  QList<QVector<QPointF>> seen;
+
+  for (bool mirrored : { false, true })
+  {
+    for (int quarterTurns = 0; quarterTurns < 4; ++quarterTurns)
+    {
+      Quad image = makeRectangle();
+      if (mirrored)
+        image.applyTransform(image.imageFlipTransform(MShape::Horizontal));
+      for (int i = 0; i < quarterTurns; ++i)
+        image.applyTransform(image.imageRotateTransform(MShape::Rotate90CW));
+
+      // Outline kept: every vertex is still one of the four corners.
+      for (const QPointF& v : image.getVertices())
+      {
+        bool isCorner = false;
+        for (const QPointF& c : corners)
+          isCorner |= nearPoint(v, c);
+        QVERIFY2(isCorner, "image orientation moved the input outline");
+      }
+
+      for (const QVector<QPointF>& other : seen)
+      {
+        Quad tmp(other.at(0), other.at(1), other.at(2), other.at(3));
+        QVERIFY2(!sameVertices(tmp, image.getVertices()), "two orientations collapsed into one");
+      }
+      seen.append(image.getVertices());
+    }
+  }
+  QCOMPARE(seen.size(), 8);
+
+  // Flipping both ways is the same as a half turn.
+  Quad both = makeRectangle();
+  both.applyTransform(both.imageFlipTransform(MShape::Horizontal));
+  both.applyTransform(both.imageFlipTransform(MShape::Vertical));
+  Quad half = makeRectangle();
+  half.applyTransform(half.imageRotateTransform(MShape::Rotate180));
+  QVERIFY(sameVertices(both, half.getVertices()));
 }

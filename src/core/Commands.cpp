@@ -366,98 +366,62 @@ void MoveLayerCommand::redo()
   _mainWindow->moveLayer(_layerId, _toIdx);
 }
 
-FlipShapeCommand::FlipShapeCommand(MapperGLCanvas *canvas, TransformShapeCommand::TransformShapeOption option, const MShape::ptr &initialShape, MShape::FlipDirection direction, QUndoCommand *parent)
-  : TransformShapeCommand (canvas, option, parent),
-    _initialShape(initialShape)
+FlipShapeCommand::FlipShapeCommand(MapperGLCanvas *canvas, MShape::FlipDirection direction, QUndoCommand *parent)
+  : TransformShapeCommand (canvas, STEP, parent)
 {
-	// Initial vector from center.
-	QPointF center = initialShape->getCenter();
+  // In the output view the shape itself is flipped. In the input view the
+  // picked region is flipped, which flips the image inside the layer while
+  // the output shape stays put.
+  const bool image = !canvas->isOutput();
 
-	// Create transform object.
-	_transform.translate(+center.x(), +center.y());
+  if (direction == MShape::Horizontal)
+    setText(image ? QObject::tr("Flip Image Horizontally") : QObject::tr("Flip Horizontally"));
+  else
+    setText(image ? QObject::tr("Flip Image Vertically") : QObject::tr("Flip Vertically"));
 
-	if (direction == MShape::Horizontal) {
-		setText(QObject::tr("Flip Horizontally"));
-		_transform.scale(-1, 1);
-	}
-
-	else if (direction == MShape::Vertical) {
-		setText(QObject::tr("Flip Vertically"));
-		_transform.scale(1, -1);
-	}
-	_transform.translate(-center.x(), -center.y());
+  if (_originalShape)
+    _transform = image ? _originalShape->imageFlipTransform(direction)
+                       : _originalShape->flipTransform(direction);
 }
 
-int FlipShapeCommand::id() const { return (_option == STEP ? CMD_KEY_FLIP_SHAPE : CMD_MOUSE_FLIP_SHAPE); }
+// Each flip is its own undo step: merging two flips would replay only one.
+int FlipShapeCommand::id() const { return -1; }
 
 void FlipShapeCommand::_doTransform(MShape::ptr shape)
 {
-	// Apply to shape.
-	shape->copyFrom(*_initialShape);
-	shape->applyTransform(_transform);
+  if (!shape || !_originalShape)
+    return;
+  shape->copyFrom(*_originalShape);
+  shape->applyTransform(_transform);
 }
 
-bool FlipShapeCommand::mergeWith(const QUndoCommand* other)
+RotateShapeCommand::RotateShapeCommand(MapperGLCanvas *canvas, MShape::Rotation rotation, QUndoCommand *parent)
+  : TransformShapeCommand (canvas, STEP, parent)
 {
-  if (!TransformShapeCommand::mergeWith(other))
-    return false;
+  // See FlipShapeCommand: the input view turns the image, not the shape.
+  const bool image = !canvas->isOutput();
 
-  const FlipShapeCommand* cmd = static_cast<const FlipShapeCommand*>(other);
+  if (rotation == MShape::Rotate90CW)
+    setText(image ? QObject::tr("Rotate Image 90° CW") : QObject::tr("Rotate 90° CW"));
+  else if (rotation == MShape::Rotate90CCW)
+    setText(image ? QObject::tr("Rotate Image 90° CCW") : QObject::tr("Rotate 90° CCW"));
+  else
+    setText(image ? QObject::tr("Rotate Image 180°") : QObject::tr("Rotate 180°"));
 
-	_option = cmd->_option;
-	_transform = cmd->_transform;
-
-	return true;
+  if (_originalShape)
+    _transform = image ? _originalShape->imageRotateTransform(rotation)
+                       : _originalShape->rotateTransform(rotation);
 }
 
-RotateShapeCommand::RotateShapeCommand(MapperGLCanvas *canvas, TransformShapeCommand::TransformShapeOption option, const MShape::ptr &initialShape, MShape::Rotation rotation, QUndoCommand *parent)
-  : TransformShapeCommand (canvas, option, parent),
-    _initialShape(initialShape)
-{
-	// Initial vector from center.
-	QPointF center = initialShape->getCenter();
-
-	// Create transform object.
-	_transform.translate(+center.x(), +center.y());
-
-	if (rotation == MShape::Rotate90CW) {
-		setText(QObject::tr("Rotate 90° CW"));
-    _transform.rotate(90);
-	}
-
-  else if (rotation == MShape::Rotate90CCW) {
-		setText(QObject::tr("Rotate 90° CCW"));
-    _transform.rotate(-90);
-	}
-
-  else if (rotation == MShape::Rotate180) {
-		setText(QObject::tr("Rotate 180°"));
-    _transform.rotate(180);
-	}
-
-	_transform.translate(-center.x(), -center.y());
-}
-
-int RotateShapeCommand::id() const { return (_option == STEP ? CMD_KEY_ROTATE_SHAPE : CMD_MOUSE_ROTATE_SHAPE); }
+// Each rotation is its own undo step: merging two rotations would replay only one.
+int RotateShapeCommand::id() const { return -1; }
 
 void RotateShapeCommand::_doTransform(MShape::ptr shape)
 {
-	// Apply to shape.
-	shape->copyFrom(*_initialShape);
-	shape->applyTransform(_transform);
-}
-
-bool RotateShapeCommand::mergeWith(const QUndoCommand* other)
-{
-  if (!TransformShapeCommand::mergeWith(other))
-    return false;
-
-  const RotateShapeCommand* cmd = static_cast<const RotateShapeCommand*>(other);
-
-	_option = cmd->_option;
-	_transform = cmd->_transform;
-
-	return true;
+  if (!shape || !_originalShape)
+    return;
+  shape->copyFrom(*_originalShape);
+  shape->applyTransform(_transform);
 }
 
 }

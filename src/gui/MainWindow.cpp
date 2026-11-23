@@ -134,6 +134,7 @@ MainWindow::MainWindow()
   _displaySourceControls = true;
   _stickyVertices = true;
   _displayUndoStack = false;
+  _transformInInputView = false;
   _showMenuBar = true; // Show menubar by default
 
   // UndoStack
@@ -1201,27 +1202,58 @@ void MainWindow::loadLayerMedia()
   }
 }
 
+MapperGLCanvas* MainWindow::transformTargetCanvas() const
+{
+  return _transformInInputView ? sourceCanvas : destinationCanvas;
+}
+
+void MainWindow::updateTransformTarget(QWidget* now)
+{
+  // Ignore focus moving to nowhere or into a menu: the command that follows
+  // still belongs to the view the user was working in.
+  if (now == nullptr || qobject_cast<QMenu*>(now) != nullptr
+      || (now->window()->windowFlags() & Qt::Popup) == Qt::Popup)
+    return;
+
+  // Walk up from the focused widget rather than dereferencing sourceCanvas:
+  // focus also moves while the window's children are being destroyed.
+  bool inInputView = false;
+  for (QWidget* widget = now; widget != nullptr; widget = widget->parentWidget())
+  {
+    if (widget == sourceCanvas)
+    {
+      inInputView = true;
+      break;
+    }
+  }
+  _transformInInputView = inInputView;
+}
+
 void MainWindow::transformActionLayerItem()
 {
   QAction *actionSender = qobject_cast<QAction *>(sender());
 
+  // In the output view the commands move the shape; in the input view they
+  // turn the image inside the shape (see FlipShapeCommand).
+  MapperGLCanvas* canvas = transformTargetCanvas();
+  if (canvas->getCurrentShape().isNull())
+    return; // e.g. a color layer has no input shape.
+
   if (actionSender == layerRotate90CWAction) {
-    undoStack->push(new RotateShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Rotate90CW));
+    undoStack->push(new RotateShapeCommand(canvas, MShape::Rotate90CW));
   }
   else if (actionSender == layerRotate90CCWAction) {
-    undoStack->push(new RotateShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Rotate90CCW));
+    undoStack->push(new RotateShapeCommand(canvas, MShape::Rotate90CCW));
   }
   else if (actionSender == layerRotate180Action) {
-    undoStack->push(new RotateShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Rotate180));
+    undoStack->push(new RotateShapeCommand(canvas, MShape::Rotate180));
   }
-
   else if (actionSender == layerHorizontalFlipAction) {
-    undoStack->push(new FlipShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Horizontal));
+    undoStack->push(new FlipShapeCommand(canvas, MShape::Horizontal));
   }
   else if (actionSender == layerVerticalFlipAction) {
-    undoStack->push(new FlipShapeCommand(destinationCanvas, TransformShapeCommand::FREE, destinationCanvas->getCurrentShape(), MShape::Vertical));
+    undoStack->push(new FlipShapeCommand(canvas, MShape::Vertical));
   }
-
 }
 
 void MainWindow::reorderLayerItem()
@@ -2129,15 +2161,17 @@ void MainWindow::createActions()
 
   // Rotate 90 degrees CW action.
   layerRotate90CWAction = new QAction(tr("Rotate 90° CW"), this);
-  layerRotate90CWAction->setToolTip(tr("Rotate 90° CW"));
+  layerRotate90CWAction->setShortcut(Qt::SHIFT | Qt::Key_R);
+  layerRotate90CWAction->setToolTip(tr("Rotate 90° clockwise. In the input view, rotates the image inside the layer."));
   layerRotate90CWAction->setIconVisibleInMenu(true);
   layerRotate90CWAction->setEnabled(false);
   addAction(layerRotate90CWAction);
   connect(layerRotate90CWAction, &QAction::triggered, this, &MainWindow::transformActionLayerItem);
 
-  // Rotate 90 degrees CW action.
-  layerRotate90CCWAction = new QAction(tr("Rotate 90° CW"), this);
-  layerRotate90CCWAction->setToolTip(tr("Rotate 90° CW"));
+  // Rotate 90 degrees CCW action.
+  layerRotate90CCWAction = new QAction(tr("Rotate 90° CCW"), this);
+  layerRotate90CCWAction->setShortcut(Qt::SHIFT | Qt::Key_L);
+  layerRotate90CCWAction->setToolTip(tr("Rotate 90° counterclockwise. In the input view, rotates the image inside the layer."));
   layerRotate90CCWAction->setIconVisibleInMenu(true);
   layerRotate90CCWAction->setEnabled(false);
   addAction(layerRotate90CCWAction);
@@ -2145,7 +2179,7 @@ void MainWindow::createActions()
 
   // Rotate 180 degrees action.
   layerRotate180Action = new QAction(tr("Rotate 180°"), this);
-  layerRotate180Action->setToolTip(tr("Rotate 180°"));
+  layerRotate180Action->setToolTip(tr("Rotate 180°. In the input view, rotates the image inside the layer."));
   layerRotate180Action->setIconVisibleInMenu(true);
   layerRotate180Action->setEnabled(false);
   addAction(layerRotate180Action);
@@ -2154,7 +2188,7 @@ void MainWindow::createActions()
   // Horizontal Flip Action
   layerHorizontalFlipAction = new QAction(tr("Flip Horizontally"), this);
   layerHorizontalFlipAction->setShortcut(Qt::Key_H);
-  layerHorizontalFlipAction->setToolTip(tr("Flip Horizontally"));
+  layerHorizontalFlipAction->setToolTip(tr("Flip horizontally. In the input view, flips the image inside the layer."));
   layerHorizontalFlipAction->setIconVisibleInMenu(true);
   layerHorizontalFlipAction->setEnabled(false);
   addAction(layerHorizontalFlipAction);
@@ -2163,7 +2197,7 @@ void MainWindow::createActions()
   // Vertical Flip Action
   layerVerticalFlipAction = new QAction(tr("Flip Vertically"), this);
   layerVerticalFlipAction->setShortcut(Qt::Key_V);
-  layerVerticalFlipAction->setToolTip(tr("Flip Vertically"));
+  layerVerticalFlipAction->setToolTip(tr("Flip vertically. In the input view, flips the image inside the layer."));
   layerVerticalFlipAction->setIconVisibleInMenu(true);
   layerVerticalFlipAction->setEnabled(false);
   addAction(layerVerticalFlipAction);
@@ -2727,6 +2761,8 @@ void MainWindow::createLayerContextMenu()
   // Context Menu Connexions
   connect(layerItemDelegate, &LayerItemDelegate::itemContextMenuRequested, this, &MainWindow::showLayerContextMenu, Qt::QueuedConnection);
   connect(destinationCanvas, &MapperGLCanvas::shapeContextMenuRequested, this, &MainWindow::showLayerContextMenu);
+  connect(sourceCanvas, &MapperGLCanvas::shapeContextMenuRequested, this, &MainWindow::showLayerContextMenu);
+  connect(qApp, &QApplication::focusChanged, this, [this](QWidget*, QWidget* now) { updateTransformTarget(now); });
   connect(outputWindow->getCanvas(), &MapperGLCanvas::shapeContextMenuRequested, this, &MainWindow::showLayerContextMenu);
 }
 
@@ -3162,9 +3198,9 @@ void MainWindow::updateLayerActions()
     layerLockedAction->setEnabled(false);
     layerHideAction->setEnabled(false);
     layerSoloAction->setEnabled(false);
-    layerRotate90CWAction->setEnabled(true);
-    layerRotate90CCWAction->setEnabled(true);
-    layerRotate180Action->setEnabled(true);
+    layerRotate90CWAction->setEnabled(false);
+    layerRotate90CCWAction->setEnabled(false);
+    layerRotate180Action->setEnabled(false);
     layerHorizontalFlipAction->setEnabled(false);
     layerVerticalFlipAction->setEnabled(false);
     layerRaiseAction->setEnabled(false);
@@ -3864,6 +3900,9 @@ void MainWindow::showLayerContextMenu(const QPoint &point)
 {
   QWidget *objectSender = static_cast<QWidget*>(sender());
   uid layerId = currentLayerItemId();
+
+  // Flip and rotate from this menu act on the view it was opened from.
+  _transformInInputView = (sender() == sourceCanvas);
   Layer::ptr layer = mappingManager->getLayerById(layerId);
 
   // Switch to right action check state

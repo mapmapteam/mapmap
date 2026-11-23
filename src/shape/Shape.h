@@ -129,6 +129,43 @@ public:
 	virtual void rotate(qreal angle);
 	virtual void scale(qreal scaling);
 
+  /// Returns the bounding rectangle of all vertices.
+  QRectF getBoundingRect() const;
+
+  /**
+   * Returns the transform that flips this shape in place.
+   *
+   * When keepBounds is false, the flip is done about getCenter(). When it is
+   * true, it is done about the center of the bounding rectangle, so that the
+   * outline of an axis-aligned rectangle stays exactly where it was.
+   */
+  QTransform flipTransform(FlipDirection direction, bool keepBounds = false) const;
+
+  /**
+   * Returns the transform that rotates this shape by a quarter or half turn
+   * (clockwise on screen, where y points down).
+   *
+   * When keepBounds is false, the rotation is done about getCenter() and the
+   * outline turns with it. When it is true, the rotated shape is stretched
+   * back into its original bounding rectangle: an axis-aligned rectangle
+   * keeps its outline and only the order of its vertices changes.
+   */
+  QTransform rotateTransform(Rotation rotation, bool keepBounds = false) const;
+
+  /**
+   * Transforms that turn the image shown inside a layer, by moving its input
+   * shape (the region picked in the source) while the output shape stays put.
+   *
+   * Moving the picked region one way turns the image the other way, so the
+   * rotation is inverted: imageRotateTransform(Rotate90CW) makes the image
+   * appear turned clockwise in the output.
+   */
+  QTransform imageFlipTransform(FlipDirection direction) const;
+  QTransform imageRotateTransform(Rotation rotation) const;
+
+  /// Returns the rotation that cancels the given one.
+  static Rotation inverseRotation(Rotation rotation);
+
 	virtual void copyFrom(const MShape& shape);
 
 	virtual MShape* clone() const;

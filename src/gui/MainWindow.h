@@ -617,6 +617,17 @@ private:
 
   bool _displayUndoStack;
 
+  // True iff the input (source) view is the last view the user worked in.
+  // Flip and rotate commands then turn the image inside the layer instead of
+  // moving the shape in the output.
+  bool _transformInInputView;
+
+  // Canvas that flip and rotate commands act on (see _transformInInputView).
+  MapperGLCanvas* transformTargetCanvas() const;
+
+  // Keeps _transformInInputView in sync with keyboard focus.
+  void updateTransformTarget(QWidget* now);
+
   // Menu bar hidden state
   bool _showMenuBar;
 
