@@ -163,35 +163,35 @@ private:
 class FlipShapeCommand : public TransformShapeCommand
 {
 public:
-  FlipShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, const MShape::ptr& initialShape, MShape::FlipDirection direction, QUndoCommand *parent = 0);
+  /// Flips the current shape of the canvas. On the input (source) canvas,
+  /// this flips the image inside the layer instead of moving the shape.
+  FlipShapeCommand(MapperGLCanvas* canvas, MShape::FlipDirection direction, QUndoCommand *parent = 0);
 
   int id() const;
-  bool mergeWith(const QUndoCommand* other);
 
 protected:
   // Perform the actual transformation on the shape.
   virtual void _doTransform(MShape::ptr shape);
 
-  // Information pertaining to flip transformation.
+  // Transform applied to the original shape.
   QTransform _transform;
-  MShape::ptr _initialShape;
 };
 
 class RotateShapeCommand : public TransformShapeCommand
 {
 public:
-  RotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, const MShape::ptr& initialShape, MShape::Rotation rotation, QUndoCommand *parent = 0);
+  /// Rotates the current shape of the canvas. On the input (source) canvas,
+  /// this rotates the image inside the layer instead of moving the shape.
+  RotateShapeCommand(MapperGLCanvas* canvas, MShape::Rotation rotation, QUndoCommand *parent = 0);
 
   int id() const;
-  bool mergeWith(const QUndoCommand* other);
 
 protected:
   // Perform the actual transformation on the shape.
   virtual void _doTransform(MShape::ptr shape);
 
-  // Information pertaining to rotate transformation.
+  // Transform applied to the original shape.
   QTransform _transform;
-  MShape::ptr _initialShape;
 };
 
 class RemoveSourceCommand : public QUndoCommand

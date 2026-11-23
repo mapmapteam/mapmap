@@ -32,6 +32,12 @@ private slots:
   void ellipseRejectsInvalidPerspective();
   void ellipseCenterDragTranslates();
   void ellipseResetsOffCenterControl();
+  void flipTwiceRestoresShape();
+  void rotateShapeTurnsOutline();
+  void rotateFullTurnRestoresShape();
+  void imageFlipKeepsOutline();
+  void imageRotateKeepsOutline();
+  void imageOrientationsAreAllDistinct();
 };
 
 #endif /* TEST_SHAPE_H_ */
