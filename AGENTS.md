@@ -36,7 +36,7 @@ bash scripts/sh_package_macos.sh
 bash scripts/sh_package_linux.sh
 ```
 
-The first one writes `dist/MapMap-<version>-macos-<processor>.dmg`, a disk image with MapMap and the Qt libraries it needs. The second one writes `dist/mapmap-<version>-linux-<processor>.tar.gz`, the program without the Qt libraries. Both build the last commit in a clean copy of the sources; run them with `--help` for their options. The automated builds run them with `--skip-build` for every pull request.
+The first one writes `dist/MapMap-<version>-macos-<processor>.dmg`, a disk image with MapMap and the Qt libraries it needs. The second one writes `dist/mapmap-<version>-linux-<processor>.tar.gz`, the program without the Qt libraries. Both build the last commit in a clean copy of the sources; run them with `--help` for their options. The automated builds run them with `--skip-build`, once a change is in `dev` or `master`, or when asked to: `gh workflow run build.yml --ref <branch>`, or "Run workflow" on the Actions page of GitHub. A pull request is only built and tested.
 
 Without `--sign-identity`, the macOS disk image is only signed ad hoc: macOS warns that the developer cannot be verified. A public release needs a "Developer ID Application" identity and Apple's notarization.
 
