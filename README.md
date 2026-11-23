@@ -17,10 +17,17 @@ previously static objects. The video is commonly combined with, or
 triggered by, audio to create an audio-visual narrative.
 
 
-Build status
----------------
+Status
+------
 
-![Build on macOS](https://github.com/mapmapteam/mapmap/workflows/Build%20on%20macOS/badge.svg) ![Build on Ubuntu](https://github.com/mapmapteam/mapmap/workflows/Build%20on%20Ubuntu/badge.svg) ![Build on Windows](https://github.com/mapmapteam/mapmap/workflows/Build%20on%20Windows/badge.svg)
+![Build](https://github.com/mapmapteam/mapmap/actions/workflows/build.yml/badge.svg?branch=dev)
+
+MapMap is actively developed. Version 1.0 is being prepared on the `dev`
+branch: it moves MapMap to Qt 6 and to a new project file format. The changes
+are listed in [CHANGELOG.md](CHANGELOG.md).
+
+Releases are published on the
+[releases page](https://github.com/mapmapteam/mapmap/releases).
 
 Acknowledgements
 ----------------
@@ -41,11 +48,14 @@ https://perte-de-signal.org/
 
 Build and installation
 ----------------------
-To build and install it, see the INSTALL file provided with the source code.
+To build MapMap from its source code, see [INSTALL.md](INSTALL.md).
 
-To use this software on Gnu/Linux with window managers other than Unity, 
-make sure that this package is NOT installed: appmenu-qt5
-or else the menu will not show.
+Documentation
+-------------
+* [OSC](OSC): control MapMap from another program with OSC messages.
+* [Keyboard shortcuts](docs/informations/mapmap-keyboard-shortcuts.md).
+* [CONTRIBUTING.md](CONTRIBUTING.md): report a bug, request a feature, contribute code.
+* [AGENTS.md](AGENTS.md): how to build, test and work in this repository.
 
 Authors
 -------
@@ -78,4 +88,4 @@ Get more info from [mapmapteam.github.io](https://mapmapteam.github.io/)
 
 Licence
 ---------
-[GNU GPL v3](https://github.com/mapmapteam/mapmap/blob/develop/LICENSE)
+[GNU GPL v3](LICENSE)

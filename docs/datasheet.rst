@@ -5,57 +5,58 @@ User Interface
 --------------
 MapMap allows its users to:
 
-* Create and destroy an unlimited amount of texture sources paints. Textures can be video or image files.
-* Create and destroy an unlimited amount of mappings. Each mapping is a shape on which a source paint is drawn.
-* Color paints can be used as masks.
-* Move layers.
+* Create and destroy an unlimited amount of sources. A source is a video file, an image file, a camera, a color, or, on macOS, a Syphon server.
+* Create and destroy an unlimited amount of layers. Each layer is a shape on which a source is drawn: a triangle, a mesh (a quad with subdivisions) or an ellipse.
+* Use color sources as masks.
+* Reorder, hide, lock and solo layers.
 * Save the project to a human-readable JSON file.
 * Load the project from a human-readable JSON file.
 * Turn any quad into a mesh.
-* Inspect properties.
+* Inspect and edit the properties of sources and layers.
+* Play the sound of video files, with a volume for each source.
 
-MapMap doesn't currently play sound from video files.
+Projects saved by MapMap 0.6 and earlier (XML files) cannot be opened.
 
 Supported codecs and file formats
 ---------------------------------
+MapMap reads media files with Qt Multimedia, which uses the decoders of the
+operating system. What plays therefore depends on the system.
+
 Image file formats
 ~~~~~~~~~~~~~~~~~~
 * PNG.
-* SVG.
 * JPEG.
+* GIF, including animated ones.
+* BMP and TIFF.
 
 Video containers
 ~~~~~~~~~~~~~~~~
-* OGG.
+* MPEG-4. (MP4)
 * Quicktime. (MOV)
 * AVI.
-* Matroska. (MKV)
-* etc.
-
-Recommended video codecs
-~~~~~~~~~~~~~~~~~~~~~~~~
-* Motion-JPEG.
-* OGG Theora.
-* MPEG4.
-* H.264.
+* WebM.
+* OGG.
 
 Supported Operating Systems
 ---------------------------
-* Apple OS X 10.9. (it doesn't currently work on OS X 10.10)
-* Ubuntu GNU/Linux 12.04 and up.
-* Fedora GNU/Linux 19 and up.
+MapMap is built and tested for every change on:
+
+* macOS, on the current GitHub runner image.
+* Ubuntu GNU/Linux 24.04.
+* Windows, on the current GitHub runner image.
 
 Recommended hardware configuration
 ----------------------------------
-* Dual-core 1.0 GHz processor AMD64, or better.
-* At least 1 Gb of RAM.
-* Video card with 3D acceleration, OpenGL 2.0 support and at least 512 Mb of VRAM.
+* Dual-core processor, or better.
+* A video card with 3D acceleration and OpenGL 2.0 support.
 
-Using the OSC interface
------------------------
-You can control MapMap via a set of OSC messages. OpenSoundControl allows users to send messages to control audio and video software. These messages are transmitted via UDP/IP. This allows one to control multi-projector shows with little efforts.
+Remote control
+--------------
+You can control MapMap with OSC messages. OpenSoundControl allows users to
+send messages to control audio and video software, from another program or
+another computer. MapMap listens for incoming OSC messages on port 12345, on
+the local machine only unless the user allows the network. See the ``OSC``
+file.
 
-MapMap listens for incoming OSC messages on the default port 12345.
-
-There is a Processing bridge to MapMap as well as a Toonloop to MapMap.
-
+MapMap also includes an MCP (Model Context Protocol) server, off by default,
+which lets an AI assistant build and edit a project.
