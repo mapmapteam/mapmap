@@ -24,6 +24,9 @@
 
 #include <QCursor>
 #include <QOpenGLWidget>
+#include <QPainterPath>
+
+#include "Util.h"
 
 namespace mmp {
 
@@ -40,15 +43,48 @@ OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, QOpenGLW
   // No frame around the view: it would shift the output by its width.
   setFrameShape(QFrame::NoFrame);
 
-  setSceneRectToViewportGeometry();
+  // Scaling must keep the output frame centered, not follow the mouse.
+  setTransformationAnchor(QGraphicsView::AnchorViewCenter);
 
   _frameStats.setName("output");
 }
 
-void OutputGLCanvas::setSceneRectToViewportGeometry()
+void OutputGLCanvas::setOutputFrame(const QRectF& frame)
 {
-  setSceneRect(QRectF(viewport()->rect()));
+  _outputFrame = frame;
+  setSceneRect(frame);
+  _fitOutputFrame();
+  emit outputResized();
 }
+
+void OutputGLCanvas::_fitOutputFrame()
+{
+  if (_outputFrame.isEmpty())
+    return;
+  const qreal scale = Util::fitScale(_outputFrame.size(), viewport()->size());
+  resetTransform();
+  this->scale(scale, scale);
+  centerOn(_outputFrame.center());
+  viewport()->update();
+}
+
+void OutputGLCanvas::_maskOutsideOutputFrame(QPainter* painter, const QRectF& rect)
+{
+  if (_outputFrame.isEmpty() || _outputFrame.contains(rect))
+    return;
+  QPainterPath outside;
+  outside.addRect(rect);
+  QPainterPath frame;
+  frame.addRect(_outputFrame);
+  painter->fillPath(outside.subtracted(frame), Qt::black);
+}
+
+void OutputGLCanvas::resizeEvent(QResizeEvent* event)
+{
+  QGraphicsView::resizeEvent(event);
+  _fitOutputFrame();
+}
+
 
 void OutputGLCanvas::setSyphonOutputEnabled(bool on)
 {
@@ -98,11 +134,14 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
   QSettings settings;
   bool controlOnMouseOver = settings.value("showControlOnMouseOver", MM::SHOW_OUTPUT_ON_MOUSE_HOVER).toBool();
 
+  // Shapes reaching outside the output frame must not show around it.
+  _maskOutsideOutputFrame(painter, rect);
+
   if (_displayTestSignal)
   {
-    // Draw the preferred signal test card
+    // Draw the preferred signal test card, in window pixels.
     int testCard = settings.value("signalTestCard", MM::DEFAULT_TEST_CARD).toInt();
-    painter->translate(rect.x(), rect.y());
+    painter->resetTransform();
     painter->setRenderHint(QPainter::Antialiasing);
     painter->save();
     switch (testCard) {
@@ -135,14 +174,21 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 //        painter->drawLine(cursorPosition.x(), rect.y(), cursorPosition.x(), rect.height());
 //        painter->drawLine(rect.x(), cursorPosition.y(), rect.width(), cursorPosition.y());
         // Draw crosshair line
-        painter->setPen(MM::CROSSHAIR_STROKE);
+        // Sizes are in window pixels, whatever the scale of the output frame.
+        const qreal lineWidth   = CROSSHAIR_LINE_WIDTH / getZoomFactor();
+        const qreal pointerSize = CROSSHAIR_POINTER_SIZE / getZoomFactor();
+        QPen pen(MM::CROSSHAIR_STROKE);
+        pen.setCosmetic(true);
+        painter->setPen(pen);
         painter->setBrush(MM::CONTROL_COLOR);
-        painter->drawRect(cursorPosition.x() - 2, rect.y(), 4, rect.height());
-        painter->drawRect(rect.x(), cursorPosition.y() - 2, rect.width(), 4);
+        painter->drawRect(QRectF(cursorPosition.x() - lineWidth / 2, rect.y(), lineWidth, rect.height()));
+        painter->drawRect(QRectF(rect.x(), cursorPosition.y() - lineWidth / 2, rect.width(), lineWidth));
         // Draw crosshair pointer
-        painter->setPen(MM::CONTROL_COLOR);
+        pen.setColor(MM::CONTROL_COLOR);
+        painter->setPen(pen);
         painter->setBrush(MM::CROSSHAIR_STROKE);
-        painter->drawRect(cursorPosition.x() - 10, cursorPosition.y() - 10, 20, 20);
+        painter->drawRect(QRectF(cursorPosition.x() - pointerSize / 2, cursorPosition.y() - pointerSize / 2,
+                                 pointerSize, pointerSize));
       }
     }
   }
@@ -283,13 +329,6 @@ void OutputGLCanvas::_drawResolutionText(QPainter *painter, const QRect &rect, i
                       QString::number(geometry().width()) +
                       " x " + QString::number(geometry().height()));
   }
-}
-
-void OutputGLCanvas::resizeEvent(QResizeEvent* event)
-{
-  MapperGLCanvas::resizeEvent(event);
-  setSceneRectToViewportGeometry();
-  emit outputResized();
 }
 
 void OutputGLCanvas::wheelEvent(QWheelEvent *event)

@@ -41,8 +41,18 @@ public:
   /// The output itself: never shows the frame of the output screen.
   bool showsOutputFrame() const { return false; }
 
-  // Adjust viewable scene to correspond to absolute coordinates.
-  void setSceneRectToViewportGeometry();
+  /**
+   * Sets the output frame: the part of the scene that this canvas shows,
+   * scaled to fill the window while keeping its proportions (see
+   * MappingManager::getOutputResolution()).
+   */
+  void setOutputFrame(const QRectF& frame);
+
+  /// Returns the output frame.
+  QRectF getOutputFrame() const { return _outputFrame; }
+
+  /// Returns the scale from output coordinates to window pixels.
+  qreal getZoomFactor() const override { return transform().m11(); }
 
   // Draws foreground (displays crosshair if needed).
   void drawForeground(QPainter *painter , const QRectF &rect);
@@ -73,6 +83,18 @@ private:
 
   void _drawResolutionText(QPainter *painter, const QRect &rect, int fontSize);
 
+  // Scales the view so that the output frame fills the window.
+  void _fitOutputFrame();
+
+  // Paints black over the parts of rect outside the output frame.
+  void _maskOutsideOutputFrame(QPainter* painter, const QRectF& rect);
+
+  QRectF _outputFrame;
+
+  // Crosshair sizes, in window pixels.
+  static constexpr qreal CROSSHAIR_LINE_WIDTH   = 4;
+  static constexpr qreal CROSSHAIR_POINTER_SIZE = 20;
+
   bool _displayCrosshair;
   bool _displayTestSignal;
   QImage _classicTestCard;
@@ -86,8 +108,7 @@ private:
 #endif
 
 protected:
-  // Keeps scene point (0, 0) on the top left corner of the output.
-  void resizeEvent(QResizeEvent* event);
+  void resizeEvent(QResizeEvent* event) override;
 
   void wheelEvent(QWheelEvent *event);
   void mouseMoveEvent(QMouseEvent *event);

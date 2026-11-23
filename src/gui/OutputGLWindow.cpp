@@ -118,12 +118,7 @@ void OutputGLWindow::setPreferredScreen(int screen)
 
 QRectF OutputGLWindow::getOutputRect() const
 {
-  if (isVisible())
-    return QRectF(canvas->viewport()->rect());
-
-  const QList<QScreen*> screens = QGuiApplication::screens();
-  const int screen = qBound(0, _preferredScreen, int(screens.size()) - 1);
-  return QRectF(QPointF(0, 0), screens.at(screen)->geometry().size());
+  return canvas->getOutputFrame();
 }
 
 

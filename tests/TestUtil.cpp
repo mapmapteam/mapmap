@@ -108,3 +108,28 @@ void TestUtil::placeShapeInEmptyArea()
   Util::placeShapeInArea(&triangle, QRectF());
   QCOMPARE(triangle.getBoundingRect(), QRectF(0, 0, 10, 10));
 }
+
+void TestUtil::fitScale()
+{
+  // The content fills the area along its tighter side.
+  QCOMPARE(Util::fitScale(QSizeF(1920, 1080), QSizeF(960, 1000)), 0.5);
+  QCOMPARE(Util::fitScale(QSizeF(1920, 1080), QSizeF(3000, 540)), 0.5);
+  QCOMPARE(Util::fitScale(QSizeF(100, 100), QSizeF(300, 400)), 3.0);
+
+  // Nothing to fit, or nowhere to fit it: no scaling.
+  QCOMPARE(Util::fitScale(QSizeF(0, 1080), QSizeF(960, 540)), 1.0);
+  QCOMPARE(Util::fitScale(QSizeF(1920, 1080), QSizeF(0, 0)), 1.0);
+  QCOMPARE(Util::fitScale(QSizeF(-5, 10), QSizeF(960, 540)), 1.0);
+}
+
+void TestUtil::fitRect()
+{
+  // A 4:3 image in a 16:9 frame: as high as the frame, centered horizontally.
+  QCOMPARE(Util::fitRect(QSizeF(640, 480), QRectF(0, 0, 1920, 1080)), QRectF(240, 0, 1440, 1080));
+
+  // A wide image in a square frame, which does not start at the origin.
+  QCOMPARE(Util::fitRect(QSizeF(200, 100), QRectF(10, 20, 100, 100)), QRectF(10, 45, 100, 50));
+
+  // An empty content fills the frame.
+  QCOMPARE(Util::fitRect(QSizeF(), QRectF(0, 0, 1280, 720)), QRectF(0, 0, 1280, 720));
+}

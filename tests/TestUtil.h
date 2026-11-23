@@ -27,6 +27,8 @@ private slots:
   void placeLargeShapeInArea();
   void placeSmallShapeInArea();
   void placeShapeInEmptyArea();
+  void fitScale();
+  void fitRect();
 };
 
 #endif /* TEST_UTIL_H_ */

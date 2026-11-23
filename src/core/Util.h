@@ -77,6 +77,19 @@ float map_float(float value, float istart, float istop, float ostart, float osto
  */
 int map_int(int value, int istart, int istop, int ostart, int ostop);
 
+/**
+ * Returns the scale that makes a content of the given size as large as
+ * possible inside an area while keeping its proportions. Returns 1 if either
+ * size is empty.
+ */
+qreal fitScale(const QSizeF& content, const QSizeF& area);
+
+/**
+ * Returns the largest rectangle with the proportions of content that fits
+ * inside frame, centered in it. Returns frame if content is empty.
+ */
+QRectF fitRect(const QSizeF& content, const QRectF& frame);
+
 // FIXME: these texture/color/drawing utilities should be moved to another file
 Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight);
 Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight);

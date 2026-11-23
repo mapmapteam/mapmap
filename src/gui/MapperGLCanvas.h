@@ -100,7 +100,7 @@ public:
   bool vertexGrabbed() const { return _vertexGrabbed; }
 
   //qreal getZoomFactor() const { return qBound(qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MIN, MM::ZOOM_MAX); }
-  qreal getZoomFactor() const { return _shapeIsAdapted
+  virtual qreal getZoomFactor() const { return _shapeIsAdapted
         ? _scalingFactor
         : qBound(MM::ZOOM_MIN, qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MAX); }
 
