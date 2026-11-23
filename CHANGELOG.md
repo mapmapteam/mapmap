@@ -1,5 +1,9 @@
 # Release notes for MapMap
 
+## 1.0.0-beta.2 - unreleased
+
+No changes yet.
+
 ## 1.0.0-beta.1 - 2026-11-23
 
 First pre-release of MapMap 1.0. MapMap is developed again, with the support of Art Plus Code.
