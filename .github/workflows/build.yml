@@ -1,4 +1,9 @@
-# Build MapMap with Qt 6
+# Build MapMap with Qt 6 and run its tests.
+#
+# Every pull request is built and tested. The packages to download (disk image,
+# archive, Windows folder) are made once a change is in dev or master, or when
+# asked for, with "Run workflow" on the Actions page or
+#   gh workflow run build.yml --ref <branch>
 name: Build
 
 on:
@@ -6,6 +11,7 @@ on:
     branches: [ dev, master ]
   pull_request:
     branches: [ dev, master ]
+  workflow_dispatch:
 
 jobs:
   build-windows:
@@ -42,9 +48,11 @@ jobs:
         QT_QPA_PLATFORM: offscreen
 
     - name: Deploy Qt
+      if: github.event_name != 'pull_request'
       run: windeployqt --release --no-system-d3d-compiler "MapMap\MapMap.exe"
 
     - uses: actions/upload-artifact@v7
+      if: github.event_name != 'pull_request'
       with:
         name: MapMap-windows
         path: MapMap/
@@ -84,9 +92,11 @@ jobs:
         QT_QPA_PLATFORM=offscreen make check
 
     - name: Package
+      if: github.event_name != 'pull_request'
       run: bash scripts/sh_package_linux.sh --skip-build
 
     - uses: actions/upload-artifact@v7
+      if: github.event_name != 'pull_request'
       with:
         name: MapMap-ubuntu
         path: dist/*.tar.gz
@@ -133,9 +143,11 @@ jobs:
         QT_QPA_PLATFORM=offscreen make check
 
     - name: Package
+      if: github.event_name != 'pull_request'
       run: bash scripts/sh_package_macos.sh --skip-build
 
     - uses: actions/upload-artifact@v7
+      if: github.event_name != 'pull_request'
       with:
         name: MapMap-macos
         path: dist/*.dmg
