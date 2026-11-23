@@ -10,6 +10,7 @@ TARGET = mapmap_tests
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB QT_MESSAGELOGCONTEXT
 unix:!macx: DEFINES += UNIX
 win32: LIBS += -lopengl32
+macx: LIBS += -framework CoreFoundation
 
 CORE    = $$PWD/../src/core
 SHAPE   = $$PWD/../src/shape

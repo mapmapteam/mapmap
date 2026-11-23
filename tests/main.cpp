@@ -13,6 +13,11 @@
 #include <QApplication>
 #include <QtTest/QtTest>
 
+#ifdef Q_OS_MACOS
+#include <QTimer>
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 #include "TestMaths.h"
 #include "TestUtil.h"
 #include "TestUidAllocator.h"
@@ -24,12 +29,48 @@
 #include "TestMappingManager.h"
 #include "TestProjectRoundTrip.h"
 
+#ifdef Q_OS_MACOS
+namespace {
+
+/// How often the macOS main run loop is run by hand, in milliseconds.
+const int MAIN_RUN_LOOP_INTERVAL_MS = 5;
+
+/**
+ * Runs the macOS main run loop at a steady pace when Qt's event loop does
+ * not, with a timer owned by the application.
+ *
+ * AVFoundation, which plays video on macOS, reports through the main run
+ * loop: a file is loaded and frames are delivered only when that loop runs.
+ * The native "cocoa" platform runs it, but the "offscreen" one used by the
+ * tests does not (with Homebrew's Qt it runs a GLib event loop instead), so
+ * without this a QMediaPlayer stays in LoadingMedia and never gives a frame.
+ */
+void runMainRunLoopIfNeeded(QApplication& app)
+{
+  if (QGuiApplication::platformName() == QLatin1String("cocoa"))
+    return;
+
+  QTimer* timer = new QTimer(&app);
+  QObject::connect(timer, &QTimer::timeout, [] {
+    // Handle what is pending, without waiting.
+    CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, true);
+  });
+  timer->start(MAIN_RUN_LOOP_INTERVAL_MS);
+}
+
+} // namespace
+#endif
+
 int main(int argc, char** argv)
 {
   // QApplication: video decoding and OpenGL tests need a GUI platform, and
   // sources use QFileIconProvider (Qt Widgets) for their icons
   // (CI runs with QT_QPA_PLATFORM=offscreen).
   QApplication app(argc, argv);
+
+#ifdef Q_OS_MACOS
+  runMainRunLoopIfNeeded(app);
+#endif
 
   int status = 0;
   {
