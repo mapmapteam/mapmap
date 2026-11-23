@@ -123,7 +123,7 @@ We use Semantic Versioning 2.0.0. Given a version number MAJOR.MINOR.PATCH, incr
 * PATCH version when you make backwards-compatible bug fixes.
 See http://semver.org/
 
-Version 1.0 is not backward-compatible with the 0 series: projects are now saved as JSON files, and the XML projects of MapMap 0.6 and earlier cannot be opened. Pre-releases are named like `1.0.0-beta.1`.
+Version 1.0 is not backward-compatible with the 0 series: projects are now saved as JSON files, and the XML projects of MapMap 0.6 and earlier cannot be opened. `scripts/convert-xml-project.py` converts those of MapMap 0.4 to 0.6. Pre-releases are named like `1.0.0-beta.1`.
 
 ## <a id='files-overview'></a>Files overview
 

@@ -8,7 +8,7 @@ First pre-release of MapMap 1.0. MapMap is developed again, with the support of 
 
 Not compatible with MapMap 0.6:
 
-- Projects are now saved as JSON files. The XML projects of MapMap 0.6 and earlier cannot be opened.
+- Projects are now saved as JSON files. The XML projects of MapMap 0.6 and earlier cannot be opened. Convert those of MapMap 0.4 to 0.6 with `scripts/convert-xml-project.py`.
 - OSC messages now say "source" and "layer", like the interface. Replace `/mapmap/paint/...` with `/mapmap/source/...`; `/mapmap/mapping/...` still works.
 - OSC messages are only accepted from the same computer. To control MapMap from another one, enable "Accept OSC from the network" in the preferences.
 - The OSC `/mapmap/quit` message is ignored unless it is allowed in the preferences.

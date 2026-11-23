@@ -98,7 +98,7 @@ The same commands run on macOS, Ubuntu and Windows for every pull request. A pul
 
 ## Things to know before running MapMap
 
-- Project files (`.mmp`) are JSON. Older XML projects are not supported.
+- Project files (`.mmp`) are JSON. The XML projects of MapMap 0.4 to 0.6 are converted by `scripts/convert-xml-project.py`.
 
 - Settings are the user's own: never run MapMap with `--reset-settings` on someone's machine without asking.
 
