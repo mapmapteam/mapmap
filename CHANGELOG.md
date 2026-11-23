@@ -2,55 +2,45 @@
 
 &nbsp;
 
-## 2026-??-?? - MapMap 1.0.0-beta.1
+## MapMap 1.0.0-beta.1 - 2026-11-23
 
-First pre-release of MapMap 1.0. MapMap is developed again, now with the
-support of Art Plus Code.
+First pre-release of MapMap 1.0. MapMap is developed again, with the support of Art Plus Code.
 
 Not compatible with MapMap 0.6:
 
 - Projects are now saved as JSON files. The XML projects of MapMap 0.6 and earlier cannot be opened.
-- "Paints" are now called "sources", and "mappings" are now called "layers", in the interface and in OSC messages. `/mapmap/mapping/...` still works; `/mapmap/paint/...` is now `/mapmap/source/...`.
-- Preferences are stored under a new name: those of MapMap 0.6 are not kept.
+- OSC messages now say "source" and "layer", like the interface. Replace `/mapmap/paint/...` with `/mapmap/source/...`; `/mapmap/mapping/...` still works.
+- OSC messages are only accepted from the same computer. To control MapMap from another one, enable "Accept OSC from the network" in the preferences.
+- The OSC `/mapmap/quit` message is ignored unless it is allowed in the preferences.
+- On macOS, the preferences of MapMap 0.6 are not kept.
 
 New:
 
-- Move to Qt 6. GStreamer is no longer needed: videos, cameras and sound are played with Qt Multimedia.
-- Add Syphon sources on macOS: use the output of another application as a source.
-- Camera sources now go through Qt Multimedia. A project with a camera can be saved and reopened (#542).
-- Add a welcome dialog at the first launch.
+- Move to Qt 6. There is no need to install GStreamer anymore.
+- Add Syphon sources on macOS, to show the output of another application.
+- Add camera sources on macOS.
+- Flip and rotate layers, or only the image inside a layer, with the menus, the keyboard or OSC.
+- Raise and lower layers with the menus or the keyboard.
+- Set the frame rate in the preferences (#249).
+- Control more with OSC: play and pause a single source, move a layer or one of its vertices. See the `OSC` file.
 - Add an MCP (Model Context Protocol) server, off by default, so an AI assistant can build and edit a project.
-- Add OSC messages to play, pause and rewind a single source, and to move a layer or one of its vertices. See the `OSC` file.
-- Add actions to rotate a layer by 90 or 180 degrees, to flip it, and to raise or lower it in the list of layers.
-- Add a keyboard shortcuts window in the Help menu.
-- Complete the French and Spanish translations.
+- Add a welcome dialog, and a keyboard shortcuts window in the Help menu.
+- Translate the interface to Spanish, and update the French translation.
 
-Safer remote control:
+Improvements:
 
-- OSC is only reachable from the same computer, unless "Accept OSC from the network" is enabled in the preferences.
-- The OSC `/mapmap/quit` message is ignored unless it is allowed in the preferences.
-
-Faster:
-
+- Convert the colors of videos on the graphics card. On a Raspberry Pi 4, 720p videos now play without dropping frames.
 - Fix MapMap keeping a processor core busy when nothing plays (#555).
-- Draw video, camera and image frames with less work for the graphics card.
 - Import videos without blocking the interface.
 
-Fixed:
+Fix:
 
-- Fix videos that did not loop.
-- Fix upside-down camera images and still images.
+- Fix projects with a camera that could not be reopened (#542).
+- Fix the frame rate, which stayed below the requested value, and its display, which always showed 0.00.
 - Fix the center of ellipses, which was not correct in perspective (#177).
-- Fix crashes when opening a damaged or hand-written project file: what cannot be read is skipped.
-- Fix a crash when quitting after removing a source.
-- Fix MapMap not starting when the output window was left in fullscreen.
-- Fix the path of a media file being lost when locating a missing file is cancelled.
-- Fix zooming with Ctrl + scroll on macOS.
-
-For developers:
-
-- Add unit tests, and automated builds on macOS, Ubuntu and Windows for every change.
-- See `AGENTS.md` and `CONTRIBUTING.md`.
+- Fix the path of a missing media file being lost when locating it is cancelled.
+- Fix zooming with Ctrl + scroll on macOS, and with small trackpad scrolls.
+- A damaged project file does not crash MapMap: what cannot be read is skipped.
 
 &nbsp;
 
