@@ -18,7 +18,7 @@
 #                              developer cannot be verified.
 #   --output-directory <dir>   Where to write the disk image (default: dist).
 #   --qt-directory <dir>       Build and package with this Qt, for example
-#                              ~/Qt/6.10.3/macos. Without it, the Qt whose qmake
+#                              ~/Qt/6.11.3/macos. Without it, the Qt whose qmake
 #                              is found first is used, then that of Homebrew.
 #   --help                     Show this help.
 #
