@@ -17,10 +17,15 @@
 #                              signature: it runs, but macOS warns that the
 #                              developer cannot be verified.
 #   --output-directory <dir>   Where to write the disk image (default: dist).
+#   --qt-directory <dir>       Build and package with this Qt, for example
+#                              ~/Qt/6.10.3/macos. Without it, the Qt whose qmake
+#                              is found first is used, then that of Homebrew.
 #   --help                     Show this help.
 #
-# The disk image only runs on the processor type it was built on (Apple Silicon
-# or Intel), like the Qt libraries it contains.
+# Use the Qt of the Qt Company for a release (see https://www.qt.io or aqtinstall):
+# its libraries run on older versions of macOS, and on both Apple Silicon and
+# Intel. Those of Homebrew only run on the version of macOS and the type of
+# processor of the machine they were installed on.
 
 set -euo pipefail
 
@@ -35,6 +40,7 @@ AD_HOC_IDENTITY="-"
 # Where a library copied into the bundle is loaded from at run time.
 BUNDLED_LIBRARY_PREFIX="@executable_path/../Frameworks"
 # Libraries loaded from these folders belong to the build machine (Homebrew).
+# The folder of Qt is added once it is known.
 BUILD_MACHINE_LIBRARY_PATTERN="^(/opt/homebrew|/usr/local)/"
 # Each pass can copy libraries that need others in turn; a handful is plenty.
 MAXIMUM_RELOCATION_PASSES=10
@@ -49,6 +55,7 @@ DISK_IMAGE_RETRY_DELAY_SECONDS=10
 skip_build=false
 sign_identity="${AD_HOC_IDENTITY}"
 output_directory="${PROJECT_ROOT}/dist"
+qt_directory=""
 
 show_help() {
     # Print the comment block at the top of this file, without the "# " prefix.
@@ -68,6 +75,11 @@ while [ $# -gt 0 ]; do
         --output-directory)
             [ $# -ge 2 ] || { echo "Error: --output-directory needs a value." >&2; exit 2; }
             output_directory="$2"
+            shift
+            ;;
+        --qt-directory)
+            [ $# -ge 2 ] || { echo "Error: --qt-directory needs a value." >&2; exit 2; }
+            qt_directory="$2"
             shift
             ;;
         --help)
@@ -104,11 +116,17 @@ export_committed_sources() {
 # ---------------------------------------------------------------------------
 # Locate the tools
 # ---------------------------------------------------------------------------
-if command -v brew >/dev/null 2>&1; then
+if [ -n "${qt_directory}" ]; then
+    [ -x "${qt_directory}/bin/qmake" ] || {
+        echo "Error: there is no bin/qmake in ${qt_directory}." >&2
+        exit 1
+    }
+    export PATH="${qt_directory}/bin:${PATH}"
+elif ! command -v qmake >/dev/null 2>&1 && command -v brew >/dev/null 2>&1; then
     export PATH="$(brew --prefix qt)/bin:${PATH}"
 fi
 
-for tool in qmake macdeployqt codesign hdiutil; do
+for tool in qmake macdeployqt codesign hdiutil lipo; do
     command -v "${tool}" >/dev/null 2>&1 || {
         echo "Error: ${tool} was not found. Run scripts/sh_install_deps_macos.sh first." >&2
         exit 1
@@ -121,10 +139,14 @@ numeric_version="$(read_project_variable VERSION)"
     echo "Error: could not read VERSION and MAPMAP_VERSION from mapmap.pro." >&2
     exit 1
 }
-architecture="$(uname -m)"
-package_name="${APP_NAME}-${display_version}-macos-${architecture}"
+qt_prefix="$(qmake -query QT_INSTALL_PREFIX)"
+qt_libraries="$(qmake -query QT_INSTALL_LIBS)"
+BUILD_MACHINE_LIBRARY_PATTERN="^(/opt/homebrew|/usr/local|${qt_prefix})/"
+# Types of processor that Qt was built for, and so that MapMap can be built for.
+architectures="$(lipo -archs "${qt_libraries}/QtCore.framework/Versions/A/QtCore")"
 
-echo "Packaging ${APP_NAME} ${display_version} for macOS (${architecture})"
+echo "Packaging ${APP_NAME} ${display_version} for macOS (${architectures})"
+echo "Qt $(qmake -query QT_VERSION) in ${qt_prefix}"
 
 # ---------------------------------------------------------------------------
 # Build (release, from a clean copy of the committed files)
@@ -136,7 +158,7 @@ else
     export_committed_sources "${source_directory}"
     (
         cd "${source_directory}"
-        qmake mapmap.pro CONFIG+=release
+        qmake mapmap.pro CONFIG+=release "QMAKE_APPLE_DEVICE_ARCHS=${architectures}"
         make -j"$(sysctl -n hw.logicalcpu)"
     )
     built_app="${source_directory}/${APP_NAME}.app"
@@ -302,7 +324,11 @@ cp "${PROJECT_ROOT}/LICENSE" "${stage_directory}/LICENSE.txt"
 cp "${PROJECT_ROOT}/README.md" "${stage_directory}/README.md"
 
 mkdir -p "${output_directory}"
-disk_image="${output_directory}/${package_name}.dmg"
+case "$(lipo -archs "${staged_app}/Contents/MacOS/${APP_NAME}")" in
+    *\ *) architecture_name="universal" ;;
+    *) architecture_name="$(lipo -archs "${staged_app}/Contents/MacOS/${APP_NAME}")" ;;
+esac
+disk_image="${output_directory}/${APP_NAME}-${display_version}-macos-${architecture_name}.dmg"
 attempt=1
 until hdiutil create \
     -volname "${APP_NAME} ${display_version}" \
