@@ -1,8 +1,6 @@
 # Release notes for MapMap
 
-&nbsp;
-
-## MapMap 1.0.0-beta.1 - 2026-11-23
+## 1.0.0-beta.1 - 2026-11-23
 
 First pre-release of MapMap 1.0. MapMap is developed again, with the support of Art Plus Code.
 
@@ -42,32 +40,20 @@ Fix:
 - Fix zooming with Ctrl + scroll on macOS, and with small trackpad scrolls.
 - A damaged project file does not crash MapMap: what cannot be read is skipped.
 
-&nbsp;
-
-## 2018-??-?? - MapMap 0.6.3
-
-TODO
-
-&nbsp;
-
-## 2018-07-24 - MapMap 0.6.2
+## 0.6.2 - 2018-07-24
 
 - Remove an assert that might crash MapMap
 - Fix parsing of MapMap version in the project file (critical bug fixed)
 - Add qt5opengl in deps in INSTALL.md
 - Also create a zip archive in scripts/build.sh
 
-&nbsp;
-
-## 2018-04-09 - MapMap 0.6.1
+## 0.6.1 - 2018-04-09
 
 - Add .url link file to GStreamer on macOS and packaged it in the DMG.
 - Fix: crash because undoStack was uninitialized (closes #413).
 - Windows environnement variable fix
 
-&nbsp;
-
-## 2018-04-08 - MapMap 0.6.0
+## 0.6.0 - 2018-04-08
 
 - Add macOS Application Icon
 - Fix video rate bug (Closes #369)
@@ -113,9 +99,7 @@ TODO
 - Proper management of mappings related to a paint in undo/redo (relates to #315).
 - Only show camera input button on GNU/Linux, since it doesn't work on the other platforms
 
-&nbsp;
-
-## 2017-01-01 - MapMap 0.5.0
+## 0.5.0 - 2017-01-01
 
 - Fix bug: it was impossible to get out of test signal mode by pressing ESC.
 - Reorganize _updateToPreferredScreen().
@@ -224,9 +208,7 @@ TODO
 - improving the menu and adding some useful link
 - Make the duplication of mapping undoable and redoable.
 
-&nbsp;
-
-## 2016-04-19 - MapMap 0.4.0
+## 0.4.0 - 2016-04-19
 
 - Add zoom toolbar
 - Add console window
@@ -274,18 +256,14 @@ TODO
 - Fix blocking bug on OSX: program was freezing when move was loaded
 - Implemented new feature: holding the shift key while moving a vertex temporarily inverts stick
 
-&nbsp;
-
-## 2015-10-30 - MapMap 0.3.1
+## 0.3.1 - 2015-10-30
 
 - Fix #138: splash screen does not show when installed
 - Fix #139: Stylesheet is not applied when the app is installed on Linux
 - Fix #135: Video playback is broken
 - Fix #103: OSC not working on OS X
 
-&nbsp;
-
-## 2015-07-17 - MapMap 0.3.0
+## 0.3.0 - 2015-07-17
 
 - Add zoom and scroll/drag in editor windows
 - Add transparency support for both paint and mapping
@@ -293,9 +271,7 @@ TODO
 - Undo/redo move and add actions
 - Fix perspective-correct textures in quads
 
-&nbsp;
-
-## 2014-12-28 - MapMap 0.2.0
+## 0.2.0 - 2014-12-28
 
 - Add --file option.
 - Add --osc-port option.
@@ -322,9 +298,7 @@ TODO
 - Fix: Save fullscreen setting.
 - Fix: Save visibility of mappings.
 
-&nbsp;
-
-## 2014-07-07 - MapMap 0.1.1
+## 0.1.1 - 2014-07-07
 
 - Fix packaging on OS X 10.9.3.
 - Fix: all media share same OpenGL texture
@@ -337,9 +311,7 @@ TODO
 - Play movies when we load a project.
 - Append file extension if none is provided.
 
-&nbsp;
-
-## 2014-04-30 - MapMap 0.1.0
+## 0.1.0 - 2014-04-30
 
 - Initial release.
 - Qt user interface.
@@ -348,7 +320,4 @@ TODO
 - Color paint.
 - Fullscreen output window.
 - MMP project XML file format version 0.1.
-
-&nbsp;
-
 

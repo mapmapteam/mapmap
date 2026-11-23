@@ -96,6 +96,8 @@ The same commands run on macOS, Ubuntu and Windows for every pull request. A pul
 
 - Text shown to the user goes through `tr()`.
 
+- In `CHANGELOG.md`, the title of a section gives the version number before the date: `## 1.0.0-beta.1 - 2026-11-23`.
+
 ## Things to know before running MapMap
 
 - Project files (`.mmp`) are JSON. The XML projects of MapMap 0.4 to 0.6 are converted by `scripts/convert-xml-project.py`.
