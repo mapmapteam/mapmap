@@ -2,6 +2,58 @@
 
 &nbsp;
 
+## 2026-??-?? - MapMap 1.0.0-beta.1
+
+First pre-release of MapMap 1.0. MapMap is developed again, now with the
+support of Art Plus Code.
+
+Not compatible with MapMap 0.6:
+
+- Projects are now saved as JSON files. The XML projects of MapMap 0.6 and earlier cannot be opened.
+- "Paints" are now called "sources", and "mappings" are now called "layers", in the interface and in OSC messages. `/mapmap/mapping/...` still works; `/mapmap/paint/...` is now `/mapmap/source/...`.
+- Preferences are stored under a new name: those of MapMap 0.6 are not kept.
+
+New:
+
+- Move to Qt 6. GStreamer is no longer needed: videos, cameras and sound are played with Qt Multimedia.
+- Add Syphon sources on macOS: use the output of another application as a source.
+- Camera sources now go through Qt Multimedia. A project with a camera can be saved and reopened (#542).
+- Add a welcome dialog at the first launch.
+- Add an MCP (Model Context Protocol) server, off by default, so an AI assistant can build and edit a project.
+- Add OSC messages to play, pause and rewind a single source, and to move a layer or one of its vertices. See the `OSC` file.
+- Add actions to rotate a layer by 90 or 180 degrees, to flip it, and to raise or lower it in the list of layers.
+- Add a keyboard shortcuts window in the Help menu.
+- Complete the French and Spanish translations.
+
+Safer remote control:
+
+- OSC is only reachable from the same computer, unless "Accept OSC from the network" is enabled in the preferences.
+- The OSC `/mapmap/quit` message is ignored unless it is allowed in the preferences.
+
+Faster:
+
+- Fix MapMap keeping a processor core busy when nothing plays (#555).
+- Draw video, camera and image frames with less work for the graphics card.
+- Import videos without blocking the interface.
+
+Fixed:
+
+- Fix videos that did not loop.
+- Fix upside-down camera images and still images.
+- Fix the center of ellipses, which was not correct in perspective (#177).
+- Fix crashes when opening a damaged or hand-written project file: what cannot be read is skipped.
+- Fix a crash when quitting after removing a source.
+- Fix MapMap not starting when the output window was left in fullscreen.
+- Fix the path of a media file being lost when locating a missing file is cancelled.
+- Fix zooming with Ctrl + scroll on macOS.
+
+For developers:
+
+- Add unit tests, and automated builds on macOS, Ubuntu and Windows for every change.
+- See `AGENTS.md` and `CONTRIBUTING.md`.
+
+&nbsp;
+
 ## 2018-??-?? - MapMap 0.6.3
 
 TODO
