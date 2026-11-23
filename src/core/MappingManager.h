@@ -24,6 +24,7 @@
 #include <QVector>
 #include <QMap>
 #include <QRegularExpression>
+#include <QSize>
 
 #include "Source.h"
 #include "Layer.h"
@@ -54,7 +55,26 @@ private:
   /// Maps from uids to mappings.
   QMap<uid, Layer::ptr> layerMap;
 
+  /// Size of the output frame, in output coordinates (invalid if not set).
+  QSize _outputResolution;
+
 public:
+  /**
+   * Returns the size of the output frame: the rectangle from (0, 0) to this
+   * size, in output coordinates, is what the output window shows. Invalid
+   * until a project or the user sets it (see hasOutputResolution()).
+   */
+  QSize getOutputResolution() const { return _outputResolution; }
+
+  /// Returns true if the project has an output resolution.
+  bool hasOutputResolution() const { return isValidOutputResolution(_outputResolution); }
+
+  /// Sets the output resolution. An invalid size unsets it.
+  void setOutputResolution(const QSize& resolution);
+
+  /// Returns true if a size is usable as an output resolution.
+  static bool isValidOutputResolution(const QSize& resolution);
+
   /// Returns the list of mappings associated with given source.
   QMap<uid, Layer::ptr> getSourceLayers(const Source::ptr source) const;
 

@@ -337,6 +337,18 @@ void MappingManager::clearAll()
   layerVector.clear();
   sourceMap.clear();
   layerMap.clear();
+  _outputResolution = QSize();
+}
+
+void MappingManager::setOutputResolution(const QSize& resolution)
+{
+  _outputResolution = isValidOutputResolution(resolution) ? resolution : QSize();
+}
+
+bool MappingManager::isValidOutputResolution(const QSize& resolution)
+{
+  return resolution.width()  > 0 && resolution.width()  <= MM::OUTPUT_RESOLUTION_MAX &&
+         resolution.height() > 0 && resolution.height() <= MM::OUTPUT_RESOLUTION_MAX;
 }
 
 }

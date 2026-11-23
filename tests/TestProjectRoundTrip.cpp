@@ -306,3 +306,47 @@ void TestProjectRoundTrip::skipsUnusableLayers()
   names.sort();
   QCOMPARE(names, QStringList() << "color-quad" << "texture-triangle");
 }
+
+void TestProjectRoundTrip::keepsOutputResolution()
+{
+  const QByteArray project = R"({
+    "version": "1.0.0-alpha.1",
+    "outputResolution": { "width": 1280, "height": 800 },
+    "sources": [],
+    "layers": []
+  })";
+
+  MappingManager manager;
+  QString error;
+  QVERIFY2(readProject(manager, project, &error), qPrintable(error));
+  QCOMPARE(manager.getOutputResolution(), QSize(1280, 800));
+
+  const QJsonObject written = parse(writeProject(manager));
+  QCOMPARE(written["outputResolution"].toObject()["width"].toInt(), 1280);
+  QCOMPARE(written["outputResolution"].toObject()["height"].toInt(), 800);
+
+  // Reading another project forgets the resolution of the previous one.
+  QVERIFY2(readProject(manager, R"({"version": "1.0.0-alpha.1", "sources": [], "layers": []})", &error),
+           qPrintable(error));
+  QVERIFY(!manager.hasOutputResolution());
+}
+
+void TestProjectRoundTrip::skipsInvalidOutputResolution()
+{
+  // A missing, damaged or absurd resolution is ignored: the project still
+  // opens, and MapMap picks a resolution itself.
+  const QList<QByteArray> values = QList<QByteArray>()
+      << "\"1920x1080\"" << "{ \"width\": 0, \"height\": 1080 }"
+      << "{ \"width\": 1920 }" << "{ \"width\": -5, \"height\": -5 }"
+      << "{ \"width\": 100000, \"height\": 1080 }" << "[1920, 1080]";
+  for (const QByteArray& value : values)
+  {
+    const QByteArray project = "{ \"version\": \"1.0.0-alpha.1\", \"outputResolution\": " + value
+        + ", \"sources\": [], \"layers\": [] }";
+    MappingManager manager;
+    QString error;
+    QVERIFY2(readProject(manager, project, &error), qPrintable(value + ": " + error));
+    QVERIFY2(!manager.hasOutputResolution(), value.constData());
+    QVERIFY2(!parse(writeProject(manager)).contains("outputResolution"), value.constData());
+  }
+}

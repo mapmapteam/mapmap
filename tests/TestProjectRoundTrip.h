@@ -34,6 +34,8 @@ private slots:
   void keepsMediaUriWhenLocateIsCancelled();
   void skipsLayerWithoutSource();
   void skipsUnusableLayers();
+  void keepsOutputResolution();
+  void skipsInvalidOutputResolution();
 
 private:
   QString _previousDir;
