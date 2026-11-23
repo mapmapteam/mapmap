@@ -52,6 +52,18 @@ public:
 protected:
   virtual void _paintVertices(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices = QList<int>());
 
+  /**
+   * Highlights the shape's first edge (the edge that carries the top of the
+   * image) and its first corner. The same edge is marked in the input and the
+   * output views, so after flipping or rotating the image inside a layer one
+   * can see which edge of the picked region lands on which edge of the shape.
+   */
+  void _paintOrientation(QPainter *painter, MapperGLCanvas* canvas);
+
+  /// The first edge of the shape as a polyline, in scene coordinates.
+  /// Empty when the shape has no such edge (e.g. ellipses).
+  virtual QPolygonF _orientationEdge() const { return QPolygonF(); }
+
   QPen getRescaledShapeStroke(MapperGLCanvas* canvas, bool selected=true, bool innerStroke=false);
 
   ShapeGraphicsItem* _shapeItem;
@@ -65,6 +77,9 @@ public:
   virtual ~PolygonControlPainter() {}
 
   virtual void paintShape(QPainter *painter, MapperGLCanvas* canvas, bool selected=true);
+
+protected:
+  virtual QPolygonF _orientationEdge() const;
 };
 
 /// Control painter for ellipses.
@@ -85,6 +100,9 @@ public:
   virtual ~MeshControlPainter() {}
 
   virtual void paintShape(QPainter *painter, MapperGLCanvas* canvas, bool selected=true);
+
+protected:
+  virtual QPolygonF _orientationEdge() const;
 };
 
 }
