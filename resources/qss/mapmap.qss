@@ -163,8 +163,18 @@ QComboBox QAbstractItemView {
 
 }
 
+/* Colors set in full: with only the text color, the background came from the
+   system style and could be as dark as the text (eg. dark themes on Linux). */
 QComboBox {
-  color: #323541;
+  background-color: #272a36;
+  color: #f6f5f5;
+  border: 1px solid #4C4F5B;
+  border-radius: 2px;
+  padding: 1px 6px;
+}
+
+QComboBox:disabled {
+  color: #4C4F5B;
 }
 
 /*Menu */
