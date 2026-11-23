@@ -32,6 +32,14 @@ bool ProjectWriter::writeFile(QIODevice *device)
   QJsonObject project;
   project["version"] = MM::VERSION;
 
+  if (manager.hasOutputResolution())
+  {
+    QJsonObject resolution;
+    resolution[ProjectLabels::WIDTH]  = manager.getOutputResolution().width();
+    resolution[ProjectLabels::HEIGHT] = manager.getOutputResolution().height();
+    project[ProjectLabels::OUTPUT_RESOLUTION] = resolution;
+  }
+
   // Sources (formerly paints).
   QJsonArray sources;
   for (int i=0; i<manager.nSources(); i++)

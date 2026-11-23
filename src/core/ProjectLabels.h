@@ -29,6 +29,9 @@ public:
   static const char* CLASS_NAME;
   static const char* SOURCES;
   static const char* LAYERS;
+  static const char* OUTPUT_RESOLUTION;
+  static const char* WIDTH;
+  static const char* HEIGHT;
 
   static const char* ID;
   static const char* NAME;

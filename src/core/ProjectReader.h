@@ -57,6 +57,8 @@ public:
 
 private:
     void parseProject(const QJsonObject& project);
+    /// Reads the output resolution, if the project has a usable one.
+    void parseOutputResolution(const QJsonObject& project);
     Source::ptr   parseSource(const QJsonObject& obj);
     Layer::ptr parseLayer(const QJsonObject& obj);
 

@@ -106,6 +106,12 @@ public:
   static const bool OSC_SAME_MEDIA_SOURCE = false;
   static const bool PLAY_IN_LOOP = true;
 
+  // Output resolution of new projects (see MappingManager::getOutputResolution()).
+  static const int DEFAULT_OUTPUT_WIDTH  = 1920;
+  static const int DEFAULT_OUTPUT_HEIGHT = 1080;
+  // Largest output width or height accepted (a common OpenGL texture limit).
+  static const int OUTPUT_RESOLUTION_MAX = 16384;
+
   // Style.
   static const QColor WHITE;
   static const QColor BLUE_GRAY;

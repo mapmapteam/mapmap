@@ -24,6 +24,9 @@ namespace mmp {
 const char* ProjectLabels::CLASS_NAME  = "className";
 const char* ProjectLabels::SOURCES     = "sources";
 const char* ProjectLabels::LAYERS      = "layers";
+const char* ProjectLabels::OUTPUT_RESOLUTION = "outputResolution";
+const char* ProjectLabels::WIDTH       = "width";
+const char* ProjectLabels::HEIGHT      = "height";
 const char* ProjectLabels::ID          = "id";
 const char* ProjectLabels::SOURCE_ID   = "sourceId";
 const char* ProjectLabels::NAME        = "name";

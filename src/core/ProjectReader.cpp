@@ -79,6 +79,21 @@ bool ProjectReader::readFile(QIODevice *device)
   return _errorString.isEmpty();
 }
 
+void ProjectReader::parseOutputResolution(const QJsonObject& project)
+{
+  // Older projects have none: MapMap then picks one (see MainWindow).
+  if (!project.contains(ProjectLabels::OUTPUT_RESOLUTION))
+    return;
+
+  const QJsonObject resolution = project[ProjectLabels::OUTPUT_RESOLUTION].toObject();
+  const QSize size(resolution[ProjectLabels::WIDTH].toInt(), resolution[ProjectLabels::HEIGHT].toInt());
+  if (MappingManager::isValidOutputResolution(size))
+    _manager.setOutputResolution(size);
+  else
+    qWarning() << "Ignoring unreadable output resolution in project:"
+               << project[ProjectLabels::OUTPUT_RESOLUTION];
+}
+
 QString ProjectReader::errorString() const
 {
   return _errorString;
@@ -88,6 +103,8 @@ void ProjectReader::parseProject(const QJsonObject& project)
 {
   MappingManager& manager = _manager;
   manager.clearAll();
+
+  parseOutputResolution(project);
 
   QJsonArray sources = project[ProjectLabels::SOURCES].toArray();
   QJsonArray layers  = project[ProjectLabels::LAYERS].toArray();
