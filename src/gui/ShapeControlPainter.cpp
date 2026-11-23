@@ -32,7 +32,36 @@ MShape::ptr ShapeControlPainter::getShape() const { return _shapeItem->getShape(
 void ShapeControlPainter::paint(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices)
 {
   paintShape(painter, canvas);
+  _paintOrientation(painter, canvas);
   _paintVertices(painter, canvas, selectedVertices);
+}
+
+void ShapeControlPainter::_paintOrientation(QPainter *painter, MapperGLCanvas* canvas)
+{
+  const QPolygonF edge = _orientationEdge();
+  if (edge.size() < 2)
+    return;
+
+  const qreal zoomFactor = canvas->getZoomFactor();
+  const QPolygonF local = _shapeItem->mapFromScene(edge);
+
+  painter->save();
+
+  // A thick line along the edge...
+  QPen pen(QBrush(MM::CONTROL_COLOR), 4 * MM::SHAPE_STROKE_WIDTH / zoomFactor);
+  pen.setCapStyle(Qt::RoundCap);
+  pen.setJoinStyle(Qt::RoundJoin);
+  painter->setPen(pen);
+  painter->setBrush(Qt::NoBrush);
+  painter->drawPolyline(local);
+
+  // ...and a dot on its first corner, so the direction is visible too.
+  const qreal radius = 0.6 * MM::VERTEX_SELECT_RADIUS / zoomFactor;
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(QBrush(MM::CONTROL_COLOR));
+  painter->drawEllipse(local.first(), radius, radius);
+
+  painter->restore();
 }
 
 void ShapeControlPainter::_paintVertices(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices)
@@ -69,6 +98,14 @@ void PolygonControlPainter::paintShape(QPainter *painter, MapperGLCanvas* canvas
 }
 
 
+QPolygonF PolygonControlPainter::_orientationEdge() const
+{
+  const QPolygonF poly = static_cast<Polygon*>(getShape().data())->toPolygon();
+  if (poly.size() < 2)
+    return QPolygonF();
+  return QPolygonF({ poly.at(0), poly.at(1) });
+}
+
 void EllipseControlPainter::paintShape(QPainter *painter, MapperGLCanvas* canvas, bool selected)
 {
   Ellipse* ellipse = static_cast<Ellipse*>(getShape().data());
@@ -101,6 +138,16 @@ void MeshControlPainter::paintShape(QPainter *painter, MapperGLCanvas* canvas, b
   // Draw outer quad.
   painter->setPen(getRescaledShapeStroke(canvas, selected));
   painter->drawPolygon(_shapeItem->mapFromScene(mesh->toPolygon()));
+}
+
+QPolygonF MeshControlPainter::_orientationEdge() const
+{
+  // The top row of the grid, from its first corner to its last.
+  const Mesh* mesh = static_cast<Mesh*>(getShape().data());
+  QPolygonF edge;
+  for (int i = 0; i < mesh->nColumns(); i++)
+    edge.append(mesh->getVertex2d(i, 0));
+  return edge;
 }
 
 }
