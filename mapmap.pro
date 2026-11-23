@@ -13,7 +13,7 @@ TEMPLATE = app
 VERSION = 1.0.0
 # Human-facing version shown in-app (About box, window title, app version).
 # Single source of truth for MM::VERSION, injected via DEFINES below.
-MAPMAP_VERSION = 1.0.0-beta.1
+MAPMAP_VERSION = 1.0.0-beta.2
 TARGET = mapmap
 
 DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB QT_MESSAGELOGCONTEXT

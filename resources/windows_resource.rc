@@ -27,7 +27,7 @@ VS_VERSION_INFO VERSIONINFO
 				VALUE "LegalCopyright", "\0"
 				VALUE "OriginalFilename", "Mapmap.exe\0"
                                 VALUE "ProductName", "MapMap\0"
-				VALUE "ProductVersion", "1.0.0-beta.1\0"
+				VALUE "ProductVersion", "1.0.0-beta.2\0"
 			END
 		END
 		BLOCK "VarFileInfo"
