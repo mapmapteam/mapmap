@@ -28,6 +28,7 @@ private slots:
   void removeSourceRemovesItsLayers();
   void unknownIdsReturnNull();
   void clearAll();
+  void outputResolutionPresets();
 };
 
 #endif /* TEST_MAPPING_MANAGER_H_ */

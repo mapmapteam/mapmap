@@ -345,6 +345,31 @@ void MappingManager::setOutputResolution(const QSize& resolution)
   _outputResolution = isValidOutputResolution(resolution) ? resolution : QSize();
 }
 
+const QVector<MappingManager::OutputResolutionPreset>& MappingManager::outputResolutionPresets()
+{
+  // Standard names, not translated. The common ones are the native
+  // resolutions of most projectors used for video mapping, and the usual
+  // video sizes.
+  static const QVector<OutputResolutionPreset> presets = {
+    { QSize(1920, 1080), "Full HD 1080p", true },
+    { QSize(1920, 1200), "WUXGA",         true },
+    { QSize(3840, 2160), "4K UHD",        true },
+    { QSize(1280, 800),  "WXGA",          true },
+    { QSize(1280, 720),  "HD 720p",       true },
+    { QSize(1024, 768),  "XGA",           true },
+    { QSize(4096, 2160), "DCI 4K",        false },
+    { QSize(2560, 1600), "WQXGA",         false },
+    { QSize(2560, 1440), "QHD",           false },
+    { QSize(1680, 1050), "WSXGA+",        false },
+    { QSize(1600, 1200), "UXGA",          false },
+    { QSize(1400, 1050), "SXGA+",         false },
+    { QSize(1280, 1024), "SXGA",          false },
+    { QSize(854, 480),   "FWVGA 480p",    false },
+    { QSize(800, 600),   "SVGA",          false },
+  };
+  return presets;
+}
+
 bool MappingManager::isValidOutputResolution(const QSize& resolution)
 {
   return resolution.width()  > 0 && resolution.width()  <= MM::OUTPUT_RESOLUTION_MAX &&

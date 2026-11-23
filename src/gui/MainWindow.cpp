@@ -21,6 +21,7 @@
 
 #include "MainWindow.h"
 #include "PreferenceDialog.h"
+#include "OutputResolutionEditor.h"
 #include "AboutDialog.h"
 #include "WelcomeDialog.h"
 #include "ShortcutWindow.h"
@@ -36,6 +37,7 @@
 #include <QOpenGLWidget>
 #include <QGuiApplication>
 #include <QScreen>
+#include <QDialogButtonBox>
 
 namespace mmp {
 
@@ -2515,6 +2517,10 @@ void MainWindow::createActions()
   fitToViewAction->setEnabled(false);
   connect(fitToViewAction, &QAction::triggered, sourceCanvas, &MapperGLCanvas::fitShapeToView);
   connect(fitToViewAction, &QAction::triggered, destinationCanvas, &MapperGLCanvas::fitShapeToView);
+  // Output resolution
+  outputResolutionAction = new QAction(tr("Output &Resolution..."), this);
+  outputResolutionAction->setToolTip(tr("Choose the size of the output frame"));
+  connect(outputResolutionAction, &QAction::triggered, this, &MainWindow::showOutputResolutionDialog);
 
   // Helps
   // Bug report
@@ -2655,6 +2661,7 @@ void MainWindow::createMenus()
   viewMenu->addAction(displaySourceControlsAction);
   outputScreenMenu = viewMenu->addMenu(tr("&Output screen"));
   outputScreenMenu->addActions(screenActions);
+  viewMenu->addAction(outputResolutionAction);
   viewMenu->addSeparator();
   // Playback.
   viewMenu->addAction(playAction);
@@ -3652,7 +3659,38 @@ void MainWindow::setOutputResolution(const QSize& resolution)
   outputWindow->getCanvas()->setOutputFrame(frame);
   destinationCanvas->setContentRect(frame);
   destinationCanvas->setContentLabel(tr("Output %1 × %2").arg(frame.width()).arg(frame.height()));
+  destinationCanvasToolbar->setToolbarTitle(tr("Output Editor (%1 × %2)")
+                                            .arg(mappingManager->getOutputResolution().width())
+                                            .arg(mappingManager->getOutputResolution().height()));
   updateCanvases();
+}
+
+void MainWindow::showOutputResolutionDialog()
+{
+  QDialog dialog(this);
+  dialog.setWindowTitle(tr("Output Resolution"));
+
+  QLabel* explanation = new QLabel(tr("Size of the output frame, usually the resolution of the projector. "
+                                      "The output window scales it to fill the output screen."));
+  explanation->setWordWrap(true);
+  OutputResolutionEditor* editor = new OutputResolutionEditor(outputScreenResolution());
+  editor->setResolution(mappingManager->getOutputResolution());
+  QCheckBox* scaleShapesBox = new QCheckBox(tr("Scale the shapes to keep them in place in the frame"));
+  scaleShapesBox->setChecked(true);
+  QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+  connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+  QVBoxLayout* layout = new QVBoxLayout;
+  layout->addWidget(explanation);
+  layout->addWidget(editor);
+  layout->addWidget(scaleShapesBox);
+  layout->addWidget(buttons);
+  dialog.setLayout(layout);
+
+  if (dialog.exec() != QDialog::Accepted || editor->resolution() == mappingManager->getOutputResolution())
+    return;
+  undoStack->push(new SetOutputResolutionCommand(this, editor->resolution(), scaleShapesBox->isChecked()));
 }
 
 void MainWindow::updateSourceCanvasContent()
@@ -3667,7 +3705,12 @@ void MainWindow::updateSourceCanvasContent()
 
 QSize MainWindow::defaultOutputResolution() const
 {
-  const QSize resolution = QSettings().value("outputResolution").toSize();
+  QSettings settings;
+  if (settings.value("outputResolutionFollowsScreen", false).toBool() &&
+      MappingManager::isValidOutputResolution(outputScreenResolution()))
+    return outputScreenResolution();
+
+  const QSize resolution = settings.value("outputResolution").toSize();
   return MappingManager::isValidOutputResolution(resolution)
       ? resolution
       : QSize(MM::DEFAULT_OUTPUT_WIDTH, MM::DEFAULT_OUTPUT_HEIGHT);
@@ -3678,6 +3721,15 @@ QScreen* MainWindow::_outputScreen() const
   const QList<QScreen*> screens = QGuiApplication::screens();
   const int screen = getPreferredScreen();
   return (screen >= 0 && screen < screens.size()) ? screens.at(screen) : nullptr;
+}
+
+QSize MainWindow::outputScreenResolution() const
+{
+  // In physical pixels: what the projector or screen calls its resolution.
+  QScreen* screen = _outputScreen();
+  if (!screen)
+    return QSize();
+  return (QSizeF(screen->geometry().size()) * screen->devicePixelRatio()).toSize();
 }
 
 void MainWindow::clearWindow()

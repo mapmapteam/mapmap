@@ -26,6 +26,7 @@
 #include <QNetworkInterface>
 
 #include "MainWindow.h"
+#include "OutputResolutionEditor.h"
 
 namespace mmp {
 
@@ -55,6 +56,9 @@ private slots:
   int exec();
 
   void applySettings();
+
+  // Shows the output resolution of the current project.
+  void _updateCurrentProjectResolution();
   void refreshCurrentIP();
 
 private:
@@ -89,6 +93,8 @@ private:
 
   // Output widgets
   QCheckBox *_showResolutionBox;
+  OutputResolutionEditor *_resolutionEditor;
+  QLabel *_currentProjectResolutionLabel;
   QRadioButton *_classicRadio;
   QRadioButton *_palTestRadio;
   QRadioButton *_ntscTestRadio;

@@ -149,7 +149,6 @@ private slots:
 
 
   // Other.
-  void windowModified();
   void pollOscInterface();
   void exitFullScreen();
 
@@ -197,6 +196,12 @@ public slots:
   /// Clears all mappings and sources.
   bool clearProject();
 
+  /// Marks the project as modified (eg. by an undoable command).
+  void windowModified();
+
+  /// Asks the user for the output resolution of the project.
+  void showOutputResolutionDialog();
+
   /**
    * Sets the output resolution of the project (see
    * MappingManager::getOutputResolution()) and updates the views. An invalid
@@ -204,8 +209,17 @@ public slots:
    */
   void setOutputResolution(const QSize& resolution);
 
-  /// Returns the output resolution of new projects, set in the preferences.
+  /**
+   * Returns the output resolution of new projects, set in the preferences:
+   * a fixed size, or the resolution of the output screen.
+   */
   QSize defaultOutputResolution() const;
+
+  /**
+   * Returns the resolution, in physical pixels, of the screen chosen for the
+   * output window, or an invalid size if there is none.
+   */
+  QSize outputScreenResolution() const;
 
   /// Makes the input editor frame the image of the current source.
   void updateSourceCanvasContent();
@@ -565,6 +579,7 @@ private:
   QAction *zoomOutAction;
   QAction *resetZoomAction;
   QAction *fitToViewAction;
+  QAction *outputResolutionAction;
 
   // Widgets and layout.
   QTabWidget* contentTab;

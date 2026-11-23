@@ -75,6 +75,17 @@ public:
   /// Returns true if a size is usable as an output resolution.
   static bool isValidOutputResolution(const QSize& resolution);
 
+  /// A usual output resolution and the name it is known by.
+  struct OutputResolutionPreset {
+    QSize size;
+    QString name;
+    /// True for the most common ones in video mapping, listed first.
+    bool common;
+  };
+
+  /// Returns usual resolutions of projectors and screens, most common first.
+  static const QVector<OutputResolutionPreset>& outputResolutionPresets();
+
   /// Returns the list of mappings associated with given source.
   QMap<uid, Layer::ptr> getSourceLayers(const Source::ptr source) const;
 

@@ -240,6 +240,34 @@ private:
   int _toIdx;
 };
 
+/**
+ * Changes the output resolution of the project. Can also scale the output
+ * shapes with the output frame, so that they stay at the same place in it.
+ */
+class SetOutputResolutionCommand : public QUndoCommand
+{
+public:
+  SetOutputResolutionCommand(MainWindow *mainWindow, const QSize& resolution, bool scaleShapes, QUndoCommand *parent = 0);
+
+  void undo() Q_DECL_OVERRIDE;
+  void redo() Q_DECL_OVERRIDE;
+
+private:
+  // Applies a resolution and the matching output vertices.
+  void _apply(const QSize& resolution, bool after);
+
+  struct ShapeChange {
+    Layer::ptr layer;
+    QVector<QPointF> before;
+    QVector<QPointF> after;
+  };
+
+  MainWindow *_mainWindow;
+  QSize _before;
+  QSize _after;
+  QVector<ShapeChange> _shapeChanges;
+};
+
 }
 
 #endif /* COMMANDS_H_ */
