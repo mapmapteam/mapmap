@@ -24,11 +24,10 @@ private slots:
   void mapInt();
   void isNumeric();
   void fileExistsAndErase();
-  void placeLargeShapeInArea();
-  void placeSmallShapeInArea();
-  void placeShapeInEmptyArea();
   void fitScale();
   void fitRect();
+  void createShapesForRect();
+  void mapRectToRect();
 };
 
 #endif /* TEST_UTIL_H_ */

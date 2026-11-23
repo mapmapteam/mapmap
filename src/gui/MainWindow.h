@@ -213,6 +213,20 @@ public slots:
   /// Returns the output frame: the rectangle shown by the output window.
   QRectF getOutputFrame() const;
 
+  /**
+   * Returns where a new shape goes in the output frame: as large as possible
+   * with the proportions of an image of the given size, or in the middle for
+   * an empty size (color sources).
+   */
+  QRectF newShapeOutputRect(const QSizeF& contentSize) const;
+
+  /**
+   * Moves the shapes of a source placed while its frame size was unknown
+   * (defaultSize was assumed) to where they belong with the real frame size.
+   * Shapes the user has moved since are left alone.
+   */
+  void fitDefaultShapesToFrameSize(Source::ptr source, const QSizeF& defaultSize, const QSizeF& frameSize);
+
   /// Create or replace a media source (or image).
   uid createMediaSource(uid sourceId, QString uri, float x, float y, bool isImage, VideoType type, double rate=1.0);
 
@@ -764,6 +778,13 @@ public:
   static const int MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT = 290;
   static const int CANVAS_MINIMUM_WIDTH  = 480;
   static const int CANVAS_MINIMUM_HEIGHT = 270;
+  // Size of a new color shape, relative to the output frame.
+  static constexpr qreal NEW_COLOR_SHAPE_SCALE = 0.5;
+
+  // How far (in pixels) a shape may be from where it was placed and still
+  // count as untouched (see fitDefaultShapesToFrameSize()).
+  static constexpr qreal UNTOUCHED_SHAPE_TOLERANCE = 1.0;
+
   static const int OUTPUT_WINDOW_MINIMUM_WIDTH = 480;
   static const int OUTPUT_WINDOW_MINIMUM_HEIGHT = 270;
 };

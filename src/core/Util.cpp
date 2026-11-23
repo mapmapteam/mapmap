@@ -130,93 +130,39 @@ QRectF fitRect(const QSizeF& content, const QRectF& frame)
   return rect;
 }
 
-Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight)
+QVector<QPointF> mapRectToRect(const QVector<QPointF>& points, const QRectF& from, const QRectF& to)
 {
-  Q_UNUSED(frameHeight);
-  Q_UNUSED(frameWidth);
-
-  return new Mesh(
-    QPointF(texture->getX(), texture->getY()),
-    QPointF(texture->getX() + texture->getWidth(), texture->getY()),
-    QPointF(texture->getX() + texture->getWidth(), texture->getY() + texture->getHeight()),
-    QPointF(texture->getX(), texture->getY() + texture->getHeight())
-  );
+  if (from.isEmpty())
+    return points;
+  const qreal sx = to.width()  / from.width();
+  const qreal sy = to.height() / from.height();
+  QVector<QPointF> mapped;
+  mapped.reserve(points.size());
+  for (const QPointF& p : points)
+    mapped.append(QPointF(to.left() + (p.x() - from.left()) * sx,
+                          to.top()  + (p.y() - from.top())  * sy));
+  return mapped;
 }
 
-Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight)
+Mesh* createMeshForRect(const QRectF& rect)
 {
-  Q_UNUSED(frameHeight);
-  Q_UNUSED(frameWidth);
-
-  return new Triangle(
-    QPointF(texture->getX(), texture->getY() + texture->getHeight()),
-    QPointF(texture->getX() + texture->getWidth(), texture->getY() + texture->getHeight()),
-    QPointF(texture->getX() + texture->getWidth() / 2, texture->getY())
-  );
+  return new Mesh(rect.topLeft(), rect.topRight(), rect.bottomRight(), rect.bottomLeft());
 }
 
-Ellipse* createEllipseForTexture(Texture* texture, int frameWidth,
-    int frameHeight)
+Triangle* createTriangleForRect(const QRectF& rect)
 {
-  Q_UNUSED(frameHeight);
-  Q_UNUSED(frameWidth);
-
-  qreal halfWidth  = texture->getWidth() / 2;
-  qreal halfHeight = texture->getHeight() / 2;
-
-  return new Ellipse(
-    QPointF(texture->getX(), texture->getY() + halfHeight),
-    QPointF(texture->getX() + halfWidth, texture->getY()),
-    QPointF(texture->getX() + texture->getWidth(), texture->getY() + halfHeight),
-    QPointF(texture->getX() + halfWidth, texture->getY() + texture->getHeight()),
-    true
-  );
+  return new Triangle(rect.bottomLeft(), rect.bottomRight(),
+                      QPointF(rect.center().x(), rect.top()));
 }
 
-Mesh* createMeshForColor(int frameWidth, int frameHeight)
+Ellipse* createEllipseForRect(const QRectF& rect, bool hasCenterControl)
 {
-  return new Mesh(
-    QPointF(frameWidth / 4, frameHeight / 4),
-    QPointF(frameWidth * 3 / 4, frameHeight / 4),
-    QPointF(frameWidth * 3 / 4, frameHeight * 3/ 4),
-    QPointF(frameWidth / 4, frameHeight * 3 / 4)
-  );
-}
-
-Triangle* createTriangleForColor(int frameWidth, int frameHeight)
-{
-  return new Triangle(
-    QPointF(frameWidth / 4, frameHeight * 3 / 4),
-    QPointF(frameWidth * 3 / 4, frameHeight * 3 / 4),
-    QPointF(frameWidth / 2, frameHeight / 4)
-  );
-}
-
-Ellipse* createEllipseForColor(int frameWidth, int frameHeight)
-{
-  return new Ellipse(
-    QPointF(frameWidth / 4, frameHeight / 2),
-    QPointF(frameWidth / 2, frameHeight / 4),
-    QPointF(frameWidth * 3 / 4, frameHeight / 2),
-    QPointF(frameWidth / 2, frameHeight * 3 / 4),
-    false
-  );
-}
-
-void placeShapeInArea(MShape* shape, const QRectF& area)
-{
-  const QRectF bounds = shape->getBoundingRect();
-  if (area.isEmpty() || bounds.isEmpty())
-    return;
-
-  const qreal scaling = qMin(qreal(1), qMin(area.width() / bounds.width(),
-                                            area.height() / bounds.height()));
-
-  QVector<QPointF> vertices = shape->getVertices();
-  for (QPointF& vertex : vertices)
-    vertex = area.center() + (vertex - bounds.center()) * scaling;
-  shape->setVertices(vertices);
-  shape->build();
+  const QPointF center = rect.center();
+  return new Ellipse(QPointF(rect.left(), center.y()),
+                     QPointF(center.x(), rect.top()),
+                     QPointF(rect.right(), center.y()),
+                     QPointF(center.x(), rect.bottom()),
+                     hasCenterControl);
 }
 
 void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool major, bool selected, bool locked, MShape::ShapeMode shapeMode, qreal radius, qreal strokeWidth)

@@ -113,11 +113,6 @@ void OutputGLWindow::setPreferredScreen(int screen)
   _preferredScreen = qBound(0, screen, int(QApplication::screens().size()) - 1);
 }
 
-QRectF OutputGLWindow::getOutputRect() const
-{
-  return canvas->getOutputFrame();
-}
-
 
 void OutputGLWindow::_updateToPreferredScreen()
 {
