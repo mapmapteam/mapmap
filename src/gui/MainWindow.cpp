@@ -165,6 +165,7 @@ MainWindow::MainWindow()
   // Defaults.
   setWindowIcon(QIcon(":/mapmap-logo"));
   setCurrentFile("");
+  setOutputResolution(defaultOutputResolution());
 
   // Allow drag n drop
   setAcceptDrops(true);
@@ -952,6 +953,11 @@ void MainWindow::autoFitVideoInputShapes(int sourceId, int width, int height)
   }
 }
 
+QRectF MainWindow::getOutputFrame() const
+{
+  return QRectF(QPointF(0, 0), mappingManager->getOutputResolution());
+}
+
 void MainWindow::addMesh()
 {
   // A source must be selected to add a mapping.
@@ -1423,6 +1429,7 @@ bool MainWindow::clearProject()
 
   // Clear model.
   mappingManager->clearAll();
+  setOutputResolution(defaultOutputResolution());
 
   // Refresh GL canvases to clear them out.
   sourceCanvas->repaint();
@@ -3011,6 +3018,13 @@ bool MainWindow::loadFile(const QString &fileName)
   });
   bool readOk = reader.readFile(&file);
 
+  // Projects saved before MapMap had output resolutions were drawn in pixels
+  // of the output screen, as Qt counts them (scaled on high-density screens).
+  if (!mappingManager->hasOutputResolution())
+    mappingManager->setOutputResolution(_outputScreen() ? _outputScreen()->geometry().size()
+                                                        : defaultOutputResolution());
+  setOutputResolution(mappingManager->getOutputResolution());
+
   // Create the list items of what was read (even partially). Layers are
   // added bottom first, in the same order the reader added them to the
   // manager (which inserts each new layer at index 0).
@@ -3679,6 +3693,32 @@ void MainWindow::removeSourceItem(uid sourceId)
 
   // Update playing state.
   updatePlayingState();
+}
+
+void MainWindow::setOutputResolution(const QSize& resolution)
+{
+  mappingManager->setOutputResolution(resolution);
+  if (!mappingManager->hasOutputResolution())
+    mappingManager->setOutputResolution(QSize(MM::DEFAULT_OUTPUT_WIDTH, MM::DEFAULT_OUTPUT_HEIGHT));
+
+  const QRectF frame = getOutputFrame();
+  outputWindow->getCanvas()->setOutputFrame(frame);
+  updateCanvases();
+}
+
+QSize MainWindow::defaultOutputResolution() const
+{
+  const QSize resolution = QSettings().value("outputResolution").toSize();
+  return MappingManager::isValidOutputResolution(resolution)
+      ? resolution
+      : QSize(MM::DEFAULT_OUTPUT_WIDTH, MM::DEFAULT_OUTPUT_HEIGHT);
+}
+
+QScreen* MainWindow::_outputScreen() const
+{
+  const QList<QScreen*> screens = QGuiApplication::screens();
+  const int screen = getPreferredScreen();
+  return (screen >= 0 && screen < screens.size()) ? screens.at(screen) : nullptr;
 }
 
 void MainWindow::clearWindow()

@@ -57,13 +57,12 @@ signals:
   void outputRectChanged();
 
 public:
-  MapperGLCanvas* getCanvas() const { return canvas; }
+  OutputGLCanvas* getCanvas() const { return canvas; }
   void setPointerHasMoved();
 
   /**
-   * Returns the area of the output in scene coordinates: its top left corner is
-   * (0, 0). It is the size of the output when it is displayed, and otherwise
-   * that of the screen where it will be.
+   * Returns the area of the output in scene coordinates: the output frame of
+   * the project, whose top left corner is (0, 0).
    */
   QRectF getOutputRect() const;
 

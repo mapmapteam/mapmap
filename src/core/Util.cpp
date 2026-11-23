@@ -113,6 +113,23 @@ int map_int(int value, int istart, int istop, int ostart, int ostop)
     return std::max(std::min(int(ret), ostop), ostart);
 }
 
+qreal fitScale(const QSizeF& content, const QSizeF& area)
+{
+  if (content.isEmpty() || area.isEmpty())
+    return 1.0;
+  return qMin(area.width() / content.width(), area.height() / content.height());
+}
+
+QRectF fitRect(const QSizeF& content, const QRectF& frame)
+{
+  if (content.isEmpty())
+    return frame;
+  const QSizeF size = content * fitScale(content, frame.size());
+  QRectF rect(QPointF(0, 0), size);
+  rect.moveCenter(frame.center());
+  return rect;
+}
+
 Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight)
 {
   Q_UNUSED(frameHeight);

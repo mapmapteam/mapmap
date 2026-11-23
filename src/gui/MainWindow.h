@@ -197,6 +197,19 @@ public slots:
   /// Clears all mappings and sources.
   bool clearProject();
 
+  /**
+   * Sets the output resolution of the project (see
+   * MappingManager::getOutputResolution()) and updates the views. An invalid
+   * size gives the default resolution.
+   */
+  void setOutputResolution(const QSize& resolution);
+
+  /// Returns the output resolution of new projects, set in the preferences.
+  QSize defaultOutputResolution() const;
+
+  /// Returns the output frame: the rectangle shown by the output window.
+  QRectF getOutputFrame() const;
+
   /// Create or replace a media source (or image).
   uid createMediaSource(uid sourceId, QString uri, float x, float y, bool isImage, VideoType type, double rate=1.0);
 
@@ -328,6 +341,9 @@ public slots:
 
 private:
   // Internal methods. //////////////////////////////////////////////////////////////////////////////////////
+
+  // Returns the screen chosen for the output window, or null.
+  QScreen* _outputScreen() const;
 
   // Creation of view elements.
   void createLayout();
