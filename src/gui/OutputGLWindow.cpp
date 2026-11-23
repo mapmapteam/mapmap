@@ -51,8 +51,6 @@ OutputGLWindow:: OutputGLWindow(QWidget* parent, const MapperGLCanvas* canvas_) 
 
   _isFullScreen = false;
   _preferredScreen = QApplication::screens().size() - 1;
-
-  connect(canvas, &OutputGLCanvas::outputResized, this, &OutputGLWindow::outputRectChanged);
 }
 
 //OutputGLWindow::OutputGLWindow(MainWindow* mainWindow, QWidget* parent, const QGLWidget * shareWidget) : QDialog(parent)
@@ -113,7 +111,6 @@ void OutputGLWindow::setDisplayTestSignal(bool displayTestSignal)
 void OutputGLWindow::setPreferredScreen(int screen)
 {
   _preferredScreen = qBound(0, screen, int(QApplication::screens().size()) - 1);
-  emit outputRectChanged();
 }
 
 QRectF OutputGLWindow::getOutputRect() const
@@ -150,7 +147,6 @@ void OutputGLWindow::_setFullScreen(bool fullscreen)
   {
     hide();
   }
-  emit outputRectChanged();
 }
 
 }

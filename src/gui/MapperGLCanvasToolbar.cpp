@@ -55,7 +55,7 @@ void MapperGLCanvasToolbar::createZoomToolsLayout()
   _zoomInButton = new QToolButton;
   _zoomInButton->setIcon(QIcon(":/zoom-in"));
   _zoomInButton->setIconSize(QSize(MM::ZOOM_TOOLBAR_ICON_SIZE, MM::ZOOM_TOOLBAR_ICON_SIZE));
-  _zoomInButton->setToolTip(tr("Enlarge the shape"));
+  _zoomInButton->setToolTip(tr("Zoom in"));
   _zoomInButton->setFixedSize(QSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE));
   _zoomInButton->setObjectName("zoom-in");
   // Lambdas, not direct slot pointers: clicked(bool) would pass false (0)
@@ -65,15 +65,15 @@ void MapperGLCanvasToolbar::createZoomToolsLayout()
   _zoomOutButton = new QToolButton;
   _zoomOutButton->setIcon(QIcon(":/zoom-out"));
   _zoomOutButton->setIconSize(QSize(MM::ZOOM_TOOLBAR_ICON_SIZE, MM::ZOOM_TOOLBAR_ICON_SIZE));
-  _zoomOutButton->setToolTip(tr("Shrink the shape"));
+  _zoomOutButton->setToolTip(tr("Zoom out"));
   _zoomOutButton->setFixedSize(QSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE));
   _zoomOutButton->setObjectName("zoom-out");
   connect(_zoomOutButton, &QAbstractButton::clicked, _canvas, [this] { _canvas->decreaseZoomLevel(); });
-  // Reset to normal size button.
+  // Actual pixels (1:1) button.
   _resetZoomButton = new QToolButton;
   _resetZoomButton->setIcon(QIcon(":/reset-zoom"));
   _resetZoomButton->setIconSize(QSize(MM::ZOOM_TOOLBAR_ICON_SIZE, MM::ZOOM_TOOLBAR_ICON_SIZE));
-  _resetZoomButton->setToolTip(tr("Reset the shape to the normal size"));
+  _resetZoomButton->setToolTip(tr("Actual pixels (1:1): one image pixel per screen pixel"));
   _resetZoomButton->setFixedSize(QSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE));
   _resetZoomButton->setObjectName("reset-zoom");
   connect(_resetZoomButton, &QAbstractButton::clicked, _canvas, &MapperGLCanvas::resetZoomLevel);
@@ -81,7 +81,7 @@ void MapperGLCanvasToolbar::createZoomToolsLayout()
   _fitToViewButton = new QToolButton;
   _fitToViewButton->setIcon(QIcon(":/zoom-fit"));
   _fitToViewButton->setIconSize(QSize(MM::ZOOM_TOOLBAR_ICON_SIZE, MM::ZOOM_TOOLBAR_ICON_SIZE));
-  _fitToViewButton->setToolTip(tr("Fit the shape to content view"));
+  _fitToViewButton->setToolTip(tr("Fit to view (100%): show the whole image or output frame"));
   _fitToViewButton->setFixedSize(QSize(MM::ZOOM_TOOLBAR_BUTTON_SIZE, MM::ZOOM_TOOLBAR_BUTTON_SIZE));
   _fitToViewButton->setObjectName("zoom-fit");
   connect(_fitToViewButton, &QAbstractButton::clicked, _canvas, &MapperGLCanvas::fitShapeToView);
@@ -129,7 +129,7 @@ void MapperGLCanvasToolbar::enableZoomToolBar(bool enabled)
 void MapperGLCanvasToolbar::updateDropdownMenu(qreal factor)
 {
   // Get current zoom factor percentage
-  QString zoomFactor = QString::number(int(factor * 100)).append(QChar('%'));
+  QString zoomFactor = QString::number(qRound(factor * 100)).append(QChar('%'));
   //Create list
   QStringList zoomFactorList;
   zoomFactorList << "400%" << "300%" << "200%" << "150%" << "125%" <<

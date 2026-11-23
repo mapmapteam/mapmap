@@ -54,7 +54,6 @@ void OutputGLCanvas::setOutputFrame(const QRectF& frame)
   _outputFrame = frame;
   setSceneRect(frame);
   _fitOutputFrame();
-  emit outputResized();
 }
 
 void OutputGLCanvas::_fitOutputFrame()

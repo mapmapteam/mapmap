@@ -43,7 +43,7 @@
 | <kbd>Ctrl</kbd> + <kbd>3</kbd> | Output editor layout |
 | <kbd>Ctrl</kbd> + <kbd>+</kbd> | Zoom in |
 | <kbd>Ctrl</kbd> + <kbd>-</kbd> | Zoom out |
-| <kbd>Ctrl</kbd> + <kbd>0</kbd> | Original size |
+| <kbd>Ctrl</kbd> + <kbd>0</kbd> | Actual pixels (1:1) |
 
 | Layers & shapes | |
 | --- | --- |

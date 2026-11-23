@@ -7,6 +7,10 @@ New:
 - Convert the colors of camera sources on the graphics card when the camera gives YUV images, like videos.
 - Measure the time of each step of the image path with the option `--frame-stats`: one line per second in the log. `--frame-stats-sync` waits for the graphics card to give the real cost of each step, and `--force-cpu-conversion` converts the colors of videos on the processor, to compare.
 
+Improvements:
+
+- At 100% zoom, the input editor shows the whole image of the selected source and the output editor the whole output frame. "Actual pixels (1:1)" shows one image pixel per screen pixel.
+
 Fix:
 
 - Fix the text of drop-down lists, such as the zoom of the editors, which was invisible with dark system themes.
