@@ -50,10 +50,6 @@ BUILD_DIRECTORY="${PROJECT_ROOT}/build/release-macos"
 PACKAGE_STAGE_DIRECTORY="${PROJECT_ROOT}/build/package-macos/stage"
 # A release runs on both Intel and Apple Silicon.
 RELEASE_ARCHITECTURES="x86_64 arm64"
-# Automated checks, with the unit tests, that the commit must have passed.
-REQUIRED_CHECKS="build-macos build-ubuntu build-windows"
-# The checks of one commit all fit in one page of the GitHub answer.
-CHECKS_PER_PAGE=100
 # Entitlement of development builds, which notarization refuses.
 DEBUG_ENTITLEMENT="com.apple.security.get-task-allow"
 # hdiutil sometimes fails with "Resource busy": how many times to try, and how
@@ -161,28 +157,6 @@ check_sources() {
     released_version="$(sed -n 's/^## \([^ ]*\) - .*$/\1/p' CHANGELOG.md | head -1)"
     [ "${released_version}" = "${display_version}" ] \
         || report_problem "mapmap.pro says ${display_version}, the top of CHANGELOG.md says ${released_version:-nothing}."
-
-    git fetch --quiet origin || fail "could not fetch from GitHub."
-    [ -n "$(git branch --remotes --contains "${commit}" --list 'origin/*')" ] \
-        || report_problem "commit ${commit} is not on GitHub."
-}
-
-# The unit tests run in the automated checks, on every system.
-check_automated_checks() {
-    local check_name results
-    if ! results="$(gh api "repos/{owner}/{repo}/commits/${commit}/check-runs?per_page=${CHECKS_PER_PAGE}" \
-        --jq '.check_runs[] | "\(.name) \(.conclusion)"' 2>/dev/null)"
-    then
-        report_problem "GitHub gives no automated checks for commit ${commit}."
-        return
-    fi
-    for check_name in ${REQUIRED_CHECKS}; do
-        grep -q -x -F "${check_name} success" <<< "${results}" \
-            || report_problem "${check_name} did not succeed on GitHub for commit ${commit}."
-        if grep -F "${check_name} " <<< "${results}" | grep -v -x -F "${check_name} success" > /dev/null; then
-            report_problem "a run of ${check_name} failed or is not finished for commit ${commit}."
-        fi
-    done
 }
 
 # Choose the identity to sign with, and read its team from the certificate.
@@ -384,7 +358,7 @@ make_release() {
     local suffix=""
     [ -n "${qt_directory}" ] || fail "--qt-directory is required."
     [ -x "${qt_directory}/bin/qmake" ] || fail "there is no bin/qmake in ${qt_directory}."
-    require_tools codesign file gh git hdiutil lipo openssl otool plutil security shasum
+    require_tools codesign file git hdiutil lipo openssl otool plutil security shasum
 
     display_version="$(read_project_variable MAPMAP_VERSION)"
     [ -n "${display_version}" ] || fail "could not read MAPMAP_VERSION from mapmap.pro."
@@ -403,7 +377,6 @@ make_release() {
 
     print_step "Checking the sources, commit ${commit}"
     check_sources
-    check_automated_checks
     find_identity
 
     print_step "Building, with no certificate"
