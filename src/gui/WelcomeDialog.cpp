@@ -43,7 +43,7 @@ WelcomeDialog::WelcomeDialog(QWidget* parent) : QDialog(parent)
 
   QLabel* text = new QLabel(tr(
       "MapMap projects video and images onto real surfaces.\n\n"
-      "To get started, import a media file to create a paint, then add a shape "
+      "To get started, import a media file to create a source, then add a shape "
       "to project it onto."));
   text->setWordWrap(true);
   text->setAlignment(Qt::AlignCenter);

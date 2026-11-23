@@ -205,7 +205,7 @@ No camera available in your system</translation>
         <translation type="vanished">Duplicate item</translation>
     </message>
     <message>
-        <source>Delete mapping</source>
+        <source>Delete layer</source>
         <translation type="vanished">Delete mapping</translation>
     </message>
     <message>
@@ -221,7 +221,7 @@ No camera available in your system</translation>
         <translation type="vanished">Rename item</translation>
     </message>
     <message>
-        <source>Lock mapping</source>
+        <source>Lock layer</source>
         <translation type="vanished">Lock mapping</translation>
     </message>
     <message>
@@ -237,7 +237,7 @@ No camera available in your system</translation>
         <translation type="vanished">Hide mapping item</translation>
     </message>
     <message>
-        <source>Solo mapping</source>
+        <source>Solo layer</source>
         <translation type="vanished">Solo mapping</translation>
     </message>
     <message>
@@ -567,19 +567,19 @@ The original file is not found. Will you locate?</translation>
 <context>
     <name>MappingItemDelegate</name>
     <message>
-        <source>Solo mapping</source>
+        <source>Solo layer</source>
         <translation type="vanished">Solo mapping</translation>
     </message>
     <message>
-        <source>Lock mapping</source>
+        <source>Lock layer</source>
         <translation type="vanished">Lock mapping</translation>
     </message>
     <message>
-        <source>Duplicate mapping</source>
+        <source>Duplicate layer</source>
         <translation type="vanished">Duplicate mapping</translation>
     </message>
     <message>
-        <source>Delete mapping</source>
+        <source>Delete layer</source>
         <translation type="vanished">Delete mapping</translation>
     </message>
 </context>
@@ -705,8 +705,9 @@ The original file is not found. Will you locate?</translation>
         <translation type="vanished">Add mapping</translation>
     </message>
     <message>
-        <source>Duplicate mapping</source>
-        <translation type="vanished">Duplicate mapping</translation>
+        <location filename="../src/core/Commands.cpp" line="87"/>
+        <source>Duplicate layer</source>
+        <translation>Duplicate mapping</translation>
     </message>
     <message>
         <location filename="../src/core/Commands.cpp" line="36"/>
@@ -716,11 +717,6 @@ The original file is not found. Will you locate?</translation>
     <message>
         <location filename="../src/core/Commands.cpp" line="62"/>
         <source>Add layer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/Commands.cpp" line="87"/>
-        <source>Duplicate layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -751,7 +747,7 @@ The original file is not found. Will you locate?</translation>
     <message>
         <location filename="../src/core/Commands.cpp" line="307"/>
         <source>Delete layer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Delete mapping</translation>
     </message>
     <message>
         <location filename="../src/core/Commands.cpp" line="333"/>
@@ -824,12 +820,12 @@ The original file is not found. Will you locate?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/Layer.cpp" line="148"/>
+        <location filename="../src/core/Layer.cpp" line="169"/>
         <source>Problem at creation of shape.</source>
         <translation>Problem at creation of shape.</translation>
     </message>
     <message>
-        <location filename="../src/core/Layer.cpp" line="160"/>
+        <location filename="../src/core/Layer.cpp" line="182"/>
         <source>Unable to create shape of type &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -892,18 +888,28 @@ The original file is not found. Will you locate?</translation>
         <translation>Color</translation>
     </message>
     <message>
-        <location filename="../src/core/ProjectReader.cpp" line="50"/>
+        <location filename="../src/core/ProjectReader.cpp" line="54"/>
+        <source>unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/ProjectReader.cpp" line="55"/>
+        <source>This project was saved in the old XML format by MapMap %1. This version of MapMap (%2) only opens JSON projects.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/ProjectReader.cpp" line="69"/>
         <source>The contents of this file does not look like a MapMap project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/ProjectReader.cpp" line="53"/>
+        <location filename="../src/core/ProjectReader.cpp" line="72"/>
         <source>The version of MapMap %1 used to save this file is not readable by this MapMap version %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/ProjectReader.cpp" line="178"/>
-        <location filename="../src/core/ProjectReader.cpp" line="187"/>
+        <location filename="../src/core/ProjectReader.cpp" line="258"/>
+        <location filename="../src/core/ProjectReader.cpp" line="290"/>
         <source>Unable to create layer of type &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -922,12 +928,12 @@ Line %2, column %3</translation>
         <translation type="vanished">Problem at creation of mapping.</translation>
     </message>
     <message>
-        <location filename="../src/app/main.cpp" line="183"/>
+        <location filename="../src/app/main.cpp" line="165"/>
         <source>Initiating program...</source>
         <translation>Initiating program...</translation>
     </message>
     <message>
-        <location filename="../src/app/main.cpp" line="244"/>
+        <location filename="../src/app/main.cpp" line="230"/>
         <source>Done.</source>
         <translation>Done.</translation>
     </message>
@@ -1510,56 +1516,56 @@ Line %2, column %3</translation>
     <name>mmp::LayerItemDelegate</name>
     <message>
         <location filename="../src/gui/LayerItemDelegate.cpp" line="100"/>
-        <source>Solo mapping</source>
+        <source>Solo layer</source>
         <translation type="unfinished">Solo mapping</translation>
     </message>
     <message>
         <location filename="../src/gui/LayerItemDelegate.cpp" line="112"/>
-        <source>Lock mapping</source>
+        <source>Lock layer</source>
         <translation type="unfinished">Lock mapping</translation>
     </message>
     <message>
         <location filename="../src/gui/LayerItemDelegate.cpp" line="124"/>
-        <source>Duplicate mapping</source>
+        <source>Duplicate layer</source>
         <translation type="unfinished">Duplicate mapping</translation>
     </message>
     <message>
         <location filename="../src/gui/LayerItemDelegate.cpp" line="136"/>
-        <source>Delete mapping</source>
+        <source>Delete layer</source>
         <translation type="unfinished">Delete mapping</translation>
     </message>
 </context>
 <context>
     <name>mmp::MainWindow</name>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="556"/>
-        <location filename="../src/gui/MainWindow.cpp" line="562"/>
+        <location filename="../src/gui/MainWindow.cpp" line="625"/>
+        <location filename="../src/gui/MainWindow.cpp" line="631"/>
         <source>Open project</source>
         <translation type="unfinished">Open project</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="558"/>
-        <location filename="../src/gui/MainWindow.cpp" line="564"/>
-        <location filename="../src/gui/MainWindow.cpp" line="596"/>
-        <location filename="../src/gui/MainWindow.cpp" line="602"/>
+        <location filename="../src/gui/MainWindow.cpp" line="627"/>
+        <location filename="../src/gui/MainWindow.cpp" line="633"/>
+        <location filename="../src/gui/MainWindow.cpp" line="665"/>
+        <location filename="../src/gui/MainWindow.cpp" line="671"/>
         <source>MapMap files (*.%1)</source>
         <translation type="unfinished">MapMap files (*.%1)</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="595"/>
-        <location filename="../src/gui/MainWindow.cpp" line="601"/>
+        <location filename="../src/gui/MainWindow.cpp" line="664"/>
+        <location filename="../src/gui/MainWindow.cpp" line="670"/>
         <source>Save project</source>
         <translation type="unfinished">Save project</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="632"/>
-        <location filename="../src/gui/MainWindow.cpp" line="640"/>
+        <location filename="../src/gui/MainWindow.cpp" line="701"/>
+        <location filename="../src/gui/MainWindow.cpp" line="709"/>
         <source>Import media source file</source>
         <translation type="unfinished">Import media source file</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="634"/>
-        <location filename="../src/gui/MainWindow.cpp" line="642"/>
+        <location filename="../src/gui/MainWindow.cpp" line="703"/>
+        <location filename="../src/gui/MainWindow.cpp" line="711"/>
         <source>Media files (%1 %2);;All files (*)</source>
         <translation type="unfinished">Media files (%1 %2);;All files (*)</translation>
     </message>
@@ -1568,44 +1574,44 @@ Line %2, column %3</translation>
         <translation type="obsolete">Available camera</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="680"/>
+        <location filename="../src/gui/MainWindow.cpp" line="749"/>
         <source>Camera device</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="681"/>
+        <location filename="../src/gui/MainWindow.cpp" line="750"/>
         <source>Select camera</source>
         <translation type="unfinished">Select camera</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="695"/>
-        <location filename="../src/gui/MainWindow.cpp" line="710"/>
+        <location filename="../src/gui/MainWindow.cpp" line="764"/>
+        <location filename="../src/gui/MainWindow.cpp" line="779"/>
         <source>No camera available</source>
         <translation type="unfinished">No camera available</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="695"/>
-        <location filename="../src/gui/MainWindow.cpp" line="710"/>
+        <location filename="../src/gui/MainWindow.cpp" line="764"/>
+        <location filename="../src/gui/MainWindow.cpp" line="779"/>
         <source>You can not use this feature!
 No camera available in your system</source>
         <translation type="unfinished">You can not use this feature!
 No camera available in your system</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="725"/>
-        <location filename="../src/gui/MainWindow.cpp" line="729"/>
+        <location filename="../src/gui/MainWindow.cpp" line="794"/>
+        <location filename="../src/gui/MainWindow.cpp" line="798"/>
         <source>Select Color</source>
         <translation type="unfinished">Select Color</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="763"/>
+        <location filename="../src/gui/MainWindow.cpp" line="832"/>
         <source>Syphon source added</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1703"/>
-        <location filename="../src/gui/MainWindow.cpp" line="1862"/>
-        <location filename="../src/gui/MainWindow.cpp" line="2865"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1784"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1943"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2948"/>
         <source>MapMap</source>
         <translation type="unfinished">MapMap</translation>
     </message>
@@ -1622,67 +1628,67 @@ No camera available in your system</translation>
         <translation type="obsolete">Mappings</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1883"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1964"/>
         <source>&amp;New</source>
         <translation type="unfinished">&amp;New</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1886"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1967"/>
         <source>Create a new project</source>
         <translation type="unfinished">Create a new project</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1893"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1974"/>
         <source>&amp;Open…</source>
         <translation type="unfinished">&amp;Open…</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1896"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1977"/>
         <source>Open an existing project</source>
         <translation type="unfinished">Open an existing project</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1903"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1984"/>
         <source>&amp;Save</source>
         <translation type="unfinished">&amp;Save</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1906"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1987"/>
         <source>Save the project</source>
         <translation type="unfinished">Save the project</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1913"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1994"/>
         <source>Save &amp;As…</source>
         <translation type="unfinished">Save &amp;As…</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1916"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1997"/>
         <source>Save the project as…</source>
         <translation type="unfinished">Save the project as…</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1944"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2025"/>
         <source>No Recents Videos</source>
         <translation type="unfinished">No Recents Videos</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1949"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2030"/>
         <source>&amp;Import Media File…</source>
         <translation type="unfinished">&amp;Import Media File…</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1952"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2033"/>
         <source>Import a video or image file…</source>
         <translation type="unfinished">Import a video or image file…</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1959"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2040"/>
         <source>Open &amp;Camera Device…</source>
         <translation type="unfinished">Open &amp;Camera Device…</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1963"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2044"/>
         <source>Choose your camera device…</source>
         <translation type="unfinished">Choose your camera device…</translation>
     </message>
@@ -1695,32 +1701,32 @@ No camera available in your system</translation>
         <translation type="obsolete">Add a color paint...</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1991"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2072"/>
         <source>E&amp;xit</source>
         <translation type="unfinished">E&amp;xit</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1993"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2074"/>
         <source>Exit the application</source>
         <translation type="unfinished">Exit the application</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2000"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2081"/>
         <source>&amp;Undo</source>
         <translation type="unfinished">&amp;Undo</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2007"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2088"/>
         <source>&amp;Redo</source>
         <translation type="unfinished">&amp;Redo</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2014"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2095"/>
         <source>&amp;About MapMap</source>
         <translation type="unfinished">&amp;About MapMap</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2015"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2096"/>
         <source>Show the application&apos;s About box</source>
         <translation type="unfinished">Show the application&apos;s About box</translation>
     </message>
@@ -1733,7 +1739,7 @@ No camera available in your system</translation>
         <translation type="obsolete">Duplicate item</translation>
     </message>
     <message>
-        <source>Delete mapping</source>
+        <source>Delete layer</source>
         <translation type="obsolete">Delete mapping</translation>
     </message>
     <message>
@@ -1749,7 +1755,7 @@ No camera available in your system</translation>
         <translation type="obsolete">Rename item</translation>
     </message>
     <message>
-        <source>Lock mapping</source>
+        <source>Lock layer</source>
         <translation type="obsolete">Lock mapping</translation>
     </message>
     <message>
@@ -1765,7 +1771,7 @@ No camera available in your system</translation>
         <translation type="obsolete">Hide mapping item</translation>
     </message>
     <message>
-        <source>Solo mapping</source>
+        <source>Solo layer</source>
         <translation type="obsolete">Solo mapping</translation>
     </message>
     <message>
@@ -1777,12 +1783,12 @@ No camera available in your system</translation>
         <translation type="obsolete">Delete paint</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2188"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2269"/>
         <source>&amp;Preferences…</source>
         <translation type="unfinished">&amp;Preferences…</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2191"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2272"/>
         <source>Configure preferences…</source>
         <translation type="unfinished">Configure preferences…</translation>
     </message>
@@ -1811,14 +1817,14 @@ No camera available in your system</translation>
         <translation type="obsolete">Add ellipse</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2234"/>
-        <location filename="../src/gui/MainWindow.cpp" line="2237"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2315"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2318"/>
         <source>Play</source>
         <translation type="unfinished">Play</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2245"/>
-        <location filename="../src/gui/MainWindow.cpp" line="2248"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2327"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2330"/>
         <source>Pause</source>
         <translation type="unfinished">Pause</translation>
     </message>
@@ -1827,22 +1833,22 @@ No camera available in your system</translation>
         <translation type="obsolete">Rewind</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2266"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2348"/>
         <source>Toggle &amp;Fullscreen</source>
         <translation type="unfinished">Toggle &amp;Fullscreen</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2269"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2351"/>
         <source>Toggle Fullscreen</source>
         <translation type="unfinished">Toggle Fullscreen</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2288"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2370"/>
         <source>&amp;Display Controls</source>
         <translation type="unfinished">&amp;Display Controls</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2291"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2373"/>
         <source>Display canvas controls</source>
         <translation type="unfinished">Display canvas controls</translation>
     </message>
@@ -1855,126 +1861,126 @@ No camera available in your system</translation>
         <translation type="obsolete">Display all canvas controls related to current paint</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2317"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2399"/>
         <source>&amp;Sticky Vertices</source>
         <translation type="unfinished">&amp;Sticky Vertices</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2320"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2402"/>
         <source>Enable sticky vertices</source>
         <translation type="unfinished">Enable sticky vertices</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2329"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2411"/>
         <source>Show &amp;Test Signal</source>
         <translation type="unfinished">Show &amp;Test Signal</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2332"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2414"/>
         <source>Show Test signal</source>
         <translation type="unfinished">Show Test signal</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2361"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2443"/>
         <source>Display &amp;Undo History</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2371"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2453"/>
         <source>Open Conso&amp;le</source>
         <translation type="unfinished">Open Conso&amp;le</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2382"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2464"/>
         <source>Display &amp;Zoom Toolbar</source>
         <translation type="unfinished">Display &amp;Zoom Toolbar</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2392"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2474"/>
         <source>&amp;Menu Bar</source>
         <translation type="unfinished">&amp;Menu Bar</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2399"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2481"/>
         <source>Main Layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2403"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2485"/>
         <source>Switch to the Main layout.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2428"/>
-        <location filename="../src/gui/MainWindow.cpp" line="2430"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2510"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2512"/>
         <source>Zoom In</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2435"/>
-        <location filename="../src/gui/MainWindow.cpp" line="2437"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2518"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2520"/>
         <source>Zoom Out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2442"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2525"/>
         <source>Original Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2444"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2527"/>
         <source>Reset zoom to original size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2449"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2532"/>
         <source>Fit To View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2450"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2533"/>
         <source>Fit to viewport</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2457"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2540"/>
         <source>Report an issue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2471"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2554"/>
         <source>Submit feedback via email</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2578"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2661"/>
         <source>&amp;View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2592"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2675"/>
         <source>&amp;Output screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3057"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3155"/>
         <source> - Primary</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3210"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3308"/>
         <source>Color source added</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3618"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3728"/>
         <source>Unable to use file %1.
 The original file is not found. Please locate.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3625"/>
-        <location filename="../src/gui/MainWindow.cpp" line="3633"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3735"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3743"/>
         <source>Locate file %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1987,27 +1993,27 @@ The original file is not found. Please locate.</source>
         <translation type="obsolete">Technical Support</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2468"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2551"/>
         <source>Documentation</source>
         <translation type="unfinished">Documentation</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2506"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2589"/>
         <source>&amp;File</source>
         <translation type="unfinished">&amp;File</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2521"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2604"/>
         <source>Open Recents Projects</source>
         <translation type="unfinished">Open Recents Projects</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2528"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2611"/>
         <source>Open Recents Videos</source>
         <translation type="unfinished">Open Recents Videos</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2539"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2622"/>
         <source>&amp;Edit</source>
         <translation type="unfinished">&amp;Edit</translation>
     </message>
@@ -2032,7 +2038,7 @@ The original file is not found. Please locate.</source>
         <translation type="obsolete">&amp;Tools</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2601"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2684"/>
         <source>&amp;Window</source>
         <translation type="unfinished">&amp;Window</translation>
     </message>
@@ -2041,366 +2047,366 @@ The original file is not found. Please locate.</source>
         <translation type="obsolete">Toolbars</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1704"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1785"/>
         <source>Remove this source and all its associated layers?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1776"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1857"/>
         <source>Input Editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1792"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1873"/>
         <source>Output Editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1839"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1920"/>
         <source>Library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1840"/>
+        <location filename="../src/gui/MainWindow.cpp" line="1921"/>
         <source>Layers</source>
         <translation type="unfinished">Layers</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1969"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2050"/>
         <source>Add &amp;Color Source…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1972"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2053"/>
         <source>Add a color source…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1980"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2061"/>
         <source>Add &amp;Syphon Source…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="1983"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2064"/>
         <source>Receive live video from another application via Syphon…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2022"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2103"/>
         <source>Duplicate Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2024"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2105"/>
         <source>Duplicate layer item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2032"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2113"/>
         <source>Delete Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2034"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2115"/>
         <source>Delete layer item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2042"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2123"/>
         <source>Rename Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2044"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2125"/>
         <source>Rename layer item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2052"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2133"/>
         <source>Lock Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2053"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2134"/>
         <source>Lock layer item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2063"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2144"/>
         <source>Hide Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2064"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2145"/>
         <source>Hide layer item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2074"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2155"/>
         <source>Solo Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2075"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2156"/>
         <source>Solo layer item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2085"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2166"/>
         <source>Rotate 90° CW</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2087"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2168"/>
         <source>Rotate 90° clockwise. In the input view, rotates the image inside the layer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2094"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2175"/>
         <source>Rotate 90° CCW</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2096"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2177"/>
         <source>Rotate 90° counterclockwise. In the input view, rotates the image inside the layer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2103"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2184"/>
         <source>Rotate 180°</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2104"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2185"/>
         <source>Rotate 180°. In the input view, rotates the image inside the layer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2111"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2192"/>
         <source>Flip Horizontally</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2113"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2194"/>
         <source>Flip horizontally. In the input view, flips the image inside the layer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2120"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2201"/>
         <source>Flip Vertically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2122"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2203"/>
         <source>Flip vertically. In the input view, flips the image inside the layer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2128"/>
-        <location filename="../src/gui/MainWindow.cpp" line="2130"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2209"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2211"/>
         <source>Raise</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2136"/>
-        <location filename="../src/gui/MainWindow.cpp" line="2138"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2217"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2219"/>
         <source>Lower</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2144"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2225"/>
         <source>Raise to Top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2146"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2227"/>
         <source>Raise to top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2152"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2233"/>
         <source>Lower to Bottom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2154"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2235"/>
         <source>Lower to bottom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2161"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2242"/>
         <source>Delete Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2163"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2244"/>
         <source>Delete source item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2171"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2252"/>
         <source>Rename Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2173"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2254"/>
         <source>Rename source item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2181"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2262"/>
         <source>Import New Media</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2182"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2263"/>
         <source>Import new media file if not exists on the list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2200"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2281"/>
         <source>Add &amp;Mesh Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2203"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2284"/>
         <source>Add mesh layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2211"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2292"/>
         <source>Add &amp;Triangle Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2214"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2295"/>
         <source>Add triangle layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2222"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2303"/>
         <source>Add &amp;Ellipse Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2225"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2306"/>
         <source>Add ellipse layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2256"/>
-        <location filename="../src/gui/MainWindow.cpp" line="2259"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2338"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2341"/>
         <source>Restart</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2302"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2384"/>
         <source>&amp;Display Controls of Layers of a Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2305"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2387"/>
         <source>Display all canvas controls related to current source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2345"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2427"/>
         <source>&amp;Publish Syphon Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2346"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2428"/>
         <source>Publish the output composition as a Syphon server other apps can receive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2407"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2489"/>
         <source>Input editor Layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2410"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2492"/>
         <source>Switch to the Input editor Layout.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2414"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2496"/>
         <source>Output Editor Layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2417"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2499"/>
         <source>Switch to the Output Editors Layout.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2460"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2543"/>
         <source>Professional services &amp;&amp; custom development…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2461"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2544"/>
         <source>Hire Art Plus Code for video mapping installations, custom features, integration and training</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2464"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2547"/>
         <source>Support the project (donate)…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2465"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2548"/>
         <source>Help fund MapMap&apos;s ongoing development</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2474"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2557"/>
         <source>&amp;Keyboard shortcuts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2478"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2561"/>
         <source>Welcome to %1…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2625"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2708"/>
         <source>&amp;Help</source>
         <translation type="unfinished">&amp;Help</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2655"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2738"/>
         <source>Change Layer Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2710"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2793"/>
         <source>&amp;Toolbar</source>
         <translation type="unfinished">&amp;Toolbar</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2866"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2949"/>
         <source>The document has been modified.
 Do you want to save your changes?</source>
         <translation type="unfinished">The document has been modified.
 Do you want to save your changes?</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2888"/>
-        <location filename="../src/gui/MainWindow.cpp" line="2902"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2971"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3000"/>
         <source>Error reading mapping project file</source>
         <translation type="unfinished">Error reading mapping project file</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2889"/>
-        <location filename="../src/gui/MainWindow.cpp" line="3157"/>
+        <location filename="../src/gui/MainWindow.cpp" line="2972"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3255"/>
         <source>Cannot read file %1:
 %2.</source>
         <translation type="unfinished">Cannot read file %1:
 %2.</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2903"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3001"/>
         <source>Parse error in file %1:
 
 %2</source>
@@ -2409,73 +2415,73 @@ Do you want to save your changes?</translation>
 %2</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2910"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3008"/>
         <source>File loaded</source>
         <translation type="unfinished">File loaded</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2924"/>
-        <location filename="../src/gui/MainWindow.cpp" line="2939"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3022"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3037"/>
         <source>Error saving mapping project</source>
         <translation type="unfinished">Error saving mapping project</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2925"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3023"/>
         <source>Cannot write file %1:
 %2.</source>
         <translation type="unfinished">Cannot write file %1:
 %2.</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2940"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3038"/>
         <source>Cannot rename temporary file to %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2945"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3043"/>
         <source>File saved</source>
         <translation type="unfinished">File saved</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2961"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3059"/>
         <source>Untitled</source>
         <translation type="unfinished">Untitled</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2976"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3074"/>
         <source>%1[*] - %2</source>
         <translation type="unfinished">%1[*] - %2</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2976"/>
-        <location filename="../src/gui/MainWindow.cpp" line="3156"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3074"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3254"/>
         <source>MapMap Project</source>
         <translation type="unfinished">MapMap Project</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="2999"/>
-        <location filename="../src/gui/MainWindow.cpp" line="3031"/>
-        <location filename="../src/gui/MainWindow.cpp" line="3085"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3097"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3129"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3183"/>
         <source>&amp;%1 %2</source>
         <translation type="unfinished">&amp;%1 %2</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3016"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3114"/>
         <source>Clear List</source>
         <translation type="unfinished">Clear List</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3019"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3117"/>
         <source>No Recents Projects</source>
         <translation type="unfinished">No Recents Projects</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3052"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3150"/>
         <source>%1 - %2x%3</source>
         <translation type="unfinished">%1 - %2x%3</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3189"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3287"/>
         <source>File imported</source>
         <translation type="unfinished">File imported</translation>
     </message>
@@ -2484,17 +2490,17 @@ Do you want to save your changes?</translation>
         <translation type="obsolete">Color paint added</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3589"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3699"/>
         <source>Warning</source>
         <translation type="unfinished">Warning</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3590"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3700"/>
         <source>The following file is not supported: %1</source>
         <translation type="unfinished">The following file is not supported: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3617"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3727"/>
         <source>Cannot load movie</source>
         <translation type="unfinished">Cannot load movie</translation>
     </message>
@@ -2509,13 +2515,13 @@ The original file is not found. Will you locate?</translation>
         <translation type="obsolete">Locate file « %1 »</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3627"/>
-        <location filename="../src/gui/MainWindow.cpp" line="3635"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3737"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3745"/>
         <source>%1 files (%2)</source>
         <translation type="unfinished">%1 files (%2)</translation>
     </message>
     <message>
-        <location filename="../src/gui/MainWindow.cpp" line="3760"/>
+        <location filename="../src/gui/MainWindow.cpp" line="3924"/>
         <source>Undo history</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2528,17 +2534,17 @@ The original file is not found. Will you locate?</translation>
         <translation type="unfinished">Enlarge the shape</translation>
     </message>
     <message>
-        <location filename="../src/gui/MapperGLCanvasToolbar.cpp" line="66"/>
+        <location filename="../src/gui/MapperGLCanvasToolbar.cpp" line="68"/>
         <source>Shrink the shape</source>
         <translation type="unfinished">Shrink the shape</translation>
     </message>
     <message>
-        <location filename="../src/gui/MapperGLCanvasToolbar.cpp" line="74"/>
+        <location filename="../src/gui/MapperGLCanvasToolbar.cpp" line="76"/>
         <source>Reset the shape to the normal size</source>
         <translation type="unfinished">Reset the shape to the normal size</translation>
     </message>
     <message>
-        <location filename="../src/gui/MapperGLCanvasToolbar.cpp" line="82"/>
+        <location filename="../src/gui/MapperGLCanvasToolbar.cpp" line="84"/>
         <source>Fit the shape to content view</source>
         <translation type="unfinished">Fit the shape to content view</translation>
     </message>
@@ -2546,19 +2552,19 @@ The original file is not found. Will you locate?</translation>
 <context>
     <name>mmp::MappingItemDelegate</name>
     <message>
-        <source>Solo mapping</source>
+        <source>Solo layer</source>
         <translation type="obsolete">Solo mapping</translation>
     </message>
     <message>
-        <source>Lock mapping</source>
+        <source>Lock layer</source>
         <translation type="obsolete">Lock mapping</translation>
     </message>
     <message>
-        <source>Duplicate mapping</source>
+        <source>Duplicate layer</source>
         <translation type="obsolete">Duplicate mapping</translation>
     </message>
     <message>
-        <source>Delete mapping</source>
+        <source>Delete layer</source>
         <translation type="obsolete">Delete mapping</translation>
     </message>
 </context>
@@ -2583,42 +2589,42 @@ The original file is not found. Will you locate?</translation>
         <translation type="unfinished">Preferences</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="204"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="229"/>
         <source>Large</source>
         <translation type="unfinished">Large</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="205"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="230"/>
         <source>Medium</source>
         <translation type="unfinished">Medium</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="206"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="231"/>
         <source>Small</source>
         <translation type="unfinished">Small</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="210"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="235"/>
         <source>Language (requires restart)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="214"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="239"/>
         <source>Toolbar icon size (requires restart)</source>
         <translation type="unfinished">Toolbar icon size (requires restart)</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="216"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="241"/>
         <source>Show the welcome dialog at startup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="232"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="257"/>
         <source>Enable Sticky vertices</source>
         <translation type="unfinished">Enable Sticky vertices</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="245"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="270"/>
         <source>Sensitivity</source>
         <translation type="unfinished">Sensitivity</translation>
     </message>
@@ -2631,7 +2637,7 @@ The original file is not found. Will you locate?</translation>
         <translation type="obsolete">Vertex</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="362"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="387"/>
         <source>Listen to OSC messages</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2640,7 +2646,7 @@ The original file is not found. Will you locate?</translation>
         <translation type="obsolete">Shape</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="468"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="523"/>
         <source>Layers</source>
         <translation type="unfinished">Layers</translation>
     </message>
@@ -2649,17 +2655,17 @@ The original file is not found. Will you locate?</translation>
         <translation type="obsolete">Show resolution on output</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="284"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="309"/>
         <source>Classic test card</source>
         <translation type="unfinished">Classic test card</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="285"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="310"/>
         <source>PAL test card</source>
         <translation type="unfinished">PAL test card</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="286"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="311"/>
         <source>NTSC test card</source>
         <translation type="unfinished">NTSC test card</translation>
     </message>
@@ -2680,107 +2686,117 @@ The original file is not found. Will you locate?</translation>
         <translation type="obsolete">Listen OSC messages</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="247"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="272"/>
         <source>Vertices</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="273"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="298"/>
         <source>Only show output controls on mouse over</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="278"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="303"/>
         <source>Output Layers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="282"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="307"/>
         <source>Show resolution on output test cards</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="315"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="340"/>
         <source>Test Card</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="369"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="394"/>
         <source>Allow message with existing media source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="371"/>
-        <source>When off (the default), an OSC message that sets a paint&apos;s media to the file it already uses is ignored, so repeated messages don&apos;t reload — and restart — the same video. Turn it on to reload the media anyway, for example to restart a clip from the beginning over OSC.</source>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="396"/>
+        <source>When off (the default), an OSC message that sets a source&apos;s media to the file it already uses is ignored, so repeated messages don&apos;t reload — and restart — the same video. Turn it on to reload the media anyway, for example to restart a clip from the beginning over OSC.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="377"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="402"/>
         <source>Accept OSC from the network (less secure)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="379"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="404"/>
         <source>When off, OSC is only reachable from this computer (127.0.0.1). Enable only on a trusted show network — OSC has no authentication.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="382"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="407"/>
         <source>Allow OSC to quit the application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="384"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="409"/>
         <source>When off, the /mapmap/quit OSC command is ignored so a remote sender cannot close the application during a show.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="389"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="414"/>
         <source>on port</source>
         <translation type="unfinished">on port</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="392"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="417"/>
         <source>Refresh</source>
         <translation type="unfinished">Refresh</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="402"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="427"/>
         <source>Local IP</source>
         <translation type="unfinished">Local IP</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="416"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="441"/>
         <source>OSC Setup</source>
         <translation type="unfinished">OSC Setup</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="425"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="450"/>
         <source>Disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="429"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="454"/>
         <source>MCP port (0 to disable)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="437"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="462"/>
         <source>MCP Setup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="451"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="476"/>
         <source>Play in loop (requires restart)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="459"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="484"/>
+        <source>Custom...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="506"/>
+        <source>Frame rate (frames per second)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="514"/>
         <source>Playback</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="465"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="520"/>
         <source>Interface</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2789,17 +2805,17 @@ The original file is not found. Will you locate?</translation>
         <translation type="obsolete">Mapping &amp; Shape</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="471"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="526"/>
         <source>Output</source>
         <translation type="unfinished">Output</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="474"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="529"/>
         <source>Controls</source>
         <translation type="unfinished">Controls</translation>
     </message>
     <message>
-        <location filename="../src/gui/PreferenceDialog.cpp" line="477"/>
+        <location filename="../src/gui/PreferenceDialog.cpp" line="532"/>
         <source>Advanced</source>
         <translation type="unfinished">Advanced</translation>
     </message>
@@ -2944,7 +2960,7 @@ The original file is not found. Will you locate?</translation>
         <location filename="../src/gui/WelcomeDialog.cpp" line="44"/>
         <source>MapMap projects video and images onto real surfaces.
 
-To get started, import a media file to create a paint, then add a shape to project it onto.</source>
+To get started, import a media file to create a source, then add a shape to project it onto.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

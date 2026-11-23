@@ -97,7 +97,7 @@ void LayerItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
       mappingSoloButton.icon = QIcon(":/solo-mapping");
       mappingSoloButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
-      mappingSoloButton.text = tr("Solo mapping");
+      mappingSoloButton.text = tr("Solo layer");
       //TODO: show tooltip
       //mappingSoloButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
@@ -109,7 +109,7 @@ void LayerItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
       mappingLockButton.icon = QIcon(":/lock-mapping");
       mappingLockButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
-      mappingLockButton.text = tr("Lock mapping");
+      mappingLockButton.text = tr("Lock layer");
       //TODO: show tooltip
       //mappingLockButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
@@ -121,7 +121,7 @@ void LayerItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
       mappingDuplicateButton.icon = QIcon(":/duplicate-mapping");
       mappingDuplicateButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
-      mappingDuplicateButton.text = tr("Duplicate mapping");
+      mappingDuplicateButton.text = tr("Duplicate layer");
       //TODO: show tooltip
       //mappingDuplicateButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
@@ -133,7 +133,7 @@ void LayerItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
       mappingDeleteButton.icon = QIcon(":/delete-mapping");
       mappingDeleteButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
-      mappingDeleteButton.text = tr("Delete mapping");
+      mappingDeleteButton.text = tr("Delete layer");
       //TODO: show tooltip
       //mappingDeleteButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
