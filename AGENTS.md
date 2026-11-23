@@ -1,6 +1,6 @@
 # AGENTS.md — working in the MapMap repository
 
-Instructions for coding agents, and a quick start for new contributors. Human-oriented details are in `CONTRIBUTING.md` and `INSTALL.md`; where they disagree with this file, this file is more recent.
+Instructions for coding agents, and a quick start for new contributors. Human-oriented details are in `CONTRIBUTING.md` and `INSTALL.md`.
 
 ## The project
 
@@ -110,8 +110,8 @@ The same commands run on macOS, Ubuntu and Windows for every pull request. A pul
 
 ## Outdated files
 
-- `CONTRIBUTING.md` still mentions the `develop` branch and a `NEWS` file. The base branch is `dev`, and release notes are in `CHANGELOG.md`.
+- `VERSION.txt` still says 0.6.3 and is no longer read by anything. The version is in `mapmap.pro`.
 
-- `scripts/build.sh` and `scripts/run.sh` date from Qt 5 and no longer work as written.
+- `docs/manual/manual_en.rst` describes MapMap as it was in 2014.
 
-- `VERSION.txt` still says 0.6.3.
+- `docs/informations/CHANGELOG.html`, `CONTRIBUTORS.html` and `osc.html` are leftovers: the software reads the Markdown files.
