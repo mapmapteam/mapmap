@@ -54,7 +54,15 @@ struct OscAction {
     LayerMove,       ///< Absolute: move the output shape so its center is (x, y).
     LayerTranslate,  ///< Relative: translate the output shape by (x, y).
     LayerVertex,     ///< Set one vertex of the input or output shape.
+    LayerFlip,       ///< Flip the output shape, or the image inside it (input shape).
+    LayerRotate,     ///< Turn the output shape, or the image inside it (input shape).
   };
+
+  /// Direction of a LayerFlip.
+  enum FlipDirection { FlipHorizontal, FlipVertical };
+
+  /// Amount of a LayerRotate (clockwise on screen).
+  enum Turn { Turn90CW, Turn90CCW, Turn180 };
 
   /// Which shape of a layer a vertex/move command applies to.
   enum ShapeRole {
@@ -80,6 +88,10 @@ struct OscAction {
   int       vertexIndex = -1;
   double    x = 0.0;
   double    y = 0.0;
+
+  // --- Payload for LayerFlip / LayerRotate (shapeRole selects the shape). ---
+  FlipDirection flipDirection = FlipHorizontal;
+  Turn          turn = Turn90CW;
 
   // Human-readable reason, set when type == Invalid (for verbose logging / tests).
   QString error;

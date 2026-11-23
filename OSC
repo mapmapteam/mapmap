@@ -85,6 +85,13 @@ Layers
   /mapmap/layer/vertex/xy             ,iiff     <target> <index> <x> <y> Set a destination-shape vertex.
   /mapmap/layer/vertex/destination/xy ,iiff     <target> <index> <x> <y> Same, explicit.
   /mapmap/layer/vertex/source/xy      ,iiff     <target> <index> <x> <y> Set a source-shape vertex (texture layers).
+  /mapmap/layer/flip/horizontal       ,i|s      <target>                 Flip the destination shape (also /vertical).
+  /mapmap/layer/flip/source/horizontal ,i|s     <target>                 Flip the image inside the layer; the shape stays put (also /vertical).
+  /mapmap/layer/rotate/cw             ,i|s      <target>                 Rotate the destination shape 90° clockwise (also /ccw, /180).
+  /mapmap/layer/rotate/source/cw      ,i|s      <target>                 Rotate the image inside the layer; the shape stays put (also /ccw, /180).
+
+``flip`` and ``rotate`` also accept an explicit ``/destination`` in place of
+``/source``. They do the same as the Edit menu commands of the same name.
 
 Settable layer properties (``<prop>``):
 

@@ -257,6 +257,8 @@ bool OscInterface::applyAction(MainWindow &main_window, const OscAction& action)
   case OscAction::LayerMove:
   case OscAction::LayerTranslate:
   case OscAction::LayerVertex:
+  case OscAction::LayerFlip:
+  case OscAction::LayerRotate:
   {
     bool handled = false;
     for (Layer::ptr layer : resolveLayers(manager, action))
@@ -298,6 +300,30 @@ bool OscInterface::applyAction(MainWindow &main_window, const OscAction& action)
           handled = true;
         }
         break;
+      case OscAction::LayerFlip:
+      {
+        // Same transforms as the Edit menu commands (see FlipShapeCommand).
+        const MShape::FlipDirection direction = (action.flipDirection == OscAction::FlipHorizontal)
+            ? MShape::Horizontal : MShape::Vertical;
+        shape->applyTransform(action.shapeRole == OscAction::InputShape
+                              ? shape->imageFlipTransform(direction)
+                              : shape->flipTransform(direction));
+        handled = true;
+        break;
+      }
+      case OscAction::LayerRotate:
+      {
+        MShape::Rotation rotation = MShape::Rotate180;
+        if (action.turn == OscAction::Turn90CW)
+          rotation = MShape::Rotate90CW;
+        else if (action.turn == OscAction::Turn90CCW)
+          rotation = MShape::Rotate90CCW;
+        shape->applyTransform(action.shapeRole == OscAction::InputShape
+                              ? shape->imageRotateTransform(rotation)
+                              : shape->rotateTransform(rotation));
+        handled = true;
+        break;
+      }
       default:
         break;
       }

@@ -146,3 +146,56 @@ void TestOsc::ignoresLeadingAndDoubleSlashes()
   QCOMPARE(typeOf(parseOscAction("mapmap/play", {})),    int(OscAction::PlayAll));
   QCOMPARE(typeOf(parseOscAction("//mapmap//play", {})), int(OscAction::PlayAll));
 }
+
+void TestOsc::parsesLayerFlip()
+{
+  OscAction h = parseOscAction("/mapmap/layer/flip/horizontal", { 3 });
+  QCOMPARE(typeOf(h), int(OscAction::LayerFlip));
+  QCOMPARE(h.id, 3);
+  QCOMPARE(int(h.flipDirection), int(OscAction::FlipHorizontal));
+  // Without source/destination, the output shape is flipped.
+  QCOMPARE(int(h.shapeRole), int(OscAction::OutputShape));
+
+  OscAction v = parseOscAction("/mapmap/layer/flip/destination/vertical", { 3 });
+  QCOMPARE(typeOf(v), int(OscAction::LayerFlip));
+  QCOMPARE(int(v.flipDirection), int(OscAction::FlipVertical));
+  QCOMPARE(int(v.shapeRole), int(OscAction::OutputShape));
+
+  // "source" flips the image inside the layer.
+  OscAction img = parseOscAction("/mapmap/mapping/flip/source/horizontal", { QString("toy-*") });
+  QCOMPARE(typeOf(img), int(OscAction::LayerFlip));
+  QVERIFY(img.selectByName);
+  QCOMPARE(img.name, QString("toy-*"));
+  QCOMPARE(int(img.shapeRole), int(OscAction::InputShape));
+}
+
+void TestOsc::parsesLayerRotate()
+{
+  OscAction cw = parseOscAction("/mapmap/layer/rotate/cw", { 2 });
+  QCOMPARE(typeOf(cw), int(OscAction::LayerRotate));
+  QCOMPARE(cw.id, 2);
+  QCOMPARE(int(cw.turn), int(OscAction::Turn90CW));
+  QCOMPARE(int(cw.shapeRole), int(OscAction::OutputShape));
+
+  OscAction ccw = parseOscAction("/mapmap/layer/rotate/source/ccw", { 2 });
+  QCOMPARE(typeOf(ccw), int(OscAction::LayerRotate));
+  QCOMPARE(int(ccw.turn), int(OscAction::Turn90CCW));
+  QCOMPARE(int(ccw.shapeRole), int(OscAction::InputShape));
+
+  OscAction half = parseOscAction("/mapmap/layer/rotate/180", { 2 });
+  QCOMPARE(typeOf(half), int(OscAction::LayerRotate));
+  QCOMPARE(int(half.turn), int(OscAction::Turn180));
+}
+
+void TestOsc::rejectsMalformedFlipAndRotate()
+{
+  // Missing target.
+  QCOMPARE(typeOf(parseOscAction("/mapmap/layer/flip/horizontal", {})), int(OscAction::Invalid));
+  // Unknown direction or amount.
+  QCOMPARE(typeOf(parseOscAction("/mapmap/layer/flip/diagonal", { 1 })), int(OscAction::Invalid));
+  QCOMPARE(typeOf(parseOscAction("/mapmap/layer/rotate/45", { 1 })), int(OscAction::Invalid));
+  // Unknown shape role.
+  QCOMPARE(typeOf(parseOscAction("/mapmap/layer/flip/middle/horizontal", { 1 })), int(OscAction::Invalid));
+  // No direction at all.
+  QCOMPARE(typeOf(parseOscAction("/mapmap/layer/rotate", { 1 })), int(OscAction::Invalid));
+}

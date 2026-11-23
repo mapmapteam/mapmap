@@ -31,7 +31,11 @@ Adjust opacity: `/mapmap/mapping/opacity ,if <id> <opacity>`
 Set visibility status: `/mapmap/mapping/visible ,ii <id> <visible>`  
 Set solo status: `/mapmap/mapping/solo ,ii <id> <solo>`  
 Set lock status: `/mapmap/mapping/locked ,ii <id> <locked>`  
-Adjust depth (layer order): `/mapmap/mapping/depth ,ii <id> <depth>`
+Adjust depth (layer order): `/mapmap/mapping/depth ,ii <id> <depth>`  
+Flip the shape: `/mapmap/mapping/flip/horizontal ,i <id>` (or `/vertical`)  
+Rotate the shape by a quarter or half turn: `/mapmap/mapping/rotate/cw ,i <id>` (or `/ccw`, `/180`)  
+Flip the image inside the shape, without moving it: `/mapmap/mapping/flip/source/horizontal ,i <id>` (or `/vertical`)  
+Rotate the image inside the shape, without moving it: `/mapmap/mapping/rotate/source/cw ,i <id>` (or `/ccw`, `/180`)
 
 ## Regular expressions
 
