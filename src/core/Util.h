@@ -86,6 +86,13 @@ Mesh* createMeshForColor(int frameWidth, int frameHeight);
 Triangle* createTriangleForColor(int frameWidth, int frameHeight);
 Ellipse* createEllipseForColor(int frameWidth, int frameHeight);
 
+/**
+ * Moves a shape to the middle of an area. A shape larger than the area is first
+ * made smaller, with the same proportions, so that all of it is inside. A shape
+ * that fits keeps its size.
+ */
+void placeShapeInArea(MShape* shape, const QRectF& area);
+
 void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool major, bool selected, bool locked, MShape::ShapeMode shapeMode, qreal radius = MM::VERTEX_SELECT_RADIUS, qreal strokeWidth = MM::VERTEX_SELECT_STROKE_WIDTH);
 
 /**

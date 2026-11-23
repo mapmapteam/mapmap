@@ -24,6 +24,9 @@ private slots:
   void mapInt();
   void isNumeric();
   void fileExistsAndErase();
+  void placeLargeShapeInArea();
+  void placeSmallShapeInArea();
+  void placeShapeInEmptyArea();
 };
 
 #endif /* TEST_UTIL_H_ */

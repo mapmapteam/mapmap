@@ -55,6 +55,12 @@ public:
   MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* parent = 0, QOpenGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
   virtual ~MapperGLCanvas() {}
 
+  /**
+   * Returns true if this canvas is an editor of the output, which shows the
+   * frame of the output screen. The output itself does not.
+   */
+  virtual bool showsOutputFrame() const { return isOutput(); }
+
   /// Returns shape associated with mapping id.
   virtual bool isOutput() const { return _isOutput; }
 
@@ -68,6 +74,9 @@ public:
 
   // Draws foreground (displays crosshair if needed).
   void drawForeground(QPainter *painter , const QRectF &rect);
+
+  // Draws background (shows what is outside of the output screen).
+  void drawBackground(QPainter *painter, const QRectF &rect);
 
   /**
    * Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
@@ -145,6 +154,9 @@ private:
   // Last point pressed (in mouse/window coordinates).
   QPoint _mousePressedPosition;
 
+  // Last position of the mouse (in mouse/window coordinates).
+  QPoint _lastMousePosition;
+
   // Start position of last object grabbed (in scene coordinates).
   QPointF _grabbedObjectStartScenePosition;
 
@@ -181,6 +193,22 @@ private:
 
   bool _shapeIsAdapted;
 
+  // True until the user zooms or moves the view: the whole output screen is
+  // kept visible (output editor only).
+  bool _followsOutput;
+
+  // Shows the whole area in the view, and zooms accordingly.
+  void _fitArea(const QRectF& area);
+
+  // Scrolls the view (in pixels).
+  void _scrollBy(const QPoint& distance);
+
+  // Area of the output screen, in scene coordinates.
+  QRectF _outputRect() const;
+
+  // Draws the frame of the output screen, with its size.
+  void _drawOutputFrame(QPainter* painter);
+
   // Pointer to MainWindow UndoStack
   QUndoStack *undoStack;
 
@@ -209,10 +237,17 @@ public slots:
   void decreaseZoomLevel(int steps=1);
   void resetZoomLevel();
   void fitShapeToView();
+
+  /// Called when the size of the output changes, or the scene grows: updates
+  /// the area that can be scrolled to, and keeps the output visible.
+  void updateOutputArea();
   // Set zoom factor with drowmenu data
   void setZoomFromMenu(const QString& text);
 
 protected:
+  void resizeEvent(QResizeEvent* event);
+  void leaveEvent(QEvent* event);
+
   // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
   void _snapVertex(QPointF* p);
 

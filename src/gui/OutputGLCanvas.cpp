@@ -22,8 +22,7 @@
 #include "OutputGLCanvas.h"
 #include "MainWindow.h"
 
-#include <QGuiApplication>
-#include <QScreen>
+#include <QCursor>
 #include <QOpenGLWidget>
 
 namespace mmp {
@@ -38,12 +37,15 @@ OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, QOpenGLW
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
+  // No frame around the view: it would shift the output by its width.
+  setFrameShape(QFrame::NoFrame);
+
   setSceneRectToViewportGeometry();
 }
 
 void OutputGLCanvas::setSceneRectToViewportGeometry()
 {
-  setSceneRect(viewport()->geometry());
+  setSceneRect(QRectF(viewport()->rect()));
 }
 
 void OutputGLCanvas::setSyphonOutputEnabled(bool on)
@@ -123,19 +125,9 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     // Display crosshair cursor.
     if (_displayCrosshair)
     {
-#ifdef Q_OS_MACOS
-      QPoint globalCursorPos = QCursor::pos();
-      QScreen* mouseScreenPtr = QGuiApplication::screenAt(globalCursorPos);
-      QRect mouseScreenGeometry = mouseScreenPtr ? mouseScreenPtr->geometry() : QRect();
-      QPoint localCursorPos = globalCursorPos - mouseScreenGeometry.topLeft();
-      QPointF cursorPosition = mapToScene(localCursorPos);
-//      qDebug() << "Cursor pos " << globalCursorPos << " " << cursorPosition << " " << localCursorPos << mouseScreen << endl;
-      if (rect.contains(cursorPosition) && getMainWindow()->getPreferredScreen() == QGuiApplication::screens().indexOf(mouseScreenPtr))
-//      qDebug() << "Cursor pos " << mapToScene(mapFromGlobal(QCursor::pos(QApplication::screens()[1])));
-#else
-      QPointF cursorPosition = mapToScene(mapFromGlobal(cursor().pos()));// - rect.topLeft();//(QCursor::pos());///*this->mapFromGlobal(*/QCursor::pos()/*)*/;
+      // Where a click would be received, so that the crosshair shows it.
+      const QPointF cursorPosition = mapToScene(viewport()->mapFromGlobal(QCursor::pos()));
       if (rect.contains(cursorPosition))
-#endif
       {
 //        painter->setPen(MM::CONTROL_COLOR);
 //        painter->drawLine(cursorPosition.x(), rect.y(), cursorPosition.x(), rect.height());
@@ -164,7 +156,7 @@ void OutputGLCanvas::enterEvent(QEnterEvent *event)
 void OutputGLCanvas::leaveEvent(QEvent *event)
 {
   _windowIsHovered = false;
-  QGraphicsView::leaveEvent(event);
+  MapperGLCanvas::leaveEvent(event);
 }
 
 void OutputGLCanvas::_drawClassicTestSignal(QPainter* painter)
@@ -291,11 +283,11 @@ void OutputGLCanvas::_drawResolutionText(QPainter *painter, const QRect &rect, i
   }
 }
 
-void OutputGLCanvas::resizeGL(int width, int height)
+void OutputGLCanvas::resizeEvent(QResizeEvent* event)
 {
-  Q_UNUSED(width);
-  Q_UNUSED(height);
+  MapperGLCanvas::resizeEvent(event);
   setSceneRectToViewportGeometry();
+  emit outputResized();
 }
 
 void OutputGLCanvas::wheelEvent(QWheelEvent *event)

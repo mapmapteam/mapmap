@@ -7,6 +7,7 @@ First pre-release of MapMap 1.0. MapMap is developed again, with the support of 
 Not compatible with MapMap 0.6:
 
 - Projects are now saved as JSON files. To open a project of MapMap 0.4 to 0.6, saved as XML, convert it first with the Python script `scripts/convert-xml-project.py`. Projects of MapMap 0.3 and earlier cannot be converted.
+- The point (0, 0) is now the top left corner of the output screen. It was near its middle, so the shapes of older projects are not at the same place anymore. To move them, convert the project with the option `--output-size` of `scripts/convert-xml-project.py`, followed by the size of the screen: `--output-size 1920x1080`.
 - OSC messages now say "source" and "layer", like the interface. Replace `/mapmap/paint/...` with `/mapmap/source/...`; `/mapmap/mapping/...` still works.
 - OSC messages are only accepted from the same computer. To control MapMap from another one, enable "Accept OSC from the network" in the preferences.
 - The OSC `/mapmap/quit` message is ignored unless it is allowed in the preferences.
@@ -18,6 +19,7 @@ New:
 - Add Syphon sources on macOS, to show the output of another application.
 - Add camera sources on macOS.
 - Flip and rotate layers, or only the image inside a layer, with the menus, the keyboard or OSC.
+- Show the frame of the output screen, with its size, in the output editor. All of it is visible when MapMap starts.
 - Raise and lower layers with the menus or the keyboard.
 - Set the frame rate in the preferences (#249).
 - Control more with OSC: play and pause a single source, move a layer or one of its vertices. See the `OSC` file.
@@ -35,6 +37,10 @@ Fix:
 
 - Fix projects with a camera that could not be reopened (#542).
 - Fix the frame rate, which stayed below the requested value, and its display, which always showed 0.00.
+- Fix new shapes, which could be outside of the output screen: they are now in the middle of it, and not larger.
+- Fix the position of the mouse in the status bar, which is now in pixels of the output screen (#264).
+- Fix zooming and moving the view, which could jump to another place.
+- Fix the crosshair of the fullscreen output, which was below the point that a click reaches on a Mac with a notch.
 - Fix the center of ellipses, which was not correct in perspective (#177).
 - Fix the path of a missing media file being lost when locating it is cancelled.
 - Fix zooming with Ctrl + scroll on macOS, and with small trackpad scrolls.

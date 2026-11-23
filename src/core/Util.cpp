@@ -186,6 +186,22 @@ Ellipse* createEllipseForColor(int frameWidth, int frameHeight)
   );
 }
 
+void placeShapeInArea(MShape* shape, const QRectF& area)
+{
+  const QRectF bounds = shape->getBoundingRect();
+  if (area.isEmpty() || bounds.isEmpty())
+    return;
+
+  const qreal scaling = qMin(qreal(1), qMin(area.width() / bounds.width(),
+                                            area.height() / bounds.height()));
+
+  QVector<QPointF> vertices = shape->getVertices();
+  for (QPointF& vertex : vertices)
+    vertex = area.center() + (vertex - bounds.center()) * scaling;
+  shape->setVertices(vertices);
+  shape->build();
+}
+
 void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool major, bool selected, bool locked, MShape::ShapeMode shapeMode, qreal radius, qreal strokeWidth)
 {
   // Init colors and stroke.

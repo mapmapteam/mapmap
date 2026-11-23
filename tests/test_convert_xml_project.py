@@ -167,6 +167,53 @@ class CommandLineTest(unittest.TestCase):
     def test_original_is_never_replaced(self):
         self.assertEqual(self.run_script(self.project, "--output", self.project, "--overwrite"), 1)
 
+    def test_output_size_moves_the_output_shapes_only(self):
+        with open(self.project, "rb") as original:
+            before, _ = convert(original.read())
+        self.assertEqual(self.run_script(self.project, "--output-size", "1920x1080"), 0)
+        with open(self.converted, encoding="utf-8") as converted:
+            after = json.load(converted)
+        for old_layer, new_layer in zip(before["layers"], after["layers"]):
+            self.assertEqual(new_layer["destination"]["vertices"],
+                             [[x + 910, y + 525]
+                              for x, y in old_layer["destination"]["vertices"]])
+            self.assertEqual(new_layer.get("source"), old_layer.get("source"))
+        self.assertEqual(after["sources"], before["sources"])
+
+    def test_json_project_is_only_accepted_with_an_output_size(self):
+        shutil.copy(os.path.join(FIXTURES, "quad-image.mmp"), self.project)
+        with open(self.project, encoding="utf-8") as original:
+            before = json.load(original)
+        self.assertEqual(self.run_script(self.project), 1)
+        self.assertEqual(self.run_script(self.project, "--output-size", "1280x720"), 0)
+        with open(self.converted, encoding="utf-8") as converted:
+            after = json.load(converted)
+        x, y = before["layers"][0]["destination"]["vertices"][0]
+        self.assertEqual(after["layers"][0]["destination"]["vertices"][0], [x + 590, y + 345])
+        self.assertEqual(after["layers"][0]["source"], before["layers"][0]["source"])
+        self.assertEqual(after["sources"], before["sources"])
+
+    def test_damaged_json_project_is_refused(self):
+        for text in ("{", "{}", '{"layers": 3}', '{"layers": [{"destination": {"vertices": [1]}}]}'):
+            with open(self.project, "w") as project:
+                project.write(text)
+            self.assertEqual(self.run_script(self.project, "--output-size", "1280x720"), 1, text)
+            self.assertFalse(os.path.exists(self.converted))
+
+    def test_wrong_output_size_is_refused(self):
+        for size in ("1920", "1920x", "wide x high", "1920x1080x3", "0x0", "-1920x-1080"):
+            self.assertEqual(self.run_script(self.project, "--output-size=" + size), 2, size)
+
+    def test_warning_when_the_output_shapes_are_not_moved(self):
+        with open(self.project, "rb") as original:
+            contents = original.read()
+        warnings = []
+        CONVERTER.read_project(contents, None, warnings.append)
+        self.assertIn("--output-size", " ".join(warnings))
+        warnings = []
+        CONVERTER.read_project(contents, (1920, 1080), warnings.append)
+        self.assertEqual(warnings, [])
+
     def test_one_bad_file_does_not_stop_the_others(self):
         missing = os.path.join(self.directory, "missing.mmp")
         self.assertEqual(self.run_script(missing, self.project), 1)
