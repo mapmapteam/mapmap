@@ -109,28 +109,24 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v6
 
-    # Only the downloaded bottles are cached. Caching /opt/homebrew/Cellar is a
-    # trap: the files come back, but Homebrew's symlinks (/opt/homebrew/opt/qt
-    # and the bin/ entries) do not, so `brew --prefix qt`/bin points to a
-    # directory that does not exist and qmake is not found.
-    - name: Cache Homebrew downloads
-      uses: actions/cache@v5
+    # The Qt of the Qt Company, not that of Homebrew: its libraries, which go
+    # in the disk image, run on older versions of macOS and on Intel too.
+    - name: Install Qt 6
+      uses: jurplel/install-qt-action@v4
       with:
-        path: ~/Library/Caches/Homebrew/downloads
-        key: brew-${{ runner.os }}-qt-v2
-
-    # Always run: `brew install` is a no-op when Qt is already installed, and it
-    # is what creates the symlinks the following steps rely on.
-    - name: Install dependencies
-      run: |
-        brew install qt
-        echo "$(brew --prefix qt)/bin" >> "$GITHUB_PATH"
+        cache: true
+        version: '6.10.3'
+        host: 'mac'
+        target: 'desktop'
+        arch: 'clang_64'
+        modules: 'qtmultimedia qthttpserver qtwebsockets'
 
     - name: Check Qt installation
       run: qmake --version
 
+    # A pull request is only built for the processor of the build machine.
     - name: Configure with qmake
-      run: qmake mapmap.pro CONFIG+=release
+      run: qmake mapmap.pro CONFIG+=release "QMAKE_APPLE_DEVICE_ARCHS=${{ github.event_name == 'pull_request' && 'arm64' || 'x86_64 arm64' }}"
 
     - name: Build
       run: make -j$(sysctl -n hw.logicalcpu)
