@@ -5,8 +5,8 @@
 # endif
 
 VS_VERSION_INFO VERSIONINFO
-	FILEVERSION 0,4,0,0
-	PRODUCTVERSION 0,4,0,0
+	FILEVERSION 1,0,0,0
+	PRODUCTVERSION 1,0,0,0
 	FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
 	FILEFLAGS VS_FF_DEBUG
@@ -23,11 +23,11 @@ VS_VERSION_INFO VERSIONINFO
 			BEGIN
                                 VALUE "CompanyName", "Mapmap Team\0"
                                 VALUE "FileDescription", "MapMap\0"
-				VALUE "FileVersion", "0.4.0.0\0"
+				VALUE "FileVersion", "1.0.0.0\0"
 				VALUE "LegalCopyright", "\0"
 				VALUE "OriginalFilename", "Mapmap.exe\0"
                                 VALUE "ProductName", "MapMap\0"
-				VALUE "ProductVersion", "0.4.0.0\0"
+				VALUE "ProductVersion", "1.0.0-beta.1\0"
 			END
 		END
 		BLOCK "VarFileInfo"

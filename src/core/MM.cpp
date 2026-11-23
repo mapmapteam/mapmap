@@ -28,7 +28,7 @@ const QString MM::APPLICATION_NAME = "MapMap";
 #ifdef MAPMAP_VERSION_STRING
 const QString MM::VERSION = MAPMAP_VERSION_STRING;
 #else
-const QString MM::VERSION = "1.0.0-alpha.1";
+const QString MM::VERSION = "1.0.0-beta.1";
 #endif
 const QString MM::COPYRIGHT_OWNERS = "Alexandre Quessy, Sofian Audry, Dame Diongue, Mike Latona, Vasilis Liaskovitis";
 const QString MM::ORGANIZATION_NAME = "MapMap";
