@@ -150,7 +150,7 @@ The rules are in [AGENTS.md](AGENTS.md), section "Git rules". In short:
 
 * If it's a new feature, increment minor. If it's bugfix, increment micro. If it's not backward-compatible, increment major.
 * Set the version number in `mapmap.pro`: `VERSION` (numbers only) and `MAPMAP_VERSION` (the name shown to users, such as `1.0.0-beta.1`).
-* Add the section of the release at the top of `CHANGELOG.md`.
+* Add the section of the release at the top of `CHANGELOG.md`. Its title gives the version number before the date: `## 1.0.0-beta.1 - 2026-11-23`.
 * Maybe update `docs/informations/osc.md`, `docs/informations/keyboard-shortcuts.html` and `docs/informations/CONTRIBUTORS.md`.
 * Open a pull request to `dev` and wait for the automated builds to pass on macOS, Ubuntu and Windows.
 * Once it is integrated, tag that commit of `dev` with the version number.
