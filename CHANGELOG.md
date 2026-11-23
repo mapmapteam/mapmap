@@ -6,7 +6,7 @@ First pre-release of MapMap 1.0. MapMap is developed again, with the support of 
 
 Not compatible with MapMap 0.6:
 
-- Projects are now saved as JSON files. The XML projects of MapMap 0.6 and earlier cannot be opened. Convert those of MapMap 0.4 to 0.6 with `scripts/convert-xml-project.py`.
+- Projects are now saved as JSON files. To open a project of MapMap 0.4 to 0.6, saved as XML, convert it first with the Python script `scripts/convert-xml-project.py`. Projects of MapMap 0.3 and earlier cannot be converted.
 - OSC messages now say "source" and "layer", like the interface. Replace `/mapmap/paint/...` with `/mapmap/source/...`; `/mapmap/mapping/...` still works.
 - OSC messages are only accepted from the same computer. To control MapMap from another one, enable "Accept OSC from the network" in the preferences.
 - The OSC `/mapmap/quit` message is ignored unless it is allowed in the preferences.
@@ -23,7 +23,7 @@ New:
 - Control more with OSC: play and pause a single source, move a layer or one of its vertices. See the `OSC` file.
 - Add an MCP (Model Context Protocol) server, off by default, so an AI assistant can build and edit a project.
 - Add a welcome dialog, and a keyboard shortcuts window in the Help menu.
-- Translate the interface to Spanish, and update the French translation.
+- Translate the interface to German, Portuguese and Spanish, and complete the French and Chinese translations.
 
 Improvements:
 
