@@ -71,7 +71,7 @@ jobs:
           qt6-tools-dev
 
     - name: Configure with qmake
-      run: qmake6 mapmap.pro
+      run: qmake6 mapmap.pro CONFIG+=release
 
     - name: Build
       run: make -j$(nproc)
