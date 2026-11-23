@@ -9,7 +9,7 @@ New:
 
 Improvements:
 
-- At 100% zoom, the input editor shows the whole image of the selected source and the output editor the whole output frame. "Actual pixels (1:1)" shows one image pixel per screen pixel.
+- At 100% zoom, the input editor shows the whole image of the selected source and the output editor the whole output frame. "Actual pixels (1:1)" shows one image pixel per screen pixel. New shapes are placed inside the output frame.
 
 Fix:
 

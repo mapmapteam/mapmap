@@ -57,12 +57,6 @@ public:
   OutputGLCanvas* getCanvas() const { return canvas; }
   void setPointerHasMoved();
 
-  /**
-   * Returns the area of the output in scene coordinates: the output frame of
-   * the project, whose top left corner is (0, 0).
-   */
-  QRectF getOutputRect() const;
-
   int getPreferredScreen() const { return _preferredScreen; }
   void setPreferredScreen(int screen);
 

@@ -78,37 +78,6 @@ void TestUtil::fileExistsAndErase()
   QVERIFY(!Util::fileExists(path));
 }
 
-void TestUtil::placeLargeShapeInArea()
-{
-  // Wider than the area: as wide as it, with the same proportions.
-  Triangle triangle(QPointF(100, 2100), QPointF(4100, 2100), QPointF(2100, 100));
-  Util::placeShapeInArea(&triangle, QRectF(0, 0, 1920, 1080));
-  QCOMPARE(triangle.getBoundingRect(), QRectF(0, 60, 1920, 960));
-  QCOMPARE(triangle.getVertex(2), QPointF(960, 60));
-
-  // Higher than the area.
-  mmp::Ellipse ellipse(QPointF(0, 2000), QPointF(1000, 0), QPointF(2000, 2000), QPointF(1000, 4000), true);
-  Util::placeShapeInArea(&ellipse, QRectF(0, 0, 1920, 1080));
-  QCOMPARE(ellipse.getBoundingRect(), QRectF(690, 0, 540, 1080));
-  QCOMPARE(ellipse.getVertex(4), QPointF(960, 540)); // center
-}
-
-void TestUtil::placeSmallShapeInArea()
-{
-  // Moved, with the same size.
-  Mesh mesh(QPointF(-640, -480), QPointF(0, -480), QPointF(0, 0), QPointF(-640, 0));
-  Util::placeShapeInArea(&mesh, QRectF(0, 0, 1920, 1080));
-  QCOMPARE(mesh.getBoundingRect(), QRectF(640, 300, 640, 480));
-  QCOMPARE(mesh.getVertex(0), QPointF(640, 300));
-}
-
-void TestUtil::placeShapeInEmptyArea()
-{
-  Triangle triangle(QPointF(0, 10), QPointF(10, 10), QPointF(5, 0));
-  Util::placeShapeInArea(&triangle, QRectF());
-  QCOMPARE(triangle.getBoundingRect(), QRectF(0, 0, 10, 10));
-}
-
 void TestUtil::fitScale()
 {
   // The content fills the area along its tighter side.
@@ -132,4 +101,41 @@ void TestUtil::fitRect()
 
   // An empty content fills the frame.
   QCOMPARE(Util::fitRect(QSizeF(), QRectF(0, 0, 1280, 720)), QRectF(0, 0, 1280, 720));
+}
+
+void TestUtil::createShapesForRect()
+{
+  const QRectF rect(10, 20, 100, 50);
+
+  // A quad on the corners, clockwise from the top left.
+  QScopedPointer<Mesh> mesh(Util::createMeshForRect(rect));
+  QCOMPARE(mesh->nVertices(), 4);
+  QCOMPARE(mesh->toPolygon().boundingRect(), rect);
+  QCOMPARE(mesh->getVertex2d(0, 0), rect.topLeft());
+  QCOMPARE(mesh->getVertex2d(1, 1), rect.bottomRight());
+
+  // A triangle standing on the bottom edge.
+  QScopedPointer<Triangle> triangle(Util::createTriangleForRect(rect));
+  QCOMPARE(triangle->getVertex(0), QPointF(10, 70));
+  QCOMPARE(triangle->getVertex(1), QPointF(110, 70));
+  QCOMPARE(triangle->getVertex(2), QPointF(60, 20));
+
+  // An ellipse touching the middle of each edge.
+  // Qualified: Windows also has an Ellipse() function.
+  QScopedPointer<mmp::Ellipse> ellipse(Util::createEllipseForRect(rect, true));
+  QCOMPARE(ellipse->getVertex(0), QPointF(10, 45));
+  QCOMPARE(ellipse->getVertex(1), QPointF(60, 20));
+  QCOMPARE(ellipse->getVertex(2), QPointF(110, 45));
+  QCOMPARE(ellipse->getVertex(3), QPointF(60, 70));
+}
+
+void TestUtil::mapRectToRect()
+{
+  // Corners go to corners, the middle to the middle.
+  const QVector<QPointF> points = { QPointF(0, 0), QPointF(640, 480), QPointF(320, 240) };
+  const QVector<QPointF> mapped = Util::mapRectToRect(points, QRectF(0, 0, 640, 480), QRectF(100, 50, 1920, 1080));
+  QCOMPARE(mapped, QVector<QPointF>({ QPointF(100, 50), QPointF(2020, 1130), QPointF(1060, 590) }));
+
+  // An empty source rectangle cannot be mapped: points are left as they are.
+  QCOMPARE(Util::mapRectToRect(points, QRectF(0, 0, 0, 480), QRectF(0, 0, 10, 10)), points);
 }

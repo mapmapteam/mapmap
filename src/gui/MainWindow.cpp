@@ -842,61 +842,10 @@ void MainWindow::addSyphon()
 void MainWindow::autoFitSyphonInputShapes(int sourceId, int width, int height)
 {
 #ifdef HAVE_SYPHON
-  if (width <= 0 || height <= 0)
-    return;
-
   Source::ptr source = mappingManager->getSourceById(sourceId);
   if (source.isNull() || source->getSourceType() != SourceType::Syphon)
     return;
-
-  const qreal defW = Syphon::DEFAULT_WIDTH;
-  const qreal defH = Syphon::DEFAULT_HEIGHT;
-  const qreal sx = width / defW;
-  const qreal sy = height / defH;
-  const qreal eps = 1.0;
-
-  bool changed = false;
-  QMap<uid, Layer::ptr> layers = mappingManager->getSourceLayers(source);
-  for (QMap<uid, Layer::ptr>::const_iterator it = layers.constBegin();
-       it != layers.constEnd(); ++it)
-  {
-    Layer::ptr layer = it.value();
-    if (layer.isNull() || !layer->hasInputShape())
-      continue;
-
-    MShape::ptr input = layer->getInputShape();
-    QVector<QPointF> verts = input->getVertices();
-    if (verts.isEmpty())
-      continue;
-
-    // Only rescale shapes still at the untouched default size, so we never
-    // clobber a shape the user has already adjusted.
-    qreal minX = verts[0].x(), maxX = verts[0].x();
-    qreal minY = verts[0].y(), maxY = verts[0].y();
-    for (const QPointF& v : verts)
-    {
-      minX = qMin(minX, v.x()); maxX = qMax(maxX, v.x());
-      minY = qMin(minY, v.y()); maxY = qMax(maxY, v.y());
-    }
-    if (qAbs((maxX - minX) - defW) > eps || qAbs((maxY - minY) - defH) > eps)
-      continue;
-
-    for (QPointF& v : verts)
-      v = QPointF(v.x() * sx, v.y() * sy);
-    input->setVertices(verts);
-    input->build();
-    changed = true;
-  }
-
-  // The input editor frames the image at its real size.
-  if (sourceId == currentSourceId)
-    updateSourceCanvasContent();
-
-  if (changed)
-  {
-    updateMappers();
-    updateCanvases();
-  }
+  fitDefaultShapesToFrameSize(source, QSizeF(Syphon::DEFAULT_WIDTH, Syphon::DEFAULT_HEIGHT), QSizeF(width, height));
 #else
   Q_UNUSED(sourceId); Q_UNUSED(width); Q_UNUSED(height);
 #endif
@@ -904,54 +853,51 @@ void MainWindow::autoFitSyphonInputShapes(int sourceId, int width, int height)
 
 void MainWindow::autoFitVideoInputShapes(int sourceId, int width, int height)
 {
-  if (width <= 0 || height <= 0)
-    return;
-
   Source::ptr source = mappingManager->getSourceById(sourceId);
   if (source.isNull() || source->getSourceType() != SourceType::Video)
     return;
+  fitDefaultShapesToFrameSize(source, QSizeF(Video::DEFAULT_WIDTH, Video::DEFAULT_HEIGHT), QSizeF(width, height));
+}
 
-  const qreal defW = Video::DEFAULT_WIDTH;
-  const qreal defH = Video::DEFAULT_HEIGHT;
-  const qreal sx = width / defW;
-  const qreal sy = height / defH;
-  const qreal eps = 1.0;
+void MainWindow::fitDefaultShapesToFrameSize(Source::ptr source, const QSizeF& defaultSize, const QSizeF& frameSize)
+{
+  QSharedPointer<Texture> texture = qSharedPointerDynamicCast<Texture>(source);
+  if (texture.isNull() || frameSize.isEmpty())
+    return;
+
+  // Where shapes were placed while the frame size was not known, and where
+  // they would have been placed knowing it.
+  const QPointF origin(texture->getX(), texture->getY());
+  const QRectF oldInput(origin, defaultSize), newInput(origin, frameSize);
+  const QRectF oldOutput = newShapeOutputRect(defaultSize), newOutput = newShapeOutputRect(frameSize);
+
+  // Only move shapes still where they were placed, so we never clobber a
+  // shape the user has already adjusted.
+  auto refit = [](MShape::ptr shape, const QRectF& from, const QRectF& to) {
+    if (shape.isNull() || shape->nVertices() == 0)
+      return false;
+    const QVector<QPointF> vertices = shape->getVertices();
+    const QRectF bounds = QPolygonF(vertices).boundingRect();
+    if ((bounds.topLeft() - from.topLeft()).manhattanLength() > UNTOUCHED_SHAPE_TOLERANCE ||
+        (bounds.bottomRight() - from.bottomRight()).manhattanLength() > UNTOUCHED_SHAPE_TOLERANCE)
+      return false;
+    shape->setVertices(Util::mapRectToRect(vertices, from, to));
+    shape->build();
+    return true;
+  };
 
   bool changed = false;
-  QMap<uid, Layer::ptr> layers = mappingManager->getSourceLayers(source);
-  for (QMap<uid, Layer::ptr>::const_iterator it = layers.constBegin();
-       it != layers.constEnd(); ++it)
+  const QMap<uid, Layer::ptr> layers = mappingManager->getSourceLayers(source);
+  for (const Layer::ptr& layer : layers)
   {
-    Layer::ptr layer = it.value();
     if (layer.isNull() || !layer->hasInputShape())
       continue;
-
-    MShape::ptr input = layer->getInputShape();
-    QVector<QPointF> verts = input->getVertices();
-    if (verts.isEmpty())
-      continue;
-
-    // Only rescale shapes still at the untouched default size, so we never
-    // clobber a shape the user has already adjusted.
-    qreal minX = verts[0].x(), maxX = verts[0].x();
-    qreal minY = verts[0].y(), maxY = verts[0].y();
-    for (const QPointF& v : verts)
-    {
-      minX = qMin(minX, v.x()); maxX = qMax(maxX, v.x());
-      minY = qMin(minY, v.y()); maxY = qMax(maxY, v.y());
-    }
-    if (qAbs((maxX - minX) - defW) > eps || qAbs((maxY - minY) - defH) > eps)
-      continue;
-
-    for (QPointF& v : verts)
-      v = QPointF(v.x() * sx, v.y() * sy);
-    input->setVertices(verts);
-    input->build();
-    changed = true;
+    changed |= refit(layer->getInputShape(), oldInput, newInput);
+    changed |= refit(layer->getShape(), oldOutput, newOutput);
   }
 
   // The input editor frames the image at its real size.
-  if (sourceId == currentSourceId)
+  if (source == getCurrentSource())
     updateSourceCanvasContent();
 
   if (changed)
@@ -966,32 +912,40 @@ QRectF MainWindow::getOutputFrame() const
   return QRectF(QPointF(0, 0), mappingManager->getOutputResolution());
 }
 
+QRectF MainWindow::newShapeOutputRect(const QSizeF& contentSize) const
+{
+  const QRectF frame = getOutputFrame();
+  if (!contentSize.isEmpty())
+    return Util::fitRect(contentSize, frame);
+
+  // No image (color source): the middle of the frame.
+  QRectF rect(QPointF(0, 0), frame.size() * NEW_COLOR_SHAPE_SCALE);
+  rect.moveCenter(frame.center());
+  return rect;
+}
+
 void MainWindow::addMesh()
 {
   // A source must be selected to add a mapping.
   if (getCurrentSourceId() == NULL_UID)
     return;
 
-  // Retrieve current source (as texture).
+  // Retrieve current source.
   Source::ptr source = getMappingManager().getSourceById(getCurrentSourceId());
   Q_CHECK_PTR(source);
 
   // Create input and output quads.
-  const QRectF outputRect = outputWindow->getOutputRect();
   Layer* layerPtr;
-  if (source->getSourceType() == SourceType::Color)
+  QSharedPointer<Texture> texture = qSharedPointerDynamicCast<Texture>(source);
+  if (texture.isNull())
   {
-    MShape::ptr outputQuad = MShape::ptr(Util::createMeshForColor(outputRect.width(), outputRect.height()));
+    MShape::ptr outputQuad(Util::createMeshForRect(newShapeOutputRect(QSizeF())));
     layerPtr = new ColorLayer(source, outputQuad);
   }
   else
   {
-    QSharedPointer<Texture> texture = qSharedPointerCast<Texture>(source);
-    Q_CHECK_PTR(texture);
-
-    MShape::ptr outputQuad = MShape::ptr(Util::createMeshForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
-    Util::placeShapeInArea(outputQuad.data(), outputRect);
-    MShape::ptr  inputQuad = MShape::ptr(Util::createMeshForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputQuad(Util::createMeshForRect(newShapeOutputRect(texture->getRect().size())));
+    MShape::ptr inputQuad(Util::createMeshForRect(texture->getRect()));
     layerPtr = new TextureLayer(source, outputQuad, inputQuad);
   }
 
@@ -1009,26 +963,22 @@ void MainWindow::addTriangle()
   if (getCurrentSourceId() == NULL_UID)
     return;
 
-  // Retrieve current source (as texture).
+  // Retrieve current source.
   Source::ptr source = getMappingManager().getSourceById(getCurrentSourceId());
   Q_CHECK_PTR(source);
 
-  // Create input and output quads.
-  const QRectF outputRect = outputWindow->getOutputRect();
+  // Create input and output triangles.
   Layer* layerPtr;
-  if (source->getSourceType() == SourceType::Color)
+  QSharedPointer<Texture> texture = qSharedPointerDynamicCast<Texture>(source);
+  if (texture.isNull())
   {
-    MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForColor(outputRect.width(), outputRect.height()));
+    MShape::ptr outputTriangle(Util::createTriangleForRect(newShapeOutputRect(QSizeF())));
     layerPtr = new ColorLayer(source, outputTriangle);
   }
   else
   {
-    QSharedPointer<Texture> texture = qSharedPointerCast<Texture>(source);
-    Q_CHECK_PTR(texture);
-
-    MShape::ptr outputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
-    Util::placeShapeInArea(outputTriangle.data(), outputRect);
-    MShape::ptr inputTriangle = MShape::ptr(Util::createTriangleForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputTriangle(Util::createTriangleForRect(newShapeOutputRect(texture->getRect().size())));
+    MShape::ptr inputTriangle(Util::createTriangleForRect(texture->getRect()));
     layerPtr = new TextureLayer(source, outputTriangle, inputTriangle);
   }
 
@@ -1046,26 +996,22 @@ void MainWindow::addEllipse()
   if (getCurrentSourceId() == NULL_UID)
     return;
 
-  // Retrieve current source (as texture).
+  // Retrieve current source.
   Source::ptr source = getMappingManager().getSourceById(getCurrentSourceId());
   Q_CHECK_PTR(source);
 
   // Create input and output ellipses.
-  const QRectF outputRect = outputWindow->getOutputRect();
   Layer* layerPtr;
-  if (source->getSourceType() == SourceType::Color)
+  QSharedPointer<Texture> texture = qSharedPointerDynamicCast<Texture>(source);
+  if (texture.isNull())
   {
-    MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForColor(outputRect.width(), outputRect.height()));
+    MShape::ptr outputEllipse(Util::createEllipseForRect(newShapeOutputRect(QSizeF()), false));
     layerPtr = new ColorLayer(source, outputEllipse);
   }
   else
   {
-    QSharedPointer<Texture> texture = qSharedPointerCast<Texture>(source);
-    Q_CHECK_PTR(texture);
-
-    MShape::ptr outputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
-    Util::placeShapeInArea(outputEllipse.data(), outputRect);
-    MShape::ptr inputEllipse = MShape::ptr(Util::createEllipseForTexture(texture.data(), sourceCanvas->width(), sourceCanvas->height()));
+    MShape::ptr outputEllipse(Util::createEllipseForRect(newShapeOutputRect(texture->getRect().size()), true));
+    MShape::ptr inputEllipse(Util::createEllipseForRect(texture->getRect(), true));
     layerPtr = new TextureLayer(source, outputEllipse, inputEllipse);
   }
 
@@ -3309,8 +3255,8 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage, bool isC
   QSharedPointer<Video> media = qSharedPointerCast<Video>(mappingManager->getSourceById(mediaId));
   Q_CHECK_PTR(media);
 
-  media->setPosition((sourceCanvas->width()  - media->getWidth() ) / 2.0f,
-                     (sourceCanvas->height() - media->getHeight()) / 2.0f );
+  // The image starts at the origin of the input editor, which frames it.
+  media->setPosition(0, 0);
 
   QApplication::restoreOverrideCursor();
 

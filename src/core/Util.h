@@ -90,21 +90,19 @@ qreal fitScale(const QSizeF& content, const QSizeF& area);
  */
 QRectF fitRect(const QSizeF& content, const QRectF& frame);
 
-// FIXME: these texture/color/drawing utilities should be moved to another file
-Mesh* createMeshForTexture(Texture* texture, int frameWidth, int frameHeight);
-Triangle* createTriangleForTexture(Texture* texture, int frameWidth, int frameHeight);
-Ellipse* createEllipseForTexture(Texture* texture, int frameWidth, int frameHeight);
-
-Mesh* createMeshForColor(int frameWidth, int frameHeight);
-Triangle* createTriangleForColor(int frameWidth, int frameHeight);
-Ellipse* createEllipseForColor(int frameWidth, int frameHeight);
-
 /**
- * Moves a shape to the middle of an area. A shape larger than the area is first
- * made smaller, with the same proportions, so that all of it is inside. A shape
- * that fits keeps its size.
+ * Moves points the way rectangle from has to move and stretch to become
+ * rectangle to. Returns the points unchanged if from is empty.
  */
-void placeShapeInArea(MShape* shape, const QRectF& area);
+QVector<QPointF> mapRectToRect(const QVector<QPointF>& points, const QRectF& from, const QRectF& to);
+
+// FIXME: these shape/drawing utilities should be moved to another file
+/// Creates a quad on the corners of rect, clockwise from the top left.
+Mesh* createMeshForRect(const QRectF& rect);
+/// Creates a triangle standing on the bottom edge of rect, its top in the middle of the top edge.
+Triangle* createTriangleForRect(const QRectF& rect);
+/// Creates an ellipse touching the middle of each edge of rect.
+Ellipse* createEllipseForRect(const QRectF& rect, bool hasCenterControl);
 
 void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool major, bool selected, bool locked, MShape::ShapeMode shapeMode, qreal radius = MM::VERTEX_SELECT_RADIUS, qreal strokeWidth = MM::VERTEX_SELECT_STROKE_WIDTH);
 
