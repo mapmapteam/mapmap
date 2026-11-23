@@ -59,8 +59,8 @@ Settable source properties (``<prop>``):
   opacity   float    0.0 .. 1.0
   name      string
   uri       string   path of a video/image source
-  rate      float    playback rate, in % (negative = reverse)
-  volume    float    audio volume, in % (video sources)
+  rate      float    playback rate: 1.0 = normal speed, 0.5 = half, 2.0 = double
+  volume    float    audio volume, 0.0 .. 1.0 (video sources)
   color     string   "#rrggbb" or a colour name (color sources)
   locked    int/bool
 
