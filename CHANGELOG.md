@@ -7,6 +7,10 @@ New:
 - Convert the colors of camera sources on the graphics card when the camera gives YUV images, like videos.
 - Measure the time of each step of the image path with the option `--frame-stats`: one line per second in the log. `--frame-stats-sync` waits for the graphics card to give the real cost of each step, and `--force-cpu-conversion` converts the colors of videos on the processor, to compare.
 
+Fix:
+
+- Fix the text of drop-down lists, such as the zoom of the editors, which was invisible with dark system themes.
+
 ## 1.0.0-beta.1 - 2026-11-23
 
 First pre-release of MapMap 1.0. MapMap is developed again, with the support of Art Plus Code.
