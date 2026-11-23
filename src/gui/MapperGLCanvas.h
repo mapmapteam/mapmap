@@ -56,12 +56,6 @@ public:
   MapperGLCanvas(MainWindow* mainWindow, bool isOutput, QWidget* parent = 0, QOpenGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
   virtual ~MapperGLCanvas() {}
 
-  /**
-   * Returns true if this canvas is an editor of the output, which shows the
-   * frame of the output screen. The output itself does not.
-   */
-  virtual bool showsOutputFrame() const { return isOutput(); }
-
   /// Returns shape associated with mapping id.
   virtual bool isOutput() const { return _isOutput; }
 
@@ -75,9 +69,6 @@ public:
 
   // Draws foreground (displays crosshair if needed).
   void drawForeground(QPainter *painter , const QRectF &rect);
-
-  // Draws background (shows what is outside of the output screen).
-  void drawBackground(QPainter *painter, const QRectF &rect);
 
   /**
    * Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
@@ -99,10 +90,30 @@ public:
   bool shapeGrabbed() const { return _shapeGrabbed; }
   bool vertexGrabbed() const { return _vertexGrabbed; }
 
-  //qreal getZoomFactor() const { return qBound(qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MIN, MM::ZOOM_MAX); }
-  virtual qreal getZoomFactor() const { return _shapeIsAdapted
-        ? _scalingFactor
-        : qBound(MM::ZOOM_MIN, qPow(MM::ZOOM_FACTOR, _zoomLevel), MM::ZOOM_MAX); }
+  /**
+   * Returns the scale from scene coordinates to screen pixels, used to draw
+   * the controls at a constant size on screen.
+   */
+  virtual qreal getZoomFactor() const { return _fitScale() * _zoom; }
+
+  /**
+   * Returns the zoom shown to the user: 1 when the content rectangle (see
+   * setContentRect()) fills the view.
+   */
+  qreal getRelativeZoom() const { return _zoom; }
+
+  /**
+   * Sets the rectangle that this canvas frames at 100% zoom: the image of the
+   * current source in the input editor, the output frame in the output editor.
+   * The view is centered on it when it changes.
+   */
+  void setContentRect(const QRectF& rect);
+
+  /// Returns the rectangle framed at 100% zoom.
+  QRectF getContentRect() const { return _contentRect; }
+
+  /// Sets the name shown above the outline of the content rectangle.
+  void setContentLabel(const QString& label);
 
   /// This function needs to be called after a shape inside the canvas has been changed for appropriate signals to be activated.
   void currentShapeWasChanged();
@@ -124,6 +135,12 @@ protected:
   void dragMoveEvent(QDragMoveEvent *event);
   void dragLeaveEvent(QDragLeaveEvent *event);
   void dropEvent(QDropEvent *event);
+
+  void resizeEvent(QResizeEvent* event) override;
+  void leaveEvent(QEvent* event) override;
+
+  /// Draws the outline of the content rectangle under everything else.
+  void drawBackground(QPainter* painter, const QRectF& rect) override;
 
 protected:
 //  /**
@@ -182,33 +199,19 @@ private:
   // True iff current shape is grabbed (first step).
   bool _shapeFirstGrab;
 
-  // The zoom level (in number of steps).
-  int _zoomLevel;
+  // Zoom relative to the content rectangle filling the view (1 = 100%).
+  qreal _zoom;
+
+  // Rectangle framed at 100% zoom (see setContentRect()).
+  QRectF _contentRect;
+
+  // Name shown above the outline of the content rectangle.
+  QString _contentLabel;
 
   // Wheel movement not yet turned into a zoom step (in 1/8 of a degree,
   // 120 per notch); see wheelEvent().
   int _wheelZoomRemainder;
 
-  // The scaling factor
-  qreal _scalingFactor;
-
-  bool _shapeIsAdapted;
-
-  // True until the user zooms or moves the view: the whole output screen is
-  // kept visible (output editor only).
-  bool _followsOutput;
-
-  // Shows the whole area in the view, and zooms accordingly.
-  void _fitArea(const QRectF& area);
-
-  // Scrolls the view (in pixels).
-  void _scrollBy(const QPoint& distance);
-
-  // Area of the output screen, in scene coordinates.
-  QRectF _outputRect() const;
-
-  // Draws the frame of the output screen, with its size.
-  void _drawOutputFrame(QPainter* painter);
 
   // Pointer to MainWindow UndoStack
   QUndoStack *undoStack;
@@ -236,19 +239,14 @@ public slots:
   // Zoom
   void increaseZoomLevel(int steps=1);
   void decreaseZoomLevel(int steps=1);
+  /// Shows one pixel of the content per screen pixel.
   void resetZoomLevel();
+  /// Makes the content rectangle fill the view (100%).
   void fitShapeToView();
-
-  /// Called when the size of the output changes, or the scene grows: updates
-  /// the area that can be scrolled to, and keeps the output visible.
-  void updateOutputArea();
   // Set zoom factor with drowmenu data
   void setZoomFromMenu(const QString& text);
 
 protected:
-  void resizeEvent(QResizeEvent* event);
-  void leaveEvent(QEvent* event);
-
   /// Paints the view, timing it when FrameStats is on.
   void paintEvent(QPaintEvent* event) override;
 
@@ -259,6 +257,41 @@ protected:
 
   // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
   void _snapVertex(QPointF* p);
+
+  // Draws the outline of the content rectangle.
+  void _drawContentOutline(QPainter* painter);
+
+  // Makes the scene rectangle cover the content rectangle and all shapes,
+  // so that the scroll bars reach all of them, at the given view scale.
+  virtual void _updateSceneRect(qreal scale);
+
+  // Content outline and its label, in screen pixels.
+  static constexpr qreal CONTENT_OUTLINE_WIDTH  = 2;
+  static constexpr qreal CONTENT_OUTLINE_GAP    = 3;
+  static constexpr qreal CONTENT_OUTLINE_RADIUS = 8;
+  static constexpr int   CONTENT_LABEL_FONT_SIZE = 11;
+  static constexpr qreal CONTENT_LABEL_SPACING  = 3;
+
+  // Space left around the content at 100% zoom, in screen pixels: room for
+  // the label above the outline, and more than the radius of a vertex
+  // control (MM::VERTEX_SELECT_RADIUS).
+  static constexpr qreal FIT_MARGIN = 28;
+
+private:
+  // Scale at which the content rectangle fills the view (1 without content).
+  qreal _fitScale() const;
+
+  // Sets the zoom, bounded, and applies it keeping the scene point under
+  // viewAnchor (in viewport coordinates) in place.
+  void _setZoom(qreal zoom, const QPointF& viewAnchor);
+
+  // Returns the viewport position of the mouse if it is over the view, or
+  // the center of the view.
+  QPointF _zoomAnchor() const;
+
+  // Scrolls the view (in pixels).
+  void _scrollBy(const QPoint& distance);
+
 
 public:
   static const int NO_VERTEX = -1;

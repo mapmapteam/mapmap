@@ -55,15 +55,16 @@ const QString MM::SUPPORTED_FILE_VERSIONS = "^\\d+\\.\\d+\\.\\d+([-+][0-9A-Za-z.
 const QColor MM::WHITE("#f6f5f5");
 const QColor MM::BLUE_GRAY("#323541");
 const QColor MM::DARK_GRAY("#272a36");
+const QColor MM::MID_GRAY("#4c4f5b");
 const QColor MM::DARK_BLUE("#0C0927");
 const QColor MM::LIGHT_RED("#69020B");
 const QColor MM::DARK_RED("#380b19");
 
 const QColor MM::CROSSHAIR_STROKE(QColor(0, 0, 0, 63));
-const QColor MM::OUTPUT_FRAME_COLOR("#7d8296");
-const QColor MM::OUTSIDE_OUTPUT_COLOR("#1b1d25");
 const QColor MM::CONTROL_COLOR(WHITE);
 const QColor MM::CONTROL_COLOR_NON_SELECTED(QColor(CONTROL_COLOR.red(), CONTROL_COLOR.green(), CONTROL_COLOR.blue(), 63));
+const QColor MM::CONTENT_OUTLINE_COLOR(MID_GRAY);
+const QColor MM::CONTENT_LABEL_COLOR(QColor(WHITE.red(), WHITE.green(), WHITE.blue(), 160));
 const QColor MM::CONTROL_LOCKED_COLOR(LIGHT_RED);
 const QBrush MM::VERTEX_BACKGROUND(QColor(CROSSHAIR_STROKE.red(), CROSSHAIR_STROKE.green(), CROSSHAIR_STROKE.blue(), 63));
 const QBrush MM::VERTEX_SELECTED_BACKGROUND(QColor(CONTROL_COLOR.red(), CONTROL_COLOR.green(), CONTROL_COLOR.blue(), 192));

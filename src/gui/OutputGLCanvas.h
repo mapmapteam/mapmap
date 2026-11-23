@@ -38,9 +38,6 @@ public:
   OutputGLCanvas(MainWindow* mainWindow, QWidget* parent = 0, QOpenGLWidget* shareWidget = 0, QGraphicsScene* scene = 0);
   virtual ~OutputGLCanvas() {}
 
-  /// The output itself: never shows the frame of the output screen.
-  bool showsOutputFrame() const { return false; }
-
   /**
    * Sets the output frame: the part of the scene that this canvas shows,
    * scaled to fill the window while keeping its proportions (see
@@ -71,10 +68,6 @@ public:
   void setSyphonOutputEnabled(bool on);
   bool isSyphonOutputEnabled() const;
   void setSyphonServerName(const QString& name);
-
-signals:
-  /// Emitted when the size of the output changes.
-  void outputResized();
 
 private:
   void _drawClassicTestSignal(QPainter* painter);
@@ -109,6 +102,9 @@ private:
 
 protected:
   void resizeEvent(QResizeEvent* event) override;
+
+  /// The scene rectangle stays the output frame (see setOutputFrame()).
+  void _updateSceneRect(qreal scale) override { Q_UNUSED(scale); }
 
   void wheelEvent(QWheelEvent *event);
   void mouseMoveEvent(QMouseEvent *event);

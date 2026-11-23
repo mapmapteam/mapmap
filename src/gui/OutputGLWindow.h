@@ -53,9 +53,6 @@ public slots:
 signals:
   void closed();
 
-  /// Emitted when the area returned by getOutputRect() may have changed.
-  void outputRectChanged();
-
 public:
   OutputGLCanvas* getCanvas() const { return canvas; }
   void setPointerHasMoved();

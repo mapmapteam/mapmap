@@ -207,6 +207,9 @@ public slots:
   /// Returns the output resolution of new projects, set in the preferences.
   QSize defaultOutputResolution() const;
 
+  /// Makes the input editor frame the image of the current source.
+  void updateSourceCanvasContent();
+
   /// Returns the output frame: the rectangle shown by the output window.
   QRectF getOutputFrame() const;
 

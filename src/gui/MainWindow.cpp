@@ -888,6 +888,10 @@ void MainWindow::autoFitSyphonInputShapes(int sourceId, int width, int height)
     changed = true;
   }
 
+  // The input editor frames the image at its real size.
+  if (sourceId == currentSourceId)
+    updateSourceCanvasContent();
+
   if (changed)
   {
     updateMappers();
@@ -945,6 +949,10 @@ void MainWindow::autoFitVideoInputShapes(int sourceId, int width, int height)
     input->build();
     changed = true;
   }
+
+  // The input editor frames the image at its real size.
+  if (sourceId == currentSourceId)
+    updateSourceCanvasContent();
 
   if (changed)
   {
@@ -1085,8 +1093,8 @@ void MainWindow::updateStatusBar()
 {
   updateMouseCoordinates();
   currentMessageLabel->setText(statusBar()->currentMessage());
-  sourceZoomLabel->setText("Input Editor: " + QString::number(int(sourceCanvas->getZoomFactor() * 100)).append(QChar('%')));
-  destinationZoomLabel->setText("Output Editor: " + QString::number(int(destinationCanvas->getZoomFactor() * 100)).append(QChar('%')));
+  sourceZoomLabel->setText(tr("Input Editor: %1%").arg(qRound(sourceCanvas->getRelativeZoom() * 100)));
+  destinationZoomLabel->setText(tr("Output Editor: %1%").arg(qRound(destinationCanvas->getRelativeZoom() * 100)));
   lastActionLabel->setText(undoStack->text(undoStack->count() - 1));
 }
 
@@ -1383,8 +1391,6 @@ void MainWindow::updateScreenCount()
   // Update Output menu
   outputScreenMenu->clear();
   outputScreenMenu->addActions(screenActions);
-  // The output screen may be another one
-  destinationCanvas->updateOutputArea();
 }
 
 void MainWindow::openRecentFile()
@@ -1914,11 +1920,6 @@ void MainWindow::createLayout()
 
   outputWindow = new OutputGLWindow(this, destinationCanvas);
   outputWindow->installEventFilter(destinationCanvas);
-
-  // Size of the output changed -> change its frame in the output editor.
-  connect(outputWindow, &OutputGLWindow::outputRectChanged, destinationCanvas, &MapperGLCanvas::updateOutputArea);
-  connect(destinationCanvas->scene(), &QGraphicsScene::sceneRectChanged, destinationCanvas, &MapperGLCanvas::updateOutputArea);
-  destinationCanvas->updateOutputArea();
 
   // Source scene changed -> change destination.
   connect(sourceCanvas->scene(), &QGraphicsScene::changed, destinationCanvas, qOverload<>(&QWidget::update));
@@ -2556,15 +2557,15 @@ void MainWindow::createActions()
   connect(zoomOutAction, &QAction::triggered, sourceCanvas, [this] { sourceCanvas->decreaseZoomLevel(); });
   connect(zoomOutAction, &QAction::triggered, destinationCanvas, [this] { destinationCanvas->decreaseZoomLevel(); });
   // Reset zoom
-  resetZoomAction = new QAction(tr("Original Size"), this);
+  resetZoomAction = new QAction(tr("Actual Pixels (1:1)"), this);
   resetZoomAction->setShortcut(Qt::CTRL | Qt::Key_0);
-  resetZoomAction->setToolTip(tr("Reset zoom to original size"));
+  resetZoomAction->setToolTip(tr("Show one image pixel per screen pixel"));
   resetZoomAction->setEnabled(false);
   connect(resetZoomAction, &QAction::triggered, sourceCanvas, &MapperGLCanvas::resetZoomLevel);
   connect(resetZoomAction, &QAction::triggered, destinationCanvas, &MapperGLCanvas::resetZoomLevel);
   // Fit to view
-  fitToViewAction = new QAction(tr("Fit To View"), this);
-  fitToViewAction->setToolTip(tr("Fit to viewport"));
+  fitToViewAction = new QAction(tr("Fit To View (100%)"), this);
+  fitToViewAction->setToolTip(tr("Show the whole image or output frame"));
   fitToViewAction->setEnabled(false);
   connect(fitToViewAction, &QAction::triggered, sourceCanvas, &MapperGLCanvas::fitShapeToView);
   connect(fitToViewAction, &QAction::triggered, destinationCanvas, &MapperGLCanvas::fitShapeToView);
@@ -3703,7 +3704,19 @@ void MainWindow::setOutputResolution(const QSize& resolution)
 
   const QRectF frame = getOutputFrame();
   outputWindow->getCanvas()->setOutputFrame(frame);
+  destinationCanvas->setContentRect(frame);
+  destinationCanvas->setContentLabel(tr("Output %1 × %2").arg(frame.width()).arg(frame.height()));
   updateCanvases();
+}
+
+void MainWindow::updateSourceCanvasContent()
+{
+  // A color source has no image: nothing to frame.
+  QSharedPointer<Texture> texture = qSharedPointerDynamicCast<Texture>(getCurrentSource());
+  sourceCanvas->setContentRect(texture.isNull() ? QRectF() : texture->getRect());
+  sourceCanvas->setContentLabel(texture.isNull() ? QString()
+                                                 : tr("%1 %2 × %3").arg(texture->getName())
+                                                   .arg(texture->getWidth()).arg(texture->getHeight()));
 }
 
 QSize MainWindow::defaultOutputResolution() const
@@ -4192,6 +4205,7 @@ void MainWindow::setCurrentSource(int uid)
     }
     _hasCurrentSource = true;
   }
+  updateSourceCanvasContent();
 }
 
 void MainWindow::setCurrentLayer(int uid)
@@ -4213,6 +4227,7 @@ void MainWindow::removeCurrentSource() {
   _hasCurrentSource = false;
   currentSourceId = NULL_UID;
   sourceList->clearSelection();
+  updateSourceCanvasContent();
 }
 
 void MainWindow::removeCurrentLayer() {

@@ -116,16 +116,17 @@ public:
   static const QColor WHITE;
   static const QColor BLUE_GRAY;
   static const QColor DARK_GRAY;
+  static const QColor MID_GRAY;
   static const QColor DARK_BLUE;
   static const QColor LIGHT_RED;
   static const QColor DARK_RED;
 
   static const QColor CROSSHAIR_STROKE;
-  // Output editor: frame of the output screen, and what is outside of it.
-  static const QColor OUTPUT_FRAME_COLOR;
-  static const QColor OUTSIDE_OUTPUT_COLOR;
   static const QColor CONTROL_COLOR;
   static const QColor CONTROL_COLOR_NON_SELECTED;
+  /// Editors: outline of the source image or the output frame, and its caption.
+  static const QColor CONTENT_OUTLINE_COLOR;
+  static const QColor CONTENT_LABEL_COLOR;
   static const QColor CONTROL_LOCKED_COLOR;
   static const QBrush VERTEX_BACKGROUND;
   static const QBrush VERTEX_SELECTED_BACKGROUND;

@@ -28,16 +28,11 @@
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QOpenGLWidget>
+#include <QResizeEvent>
+#include <QCursor>
 #include <QSurfaceFormat>
 
 namespace mmp {
-
-namespace {
-// Space left around the output when all of it is shown, as a part of its size.
-const qreal FIT_MARGIN = 0.05;
-// Space between the output and the text that gives its size (in pixels).
-const int OUTPUT_SIZE_LABEL_MARGIN = 4;
-}
 
 MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
                                bool isOutput, QWidget* parent, QOpenGLWidget* shareWidget,
@@ -51,11 +46,8 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
     _shapeGrabbed(false), // comment out?
     _shapeMoved(false),
     _shapeFirstGrab(false), // comment out?
-    _zoomLevel(0),
+    _zoom(1.0),
     _wheelZoomRemainder(0),
-    _scalingFactor(1),
-    _shapeIsAdapted(false),
-    _followsOutput(isOutput),
     _frameStats(isOutput ? "output editor" : "input editor"),
     _lastPaintStartNs(0)
 {
@@ -79,7 +71,7 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
   // TODO: check this
   // setOptimizationFlags(QGraphicsView::DontSavePainterState);
   //setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-  // The point under the mouse is kept in place by applyZoomToView().
+  // The point under the mouse is kept in place by _setZoom().
   setTransformationAnchor(QGraphicsView::NoAnchor);
 
   resetTransform();
@@ -144,12 +136,6 @@ QSharedPointer<ShapeGraphicsItem> MapperGLCanvas::getCurrentShapeGraphicsItem()
   return getShapeGraphicsItemFromMapping(_mainWindow->getCurrentLayer());
 }
 
-QRectF MapperGLCanvas::_outputRect() const
-{
-  const OutputGLWindow* outputWindow = _mainWindow->getOutputWindow();
-  return outputWindow ? outputWindow->getOutputRect() : QRectF();
-}
-
 void MapperGLCanvas::paintEvent(QPaintEvent* event)
 {
   if (!FrameStats::isEnabled())
@@ -174,52 +160,10 @@ void MapperGLCanvas::paintEvent(QPaintEvent* event)
   _frameStats.record(FrameStats::DRAW, endNs - startNs, endNs);
 }
 
-void MapperGLCanvas::drawBackground(QPainter *painter, const QRectF &rect)
-{
-  QGraphicsView::drawBackground(painter, rect);
-
-  if (showsOutputFrame())
-  {
-    const QRectF output = _outputRect();
-    if (!output.isEmpty())
-    {
-      painter->fillRect(rect, MM::OUTSIDE_OUTPUT_COLOR);
-      painter->fillRect(output, scene()->backgroundBrush());
-    }
-  }
-}
-
-void MapperGLCanvas::_drawOutputFrame(QPainter* painter)
-{
-  const QRectF output = _outputRect();
-  if (output.isEmpty())
-    return;
-
-  painter->save();
-
-  // Same thickness and text size whatever the zoom.
-  QPen pen(MM::OUTPUT_FRAME_COLOR);
-  pen.setCosmetic(true);
-  painter->setPen(pen);
-  painter->setBrush(Qt::NoBrush);
-  painter->drawRect(output);
-
-  // Size of the output, just above its top left corner.
-  const QPointF corner = mapFromScene(output.topLeft());
-  painter->resetTransform();
-  painter->drawText(corner - QPointF(0, OUTPUT_SIZE_LABEL_MARGIN),
-                    QString("%1 × %2").arg(qRound(output.width())).arg(qRound(output.height())));
-  painter->restore();
-}
-
 // Draws foreground (displays crosshair if needed).
 void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 {
   Q_UNUSED(rect);
-
-  if (showsOutputFrame())
-    _drawOutputFrame(painter);
-
   if (MainWindow::window()->displayControls())
   {
     uid mid = MainWindow::window()->getCurrentLayerId();
@@ -263,35 +207,136 @@ void MapperGLCanvas::currentShapeWasChanged()
   emit shapeChanged(getCurrentShape().data());
 }
 
-void MapperGLCanvas::_scrollBy(const QPoint& distance)
-{
-  horizontalScrollBar()->setValue(horizontalScrollBar()->value() + distance.x());
-  verticalScrollBar()->setValue(verticalScrollBar()->value() + distance.y());
-}
-
 void MapperGLCanvas::applyZoomToView()
 {
-  // The user chose a zoom: do not change it when the output is resized.
-  _followsOutput = false;
+  _setZoom(_zoom, _zoomAnchor());
+}
 
-  // Point to keep in place: the one under the mouse, or else in the middle.
-  const QPoint anchor = viewport()->underMouse()
-    ? viewport()->mapFromGlobal(QCursor::pos())
-    : viewport()->rect().center();
-  const QPointF anchorInScene = mapToScene(anchor);
+void MapperGLCanvas::setContentRect(const QRectF& rect)
+{
+  if (rect == _contentRect)
+    return;
+  _contentRect = rect;
 
-  // Re-bound zoom (for consistency).
-  qreal zoomFactor = getZoomFactor();
-  // Resets the view transformation matrix
+  // Frame the new content at the current zoom.
+  _setZoom(_zoom, viewport()->rect().center());
+  if (!_contentRect.isEmpty())
+    centerOn(_contentRect.center());
+}
+
+qreal MapperGLCanvas::_fitScale() const
+{
+  // Leave room for the controls of vertices placed on the edges.
+  const QSizeF area = QSizeF(viewport()->size()) - QSizeF(2 * FIT_MARGIN, 2 * FIT_MARGIN);
+  return Util::fitScale(_contentRect.size(), area.isEmpty() ? QSizeF(viewport()->size()) : area);
+}
+
+QPointF MapperGLCanvas::_zoomAnchor() const
+{
+  const QPoint mouse = viewport()->mapFromGlobal(QCursor::pos());
+  return viewport()->rect().contains(mouse) ? QPointF(mouse) : QPointF(viewport()->rect().center());
+}
+
+void MapperGLCanvas::_setZoom(qreal zoom, const QPointF& viewAnchor)
+{
+  // Zoom out to ZOOM_MIN and in to ZOOM_MAX, both relative to the content
+  // and in screen pixels, so that 100% and 1:1 are always reachable.
+  const qreal fit = _fitScale();
+  const qreal minZoom = qMin(MM::ZOOM_MIN, MM::ZOOM_MIN / fit);
+  const qreal maxZoom = qMax(MM::ZOOM_MAX, MM::ZOOM_MAX / fit);
+  _zoom = qBound(minZoom, zoom, maxZoom);
+
+  // Keep the scene point under the anchor in place.
+  const QPointF sceneAnchor = mapToScene(viewAnchor.toPoint());
+  const qreal scale = fit * _zoom;
+  _updateSceneRect(scale);
   resetTransform();
-  // Scale the current view
-  scale(zoomFactor, zoomFactor);
-  // Keep the point in place
-  _scrollBy(mapFromScene(anchorInScene) - anchor);
-  // And update
-  update();
+  this->scale(scale, scale);
+  const QPointF viewCenter = QRectF(viewport()->rect()).center();
+  centerOn(sceneAnchor + (viewCenter - viewAnchor) / scale);
 
-  emit zoomFactorChanged(zoomFactor);
+  update();
+  emit zoomFactorChanged(_zoom);
+}
+
+void MapperGLCanvas::_updateSceneRect(qreal scale)
+{
+  QRectF rect = _contentRect | scene()->itemsBoundingRect();
+  if (rect.isEmpty())
+  {
+    // Nothing to show: no need to scroll.
+    setSceneRect(QRectF(QPointF(0, 0), QSizeF(viewport()->size()) / scale));
+    return;
+  }
+
+  // Half a view of margin on each side, so that any point of the content or
+  // shapes can be brought to the middle of the view.
+  const QSizeF halfView = QSizeF(viewport()->size()) / (2 * scale);
+  setSceneRect(rect.adjusted(-halfView.width(), -halfView.height(), halfView.width(), halfView.height()));
+}
+
+void MapperGLCanvas::resizeEvent(QResizeEvent* event)
+{
+  // Keep the same scene point in the middle, at the same relative zoom.
+  const QPointF sceneCenter = mapToScene(QRect(QPoint(0, 0), event->oldSize()).center());
+  QGraphicsView::resizeEvent(event);
+  if (event->oldSize().isValid())
+  {
+    _setZoom(_zoom, viewport()->rect().center());
+    centerOn(sceneCenter);
+  }
+  else
+    fitShapeToView();
+}
+
+void MapperGLCanvas::drawBackground(QPainter* painter, const QRectF& rect)
+{
+  QGraphicsView::drawBackground(painter, rect);
+  // Under the shapes and their controls, so that it never hides them.
+  _drawContentOutline(painter);
+}
+
+void MapperGLCanvas::setContentLabel(const QString& label)
+{
+  _contentLabel = label;
+  viewport()->update();
+}
+
+void MapperGLCanvas::_drawContentOutline(QPainter* painter)
+{
+  if (_contentRect.isEmpty())
+    return;
+
+  // Drawn in screen pixels, so that it looks the same at any zoom.
+  const QRectF frame = viewportTransform().mapRect(_contentRect);
+  painter->save();
+  painter->resetTransform();
+  painter->setRenderHint(QPainter::Antialiasing);
+
+  // A rounded outline around the frame, a little away from it so that it
+  // does not hide the corners of the image.
+  QPen pen(MM::CONTENT_OUTLINE_COLOR, CONTENT_OUTLINE_WIDTH);
+  painter->setPen(pen);
+  painter->setBrush(Qt::NoBrush);
+  const qreal gap = CONTENT_OUTLINE_GAP + CONTENT_OUTLINE_WIDTH / 2;
+  painter->drawRoundedRect(frame.adjusted(-gap, -gap, gap, gap),
+                           CONTENT_OUTLINE_RADIUS, CONTENT_OUTLINE_RADIUS);
+
+  // Its name above it: plain text, which reads as a caption rather than as
+  // something to click or drag.
+  if (!_contentLabel.isEmpty())
+  {
+    QFont font = painter->font();
+    font.setPixelSize(CONTENT_LABEL_FONT_SIZE);
+    painter->setFont(font);
+    const QFontMetricsF metrics(font);
+    const QPointF baseline(frame.left() - gap + CONTENT_OUTLINE_RADIUS,
+                           frame.top() - gap - CONTENT_LABEL_SPACING - metrics.descent());
+    painter->setPen(MM::CONTENT_LABEL_COLOR);
+    painter->drawText(baseline, _contentLabel);
+  }
+
+  painter->restore();
 }
 
 void MapperGLCanvas::dragEnterEvent(QDragEnterEvent *event)
@@ -543,6 +588,9 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
   _vertexMoved = false;
   _shapeGrabbed = false;
   _shapeMoved = false;
+
+  // Shapes may have moved past the scroll bars' reach.
+  _updateSceneRect(getZoomFactor());
 }
 
 void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
@@ -613,7 +661,6 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
            ((event->modifiers() & Qt::ShiftModifier) && (event->buttons() & Qt::LeftButton)))
   {
     _scrollBy(_lastMousePosition - event->pos());
-    _followsOutput = false;
   }
 
   // Reset last mouse position.
@@ -628,6 +675,12 @@ void MapperGLCanvas::leaveEvent(QEvent* event)
   QGraphicsView::leaveEvent(event);
   if (isOutput())
     _mainWindow->updateMouseCoordinates();
+}
+
+void MapperGLCanvas::_scrollBy(const QPoint& distance)
+{
+  horizontalScrollBar()->setValue(horizontalScrollBar()->value() + distance.x());
+  verticalScrollBar()->setValue(verticalScrollBar()->value() + distance.y());
 }
 
 
@@ -901,123 +954,33 @@ bool MapperGLCanvas::eventFilter(QObject *target, QEvent *event)
 
 void MapperGLCanvas::increaseZoomLevel(int steps)
 {
-  qreal zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
-
-  while (steps > 0 && zoomFactor < MM::ZOOM_MAX) {
-    _zoomLevel++;
-    zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
-    steps--;
-  }
-  zoomFactor = qMin(zoomFactor, MM::ZOOM_MAX);
-
-  // Reset adaptation
-  _shapeIsAdapted = false;
-
-  // Apply to view
-  applyZoomToView();
+  _setZoom(_zoom * qPow(MM::ZOOM_FACTOR, steps), _zoomAnchor());
 }
 
 void MapperGLCanvas::decreaseZoomLevel(int steps)
 {
-  qreal zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
-
-  while (steps > 0 && zoomFactor > MM::ZOOM_MIN) {
-    _zoomLevel--;
-    zoomFactor = qPow(MM::ZOOM_FACTOR, _zoomLevel);
-    steps--;
-  }
-  zoomFactor = qMax(zoomFactor, MM::ZOOM_MIN);
-
-  // Reset adaptation
-  _shapeIsAdapted = false;
-
-  // Apply to view
-  applyZoomToView();
+  _setZoom(_zoom / qPow(MM::ZOOM_FACTOR, steps), _zoomAnchor());
 }
 
 void MapperGLCanvas::resetZoomLevel()
 {
-  // Reset zoom level to zero
-  _zoomLevel = 0;
-
-  // Reset adaptation
-  _shapeIsAdapted = false;
-
-  // Apply to view
-  applyZoomToView();
+  _setZoom(1.0 / _fitScale(), _zoomAnchor());
 }
 
 void MapperGLCanvas::fitShapeToView()
 {
-  if (showsOutputFrame()) // Show the whole output, and the shapes outside of it
-  {
-    _fitArea(_outputRect().united(scene()->itemsBoundingRect()));
-    _followsOutput = false;
-  }
-  else if (getCurrentShape()) { // Test if current shape exists
-    // Center all shapes
-    setSceneRect(scene()->itemsBoundingRect());
-    _fitArea(scene()->itemsBoundingRect());
-  }
+  _setZoom(1.0, viewport()->rect().center());
+  if (!_contentRect.isEmpty())
+    centerOn(_contentRect.center());
 }
-
-void MapperGLCanvas::_fitArea(const QRectF& area)
-{
-  if (area.isEmpty())
-    return;
-
-  const QMarginsF margins(area.width() * FIT_MARGIN, area.height() * FIT_MARGIN,
-                          area.width() * FIT_MARGIN, area.height() * FIT_MARGIN);
-  fitInView(showsOutputFrame() ? area.marginsAdded(margins) : area, Qt::KeepAspectRatio);
-  centerOn(area.center());
-
-  // Get the horizontal scaling factor, and the zoom level to continue from.
-  _scalingFactor = transform().m11();
-  _zoomLevel = qRound(qLn(_scalingFactor) / qLn(MM::ZOOM_FACTOR));
-  _shapeIsAdapted = true;
-
-  emit zoomFactorChanged(getZoomFactor());
-}
-
-void MapperGLCanvas::updateOutputArea()
-{
-  if (!showsOutputFrame())
-    return;
-
-  const QRectF output = _outputRect();
-  if (output.isEmpty())
-    return;
-
-  // Shapes can be dragged outside of the output, up to its own size.
-  const QMarginsF around(output.width(), output.height(), output.width(), output.height());
-  setSceneRect(output.marginsAdded(around).united(scene()->itemsBoundingRect()));
-
-  if (_followsOutput)
-    _fitArea(output);
-
-  viewport()->update();
-}
-
-void MapperGLCanvas::resizeEvent(QResizeEvent* event)
-{
-  QGraphicsView::resizeEvent(event);
-  if (_followsOutput)
-    updateOutputArea();
-}
-
 
 void MapperGLCanvas::setZoomFromMenu(const QString &text)
 {
-  // Get text choosen by user and convert it to double
-  qreal zoomFactor = text.mid(0, text.length() - 1).toDouble();
-  // Set zoom factor
-  _scalingFactor = zoomFactor / 100;
-
-  // Adapt shape
-  _shapeIsAdapted = true;
-
-  // Apply to view
-  applyZoomToView();
+  // Get text choosen by user and convert it to a factor ("50%" -> 0.5).
+  bool ok;
+  const qreal percent = QString(text).remove(QChar('%')).trimmed().toDouble(&ok);
+  if (ok && percent > 0)
+    _setZoom(percent / 100, viewport()->rect().center());
 }
 
 void MapperGLCanvas::_snapVertex(QPointF* p)
