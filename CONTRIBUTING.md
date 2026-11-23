@@ -1,6 +1,6 @@
 # Contribute to MapMap
 
-Thank you for contributing! MapMap is a community-built, maintained and operated project that welcomes contributions from everyone. Please read our [code of conduct](https://github.com/mapmapteam/mapmap/blob/develop/CODE_OF_CONDUCT.md)
+Thank you for contributing! MapMap is a community-built, maintained and operated project that welcomes contributions from everyone. Please read our [code of conduct](CODE_OF_CONDUCT.md)
 
 This document outlines the procedures and what to expect when contributing a bug report, a feature request, or new code via a pull request.
 If you want to contribute documentation have a look at the [Wiki](https://github.com/mapmapteam/mapmap/wiki). 
@@ -28,8 +28,8 @@ We love hearing about bugs! It's how we get them fixed.
 
 - If you notice something odd happening, try to make it happen again (reproduce it). 
 - If you can reproduce it, try to figure out if it's caused by the video format that you use or by MapMap. 
-- If it's caused by MapMap, make sure it **still occurs in the current development version** (where we continually fix problems) by checking out with git to the current `develop` branch of MapMap.
-- If it looks like it's caused by MapMap (or if you're not sure) and still occurs on the current `develop` branch, submit a bug report to the [issue tracker](https://github.com/mapmapteam/mapmap/issues).  
+- If it's caused by MapMap, make sure it **still occurs in the current development version** (where we continually fix problems) by checking out with git to the current `dev` branch of MapMap.
+- If it looks like it's caused by MapMap (or if you're not sure) and still occurs on the current `dev` branch, submit a bug report to the [issue tracker](https://github.com/mapmapteam/mapmap/issues).  
   - **Search the issue tracker** to make sure your problem has not been reported yet. If you find a relevant bug, comment there, even if it's an old or closed one! 
   - Only if you don't find a relevant issue, open a new issue. A new issue does not generate more exposure/visibility than commenting on an existing one.
   - Make sure you give it a good title! A good title explains the core of the problem in about 5-10 words. (It's sometimes easier to write the title after you've written the description.)
@@ -69,7 +69,7 @@ As with most open source projects, the fastest way to get a feature made is to m
 ## <a id='contributing-code'></a>Contribute code
 
 We are more likely to accept your code if we feel like it has been discussed already. 
-If you are submitting a new feature, it's best if the feature has been discussed beforehand, either as a [feature request](#feature-requests) or on the [Slack](https://mapmap.slack.com/) or the [mailing list](https://listes.koumbit.net/cgi-bin/mailman/listinfo/mapmap-list-mapmap.info).
+If you are submitting a new feature, it's best if the feature has been discussed beforehand, either as a [feature request](#feature-requests) or on the [Slack](https://mapmap.slack.com/).
 
 - Please read the [coding style](#coding-style) section below and make sure your code conforms to it.
 If in doubt, try and match the style and practices you find in the code you are working with.
@@ -79,11 +79,11 @@ They don't have to be in-depth, just a brief summary of what the commit contains
 #### Organising your code
 
 
-- Submit from a dedicated branch on your own repository **branched off from current `develop`**. Your branch should be only about a single topic or area of MapMap. 
+- Submit from a dedicated branch on your own repository **branched off from current `dev`**. Your branch should be only about a single topic or area of MapMap. 
 If you have multiple things to submit, make separate branches for each topic and submit multiple pull requests. 
 (This makes it easier to review different parts of your code separately, and get it into the core faster.)
-- The branch name should start with either __feature-__ for features or __bugfix-__ for bug fixes.
-  - For example, if your patch adds code to draw ellipses, your branch should be called something like __feature-draw-ellipses__.
+- The branch name should start with either __feat-__ for features or __fix-__ for bug fixes, followed by the number of the GitHub issue when there is one.
+  - For example, if your patch adds code to draw ellipses, your branch should be called something like __feat-draw-ellipses__, or __fix-542-reopen-camera-project__ for a fix to issue 542.
   - Remember, _commit early, commit often_ - use commits to isolate small subsets of code. 
 This granularity makes the code easier to deal with in cases where some things have to be modified/isolated/removed from the pull request.
 - When you commit your files and you find you can't do that without using `git add -f/--force`, this is because of the existing gitignore patterns. _Think about if those files really should be in the repo in the first place_. Then, instead of force-adding files which really should be in the repo (i.e. incorrectly match a gitignore pattern), correct the gitignore pattern (ask for help if necessary) and commit normally.
@@ -92,8 +92,8 @@ This granularity makes the code easier to deal with in cases where some things h
 
 #### Submitting the pull request
 
-- Submit your pull request to the __`develop`__ branch of MapMap (which you branched off from), _not_ the `master` branch.
-- All pull requests that contain changes that need to be in the changelog **must include relevant additions to `NEWS`**. Use previous entries as a guide for style/indentation/etc.
+- Submit your pull request to the __`dev`__ branch of MapMap (which you branched off from), _not_ the `master` branch.
+- All pull requests that contain changes that need to be in the changelog **must include relevant additions to `CHANGELOG.md`**. Use previous entries as a guide for style/indentation/etc.
 - In the comments field on your new pull request, enter a description of everything that the code in the pull request does. 
   - This description is the first contact most of the core team will have with your code, so you should use it to explain why your pull request is awesome and we should accept it. 
   - Reference any issues or bugs in the [MapMap issue tracker](https://github.com/mapmapteam/mapmap/issues) that are relevant to your pull request using `#issue number` notation, eg to reference issue __1234__ write `#1234`.
@@ -111,7 +111,7 @@ This granularity makes the code easier to deal with in cases where some things h
 
 ## <a id='building'></a>Building
 
-See INSTALL.
+See [INSTALL.md](INSTALL.md).
 
 You will need to install markdown to build some of the documentation that comes with the software.
 
@@ -123,53 +123,38 @@ We use Semantic Versioning 2.0.0. Given a version number MAJOR.MINOR.PATCH, incr
 * PATCH version when you make backwards-compatible bug fixes.
 See http://semver.org/
 
-We want the 0 series to be backward-compatible. That means that a project created with MapMap 0.1 should still work with MapMap 0.99, if we ever get to such a version number. When we will break this backward-compatibilty, we will start the 1 series and provide a migration script. This script might be ran from the command-line or on the Web. The other thing we need to be backward-compatible is the OSC interface. The rest of the software can change. This includes the names of the menu items and the appearance of the user interface. We will try to keep these consistent, though.
+Version 1.0 is not backward-compatible with the 0 series: projects are now saved as JSON files, and the XML projects of MapMap 0.6 and earlier cannot be opened. Pre-releases are named like `1.0.0-beta.1`.
 
 ## <a id='files-overview'></a>Files overview
 
+* AGENTS.md: How to build, test and work in this repository; written for coding agents, useful to everyone.
+* CHANGELOG.md: Release notes for each version. It is shown in the About dialog.
 * CONTRIBUTING.md: What to know to contribute to the project.
-* INSTALL: Instructions to build and install the software.
-* NEWS: Release notes for each tag.
-* README: The short documentation at the root of the project
-* TODO: You can put things to do there, or use https://github.com/mapmapteam/mapmap
-* images/: Images part of the GUI.
-* prototypes/ : Contains prototypes. Please ask the project maintainer before removing some of these.
-* docs/informations/*.md Markdown files to generate the About dialog
+* INSTALL.md: Instructions to build the software.
+* OSC: The OSC messages that control MapMap.
+* README.md: The short documentation at the root of the project.
+* resources/: Images, icons, translations and style sheet of the user interface.
+* docs/informations/: Texts shown inside the software (OSC commands, keyboard shortcuts, contributors).
 
 ## <a id='code-management-with-git'></a>Code management with Git
 
-* We develop in the develop branch. The master branch is only for the latest tag.
-* Create a branch for each new features. Merge it to develop.
-* Create release-x.y.z branch for releases.
-* If possible, avoid merges, and use git rebase instead. (like in the GNOME projects)
-* Create a x.y branch for each x.y major.minor version series.
-* For a new release, merge develop to master (or your branch to the major.minor branch if it's a bugfix release) and then tag it there.
+The rules are in [AGENTS.md](AGENTS.md), section "Git rules". In short:
+
+* We develop in the `dev` branch. The `master` branch only receives released versions.
+* Create a branch for each feature or fix, from an up-to-date `dev`, and open a pull request to `dev`.
+* Rebase, never merge. Pull requests are integrated with "Rebase and merge".
+* Every commit builds and passes the tests.
 * In doubt, ask the release manager.
 
 ## <a id='make-a-release'></a>Make a release
 
 * If it's a new feature, increment minor. If it's bugfix, increment micro. If it's not backward-compatible, increment major.
-* Create a release-x.y.z branch
-* Verify the version number:
-  * vim -o VERSION.txt DMGVERSION.txt mapmap.pro docs/Doxyfile NEWS src/core/MM.cpp
-  * VERSION.txt
-  * VERSION in MM.cpp
-  * VERSION in mapmap.pro
-  * PROJECT_NUMBER in Doxyfile
-* Edit NEWS - update with the news for the release you are about to make
-* Run ./scripts/update-changelog.sh and commit the changes
-* Maybe update the docs/informations/osc.md file and run scripts/update-osc.sh and commit the changes
-* Maybe update the docs/informations/CONTRIBUTORS.md file and run scripts/update-contributors.sh and commit the changes
-* run make
-* run ./sh_build_doc.sh
-* merge to master, or to the major.minor branch
-* run ./sh_make_tarball.sh
-* then untar it, cd to that dir and build the whole thing to see if it works
-* git tag x.y.z
-* go back to your release branch
-* increment micro (or minor) version number in the files above.
-* merge into develop.
-* keep developing.
+* Set the version number in `mapmap.pro`: `VERSION` (numbers only) and `MAPMAP_VERSION` (the name shown to users, such as `1.0.0-beta.1`).
+* Add the section of the release at the top of `CHANGELOG.md`.
+* Maybe update `docs/informations/osc.md`, `docs/informations/keyboard-shortcuts.html` and `docs/informations/CONTRIBUTORS.md`.
+* Open a pull request to `dev` and wait for the automated builds to pass on macOS, Ubuntu and Windows.
+* Once it is integrated, tag that commit of `dev` with the version number.
+* Publish the files built for that tag on the [releases page](https://github.com/mapmapteam/mapmap/releases).
 
 ## <a id='project-file-version-number'></a>Project file version number
 
@@ -180,6 +165,6 @@ We want the 0 series to be backward-compatible. That means that a project create
 ## <a id='qt-resources-system'></a>Qt resources system
 
 * The mapmap.pro file is where the packaging is done
-* The mapmap.qrc file is where we specify which resources are packaged with the app.
+* The `.qrc` files (`main.qrc`, `resources/interface.qrc`, `docs/documentation.qrc`) are where we specify which resources are packaged with the app.
 * Images are set there. They are then available as a path-like alias such as ":/fullscreen"
 * See https://doc.qt.io/qt-6/resources.html

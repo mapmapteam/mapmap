@@ -9,14 +9,8 @@ Install the dependencies.
 Build it:
 
 ```
-qmake mapmap.pro
+qmake6 mapmap.pro
 make
-```
-
-Alternatively:
-
-```
-./scripts/build.sh
 ```
 
 ### Ubuntu
@@ -86,7 +80,7 @@ Build:
 If the appearance of the window of the OSC port number in the preferences seem corrupted, you might want to reset MapMap's preferences:
 
 ```
-rm -f ~/Library/Preferences/info.mapmap.MapMap.plist
+./MapMap.app/Contents/MacOS/MapMap --reset-settings
 ```
 
 Build on Windows
@@ -112,8 +106,7 @@ Editing translations
 You might need to update the files:
   
 ```
-cd src/mapmap
-lupdate mapmap.pro 
+lupdate mapmap.pro
 ```
 
 Then, do this:
