@@ -30,6 +30,7 @@ TRANSLATIONS += \
     translations/mapmap_en.ts \
     translations/mapmap_es.ts \
     translations/mapmap_fr.ts \
+    translations/mapmap_pt.ts \
     translations/mapmap_zh_CN.ts \
     translations/mapmap_zh_TW.ts
 

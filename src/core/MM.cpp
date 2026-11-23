@@ -47,7 +47,7 @@ const QString MM::FILE_EXTENSION = "mmp";
 const QString MM::VIDEO_FILES_FILTER = "*.mov *.mp4 *.avi *.ogg *.ogv *.mpeg *.mpeg1 *.mpeg4 *.mpg *.mpg2 *.mp2 *.mjpq *.mjp *.wmv *.webm *sock";
 const QString MM::IMAGE_FILES_FILTER = "*.jpg *.jpeg *.gif *.png *.tiff *.tif *.bmp";
 const QString MM::NAMESPACE_PREFIX = QString("%1::").arg(TOSTRING(MM_NAMESPACE));
-const QString MM::SUPPORTED_LANGUAGES = "de, en, es, fr, zh_CN, zh_TW";
+const QString MM::SUPPORTED_LANGUAGES = "de, en, es, fr, pt, zh_CN, zh_TW";
 // x.y.z with an optional -prerelease / +build suffix (e.g. 1.0.0-alpha.1), so
 // projects saved by pre-release builds remain loadable. Anchored to reject junk.
 const QString MM::SUPPORTED_FILE_VERSIONS = "^\\d+\\.\\d+\\.\\d+([-+][0-9A-Za-z.-]+)?$"; // regex
