@@ -41,6 +41,10 @@ MAXIMUM_RELOCATION_PASSES=10
 # Qt plugin that reads SVG images, and the Qt library it needs.
 SVG_IMAGE_PLUGIN="imageformats/libqsvg.dylib"
 SVG_FRAMEWORK="QtSvg"
+# hdiutil sometimes fails with "Resource busy", when the system still uses the
+# temporary disk it works with: how many times to try, and how long to wait.
+DISK_IMAGE_MAXIMUM_ATTEMPTS=5
+DISK_IMAGE_RETRY_DELAY_SECONDS=10
 
 skip_build=false
 sign_identity="${AD_HOC_IDENTITY}"
@@ -299,11 +303,21 @@ cp "${PROJECT_ROOT}/README.md" "${stage_directory}/README.md"
 
 mkdir -p "${output_directory}"
 disk_image="${output_directory}/${package_name}.dmg"
-hdiutil create \
+attempt=1
+until hdiutil create \
     -volname "${APP_NAME} ${display_version}" \
     -srcfolder "${stage_directory}" \
     -ov -format UDZO \
     "${disk_image}"
+do
+    if [ "${attempt}" -ge "${DISK_IMAGE_MAXIMUM_ATTEMPTS}" ]; then
+        echo "Error: hdiutil failed ${attempt} times; no disk image was made." >&2
+        exit 1
+    fi
+    echo "hdiutil failed (attempt ${attempt}); trying again in ${DISK_IMAGE_RETRY_DELAY_SECONDS} seconds." >&2
+    sleep "${DISK_IMAGE_RETRY_DELAY_SECONDS}"
+    attempt=$((attempt + 1))
+done
 
 echo
 echo "Disk image: ${disk_image}"
