@@ -15,10 +15,12 @@
 #include <QOpenGLContext>
 #include <QProcess>
 #include <QStandardPaths>
+#include <QOpenGLFramebufferObject>
 
 #include "VideoPlayerImpl.h"
 #include "CameraImpl.h"
 #include "Util.h"
+#include "YuvTexture.h"
 
 using namespace mmp;
 
@@ -73,6 +75,93 @@ void _checkQuadrants(PixelAt pixelAt, const char* where)
              qPrintable(QString("%1: %2 is %3, expected %4")
                         .arg(where, q.name, _colorString(got), _colorString(q.color))));
   }
+}
+
+// Builds a YUV frame of the quadrant pattern in the given layout, encoding
+// with the BT.601 matrix in the given range (rows padded to test strides).
+QVideoFrame _makeYuvFrame(QVideoFrameFormat::PixelFormat pixelFormat, QVideoFrameFormat::ColorRange range)
+{
+  QVideoFrameFormat format(QSize(CLIP_SIZE, CLIP_SIZE), pixelFormat);
+  format.setColorSpace(QVideoFrameFormat::ColorSpace_BT601);
+  format.setColorRange(range);
+  QVideoFrame frame(format);
+  if (!frame.map(QVideoFrame::WriteOnly))
+    return QVideoFrame();
+
+  const bool full = (range == QVideoFrameFormat::ColorRange_Full);
+  auto yuvOf = [&](const QColor& c, float& y, float& u, float& v) {
+    const float r = c.redF(), g = c.greenF(), b = c.blueF();
+    const float yy = 0.299f * r + 0.587f * g + 0.114f * b;
+    const float cb = (b - yy) / 1.772f, cr = (r - yy) / 1.402f;
+    y = full ? yy * 255 : 16 + yy * 219;
+    u = (full ? 255 : 224) * cb + 128;
+    v = (full ? 255 : 224) * cr + 128;
+  };
+  auto toByte = [](float f) { return uchar(qBound(0, qRound(f), 255)); };
+  auto colorAt = [](int x, int y) {
+    const int q = (y >= QUADRANT_SIZE ? 2 : 0) + (x >= QUADRANT_SIZE ? 1 : 0);
+    return QUADRANTS[q].color;
+  };
+
+  for (int y = 0; y < CLIP_SIZE; y++)
+    for (int x = 0; x < CLIP_SIZE; x++) {
+      float yy, u, v;
+      yuvOf(colorAt(x, y), yy, u, v);
+      frame.bits(0)[y * frame.bytesPerLine(0) + x] = toByte(yy);
+      if (x % 2 || y % 2)
+        continue;
+      const int cx = x / 2, cy = y / 2;
+      switch (pixelFormat) {
+      case QVideoFrameFormat::Format_NV12:
+      case QVideoFrameFormat::Format_NV21: {
+        uchar* p = frame.bits(1) + cy * frame.bytesPerLine(1) + cx * 2;
+        const bool nv12 = (pixelFormat == QVideoFrameFormat::Format_NV12);
+        p[0] = toByte(nv12 ? u : v);
+        p[1] = toByte(nv12 ? v : u);
+        break;
+      }
+      default: {
+        const bool yv12 = (pixelFormat == QVideoFrameFormat::Format_YV12);
+        frame.bits(yv12 ? 2 : 1)[cy * frame.bytesPerLine(1) + cx] = toByte(u);
+        frame.bits(yv12 ? 1 : 2)[cy * frame.bytesPerLine(2) + cx] = toByte(v);
+        break;
+      }
+      }
+    }
+  frame.unmap();
+  return frame;
+}
+
+// Draws a YuvTexture on a full-size quad into an FBO (with the fixed-function
+// pipeline, like MapMap's renderer) and returns the result.
+QImage _drawYuv(YuvTexture& yuv)
+{
+  QOpenGLFramebufferObject fbo(CLIP_SIZE, CLIP_SIZE);
+  fbo.bind();
+  glViewport(0, 0, CLIP_SIZE, CLIP_SIZE);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0, CLIP_SIZE, CLIP_SIZE, 0, -1, 1); // y down, like the canvases
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glClearColor(0, 0, 0, 1);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  glEnable(GL_TEXTURE_2D);
+  glColor4f(1, 1, 1, 1);
+  yuv.bind();
+  glBegin(GL_QUADS);
+  glTexCoord2f(0, 0); glVertex2f(0, 0);
+  glTexCoord2f(1, 0); glVertex2f(CLIP_SIZE, 0);
+  glTexCoord2f(1, 1); glVertex2f(CLIP_SIZE, CLIP_SIZE);
+  glTexCoord2f(0, 1); glVertex2f(0, CLIP_SIZE);
+  glEnd();
+  yuv.release();
+  glDisable(GL_TEXTURE_2D);
+
+  QImage img = fbo.toImage();
+  fbo.release();
+  return img;
 }
 
 } // namespace
@@ -263,6 +352,87 @@ void TestVideo::glUpload()
   }
 
   glDeleteTextures(1, &tex);
+  context.doneCurrent();
+}
+
+void TestVideo::yuvShaderDraw_data()
+{
+  QTest::addColumn<int>("pixelFormat");
+  QTest::addColumn<int>("range");
+  const int video = QVideoFrameFormat::ColorRange_Video, full = QVideoFrameFormat::ColorRange_Full;
+  QTest::newRow("yuv420p video") << int(QVideoFrameFormat::Format_YUV420P) << video;
+  QTest::newRow("yuv420p full")  << int(QVideoFrameFormat::Format_YUV420P) << full;
+  QTest::newRow("yv12")          << int(QVideoFrameFormat::Format_YV12)    << video;
+  QTest::newRow("nv12")          << int(QVideoFrameFormat::Format_NV12)    << video;
+  QTest::newRow("nv21")          << int(QVideoFrameFormat::Format_NV21)    << full;
+}
+
+void TestVideo::yuvShaderDraw()
+{
+  QFETCH(int, pixelFormat);
+  QFETCH(int, range);
+
+  QOffscreenSurface surface;
+  surface.create();
+  QOpenGLContext context;
+  if (!context.create() || !context.makeCurrent(&surface))
+    QSKIP("No OpenGL context available");
+  if (context.isOpenGLES())
+    QSKIP("Test needs desktop OpenGL (fixed-function pipeline)");
+
+  QVideoFrame frame = _makeYuvFrame(QVideoFrameFormat::PixelFormat(pixelFormat),
+                                    QVideoFrameFormat::ColorRange(range));
+  QVERIFY(frame.isValid());
+  QVERIFY(YuvTexture::supportsFormat(frame.pixelFormat()));
+
+  YuvTexture yuv;
+  QVERIFY(yuv.upload(frame));
+  QCOMPARE(glGetError(), GLenum(GL_NO_ERROR));
+
+  QImage img = _drawYuv(yuv);
+  QCOMPARE(glGetError(), GLenum(GL_NO_ERROR));
+  _checkQuadrants([&](int x, int y) { return QColor(img.pixel(x, y)); }, "shader output");
+
+  // Re-upload in place.
+  QVERIFY(yuv.upload(frame));
+  QCOMPARE(glGetError(), GLenum(GL_NO_ERROR));
+
+  for (GLuint id : yuv.textureIds())
+    glDeleteTextures(1, &id);
+  context.doneCurrent();
+}
+
+void TestVideo::decodedYuvShaderDraw()
+{
+  if (!_clips.contains("yuv420p"))
+    QSKIP("ffmpeg (with libx264) not available to generate test clips");
+
+  QOffscreenSurface surface;
+  surface.create();
+  QOpenGLContext context;
+  if (!context.create() || !context.makeCurrent(&surface))
+    QSKIP("No OpenGL context available");
+  if (context.isOpenGLES())
+    QSKIP("Test needs desktop OpenGL (fixed-function pipeline)");
+
+  // Decoded YUV frames are kept unconverted for the GPU path.
+  VideoPlayerImpl player;
+  QVERIFY(player.loadMovie(_clips["yuv420p"]));
+  QTRY_VERIFY_WITH_TIMEOUT(player.hasBits() && player.bitsHaveChanged(), FRAME_TIMEOUT_MS);
+  QVERIFY(player.hasVideoFrame());
+  QVideoFrame frame = player.takeVideoFrame();
+  QVERIFY(!player.bitsHaveChanged());
+  player.setPlayState(false);
+
+  QVERIFY(context.makeCurrent(&surface));
+  YuvTexture yuv;
+  QVERIFY(yuv.upload(frame));
+  QImage img = _drawYuv(yuv);
+  QCOMPARE(glGetError(), GLenum(GL_NO_ERROR));
+  _checkQuadrants([&](int x, int y) { return QColor(img.pixel(x, y)); }, "decoded frame via shader");
+
+  for (GLuint id : yuv.textureIds())
+    glDeleteTextures(1, &id);
   context.doneCurrent();
 }
 

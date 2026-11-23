@@ -238,6 +238,21 @@ public:
   /// MUST be called with a current GL context and this texture bound.
   void uploadBits();
 
+  /// Makes the texture ready to draw with: uploads new content if needed,
+  /// binds it to texture unit 0 (and possibly other units / a shader program,
+  /// see Video). Texture coordinates are in [0, 1]. MUST be called with a
+  /// current GL context, and paired with release().
+  virtual void bind();
+
+  /// Undoes bind() (leaves texture unit 0 active, no program in use).
+  virtual void release() {}
+
+protected:
+  /// uploadBits() with the mutex already locked.
+  void _uploadBitsLocked();
+
+public:
+
   virtual GLfloat getX() const { return x; }
   virtual GLfloat getY() const { return y; }
 
@@ -352,7 +367,8 @@ protected:
   qreal _elapsedTime() const { return _timer.elapsed() / 1000.0; }
 };
 
-class VideoImpl; // forward declaration
+class VideoImpl;  // forward declaration
+class YuvTexture; // forward declaration
 
 /**
  * Source that is a Texture retrieved via a video file.
@@ -428,6 +444,11 @@ public:
   /// draw, is also what restarts a looping movie when it reaches its end.
   virtual bool needsRedraw() const { return bitsHaveChanged() || isPlaying(); }
 
+  /// Draws YUV frames straight from the decoder's planes (converted to RGB by
+  /// a shader, see YuvTexture), other frames as a regular RGBA texture.
+  virtual void bind();
+  virtual void release();
+
   /// Upload format of the current frame, which depends on what Qt delivers
   /// (BGRA or RGBA, see VideoImpl::frameToImage()).
   virtual GLenum getBitsFormat() const;
@@ -497,6 +518,11 @@ protected:
   VideoType _videoType;
 
   VideoImpl *_impl;
+
+  // GPU YUV path (see bind()). Created on first YUV frame.
+  YuvTexture *_yuv;
+  // True if the content to draw is in _yuv (rather than textureId).
+  bool _yuvActive;
 };
 
 /**

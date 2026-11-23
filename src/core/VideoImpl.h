@@ -28,6 +28,8 @@
 #include <QImage>
 #include <QVideoFrame>
 #include <QMutex>
+#include <QRecursiveMutex>
+#include <atomic>
 #include <QWaitCondition>
 
 namespace mmp {
@@ -56,14 +58,25 @@ public:
   QString getUri() const;
 
   /// Returns raw RGBA bytes of the latest video frame (or NULL if none yet).
+  /// Resets bitsHaveChanged(). If the latest frame is a YUV frame (see
+  /// hasVideoFrame()) it is converted to RGB on the CPU first, which is slow:
+  /// renderers should use takeVideoFrame() for those.
   virtual const uchar* getBits();
 
   /// Returns true once at least one frame has been received.
-  virtual bool hasBits() const { return (_data != nullptr); }
+  virtual bool hasBits() const;
+
+  /// Returns true if the latest frame is kept unconverted in a YUV format that
+  /// YuvTexture can draw directly (see takeVideoFrame()).
+  virtual bool hasVideoFrame() const;
+
+  /// Returns the latest unconverted YUV frame (invalid if hasVideoFrame() is
+  /// false) and resets bitsHaveChanged().
+  virtual QVideoFrame takeVideoFrame();
 
   /// Returns a (shallow) copy of the latest frame, without resetting
-  /// bitsHaveChanged(). Null image if no frame yet.
-  virtual QImage getFrameImage() const { return _currentFrame; }
+  /// bitsHaveChanged(). Null image if no frame yet. May convert (slow).
+  virtual QImage getFrameImage() const;
 
   /// Returns the QImage format of the latest frame (Format_Invalid if none).
   virtual QImage::Format getFrameFormat() const { return _currentFrame.format(); }
@@ -127,11 +140,32 @@ protected:
 
   void _setMovieReady(bool ready) { _movieReady = ready; }
 
-  // Latest decoded frame, ready for upload (see frameToImage()).
+  /// Stores a newly decoded frame: YUV frames that YuvTexture can draw are
+  /// kept unconverted (copied to system memory, see copyToSystemMemory()),
+  /// others are converted with frameToImage(). The heavy work is done before
+  /// taking the mutex, so this can (and should) run on the decoder's thread.
+  void _setFrame(const QVideoFrame& frame);
+
+public:
+  /// Returns a copy of a frame in ordinary (cached) system memory. Hardware
+  /// decoders (e.g. V4L2 on Raspberry Pi) hand out frames in uncached memory,
+  /// which is several times slower to read: glTexSubImage2D straight from it
+  /// costs ~23 ms per 1080p frame on a Pi 4, vs ~9 ms copy + ~5 ms upload.
+  /// Copying on the decoder thread also returns its buffers right away.
+  /// Returns an invalid frame on failure.
+  static QVideoFrame copyToSystemMemory(const QVideoFrame& frame);
+
+protected:
+
+  // Latest decoded YUV frame, unconverted (invalid if the frame was converted
+  // to _currentFrame instead).
+  QVideoFrame _videoFrame;
+  // Latest decoded frame, ready for upload (see frameToImage()). Null for
+  // YUV frames until getBits() converts them.
   QImage _currentFrame;
   /// Raw pointer into _currentFrame.bits(); kept for ABI with getBits().
   uchar *_data;
-  bool   _bitsChanged;
+  std::atomic<bool> _bitsChanged;
 
   int _width;
   int _height;
@@ -150,7 +184,9 @@ protected:
   bool _movieReady;
   bool _playState;
 
-  QMutex _mutex;
+  // Recursive: renderers hold it across calls to the accessors, which lock it
+  // too (frames are delivered on the decoder's thread).
+  mutable QRecursiveMutex _mutex;
 
   bool _playInLoop;
 

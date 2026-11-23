@@ -58,8 +58,10 @@ bool VideoPlayerImpl::loadMovie(const QString& path)
   _player->setAudioOutput(_audioOutput);
   _player->setVideoSink(_videoSink);
 
+  // Direct connection: frames are copied / converted on the decoder's thread
+  // (see _setFrame()), keeping that work off the GUI thread.
   connect(_videoSink, &QVideoSink::videoFrameChanged,
-          this, &VideoPlayerImpl::onVideoFrameChanged);
+          this, &VideoPlayerImpl::onVideoFrameChanged, Qt::DirectConnection);
   connect(_player, &QMediaPlayer::mediaStatusChanged,
           this, &VideoPlayerImpl::onMediaStatusChanged);
 
@@ -86,19 +88,9 @@ void VideoPlayerImpl::onVideoFrameChanged(const QVideoFrame& frame)
   if (!frame.isValid())
     return;
 
-  lockMutex();
-
-  QImage img = frameToImage(frame);
-  if (!img.isNull()) {
-    _currentFrame = img;
-    _width  = _currentFrame.width();
-    _height = _currentFrame.height();
-    _data   = _currentFrame.bits();
-    _bitsChanged = true;
-    _videoIsConnected = true;
-  }
-
-  unlockMutex();
+  // Runs on the decoder's thread; locks the mutex only to swap the frame.
+  _setFrame(frame);
+  _videoIsConnected = true;
 }
 
 void VideoPlayerImpl::onMediaStatusChanged(QMediaPlayer::MediaStatus status)

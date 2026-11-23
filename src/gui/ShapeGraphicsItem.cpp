@@ -279,16 +279,8 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
 
   // Get texture.
   glEnable (GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
-
-  // Copy bits to texture iff necessary (glTexSubImage2D when size is unchanged).
-  texture->uploadBits();
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-  // Linear minification avoids shimmering when sources are drawn smaller.
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // Uploads new content if needed (YUV video is converted by a shader).
+  texture->bind();
 
   // Set texture color (apply opacity).
   glColor4f(1.0f, 1.0f, 1.0f,
@@ -301,6 +293,7 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
 {
   Q_UNUSED(option);
 
+  _getTexture()->release();
   glDisable(GL_TEXTURE_2D);
 
   painter->endNativePainting();
