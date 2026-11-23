@@ -10,7 +10,7 @@ MapMap is a free video mapping software: it projects videos, images and colors o
 
 - License: GNU GPL version 3.
 
-- Current version: see `MAPMAP_VERSION` in `mapmap.pro`. The file `VERSION.txt` is outdated.
+- Current version: see `MAPMAP_VERSION` in `mapmap.pro`.
 
 ## Build
 
@@ -111,8 +111,6 @@ The same commands run on macOS, Ubuntu and Windows for every pull request. A pul
 - Opening a camera source turns on the user's camera.
 
 ## Outdated files
-
-- `VERSION.txt` still says 0.6.3 and is no longer read by anything. The version is in `mapmap.pro`.
 
 - `docs/manual/manual_en.rst` describes MapMap as it was in 2014.
 
