@@ -394,7 +394,7 @@ void PreferenceDialog::createControlsPage()
   _oscSameMediaSourceBox = new QCheckBox(tr("Allow message with existing media source"));
   _oscSameMediaSourceBox->setChecked(false);
   _oscSameMediaSourceBox->setToolTip(tr(
-      "When off (the default), an OSC message that sets a paint's media to the "
+      "When off (the default), an OSC message that sets a source's media to the "
       "file it already uses is ignored, so repeated messages don't reload — and "
       "restart — the same video. Turn it on to reload the media anyway, for "
       "example to restart a clip from the beginning over OSC."));
