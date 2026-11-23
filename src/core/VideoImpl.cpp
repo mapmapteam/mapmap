@@ -19,8 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "VideoImpl.h"
+#include "YuvTexture.h"
 #include <QSettings>
 #include <QDebug>
+#include <QMutexLocker>
+#include <cstring>
 
 namespace mmp {
 
@@ -89,8 +92,102 @@ QImage VideoImpl::frameToImage(const QVideoFrame& frame)
   return img.convertToFormat(QImage::Format_ARGB32);
 }
 
+QVideoFrame VideoImpl::copyToSystemMemory(const QVideoFrame& constFrame)
+{
+  QVideoFrame src = constFrame; // shallow copy, needed to map
+  QVideoFrame dst(src.surfaceFormat());
+  if (!dst.isValid() || !src.map(QVideoFrame::ReadOnly))
+    return QVideoFrame();
+  if (!dst.map(QVideoFrame::WriteOnly) || dst.planeCount() != src.planeCount()) {
+    src.unmap();
+    return QVideoFrame();
+  }
+
+  for (int i = 0; i < src.planeCount(); i++) {
+    const int srcStride = src.bytesPerLine(i);
+    const int dstStride = dst.bytesPerLine(i);
+    if (srcStride == dstStride && src.mappedBytes(i) <= dst.mappedBytes(i))
+      memcpy(dst.bits(i), src.bits(i), src.mappedBytes(i));
+    else if (srcStride > 0 && dstStride > 0) {
+      const int rows = qMin(src.mappedBytes(i) / srcStride, dst.mappedBytes(i) / dstStride);
+      const int rowBytes = qMin(srcStride, dstStride);
+      for (int r = 0; r < rows; r++)
+        memcpy(dst.bits(i) + r * dstStride, src.bits(i) + r * srcStride, rowBytes);
+    }
+  }
+
+  dst.unmap();
+  src.unmap();
+  dst.setStartTime(src.startTime());
+  dst.setEndTime(src.endTime());
+  return dst;
+}
+
+void VideoImpl::_setFrame(const QVideoFrame& frame)
+{
+  // Heavy lifting first, without holding the mutex (the renderer may be
+  // waiting on it).
+  QVideoFrame videoFrame;
+  QImage image;
+  if (YuvTexture::supportsFormat(frame.pixelFormat()) && YuvTexture::isAvailable())
+  {
+    // Keep the planes unconverted; the renderer converts on the GPU.
+    videoFrame = copyToSystemMemory(frame);
+    if (!videoFrame.isValid())
+      videoFrame = frame; // Slower to upload, but works.
+  }
+  else
+  {
+    image = frameToImage(frame);
+    if (image.isNull())
+      return;
+  }
+
+  QMutexLocker locker(&_mutex);
+  _videoFrame = videoFrame;
+  _currentFrame = image;
+  _data   = image.isNull() ? nullptr : _currentFrame.bits();
+  _width  = frame.width();
+  _height = frame.height();
+  _bitsChanged = true;
+}
+
+bool VideoImpl::hasBits() const
+{
+  QMutexLocker locker(&_mutex);
+  return (_data != nullptr || _videoFrame.isValid());
+}
+
+bool VideoImpl::hasVideoFrame() const
+{
+  QMutexLocker locker(&_mutex);
+  return _videoFrame.isValid();
+}
+
+QVideoFrame VideoImpl::takeVideoFrame()
+{
+  QMutexLocker locker(&_mutex);
+  _bitsChanged = false;
+  return _videoFrame;
+}
+
+QImage VideoImpl::getFrameImage() const
+{
+  QMutexLocker locker(&_mutex);
+  if (_currentFrame.isNull() && _videoFrame.isValid())
+    return frameToImage(_videoFrame);
+  return _currentFrame;
+}
+
 const uchar* VideoImpl::getBits()
 {
+  QMutexLocker locker(&_mutex);
+  // Fallback for YUV frames: convert once on demand.
+  if (!_data && _videoFrame.isValid())
+  {
+    _currentFrame = frameToImage(_videoFrame);
+    _data = _currentFrame.isNull() ? nullptr : _currentFrame.bits();
+  }
   _bitsChanged = false;
   return _data;
 }
@@ -152,7 +249,9 @@ void VideoImpl::unloadMovie()
 
 void VideoImpl::freeResources()
 {
+  QMutexLocker locker(&_mutex);
   _data = nullptr;
+  _videoFrame = QVideoFrame();
   _currentFrame = QImage();
   _bitsChanged = false;
   _width = _height = -1;

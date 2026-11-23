@@ -18,6 +18,7 @@ HEADERS += $$PWD/Commands.h \
     $$PWD/UidAllocator.h \
     $$PWD/VideoImpl.h \
     $$PWD/VideoPlayerImpl.h \
+    $$PWD/YuvTexture.h \
     $$PWD/Util.h
 
 SOURCES += $$PWD/Commands.cpp \
@@ -37,6 +38,7 @@ SOURCES += $$PWD/Commands.cpp \
     $$PWD/UidAllocator.cpp \
     $$PWD/VideoImpl.cpp \
     $$PWD/VideoPlayerImpl.cpp \
+    $$PWD/YuvTexture.cpp \
     $$PWD/Util.cpp
 
 # Syphon (macOS-only) inter-application video sharing.

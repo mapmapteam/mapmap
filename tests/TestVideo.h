@@ -34,6 +34,11 @@ private slots:
   void glUpload_data();
   void glUpload();
 
+  void yuvShaderDraw_data();
+  void yuvShaderDraw();
+
+  void decodedYuvShaderDraw();
+
   void cameraFrames();
 
 private:

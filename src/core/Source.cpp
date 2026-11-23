@@ -23,6 +23,7 @@
 #include "VideoPlayerImpl.h"
 #include "CameraImpl.h"
 #include "Util.h"
+#include "YuvTexture.h"
 #include <iostream>
 #include <QFileIconProvider>
 #include <QFileInfo>
@@ -60,9 +61,27 @@ void Texture::update()
   }
 }
 
+void Texture::bind()
+{
+  glBindTexture(GL_TEXTURE_2D, textureId);
+  uploadBits();
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+  // Linear minification avoids shimmering when sources are drawn smaller.
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
 void Texture::uploadBits()
 {
   lockMutex();
+  _uploadBitsLocked();
+  unlockMutex();
+}
+
+void Texture::_uploadBitsLocked()
+{
   if (bitsHaveChanged())
   {
     int width  = getWidth();
@@ -71,7 +90,6 @@ void Texture::uploadBits()
     Util::uploadTextureBits(width, height, getBitsFormat(), getBitsType(), bits,
                             _uploadedWidth, _uploadedHeight);
   }
-  unlockMutex();
 }
 
 void Texture::read(const QJsonObject& obj)
@@ -230,7 +248,9 @@ Video::Video(int id) : Video(VIDEO_URI, id)
 Video::Video(VideoType type, int id) : Texture(id),
     _uri(""),
     _videoType(type),
-    _impl(nullptr)
+    _impl(nullptr),
+    _yuv(nullptr),
+    _yuvActive(false)
 {
   switch (type) {
     case VIDEO_WEBCAM:
@@ -257,6 +277,47 @@ Video::Video(const QString uri_, VideoType type, double rate, uid id):
 Video::~Video()
 {
   delete _impl;
+  if (_yuv) {
+    // No GL context is current here (see orphanTexture()).
+    for (GLuint id : _yuv->textureIds())
+      orphanTexture(id);
+    delete _yuv;
+  }
+}
+
+void Video::bind()
+{
+  lockMutex();
+  if (_impl->bitsHaveChanged())
+  {
+    if (_impl->hasVideoFrame() && YuvTexture::isAvailable())
+    {
+      if (!_yuv)
+        _yuv = new YuvTexture;
+      _yuvActive = _yuv->upload(_impl->takeVideoFrame());
+    }
+    else
+      _yuvActive = false; // RGB frame: uploaded below.
+  }
+
+  if (_yuvActive)
+    _yuv->bind();
+  else
+  {
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    _uploadBitsLocked();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  }
+  unlockMutex();
+}
+
+void Video::release()
+{
+  if (_yuvActive)
+    _yuv->release();
 }
 
 /* Implementation of the Camera class */

@@ -42,6 +42,7 @@ HEADERS += \
     $$CONTROL/OscAction.h \
     $$CORE/VideoImpl.h \
     $$CORE/VideoPlayerImpl.h \
+    $$CORE/YuvTexture.h \
     $$CORE/CameraImpl.h \
     $$CORE/CameraSurface.h \
     $$CORE/Layer.h \
@@ -75,6 +76,7 @@ SOURCES += \
     $$CONTROL/OscAction.cpp \
     $$CORE/VideoImpl.cpp \
     $$CORE/VideoPlayerImpl.cpp \
+    $$CORE/YuvTexture.cpp \
     $$CORE/CameraImpl.cpp \
     $$CORE/CameraSurface.cpp \
     $$CORE/Layer.cpp \
