@@ -32,6 +32,9 @@ private slots:
   void rejectsMissingValue();
   void rejectsMalformedVertex();
   void ignoresLeadingAndDoubleSlashes();
+  void parsesLayerFlip();
+  void parsesLayerRotate();
+  void rejectsMalformedFlipAndRotate();
 };
 
 #endif /* TEST_OSC_H_ */

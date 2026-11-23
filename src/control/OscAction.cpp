@@ -151,6 +151,46 @@ OscAction parseLayer(const QStringList& sub, const QVariantList& args)
     return a;
   }
 
+  // Flip / rotate: /mapmap/layer/flip[/source|/destination]/<horizontal|vertical> <sel>
+  //                /mapmap/layer/rotate[/source|/destination]/<cw|ccw|180> <sel>
+  // "source" turns the image inside the layer; the default turns the shape.
+  if ((sub.first() == QLatin1String("flip") || sub.first() == QLatin1String("rotate"))
+      && (sub.size() == 2 || sub.size() == 3))
+  {
+    a.shapeRole = OscAction::OutputShape;
+    if (sub.size() == 3)
+    {
+      if (sub.at(1) == QLatin1String("source"))
+        a.shapeRole = OscAction::InputShape;
+      else if (sub.at(1) != QLatin1String("destination"))
+        return invalid("unknown layer " + sub.first() + " subcommand: " + sub.join('/'));
+    }
+
+    const QString& what = sub.last();
+    if (sub.first() == QLatin1String("flip"))
+    {
+      if (what == QLatin1String("horizontal"))
+        a.flipDirection = OscAction::FlipHorizontal;
+      else if (what == QLatin1String("vertical"))
+        a.flipDirection = OscAction::FlipVertical;
+      else
+        return invalid("layer flip needs horizontal or vertical, not: " + what);
+      a.type = OscAction::LayerFlip;
+      return a;
+    }
+
+    if (what == QLatin1String("cw"))
+      a.turn = OscAction::Turn90CW;
+    else if (what == QLatin1String("ccw"))
+      a.turn = OscAction::Turn90CCW;
+    else if (what == QLatin1String("180"))
+      a.turn = OscAction::Turn180;
+    else
+      return invalid("layer rotate needs cw, ccw or 180, not: " + what);
+    a.type = OscAction::LayerRotate;
+    return a;
+  }
+
   // Otherwise a single token is treated as a property name to set.
   if (sub.size() == 1)
   {
