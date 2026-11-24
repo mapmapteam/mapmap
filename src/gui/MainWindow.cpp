@@ -45,6 +45,11 @@ MainWindow* MainWindow::_instance = nullptr;
 
 namespace {
 
+// Cursor shown while a source is created. Not Qt::WaitCursor: on macOS, Qt 6.11
+// makes its image with a color space that it has already freed, which can crash.
+// macOS itself provides this one.
+const Qt::CursorShape BUSY_CURSOR = Qt::BusyCursor;
+
 /**
  * Application-wide event filter that tells the main window whenever the user
  * touches the mouse, the keyboard or a tablet, in any window. It never
@@ -3253,7 +3258,7 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage, bool isC
     return false;
   }
 
-  QApplication::setOverrideCursor(Qt::WaitCursor);
+  QApplication::setOverrideCursor(BUSY_CURSOR);
 
   // Add media file to model.
   uint mediaId = createMediaSource(NULL_UID, fileName, 0, 0, isImage, type);
@@ -3289,7 +3294,7 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage, bool isC
 
 bool MainWindow::addColorSource(const QColor& color)
 {
-  QApplication::setOverrideCursor(Qt::WaitCursor);
+  QApplication::setOverrideCursor(BUSY_CURSOR);
 
   // Add color to model.
   uint colorId = createColorSource(NULL_UID, color);
