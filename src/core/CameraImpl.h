@@ -20,16 +20,23 @@
 #ifndef CAMERAIMPL_H_
 #define CAMERAIMPL_H_
 
-#include "CameraSurface.h"
 #include "VideoImpl.h"
 
 #include <QCamera>
 #include <QMediaCaptureSession>
 #include <QMediaDevices>
 #include <QCameraDevice>
+#include <QVideoSink>
 
 namespace mmp {
 
+/**
+ * Video implementation for a capture device (camera).
+ *
+ * Frames go through VideoImpl::_setFrame(), like those of a video file: YUV
+ * frames that YuvTexture can draw are converted to RGB on the GPU, the others
+ * on the CPU.
+ */
 class CameraImpl : public VideoImpl
 {
 public:
@@ -40,24 +47,21 @@ public:
   bool isLive() override { return true; }
   bool seekTo(qint64) override { return false; }
 
-  int getWidth() const override;
-  int getHeight() const override;
-
-  const uchar* getBits() override;
-
-  bool hasBits() const override { return _cameraSurface && _cameraSurface->isActive(); }
-  bool bitsHaveChanged() const override { return _cameraSurface && _cameraSurface->bitsHaveChanged(); }
-  QImage getFrameImage() const override { return _cameraSurface ? _cameraSurface->image() : QImage(); }
-  QImage::Format getFrameFormat() const override { return _cameraSurface ? _cameraSurface->image().format() : QImage::Format_Invalid; }
+  /// The sink that receives the frames of the camera.
+  QVideoSink* videoSink() const { return _videoSink; }
 
 protected:
   // Stops and releases the capture device (called by unloadMovie() and dtor).
   void freeResources() override;
 
 private:
+  // Stops and releases the capture device, without touching the frames.
+  void _releaseCamera();
+
   QCamera                *_camera;
   QMediaCaptureSession   *_captureSession;
-  CameraSurface          *_cameraSurface;
+  // Kept for the life of the object: frames are delivered to _setFrame().
+  QVideoSink             *_videoSink;
 };
 
 }

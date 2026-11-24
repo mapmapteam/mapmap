@@ -579,3 +579,55 @@ void TestVideo::uploadIsTimedWhenEnabled()
   }
   context.doneCurrent();
 }
+
+void TestVideo::cameraKeepsYuvFrames()
+{
+  if (!YuvTexture::isAvailable())
+    QSKIP("YUV frames are converted on the CPU here");
+
+  FrameStatsOn on;
+  CameraImpl camera;
+  camera.videoSink()->setVideoFrame(
+      _makeYuvFrame(QVideoFrameFormat::Format_NV12, QVideoFrameFormat::ColorRange_Video));
+
+  // Kept for the shader, like the frames of a video file.
+  QVERIFY(camera.hasBits());
+  QVERIFY(camera.bitsHaveChanged());
+  QVERIFY(camera.hasVideoFrame());
+  QCOMPARE(camera.getWidth(), CLIP_SIZE);
+  QCOMPARE(camera.getHeight(), CLIP_SIZE);
+  QCOMPARE(camera.frameStats()->summary().path, QString("converted to RGB on the GPU, NV12"));
+
+  // Thumbnails still get an RGB image, upright and with the right colours.
+  const QImage image = camera.getFrameImage();
+  _checkQuadrants([&](int x, int y) { return QColor(image.pixel(x, y)); }, "camera frame");
+
+  camera.takeVideoFrame();
+  QVERIFY(!camera.bitsHaveChanged());
+}
+
+void TestVideo::cameraConvertsOtherFrames()
+{
+  FrameStatsOn on;
+  CameraImpl camera;
+  // A red RGB frame (built by hand: QVideoFrame(QImage) needs Qt 6.8).
+  QVideoFrame frame(QVideoFrameFormat(QSize(CLIP_SIZE, CLIP_SIZE), QVideoFrameFormat::Format_RGBX8888));
+  QVERIFY(frame.map(QVideoFrame::WriteOnly));
+  for (int y = 0; y < CLIP_SIZE; y++)
+    for (int x = 0; x < CLIP_SIZE; x++) {
+      uchar* pixel = frame.bits(0) + y * frame.bytesPerLine(0) + x * 4;
+      pixel[0] = 255; // R
+      pixel[1] = 0;   // G
+      pixel[2] = 0;   // B
+      pixel[3] = 255; // X
+    }
+  frame.unmap();
+  camera.videoSink()->setVideoFrame(frame);
+
+  QVERIFY(camera.hasBits());
+  QVERIFY(!camera.hasVideoFrame());
+  QVERIFY(camera.getBits() != nullptr);
+  QVERIFY(!camera.bitsHaveChanged());
+  QCOMPARE(camera.getWidth(), CLIP_SIZE);
+  QVERIFY(_colorsClose(QColor(camera.getFrameImage().pixel(0, 0)), Qt::red));
+}

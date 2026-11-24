@@ -26,25 +26,44 @@ namespace mmp {
 CameraImpl::CameraImpl()
   : _camera(nullptr),
     _captureSession(nullptr),
-    _cameraSurface(nullptr)
+    _videoSink(new QVideoSink)
 {
+  // Direct connection: frames are copied / converted on the thread that
+  // delivers them (see _setFrame()), keeping that work off the GUI thread.
+  //
+  // Qt 6 delivers upright, top-left-origin frames here on every platform, the
+  // same as the video-file path (VideoPlayerImpl), so no flip is needed. The
+  // old flip (a historical OpenGL orientation workaround, mirror + 180-degree
+  // rotation, net a vertical flip) made camera sources appear upside-down;
+  // already removed on macOS/Windows in f1e51b4, confirmed to be the same bug
+  // on Linux by injecting a synthetic top-red/bottom-blue QVideoFrame.
+  QObject::connect(_videoSink, &QVideoSink::videoFrameChanged, _videoSink,
+                   [this](const QVideoFrame& frame) {
+                     if (frame.isValid())
+                       _setFrame(frame);
+                   }, Qt::DirectConnection);
 }
 
 CameraImpl::~CameraImpl()
 {
-  freeResources();
+  // Stop the camera before the sink goes away.
+  _releaseCamera();
+  delete _videoSink;
+}
+
+void CameraImpl::_releaseCamera()
+{
+  if (_camera)
+    _camera->stop();
+  delete _captureSession;
+  _captureSession = nullptr;
+  delete _camera;
+  _camera = nullptr;
 }
 
 void CameraImpl::freeResources()
 {
-  if (_camera)
-    _camera->stop();
-  delete _camera;
-  _camera = nullptr;
-  delete _captureSession;
-  _captureSession = nullptr;
-  delete _cameraSurface;
-  _cameraSurface = nullptr;
+  _releaseCamera();
   VideoImpl::freeResources();
 }
 
@@ -73,12 +92,13 @@ bool CameraImpl::loadMovie(const QString &deviceId)
     }
   }
 
-  _cameraSurface   = new CameraSurface();
+  _frameStats.setName(dev.description());
+
   _camera          = new QCamera(dev);
   _captureSession  = new QMediaCaptureSession();
 
   _captureSession->setCamera(_camera);
-  _captureSession->setVideoSink(_cameraSurface->videoSink());
+  _captureSession->setVideoSink(_videoSink);
 
   _camera->start();
 
@@ -90,21 +110,6 @@ bool CameraImpl::loadMovie(const QString &deviceId)
   _videoIsConnected = true;
   _setMovieReady(true);
   return true;
-}
-
-int CameraImpl::getWidth() const
-{
-  return _cameraSurface ? _cameraSurface->frameWidth() : -1;
-}
-
-int CameraImpl::getHeight() const
-{
-  return _cameraSurface ? _cameraSurface->frameHeight() : -1;
-}
-
-const uchar* CameraImpl::getBits()
-{
-  return _cameraSurface ? _cameraSurface->bits() : nullptr;
 }
 
 }
