@@ -31,11 +31,7 @@
 #include <QMutex>
 #include <QVector>
 
-#if __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+#include <QtGui/qopengl.h>
 
 // OpenGL 1.2 tokens, missing from some platform headers (e.g. Windows gl.h).
 #ifndef GL_BGRA

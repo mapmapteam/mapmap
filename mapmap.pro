@@ -54,7 +54,8 @@ updateqm.commands = $$QMAKE_LRELEASE ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${Q
 updateqm.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += updateqm
 PRE_TARGETDEPS += compiler_updateqm_make_all
-system($$QMAKE_LRELEASE mapmap.pro) # Run lrelease
+for(ts, TRANSLATIONS): translation_inputs += $$system_quote($$system_path($$absolute_path($$ts, $$PWD)))
+system($$system_quote($$QMAKE_LRELEASE) $$translation_inputs)
 
 ## Add the docs target:
 #docs.depends = $(HEADERS) $(SOURCES)

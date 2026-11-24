@@ -68,7 +68,7 @@ public:
 //  QSize minimumSizeHint() const;
 
   // Draws foreground (displays crosshair if needed).
-  void drawForeground(QPainter *painter , const QRectF &rect);
+  void drawForeground(QPainter *painter , const QRectF &rect) override;
 
   /**
    * Stick vertex p of Shape orig to another Shape's vertex, if the 2 vertices are
@@ -131,10 +131,10 @@ protected:
 //  void mouseMoveEvent(QMouseEvent* event);
 //  void mouseReleaseEvent(QMouseEvent* event);
 //  void paintEvent(QPaintEvent* event);
-  void dragEnterEvent(QDragEnterEvent *event);
-  void dragMoveEvent(QDragMoveEvent *event);
-  void dragLeaveEvent(QDragLeaveEvent *event);
-  void dropEvent(QDropEvent *event);
+  void dragEnterEvent(QDragEnterEvent *event) override;
+  void dragMoveEvent(QDragMoveEvent *event) override;
+  void dragLeaveEvent(QDragLeaveEvent *event) override;
+  void dropEvent(QDropEvent *event) override;
 
   void resizeEvent(QResizeEvent* event) override;
   void leaveEvent(QEvent* event) override;
@@ -227,14 +227,14 @@ public slots:
   void deselectVertices();
   void deselectAll();
 
-  void wheelEvent(QWheelEvent *event);
-  void mousePressEvent(QMouseEvent *event);
-  void mouseReleaseEvent(QMouseEvent *event);
-  void mouseMoveEvent(QMouseEvent *event);
-  void keyPressEvent(QKeyEvent* event);
+  void wheelEvent(QWheelEvent *event) override;
+  void mousePressEvent(QMouseEvent *event) override;
+  void mouseReleaseEvent(QMouseEvent *event) override;
+  void mouseMoveEvent(QMouseEvent *event) override;
+  void keyPressEvent(QKeyEvent* event) override;
 
   // Event Filter
-  bool eventFilter(QObject *target, QEvent *event);
+  bool eventFilter(QObject *target, QEvent *event) override;
 
   // Zoom
   void increaseZoomLevel(int steps=1);

@@ -49,8 +49,7 @@ macx {
   QMAKE_OBJECTIVE_CFLAGS += -F$$SYPHON_FRAMEWORK_DIR
   LIBS += -F$$SYPHON_FRAMEWORK_DIR -framework Syphon -framework Foundation \
           -framework AppKit -framework CoreGraphics
-  # Embed Syphon.framework into the app bundle and resolve it via @rpath.
-  QMAKE_LFLAGS += -Wl,-rpath,@executable_path/../Frameworks
+  # qmake includes the bundle Frameworks directory in the executable runpath.
   syphon_framework.files = $$SYPHON_FRAMEWORK_DIR/Syphon.framework
   syphon_framework.path = Contents/Frameworks
   # src.pri is pulled in once per sub-project (.pri), so guard the bundle-data
