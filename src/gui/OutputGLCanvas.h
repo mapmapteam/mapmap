@@ -24,6 +24,8 @@
 
 #include "MapperGLCanvas.h"
 
+#include <QTimer>
+
 #ifdef HAVE_SYPHON
 #include "SyphonOutput.h"
 #endif
@@ -88,6 +90,17 @@ private:
   static constexpr qreal CROSSHAIR_LINE_WIDTH   = 4;
   static constexpr qreal CROSSHAIR_POINTER_SIZE = 20;
 
+  // Shows what is for editing (mouse cursor, crosshair, outlines and vertices of
+  // the shapes), until the mouse is idle.
+  void _showEditing();
+
+  // Hides what is for editing, so that only the mapping is left. Does nothing
+  // if the mouse is elsewhere, or if one of its buttons is held down.
+  void _hideEditing();
+
+  // How long the mouse must be idle before editing is hidden (in milliseconds).
+  static const int EDITING_HIDE_DELAY = 3000;
+
   bool _displayCrosshair;
   bool _displayTestSignal;
   QImage _classicTestCard;
@@ -95,6 +108,15 @@ private:
   QImage _palTestCard;
   QImage _ntscTestCard;
   bool _windowIsHovered;
+
+  // False when what is for editing is hidden, because the mouse is idle.
+  bool _editingIsVisible;
+
+  // Last known position of the mouse (in screen coordinates).
+  QPoint _lastPointerPosition;
+
+  // Hides what is for editing once the mouse is idle.
+  QTimer _idleTimer;
 
 #ifdef HAVE_SYPHON
   SyphonOutput _syphonOutput;
@@ -105,6 +127,12 @@ protected:
 
   /// The scene rectangle stays the output frame (see setOutputFrame()).
   void _updateSceneRect(qreal scale) override { Q_UNUSED(scale); }
+
+  // Show what is for editing again when the mouse is used, or a vertex is moved
+  // with the keyboard.
+  bool viewportEvent(QEvent* event) override;
+  void showEvent(QShowEvent* event) override;
+  void keyPressEvent(QKeyEvent* event) override;
 
   void wheelEvent(QWheelEvent *event);
   void mouseMoveEvent(QMouseEvent *event);
