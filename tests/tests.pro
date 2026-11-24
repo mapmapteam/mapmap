@@ -27,6 +27,7 @@ HEADERS += \
     $$CORE/MM.h \
     $$CORE/Maths.h \
     $$CORE/Util.h \
+    $$CORE/FrameStats.h \
     $$CORE/Serializable.h \
     $$CORE/ProjectLabels.h \
     $$CORE/UidAllocator.h \
@@ -52,6 +53,7 @@ HEADERS += \
     $$CORE/ProjectWriter.h \
     TestMaths.h \
     TestUtil.h \
+    TestFrameStats.h \
     TestUidAllocator.h \
     TestShape.h \
     TestOsc.h \
@@ -64,6 +66,7 @@ HEADERS += \
 SOURCES += \
     $$CORE/MM.cpp \
     $$CORE/Util.cpp \
+    $$CORE/FrameStats.cpp \
     $$CORE/Serializable.cpp \
     $$CORE/ProjectLabels.cpp \
     $$CORE/UidAllocator.cpp \
@@ -88,6 +91,7 @@ SOURCES += \
     main.cpp \
     TestMaths.cpp \
     TestUtil.cpp \
+    TestFrameStats.cpp \
     TestUidAllocator.cpp \
     TestShape.cpp \
     TestOsc.cpp \
