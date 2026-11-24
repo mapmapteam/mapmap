@@ -42,6 +42,7 @@ HEADERS += \
     $$SHAPE/Mesh.h \
     $$SHAPE/Ellipse.h \
     $$SHAPE/Shapes.h \
+    $$SHAPE/ShapeHandles.h \
     $$CONTROL/OscAction.h \
     $$CORE/VideoImpl.h \
     $$CORE/VideoPlayerImpl.h \
@@ -77,6 +78,7 @@ SOURCES += \
     $$SHAPE/Polygon.cpp \
     $$SHAPE/Mesh.cpp \
     $$SHAPE/Ellipse.cpp \
+    $$SHAPE/ShapeHandles.cpp \
     $$CONTROL/OscAction.cpp \
     $$CORE/VideoImpl.cpp \
     $$CORE/VideoPlayerImpl.cpp \

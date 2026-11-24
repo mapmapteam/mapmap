@@ -12,6 +12,10 @@
 #include "Quad.h"
 #include "Triangle.h"
 #include "Ellipse.h"
+#include "Mesh.h"
+#include "ShapeHandles.h"
+
+#include <cmath>
 
 using namespace mmp;
 
@@ -381,4 +385,205 @@ void TestShape::imageOrientationsAreAllDistinct()
   Quad half = makeRectangle();
   half.applyTransform(half.imageRotateTransform(MShape::Rotate180));
   QVERIFY(sameVertices(both, half.getVertices()));
+}
+
+void TestShape::degenerateShapeHasFallbackDirection()
+{
+  Quad point(QPointF(5, 5), QPointF(5, 5), QPointF(5, 5), QPointF(5, 5));
+  QVERIFY(nearPoint(handleAnchor(point).outward, QPointF(0, -1)));
+  QVERIFY(nearPoint(handleAnchor(point).along, QPointF(1, 0)));
+  QVERIFY(nearPoint(handlePosition(point, 28), QPointF(5, -23)));
+}
+
+namespace {
+// A point at distance 10 from the origin, at the given angle (clockwise on screen).
+QPointF pointAtDegrees(qreal degrees)
+{
+  return QPointF(10 * std::cos(qDegreesToRadians(degrees)), 10 * std::sin(qDegreesToRadians(degrees)));
+}
+}
+
+void TestShape::rotateDragQuarterTurn()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Rotate);
+  drag.moveTo(QPointF(0, 10), false);
+  QCOMPARE(drag.rotation(), 90.0);
+  QVERIFY(nearPoint(drag.transform().map(QPointF(10, 0)), QPointF(0, 10)));
+}
+
+void TestShape::rotateDragSteps()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Rotate);
+  drag.setStepped(true);
+  drag.moveTo(pointAtDegrees(20), false);
+  QCOMPARE(drag.rotation(), 15.0);
+  drag.moveTo(pointAtDegrees(25), false);
+  QCOMPARE(drag.rotation(), 30.0);
+}
+
+void TestShape::rotateDragFine()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Rotate);
+  drag.moveTo(QPointF(0, 10), true);
+  QCOMPARE(drag.rotation(), 9.0);
+}
+
+void TestShape::fineToggleMidDragDoesNotJump()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Rotate);
+  drag.moveTo(QPointF(10, 10), false); // 45 degrees
+  drag.moveTo(QPointF(10, 10), true);  // Ctrl pressed, pointer still
+  QCOMPARE(drag.rotation(), 45.0);
+  drag.moveTo(QPointF(0, 10), true);   // 45 degrees more, at a tenth
+  QCOMPARE(drag.rotation(), 49.5);
+}
+
+void TestShape::rotationAccumulatesPastHalfTurn()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Rotate);
+  for (const QPointF& p : { QPointF(0, 10), QPointF(-10, 0), QPointF(0, -10), QPointF(10, 0) })
+    drag.moveTo(p, false);
+  QCOMPARE(drag.rotation(), 360.0);
+}
+
+void TestShape::dragThroughCenterIsIgnored()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Scale);
+  drag.moveTo(QPointF(0, 0), false);
+  QCOMPARE(drag.scale(), 1.0);
+  drag.moveTo(QPointF(20, 0), false);
+  QCOMPARE(drag.scale(), 2.0);
+}
+
+void TestShape::scaleDrag()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Scale);
+  drag.moveTo(QPointF(20, 0), false);
+  QCOMPARE(drag.scale(), 2.0);
+  QVERIFY(nearPoint(drag.transform().map(QPointF(10, 0)), QPointF(20, 0)));
+  drag.moveTo(QPointF(0, 15), false); // only the distance to the center counts
+  QCOMPARE(drag.scale(), 1.5);
+  QCOMPARE(drag.rotation(), 0.0);
+}
+
+void TestShape::scaleDragSteps()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Scale);
+  drag.setStepped(true);
+  drag.moveTo(QPointF(12.3, 0), false);
+  QCOMPARE(drag.scale(), 1.2);
+  drag.moveTo(QPointF(12.7, 0), false);
+  QCOMPARE(drag.scale(), 1.3);
+}
+
+void TestShape::scaleDragFine()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Scale);
+  drag.moveTo(QPointF(20, 0), true);
+  QVERIFY(qFuzzyCompare(drag.scale(), std::pow(2.0, 0.1)));
+}
+
+void TestShape::scaleNeverBelowMinimum()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Scale);
+  drag.moveTo(QPointF(0.01, 0), false);
+  QCOMPARE(drag.scale(), HandleDrag::MIN_SCALE);
+  drag.setStepped(true);
+  QCOMPARE(drag.scale(), HandleDrag::MIN_SCALE);
+}
+
+void TestShape::freeDragKeepsHandleUnderPointer()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Free);
+  drag.moveTo(QPointF(0, 20), false);
+  QCOMPARE(drag.rotation(), 90.0);
+  QCOMPARE(drag.scale(), 2.0);
+  QVERIFY(nearPoint(drag.transform().map(QPointF(10, 0)), QPointF(0, 20)));
+}
+
+void TestShape::freeDragSteps()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Free);
+  drag.setStepped(true);
+  drag.moveTo(12.3 * pointAtDegrees(20) / 10, false);
+  QCOMPARE(drag.rotation(), 15.0);
+  QCOMPARE(drag.scale(), 1.2);
+}
+
+void TestShape::switchingModeMidDragDoesNotJump()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Free);
+  drag.moveTo(QPointF(0, 20), false);   // 90 degrees, x2
+  drag.setMode(HandleMode::Rotate);
+  drag.moveTo(QPointF(-20, 0), false);  // turns on, size kept
+  QCOMPARE(drag.rotation(), 180.0);
+  QCOMPARE(drag.scale(), 2.0);
+  drag.setMode(HandleMode::Scale);
+  drag.moveTo(QPointF(-30, 0), false);  // grows, angle kept
+  QCOMPARE(drag.rotation(), 180.0);
+  QCOMPARE(drag.scale(), 3.0);
+}
+
+void TestShape::nextModeCycles()
+{
+  QCOMPARE(nextHandleMode(HandleMode::Free), HandleMode::Rotate);
+  QCOMPARE(nextHandleMode(HandleMode::Rotate), HandleMode::Scale);
+  QCOMPARE(nextHandleMode(HandleMode::Scale), HandleMode::Free);
+}
+
+void TestShape::shiftRoundsOnlyWhatTheModeChanges()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Free);
+  drag.moveTo(QPointF(12.34, 0), false); // scale 1.234
+  drag.setMode(HandleMode::Rotate);
+  drag.setStepped(true);
+  drag.moveTo(12.34 * pointAtDegrees(20) / 10, false);
+  QCOMPARE(drag.rotation(), 15.0);
+  QCOMPARE(drag.scale(), 1.234);
+}
+
+void TestShape::frozenValueKeepsShownValue()
+{
+  HandleDrag drag(QPointF(0, 0), QPointF(10, 0), HandleMode::Free);
+  drag.setStepped(true);
+  drag.moveTo(12.3 * pointAtDegrees(20) / 10, false); // shown: 15 degrees, x1.2
+  drag.setMode(HandleMode::Rotate);                    // the size freezes at 1.2
+  drag.setStepped(false);
+  QCOMPARE(drag.scale(), 1.2);
+}
+
+void TestShape::singleHandleAnchors()
+{
+  Quad rect(QPointF(0, 0), QPointF(40, 0), QPointF(40, 20), QPointF(0, 20));
+  QVERIFY(nearPoint(handleAnchor(rect).point, QPointF(20, 0)));
+  QVERIFY(nearPoint(handleAnchor(rect).along, QPointF(1, 0)));
+  QVERIFY(!handleAnchor(rect).isMirrored());
+
+  Triangle tri(QPointF(0, 30), QPointF(40, 30), QPointF(20, 0));
+  const qreal a = 30 / std::hypot(30.0, 20.0);
+  const qreal b = 20 / std::hypot(30.0, 20.0);
+  QVERIFY(nearPoint(handleAnchor(tri).point, QPointF(10, 15)));
+  QVERIFY(nearPoint(handleAnchor(tri).along, QPointF(b, -a)));
+  QVERIFY(!handleAnchor(tri).isMirrored());
+
+  Mesh mesh(QPointF(0, 0), QPointF(40, 0), QPointF(40, 20), QPointF(0, 20));
+  mesh.resize(3, 2);
+  QVERIFY(nearPoint(handleAnchor(mesh).point, QPointF(20, 0)));
+  QVERIFY(!handleAnchor(mesh).isMirrored());
+
+  Ellipse ellipse(QPointF(0, 10), QPointF(20, 0), QPointF(40, 10), QPointF(20, 20));
+  QVERIFY(nearPoint(handleAnchor(ellipse).point, QPointF(20, 0)));
+  QVERIFY(nearPoint(handleAnchor(ellipse).along, QPointF(1, 0)));
+
+  QVERIFY(nearPoint(handlePosition(rect, 28), QPointF(20, -28)));
+}
+
+void TestShape::mirroredShapesAreDetected()
+{
+  Quad mirrored(QPointF(40, 0), QPointF(0, 0), QPointF(0, 20), QPointF(40, 20));
+  QVERIFY(handleAnchor(mirrored).isMirrored());
+  Triangle tri(QPointF(40, 30), QPointF(0, 30), QPointF(20, 0));
+  QVERIFY(handleAnchor(tri).isMirrored());
+  Ellipse ellipse(QPointF(40, 10), QPointF(20, 0), QPointF(0, 10), QPointF(20, 20));
+  QVERIFY(handleAnchor(ellipse).isMirrored());
 }
