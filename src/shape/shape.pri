@@ -7,9 +7,11 @@ HEADERS += $$PWD/Ellipse.h \
     $$PWD/Quad.h \
     $$PWD/Shape.h \
     $$PWD/Shapes.h \
+    $$PWD/ShapeHandles.h \
     $$PWD/Triangle.h
 
 SOURCES += $$PWD/Ellipse.cpp \
     $$PWD/Mesh.cpp \
     $$PWD/Polygon.cpp \
-    $$PWD/Shape.cpp
+    $$PWD/Shape.cpp \
+    $$PWD/ShapeHandles.cpp

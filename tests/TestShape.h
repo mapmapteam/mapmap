@@ -19,6 +19,25 @@ class TestShape: public QObject
   Q_OBJECT
 
 private slots:
+  void nextModeCycles();
+  void shiftRoundsOnlyWhatTheModeChanges();
+  void frozenValueKeepsShownValue();
+  void singleHandleAnchors();
+  void mirroredShapesAreDetected();
+  void freeDragKeepsHandleUnderPointer();
+  void freeDragSteps();
+  void switchingModeMidDragDoesNotJump();
+  void rotateDragQuarterTurn();
+  void rotateDragSteps();
+  void rotateDragFine();
+  void fineToggleMidDragDoesNotJump();
+  void rotationAccumulatesPastHalfTurn();
+  void dragThroughCenterIsIgnored();
+  void scaleDrag();
+  void scaleDragSteps();
+  void scaleDragFine();
+  void scaleNeverBelowMinimum();
+  void degenerateShapeHasFallbackDirection();
   void verticesAccessors();
   void getCenter();
   void includesPoint();
