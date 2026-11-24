@@ -17,6 +17,8 @@
 #include <QStandardPaths>
 #include <QOpenGLFramebufferObject>
 
+#include "FrameStats.h"
+#include "Source.h"
 #include "VideoPlayerImpl.h"
 #include "CameraImpl.h"
 #include "Util.h"
@@ -163,6 +165,22 @@ QImage _drawYuv(YuvTexture& yuv)
   fbo.release();
   return img;
 }
+
+/// Video implementation fed by hand, to test what VideoImpl does with frames.
+class FrameFeeder : public VideoImpl
+{
+public:
+  bool isLive() override { return true; }
+  bool seekTo(qint64) override { return false; }
+  void feed(const QVideoFrame& frame) { _setFrame(frame); }
+};
+
+/// Turns FrameStats on for the life of the object.
+struct FrameStatsOn
+{
+  FrameStatsOn() { FrameStats::setEnabled(true); }
+  ~FrameStatsOn() { FrameStats::setEnabled(false); }
+};
 
 } // namespace
 
@@ -462,4 +480,84 @@ void TestVideo::cameraFrames()
   QVERIFY(camera.getBits() != nullptr);
   QVERIFY(!camera.bitsHaveChanged());
   QTRY_VERIFY_WITH_TIMEOUT(camera.bitsHaveChanged(), FRAME_TIMEOUT_MS);
+}
+
+void TestVideo::preparationIsTimedWhenEnabled()
+{
+  FrameStatsOn on;
+  FrameFeeder feeder;
+  feeder.feed(_makeYuvFrame(QVideoFrameFormat::Format_NV12, QVideoFrameFormat::ColorRange_Video));
+
+  const FrameStats::Summary summary = feeder.frameStats()->summary();
+  QCOMPARE(summary.stages[FrameStats::PREPARE].count, 1);
+  QVERIFY(summary.stages[FrameStats::PREPARE].maxNs > 0);
+  // The path says where the colours are converted, and from what.
+  if (YuvTexture::isAvailable())
+    QCOMPARE(summary.path, QString("converted to RGB on the GPU, NV12"));
+  else
+    QCOMPARE(summary.path, QString("converted to RGB on the CPU, NV12"));
+
+  // An RGB frame needs no conversion.
+  QVideoFrame rgb(QVideoFrameFormat(QSize(CLIP_SIZE, CLIP_SIZE), QVideoFrameFormat::Format_RGBX8888));
+  feeder.feed(rgb);
+  QCOMPARE(feeder.frameStats()->summary().path, QString("RGB, RGBX8888"));
+}
+
+void TestVideo::preparationIsNotTimedWhenDisabled()
+{
+  FrameFeeder feeder;
+  feeder.feed(_makeYuvFrame(QVideoFrameFormat::Format_NV12, QVideoFrameFormat::ColorRange_Video));
+  QVERIFY(feeder.frameStats()->summary().isEmpty());
+}
+
+void TestVideo::replacedFramesAreDropped()
+{
+  FrameStatsOn on;
+  FrameFeeder feeder;
+  const QVideoFrame frame = _makeYuvFrame(QVideoFrameFormat::Format_NV12, QVideoFrameFormat::ColorRange_Video);
+
+  // The first frame is replaced before anyone takes it.
+  feeder.feed(frame);
+  feeder.feed(frame);
+  QCOMPARE(feeder.frameStats()->summary().dropped, 1);
+
+  // Taken before the next one: not dropped.
+  feeder.getFrameImage(); // does not take the frame
+  feeder.getBits();
+  feeder.feed(frame);
+  QCOMPARE(feeder.frameStats()->summary().dropped, 1);
+}
+
+void TestVideo::uploadIsTimedWhenEnabled()
+{
+  if (!_clips.contains("yuv420p"))
+    QSKIP("ffmpeg (with libx264) not available to generate test clips");
+
+  QOffscreenSurface surface;
+  surface.create();
+  QOpenGLContext context;
+  if (!context.create() || !context.makeCurrent(&surface))
+    QSKIP("No OpenGL context available");
+  if (context.isOpenGLES())
+    QSKIP("Test needs desktop OpenGL (fixed-function pipeline)");
+
+  FrameStatsOn on;
+  Video video(_clips["yuv420p"], VIDEO_URI, 1.0);
+  QTRY_VERIFY_WITH_TIMEOUT(video.bitsHaveChanged(), FRAME_TIMEOUT_MS);
+  video.pause();
+
+  QVERIFY(context.makeCurrent(&surface));
+  video.update();
+  video.bind();
+  video.release();
+  QCOMPARE(video.frameStats()->summary().stages[FrameStats::UPLOAD].count, 1);
+
+  // No new frame: nothing to upload.
+  if (!video.bitsHaveChanged())
+  {
+    video.bind();
+    video.release();
+    QCOMPARE(video.frameStats()->summary().stages[FrameStats::UPLOAD].count, 1);
+  }
+  context.doneCurrent();
 }

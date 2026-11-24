@@ -20,6 +20,7 @@
  */
 #include "VideoImpl.h"
 #include "YuvTexture.h"
+#include <QFileInfo>
 #include <QSettings>
 #include <QDebug>
 #include <QMutexLocker>
@@ -123,13 +124,38 @@ QVideoFrame VideoImpl::copyToSystemMemory(const QVideoFrame& constFrame)
   return dst;
 }
 
+// Returns true if the video pixel format is already RGB (no colour conversion).
+static bool _pixelFormatIsRgb(QVideoFrameFormat::PixelFormat format)
+{
+  switch (format) {
+  case QVideoFrameFormat::Format_ARGB8888:
+  case QVideoFrameFormat::Format_ARGB8888_Premultiplied:
+  case QVideoFrameFormat::Format_XRGB8888:
+  case QVideoFrameFormat::Format_BGRA8888:
+  case QVideoFrameFormat::Format_BGRA8888_Premultiplied:
+  case QVideoFrameFormat::Format_BGRX8888:
+  case QVideoFrameFormat::Format_ABGR8888:
+  case QVideoFrameFormat::Format_XBGR8888:
+  case QVideoFrameFormat::Format_RGBA8888:
+  case QVideoFrameFormat::Format_RGBX8888:
+    return true;
+  default:
+    return false;
+  }
+}
+
 void VideoImpl::_setFrame(const QVideoFrame& frame)
 {
+  const bool measuring = FrameStats::isEnabled();
+  const qint64 startNs = measuring ? FrameStats::now() : 0;
+
   // Heavy lifting first, without holding the mutex (the renderer may be
   // waiting on it).
   QVideoFrame videoFrame;
   QImage image;
-  if (YuvTexture::supportsFormat(frame.pixelFormat()) && YuvTexture::isAvailable())
+  const bool onGpu = YuvTexture::supportsFormat(frame.pixelFormat()) &&
+                     YuvTexture::isAvailable();
+  if (onGpu)
   {
     // Keep the planes unconverted; the renderer converts on the GPU.
     videoFrame = copyToSystemMemory(frame);
@@ -143,13 +169,39 @@ void VideoImpl::_setFrame(const QVideoFrame& frame)
       return;
   }
 
+  if (measuring)
+  {
+    const qint64 endNs = FrameStats::now();
+    _frameStats.record(FrameStats::PREPARE, endNs - startNs, endNs);
+    _setFramePath(frame.pixelFormat(), onGpu);
+  }
+
   QMutexLocker locker(&_mutex);
+  // The previous frame was never taken by the renderer.
+  if (measuring && _bitsChanged)
+    _frameStats.recordDropped();
   _videoFrame = videoFrame;
   _currentFrame = image;
   _data   = image.isNull() ? nullptr : _currentFrame.bits();
   _width  = frame.width();
   _height = frame.height();
   _bitsChanged = true;
+}
+
+void VideoImpl::_setFramePath(QVideoFrameFormat::PixelFormat format, bool onGpu)
+{
+  // Allocates: only when the path changes.
+  if (format == _framePathFormat && onGpu == _framePathOnGpu)
+    return;
+  _framePathFormat = format;
+  _framePathOnGpu = onGpu;
+
+  const QString formatName = QVideoFrameFormat::pixelFormatToString(format);
+  if (_pixelFormatIsRgb(format))
+    _frameStats.setPath(QString("RGB, %1").arg(formatName));
+  else
+    _frameStats.setPath(QString("converted to RGB on the %1, %2")
+                        .arg(onGpu ? "GPU" : "CPU", formatName));
 }
 
 bool VideoImpl::hasBits() const
@@ -227,6 +279,8 @@ VideoImpl::VideoImpl()
     _terminate(false),
     _movieReady(false),
     _playState(false),
+    _framePathFormat(QVideoFrameFormat::Format_Invalid),
+    _framePathOnGpu(false),
     _uri("")
 {
   QSettings settings;
@@ -263,6 +317,7 @@ void VideoImpl::freeResources()
 bool VideoImpl::loadMovie(const QString& filename)
 {
   _uri = filename;
+  _frameStats.setName(QFileInfo(filename).fileName());
   return true;
 }
 
