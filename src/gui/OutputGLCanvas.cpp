@@ -22,6 +22,11 @@
 #include "OutputGLCanvas.h"
 #include "MainWindow.h"
 
+#ifdef Q_OS_MACOS
+#include "MacCursor.h"
+#endif
+
+#include <QApplication>
 #include <QCursor>
 #include <QOpenGLWidget>
 #include <QPainterPath>
@@ -34,7 +39,8 @@ OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, QOpenGLW
 : MapperGLCanvas(mainWindow, true, parent, shareWidget, scene),
   _displayCrosshair(false),
   _displayTestSignal(false),
-  _windowIsHovered(false)
+  _windowIsHovered(false),
+  _editingIsVisible(true)
 {
   // Disable scrollbars.
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -47,6 +53,11 @@ OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, QOpenGLW
   setTransformationAnchor(QGraphicsView::AnchorViewCenter);
 
   _frameStats.setName("output");
+
+  // Only show the mapping when the mouse is idle.
+  _idleTimer.setSingleShot(true);
+  _idleTimer.setInterval(EDITING_HIDE_DELAY);
+  connect(&_idleTimer, &QTimer::timeout, this, &OutputGLCanvas::_hideEditing);
 }
 
 void OutputGLCanvas::setOutputFrame(const QRectF& frame)
@@ -158,7 +169,8 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
     }
     painter->restore();
   }
-  else if (!controlOnMouseOver || (MainWindow::window()->displayControls() && _windowIsHovered))
+  else if (_editingIsVisible
+           && (!controlOnMouseOver || (MainWindow::window()->displayControls() && _windowIsHovered)))
   {
     MapperGLCanvas::drawForeground(painter, rect);
 
@@ -197,13 +209,109 @@ void OutputGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
 void OutputGLCanvas::enterEvent(QEnterEvent *event)
 {
   _windowIsHovered = true;
+  _showEditing();
   QGraphicsView::enterEvent(event);
 }
 
 void OutputGLCanvas::leaveEvent(QEvent *event)
 {
   _windowIsHovered = false;
+  // The user may be editing in the main window.
+  _showEditing();
   MapperGLCanvas::leaveEvent(event);
+}
+
+bool OutputGLCanvas::viewportEvent(QEvent *event)
+{
+  switch (event->type())
+  {
+  case QEvent::MouseMove:
+  {
+    // Some systems send a move when the cursor changes, even if the mouse is still.
+    const QPoint position = static_cast<QMouseEvent*>(event)->globalPosition().toPoint();
+    if (position != _lastPointerPosition)
+    {
+      _lastPointerPosition = position;
+      _showEditing();
+    }
+    break;
+  }
+  case QEvent::MouseButtonPress:
+  case QEvent::MouseButtonRelease:
+  case QEvent::MouseButtonDblClick:
+  case QEvent::Wheel:
+    _showEditing();
+    break;
+  default:
+    break;
+  }
+  return MapperGLCanvas::viewportEvent(event);
+}
+
+void OutputGLCanvas::showEvent(QShowEvent *event)
+{
+  MapperGLCanvas::showEvent(event);
+  _showEditing();
+}
+
+void OutputGLCanvas::keyPressEvent(QKeyEvent *event)
+{
+  if (hasActiveVertex())
+  {
+    switch (event->key())
+    {
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+    case Qt::Key_Left:
+    case Qt::Key_Right:
+    case Qt::Key_Space: // with Shift: next vertex
+      _showEditing();
+      break;
+    default:
+      break;
+    }
+  }
+  MapperGLCanvas::keyPressEvent(event);
+}
+
+void OutputGLCanvas::_showEditing()
+{
+  _idleTimer.start();
+  if (_editingIsVisible)
+    return;
+
+  _editingIsVisible = true;
+  // Use the cursor of the window again.
+  viewport()->unsetCursor();
+#ifdef Q_OS_MACOS
+  setMacCursorHiddenUntilMouseMoves(false);
+#endif
+  viewport()->update();
+}
+
+void OutputGLCanvas::_hideEditing()
+{
+  // The user may be holding a vertex or a shape still.
+  if (QApplication::mouseButtons() != Qt::NoButton)
+  {
+    _idleTimer.start();
+    return;
+  }
+
+  // The mouse may be over another window, or a menu.
+  const bool isUnderMouse = (QApplication::widgetAt(QCursor::pos()) == viewport());
+  if (!isUnderMouse && !_windowIsHovered)
+    return;
+
+  _editingIsVisible = false;
+  viewport()->setCursor(Qt::BlankCursor);
+#ifdef Q_OS_MACOS
+  // This hides the cursor everywhere on the screens.
+  if (isUnderMouse)
+    setMacCursorHiddenUntilMouseMoves(true);
+#endif
+  // Nothing else may be redrawn: erase what is for editing now.
+  viewport()->update();
 }
 
 void OutputGLCanvas::_drawClassicTestSignal(QPainter* painter)

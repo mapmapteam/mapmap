@@ -41,8 +41,9 @@ SOURCES += $$PWD/AboutDialog.cpp \
     $$PWD/ShortcutWindow.cpp \
     $$PWD/WelcomeDialog.cpp
 
-# Syphon source picker (macOS-only).
+# Syphon source picker, and hiding the mouse cursor (macOS-only).
 macx {
-    HEADERS += $$PWD/SyphonServerDialog.h
+    HEADERS += $$PWD/SyphonServerDialog.h $$PWD/MacCursor.h
     SOURCES += $$PWD/SyphonServerDialog.cpp
+    OBJECTIVE_SOURCES += $$PWD/MacCursor.mm
 }
