@@ -38,6 +38,13 @@ bool VideoImpl::hasVideoSupport()
   return true;
 }
 
+std::atomic<bool> VideoImpl::_forceCpuConversion(false);
+
+void VideoImpl::setForceCpuConversion(bool force)
+{
+  _forceCpuConversion = force;
+}
+
 int VideoImpl::getWidth() const  { return _width; }
 int VideoImpl::getHeight() const { return _height; }
 QString VideoImpl::getUri() const { return _uri; }
@@ -154,7 +161,7 @@ void VideoImpl::_setFrame(const QVideoFrame& frame)
   QVideoFrame videoFrame;
   QImage image;
   const bool onGpu = YuvTexture::supportsFormat(frame.pixelFormat()) &&
-                     YuvTexture::isAvailable();
+                     YuvTexture::isAvailable() && !_forceCpuConversion;
   if (onGpu)
   {
     // Keep the planes unconverted; the renderer converts on the GPU.

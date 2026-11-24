@@ -4,7 +4,7 @@
 
 New:
 
-- Measure the time of each step of the image path with the option `--frame-stats`: one line per second in the log. `--frame-stats-sync` waits for the graphics card to give the real cost of each step.
+- Measure the time of each step of the image path with the option `--frame-stats`: one line per second in the log. `--frame-stats-sync` waits for the graphics card to give the real cost of each step, and `--force-cpu-conversion` converts the colors of videos on the processor, to compare.
 
 ## 1.0.0-beta.1 - 2026-11-23
 
