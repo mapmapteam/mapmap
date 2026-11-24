@@ -17,14 +17,17 @@ Without ``--output``, ``show.mmp`` becomes ``show-converted.mmp``.
 
 Before MapMap 1.0.0-beta.1, the point (0, 0) was near the middle of the output
 screen instead of its top left corner, at a place that depends on the size of
-the screen. Projects do not save that size: give the one of the screen or
+the screen. Projects did not save that size: give the one of the screen or
 projector the project was made for with ``--output-size``, and the script moves
 the output shapes so that they stay at the same place on that screen. They may
-be a few pixels off, since the old position also depended on the system.
+be a few pixels off, since the old position also depended on the system. The
+size is also saved as the output resolution of the project, so that MapMap
+shows the output frame at that size.
 
 With ``--output-size``, a JSON project made with a development version of 1.0,
 before that was fixed, is accepted too: its shapes are moved. Do it only once
-per project, and never for a project made after that.
+per project. A project that already has an output resolution is refused: its
+shapes are already at the right place.
 
 The exit status is 0 when every project was converted, 1 when at least one
 could not be, and 2 when the command line is wrong.
@@ -67,6 +70,9 @@ QUAD_AS_MESH_SIZE = 2
 # middle of the screen, instead of as large as the screen.
 OLD_OUTPUT_WIDTH = 100
 OLD_OUTPUT_HEIGHT = 30
+
+# Key of the output resolution in a project (see MappingManager in MapMap).
+OUTPUT_RESOLUTION = "outputResolution"
 
 
 class ConversionError(Exception):
@@ -248,6 +254,9 @@ def read_project(contents, output_size, warn):
             project = json.loads(contents.decode("utf-8-sig"))
         except ValueError as error:
             raise ConversionError("this is not a valid JSON file ({})".format(error))
+        if isinstance(project, dict) and OUTPUT_RESOLUTION in project:
+            raise ConversionError("this project already has an output resolution: its output "
+                                  "shapes are already at the right place")
     else:
         project = convert_project(contents, warn)
         if not output_size and project["layers"]:
@@ -255,6 +264,8 @@ def read_project(contents, output_size, warn):
                  "output screen: give its size with --output-size to move them")
     if output_size:
         move_output_shapes(project, output_size)
+        width, height = output_size
+        project[OUTPUT_RESOLUTION] = {"width": width, "height": height}
     return project
 
 
