@@ -25,6 +25,8 @@
 #include "MainWindow.h"
 #include "Commands.h"
 
+#include <QOpenGLContext>
+#include <QOpenGLFunctions>
 #include <QOpenGLWidget>
 #include <QSurfaceFormat>
 
@@ -53,7 +55,9 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
     _wheelZoomRemainder(0),
     _scalingFactor(1),
     _shapeIsAdapted(false),
-    _followsOutput(isOutput)
+    _followsOutput(isOutput),
+    _frameStats(isOutput ? "output editor" : "input editor"),
+    _lastPaintStartNs(0)
 {
   Q_UNUSED(shareWidget);
   // For now clicking on the window doesn't do anything.
@@ -144,6 +148,30 @@ QRectF MapperGLCanvas::_outputRect() const
 {
   const OutputGLWindow* outputWindow = _mainWindow->getOutputWindow();
   return outputWindow ? outputWindow->getOutputRect() : QRectF();
+}
+
+void MapperGLCanvas::paintEvent(QPaintEvent* event)
+{
+  if (!FrameStats::isEnabled())
+  {
+    QGraphicsView::paintEvent(event);
+    return;
+  }
+
+  const qint64 startNs = FrameStats::now();
+  if (_lastPaintStartNs > 0)
+    _frameStats.record(FrameStats::INTERVAL, startNs - _lastPaintStartNs, startNs);
+  _lastPaintStartNs = startNs;
+
+  QGraphicsView::paintEvent(event);
+
+  // OpenGL works asynchronously: without glFinish() this only times the
+  // sending of the commands. The context of the viewport is still current.
+  QOpenGLContext* context = QOpenGLContext::currentContext();
+  if (FrameStats::isSynchronous() && context)
+    context->functions()->glFinish();
+  const qint64 endNs = FrameStats::now();
+  _frameStats.record(FrameStats::DRAW, endNs - startNs, endNs);
 }
 
 void MapperGLCanvas::drawBackground(QPainter *painter, const QRectF &rect)

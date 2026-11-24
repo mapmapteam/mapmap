@@ -33,6 +33,7 @@
 #include <iostream>
 
 #include "MM.h"
+#include "FrameStats.h"
 #include "UidAllocator.h"
 #include "Shape.h"
 
@@ -247,6 +248,14 @@ public slots:
 protected:
   void resizeEvent(QResizeEvent* event);
   void leaveEvent(QEvent* event);
+
+  /// Paints the view, timing it when FrameStats is on.
+  void paintEvent(QPaintEvent* event) override;
+
+  /// Timing of the paintings of this view (see FrameStats).
+  FrameStats _frameStats;
+  /// Start of the previous painting (FrameStats::now()), 0 if none.
+  qint64 _lastPaintStartNs;
 
   // TODO: Perhaps the sticky-sensitivity should be configurable through GUI
   void _snapVertex(QPointF* p);

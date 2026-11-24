@@ -41,6 +41,11 @@ private slots:
 
   void cameraFrames();
 
+  void preparationIsTimedWhenEnabled();
+  void preparationIsNotTimedWhenDisabled();
+  void replacedFramesAreDropped();
+  void uploadIsTimedWhenEnabled();
+
 private:
   // Generates a quadrant test clip with the given pixel format.
   QString _makeClip(const QString& pixelFormat);

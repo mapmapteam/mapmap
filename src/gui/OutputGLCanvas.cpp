@@ -41,6 +41,8 @@ OutputGLCanvas::OutputGLCanvas(MainWindow* mainWindow, QWidget* parent, QOpenGLW
   setFrameShape(QFrame::NoFrame);
 
   setSceneRectToViewportGeometry();
+
+  _frameStats.setName("output");
 }
 
 void OutputGLCanvas::setSceneRectToViewportGeometry()

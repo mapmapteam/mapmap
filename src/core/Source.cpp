@@ -22,6 +22,7 @@
 #include "VideoImpl.h"
 #include "VideoPlayerImpl.h"
 #include "CameraImpl.h"
+#include "FrameStats.h"
 #include "Util.h"
 #include "YuvTexture.h"
 #include <iostream>
@@ -288,7 +289,11 @@ Video::~Video()
 void Video::bind()
 {
   lockMutex();
-  if (_impl->bitsHaveChanged())
+  const bool uploading = _impl->bitsHaveChanged();
+  const bool measuring = uploading && FrameStats::isEnabled();
+  const qint64 startNs = measuring ? FrameStats::now() : 0;
+
+  if (uploading)
   {
     if (_impl->hasVideoFrame() && YuvTexture::isAvailable())
     {
@@ -311,7 +316,22 @@ void Video::bind()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   }
+
+  if (measuring)
+  {
+    // OpenGL works asynchronously: without glFinish() this only times
+    // the sending of the commands, not the copy itself.
+    if (FrameStats::isSynchronous())
+      glFinish();
+    const qint64 endNs = FrameStats::now();
+    _impl->frameStats()->record(FrameStats::UPLOAD, endNs - startNs, endNs);
+  }
   unlockMutex();
+}
+
+FrameStats* Video::frameStats() const
+{
+  return _impl->frameStats();
 }
 
 void Video::release()

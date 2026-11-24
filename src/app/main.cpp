@@ -8,6 +8,7 @@
 #include <QOpenGLContext>
 
 #include "MM.h"
+#include "FrameStats.h"
 #include "MainWindow.h"
 #include "MainApplication.h"
 
@@ -115,6 +116,16 @@ int main(int argc, char *argv[])
     "Use a framerate of <frame-rate> per second (default: the one set in the preferences).", "frame-rate");
   parser.addOption(frameRateOption);
 
+  // --frame-stats option
+  QCommandLineOption frameStatsOption("frame-stats",
+    "Write the time of each step of the image path to the log, once per second.");
+  parser.addOption(frameStatsOption);
+
+  // --frame-stats-sync option
+  QCommandLineOption frameStatsSyncOption("frame-stats-sync",
+    "Like --frame-stats, but wait for the graphics card after each step, to get its real cost (slows MapMap down).");
+  parser.addOption(frameStatsSyncOption);
+
   // Positional argument: file
   parser.addPositionalArgument("file", "Load project from that file.");
 
@@ -126,6 +137,14 @@ int main(int argc, char *argv[])
   if (parser.isSet(resetSettingsOption))
   {
     Util::eraseSettings();
+  }
+
+  // Before any video is opened.
+  if (parser.isSet(frameStatsOption) || parser.isSet(frameStatsSyncOption))
+  {
+    FrameStats::setEnabled(true);
+    FrameStats::setSynchronous(parser.isSet(frameStatsSyncOption));
+    FrameStats::startLogging();
   }
 
   // IMPORTANT: Translator must be set *before* the MainWindow is created for it to work.

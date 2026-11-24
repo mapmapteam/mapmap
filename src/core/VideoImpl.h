@@ -25,6 +25,7 @@
 #define VIDEO_IMPL_H_
 
 #include "MM.h"
+#include "FrameStats.h"
 #include <QImage>
 #include <QVideoFrame>
 #include <QMutex>
@@ -87,6 +88,9 @@ public:
   /// converted beyond what QVideoFrame::toImage() does.
   static QImage frameToImage(const QVideoFrame& frame);
 
+  /// Returns the timing of the frames of this video (see FrameStats).
+  FrameStats* frameStats() { return &_frameStats; }
+
   /// Returns true if a new frame arrived since the last getBits() call.
   virtual bool bitsHaveChanged() const { return _bitsChanged; }
 
@@ -146,6 +150,9 @@ protected:
   /// taking the mutex, so this can (and should) run on the decoder's thread.
   void _setFrame(const QVideoFrame& frame);
 
+  /// Tells _frameStats how frames of this pixel format are handled.
+  void _setFramePath(QVideoFrameFormat::PixelFormat format, bool onGpu);
+
 public:
   /// Returns a copy of a frame in ordinary (cached) system memory. Hardware
   /// decoders (e.g. V4L2 on Raspberry Pi) hand out frames in uncached memory,
@@ -189,6 +196,11 @@ protected:
   mutable QRecursiveMutex _mutex;
 
   bool _playInLoop;
+
+  FrameStats _frameStats;
+  // Path last given to _frameStats (see _setFramePath()).
+  QVideoFrameFormat::PixelFormat _framePathFormat;
+  bool _framePathOnGpu;
 
 private:
   QString _uri;

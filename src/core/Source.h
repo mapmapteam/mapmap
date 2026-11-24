@@ -368,6 +368,7 @@ protected:
 };
 
 class VideoImpl;  // forward declaration
+class FrameStats; // forward declaration
 class YuvTexture; // forward declaration
 
 /**
@@ -448,6 +449,9 @@ public:
   /// a shader, see YuvTexture), other frames as a regular RGBA texture.
   virtual void bind();
   virtual void release();
+
+  /// Returns the timing of the frames of this video (see FrameStats).
+  FrameStats* frameStats() const;
 
   /// Upload format of the current frame, which depends on what Qt delivers
   /// (BGRA or RGBA, see VideoImpl::frameToImage()).
