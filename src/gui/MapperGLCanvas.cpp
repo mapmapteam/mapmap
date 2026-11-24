@@ -430,7 +430,6 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   if (event->buttons() & (Qt::LeftButton | Qt::RightButton))
   {
     MShape::ptr selectedShape = getCurrentShape();
-    bool shapeSelectionChange = false;
 
     // Check for vertex selection first.
     if (event->buttons() & Qt::LeftButton)
@@ -487,7 +486,6 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
 
           // Reset selected shape to new one.
           selectedShape = getCurrentShape();
-          shapeSelectionChange = true;
         }
 
         break; // Exit loop
@@ -503,14 +501,6 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
 
         _grabbedObjectStartScenePosition = pos;
         //				_grabbedShapeStartCenterScenePosition = selectedShape->getCenter();
-
-        if (shapeSelectionChange) { // if fresh selected shape
-          // Reset shape Mode
-          selectedShape->setShapeMode(MShape::DefaultMode);
-        } else {
-          // Move to the next mode
-          selectedShape->setShapeMode(selectedShape->shapeModeState(), true);
-        }
       }
 
       // Add Right click for context menu
@@ -559,21 +549,9 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
       _snapVertex(&p);
     }
 
-    switch (getCurrentShape()->shapeModeState()) {
-      case MShape::RotateMode:
-        undoStack->push(new ScaleRotateShapeCommand(this,
-                                                    TransformShapeCommand::RELEASE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy, MShape::RotateMode));
-        break;
-      case MShape::ScaleMode:
-        undoStack->push(new ScaleRotateShapeCommand(this,
-                                                    TransformShapeCommand::RELEASE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy, MShape::ScaleMode));
-        break;
-      default:
-        if (_vertexMoved)
-          undoStack->push(new MoveVertexCommand(this,
-                                                TransformShapeCommand::RELEASE, _activeVertex, p));
-        break;
-    }
+    if (_vertexMoved)
+      undoStack->push(new MoveVertexCommand(this,
+                                            TransformShapeCommand::RELEASE, _activeVertex, p));
 
 
   }
@@ -618,20 +596,8 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
         _snapVertex(&p);
       }
 
-      switch (getCurrentShape()->shapeModeState()) {
-        case MShape::RotateMode:
-          undoStack->push(new ScaleRotateShapeCommand(this,
-                                                      TransformShapeCommand::FREE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy, MShape::RotateMode));
-          break;
-        case MShape::ScaleMode:
-          undoStack->push(new ScaleRotateShapeCommand(this,
-                                                      TransformShapeCommand::FREE, _activeVertex, p, _grabbedObjectStartScenePosition, _grabbedShapeCopy, MShape::ScaleMode));
-          break;
-        default:
-          undoStack->push(new MoveVertexCommand(this,
-                                                TransformShapeCommand::FREE, _activeVertex, p));
-          break;
-      }
+      undoStack->push(new MoveVertexCommand(this,
+                                            TransformShapeCommand::FREE, _activeVertex, p));
     }
   }
 
@@ -646,8 +612,6 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       {
         _lastMousePosition = _mousePressedPosition;
         _shapeFirstGrab = false;
-        // Reset the mode after moved shape
-        getCurrentShape()->setShapeMode(MShape::DefaultMode);
       }
 
       _shapeMoved = true; // The active vertex is actually moved
@@ -835,22 +799,6 @@ void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
     // Set scroll bar new value
     this->verticalScrollBar()->setValue(scrollY);
     this->horizontalScrollBar()->setValue(scrollX);
-  }
-
-  if (getCurrentShape()) {
-    switch (event->key()) {
-      case Qt::Key_M:
-        getCurrentShape()->setShapeMode(MShape::DefaultMode);
-        break;
-      case Qt::Key_S:
-        getCurrentShape()->setShapeMode(MShape::ScaleMode);
-        break;
-      case Qt::Key_R:
-        getCurrentShape()->setShapeMode(MShape::RotateMode);
-        break;
-      default:
-        break;
-    }
   }
 
   // Defer unhandled keys to parent.

@@ -173,33 +173,19 @@ bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
 }
 
 
-ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, const QPointF& initialPositionPoint, const MShape::ptr& initialShape, MShape::ShapeMode mode, QUndoCommand *parent)
+ScaleRotateShapeCommand::ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, HandleMode mode,
+                                                 const MShape::ptr& initialShape, const QTransform& transform,
+                                                 QUndoCommand *parent)
   : TransformShapeCommand(canvas, option, parent),
-    _movedVertex(activeVertex),
+    _transform(transform),
     _initialShape(initialShape)
 {
-	// Initial vector from center.
-	QPointF center = initialShape->getCenter();
-	QLineF initialVector(center, initialPositionPoint);
-	QLineF currentVector(center, point);
-
-	// Compute scale.
-	qreal scale = currentVector.length() / initialVector.length();
-
-	// Compute rotation.
-	qreal rotation = currentVector.angleTo(initialVector);
-
-	// Create transform object.
-	_transform.translate(+center.x(), +center.y());
-	if (mode == MShape::RotateMode) {
-		 setText(QObject::tr("Rotate shape"));
-		_transform.rotate(rotation);
-	}
-	if (mode == MShape::ScaleMode) {
-		setText(QObject::tr("Scale shape"));
-		_transform.scale(scale, scale);
-	}
-	_transform.translate(-center.x(), -center.y());
+  switch (mode)
+  {
+  case HandleMode::Rotate: setText(QObject::tr("Rotate shape")); break;
+  case HandleMode::Scale:  setText(QObject::tr("Scale shape")); break;
+  case HandleMode::Free:   setText(QObject::tr("Rotate and scale shape")); break;
+  }
 }
 
 int ScaleRotateShapeCommand::id() const { return (_option == STEP ? CMD_KEY_SCALE_ROTATE_SHAPE : CMD_MOUSE_SCALE_ROTATE_SHAPE); }
@@ -216,11 +202,8 @@ bool ScaleRotateShapeCommand::mergeWith(const QUndoCommand* other)
   if (!TransformShapeCommand::mergeWith(other))
     return false;
 
+  // The mode may change during a drag: the whole drag is one command.
   const ScaleRotateShapeCommand* cmd = static_cast<const ScaleRotateShapeCommand*>(other);
-
-  // Needs to be the same vertex.
-  if (cmd->_movedVertex != _movedVertex)
-    return false;
 
 	_option = cmd->_option;
 	_transform = cmd->_transform;

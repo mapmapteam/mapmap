@@ -100,7 +100,8 @@ Triangle* createTriangleForRect(const QRectF& rect);
 /// Creates an ellipse touching the middle of each edge of rect.
 Ellipse* createEllipseForRect(const QRectF& rect, bool hasCenterControl);
 
-void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool major, bool selected, bool locked, MShape::ShapeMode shapeMode, qreal radius = MM::VERTEX_SELECT_RADIUS, qreal strokeWidth = MM::VERTEX_SELECT_STROKE_WIDTH);
+/// Draws the handle of a vertex: a circle, crossed unless the shape is locked.
+void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected, bool locked, qreal radius = MM::VERTEX_SELECT_RADIUS, qreal strokeWidth = MM::VERTEX_SELECT_STROKE_WIDTH);
 
 /**
  * Checks if a file exists or not.
