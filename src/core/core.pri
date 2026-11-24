@@ -5,6 +5,7 @@ HEADERS += $$PWD/Commands.h \
     $$PWD/CameraImpl.h \
     $$PWD/CameraSurface.h \
     $$PWD/Element.h \
+    $$PWD/FrameStats.h \
     $$PWD/Layer.h \
     $$PWD/MappingManager.h \
     $$PWD/Maths.h \
@@ -25,6 +26,7 @@ SOURCES += $$PWD/Commands.cpp \
     $$PWD/CameraImpl.cpp \
     $$PWD/CameraSurface.cpp \
     $$PWD/Element.cpp \
+    $$PWD/FrameStats.cpp \
     $$PWD/Layer.cpp \
     $$PWD/MappingManager.cpp \
     $$PWD/MetaObjectRegistry.cpp \

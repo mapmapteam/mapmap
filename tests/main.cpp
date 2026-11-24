@@ -20,6 +20,7 @@
 
 #include "TestMaths.h"
 #include "TestUtil.h"
+#include "TestFrameStats.h"
 #include "TestUidAllocator.h"
 #include "TestShape.h"
 #include "TestOsc.h"
@@ -79,6 +80,10 @@ int main(int argc, char** argv)
   }
   {
     TestUtil test;
+    status |= QTest::qExec(&test, argc, argv);
+  }
+  {
+    TestFrameStats test;
     status |= QTest::qExec(&test, argc, argv);
   }
   {
