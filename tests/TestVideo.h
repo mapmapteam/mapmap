@@ -44,6 +44,7 @@ private slots:
   void preparationIsTimedWhenEnabled();
   void preparationIsNotTimedWhenDisabled();
   void replacedFramesAreDropped();
+  void forcedCpuConversion();
   void uploadIsTimedWhenEnabled();
 
 private:

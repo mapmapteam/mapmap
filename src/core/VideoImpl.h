@@ -88,6 +88,12 @@ public:
   /// converted beyond what QVideoFrame::toImage() does.
   static QImage frameToImage(const QVideoFrame& frame);
 
+  /// Sends YUV frames through frameToImage(), like before they were converted
+  /// on the GPU, for every video. Gives the times of the old path, to compare.
+  static void setForceCpuConversion(bool force);
+  /// Returns true if YUV frames are always converted on the CPU.
+  static bool forceCpuConversion() { return _forceCpuConversion; }
+
   /// Returns the timing of the frames of this video (see FrameStats).
   FrameStats* frameStats() { return &_frameStats; }
 
@@ -204,6 +210,8 @@ protected:
 
 private:
   QString _uri;
+
+  static std::atomic<bool> _forceCpuConversion;
 };
 
 }

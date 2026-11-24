@@ -528,6 +528,24 @@ void TestVideo::replacedFramesAreDropped()
   QCOMPARE(feeder.frameStats()->summary().dropped, 1);
 }
 
+void TestVideo::forcedCpuConversion()
+{
+  if (!YuvTexture::isAvailable())
+    QSKIP("YUV frames are already converted on the CPU here");
+
+  VideoImpl::setForceCpuConversion(true);
+  FrameStatsOn on;
+  FrameFeeder feeder;
+  feeder.feed(_makeYuvFrame(QVideoFrameFormat::Format_NV12, QVideoFrameFormat::ColorRange_Video));
+  VideoImpl::setForceCpuConversion(false);
+
+  QVERIFY(feeder.hasBits());
+  QVERIFY(!feeder.hasVideoFrame());
+  QCOMPARE(feeder.frameStats()->summary().path, QString("converted to RGB on the CPU, NV12"));
+  _checkQuadrants([&](int x, int y) { return QColor(feeder.getFrameImage().pixel(x, y)); },
+                  "frame converted on the CPU");
+}
+
 void TestVideo::uploadIsTimedWhenEnabled()
 {
   if (!_clips.contains("yuv420p"))

@@ -9,6 +9,7 @@
 
 #include "MM.h"
 #include "FrameStats.h"
+#include "VideoImpl.h"
 #include "MainWindow.h"
 #include "MainApplication.h"
 
@@ -126,6 +127,11 @@ int main(int argc, char *argv[])
     "Like --frame-stats, but wait for the graphics card after each step, to get its real cost (slows MapMap down).");
   parser.addOption(frameStatsSyncOption);
 
+  // --force-cpu-conversion option
+  QCommandLineOption forceCpuConversionOption("force-cpu-conversion",
+    "Convert the colors of videos on the processor instead of the graphics card, to compare.");
+  parser.addOption(forceCpuConversionOption);
+
   // Positional argument: file
   parser.addPositionalArgument("file", "Load project from that file.");
 
@@ -146,6 +152,7 @@ int main(int argc, char *argv[])
     FrameStats::setSynchronous(parser.isSet(frameStatsSyncOption));
     FrameStats::startLogging();
   }
+  VideoImpl::setForceCpuConversion(parser.isSet(forceCpuConversionOption));
 
   // IMPORTANT: Translator must be set *before* the MainWindow is created for it to work.
   QSettings settings;
