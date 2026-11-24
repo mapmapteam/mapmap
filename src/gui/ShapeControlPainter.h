@@ -24,6 +24,7 @@
 #include <QtGlobal>
 
 #include "MM.h"
+#include "ShapeHandles.h"
 #include "MapperGLCanvas.h"
 #include "ShapeGraphicsItem.h"
 
@@ -53,16 +54,17 @@ protected:
   virtual void _paintVertices(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices = QList<int>());
 
   /**
-   * Highlights the shape's first edge (the edge that carries the top of the
-   * image) and its first corner. The same edge is marked in the input and the
-   * output views, so after flipping or rotating the image inside a layer one
-   * can see which edge of the picked region lands on which edge of the shape.
+   * Draws the handle of the shape, unless it is locked: a disc outside the
+   * top of the image with the pictogram of the current mode (free, rotate or
+   * scale), drawn the way the image is set in the shape.
    */
-  void _paintOrientation(QPainter *painter, MapperGLCanvas* canvas);
+  void _paintHandles(QPainter *painter, MapperGLCanvas* canvas);
 
-  /// The first edge of the shape as a polyline, in scene coordinates.
-  /// Empty when the shape has no such edge (e.g. ellipses).
-  virtual QPolygonF _orientationEdge() const { return QPolygonF(); }
+  /// Pictograms of the handle, drawn around the origin in radii of the icon
+  /// (x to the right of the image, y toward the shape).
+  static void _drawScaleGlyph(QPainter* painter);  ///< Four arrows in a cross.
+  static void _drawRotateGlyph(QPainter* painter); ///< A circular arrow.
+  static void _drawFreeGlyph(QPainter* painter);   ///< Half a turn and an arrow leaving the center.
 
   QPen getRescaledShapeStroke(MapperGLCanvas* canvas, bool selected=true, bool innerStroke=false);
 
@@ -77,9 +79,6 @@ public:
   virtual ~PolygonControlPainter() {}
 
   virtual void paintShape(QPainter *painter, MapperGLCanvas* canvas, bool selected=true);
-
-protected:
-  virtual QPolygonF _orientationEdge() const;
 };
 
 /// Control painter for ellipses.
@@ -100,9 +99,6 @@ public:
   virtual ~MeshControlPainter() {}
 
   virtual void paintShape(QPainter *painter, MapperGLCanvas* canvas, bool selected=true);
-
-protected:
-  virtual QPolygonF _orientationEdge() const;
 };
 
 }

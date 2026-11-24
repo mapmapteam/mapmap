@@ -7,12 +7,17 @@ New:
 - Convert the colors of camera sources on the graphics card when the camera gives YUV images, like videos.
 - Measure the time of each step of the image path with the option `--frame-stats`: one line per second in the log. `--frame-stats-sync` waits for the graphics card to give the real cost of each step, and `--force-cpu-conversion` converts the colors of videos on the processor, to compare.
 - Give each project an output resolution, chosen in View > Output Resolution among common projector resolutions, or set by hand. The output window scales it to fill the output screen. New projects take the resolution set in the preferences, which can follow the output screen; older projects take the size of the output screen.
+- Rotate and scale the selected layer with a single handle. Press R to only rotate, S to only scale, T for both, or click the handle to switch; Shift for steps of 15° or 10 %, Ctrl (Cmd on macOS) for fine motion. The handle shows which way the image is set in the layer, and replaces the thick first edge.
 
 Improvements:
 
 - At 100% zoom, the input editor shows the whole image of the selected source and the output editor the whole output frame. "Actual pixels (1:1)" shows one image pixel per screen pixel. New shapes are placed inside the output frame.
 - Projects converted with the option `--output-size` of `scripts/convert-xml-project.py` take that size as their output resolution.
 - Only show the mapping in the fullscreen output when the mouse has not moved over it for three seconds: the mouse cursor, the crosshair, and the outlines and vertices of the shapes are hidden. They come back when the mouse moves.
+
+Changes:
+
+- Clicking again on the selected layer no longer switches to scaling or rotating, and the M key does nothing. Use the handle of the layer instead: R, S and T choose what it does.
 
 Fix:
 

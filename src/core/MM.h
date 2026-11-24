@@ -143,6 +143,12 @@ public:
   static const qreal VERTEX_LOCKED_RADIUS;
   static const qreal VERTEX_SELECT_STROKE_WIDTH;
 
+  // Scale and rotation handles of the current shape (in pixels of the view).
+  static const qreal HANDLE_DISTANCE;
+  static const qreal HANDLE_RADIUS;
+  static const qreal HANDLE_GLYPH_STROKE_WIDTH;
+  static const QColor HANDLE_GLYPH_COLOR;
+
   // Time.
   static const qreal DEFAULT_FRAMES_PER_SECOND;
   static const qreal MIN_FRAMES_PER_SECOND;

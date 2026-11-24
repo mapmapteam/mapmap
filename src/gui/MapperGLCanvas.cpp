@@ -25,6 +25,7 @@
 #include "MainWindow.h"
 #include "Commands.h"
 
+#include <QApplication>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QOpenGLWidget>
@@ -47,6 +48,8 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
     _shapeMoved(false),
     _shapeFirstGrab(false), // comment out?
     _zoom(1.0),
+    _pressMode(HandleMode::Free),
+    _handleMoved(false),
     _wheelZoomRemainder(0),
     _frameStats(isOutput ? "output editor" : "input editor"),
     _lastPaintStartNs(0)
@@ -87,6 +90,14 @@ MapperGLCanvas::MapperGLCanvas(MainWindow* mainWindow,
 
   // Show the position of the mouse in the output even when no button is pressed.
   viewport()->setMouseTracking(isOutput);
+
+  // Draw the handle again when R or S changes its mode.
+  // During a drag, the new mode applies from the state reached.
+  connect(_mainWindow->handleModeKeys(), &HandleModeKeys::modeChanged, this, [this]() {
+    if (_handleDrag)
+      _handleDrag->setMode(_mainWindow->handleModeKeys()->mode());
+    viewport()->update();
+  });
 
   // TODO: do we need to delete scene (or call new QGraphicsScene(this)?)
   setScene(scene ? scene : new QGraphicsScene);
@@ -426,6 +437,34 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   //    QGraphicsView::mousePressEvent(&fakeEvent);
   //  }
 
+  // Other buttons do nothing while a handle is dragged. A left press during a
+  // drag means its release was lost (the input view does not follow the mouse
+  // without a button): end that drag, then handle the press as usual.
+  if (_handleDrag)
+  {
+    if (event->button() != Qt::LeftButton)
+      return;
+    _endHandleDrag(true);
+  }
+
+  // The handles of the current shape come before its vertices and the other
+  // shapes, which they may cover.
+  if (event->button() == Qt::LeftButton)
+  {
+    if (_isOnHandle(event->pos()))
+    {
+      MShape::ptr shape = getCurrentShape();
+      _grabbedShapeCopy.reset(shape->clone());
+      _handleDrag.emplace(shape->getCenter(), pos, _mainWindow->handleModeKeys()->mode());
+      _pressMode = _mainWindow->handleModeKeys()->mode();
+      _handleShape = shape;
+      _handleMoved = false;
+      _handleDrag->setStepped(event->modifiers() & Qt::ShiftModifier);
+      _mainWindow->handleModeKeys()->setDragActive(true);
+      return;
+    }
+  }
+
   // Check for shape selection.
   if (event->buttons() & (Qt::LeftButton | Qt::RightButton))
   {
@@ -519,6 +558,17 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
   deselectAll();
 }
 
+void MapperGLCanvas::mouseDoubleClickEvent(QMouseEvent* event)
+{
+  // Qt turns the second of two quick presses into a double click: on the
+  // handle, it is a press like any other (a second click goes to the next
+  // mode, a press followed by a move drags).
+  if (event->button() == Qt::LeftButton && (_handleDrag || _isOnHandle(event->pos())))
+    mousePressEvent(event);
+  else
+    QGraphicsView::mouseDoubleClickEvent(event);
+}
+
 void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
 {
   Q_UNUSED(event);
@@ -538,6 +588,20 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
   //  if ((event->buttons() & Qt::LeftButton) && _mousePressedOnVertex)
   //  {
   //  }
+  if (_handleDrag)
+  {
+    // Only the left button, which started the drag, ends it.
+    if (event->button() == Qt::LeftButton)
+    {
+      // A click without a drag goes to the next mode.
+      const bool clicked = !_handleMoved;
+      _endHandleDrag(true);
+      if (clicked)
+        _mainWindow->handleModeKeys()->setMode(nextHandleMode(_mainWindow->handleModeKeys()->mode()));
+    }
+    return;
+  }
+
   if (_vertexGrabbed)
   {
     // TODO : code repetition here!!!
@@ -575,8 +639,25 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
 {
   QPointF scenePos = mapToScene(event->pos());
 
+  // Handle drag: Ctrl for fine motion, Shift for steps.
+  if (_handleDrag)
+  {
+    // The release was lost (to a menu, for instance): end the drag here.
+    if (!(event->buttons() & Qt::LeftButton))
+      _endHandleDrag(true);
+    // Until the pointer goes farther than the drag distance, it is a click:
+    // nothing moves (the first move then starts from the press point).
+    else if (_handleMoved
+             || (event->pos() - _mousePressedPosition).manhattanLength() >= QApplication::startDragDistance())
+    {
+      _handleDrag->moveTo(scenePos, event->modifiers() & Qt::ControlModifier);
+      _handleMoved = true;
+      _updateHandleDrag(event->modifiers() & Qt::ShiftModifier);
+    }
+  }
+
   // Vertex grab.
-  if (_vertexGrabbed)
+  else if (_vertexGrabbed)
   {
     // std::cout << "Move event " << std::endl;
     MShape::ptr shape = getCurrentShape();
@@ -634,6 +715,46 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
     _mainWindow->updateMouseCoordinates();
 }
 
+bool MapperGLCanvas::_isOnHandle(const QPoint& viewPosition)
+{
+  MShape::ptr shape = getCurrentShape();
+  if (!shape || shape->isLocked() || !MainWindow::window()->displayControls())
+    return false;
+
+  const QPointF handleInView = mapFromScene(handlePosition(*shape, MM::HANDLE_DISTANCE / getZoomFactor()));
+  return distSq(QPointF(viewPosition), handleInView) < sq(MM::VERTEX_SELECT_RADIUS);
+}
+
+bool MapperGLCanvas::_handleShapeIsCurrent()
+{
+  MShape::ptr shape = _handleShape.toStrongRef();
+  return shape && shape == getCurrentShape() && !shape->isLocked();
+}
+
+void MapperGLCanvas::_updateHandleDrag(bool stepped)
+{
+  if (!_handleShapeIsCurrent())
+  {
+    _endHandleDrag(false);
+    return;
+  }
+  _handleDrag->setStepped(stepped);
+  undoStack->push(new ScaleRotateShapeCommand(this, TransformShapeCommand::FREE, _pressMode, _grabbedShapeCopy,
+                                              _handleDrag->transform()));
+}
+
+void MapperGLCanvas::_endHandleDrag(bool commit)
+{
+  // Commit what is shown: the steps of the last update, not the keys held now.
+  if (commit && _handleMoved && _handleShapeIsCurrent())
+    undoStack->push(new ScaleRotateShapeCommand(this, TransformShapeCommand::RELEASE, _pressMode, _grabbedShapeCopy,
+                                                _handleDrag->transform()));
+  _handleDrag.reset();
+  _handleShape.clear();
+  _mainWindow->handleModeKeys()->setDragActive(false);
+  _handleMoved = false;
+}
+
 void MapperGLCanvas::leaveEvent(QEvent* event)
 {
   QGraphicsView::leaveEvent(event);
@@ -648,8 +769,32 @@ void MapperGLCanvas::_scrollBy(const QPoint& distance)
 }
 
 
+void MapperGLCanvas::focusOutEvent(QFocusEvent* event)
+{
+  // A drag cannot go on without the focus (a dialog or another window opened).
+  if (_handleDrag)
+    _endHandleDrag(true);
+  QGraphicsView::focusOutEvent(event);
+}
+
+void MapperGLCanvas::keyReleaseEvent(QKeyEvent* event)
+{
+  // Releasing Shift during a handle drag removes the steps at once.
+  if (_handleDrag && _handleMoved && event->key() == Qt::Key_Shift)
+    _updateHandleDrag(false);
+  QGraphicsView::keyReleaseEvent(event);
+}
+
 void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 {
+  // Pressing Shift during a handle drag shows the steps at once.
+  if (_handleDrag && _handleMoved && event->key() == Qt::Key_Shift)
+  {
+    // (The modifiers of a modifier key's own event differ between systems.)
+    _updateHandleDrag(true);
+    return;
+  }
+
   // Checks if the key has been handled by this function or needs to be deferred to superclass.
   bool handledKey = false;
 
