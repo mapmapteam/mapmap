@@ -16,8 +16,9 @@ macx: DEFINES += GL_SILENCE_DEPRECATION
 CORE    = $$PWD/../src/core
 SHAPE   = $$PWD/../src/shape
 CONTROL = $$PWD/../src/control
+GUI     = $$PWD/../src/gui
 
-INCLUDEPATH += $$CORE $$SHAPE $$CONTROL
+INCLUDEPATH += $$CORE $$SHAPE $$CONTROL $$GUI
 
 # Production sources under test plus the minimal set of dependencies they
 # need to link. We deliberately avoid pulling in the whole core/shape .pri
@@ -43,6 +44,7 @@ HEADERS += \
     $$SHAPE/Ellipse.h \
     $$SHAPE/Shapes.h \
     $$SHAPE/ShapeHandles.h \
+    $$GUI/HandleModeKeys.h \
     $$CONTROL/OscAction.h \
     $$CORE/VideoImpl.h \
     $$CORE/VideoPlayerImpl.h \
@@ -57,6 +59,7 @@ HEADERS += \
     TestFrameStats.h \
     TestUidAllocator.h \
     TestShape.h \
+    TestHandleModeKeys.h \
     TestOsc.h \
     TestFileVersion.h \
     TestVideo.h \
@@ -79,6 +82,7 @@ SOURCES += \
     $$SHAPE/Mesh.cpp \
     $$SHAPE/Ellipse.cpp \
     $$SHAPE/ShapeHandles.cpp \
+    $$GUI/HandleModeKeys.cpp \
     $$CONTROL/OscAction.cpp \
     $$CORE/VideoImpl.cpp \
     $$CORE/VideoPlayerImpl.cpp \
@@ -95,6 +99,7 @@ SOURCES += \
     TestFrameStats.cpp \
     TestUidAllocator.cpp \
     TestShape.cpp \
+    TestHandleModeKeys.cpp \
     TestOsc.cpp \
     TestFileVersion.cpp \
     TestVideo.cpp \
