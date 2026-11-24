@@ -38,15 +38,6 @@ MShape* MShape::clone() const {
   return copyShape;
 }
 
-void MShape::setShapeMode(MShape::ShapeMode mode, bool next)
-{
-  if (!next)
-    _shapeMode = mode;
-  else
-    _shapeMode = static_cast<MShape::ShapeMode>((mode + 1) % 3);
-
-}
-
 void MShape::applyTransform(const QTransform& transform)
 {
   for (QVector<QPointF>::iterator it = vertices.begin();

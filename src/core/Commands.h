@@ -24,6 +24,7 @@
 
 #include <QUndoCommand>
 #include "MM.h"
+#include "ShapeHandles.h"
 
 namespace mmp {
 
@@ -126,10 +127,15 @@ protected:
   QPointF _vertexPosition;
 };
 
+/// Rotates and scales a shape by a transform computed from the shape as it was
+/// when the drag on its handle started (initialShape). The mode at the start of
+/// the drag names the command; it may change during the drag.
 class ScaleRotateShapeCommand : public TransformShapeCommand
 {
 public:
-  ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, const QPointF& initialPositionPoint, const MShape::ptr& initialShape, MShape::ShapeMode mode, QUndoCommand *parent = 0);
+  ScaleRotateShapeCommand(MapperGLCanvas* canvas, TransformShapeOption option, HandleMode mode,
+                          const MShape::ptr& initialShape, const QTransform& transform,
+                          QUndoCommand *parent = 0);
 
   int id() const;
   bool mergeWith(const QUndoCommand* other);
@@ -138,8 +144,7 @@ protected:
   // Perform the actual transformation on the shape.
   virtual void _doTransform(MShape::ptr shape);
 
-  // Information pertaining to the moving of vertex.
-  int _movedVertex;
+  // The transform to apply and the shape before the drag.
   QTransform _transform;
   MShape::ptr _initialShape;
 };

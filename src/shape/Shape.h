@@ -56,12 +56,6 @@ class MShape : public Serializable
 public:
 
   // Enumerations
-  enum ShapeMode {
-    DefaultMode,
-    ScaleMode,
-    RotateMode
-  };
-
   enum FlipDirection {
     Horizontal,
     Vertical
@@ -174,9 +168,6 @@ public:
   void setLocked(bool locked)    { _isLocked = locked; }
   void toggleLocked()  { _isLocked = !_isLocked; }
 
-  MShape::ShapeMode shapeModeState() const { return _shapeMode; }
-  void setShapeMode(MShape::ShapeMode mode, bool next = false);
-
   const QVector<QPointF>& getVertices() const { return vertices; }
   virtual void setVertices(const QVector<QPointF>& vertices_)
   {
@@ -213,9 +204,6 @@ protected:
 
   // Lists QProperties that should NOT be parsed automatically.
   virtual QList<QString> _propertiesSpecial() const { return Serializable::_propertiesSpecial() << "vertices"; }
-
-private:
-  MShape::ShapeMode _shapeMode = MShape::DefaultMode;
 };
 
 
