@@ -3,7 +3,6 @@ include(../src.pri)
 
 HEADERS += $$PWD/Commands.h \
     $$PWD/CameraImpl.h \
-    $$PWD/CameraSurface.h \
     $$PWD/Element.h \
     $$PWD/FrameStats.h \
     $$PWD/Layer.h \
@@ -24,7 +23,6 @@ HEADERS += $$PWD/Commands.h \
 
 SOURCES += $$PWD/Commands.cpp \
     $$PWD/CameraImpl.cpp \
-    $$PWD/CameraSurface.cpp \
     $$PWD/Element.cpp \
     $$PWD/FrameStats.cpp \
     $$PWD/Layer.cpp \

@@ -46,7 +46,6 @@ HEADERS += \
     $$CORE/VideoPlayerImpl.h \
     $$CORE/YuvTexture.h \
     $$CORE/CameraImpl.h \
-    $$CORE/CameraSurface.h \
     $$CORE/Layer.h \
     $$CORE/MappingManager.h \
     $$CORE/ProjectReader.h \
@@ -82,7 +81,6 @@ SOURCES += \
     $$CORE/VideoPlayerImpl.cpp \
     $$CORE/YuvTexture.cpp \
     $$CORE/CameraImpl.cpp \
-    $$CORE/CameraSurface.cpp \
     $$CORE/Layer.cpp \
     $$CORE/MappingManager.cpp \
     $$CORE/ProjectReader.cpp \

@@ -161,7 +161,7 @@ void Image::build()
   _images.clear();
   for (int i = 0; i < reader.imageCount(); i++) {
     // Upload rows top-first, like video and camera frames (see
-    // CameraSurface::onVideoFrameChanged): the old mirror + 180-degree
+    // CameraImpl::CameraImpl()): the old mirror + 180-degree
     // rotation, a net vertical flip, made images appear upside-down.
     _images.push_back(reader.read().convertToFormat(QImage::Format_RGBA8888));
   }

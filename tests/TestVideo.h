@@ -47,6 +47,9 @@ private slots:
   void forcedCpuConversion();
   void uploadIsTimedWhenEnabled();
 
+  void cameraKeepsYuvFrames();
+  void cameraConvertsOtherFrames();
+
 private:
   // Generates a quadrant test clip with the given pixel format.
   QString _makeClip(const QString& pixelFormat);
