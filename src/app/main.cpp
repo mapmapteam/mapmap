@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
   if (MM::SUPPORTED_LANGUAGES.contains(lang))
   {
 #ifdef Q_OS_WIN32
-    qtTranslator.load(QString("qt_%1").arg(lang),
+    (void)qtTranslator.load(QString("qt_%1").arg(lang),
                       QApplication::applicationDirPath().append("/translations"));
 #else
     (void)qtTranslator.load(QString("qtbase_%1").arg(lang),

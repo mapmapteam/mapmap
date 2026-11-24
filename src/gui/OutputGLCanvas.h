@@ -54,7 +54,7 @@ public:
   qreal getZoomFactor() const override { return transform().m11(); }
 
   // Draws foreground (displays crosshair if needed).
-  void drawForeground(QPainter *painter , const QRectF &rect);
+  void drawForeground(QPainter *painter , const QRectF &rect) override;
 
 public:
   void setDisplayCrosshair(bool displayCrosshair) {
@@ -134,10 +134,10 @@ protected:
   void showEvent(QShowEvent* event) override;
   void keyPressEvent(QKeyEvent* event) override;
 
-  void wheelEvent(QWheelEvent *event);
-  void mouseMoveEvent(QMouseEvent *event);
-  void enterEvent(QEnterEvent * event);
-  void leaveEvent(QEvent *event);
+  void wheelEvent(QWheelEvent *event) override;
+  void mouseMoveEvent(QMouseEvent *event) override;
+  void enterEvent(QEnterEvent * event) override;
+  void leaveEvent(QEvent *event) override;
 };
 
 }

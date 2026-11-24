@@ -11,6 +11,7 @@ DEFINES += UNICODE QT_THREAD_SUPPORT QT_CORE_LIB QT_GUI_LIB QT_MESSAGELOGCONTEXT
 unix:!macx: DEFINES += UNIX
 win32: LIBS += -lopengl32
 macx: LIBS += -framework CoreFoundation
+macx: DEFINES += GL_SILENCE_DEPRECATION
 
 CORE    = $$PWD/../src/core
 SHAPE   = $$PWD/../src/shape

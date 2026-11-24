@@ -49,7 +49,8 @@ jobs:
 
     - name: Deploy Qt
       if: github.event_name != 'pull_request'
-      run: windeployqt --release --no-system-d3d-compiler "MapMap\MapMap.exe"
+      # MapMap renders with OpenGL and does not compile Direct3D shaders.
+      run: windeployqt --release --no-system-dxc-compiler --no-system-d3d-compiler "MapMap\MapMap.exe"
 
     - uses: actions/upload-artifact@v7
       if: github.event_name != 'pull_request'

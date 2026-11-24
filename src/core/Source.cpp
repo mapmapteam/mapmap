@@ -509,7 +509,7 @@ bool Video::setUri(const QString &uri)
     }
     else
     {
-      _pollForBits([this, thumbnailMaxAttempts]() {
+      _pollForBits([this]() {
         // The first frame just arrived, so getWidth()/getHeight() now report
         // the real resolution instead of the DEFAULT_WIDTH/HEIGHT placeholder.
         emit frameSizeKnown(getId(), getWidth(), getHeight());

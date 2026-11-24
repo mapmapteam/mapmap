@@ -38,41 +38,16 @@
 #define INCLUDED_OSCPACK_OSCTYPES_H
 
 
+#include <cstdint>
+
 namespace osc{
 
 // basic types
 
-#if defined(__BORLANDC__) || defined(_MSC_VER)
-
-typedef __int64 int64;
-typedef unsigned __int64 uint64;
-
-#elif defined(__x86_64__) || defined(_M_X64)
-
-typedef long int64;
-typedef unsigned long uint64;
-
-#else
-
-typedef long long int64;
-typedef unsigned long long uint64;
-
-#endif
-
-
-
-#if defined(__x86_64__) || defined(_M_X64)
-
-typedef signed int int32;
-typedef unsigned int uint32;
-
-#else
-
-typedef signed long int32;
-typedef unsigned long uint32;
-
-#endif
-
+using int64 = std::int64_t;
+using uint64 = std::uint64_t;
+using int32 = std::int32_t;
+using uint32 = std::uint32_t;
 
 enum ValueTypeSizes{
     OSC_SIZEOF_INT32 = 4,
