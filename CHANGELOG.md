@@ -11,6 +11,7 @@ New:
 Improvements:
 
 - At 100% zoom, the input editor shows the whole image of the selected source and the output editor the whole output frame. "Actual pixels (1:1)" shows one image pixel per screen pixel. New shapes are placed inside the output frame.
+- Projects converted with the option `--output-size` of `scripts/convert-xml-project.py` take that size as their output resolution.
 
 Fix:
 

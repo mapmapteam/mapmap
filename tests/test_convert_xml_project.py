@@ -179,6 +179,17 @@ class CommandLineTest(unittest.TestCase):
                               for x, y in old_layer["destination"]["vertices"]])
             self.assertEqual(new_layer.get("source"), old_layer.get("source"))
         self.assertEqual(after["sources"], before["sources"])
+        self.assertEqual(after["outputResolution"], {"width": 1920, "height": 1080})
+
+    def test_project_with_an_output_resolution_is_refused(self):
+        # Its shapes are already at the right place: moving them would break it.
+        with open(os.path.join(FIXTURES, "quad-image.mmp"), encoding="utf-8") as original:
+            project = json.load(original)
+        project["outputResolution"] = {"width": 1920, "height": 1080}
+        with open(self.project, "w", encoding="utf-8") as modified:
+            json.dump(project, modified)
+        self.assertEqual(self.run_script(self.project, "--output-size", "1920x1080"), 1)
+        self.assertFalse(os.path.exists(self.converted))
 
     def test_json_project_is_only_accepted_with_an_output_size(self):
         shutil.copy(os.path.join(FIXTURES, "quad-image.mmp"), self.project)
