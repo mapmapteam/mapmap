@@ -24,6 +24,10 @@
 | <kbd>V</kbd> | Flip vertically (in the input view: flip the image inside the layer) |
 | <kbd>Shift</kbd> + <kbd>R</kbd> | Rotate 90° clockwise (in the input view: rotate the image inside the layer) |
 | <kbd>Shift</kbd> + <kbd>L</kbd> | Rotate 90° counterclockwise (in the input view: rotate the image inside the layer) |
+| <kbd>R</kbd> | Handle: rotate only |
+| <kbd>S</kbd> | Handle: scale only |
+| <kbd>T</kbd> | Handle: rotate and scale (free) |
+| Click the handle | Next handle mode |
 | <kbd>Page Up</kbd> | Raise layer |
 | <kbd>Page Down</kbd> | Lower layer |
 | <kbd>Home</kbd> | Raise layer to top |

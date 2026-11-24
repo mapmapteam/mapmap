@@ -20,7 +20,68 @@
 
 #include "ShapeControlPainter.h"
 
+#include "MainWindow.h"
+
+#include <cmath>
+
+#include <QtMath>
+
 namespace mmp {
+
+namespace {
+
+// Pictograms of the handle, in fractions of its radius.
+const qreal GLYPH_HALF_LENGTH = 0.65;
+const qreal ARROW_HEAD_LENGTH = 0.25;
+const qreal ARROW_HEAD_HALF_WIDTH = 0.18;
+const qreal ROTATE_GLYPH_RADIUS = 0.5;
+
+// Arc of the rotation pictogram, in degrees counterclockwise from the right.
+const qreal ROTATE_GLYPH_START_DEGREES = 60;
+const qreal ROTATE_GLYPH_SPAN_DEGREES = 270;
+
+// QPainter::drawArc() counts angles in sixteenths of a degree.
+const int QT_ANGLE_UNITS_PER_DEGREE = 16;
+
+/// Draws the two sides of an arrow head whose tip points along direction (of length 1), in radii.
+void _drawArrowHead(QPainter* painter, const QPointF& tip, const QPointF& direction)
+{
+  const QPointF back = tip - ARROW_HEAD_LENGTH * direction;
+  const QPointF side = ARROW_HEAD_HALF_WIDTH * QPointF(-direction.y(), direction.x());
+  painter->drawLine(tip, back + side);
+  painter->drawLine(tip, back - side);
+}
+
+// Pictogram of the free mode: half a turn on the side of the shape, and an
+// arrow leaving the center toward the top right of the image.
+const qreal FREE_GLYPH_ARC_RADIUS = 0.5;
+const qreal FREE_GLYPH_ARC_START_DEGREES = 135;
+const qreal FREE_GLYPH_ARC_SPAN_DEGREES = 180;
+const QPointF FREE_GLYPH_ARROW_TAIL(-0.04, 0.04);
+const QPointF FREE_GLYPH_ARROW_TIP(0.46, -0.46);
+
+/// Returns the point of a circle of the given radius at an angle counted
+/// counterclockwise on screen (y points down), with the direction it moves to
+/// when the angle grows.
+QPointF _pointOnCircle(qreal radius, qreal degrees, QPointF* direction)
+{
+  const qreal angle = qDegreesToRadians(degrees);
+  *direction = QPointF(-std::sin(angle), -std::cos(angle));
+  return radius * QPointF(std::cos(angle), -std::sin(angle));
+}
+
+/// Draws an arc of a circle centered on the origin, with an arrow head at its end.
+void _drawArcArrow(QPainter* painter, qreal radius, qreal startDegrees, qreal spanDegrees)
+{
+  const QRectF bounds(-radius, -radius, 2 * radius, 2 * radius);
+  painter->drawArc(bounds, qRound(startDegrees * QT_ANGLE_UNITS_PER_DEGREE),
+                   qRound(spanDegrees * QT_ANGLE_UNITS_PER_DEGREE));
+  QPointF direction;
+  const QPointF tip = _pointOnCircle(radius, startDegrees + spanDegrees, &direction);
+  _drawArrowHead(painter, tip, direction);
+}
+
+}
 
 
 ShapeControlPainter::ShapeControlPainter(ShapeGraphicsItem* shapeItem)
@@ -32,34 +93,53 @@ MShape::ptr ShapeControlPainter::getShape() const { return _shapeItem->getShape(
 void ShapeControlPainter::paint(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices)
 {
   paintShape(painter, canvas);
-  _paintOrientation(painter, canvas);
+  // Handles first, so that their lines pass under the vertices.
+  _paintHandles(painter, canvas);
   _paintVertices(painter, canvas, selectedVertices);
 }
 
-void ShapeControlPainter::_paintOrientation(QPainter *painter, MapperGLCanvas* canvas)
+void ShapeControlPainter::_paintHandles(QPainter *painter, MapperGLCanvas* canvas)
 {
-  const QPolygonF edge = _orientationEdge();
-  if (edge.size() < 2)
+  const MShape::ptr shape = getShape();
+  if (shape->isLocked())
     return;
 
   const qreal zoomFactor = canvas->getZoomFactor();
-  const QPolygonF local = _shapeItem->mapFromScene(edge);
+  const qreal radius = MM::HANDLE_RADIUS / zoomFactor;
+  const HandleAnchor anchor = handleAnchor(*shape);
+  const QPointF center = handlePosition(*shape, MM::HANDLE_DISTANCE / zoomFactor);
 
   painter->save();
 
-  // A thick line along the edge...
-  QPen pen(QBrush(MM::CONTROL_COLOR), 4 * MM::SHAPE_STROKE_WIDTH / zoomFactor);
-  pen.setCapStyle(Qt::RoundCap);
-  pen.setJoinStyle(Qt::RoundJoin);
-  painter->setPen(pen);
+  // A thin line from the shape to the icon.
+  painter->setPen(QPen(MM::CONTROL_COLOR, MM::SHAPE_STROKE_WIDTH / zoomFactor));
   painter->setBrush(Qt::NoBrush);
-  painter->drawPolyline(local);
+  painter->drawLine(anchor.point, center - radius * anchor.outward);
 
-  // ...and a dot on its first corner, so the direction is visible too.
-  const qreal radius = 0.6 * MM::VERTEX_SELECT_RADIUS / zoomFactor;
+  // A disc...
   painter->setPen(Qt::NoPen);
-  painter->setBrush(QBrush(MM::CONTROL_COLOR));
-  painter->drawEllipse(local.first(), radius, radius);
+  painter->setBrush(MM::CONTROL_COLOR);
+  painter->drawEllipse(center, radius, radius);
+
+  // ...with the pictogram of the mode, drawn in the frame of the image so that
+  // it turns over when the image is seen in mirror: x to the right of the
+  // image, y toward the shape, in radii of the icon.
+  QPointF right(-anchor.outward.y(), anchor.outward.x());
+  if (anchor.isMirrored())
+    right = -right;
+  const QPointF down = -anchor.outward;
+  painter->setTransform(QTransform(right.x() * radius, right.y() * radius,
+                                   down.x() * radius, down.y() * radius,
+                                   center.x(), center.y()), true);
+  painter->setPen(QPen(MM::HANDLE_GLYPH_COLOR, MM::HANDLE_GLYPH_STROKE_WIDTH / MM::HANDLE_RADIUS,
+                       Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+  painter->setBrush(Qt::NoBrush);
+  switch (MainWindow::window()->handleModeKeys()->mode())
+  {
+  case HandleMode::Rotate: _drawRotateGlyph(painter); break;
+  case HandleMode::Scale:  _drawScaleGlyph(painter);  break;
+  case HandleMode::Free:   _drawFreeGlyph(painter);   break;
+  }
 
   painter->restore();
 }
@@ -98,14 +178,6 @@ void PolygonControlPainter::paintShape(QPainter *painter, MapperGLCanvas* canvas
 }
 
 
-QPolygonF PolygonControlPainter::_orientationEdge() const
-{
-  const QPolygonF poly = static_cast<Polygon*>(getShape().data())->toPolygon();
-  if (poly.size() < 2)
-    return QPolygonF();
-  return QPolygonF({ poly.at(0), poly.at(1) });
-}
-
 void EllipseControlPainter::paintShape(QPainter *painter, MapperGLCanvas* canvas, bool selected)
 {
   Ellipse* ellipse = static_cast<Ellipse*>(getShape().data());
@@ -140,14 +212,31 @@ void MeshControlPainter::paintShape(QPainter *painter, MapperGLCanvas* canvas, b
   painter->drawPolygon(_shapeItem->mapFromScene(mesh->toPolygon()));
 }
 
-QPolygonF MeshControlPainter::_orientationEdge() const
+void ShapeControlPainter::_drawScaleGlyph(QPainter* painter)
 {
-  // The top row of the grid, from its first corner to its last.
-  const Mesh* mesh = static_cast<Mesh*>(getShape().data());
-  QPolygonF edge;
-  for (int i = 0; i < mesh->nColumns(); i++)
-    edge.append(mesh->getVertex2d(i, 0));
-  return edge;
+  // Four arrows in a cross, along the diagonals.
+  for (const QPointF& diagonal : { QPointF(1, 1), QPointF(1, -1) })
+  {
+    const QPointF direction = diagonal / M_SQRT2;
+    const QPointF tip = GLYPH_HALF_LENGTH * direction;
+    painter->drawLine(-tip, tip);
+    _drawArrowHead(painter, tip, direction);
+    _drawArrowHead(painter, -tip, -direction);
+  }
+}
+
+void ShapeControlPainter::_drawRotateGlyph(QPainter* painter)
+{
+  // Three quarters of a circle, with an arrow head at its end.
+  _drawArcArrow(painter, ROTATE_GLYPH_RADIUS, ROTATE_GLYPH_START_DEGREES, ROTATE_GLYPH_SPAN_DEGREES);
+}
+
+void ShapeControlPainter::_drawFreeGlyph(QPainter* painter)
+{
+  _drawArcArrow(painter, FREE_GLYPH_ARC_RADIUS, FREE_GLYPH_ARC_START_DEGREES, FREE_GLYPH_ARC_SPAN_DEGREES);
+  painter->drawLine(FREE_GLYPH_ARROW_TAIL, FREE_GLYPH_ARROW_TIP);
+  const QPointF direction = FREE_GLYPH_ARROW_TIP - FREE_GLYPH_ARROW_TAIL;
+  _drawArrowHead(painter, FREE_GLYPH_ARROW_TIP, direction / QLineF(QPointF(), direction).length());
 }
 
 }

@@ -81,6 +81,12 @@ const qreal MM::VERTEX_SELECT_RADIUS = 12;
 const qreal MM::VERTEX_LOCKED_RADIUS = 6;
 const qreal MM::VERTEX_SELECT_STROKE_WIDTH = 1.5;
 
+// As big as the handles of the vertices, and far enough not to touch them.
+const qreal MM::HANDLE_DISTANCE = 34;
+const qreal MM::HANDLE_RADIUS = VERTEX_SELECT_RADIUS;
+const qreal MM::HANDLE_GLYPH_STROKE_WIDTH = 1.5;
+const QColor MM::HANDLE_GLYPH_COLOR(DARK_GRAY);
+
 // Time.
 const qreal MM::DEFAULT_FRAMES_PER_SECOND = 29.97;
 const qreal MM::MIN_FRAMES_PER_SECOND = 1;

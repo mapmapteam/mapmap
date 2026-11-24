@@ -105,6 +105,10 @@ MainWindow::MainWindow()
 {
   _instance = this;
 
+  // Follow the keys of the handle modes before the canvases are created.
+  _handleModeKeys = new HandleModeKeys(this);
+  qApp->installEventFilter(_handleModeKeys);
+
   // Create model.
 #if QT_VERSION >= 0x050500
   QMessageLogger(__FILE__, __LINE__, nullptr).info() << "Video support: " <<

@@ -54,6 +54,7 @@
 #include "qtgroupboxpropertybrowser.h"
 
 #include "SourceGui.h"
+#include "HandleModeKeys.h"
 
 namespace mmp {
 
@@ -433,7 +434,13 @@ public:
 
   static MainWindow* window();
 
+  /// The keys that restrict the handle of the current shape to rotating or scaling.
+  HandleModeKeys* handleModeKeys() const { return _handleModeKeys; }
+
 private:
+  // Follows R and S for the handles of the shapes (owned by the window).
+  HandleModeKeys* _handleModeKeys = nullptr;
+
   // The singleton, published as soon as construction starts so that anything
   // triggered from inside the constructor (e.g. restoring the output window in
   // fullscreen repaints OutputGLCanvas, which asks for the main window) gets

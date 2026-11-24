@@ -747,6 +747,11 @@ Ligne %2, colonne %3</translation>
         <translation>Mettre à l&apos;échelle la forme</translation>
     </message>
     <message>
+        <location filename="../src/core/Commands.cpp" line="190"/>
+        <source>Rotate and scale shape</source>
+        <translation>Tourner et mettre à l&apos;échelle la forme</translation>
+    </message>
+    <message>
         <location filename="../src/core/ProjectReader.cpp" line="54"/>
         <source>unknown</source>
         <translation>inconnue</translation>

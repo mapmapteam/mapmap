@@ -31,11 +31,13 @@
 #include <QtMath>
 
 #include <iostream>
+#include <optional>
 
 #include "MM.h"
 #include "FrameStats.h"
 #include "UidAllocator.h"
 #include "Shape.h"
+#include "ShapeHandles.h"
 
 #include "LayerGui.h"
 
@@ -208,6 +210,15 @@ private:
   // Name shown above the outline of the content rectangle.
   QString _contentLabel;
 
+  // Drag in progress on a scale or rotation handle of the current shape.
+  std::optional<HandleDrag> _handleDrag;
+  // The mode when the handle drag started, which names the undo step.
+  HandleMode _pressMode;
+  // The shape whose handle is dragged.
+  QWeakPointer<MShape> _handleShape;
+  // If the current handle drag has moved the shape.
+  bool _handleMoved;
+
   // Wheel movement not yet turned into a zoom step (in 1/8 of a degree,
   // 120 per notch); see wheelEvent().
   int _wheelZoomRemainder;
@@ -229,9 +240,12 @@ public slots:
 
   void wheelEvent(QWheelEvent *event) override;
   void mousePressEvent(QMouseEvent *event) override;
+  void mouseDoubleClickEvent(QMouseEvent *event) override;
   void mouseReleaseEvent(QMouseEvent *event) override;
   void mouseMoveEvent(QMouseEvent *event) override;
   void keyPressEvent(QKeyEvent* event) override;
+  void keyReleaseEvent(QKeyEvent* event) override;
+  void focusOutEvent(QFocusEvent* event) override;
 
   // Event Filter
   bool eventFilter(QObject *target, QEvent *event) override;
@@ -292,6 +306,20 @@ private:
   // Scrolls the view (in pixels).
   void _scrollBy(const QPoint& distance);
 
+  /// Returns true iff a point of the view is on the handle of the current shape
+  /// (never when the shape is locked or controls are hidden).
+  bool _isOnHandle(const QPoint& viewPosition);
+
+  /// Returns true iff the shape whose handle is dragged is still the current,
+  /// unlocked shape (a shortcut, OSC or MCP may change it during the drag).
+  bool _handleShapeIsCurrent();
+
+  /// Applies the handle drag to its shape, with steps when stepped is true.
+  void _updateHandleDrag(bool stepped);
+
+  /// Ends the handle drag; when commit is true and the shape moved, makes the
+  /// drag a single undo step.
+  void _endHandleDrag(bool commit);
 
 public:
   static const int NO_VERTEX = -1;
