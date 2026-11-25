@@ -30,6 +30,7 @@
 #include "TestCameraSource.h"
 #include "TestMappingManager.h"
 #include "TestProjectRoundTrip.h"
+#include "TestSettings.h"
 
 #ifdef Q_OS_MACOS
 namespace {
@@ -121,6 +122,10 @@ int main(int argc, char** argv)
   }
   {
     TestProjectRoundTrip test;
+    status |= QTest::qExec(&test, argc, argv);
+  }
+  {
+    TestSettings test;
     status |= QTest::qExec(&test, argc, argv);
   }
 

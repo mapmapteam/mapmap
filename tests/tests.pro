@@ -65,7 +65,8 @@ HEADERS += \
     TestVideo.h \
     TestCameraSource.h \
     TestMappingManager.h \
-    TestProjectRoundTrip.h
+    TestProjectRoundTrip.h \
+    TestSettings.h
 
 SOURCES += \
     $$CORE/MM.cpp \
@@ -105,7 +106,8 @@ SOURCES += \
     TestVideo.cpp \
     TestCameraSource.cpp \
     TestMappingManager.cpp \
-    TestProjectRoundTrip.cpp
+    TestProjectRoundTrip.cpp \
+    TestSettings.cpp
 
 # Projects read by TestProjectRoundTrip.
 DEFINES += MAPMAP_TEST_FIXTURES_DIR=\\\"$$PWD/fixtures\\\"
