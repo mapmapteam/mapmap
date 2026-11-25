@@ -73,9 +73,10 @@ public:
    * Setting::setFromText(), a JSON number or boolean by Setting::setFromArguments(); any other
    * value, and a text that is not a value of the setting, is skipped with a warning.
    *
-   * The keys that are neither a setting, nor the class name, nor in _reservedKeys() are kept
-   * pending, with their JSON value as it is: write() writes them back, and a setting added
-   * later to settings() takes the value of the pending key with its id. Each call replaces
+   * The keys that are neither the class name, nor in _reservedKeys(), nor a stored and
+   * writable setting are kept pending, with their JSON value as it is: write() writes them
+   * back, and a stored and writable setting added later to settings() takes the value of the
+   * pending key with its id, even when it is bound after being added. Each call replaces
    * the pending keys of the previous one. Subclasses read their reserved keys themselves.
    */
   virtual void read(const QJsonObject& obj);
@@ -102,7 +103,8 @@ private:
   /// Gives a setting the JSON value of its key; skips, with a warning, a value it cannot read.
   void _readSetting(Setting* setting, const QJsonValue& value) const;
 
-  /// Gives a setting just added to the root the value of the pending key with its id, if any.
+  /// Gives a stored and writable setting just added to the root the value of the pending key
+  /// with its id, if any; the key stays pending for any other setting.
   void _takePendingKey(Setting* setting);
 
   /// Root of the tree of settings, built by the first call of settings().

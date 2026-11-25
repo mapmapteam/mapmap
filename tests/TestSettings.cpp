@@ -1070,6 +1070,57 @@ void TestSettings::runtimeSettingIsSavedAndRestored()
   QVERIFY(!written.contains("gain"));
 }
 
+void TestSettings::pendingValueReachesSettingBoundLater()
+{
+  Color source(QColor(Qt::red));
+  const QJsonObject obj {
+    { "className", "Color" },
+    { "id", source.getId() },
+    { "gain", "0.3" }
+  };
+  source.read(obj);
+
+  // Declared after the project was read, then bound to its owner's storage.
+  double gain = 0;
+  Setting* setting = source.settings()->addSetting(SettingInfo::number("gain", "Gain"));
+  QVERIFY(setting);
+  setting->bind([&gain]() { return QVariant(gain); },
+                [&gain](const QVariant& value) { gain = value.toDouble(); return true; });
+  QCOMPARE(gain, 0.3);
+  QCOMPARE(setting->value().toDouble(), 0.3);
+
+  QJsonObject written;
+  source.write(written);
+  QCOMPARE(written.value("gain"), QJsonValue("0.3"));
+}
+
+void TestSettings::keysOfUnreadSettingsStayPending()
+{
+  Color source(QColor(Qt::red));
+  Setting* monitor = source.settings()->addSetting(SettingInfo::number("monitor", "Monitor").notStored());
+  const QJsonObject obj {
+    { "className", "Color" },
+    { "id", source.getId() },
+    { "monitor", "0.2" },
+    { "liveGain", "0.4" },
+    { "meter", "0.8" }
+  };
+  source.read(obj);
+  QCOMPARE(monitor->value().toDouble(), 0.0);
+
+  // Neither read from a project file: their keys stay for the next save.
+  Setting* liveGain = source.settings()->addSetting(SettingInfo::number("liveGain", "Live gain").notStored());
+  Setting* meter = source.settings()->addSetting(SettingInfo::number("meter", "Meter").readOnly().notStored());
+  QCOMPARE(liveGain->value().toDouble(), 0.0);
+  QCOMPARE(meter->value().toDouble(), 0.0);
+
+  QJsonObject written;
+  source.write(written);
+  QCOMPARE(written.value("monitor"), QJsonValue("0.2"));
+  QCOMPARE(written.value("liveGain"), QJsonValue("0.4"));
+  QCOMPARE(written.value("meter"), QJsonValue("0.8"));
+}
+
 void TestSettings::reservedKeysAreNotKept()
 {
   MetaObjectRegistry::instance().addBuiltinTypes();
