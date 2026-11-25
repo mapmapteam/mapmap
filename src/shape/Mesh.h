@@ -34,9 +34,9 @@ class Mesh : public Quad
 public:
   /// Fewest columns, or rows, of vertices of a mesh: its two edges.
   static const int MIN_MESH_DIVISIONS = 2;
-  /// Most columns, or rows, of vertices of a mesh: adding them takes time that grows with
-  /// the square of their number.
-  static const int MAX_MESH_DIVISIONS = 100;
+  /// Most columns, or rows, of vertices of a mesh: adding them, and drawing the mesh, take
+  /// time that grows with the square of their number.
+  static const int MAX_MESH_DIVISIONS = 32;
 
   Q_INVOKABLE Mesh();
 
