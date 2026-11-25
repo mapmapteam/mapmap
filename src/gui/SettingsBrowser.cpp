@@ -254,8 +254,10 @@ QList<QtProperty*> SettingsBrowser::_buildGroup(SettingGroup* group)
       const SettingInfo& info = list->elementInfo();
       if (info.isHidden())
         continue;
-      for (int index = 0; index < list->count(); index++)
-        made << _buildRow(list->at(index), tr("%1 %2").arg(info.label()).arg(index));
+      for (int index = 0; index < list->count(); index++) {
+        if (list->isShownInPanel(index))
+          made << _buildRow(list->at(index), tr("%1 %2").arg(info.label()).arg(index));
+      }
       displayGroupId = info.displayGroup();
       break;
     }

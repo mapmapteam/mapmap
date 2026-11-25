@@ -222,6 +222,10 @@ protected:
   /// Declares the settings of a shape: its lock and its vertices.
   void _declareSettings(SettingGroup* root) override;
 
+  /// Returns true when the settings panel has a row for the vertex at index: every vertex,
+  /// unless a shape has too many of them. A vertex without a row keeps its setting.
+  virtual bool _isVertexShownInPanel(int index) const { Q_UNUSED(index); return true; }
+
 private:
   /// The settings of the vertices, which stay in the vector of vertices; nullptr until
   /// the tree is built.

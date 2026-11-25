@@ -708,6 +708,18 @@ SettingList::~SettingList()
 {
 }
 
+void SettingList::setShownInPanel(std::function<bool(int)> shown)
+{
+  _shownInPanel = std::move(shown);
+}
+
+bool SettingList::isShownInPanel(int index) const
+{
+  if (index < 0 || index >= count())
+    return false;
+  return !_shownInPanel || _shownInPanel(index);
+}
+
 int SettingList::count() const
 {
   return int(_elements.size());

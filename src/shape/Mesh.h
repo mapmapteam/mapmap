@@ -164,6 +164,10 @@ protected:
 
   /// Declares the settings of a mesh, after those of a shape: its numbers of columns and rows.
   void _declareSettings(SettingGroup* root) override;
+
+  /// The panel shows the four corners of a mesh only: the other vertices are set on the
+  /// canvas, or by their path.
+  bool _isVertexShownInPanel(int index) const override;
 };
 
 }

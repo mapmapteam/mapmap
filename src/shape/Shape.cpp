@@ -60,6 +60,7 @@ void MShape::_declareSettings(SettingGroup* root)
                                       setVertex(index, value.toPointF());
                                       return true;
                                     });
+  _verticesSettings->setShownInPanel([this](int index) { return _isVertexShownInPanel(index); });
 }
 
 void MShape::setLocked(bool locked)

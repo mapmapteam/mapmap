@@ -103,6 +103,14 @@ void Mesh::_declareSettings(SettingGroup* root)
              [this](const QVariant& value) { setNRows(value.toInt()); return true; });
 }
 
+bool Mesh::_isVertexShownInPanel(int index) const
+{
+  const int lastColumn = nColumns() - 1;
+  const int lastRow    = nRows() - 1;
+  return index == _vertices2d[0][0] || index == _vertices2d[lastColumn][0] ||
+         index == _vertices2d[lastColumn][lastRow] || index == _vertices2d[0][lastRow];
+}
+
 void Mesh::_gridChanged(int previousColumns, int previousRows)
 {
   if (!hasSettingsTree())

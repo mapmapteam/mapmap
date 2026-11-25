@@ -36,6 +36,15 @@ const int MESH_SIZE = 4;
 /// Distance between two neighbouring vertices of that mesh, in pixels.
 const qreal MESH_SPACING = 100;
 
+/// Number of vertices of a mesh that the panel shows: its corners.
+const int MESH_CORNERS = 4;
+
+/// Row of the last corner of the test mesh, named after its index.
+const QString LAST_POINT_LABEL = QStringLiteral("Point 15");
+
+/// The same row once the mesh has FEWEST_COLUMNS columns.
+const QString LAST_POINT_LABEL_FEWEST_COLUMNS = QStringLiteral("Point 7");
+
 /// Fewest columns of a mesh.
 const int FEWEST_COLUMNS = 2;
 
@@ -267,10 +276,16 @@ void TestSettingsBrowser::layerRowsAndFolds()
   QVERIFY(panel.browser.isExpanded(panel.browser.items(output).first()));
 
   QtProperty* points = findRow(output->subProperties(), "Points");
-  QCOMPARE(points->subProperties().size(), MESH_SIZE * MESH_SIZE);
-  QCOMPARE(points->subProperties().first()->propertyName(), QString("Point 0"));
-  QCOMPARE(static_cast<QtVariantProperty*>(points->subProperties().at(5))->value().toPointF(),
-           QPointF(MESH_SPACING, MESH_SPACING));
+  // Only the corners of a mesh have a row, named after their index in the list.
+  QCOMPARE(labels(points->subProperties()), QStringList({ "Point 0", "Point 3", "Point 12", "Point 15" }));
+  const qreal farSide = (MESH_SIZE - 1) * MESH_SPACING;
+  QCOMPARE(static_cast<QtVariantProperty*>(points->subProperties().last())->value().toPointF(),
+           QPointF(farSide, farSide));
+
+  // A vertex inside the mesh has no row, and is still reached by its path.
+  const QPointF moved(123, 45);
+  QVERIFY(layer.settings()->find("output/vertices/5")->setValue(moved));
+  QCOMPARE(layer.getShape()->getVertex(5), moved);
   QVERIFY(!panel.browser.isExpanded(panel.browser.items(points).first()));
 }
 
@@ -286,7 +301,8 @@ void TestSettingsBrowser::rebuildFollowsShrinkingList()
 
   QtProperty* output = findRow(panel.browser.properties(), "output");
   QtProperty* points = findRow(output->subProperties(), "Points");
-  QCOMPARE(points->subProperties().size(), FEWEST_COLUMNS * MESH_SIZE);
+  QCOMPARE(points->subProperties().size(), MESH_CORNERS);
+  QCOMPARE(points->subProperties().last()->propertyName(), LAST_POINT_LABEL_FEWEST_COLUMNS);
   QCOMPARE(findRow(output->subProperties(), "Columns")->value().toInt(), FEWEST_COLUMNS);
 
   // The rows made by the rebuild follow the vertices.
@@ -309,11 +325,11 @@ void TestSettingsBrowser::editThatShrinksListRebuildsLater()
   QCOMPARE(edits.count(), 1);
 
   // The row that sent the value still exists until the event loop runs.
-  QCOMPARE(findRow(output->subProperties(), "Points")->subProperties().size(), MESH_SIZE * MESH_SIZE);
+  QCOMPARE(findRow(output->subProperties(), "Points")->subProperties().last()->propertyName(), LAST_POINT_LABEL);
   QCoreApplication::processEvents();
 
   output = findRow(panel.browser.properties(), "output");
-  QCOMPARE(findRow(output->subProperties(), "Points")->subProperties().size(), FEWEST_COLUMNS * MESH_SIZE);
+  QCOMPARE(findRow(output->subProperties(), "Points")->subProperties().last()->propertyName(), LAST_POINT_LABEL_FEWEST_COLUMNS);
   QCOMPARE(findRow(output->subProperties(), "Columns")->value().toInt(), FEWEST_COLUMNS);
   QCOMPARE(edits.count(), 1);
 }
@@ -352,10 +368,10 @@ void TestSettingsBrowser::rebuildFromEditedWaitsForEditToEnd()
 
   // The rows are rebuilt from the event loop, once the edit has ended.
   QtProperty* output = findRow(panel.browser.properties(), "output");
-  QCOMPARE(findRow(output->subProperties(), "Points")->subProperties().size(), MESH_SIZE * MESH_SIZE);
+  QCOMPARE(findRow(output->subProperties(), "Points")->subProperties().last()->propertyName(), LAST_POINT_LABEL);
   QCoreApplication::processEvents();
   output = findRow(panel.browser.properties(), "output");
-  QCOMPARE(findRow(output->subProperties(), "Points")->subProperties().size(), FEWEST_COLUMNS * MESH_SIZE);
+  QCOMPARE(findRow(output->subProperties(), "Points")->subProperties().last()->propertyName(), LAST_POINT_LABEL_FEWEST_COLUMNS);
 }
 
 void TestSettingsBrowser::mediaSourceRows()
@@ -531,6 +547,6 @@ void TestSettingsBrowser::textureMeshPanelKeepsGridsInStep()
   for (const QString& group : { QString("output"), QString("input") }) {
     const QList<QtProperty*> rows = rowsOf(panel.browser.properties(), group);
     QCOMPARE(findRow(rows, "Columns")->value().toInt(), FEWEST_COLUMNS);
-    QCOMPARE(rowsOf(rows, "Points").size(), FEWEST_COLUMNS * MESH_SIZE);
+    QCOMPARE(rowsOf(rows, "Points").size(), MESH_CORNERS);
   }
 }

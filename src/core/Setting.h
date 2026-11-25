@@ -372,6 +372,13 @@ public:
   /// One notification for the whole list, value = QVariantList.
   void notifyChanged();
 
+  /// Limits the elements the panel shows to those the function accepts; by default all of
+  /// them. An element the panel does not show can still be reached by its path.
+  void setShownInPanel(std::function<bool(int)> shown);
+
+  /// Returns true when the panel shows the element at index.
+  bool isShownInPanel(int index) const;
+
 private:
   friend class SettingGroup;
 
@@ -387,6 +394,7 @@ private:
   std::function<int()> _count;
   std::function<QVariant(int)> _read;
   std::function<bool(int, const QVariant&)> _write;
+  std::function<bool(int)> _shownInPanel;
   std::vector<std::unique_ptr<Setting>> _elements;
 };
 
