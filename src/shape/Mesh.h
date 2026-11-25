@@ -114,6 +114,15 @@ public:
 
   void copyFrom(const MShape& shape);
 
+  /**
+   * Reads a mesh as MShape::read() does, then makes it consistent. A grid larger than
+   * MAX_MESH_DIVISIONS, from a project made before meshes had a maximum, is reduced to it
+   * by keeping evenly spaced columns and rows of the file, its edges included. Vertices that
+   * do not match the grid, in a damaged or hand-written file, are spread again over the
+   * grid, within their bounding rectangle. Both cases warn.
+   */
+  virtual void read(const QJsonObject& obj);
+
 protected:
   int _nColumns;
   int _nRows;
@@ -144,6 +153,14 @@ protected:
 
   /// Returns a new MShape (using default constructor).
   virtual MShape* _create() const { return new Mesh(); }
+
+  /// Keeps evenly spaced columns and rows of vertices given on a grid of fileColumns x
+  /// fileRows, at most MAX_MESH_DIVISIONS of each, as the new grid.
+  void _reduceFrom(const QVector<QPointF>& fileVertices, int fileColumns, int fileRows);
+
+  /// Places the vertices on a regular grid of the current size, within the bounding
+  /// rectangle of the vertices.
+  void _spreadOverGrid();
 
   /// Declares the settings of a mesh, after those of a shape: its numbers of columns and rows.
   void _declareSettings(SettingGroup* root) override;

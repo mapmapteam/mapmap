@@ -890,6 +890,125 @@ void TestSettings::meshGridHasAMaximum()
   QCOMPARE(mesh->nRows(), int(Mesh::MAX_MESH_DIVISIONS));
 }
 
+namespace {
+
+/// Columns of the oversized mesh of the reading tests: more than a mesh can have.
+const int OVERSIZED_COLUMNS = 150;
+
+/// Distance between two columns of that mesh, in pixels.
+const qreal OVERSIZED_COLUMN_SPACING = 10;
+
+/// Returns the JSON of a mesh as a project file gives it, with vertices given column by
+/// column, row by row, MESH_SPACING apart vertically and columnSpacing apart horizontally.
+/// vertexCount, when not -1, gives a number of vertices that does not match the grid.
+QJsonObject meshJson(int columns, int rows, qreal columnSpacing, int vertexCount = -1)
+{
+  const int count = (vertexCount < 0 ? columns * rows : vertexCount);
+  QJsonArray vertices;
+  for (int index = 0; index < count; index++) {
+    const int column = index % columns;
+    const int row = index / columns;
+    vertices.append(QJsonArray { column * columnSpacing, row * MESH_SPACING });
+  }
+  return QJsonObject {
+    { "className", "Mesh" },
+    { "locked", "false" },
+    { "nColumns", QString::number(columns) },
+    { "nRows", QString::number(rows) },
+    { "vertices", vertices }
+  };
+}
+
+/// Checks that a mesh is consistent: as many vertices as its grid has, all reachable.
+void verifyConsistentMesh(Mesh& mesh)
+{
+  QCOMPARE(mesh.nVertices(), mesh.nColumns() * mesh.nRows());
+  QVERIFY(mesh.settings()->find("vertices/" + QString::number(mesh.nVertices() - 1)));
+  QVERIFY(!mesh.settings()->find("vertices/" + QString::number(mesh.nVertices())));
+  const QPointF last = mesh.getVertex2d(mesh.nColumns() - 1, mesh.nRows() - 1);
+  mesh.setVertex(mesh.nVertices() - 1, last + QPointF(1, 1));
+  QCOMPARE(mesh.getVertex(mesh.nVertices() - 1), last + QPointF(1, 1));
+}
+
+} // namespace
+
+void TestSettings::oversizedMeshIsReducedOnRead()
+{
+  // A mesh made before meshes had a maximum.
+  const int rows = 2;
+  const QJsonObject obj = meshJson(OVERSIZED_COLUMNS, rows, OVERSIZED_COLUMN_SPACING);
+  const qreal right = (OVERSIZED_COLUMNS - 1) * OVERSIZED_COLUMN_SPACING;
+
+  Mesh mesh;
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("150 x 2.*reduced to 100 x 2"));
+  mesh.read(obj);
+  QCOMPARE(mesh.nColumns(), int(Mesh::MAX_MESH_DIVISIONS));
+  QCOMPARE(mesh.nRows(), rows);
+  QCOMPARE(mesh.nVertices(), Mesh::MAX_MESH_DIVISIONS * rows);
+
+  // Its outline stays where it was.
+  QCOMPARE(mesh.getVertex2d(0, 0), QPointF(0, 0));
+  QCOMPARE(mesh.getVertex2d(mesh.nColumns() - 1, 0), QPointF(right, 0));
+  QCOMPARE(mesh.getVertex2d(0, rows - 1), QPointF(0, MESH_SPACING));
+  QCOMPARE(mesh.getVertex2d(mesh.nColumns() - 1, rows - 1), QPointF(right, MESH_SPACING));
+
+  // What is written agrees with itself.
+  QJsonObject written;
+  mesh.write(written);
+  QCOMPARE(written.value("nColumns"), QJsonValue("100"));
+  QCOMPARE(written.value("vertices").toArray().size(), Mesh::MAX_MESH_DIVISIONS * rows);
+
+  verifyConsistentMesh(mesh);
+}
+
+void TestSettings::mismatchedMeshIsMadeConsistentOnRead()
+{
+  const int columns = 3;
+  const int rows = 2;
+  const int tooMany = columns * rows + 1;
+  const int tooFew = columns * rows - 2;
+  for (int count : { tooMany, tooFew }) {
+    const QJsonObject obj = meshJson(columns, rows, MESH_SPACING, count);
+    QPolygonF fileVertices;
+    for (const QJsonValue& vertex : obj.value("vertices").toArray())
+      fileVertices.append(QPointF(vertex.toArray().at(0).toDouble(), vertex.toArray().at(1).toDouble()));
+
+    Mesh mesh;
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression("vertices for a grid of 3 x 2"));
+    mesh.read(obj);
+    QCOMPARE(mesh.nColumns(), columns);
+    QCOMPARE(mesh.nRows(), rows);
+    // Spread again over its grid, within the bounds of the vertices it had.
+    QCOMPARE(mesh.getBoundingRect(), fileVertices.boundingRect());
+    verifyConsistentMesh(mesh);
+  }
+}
+
+void TestSettings::oversizedMeshesOfTextureLayerKeepEqualGrids()
+{
+  MetaObjectRegistry::instance().addBuiltinTypes();
+  Source::ptr image(new Image);
+  TextureLayer first(image, makeMesh(), makeMesh());
+  QJsonObject obj;
+  first.write(obj);
+  const int rows = 2;
+  obj["destination"] = meshJson(OVERSIZED_COLUMNS, rows, OVERSIZED_COLUMN_SPACING);
+  obj["source"] = meshJson(OVERSIZED_COLUMNS, rows, OVERSIZED_COLUMN_SPACING);
+
+  TextureLayer second;
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("reduced to 100 x 2"));
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("reduced to 100 x 2"));
+  second.read(obj);
+  Mesh* output = static_cast<Mesh*>(second.getShape().data());
+  Mesh* input  = static_cast<Mesh*>(second.getInputShape().data());
+  QCOMPARE(output->nColumns(), int(Mesh::MAX_MESH_DIVISIONS));
+  QCOMPARE(input->nColumns(), int(Mesh::MAX_MESH_DIVISIONS));
+  QCOMPARE(output->nRows(), rows);
+  QCOMPARE(input->nRows(), rows);
+  verifyConsistentMesh(*output);
+  verifyConsistentMesh(*input);
+}
+
 void TestSettings::meshGridsOfTextureLayerFollowEachOther()
 {
   Source::ptr image(new Image);
