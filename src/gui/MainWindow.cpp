@@ -465,6 +465,12 @@ void MainWindow::sourcePropertyChanged(uid id, QString propertyName, QVariant va
   QListWidgetItem* sourceItem = getItemFromId(*sourceList, id);
   if (propertyName == "name")
     sourceItem->setText(source->getName());
+  else if (propertyName == "color" && source->getSourceType() == SourceType::Color)
+  {
+    // The list shows the colour of a colour source, however it was changed.
+    QSharedPointer<Color> color = qSharedPointerCast<Color>(source);
+    updateSourceItem(id, getSourceIcon(source), strippedName(color->getColor().name()));
+  }
 }
 
 void MainWindow::sourceIconChanged(uid id)
@@ -3364,6 +3370,15 @@ void MainWindow::addSourceItem(uid sourceId, const QIcon& icon, const QString& n
   connect(sourceGui.data(), &SourceGui::valueChanged, this, &MainWindow::handleSourceChanged);
 
   connect(source.data(), &Source::settingChanged, this, &MainWindow::sourcePropertyChanged);
+
+  // A panel made from the settings follows them.
+  SettingsBrowser* settingsBrowser = sourceGui->getSettingsBrowser();
+  if (settingsBrowser)
+  {
+    connect(source.data(), &Source::settingChanged, settingsBrowser,
+            [settingsBrowser](uid, const QString& path, const QVariant& value) { settingsBrowser->refresh(path, value); });
+    connect(source.data(), &Source::settingsStructureChanged, settingsBrowser, &SettingsBrowser::rebuild);
+  }
 
   connect(source.data(), &Source::iconChanged, this, &MainWindow::sourceIconChanged);
 

@@ -26,14 +26,30 @@
 namespace mmp {
 
 SourceGui::SourceGui(Source::ptr source)
-  : _source(source)
+  : SourceGui(source, false)
+{
+}
+
+SourceGui::SourceGui(Source::ptr source, bool generatedPanel)
+  : _source(source),
+    _settingsBrowser(nullptr),
+    _idItem(nullptr),
+    _opacityItem(nullptr)
 {
   // Create editor.
   _propertyBrowser = new QtTreePropertyBrowser;
-  _variantManager = new VariantManager;
+  VariantManager* variantManager = new VariantManager;
+  _variantManager = variantManager;
   _variantFactory = new VariantFactory;
 
   _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
+
+  if (generatedPanel)
+  {
+    _settingsBrowser = new SettingsBrowser(_source->settings(), _propertyBrowser, variantManager, this);
+    connect(_settingsBrowser, &SettingsBrowser::edited, this, [this]() { emit valueChanged(_source); });
+    return;
+  }
 
   connect(_variantManager, &QtVariantPropertyManager::valueChanged,
           this, qOverload<QtProperty*, const QVariant&>(&SourceGui::setValue));
@@ -78,39 +94,15 @@ void SourceGui::setValue(QtProperty* property, const QVariant& value)
 
 void SourceGui::setValue(QString propertyName, QVariant value)
 {
-  if (propertyName == "opacity")
+  // A generated panel follows the settings by itself.
+  if (propertyName == "opacity" && _opacityItem)
     _opacityItem->setValue(value.toDouble() * 100);
 }
 
 ColorGui::ColorGui(Source::ptr source)
-  : SourceGui(source)
+  : SourceGui(source, true)
 {
-  color = qSharedPointerCast<Color>(source);
-  Q_CHECK_PTR(color);
-
-  _colorItem = _variantManager->addProperty(QMetaType::QColor,
-                                            QObject::tr("Color"));
-
-  _colorItem->setValue(color->getColor());
-
-  _propertyBrowser->addProperty(_colorItem);
-}
-
-void ColorGui::setValue(QtProperty* property, const QVariant& value) {
-  if (property == _colorItem) {
-    color->setColor(value.value<QColor>());
-    emit valueChanged(_source);
-  }
-  else
-    SourceGui::setValue(property, value);
-}
-
-void ColorGui::setValue(QString propertyName, QVariant value)
-{
-  if (propertyName == "color")
-    setValue(_colorItem, value);
-  else
-    SourceGui::setValue(propertyName, value);
+  Q_CHECK_PTR(qSharedPointerCast<Color>(source));
 }
 
 TextureGui::TextureGui(Source::ptr source) : SourceGui(source) {

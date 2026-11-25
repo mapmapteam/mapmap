@@ -68,7 +68,8 @@ HEADERS += \
     TestCameraSource.h \
     TestMappingManager.h \
     TestProjectRoundTrip.h \
-    TestSettings.h
+    TestSettings.h \
+    TestSettingsBrowser.h
 
 SOURCES += \
     $$CORE/MM.cpp \
@@ -111,7 +112,16 @@ SOURCES += \
     TestCameraSource.cpp \
     TestMappingManager.cpp \
     TestProjectRoundTrip.cpp \
-    TestSettings.cpp
+    TestSettings.cpp \
+    TestSettingsBrowser.cpp
+
+# The settings panel, with the property browser it fills.
+include($$GUI/contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
+include($$GUI/contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pri)
+# Its cursor images are not in the repository; the main build leaves them out too.
+RESOURCES -= $$clean_path($$GUI/contrib/qtpropertybrowser/src/qtpropertybrowser.qrc)
+HEADERS += $$GUI/SettingsBrowser.h
+SOURCES += $$GUI/SettingsBrowser.cpp
 
 # Projects read by TestProjectRoundTrip.
 DEFINES += MAPMAP_TEST_FIXTURES_DIR=\\\"$$PWD/fixtures\\\"
