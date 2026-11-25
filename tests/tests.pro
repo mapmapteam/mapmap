@@ -31,6 +31,7 @@ HEADERS += \
     $$CORE/Util.h \
     $$CORE/FrameStats.h \
     $$CORE/Serializable.h \
+    $$CORE/Setting.h \
     $$CORE/ProjectLabels.h \
     $$CORE/UidAllocator.h \
     $$CORE/Element.h \
@@ -73,6 +74,7 @@ SOURCES += \
     $$CORE/Util.cpp \
     $$CORE/FrameStats.cpp \
     $$CORE/Serializable.cpp \
+    $$CORE/Setting.cpp \
     $$CORE/ProjectLabels.cpp \
     $$CORE/UidAllocator.cpp \
     $$CORE/Element.cpp \
