@@ -343,26 +343,22 @@ QtProperty* SettingsBrowser::_buildRow(Setting* setting, const QString& label)
   property->setToolTip(info.description());
   property->setEnabled(enabled);
 
-  // Attributes before the value: a new bound moves the value.
+  // Attributes before the value: a new bound moves the value. The row is given no maximum:
+  // its editor would refuse the keys of a number above it, so that typing 33 for a maximum
+  // of 32 would leave 3. The tree keeps the value within its bounds and the row shows the result.
   const double scale = info.displayScale();
   bool hasMinimum = false;
-  bool hasMaximum = false;
   const double minimum = info.minimum().toDouble(&hasMinimum) * scale;
-  const double maximum = info.maximum().toDouble(&hasMaximum) * scale;
   if (info.type() == SettingInfo::Number) {
     property->setAttribute(QStringLiteral("decimals"), PANEL_DECIMALS);
     if (hasMinimum)
       property->setAttribute(QStringLiteral("minimum"), minimum);
-    if (hasMaximum)
-      property->setAttribute(QStringLiteral("maximum"), maximum);
     if (info.step() > NO_STEP)
       property->setAttribute(QStringLiteral("singleStep"), info.step() * scale);
   }
   else if (info.type() == SettingInfo::Integer) {
     if (hasMinimum)
       property->setAttribute(QStringLiteral("minimum"), qRound(minimum));
-    if (hasMaximum)
-      property->setAttribute(QStringLiteral("maximum"), qRound(maximum));
     if (info.step() > NO_STEP)
       property->setAttribute(QStringLiteral("singleStep"), qMax(MINIMUM_INTEGER_STEP, qRound(info.step() * scale)));
   }
@@ -383,14 +379,11 @@ QtVariantProperty* SettingsBrowser::_buildRangePart(Setting* setting, const QStr
   property->setToolTip(info.description());
   property->setEnabled(!info.isReadOnly() && setting->isAvailable());
   property->setAttribute(QStringLiteral("decimals"), PANEL_DECIMALS);
+  // No maximum, as for a number: see _buildRow().
   bool hasMinimum = false;
-  bool hasMaximum = false;
   const double minimum = info.minimum().toDouble(&hasMinimum) * scale;
-  const double maximum = info.maximum().toDouble(&hasMaximum) * scale;
   if (hasMinimum)
     property->setAttribute(QStringLiteral("minimum"), minimum);
-  if (hasMaximum)
-    property->setAttribute(QStringLiteral("maximum"), maximum);
   if (info.step() > NO_STEP)
     property->setAttribute(QStringLiteral("singleStep"), info.step() * scale);
 
