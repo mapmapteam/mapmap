@@ -43,6 +43,8 @@ class QTimer;
 #include "variantmanager.h"
 #include "variantfactory.h"
 
+#include "SettingsBrowser.h"
+
 namespace mmp {
 
 /**
@@ -67,6 +69,10 @@ public:
   /// Returns a pointer to the properties editor for that mapper.
   virtual QWidget* getPropertiesEditor();
 
+  /// Returns the object making the panel from the settings of the source, or nullptr when
+  /// the panel is written by hand.
+  SettingsBrowser* getSettingsBrowser() const { return _settingsBrowser; }
+
 public slots:
   virtual void setValue(QtProperty* property, const QVariant& value);
   virtual void setValue(QString propertyName, QVariant value);
@@ -75,29 +81,28 @@ signals:
   void valueChanged(Source::ptr);
 
 protected:
+  /// Constructor. When generatedPanel is true, the panel is made from the settings of the
+  /// source by a SettingsBrowser; otherwise the ID and opacity rows are written by hand.
+  SourceGui(Source::ptr source, bool generatedPanel);
+
   Source::ptr _source;
-  QtAbstractPropertyBrowser* _propertyBrowser;
+  QtTreePropertyBrowser* _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
+  SettingsBrowser* _settingsBrowser;
 
   QtVariantProperty* _idItem;
   QtVariantProperty* _opacityItem;
 };
 
+/// The panel of a colour source, made from its settings.
 class ColorGui : public SourceGui {
   Q_OBJECT
 
 public:
+  /// Constructor. The source is a Color.
   ColorGui(Source::ptr source);
   virtual ~ColorGui() {}
-
-public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value);
-  virtual void setValue(QString propertyName, QVariant value);
-
-protected:
-  QSharedPointer<Color> color;
-  QtVariantProperty* _colorItem;
 };
 
 class TextureGui : public SourceGui {

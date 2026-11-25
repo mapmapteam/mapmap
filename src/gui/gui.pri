@@ -18,6 +18,7 @@ HEADERS += $$PWD/AboutDialog.h \
     $$PWD/OutputGLWindow.h \
     $$PWD/OutputResolutionEditor.h \
     $$PWD/SourceGui.h \
+    $$PWD/SettingsBrowser.h \
     $$PWD/PreferenceDialog.h \
     $$PWD/ShapeControlPainter.h \
     $$PWD/ShapeGraphicsItem.h \
@@ -37,6 +38,7 @@ SOURCES += $$PWD/AboutDialog.cpp \
     $$PWD/OutputGLWindow.cpp \
     $$PWD/OutputResolutionEditor.cpp \
     $$PWD/SourceGui.cpp \
+    $$PWD/SettingsBrowser.cpp \
     $$PWD/PreferenceDialog.cpp \
     $$PWD/ShapeControlPainter.cpp \
     $$PWD/ShapeGraphicsItem.cpp \
