@@ -209,7 +209,7 @@ void TestOsc::parsesLayerSettingPath()
   QVERIFY(!a.selectByName);
   QCOMPARE(a.id, 3);
   QCOMPARE(a.path, QString("opacity"));
-  QCOMPARE(a.values, QVariantList({ 0.5 }));
+  QCOMPARE(a.values, (QVariantList { QVariant(0.5) }));
 
   // "mapping" is an alias of "layer" here too.
   OscAction alias = parseOscAction("/mapmap/mapping/3/opacity", { 0.5 });
@@ -223,7 +223,7 @@ void TestOsc::parsesNestedSettingPath()
   QCOMPARE(typeOf(a), int(OscAction::LayerSetting));
   QCOMPARE(a.id, 3);
   QCOMPARE(a.path, QString("output/vertices/5"));
-  QCOMPARE(a.values, QVariantList({ 10.0, 20.0 }));
+  QCOMPARE(a.values, (QVariantList { QVariant(10.0), QVariant(20.0) }));
 }
 
 void TestOsc::parsesSourceSettingPath()
@@ -233,7 +233,7 @@ void TestOsc::parsesSourceSettingPath()
   QVERIFY(!a.selectByName);
   QCOMPARE(a.id, 2);
   QCOMPARE(a.path, QString("color"));
-  QCOMPARE(a.values, QVariantList({ QString("#ff0000") }));
+  QCOMPARE(a.values, (QVariantList { QVariant(QString("#ff0000")) }));
 }
 
 void TestOsc::rejectsSettingPathWithoutValue()
