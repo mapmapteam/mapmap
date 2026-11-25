@@ -69,8 +69,6 @@ public:
   /// Returns a pointer to the properties editor for that source.
   virtual QWidget* getPropertiesEditor();
 
-  /// Returns the object making the panel from the settings of the source.
-
 signals:
   /// The user changed a setting of the source through the panel.
   void valueChanged(Source::ptr);

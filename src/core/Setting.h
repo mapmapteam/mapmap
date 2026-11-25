@@ -260,8 +260,8 @@ public:
 
   /// Returns the value converted to the value type and kept within the bounds; sets ok to
   /// false, and returns an invalid QVariant, when the value cannot be converted or is not finite.
-  /// A Boolean accepts true or false, the numbers 0 and 1, and the texts "true", "false", "1"
-  /// and "0" in any case; nothing else.
+  /// A Boolean accepts true or false, any finite number (0 is false, any other number true),
+  /// and the texts "true", "false", "1" and "0" in any case; no other text.
   QVariant sanitized(const QVariant& value, bool* ok = nullptr) const;
 
   /// Sets the value back to the default value.
@@ -299,7 +299,7 @@ public:
 
   /// Writes a value received over OSC or MCP. A Point or a Range takes two numbers; every
   /// other type takes one argument, as accepted by sanitized(): a colour may be a text such as
-  /// "#ff0000" or "red", a Boolean 0 or 1. Returns false, with a warning, when the number of
+  /// "#ff0000" or "red", a Boolean any number, 0 being false. Returns false, with a warning, when the number of
   /// arguments is wrong or the value is refused.
   bool setFromArguments(const QVariantList& arguments);
 

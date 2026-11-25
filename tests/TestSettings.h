@@ -25,6 +25,7 @@ private slots:
   void rejectsNonFinite();
   void stepIsNotStrictByDefault();
   void integerIsRounded();
+  void integerOutsideIntRangeIsRefused();
   void rangeNeverCrosses();
   void choiceKeepsMissingId();
   void readOnlyRefusesWrites();

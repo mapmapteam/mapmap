@@ -645,7 +645,9 @@ QJsonArray McpServer::toolDefinitions() const
   tools.append(tool("list_layers", "List all layers with their summary fields.",
                     QJsonObject(), QJsonArray()));
   tools.append(tool("list_settings",
-                    "List every setting of a source or layer with its path, type, value, bounds, unit and options.",
+                    "List every setting of a source or layer with its path, type, value, bounds, unit and options. "
+                    "Values and bounds are in the stored range, which set_property takes: an opacity goes from 0 to 1. "
+                    "displayScale, when given, is the factor to the number shown to the user (100 for a percentage).",
                     QJsonObject{
                       {"kind", prop("string", "\"source\" or \"layer\".")},
                       {"id", prop("integer", "Element id.")}

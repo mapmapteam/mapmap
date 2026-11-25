@@ -9,6 +9,8 @@
 
 #include "TestSettings.h"
 
+#include <limits>
+
 #include <QColor>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -121,6 +123,20 @@ void TestSettings::integerIsRounded()
   QVERIFY(setting->setValue(2.6));
   QCOMPARE(setting->value().toInt(), 3);
   QCOMPARE(setting->value().typeId(), int(QMetaType::Int));
+}
+
+void TestSettings::integerOutsideIntRangeIsRefused()
+{
+  SettingGroup root;
+  Setting* setting = root.addSetting(SettingInfo::integer("depth", "Depth").defaultValue(7));
+  const double farAbove = 1e12;
+  const double justAbove = double(std::numeric_limits<int>::max()) + 1;
+  QVERIFY(!setting->setValue(farAbove));
+  QVERIFY(!setting->setValue(-farAbove));
+  QVERIFY(!setting->setValue(justAbove));
+  QCOMPARE(setting->value().toInt(), 7);
+  QVERIFY(setting->setValue(std::numeric_limits<int>::max()));
+  QCOMPARE(setting->value().toInt(), std::numeric_limits<int>::max());
 }
 
 void TestSettings::rangeNeverCrosses()
@@ -345,7 +361,20 @@ void TestSettings::booleanRefusesOtherText()
   QVERIFY(!setting->setValue(QString("abc")));
   QCOMPARE(setting->value().toBool(), false);
   QVERIFY(!setting->setValue(QString()));
-  QVERIFY(!setting->setValue(2));
+  QVERIFY(!setting->setValue(QString("2")));
+  QCOMPARE(setting->value().toBool(), false);
+
+  // Any finite number other than 0 is true, as the 127 a controller sends for "on".
+  const int controllerOn = 127;
+  QVERIFY(setting->setFromArguments({ controllerOn }));
+  QCOMPARE(setting->value().toBool(), true);
+  QVERIFY(setting->setValue(0.0));
+  QCOMPARE(setting->value().toBool(), false);
+  QVERIFY(setting->setValue(-0.5));
+  QCOMPARE(setting->value().toBool(), true);
+  QVERIFY(setting->setValue(0));
+  QVERIFY(!setting->setValue(qQNaN()));
+  QVERIFY(!setting->setValue(qInf()));
   QCOMPARE(setting->value().toBool(), false);
 
   QVERIFY(setting->setValue(QString("TRUE")));
@@ -1033,10 +1062,10 @@ void TestSettings::readToleratesNonTextValues()
 
   // A number the setting refuses is reported by the setting.
   obj = base;
-  obj["locked"] = 2;
-  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("locked.*refused the arguments"));
+  obj["color"] = 2;
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("color.*refused the arguments"));
   source.read(obj);
-  QVERIFY(source.isLocked());
+  QCOMPARE(source.getColor(), QColor(Qt::red));
 }
 
 void TestSettings::unknownKeysSurviveRoundTrip()
@@ -1210,6 +1239,9 @@ void TestSettings::describesBoundsAndUnits()
   QCOMPARE(opacity.value("maximum").toDouble(), 1.0);
   QCOMPARE(opacity.value("default").toDouble(), 1.0);
   QCOMPARE(opacity.value("unit").toString(), QString("percent"));
+  QCOMPARE(opacity.value("displayScale").toDouble(), 100.0);
+  // Bound to the element, which keeps no base value apart: it cannot be modulated yet.
+  QVERIFY(!source.settings()->find("opacity")->info().isModulable());
   QCOMPARE(opacity.value("value").toDouble(), 1.0);
   QVERIFY(!opacity.value("description").toString().isEmpty());
   QVERIFY(!opacity.value("label").toString().isEmpty());
@@ -1219,6 +1251,7 @@ void TestSettings::describesBoundsAndUnits()
   QCOMPARE(name.value("type").toString(), QString("text"));
   QVERIFY(!name.contains("minimum"));
   QVERIFY(!name.contains("unit"));
+  QVERIFY(!name.contains("displayScale"));
 
   // Declaration order: the id comes first.
   QCOMPARE(settings.first().toObject().value("path").toString(), QString("id"));
