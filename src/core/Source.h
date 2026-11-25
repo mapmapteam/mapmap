@@ -277,8 +277,8 @@ public:
   }
 
 protected:
-  // Lists QProperties that should NOT be parsed automatically.
-  virtual QList<QString> _propertiesSpecial() const { return Source::_propertiesSpecial() << "x" << "y"; }
+  /// The position is read and written by Texture::read() and Texture::write().
+  QStringList _reservedKeys() const override { return Source::_reservedKeys() << "x" << "y"; }
 
 private:
   // Texture ids whose Texture objects were destroyed without a current GL

@@ -179,8 +179,12 @@ protected:
   /// Configures shape according to its role (output shapes may be distorted in perspective).
   static void _assignShapeRole(const MShape::ptr& shape, bool isOutput);
 
-  // The source id is resolved by the caller, not by Serializable::read().
-  virtual QList<QString> _propertiesSpecial() const { return Element::_propertiesSpecial() << "sourceId"; }
+  /// The source id is resolved by the caller (see ProjectReader); the shapes are read and
+  /// written by Layer::read() and Layer::write().
+  QStringList _reservedKeys() const override
+  {
+    return Element::_reservedKeys() << ProjectLabels::SOURCE_ID << ProjectLabels::DESTINATION << ProjectLabels::SOURCE;
+  }
 
   static SourceResolver _sourceResolver;
   static SourceLister _sourceLister;

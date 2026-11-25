@@ -35,6 +35,7 @@
 
 #include <functional>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include <QList>
@@ -452,6 +453,12 @@ public:
   /// Sets the object notified of changes; only the listener of the topmost group is called.
   void setListener(SettingListener* listener) { _listener = listener; }
 
+  /// Sets a function called with each setting that addSetting() adds to this group, once it
+  /// is in the tree, so that the owner can give it a value it kept for it (a project file
+  /// read before the setting existed). Only this group's function is called; a null
+  /// function, the default, calls nothing.
+  void setSettingAddedHandler(std::function<void(Setting*)> handler) { _settingAddedHandler = std::move(handler); }
+
 private:
   friend class SettingNode;
 
@@ -479,6 +486,7 @@ private:
   QList<Child> _children;
   QList<SettingDisplayGroup> _displayGroups;
   SettingListener* _listener;
+  std::function<void(Setting*)> _settingAddedHandler;
 };
 
 } // namespace mmp

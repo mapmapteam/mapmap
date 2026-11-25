@@ -216,8 +216,8 @@ protected:
   /// Returns a new MShape (using default constructor).
   virtual MShape* _create() const = 0;
 
-  // Lists QProperties that should NOT be parsed automatically.
-  virtual QList<QString> _propertiesSpecial() const { return Serializable::_propertiesSpecial() << "vertices"; }
+  /// The vertices are read and written by MShape::read() and MShape::write().
+  QStringList _reservedKeys() const override { return Serializable::_reservedKeys() << "vertices"; }
 
 private:
   /// Declares the settings of a shape: its lock and its vertices.

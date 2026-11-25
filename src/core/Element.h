@@ -92,6 +92,9 @@ protected:
   /// that changed the value outside the tree.
   void _emitPropertyChanged(const QString& propertyName);
 
+  /// The id is given to the constructor and written by Element::write().
+  QStringList _reservedKeys() const override { return Serializable::_reservedKeys() << ProjectLabels::ID; }
+
 private:
   uid _id;
   QString _name;

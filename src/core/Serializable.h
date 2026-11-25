@@ -26,6 +26,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QMetaProperty>
+#include <QStringList>
 #include <QDebug>
 
 #include "ProjectLabels.h"
@@ -38,7 +39,7 @@ class Serializable : public QObject {
 
 protected:
   /// Creates an object with an empty tree of settings.
-  Serializable() : _settings(new SettingGroup) {}
+  Serializable();
 
 public:
   virtual ~Serializable() {}
@@ -56,16 +57,42 @@ public:
   static QString classNameRealToClean(const QString& realClassName);
   static QString classNameCleanToReal(const QString& cleanClassName);
 
+  /**
+   * Reads the settings found in obj, among the stored and writable settings that are direct
+   * children of settings(), in their declaration order. A text is read by
+   * Setting::setFromText(), a JSON number or boolean by Setting::setFromArguments(); any other
+   * value, and a text that is not a value of the setting, is skipped with a warning.
+   *
+   * The keys that are neither a setting, nor the class name, nor in _reservedKeys() are kept
+   * pending, with their JSON value as it is: write() writes them back, and a setting added
+   * later to settings() takes the value of the pending key with its id. Each call replaces
+   * the pending keys of the previous one. Subclasses read their reserved keys themselves.
+   */
   virtual void read(const QJsonObject& obj);
+
+  /**
+   * Writes the pending keys, then the class name, then each stored setting that is a direct
+   * child of settings(), as Setting::toText(). A stored Point or Range setting has no text
+   * form: it is not written, with a warning. Subclasses write their reserved keys themselves.
+   */
   virtual void write(QJsonObject& obj);
 
 protected:
-  // Lists QProperties that should NOT be parsed automatically.
-  virtual QList<QString> _propertiesSpecial() const { return QList<QString>(); }
+  /// JSON keys read or written by a subclass itself: they are never kept as pending.
+  virtual QStringList _reservedKeys() const;
 
 private:
+  /// Gives a setting the JSON value of its key; skips, with a warning, a value it cannot read.
+  void _readSetting(Setting* setting, const QJsonValue& value) const;
+
+  /// Gives a setting just added to the root the value of the pending key with its id, if any.
+  void _takePendingKey(Setting* setting);
+
   /// Root of the tree of settings, declared by the constructors of the subclasses.
   std::unique_ptr<SettingGroup> _settings;
+
+  /// Keys of the last object read that no setting and no subclass claimed, with their values.
+  QJsonObject _pendingKeys;
 };
 
 }

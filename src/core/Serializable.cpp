@@ -21,6 +21,29 @@
 
 namespace mmp {
 
+namespace {
+
+/// Returns true when a project file gives the value of the setting: stored and writable.
+bool isReadFromProject(const Setting* setting)
+{
+  return setting->info().isStored() && !setting->info().isReadOnly();
+}
+
+/// Returns false for a Point or a Range, whose Setting::toText() is empty.
+bool hasTextForm(const Setting* setting)
+{
+  const SettingInfo::Type type = setting->info().type();
+  return type != SettingInfo::Point && type != SettingInfo::Range;
+}
+
+} // namespace
+
+Serializable::Serializable()
+  : _settings(new SettingGroup)
+{
+  _settings->setSettingAddedHandler([this](Setting* setting) { _takePendingKey(setting); });
+}
+
 QString Serializable::cleanClassName() const
 {
   return classNameRealToClean(metaObject()->className());
@@ -41,52 +64,103 @@ QString Serializable::classNameCleanToReal(const QString& cleanClassName)
 
 void Serializable::read(const QJsonObject& obj)
 {
-  QList<QString> specialNames = _propertiesSpecial();
+  _pendingKeys = QJsonObject();
 
-  int count = metaObject()->propertyCount();
-  for (int i=0; i<count; ++i) {
-    QMetaProperty property = metaObject()->property(i);
-    const char* propertyName = property.name();
-
-    if (specialNames.contains(propertyName))
+  // Declaration order: a setting may need one declared before it (the columns and rows of a
+  // mesh before its vertices).
+  QStringList settingIds;
+  const QList<SettingNode*> children = _settings->children();
+  for (SettingNode* node : children)
+  {
+    if (node->kind() != SettingNode::SettingKind)
       continue;
 
-    if (property.isWritable())
-    {
-      if (QString(propertyName) == QString("objectName"))
-        continue;
+    Setting* setting = static_cast<Setting*>(node);
+    settingIds.append(setting->id());
+    if (obj.contains(setting->id()) && isReadFromProject(setting))
+      _readSetting(setting, obj.value(setting->id()));
+  }
 
-      if (obj.contains(propertyName))
-        setProperty(propertyName, obj[propertyName].toString());
-    }
+  const QStringList reservedKeys = _reservedKeys();
+  for (auto it = obj.constBegin(); it != obj.constEnd(); ++it)
+  {
+    const QString key = it.key();
+    if (key == ProjectLabels::CLASS_NAME || reservedKeys.contains(key) || settingIds.contains(key))
+      continue;
+    _pendingKeys.insert(key, it.value());
   }
 }
 
 void Serializable::write(QJsonObject& obj)
 {
-  QList<QString> specialNames = _propertiesSpecial();
+  // First, so that what this object writes takes precedence.
+  for (auto it = _pendingKeys.constBegin(); it != _pendingKeys.constEnd(); ++it)
+    obj[it.key()] = it.value();
 
   obj[ProjectLabels::CLASS_NAME] = cleanClassName();
 
-  int count = metaObject()->propertyCount();
-  for (int i=0; i<count; ++i) {
-    QMetaProperty property = metaObject()->property(i);
-    const char* propertyName = property.name();
-
-    if (specialNames.contains(propertyName))
+  const QList<SettingNode*> children = _settings->children();
+  for (SettingNode* node : children)
+  {
+    if (node->kind() != SettingNode::SettingKind)
       continue;
 
-    if (!property.isStored())
+    const Setting* setting = static_cast<const Setting*>(node);
+    if (!setting->info().isStored())
       continue;
 
-    if (property.isWritable() && property.isReadable())
+    if (!hasTextForm(setting))
     {
-      if (QString(propertyName) == QString("objectName"))
-        continue;
-
-      obj[propertyName] = property.read(this).toString();
+      qWarning() << cleanClassName() << "setting" << setting->id()
+                 << "has no text form: it is not written in the project file";
+      continue;
     }
+
+    obj[setting->id()] = setting->toText();
   }
+}
+
+QStringList Serializable::_reservedKeys() const
+{
+  return QStringList();
+}
+
+void Serializable::_readSetting(Setting* setting, const QJsonValue& value) const
+{
+  if (value.isString())
+  {
+    const QString text = value.toString();
+    bool readable = false;
+    setting->sanitized(text, &readable);
+    if (!readable || !hasTextForm(setting))
+    {
+      qWarning() << cleanClassName() << "setting" << setting->id()
+                 << "cannot be read from" << text << ": skipped";
+      return;
+    }
+    // The owner may still refuse the value, as a video file that cannot be opened: it says why.
+    setting->setFromText(text);
+  }
+  else if (value.isDouble() || value.isBool())
+  {
+    // Warns by itself when the value is refused.
+    setting->setFromArguments({ value.toVariant() });
+  }
+  else
+  {
+    qWarning() << cleanClassName() << "setting" << setting->id()
+               << "cannot be read from" << value << ": skipped";
+  }
+}
+
+void Serializable::_takePendingKey(Setting* setting)
+{
+  if (!_pendingKeys.contains(setting->id()))
+    return;
+
+  const QJsonValue value = _pendingKeys.take(setting->id());
+  if (isReadFromProject(setting))
+    _readSetting(setting, value);
 }
 
 }
