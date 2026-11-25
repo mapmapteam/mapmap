@@ -26,15 +26,7 @@
 namespace mmp {
 
 SourceGui::SourceGui(Source::ptr source)
-  : SourceGui(source, false)
-{
-}
-
-SourceGui::SourceGui(Source::ptr source, bool generatedPanel)
-  : _source(source),
-    _settingsBrowser(nullptr),
-    _idItem(nullptr),
-    _opacityItem(nullptr)
+  : _source(source)
 {
   // Create editor.
   _propertyBrowser = new QtTreePropertyBrowser;
@@ -44,29 +36,12 @@ SourceGui::SourceGui(Source::ptr source, bool generatedPanel)
 
   _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
 
-  if (generatedPanel)
-  {
-    _settingsBrowser = new SettingsBrowser(_source->settings(), _propertyBrowser, variantManager, this);
-    connect(_settingsBrowser, &SettingsBrowser::edited, this, [this]() { emit valueChanged(_source); });
-    return;
-  }
-
-  connect(_variantManager, &QtVariantPropertyManager::valueChanged,
-          this, qOverload<QtProperty*, const QVariant&>(&SourceGui::setValue));
-
-  // Mapping UID.
-  _idItem = _variantManager->addProperty(QMetaType::Int, QObject::tr("ID"));
-  _idItem->setEnabled(false);
-  _idItem->setValue(_source->getId());
-  _propertyBrowser->addProperty(_idItem);
-
-  // Source basic properties.
-  _opacityItem = _variantManager->addProperty(QMetaType::Double, QObject::tr("Opacity (%)"));
-  _opacityItem->setAttribute("minimum", 0.0);
-  _opacityItem->setAttribute("maximum", 100.0);
-  _opacityItem->setAttribute("decimals", 1);
-  _opacityItem->setValue(_source->getOpacity()*100.0);
-  _propertyBrowser->addProperty(_opacityItem);
+  // The panel is made from the settings and follows them.
+  _settingsBrowser = new SettingsBrowser(_source->settings(), _propertyBrowser, variantManager, this);
+  connect(_settingsBrowser, &SettingsBrowser::edited, this, [this]() { emit valueChanged(_source); });
+  connect(_source.data(), &Source::settingChanged, _settingsBrowser,
+          [this](uid, const QString& path, const QVariant& value) { _settingsBrowser->refresh(path, value); });
+  connect(_source.data(), &Source::settingsStructureChanged, _settingsBrowser, &SettingsBrowser::rebuild);
 }
 
 SourceGui::~SourceGui()
@@ -79,179 +54,32 @@ QWidget* SourceGui::getPropertiesEditor()
   return _propertyBrowser;
 }
 
-void SourceGui::setValue(QtProperty* property, const QVariant& value)
-{
-  if (property == _opacityItem)
-  {
-    double opacity = qBound(value.toDouble() / 100.0, 0.0, 1.0);
-    if (opacity != _source->getOpacity())
-    {
-      _source->setOpacity(opacity);
-      emit valueChanged(_source);
-    }
-  }
-}
-
-void SourceGui::setValue(QString propertyName, QVariant value)
-{
-  // A generated panel follows the settings by itself.
-  if (propertyName == "opacity" && _opacityItem)
-    _opacityItem->setValue(value.toDouble() * 100);
-}
-
-ColorGui::ColorGui(Source::ptr source)
-  : SourceGui(source, true)
-{
-  Q_CHECK_PTR(qSharedPointerCast<Color>(source));
-}
-
-TextureGui::TextureGui(Source::ptr source) : SourceGui(source) {
-}
-
-ImageGui::ImageGui(Source::ptr source)
-  : TextureGui(source)
-{
-  image = qSharedPointerCast<Image>(source);
-  Q_CHECK_PTR(image);
-
-_imageFileItem = _variantManager->addProperty(VariantManager::filePathTypeId(),
-                                              tr("Image file"));
-
-_imageFileItem->setAttribute("filter", tr("Image files (%1);;All files (*)").arg(MM::IMAGE_FILES_FILTER));
-_imageFileItem->setValue(image->getUri());
-
-  _imageRateItem = _variantManager->addProperty(QMetaType::Double,
-                                                tr("Speed (%)"));
-  // we need to save it because the call to setAttribute will set it to minimum
-  double rate = image->getRate()*100;
-  _imageRateItem->setAttribute("decimals", 1);
-  _imageRateItem->setValue(rate);
-
-  _propertyBrowser->addProperty(_imageFileItem);
-  _propertyBrowser->addProperty(_imageRateItem);
-}
-
-void ImageGui::setValue(QtProperty* property, const QVariant& value) {
-  if (property == _imageFileItem) {
-    image->setUri(value.toString());
-    emit valueChanged(_source);
-  }
-  else if (property == _imageRateItem)
-  {
-    //double rateSign = (media->getRate() <= 0 ? -1 : +1);
-    image->setRate(value.toDouble()/100.0);
-    emit valueChanged(_source);
-  }
-  else
-    TextureGui::setValue(property, value);
-}
-
-void ImageGui::setValue(QString propertyName, QVariant value)
-{
-  if (propertyName == "uri")
-    _imageFileItem->setValue(value);
-  else if (propertyName == "rate")
-    _imageRateItem->setValue(value.toDouble()*100);
-  else
-    TextureGui::setValue(propertyName, value);
-}
-
-VideoGui::VideoGui(Source::ptr source)
-: TextureGui(source)
-{
-  media = qSharedPointerCast<Video>(source);
-  Q_CHECK_PTR(media);
-
-  _mediaFileItem = _variantManager->addProperty(VariantManager::filePathTypeId(),
-                                                tr("Source"));
-
-  _mediaFileItem->setAttribute("filter", tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER));
-  _mediaFileItem->setValue(media->getUri());
-
-  _mediaRateItem = _variantManager->addProperty(QMetaType::Double,
-                                                tr("Speed (%)"));
-  // we need to save it because the call to setAttribute will set it to minimum
-  double rate = media->getRate()*100;
-  _mediaRateItem->setAttribute("decimals", 1);
-  _mediaRateItem->setValue(rate);
-
-  _mediaVolumeItem = _variantManager->addProperty(QMetaType::Double,
-                                                tr("Volume (%)"));
-  double volume = media->getVolume()*100;
-  _mediaVolumeItem->setAttribute("minimum", 0.0);
-  _mediaVolumeItem->setAttribute("maximum", 100.0);
-  _mediaVolumeItem->setAttribute("decimals", 1);
-  _mediaVolumeItem->setValue(volume);
-
-//  _mediaReverseItem = _variantManager->addProperty(QVariant::Bool,
-//                                                tr("Reverse"));
-//  _mediaReverseItem->setValue(false);
-
-  _propertyBrowser->addProperty(_mediaFileItem);
-  _propertyBrowser->addProperty(_mediaRateItem);
-  _propertyBrowser->addProperty(_mediaVolumeItem);
-//  _propertyBrowser->addProperty(_mediaReverseItem);
-}
-
-void VideoGui::setValue(QtProperty* property, const QVariant& value)
-{
-  if (property == _mediaFileItem)
-  {
-    media->setUri(value.toString());
-    emit valueChanged(_source);
-  }
-  else if (property == _mediaRateItem)
-  {
-    //double rateSign = (media->getRate() <= 0 ? -1 : +1);
-    media->setRate(value.toDouble()/100.0);
-    emit valueChanged(_source);
-  }
-//    else if (property == _mediaReverseItem)
-//    {
-//      double absoluteRate = abs( media->getRate() );
-//      media->setRate( (value.toBool() ? -1 : +1) * absoluteRate );
-//      emit valueChanged(_source);
-//    }
-  else if (property == _mediaVolumeItem)
-  {
-    media->setVolume(value.toDouble()/100.0);
-    emit valueChanged(_source);
-  }
-  else
-    TextureGui::setValue(property, value);
-}
-
-void VideoGui::setValue(QString propertyName, QVariant value)
-{
-  if (propertyName == "uri")
-    _mediaFileItem->setValue(value);
-  if (propertyName == "rate")
-    _mediaRateItem->setValue(value.toDouble()*100);
-  if (propertyName == "volume")
-    _mediaVolumeItem->setValue(value.toDouble()*100);
-  else
-    TextureGui::setValue(propertyName, value);
-}
-
 #ifdef HAVE_SYPHON
 SyphonGui::SyphonGui(Source::ptr source)
-  : TextureGui(source),
+  : SourceGui(source),
     _updatingEnum(false),
     _refreshTimer(nullptr)
 {
   syphon = qSharedPointerCast<Syphon>(source);
   Q_CHECK_PTR(syphon);
 
+  // Below the rows made from the settings ("Respect source alpha" among them).
   _serverItem = _variantManager->addProperty(QtVariantPropertyManager::enumTypeId(),
                                               tr("Server"));
   _statusItem = _variantManager->addProperty(QMetaType::QString, tr("Status"));
   _statusItem->setEnabled(false);
-  _alphaItem = _variantManager->addProperty(QMetaType::Bool, tr("Respect source alpha"));
-  _alphaItem->setValue(syphon->getRespectAlpha());
 
   _propertyBrowser->addProperty(_serverItem);
   _propertyBrowser->addProperty(_statusItem);
-  _propertyBrowser->addProperty(_alphaItem);
+
+  connect(_variantManager, &QtVariantPropertyManager::valueChanged, this, &SyphonGui::_chooseServer);
+
+  // The server may also be changed by OSC, MCP or a project file.
+  connect(_source.data(), &Source::settingChanged, this,
+          [this](uid, const QString& path, const QVariant&) {
+            if (path == "serverUUID" || path == "serverName" || path == "appName")
+              _rebuildServerEnum();
+          });
 
   // Populate the dropdown and status now, then keep them current. Syphon has
   // no Qt-native change signal, so we poll the shared directory on a timer.
@@ -344,40 +172,21 @@ void SyphonGui::refreshServers()
   _updateStatus();
 }
 
-void SyphonGui::setValue(QtProperty* property, const QVariant& value)
+void SyphonGui::_chooseServer(QtProperty* property, const QVariant& value)
 {
-  if (property == _serverItem)
-  {
-    if (_updatingEnum)
-      return; // Programmatic rebuild, not a user choice.
+  if (property != _serverItem || _updatingEnum)
+    return; // Another row, or a programmatic rebuild, not a user choice.
 
-    const int index = value.toInt();
-    if (index <= 0)
-      syphon->connectToServer(QString(), QString(), QString()); // "(none)"
-    else if (index - 1 < _servers.size())
-    {
-      const SyphonServerDescription& s = _servers[index - 1];
-      syphon->connectToServer(s.uuid, s.name, s.appName);
-    }
-    emit valueChanged(_source);
-    _updateStatus();
-  }
-  else if (property == _alphaItem)
+  const int index = value.toInt();
+  if (index <= 0)
+    syphon->connectToServer(QString(), QString(), QString()); // "(none)"
+  else if (index - 1 < _servers.size())
   {
-    syphon->setRespectAlpha(value.toBool());
-    emit valueChanged(_source);
+    const SyphonServerDescription& s = _servers[index - 1];
+    syphon->connectToServer(s.uuid, s.name, s.appName);
   }
-  else
-    TextureGui::setValue(property, value);
-}
-
-void SyphonGui::setValue(QString propertyName, QVariant value)
-{
-  Q_UNUSED(value);
-  if (propertyName == "serverUUID" || propertyName == "serverName" || propertyName == "appName")
-    _rebuildServerEnum();
-  else
-    TextureGui::setValue(propertyName, value);
+  emit valueChanged(_source);
+  _updateStatus();
 }
 #endif // HAVE_SYPHON
 

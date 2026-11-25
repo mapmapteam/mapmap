@@ -50,13 +50,16 @@
 #include "variantmanager.h"
 #include "variantfactory.h"
 
+#include "SettingsBrowser.h"
+
 namespace mmp {
 
 class MainWindow;
 
 /**
- * This is the "view" side of the Mapping class (model). It contains the graphic items for
- * both input and output as well as the properties editor.
+ * This is the "view" side of the Layer class (model). It contains the graphic items for
+ * both input and output as well as the properties editor, made from the settings of the
+ * layer and of its shapes by a SettingsBrowser, which follows their changes.
  */
 class LayerGui : public QObject
 {
@@ -66,14 +69,14 @@ public:
   typedef QSharedPointer<LayerGui> ptr;
 
 protected:
-  /// Constructor. A mapper applies to a mapping.
-  LayerGui(Layer::ptr mapping);
+  /// Constructor. A layer gui applies to a layer.
+  LayerGui(Layer::ptr layer);
 
 public:
   virtual ~LayerGui() {}
 
 public:
-  /// Returns a pointer to the properties editor for that mapper.
+  /// Returns a pointer to the properties editor for that layer.
   virtual QWidget* getPropertiesEditor() { return _propertyBrowser.data(); }
 
   /// Returns the output/destination ShapeGraphicsItem.
@@ -83,38 +86,23 @@ public:
   virtual QSharedPointer<ShapeGraphicsItem> getInputGraphicsItem() { return _inputGraphicsItem; }
 
 public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value);
-  virtual void setValue(QString propertyName, QVariant value);
-  virtual void updateShape(MShape* shape);
-	virtual void updateSources();
+  /// Shows the sources of the project in the "Source" row; call when they were added,
+  /// removed or renamed.
+  virtual void updateSources();
 
-signals:
-  void valueChanged();
-  void sourceChanged();
-  
 protected:
   Layer::ptr _layer;
 
   QSharedPointer<QtTreePropertyBrowser> _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
-	QtEnumPropertyManager* _sourceEnumManager;
-
-  QtVariantProperty* _idItem;
-  QtVariantProperty* _opacityItem;
-	QtVariantProperty* _sourceItem;
-  QtProperty* _outputItem;
-
-  std::map<QtProperty*, std::pair<MShape*, int> > _propertyToVertex;
+  SettingsBrowser* _settingsBrowser;
 
   QSharedPointer<ShapeGraphicsItem> _graphicsItem;
   QSharedPointer<ShapeGraphicsItem> _inputGraphicsItem;
 
   // FIXME: use typedefs, member of the class for type names that are too long to type:
   MShape::ptr outputShape;
-
-  virtual void _buildShapeProperty(QtProperty* shapeItem, MShape* shape);
-  virtual void _updateShapeProperty(QtProperty* shapeItem, MShape* shape);
 };
 
 /// Parent class for color -> color mappings.
@@ -146,12 +134,6 @@ class MeshColorLayerGui : public PolygonColorLayerGui
 public:
   MeshColorLayerGui(Layer::ptr mapping);
   virtual ~MeshColorLayerGui() {}
-
-public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value);
-
-private:
-  QtVariantProperty* _meshItem;
 };
 
 class EllipseColorLayerGui : public ColorLayerGui
@@ -172,13 +154,7 @@ public:
   TextureLayerGui(QSharedPointer<TextureLayer> mapping);
   virtual ~TextureLayerGui() {}
 
-public slots:
-  virtual void updateShape(MShape* shape);
-
 protected:
-  QtProperty* _inputItem;
-  QtVariantProperty* _meshItem;
-
   // FIXME: use typedefs, member of the class for type names that are too long to type:
   QWeakPointer<TextureLayer> textureLayer;
   QWeakPointer<MShape> inputShape;
@@ -209,12 +185,6 @@ class MeshTextureLayerGui : public PolygonTextureLayerGui
 public:
   MeshTextureLayerGui(QSharedPointer<TextureLayer> mapping);
   virtual ~MeshTextureLayerGui() {}
-
-public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value);
-
-private:
-  QtVariantProperty* _meshItem;
 };
 
 class EllipseTextureLayerGui : public PolygonTextureLayerGui {

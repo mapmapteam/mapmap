@@ -448,10 +448,8 @@ void SetOutputResolutionCommand::_apply(const QSize& resolution, bool after)
   {
     MShape::ptr shape = change.layer->getShape();
     shape->setVertices(after ? change.after : change.before);
+    // The panel of the layer follows the vertices through the settings of the shape.
     shape->build();
-    LayerGui::ptr gui = _mainWindow->getLayerGuiByLayerId(change.layer->getId());
-    if (gui)
-      gui->updateShape(shape.data());
   }
   _mainWindow->setOutputResolution(resolution);
   _mainWindow->windowModified();

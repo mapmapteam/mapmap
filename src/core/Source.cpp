@@ -205,7 +205,8 @@ void Image::_declareSettings()
 {
   SettingGroup* root = settings();
 
-  root->addSetting(SettingInfo::filePath("uri", tr("Image file"), MM::IMAGE_FILES_FILTER)
+  root->addSetting(SettingInfo::filePath("uri", tr("Image file"),
+                                         tr("Image files (%1);;All files (*)").arg(MM::IMAGE_FILES_FILTER))
                    .description(tr("The image file shown by this source.")))
       ->bind([this]() { return QVariant(getUri()); },
              [this](const QVariant& value) {
@@ -349,10 +350,18 @@ Video::Video(VideoType type, int id) : Texture(id),
   // Declared once _impl exists, before the setters below notify them.
   SettingGroup* root = settings();
 
-  root->addSetting(SettingInfo::filePath("uri", tr("Source"), MM::VIDEO_FILES_FILTER)
+  root->addSetting(SettingInfo::filePath("uri", tr("Source"),
+                                         tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER))
                    .description(tr("The video file, or the camera, shown by this source.")))
       ->bind([this]() { return QVariant(getUri()); },
              [this](const QVariant& value) { return setUri(value.toString()); });
+
+  root->addSetting(SettingInfo::number("rate", tr("Speed"))
+                   .unit(SettingInfo::Percent)
+                   .displayScale(PERCENT_DISPLAY_SCALE)
+                   .description(tr("How fast the video plays; a negative speed plays it backwards.")))
+      ->bind([this]() { return QVariant(getRate()); },
+             [this](const QVariant& value) { setRate(value.toDouble()); return true; });
 
   root->addSetting(SettingInfo::number("volume", tr("Volume"))
                    .bounds(MIN_VOLUME, MAX_VOLUME)
@@ -361,13 +370,6 @@ Video::Video(VideoType type, int id) : Texture(id),
                    .description(tr("How loud the sound of the video plays.")))
       ->bind([this]() { return QVariant(getVolume()); },
              [this](const QVariant& value) { setVolume(value.toDouble()); return true; });
-
-  root->addSetting(SettingInfo::number("rate", tr("Speed"))
-                   .unit(SettingInfo::Percent)
-                   .displayScale(PERCENT_DISPLAY_SCALE)
-                   .description(tr("How fast the video plays; a negative speed plays it backwards.")))
-      ->bind([this]() { return QVariant(getRate()); },
-             [this](const QVariant& value) { setRate(value.toDouble()); return true; });
 
   setRate(1);
   setVolume(1);

@@ -19,7 +19,6 @@
  */
 
 #include "LayerGui.h"
-#include "MainWindow.h"
 
 namespace mmp {
 
@@ -33,145 +32,25 @@ LayerGui::LayerGui(Layer::ptr layer)
 
   // Create editor.
   _propertyBrowser.reset(new QtTreePropertyBrowser);
-  _variantManager = new VariantManager;
+  VariantManager* variantManager = new VariantManager;
+  _variantManager = variantManager;
   _variantFactory = new VariantFactory;
 
   _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
 
-  _sourceEnumManager = new QtEnumPropertyManager(this);
-
-  // Mapping UID.
-  _idItem = _variantManager->addProperty(QMetaType::Int, QObject::tr("ID"));
-  _idItem->setEnabled(false);
-  _idItem->setValue(_layer->getId());
-  _propertyBrowser->addProperty(_idItem);
-
-  // Mapping basic properties.
-  _opacityItem = _variantManager->addProperty(QMetaType::Double, QObject::tr("Opacity (%)"));
-  _opacityItem->setAttribute("minimum", 0.0);
-  _opacityItem->setAttribute("maximum", 100.0);
-  _opacityItem->setAttribute("decimals", 1);
-  _opacityItem->setValue(_layer->getOpacity()*100.0);
-  _propertyBrowser->addProperty(_opacityItem);
-
-  _sourceItem = _variantManager->addProperty(QtVariantPropertyManager::enumTypeId(), "Source");
-  _propertyBrowser->addProperty(_sourceItem);
-  updateSources();
-
-  // Output shape.
-  _outputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
-                                             QObject::tr("Output shape"));
-
-  _buildShapeProperty(_outputItem, layer->getShape().data());
-  _propertyBrowser->addProperty(_outputItem);
-
-  // Collapse output shape.
-  _propertyBrowser->setExpanded(_propertyBrowser->items(_outputItem).at(0), false);
-
-  connect(_variantManager, &QtVariantPropertyManager::valueChanged,
-          this, qOverload<QtProperty*, const QVariant&>(&LayerGui::setValue));
-  //qDebug() << "Creating mapper" << endl;
-}
-
-
-void LayerGui::setValue(QtProperty* property, const QVariant& value)
-{
-  if (property == _opacityItem)
-  {
-    double opacity = qBound(value.toDouble() / 100.0, 0.0, 1.0);
-    if (opacity != _layer->getOpacity())
-    {
-      _layer->setOpacity(opacity);
-      emit valueChanged();
-    }
-  }
-  else if (property == _sourceItem)
-  {
-    int sourceIndex = value.toInt();
-    Source::ptr newSource = MainWindow::window()->getMappingManager().getSource(sourceIndex);
-    if (newSource != _layer->getSource() && _layer->sourceIsCompatible(newSource)) {
-      _layer->setSource(newSource);
-      emit valueChanged();
-      emit sourceChanged();
-    }
-  }
-  else
-  {
-    std::map<QtProperty*, std::pair<MShape*, int> >::iterator it = _propertyToVertex.find(property);
-    if (it != _propertyToVertex.end())
-    {
-      const QPointF& p = value.toPointF();
-      MShape* shape = it->second.first;
-      int    v     = it->second.second;
-      if (shape->getVertex(v) != p)
-      {
-        shape->setVertex(v, p);
-        emit valueChanged();
-      }
-    }
-  }
-}
-
-void LayerGui::setValue(QString propertyName, QVariant value)
-{
-  if (propertyName == "opacity")
-    _opacityItem->setValue(value.toDouble() * 100);
-}
-
-void LayerGui::updateShape(MShape* shape)
-{
-  if (shape == _layer->getShape().data())
-  {
-    _updateShapeProperty(_outputItem, shape);
-  }
+  // The panel is made from the settings of the layer and of its shapes, and follows them.
+  _settingsBrowser = new SettingsBrowser(_layer->settings(), _propertyBrowser.data(), variantManager, this);
+  _settingsBrowser->setGroupLabel("output", tr("Output shape"));
+  _settingsBrowser->setGroupLabel("input", tr("Input shape"));
+  connect(_layer.data(), &Layer::settingChanged, _settingsBrowser,
+          [this](uid, const QString& path, const QVariant& value) { _settingsBrowser->refresh(path, value); });
+  connect(_layer.data(), &Layer::settingsStructureChanged, _settingsBrowser, &SettingsBrowser::rebuild);
 }
 
 void LayerGui::updateSources()
 {
-	int currentSource = -1;
-	MappingManager& manager = MainWindow::window()->getMappingManager();
-	QStringList sourceList;
-	QVector<Source::ptr> sources = manager.getSourcesCompatibleWith(_layer);
-	for (int i=0; i<sources.size(); i++)
-	{
-		sourceList.append(sources[i]->getName());
-		if (sources[i] == _layer->getSource())
-			currentSource = i;
-	}
-	_sourceItem->setAttribute("enumNames", sourceList);
-	_sourceItem->setValue(currentSource);
-}
-
-void LayerGui::_buildShapeProperty(QtProperty* shapeItem, MShape* shape)
-{
-  for (int i=0; i<shape->nVertices(); i++)
-  {
-    // Add point.
-    QtVariantProperty* pointItem = _variantManager->addProperty(QMetaType::QPointF,
-                                                                QObject::tr("Point %1").arg(i));
-
-    const QPointF& p = shape->getVertex(i);
-    pointItem->setValue(p);
-
-    shapeItem->addSubProperty(pointItem);
-    _propertyToVertex[pointItem] = std::make_pair(shape, i);
-  }
-
-}
-
-void LayerGui::_updateShapeProperty(QtProperty* shapeItem, MShape* shape)
-{
-  QList<QtProperty*> pointItems = shapeItem->subProperties();
-  for (int i=0; i<shape->nVertices(); i++)
-  {
-    // XXX mesh control points are not added to properties
-    if (i < pointItems.size())
-    {
-      QtVariantProperty* pointItem = (QtVariantProperty*)pointItems[i];
-      const QPointF& p = shape->getVertex(i);
-      pointItem->setValue(p);
-    }
-  }
+  // The menu is computed again from the options of the setting.
+  _settingsBrowser->refresh("sourceId", QVariant());
 }
 
 ColorLayerGui::ColorLayerGui(Layer::ptr layer)
@@ -189,35 +68,6 @@ MeshColorLayerGui::MeshColorLayerGui(Layer::ptr layer)
   : PolygonColorLayerGui(layer)
 {
   _graphicsItem.reset(new MeshColorGraphicsItem(_layer, true));
-
-  // Add mesh sub property.
-  QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_layer->getShape());
-  _meshItem = _variantManager->addProperty(QMetaType::QSize, QObject::tr("Mesh Subdivisions"));
-  _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
-  _meshItem->setAttribute("minimum", QSize(2,2));
-  _propertyBrowser->insertProperty(_meshItem, _sourceItem); // insert at the beginning
-}
-
-void MeshColorLayerGui::setValue(QtProperty* property, const QVariant& value)
-{
-  if (property == _meshItem)
-  {
-    QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_layer->getShape());
-    QSize size = (static_cast<QtVariantProperty*>(property))->value().toSize();
-    if (mesh->nColumns() != size.width() || mesh->nRows() != size.height())
-    {
-      mesh->resize(size.width(), size.height());
-
-//      _graphicsItem->resetVertices();
-//      _inputGraphicsItem->resetVertices();
-
-      // TODO: here we need to create the graphicsitems
-
-      emit valueChanged();
-    }
-  }
-  else
-    PolygonColorLayerGui::setValue(property, value);
 }
 
 EllipseColorLayerGui::EllipseColorLayerGui(Layer::ptr layer) : ColorLayerGui(layer) {
@@ -274,8 +124,7 @@ EllipseColorLayerGui::EllipseColorLayerGui(Layer::ptr layer) : ColorLayerGui(lay
 //}
 
 TextureLayerGui::TextureLayerGui(QSharedPointer<TextureLayer> mapping)
-  : LayerGui(mapping),
-    _meshItem(nullptr)
+  : LayerGui(mapping)
 {
   // Assign members pointers.
   textureLayer = qSharedPointerCast<TextureLayer>(_layer);
@@ -283,15 +132,6 @@ TextureLayerGui::TextureLayerGui(QSharedPointer<TextureLayer> mapping)
 
   inputShape = textureLayer.toStrongRef()->getInputShape();
   Q_CHECK_PTR(inputShape);
-
-  // Input shape.
-  _inputItem = _variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),
-                                            QObject::tr("Input shape"));
-  _buildShapeProperty(_inputItem, inputShape.toStrongRef().data());
-  _propertyBrowser->insertProperty(_inputItem, _sourceItem); // insert
-
-  // Collapse input shape.
-  _propertyBrowser->setExpanded(_propertyBrowser->items(_inputItem).at(0), false);
 }
 //
 //void TextureLayerGui::drawInput(QPainter* painter)
@@ -319,27 +159,6 @@ TextureLayerGui::TextureLayerGui(QSharedPointer<TextureLayer> mapping)
 //  // End drawing.
 //  _postDraw(painter);
 //}
-
-void TextureLayerGui::updateShape(MShape* shape)
-{
-  QSharedPointer<TextureLayer> textureLayer = qSharedPointerCast<TextureLayer>(_layer);
-  Q_CHECK_PTR(textureLayer);
-
-  QSharedPointer<Texture> texture = qSharedPointerCast<Texture>(textureLayer->getSource());
-  Q_CHECK_PTR(texture);
-
-  MShape* inputShape  = textureLayer->getInputShape().data();
-  MShape* outputShape = textureLayer->getShape().data();
-  if (shape == inputShape)
-  {
-    _updateShapeProperty(_inputItem, inputShape);
-  }
-  else if (shape == outputShape)
-  {
-    _updateShapeProperty(_outputItem, outputShape);
-  }
-
-}
 
 //
 //void TextureLayerGui::_preDraw(QPainter* painter)
@@ -418,47 +237,6 @@ MeshTextureLayerGui::MeshTextureLayerGui(QSharedPointer<TextureLayer> mapping)
 {
   _graphicsItem.reset(new MeshTextureGraphicsItem(_layer, true));
   _inputGraphicsItem.reset(new MeshTextureGraphicsItem(_layer, false));
-
-  // Add mesh sub property.
-  QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(_layer->getShape());
-  _meshItem = _variantManager->addProperty(QMetaType::QSize, QObject::tr("Subdivisions"));
-
-  // Rename subdivision subproperties.
-  QList<QtProperty *> subList = _meshItem->subProperties();
-  subList[0]->setPropertyName(tr("Horizontal"));
-  subList[1]->setPropertyName(tr("Vertical"));
-
-  // Set defaults.
-  _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
-  _meshItem->setAttribute("minimum", QSize(2, 2));
-
-  // Add.
-  _propertyBrowser->insertProperty(_meshItem, _sourceItem); // insert at the beginning
-}
-
-void MeshTextureLayerGui::setValue(QtProperty* property, const QVariant& value)
-{
-  if (property == _meshItem)
-  {
-    QSharedPointer<Mesh> outputMesh = qSharedPointerCast<Mesh>(_layer->getShape());
-    QSharedPointer<Mesh> inputMesh  = qSharedPointerCast<Mesh>(textureLayer.toStrongRef()->getInputShape());
-    QSize size = (static_cast<QtVariantProperty*>(property))->value().toSize();
-    if (outputMesh->nColumns() != size.width() || outputMesh->nRows() != size.height() ||
-        inputMesh->nColumns() != size.width() || inputMesh->nRows() != size.height())
-    {
-      outputMesh->resize(size.width(), size.height());
-      inputMesh->resize(size.width(), size.height());
-
-//      _graphicsItem->resetVertices();
-//      _inputGraphicsItem->resetVertices();
-
-      // TODO: here we need to create the graphicsitems
-
-      emit valueChanged();
-    }
-  }
-  else
-    TextureLayerGui::setValue(property, value);
 }
 
 EllipseTextureLayerGui::EllipseTextureLayerGui(QSharedPointer<TextureLayer> mapping)

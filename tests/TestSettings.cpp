@@ -721,7 +721,7 @@ void TestSettings::elementsDeclareTheirSettings()
   QCOMPARE(undescribedPaths(image), QStringList());
 
   Video video;
-  const QStringList videoPaths = texture + QStringList { "uri", "volume", "rate" };
+  const QStringList videoPaths = texture + QStringList { "uri", "rate", "volume" };
   QCOMPARE(leafPaths(video), videoPaths);
   QCOMPARE(undescribedPaths(video), QStringList());
 
