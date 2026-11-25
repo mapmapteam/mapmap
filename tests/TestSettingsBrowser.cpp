@@ -155,7 +155,6 @@ void TestSettingsBrowser::colorSourceRows()
   QVERIFY(opacity->isEnabled());
   QCOMPARE(opacity->attributeValue("decimals").toInt(), SettingsBrowser::PANEL_DECIMALS);
   QCOMPARE(opacity->attributeValue("minimum").toDouble(), 0.0);
-  QCOMPARE(opacity->attributeValue("maximum").toDouble(), 100.0);
   QCOMPARE(shown(opacity->value()), QString("100.0"));
   QCOMPARE(opacity->toolTip(), source.settings()->find("opacity")->info().description());
 
@@ -386,7 +385,11 @@ void TestSettingsBrowser::mediaSourceRows()
            QStringList({ "ID", "Opacity (%)", "Source", "Speed (%)", "Volume (%)" }));
   QtVariantProperty* volume = findRow(videoPanel.browser.properties(), "Volume (%)");
   QCOMPARE(volume->attributeValue("minimum").toDouble(), 0.0);
-  QCOMPARE(volume->attributeValue("maximum").toDouble(), 100.0);
+
+  // A number typed above the maximum is kept at the maximum, and the row shows it.
+  volume->setValue(150.0);
+  QCOMPARE(video.getVolume(), 1.0);
+  QCOMPARE(shown(volume->value()), QString("100.0"));
 }
 
 void TestSettingsBrowser::filePathRowHasFilter()
@@ -413,8 +416,14 @@ void TestSettingsBrowser::integerRowHasBounds()
   QtVariantProperty* row = findRow(panel.browser.properties(), "Steps");
   QCOMPARE(row->propertyType(), int(QMetaType::Int));
   QCOMPARE(row->attributeValue("minimum").toInt(), lowest);
-  QCOMPARE(row->attributeValue("maximum").toInt(), highest);
   QCOMPARE(row->attributeValue("singleStep").toInt(), int(step));
+
+  // The row lets a number above the maximum be typed: it is kept at the maximum.
+  const int tooHigh = 33;
+  row->setValue(tooHigh);
+  QCOMPARE(steps->value().toInt(), highest);
+  QCOMPARE(row->value().toInt(), highest);
+  row->setValue(lowest);
 
   row->setValue(highest);
   QCOMPARE(steps->value().toInt(), highest);
@@ -525,7 +534,11 @@ void TestSettingsBrowser::rangeRowScalesLikeNumber()
   QtVariantProperty* high = findRow(group->subProperties(), "High");
   QCOMPARE(shown(low->value()), QString("20.0"));
   QCOMPARE(shown(high->value()), QString("60.0"));
-  QCOMPARE(high->attributeValue("maximum").toDouble(), scale);
+
+  // A bound typed above the maximum is kept at the maximum.
+  high->setValue(150.0);
+  QCOMPARE(shown(window->value().toPointF().y() * scale), QString("100.0"));
+  QCOMPARE(shown(high->value()), QString("100.0"));
 
   high->setValue(80.0);
   QCOMPARE(shown(window->value().toPointF().y() * scale), QString("80.0"));
