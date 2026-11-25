@@ -30,7 +30,7 @@ using namespace mmp;
 
 void TestSettings::opacityIsClamped()
 {
-  Color source(QColor(Qt::red));
+  Color source { QColor(Qt::red) };
   source.setOpacity(5.0f);
   QCOMPARE(source.getOpacity(), 1.0f);
   source.setOpacity(-2.0f);
@@ -1135,7 +1135,7 @@ QByteArray jsonText(const QJsonObject& obj)
 
 void TestSettings::writeMatchesLegacyFormat()
 {
-  Color source(QColor(Qt::red));
+  Color source { QColor(Qt::red) };
   source.setOpacity(0.75f);
   source.setName("a");
 
@@ -1155,7 +1155,7 @@ void TestSettings::writeMatchesLegacyFormat()
 
 void TestSettings::readToleratesNonTextValues()
 {
-  Color source(QColor(Qt::red));
+  Color source { QColor(Qt::red) };
   const QJsonObject base { { "className", "Color" }, { "id", source.getId() } };
 
   // A JSON number or boolean is taken as an argument.
@@ -1189,7 +1189,7 @@ void TestSettings::readToleratesNonTextValues()
 
 void TestSettings::unknownKeysSurviveRoundTrip()
 {
-  Color source(QColor(Qt::red));
+  Color source { QColor(Qt::red) };
   const QJsonObject nested { { "a", 1 } };
   const QJsonObject obj {
     { "className", "Color" },
@@ -1212,14 +1212,14 @@ void TestSettings::runtimeSettingIsSavedAndRestored()
 {
   QJsonObject saved;
   {
-    Color first(QColor(Qt::red));
+    Color first { QColor(Qt::red) };
     Setting* gain = first.settings()->addSetting(SettingInfo::number("gain", "Gain"));
     QVERIFY(gain->setValue(0.3));
     first.write(saved);
   }
   QCOMPARE(saved.value("gain"), QJsonValue("0.3"));
 
-  Color second(QColor(Qt::red));
+  Color second { QColor(Qt::red) };
   saved["id"] = second.getId();
   second.read(saved);
   QVERIFY(!second.settings()->find("gain"));
@@ -1239,7 +1239,7 @@ void TestSettings::runtimeSettingIsSavedAndRestored()
 
 void TestSettings::pendingValueReachesSettingBoundLater()
 {
-  Color source(QColor(Qt::red));
+  Color source { QColor(Qt::red) };
   const QJsonObject obj {
     { "className", "Color" },
     { "id", source.getId() },
@@ -1263,7 +1263,7 @@ void TestSettings::pendingValueReachesSettingBoundLater()
 
 void TestSettings::keysOfUnreadSettingsStayPending()
 {
-  Color source(QColor(Qt::red));
+  Color source { QColor(Qt::red) };
   Setting* monitor = source.settings()->addSetting(SettingInfo::number("monitor", "Monitor").notStored());
   const QJsonObject obj {
     { "className", "Color" },
@@ -1323,7 +1323,7 @@ void TestSettings::reservedKeysAreNotKept()
 
 void TestSettings::pointSettingIsNotWritten()
 {
-  Color source(QColor(Qt::red));
+  Color source { QColor(Qt::red) };
   source.settings()->addSetting(SettingInfo::point("spot", "Spot"));
 
   QJsonObject written;
@@ -1349,7 +1349,7 @@ QJsonObject describedAt(const QJsonArray& settings, const QString& path)
 
 void TestSettings::describesBoundsAndUnits()
 {
-  Color source(QColor(Qt::red));
+  Color source { QColor(Qt::red) };
   const QJsonArray settings = describeSettings(source.settings());
 
   const QJsonObject opacity = describedAt(settings, "opacity");
@@ -1402,7 +1402,7 @@ void TestSettings::describesNestedPaths()
 
 void TestSettings::valuesKeepLegacyKeys()
 {
-  Color source(QColor(Qt::red));
+  Color source { QColor(Qt::red) };
   const QJsonObject values = settingValues(source.settings());
   QStringList keys = values.keys();
   keys.sort();
