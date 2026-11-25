@@ -49,6 +49,59 @@ const QChar PATH_SEPARATOR('/');
 /// Index returned when a child is missing.
 const int NOT_FOUND = -1;
 
+/// Lowest normalized position.
+const double NORMALIZED_MINIMUM = 0.0;
+
+/// Highest normalized position.
+const double NORMALIZED_MAXIMUM = 1.0;
+
+/// Normalized position from which a Boolean is true.
+const double NORMALIZED_TRUE_THRESHOLD = 0.5;
+
+/// Number of arguments a Point or a Range takes: its two coordinates.
+const int PAIR_ARGUMENT_COUNT = 2;
+
+/// Number of arguments every other type takes.
+const int SINGLE_ARGUMENT_COUNT = 1;
+
+/// The number a Boolean accepts for false.
+const double BOOLEAN_FALSE_NUMBER = 0.0;
+
+/// The number a Boolean accepts for true.
+const double BOOLEAN_TRUE_NUMBER = 1.0;
+
+/**
+ * Reads a Boolean strictly: true or false, the numbers 0 and 1, or the texts "true",
+ * "false", "1" and "0" in any case. Returns false when the value is none of these.
+ */
+bool parseBoolean(const QVariant& value, bool* result)
+{
+  const int typeId = value.typeId();
+  if (typeId == QMetaType::Bool) {
+    *result = value.toBool();
+    return true;
+  }
+  if (typeId == QMetaType::QString || typeId == QMetaType::QByteArray) {
+    const QString text = value.toString().toLower();
+    if (text == QLatin1String("true") || text == QLatin1String("1")) {
+      *result = true;
+      return true;
+    }
+    if (text == QLatin1String("false") || text == QLatin1String("0")) {
+      *result = false;
+      return true;
+    }
+    return false;
+  }
+  bool isNumber = false;
+  const double number = value.toDouble(&isNumber);
+  if (isNumber && (number == BOOLEAN_FALSE_NUMBER || number == BOOLEAN_TRUE_NUMBER)) {
+    *result = (number == BOOLEAN_TRUE_NUMBER);
+    return true;
+  }
+  return false;
+}
+
 } // namespace
 
 // ---------------------------------------------------------------------------
@@ -290,6 +343,8 @@ Setting::Setting(const QString& id, const SettingInfo& info)
 {
   bool ok = false;
   QVariant value = sanitized(info.defaultValue(), &ok);
+  if (!ok)
+    qWarning() << "Default value" << info.defaultValue() << "of setting" << id << "cannot be sanitized";
   _value = ok ? value : info.defaultValue();
 }
 
@@ -371,7 +426,16 @@ QVariant Setting::sanitized(const QVariant& value, bool* ok) const
     valid = result.convert(QMetaType::fromType<QColor>()) && result.value<QColor>().isValid()
         && result.convert(QMetaType(_info.valueType()));
     break;
-  case SettingInfo::Boolean:
+  case SettingInfo::Boolean: {
+    // Qt would turn any text but "", "0" and "false" into true.
+    bool flag = false;
+    valid = parseBoolean(value, &flag);
+    if (valid) {
+      result = flag;
+      valid = result.convert(QMetaType(_info.valueType()));
+    }
+    break;
+  }
   case SettingInfo::Text:
   case SettingInfo::Choice:
   case SettingInfo::Reference:
@@ -424,6 +488,159 @@ void Setting::reset()
   setValue(_info.defaultValue());
 }
 
+bool Setting::hasNormalized() const
+{
+  switch (_info.type()) {
+  case SettingInfo::Number:
+  case SettingInfo::Integer: {
+    double minimum = 0.0;
+    double maximum = 0.0;
+    return _numberBounds(&minimum, &maximum);
+  }
+  case SettingInfo::Boolean:
+    return true;
+  case SettingInfo::Choice:
+    return !_info.options().isEmpty();
+  default:
+    return false;
+  }
+}
+
+double Setting::normalized() const
+{
+  switch (_info.type()) {
+  case SettingInfo::Number:
+  case SettingInfo::Integer: {
+    double minimum = 0.0;
+    double maximum = 0.0;
+    if (!_numberBounds(&minimum, &maximum))
+      return NORMALIZED_MINIMUM;
+    // The owner's storage may hold a value outside the bounds.
+    const double position = (value().toDouble() - minimum) / (maximum - minimum);
+    return qBound(NORMALIZED_MINIMUM, position, NORMALIZED_MAXIMUM);
+  }
+  case SettingInfo::Boolean:
+    return value().toBool() ? NORMALIZED_MAXIMUM : NORMALIZED_MINIMUM;
+  case SettingInfo::Choice: {
+    const QList<SettingOption> options = _info.options();
+    const QString id = value().toString();
+    const int last = int(options.size()) - 1;
+    for (int index = 0; index <= last; index++) {
+      if (options.at(index).id == id)
+        return last > 0 ? double(index) / last : NORMALIZED_MINIMUM;
+    }
+    return NORMALIZED_MINIMUM;
+  }
+  default:
+    return NORMALIZED_MINIMUM;
+  }
+}
+
+bool Setting::setNormalized(double position)
+{
+  if (!hasNormalized()) {
+    qWarning() << "Setting" << path() << "has no normalized position";
+    return false;
+  }
+  if (!std::isfinite(position))
+    return false;
+  position = qBound(NORMALIZED_MINIMUM, position, NORMALIZED_MAXIMUM);
+
+  switch (_info.type()) {
+  case SettingInfo::Number:
+  case SettingInfo::Integer: {
+    double minimum = 0.0;
+    double maximum = 0.0;
+    _numberBounds(&minimum, &maximum);
+    return setValue(minimum + position * (maximum - minimum));
+  }
+  case SettingInfo::Boolean:
+    return setValue(position >= NORMALIZED_TRUE_THRESHOLD);
+  case SettingInfo::Choice: {
+    // Equal steps: [0, 1/n) is the first option, ..., [(n-1)/n, 1] the last.
+    const QList<SettingOption> options = _info.options();
+    const int count = int(options.size());
+    const int index = qMin(int(std::floor(position * count)), count - 1);
+    return setValue(options.at(index).id);
+  }
+  default:
+    return false;
+  }
+}
+
+QVariant Setting::displayValue() const
+{
+  if (_isNumber())
+    return value().toDouble() * _info.displayScale();
+  return value();
+}
+
+bool Setting::setDisplayValue(const QVariant& value)
+{
+  if (!_isNumber())
+    return setValue(value);
+  bool isNumber = false;
+  const double shown = value.toDouble(&isNumber);
+  // A zero scale gives a value that is not finite, which setValue() refuses.
+  return isNumber && setValue(shown / _info.displayScale());
+}
+
+QString Setting::toText() const
+{
+  // As the project writer does for a Qt property: QMetaProperty::read(object).toString().
+  QVariant stored = value();
+  stored.convert(QMetaType(_info.valueType()));
+  return stored.toString();
+}
+
+bool Setting::setFromText(const QString& text)
+{
+  return setValue(text);
+}
+
+bool Setting::setFromArguments(const QVariantList& arguments)
+{
+  const SettingInfo::Type type = _info.type();
+  const bool isPair = (type == SettingInfo::Point || type == SettingInfo::Range);
+  const int expected = isPair ? PAIR_ARGUMENT_COUNT : SINGLE_ARGUMENT_COUNT;
+  if (arguments.size() != expected) {
+    qWarning() << "Setting" << path() << "expects" << expected
+               << (expected == SINGLE_ARGUMENT_COUNT ? "argument," : "arguments,")
+               << "got" << arguments.size();
+    return false;
+  }
+
+  bool accepted = false;
+  if (isPair) {
+    bool isFirstNumber = false;
+    bool isSecondNumber = false;
+    const double first = arguments.at(0).toDouble(&isFirstNumber);
+    const double second = arguments.at(1).toDouble(&isSecondNumber);
+    accepted = isFirstNumber && isSecondNumber && setValue(QPointF(first, second));
+  }
+  else {
+    accepted = setValue(arguments.first());
+  }
+  if (!accepted)
+    qWarning() << "Setting" << path() << "refused the arguments" << arguments;
+  return accepted;
+}
+
+bool Setting::_isNumber() const
+{
+  return _info.type() == SettingInfo::Number || _info.type() == SettingInfo::Integer;
+}
+
+bool Setting::_numberBounds(double* minimum, double* maximum) const
+{
+  bool hasMinimum = false;
+  bool hasMaximum = false;
+  *minimum = _info.minimum().toDouble(&hasMinimum);
+  *maximum = _info.maximum().toDouble(&hasMaximum);
+  return hasMinimum && hasMaximum && std::isfinite(*minimum) && std::isfinite(*maximum)
+      && *minimum < *maximum;
+}
+
 void Setting::setAvailable(bool available)
 {
   if (_available == available)
@@ -434,6 +651,10 @@ void Setting::setAvailable(bool available)
 
 void Setting::bind(std::function<QVariant()> read, std::function<bool(const QVariant&)> write)
 {
+  if (bool(read) != bool(write)) {
+    qWarning() << "Cannot bind setting" << path() << ": it needs both a read and a write function";
+    return;
+  }
   _read = std::move(read);
   _write = std::move(write);
 }
@@ -567,6 +788,10 @@ SettingList* SettingGroup::addList(const QString& id, const SettingInfo& element
                                    std::function<QVariant(int)> read,
                                    std::function<bool(int, const QVariant&)> write)
 {
+  if (!count || !read || !write) {
+    qWarning() << "Cannot add settings list" << id << ": it needs a count, a read and a write function";
+    return nullptr;
+  }
   if (!_acceptsId(id))
     return nullptr;
   SettingList* list = new SettingList(id, elementInfo, std::move(count), std::move(read), std::move(write));
