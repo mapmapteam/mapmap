@@ -64,8 +64,8 @@ public:
 
   virtual QIcon getIcon() const { return QIcon(); }
 
-  virtual void read(const QJsonObject& obj);
-  virtual void write(QJsonObject& obj);
+  void read(const QJsonObject& obj) override;
+  void write(QJsonObject& obj) override;
 
   /// Relays a change of value of the tree as settingChanged().
   void settingValueChanged(const QString& path, const QVariant& value) override;

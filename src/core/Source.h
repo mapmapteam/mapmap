@@ -203,7 +203,7 @@ protected:
   static void orphanTexture(GLuint id);
 
 public:
-  virtual void update();
+  void update() override;
 
   GLuint getTextureId() const { return textureId; }
   virtual int getWidth() const = 0;
@@ -216,7 +216,7 @@ public:
   virtual bool bitsHaveChanged() const = 0;
 
   /// A texture needs a redraw when it holds an image not yet shown.
-  virtual bool needsRedraw() const { return bitsHaveChanged(); }
+  bool needsRedraw() const override { return bitsHaveChanged(); }
 
   /// OpenGL pixel format / type of the data returned by getBits().
   virtual GLenum getBitsFormat() const { return GL_RGBA; }
@@ -260,8 +260,8 @@ public:
 
   virtual QRectF getRect() const { return QRectF(getX(), getY(), getWidth(), getHeight()); }
 
-  virtual void read(const QJsonObject& obj);
-  virtual void write(QJsonObject& obj);
+  void read(const QJsonObject& obj) override;
+  void write(QJsonObject& obj) override;
 
   // Get Camera human-readable name from device ID
   QString getCameraNameFromUri(const QString &uri) {
