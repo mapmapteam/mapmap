@@ -119,7 +119,7 @@ void TestSettings::stepIsNotStrictByDefault()
 void TestSettings::integerIsRounded()
 {
   SettingGroup root;
-  Setting* setting = root.addSetting(SettingInfo::integer("nColumns", "Columns"));
+  Setting* setting = root.addSetting(SettingInfo::integer("n_columns", "Columns"));
   QVERIFY(setting->setValue(2.6));
   QCOMPARE(setting->value().toInt(), 3);
   QCOMPARE(setting->value().typeId(), int(QMetaType::Int));
@@ -752,9 +752,9 @@ void TestSettings::elementsDeclareTheirSettings()
   Source::ptr red(new Color(QColor(Qt::red)));
   ColorLayer layer(red, makeMesh());
   const QStringList layerPaths = element
-      + QStringList { "solo", "visible", "depth", "hasInputShape", "sourceId", "output/locked" }
+      + QStringList { "solo", "visible", "depth", "has_input_shape", "source_id", "output/locked" }
       + numberedPaths("output/vertices", MESH_SIZE * MESH_SIZE)
-      + QStringList { "output/nColumns", "output/nRows" };
+      + QStringList { "output/n_columns", "output/n_rows" };
   QCOMPARE(leafPaths(layer), layerPaths);
   QCOMPARE(undescribedPaths(layer), QStringList());
 }
@@ -777,10 +777,10 @@ void TestSettings::shapeBuildsItsTreeWhenAsked()
   // Asked for, the tree is the one a shape declares, with the values it has now.
   const QStringList paths = QStringList { "locked" }
       + numberedPaths("vertices", (MESH_SIZE + 1) * MESH_SIZE)
-      + QStringList { "nColumns", "nRows" };
+      + QStringList { "n_columns", "n_rows" };
   QCOMPARE(leafPaths(*mesh), paths);
   QVERIFY(mesh->hasSettingsTree());
-  QCOMPARE(mesh->settings()->find("nColumns")->value().toInt(), MESH_SIZE + 1);
+  QCOMPARE(mesh->settings()->find("n_columns")->value().toInt(), MESH_SIZE + 1);
   QCOMPARE(mesh->settings()->find("locked")->value().toBool(), true);
   QCOMPARE(mesh->settings()->find("vertices/0")->value().toPointF(), QPointF(10, 5));
   QCOMPARE(leafPaths(*copy), paths);
@@ -867,7 +867,7 @@ void TestSettings::listShrinksWithMesh()
   // The fewest divisions of a mesh is kept in one place: the setting.
   mesh->setNColumns(1);
   QCOMPARE(mesh->nColumns(), 2);
-  QVERIFY(layer.settings()->find("output/nRows")->setValue(0));
+  QVERIFY(layer.settings()->find("output/n_rows")->setValue(0));
   QCOMPARE(mesh->nRows(), 2);
 }
 
@@ -876,8 +876,8 @@ void TestSettings::meshGridHasAMaximum()
   Source::ptr red(new Color(QColor(Qt::red)));
   ColorLayer layer(red, makeMesh());
   Mesh* mesh = static_cast<Mesh*>(layer.getShape().data());
-  Setting* columns = layer.settings()->find("output/nColumns");
-  Setting* rows = layer.settings()->find("output/nRows");
+  Setting* columns = layer.settings()->find("output/n_columns");
+  Setting* rows = layer.settings()->find("output/n_rows");
   QCOMPARE(columns->info().maximum().toInt(), int(Mesh::MAX_MESH_DIVISIONS));
   QCOMPARE(rows->info().maximum().toInt(), int(Mesh::MAX_MESH_DIVISIONS));
 
@@ -913,8 +913,8 @@ QJsonObject meshJson(int columns, int rows, qreal columnSpacing, int vertexCount
   return QJsonObject {
     { "className", "Mesh" },
     { "locked", "false" },
-    { "nColumns", QString::number(columns) },
-    { "nRows", QString::number(rows) },
+    { "n_columns", QString::number(columns) },
+    { "n_rows", QString::number(rows) },
     { "vertices", vertices }
   };
 }
@@ -955,7 +955,7 @@ void TestSettings::oversizedMeshIsReducedOnRead()
   // What is written agrees with itself.
   QJsonObject written;
   mesh.write(written);
-  QCOMPARE(written.value("nColumns"), QJsonValue(QString::number(Mesh::MAX_MESH_DIVISIONS)));
+  QCOMPARE(written.value("n_columns"), QJsonValue(QString::number(Mesh::MAX_MESH_DIVISIONS)));
   QCOMPARE(written.value("vertices").toArray().size(), Mesh::MAX_MESH_DIVISIONS * rows);
 
   verifyConsistentMesh(mesh);
@@ -1019,7 +1019,7 @@ void TestSettings::meshGridsOfTextureLayerFollowEachOther()
 
   // Five columns: one structure change per mesh, for its longer list of points.
   const int columns = MESH_SIZE + 1;
-  QVERIFY(layer.settings()->find("output/nColumns")->setValue(columns));
+  QVERIFY(layer.settings()->find("output/n_columns")->setValue(columns));
   QCOMPARE(output->nColumns(), columns);
   QCOMPARE(input->nColumns(), columns);
   QCOMPARE(input->nVertices(), columns * MESH_SIZE);
@@ -1028,7 +1028,7 @@ void TestSettings::meshGridsOfTextureLayerFollowEachOther()
 
   // The other way: rows written on the input mesh.
   const int rows = MESH_SIZE - 1;
-  QVERIFY(layer.settings()->find("input/nRows")->setValue(rows));
+  QVERIFY(layer.settings()->find("input/n_rows")->setValue(rows));
   QCOMPARE(input->nRows(), rows);
   QCOMPARE(output->nRows(), rows);
   QCOMPARE(output->nColumns(), columns);
@@ -1043,7 +1043,7 @@ void TestSettings::meshGridOfColorLayerIsAlone()
   QSignalSpy structureSpy(&layer, &Element::settingsStructureChanged);
 
   const int columns = MESH_SIZE + 1;
-  QVERIFY(layer.settings()->find("output/nColumns")->setValue(columns));
+  QVERIFY(layer.settings()->find("output/n_columns")->setValue(columns));
   QCOMPARE(static_cast<Mesh*>(layer.getShape().data())->nColumns(), columns);
   QCOMPARE(static_cast<Mesh*>(loose.data())->nColumns(), MESH_SIZE);
   QCOMPARE(structureSpy.count(), 1);
@@ -1077,7 +1077,7 @@ void TestSettings::rejectsUnknownSource()
   SourceLookup lookup({ red, blue, picture });
 
   ColorLayer layer(red, makeMesh());
-  Setting* sourceId = layer.settings()->find("sourceId");
+  Setting* sourceId = layer.settings()->find("source_id");
   QVERIFY(sourceId);
   QCOMPARE(sourceId->value().toInt(), red->getId());
 
@@ -1313,7 +1313,7 @@ void TestSettings::reservedKeysAreNotKept()
   second.write(written);
   QVERIFY(!written.contains("source"));
   QCOMPARE(written.value("id"), QJsonValue(second.getId()));
-  QCOMPARE(written.value("sourceId"), QJsonValue(red->getId()));
+  QCOMPARE(written.value("source_id"), QJsonValue(red->getId()));
 
   // The shape keeps the keys it does not know.
   const QJsonObject writtenShape = written.value("destination").toObject();
@@ -1390,7 +1390,7 @@ void TestSettings::describesNestedPaths()
   QVERIFY(!describedAt(settings, "output/vertices/" + QString::number(MESH_SIZE * MESH_SIZE - 1)).isEmpty());
   QVERIFY(describedAt(settings, "output/vertices/" + QString::number(MESH_SIZE * MESH_SIZE)).isEmpty());
 
-  const QJsonObject sourceId = describedAt(settings, "sourceId");
+  const QJsonObject sourceId = describedAt(settings, "source_id");
   QVERIFY(!sourceId.value("options").toArray().isEmpty());
   const QJsonObject option = sourceId.value("options").toArray().first().toObject();
   QVERIFY(option.contains("id"));
@@ -1420,7 +1420,7 @@ void TestSettings::valuesKeepLegacyKeys()
   SourceLookup lookup({ red });
   ColorLayer layer(red, makeMesh());
   const QJsonObject layerValues = settingValues(layer.settings());
-  QVERIFY(layerValues.contains("sourceId"));
+  QVERIFY(layerValues.contains("source_id"));
   QVERIFY(layerValues.contains("visible"));
   QVERIFY(!layerValues.contains("output"));
   QVERIFY(!layerValues.contains("vertices"));

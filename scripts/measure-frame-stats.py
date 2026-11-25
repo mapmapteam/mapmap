@@ -68,10 +68,10 @@ def make_project(path, clip, width, height):
     for i, quad in enumerate(quads):
         layers.append({
             "className": "TextureLayer", "id": i + 1, "depth": str(i + 1), "name": f"Quad {i + 1}",
-            "locked": "false", "opacity": "1", "solo": "false", "visible": "true", "sourceId": 1,
-            "destination": {"className": "Mesh", "locked": "false", "nColumns": "2", "nRows": "2",
+            "locked": "false", "opacity": "1", "solo": "false", "visible": "true", "source_id": 1,
+            "destination": {"className": "Mesh", "locked": "false", "n_columns": "2", "n_rows": "2",
                             "vertices": [list(v) for v in quad]},
-            "source": {"className": "Mesh", "locked": "false", "nColumns": "2", "nRows": "2",
+            "source": {"className": "Mesh", "locked": "false", "n_columns": "2", "n_rows": "2",
                        "vertices": [[0, 0], [width, 0], [0, height], [width, height]]},
         })
     project = {"version": "1.0.0-beta.2", "layers": layers,

@@ -285,6 +285,12 @@ SettingInfo& SettingInfo::description(const QString& text)
   return *this;
 }
 
+SettingInfo& SettingInfo::formerId(const QString& id)
+{
+  _formerIds.append(id);
+  return *this;
+}
+
 QList<SettingOption> SettingInfo::options() const
 {
   return _optionsProvider ? _optionsProvider() : _options;

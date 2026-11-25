@@ -33,6 +33,7 @@ private slots:
   void rejectsInvalidJson();
   void keepsMediaUriWhenLocateIsCancelled();
   void skipsLayerWithoutSource();
+  void readsFormerKeys();
   void skipsUnusableLayers();
   void keepsOutputResolution();
   void skipsInvalidOutputResolution();

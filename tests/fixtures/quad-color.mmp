@@ -6,8 +6,8 @@
             "destination": {
                 "className": "Mesh",
                 "locked": "false",
-                "nColumns": "2",
-                "nRows": "2",
+                "n_columns": "2",
+                "n_rows": "2",
                 "vertices": [
                     [
                         10.5,
@@ -32,7 +32,7 @@
             "name": "Quad 1",
             "opacity": "0.5",
             "solo": "false",
-            "sourceId": 1,
+            "source_id": 1,
             "visible": "true"
         }
     ],

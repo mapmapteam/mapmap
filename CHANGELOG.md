@@ -23,6 +23,7 @@ Changes:
 
 - Clicking again on the selected layer no longer switches to scaling or rotating, and the M key does nothing. Use the handle of the layer instead: R, S and T choose what it does.
 - The two meshes of a layer always keep the same grid.
+- The names of settings are written in lowercase with underscores, in OSC addresses, in MCP and in project files: `n_columns`, `n_rows`, `source_id`. Projects saved with the former names (`nColumns`, `nRows`, `sourceId`) still open; they are saved with the new names, which MapMap 1.0.0-beta.1 does not read.
 - The settings panel shows the four corners of a mesh only. Its other points are moved on the canvas, or by OSC and MCP at their path.
 - A mesh has at most 32 columns and 32 rows, by OSC, MCP or the settings panel. A larger mesh of an existing project is reduced to 32 columns or rows when the project is opened: evenly spaced columns and rows are kept, its outline included.
 - `get_source` and `get_layer` of the MCP server no longer return `objectName`, which was always empty.

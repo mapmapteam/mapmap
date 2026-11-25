@@ -51,7 +51,8 @@ Every setting of a source or a layer can also be written at an address that foll
 
 Adjust the opacity of layer 3: `/mapmap/layer/3/opacity ,f 0.5`  
 Adjust the color of source 2: `/mapmap/source/2/color ,s "#ff0000"`  
-Move point 5 of the output shape of layer 3 to (10, 20): `/mapmap/layer/3/output/vertices/5 ,ff 10 20`
+Move point 5 of the output shape of layer 3 to (10, 20): `/mapmap/layer/3/output/vertices/5 ,ff 10 20`  
+Give the mesh of layer 3 four columns of points: `/mapmap/layer/3/output/n_columns ,i 4`
 
 The shapes of a layer are under `output` and `input`; their points are numbered from 0.
 

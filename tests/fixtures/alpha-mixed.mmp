@@ -44,7 +44,7 @@
                     ]
                 ]
             },
-            "sourceId": 2,
+            "source_id": 2,
             "visible": "true"
         },
         {
@@ -53,8 +53,8 @@
             "destination": {
                 "className": "Mesh",
                 "locked": "false",
-                "nColumns": "2",
-                "nRows": "3",
+                "n_columns": "2",
+                "n_rows": "3",
                 "vertices": [
                     [
                         0,
@@ -87,7 +87,7 @@
             "name": "hidden red",
             "opacity": "1",
             "solo": "false",
-            "sourceId": 1,
+            "source_id": 1,
             "visible": "false"
         },
         {
@@ -124,7 +124,7 @@
             "name": "same red again",
             "opacity": "1",
             "solo": "false",
-            "sourceId": 1,
+            "source_id": 1,
             "visible": "true"
         },
         {
@@ -133,8 +133,8 @@
             "destination": {
                 "className": "Mesh",
                 "locked": "false",
-                "nColumns": "2",
-                "nRows": "2",
+                "n_columns": "2",
+                "n_rows": "2",
                 "vertices": [
                     [
                         0,
@@ -159,7 +159,7 @@
             "name": "bottom white",
             "opacity": "1",
             "solo": "false",
-            "sourceId": 5,
+            "source_id": 5,
             "visible": "true"
         }
     ],

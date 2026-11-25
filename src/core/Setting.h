@@ -111,6 +111,9 @@ public:
   SettingInfo& displayRow(const QString& rowId);
   /// Sets one translated sentence saying what the setting does; empty by default.
   SettingInfo& description(const QString& text);
+  /// Names a key the setting had in the project files of an earlier version: it is still
+  /// read, and written under the id. May be called several times.
+  SettingInfo& formerId(const QString& id);
 
   /// Returns the id: one segment of the path.
   QString id() const { return _id; }
@@ -118,6 +121,8 @@ public:
   QString label() const { return _label; }
   /// Returns the sentence saying what the setting does, or an empty text.
   QString description() const { return _description; }
+  /// Returns the keys the setting had in the project files of earlier versions.
+  QStringList formerIds() const { return _formerIds; }
   /// Returns the kind of value.
   Type type() const { return _type; }
   /// Returns the lowest value, or an invalid QVariant when there is none.
@@ -162,6 +167,7 @@ private:
   QString _id;
   QString _label;
   QString _description;
+  QStringList _formerIds;
   Type _type;
   QVariant _minimum;
   QVariant _maximum;

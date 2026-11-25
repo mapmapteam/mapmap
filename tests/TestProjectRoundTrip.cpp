@@ -250,9 +250,9 @@ void TestProjectRoundTrip::skipsLayerWithoutSource()
       { "className": "UnknownSource", "id": 2, "name": "elsewhere" }
     ],
     "layers": [
-      { "className": "ColorLayer", "id": 1, "name": "kept", "sourceId": 1,
+      { "className": "ColorLayer", "id": 1, "name": "kept", "source_id": 1,
         "destination": { "className": "Quad", "vertices": [[0,0],[1,0],[1,1],[0,1]] } },
-      { "className": "ColorLayer", "id": 2, "name": "dropped", "sourceId": 2,
+      { "className": "ColorLayer", "id": 2, "name": "dropped", "source_id": 2,
         "destination": { "className": "Quad", "vertices": [[0,0],[1,0],[1,1],[0,1]] } }
     ]
   })";
@@ -263,6 +263,45 @@ void TestProjectRoundTrip::skipsLayerWithoutSource()
   QCOMPARE(manager.nSources(), 1);
   QCOMPARE(manager.nLayers(), 1);
   QCOMPARE(manager.getLayer(0)->getName(), QString("kept"));
+}
+
+void TestProjectRoundTrip::readsFormerKeys()
+{
+  // A project of MapMap 1.0.0-beta.1: "sourceId", "nColumns" and "nRows" became
+  // "source_id", "n_columns" and "n_rows".
+  const QByteArray project = R"({
+    "version": "1.0.0-beta.1",
+    "sources": [
+      { "className": "Color", "id": 1, "name": "red", "color": "#ff0000" }
+    ],
+    "layers": [
+      { "className": "ColorLayer", "id": 1, "name": "mesh", "sourceId": 1,
+        "destination": { "className": "Mesh", "nColumns": "3", "nRows": "2",
+                         "vertices": [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1]] } }
+    ]
+  })";
+
+  MappingManager manager;
+  QString error;
+  QVERIFY2(readProject(manager, project, &error), qPrintable(error));
+  QCOMPARE(manager.nLayers(), 1);
+  Layer::ptr layer = manager.getLayer(0);
+  QCOMPARE(int(layer->getSourceId()), 1);
+  const QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(layer->getShape());
+  QCOMPARE(mesh->nColumns(), 3);
+  QCOMPARE(mesh->nRows(), 2);
+  QCOMPARE(mesh->getVertex2d(2, 1), QPointF(2, 1));
+
+  // The project is written with the new keys only.
+  const QJsonObject written = QJsonDocument::fromJson(writeProject(manager)).object();
+  const QJsonObject writtenLayer = written.value("layers").toArray().first().toObject();
+  QCOMPARE(writtenLayer.value("source_id").toInt(), 1);
+  QVERIFY(!writtenLayer.contains("sourceId"));
+  const QJsonObject writtenMesh = writtenLayer.value("destination").toObject();
+  QCOMPARE(writtenMesh.value("n_columns"), QJsonValue("3"));
+  QCOMPARE(writtenMesh.value("n_rows"), QJsonValue("2"));
+  QVERIFY(!writtenMesh.contains("nColumns"));
+  QVERIFY(!writtenMesh.contains("nRows"));
 }
 
 void TestProjectRoundTrip::skipsUnusableLayers()
@@ -278,19 +317,19 @@ void TestProjectRoundTrip::skipsUnusableLayers()
       { "className": "Image", "id": 2, "name": "picture", "uri": "/nonexistent.png" }
     ],
     "layers": [
-      { "className": "ColorLayer", "id": 1, "name": "color-quad", "sourceId": 1,
+      { "className": "ColorLayer", "id": 1, "name": "color-quad", "source_id": 1,
         "destination": { "className": "Quad", "vertices": [[0,0],[1,0],[1,1],[0,1]] } },
-      { "className": "TextureLayer", "id": 2, "name": "texture-quad", "sourceId": 2,
+      { "className": "TextureLayer", "id": 2, "name": "texture-quad", "source_id": 2,
         "destination": { "className": "Quad", "vertices": [[0,0],[1,0],[1,1],[0,1]] },
         "source":      { "className": "Quad", "vertices": [[0,0],[1,0],[1,1],[0,1]] } },
-      { "className": "TextureLayer", "id": 3, "name": "not-a-shape", "sourceId": 2,
+      { "className": "TextureLayer", "id": 3, "name": "not-a-shape", "source_id": 2,
         "destination": { "className": "Image", "vertices": [[0,0]] },
         "source":      { "className": "Triangle", "vertices": [[0,0],[1,0],[0,1]] } },
-      { "className": "TextureLayer", "id": 4, "name": "mismatched", "sourceId": 2,
+      { "className": "TextureLayer", "id": 4, "name": "mismatched", "source_id": 2,
         "destination": { "className": "Triangle", "vertices": [[0,0],[1,0],[0,1]] },
-        "source":      { "className": "Mesh", "nColumns": 2, "nRows": 2,
+        "source":      { "className": "Mesh", "n_columns": 2, "n_rows": 2,
                          "vertices": [[0,0],[1,0],[0,1],[1,1]] } },
-      { "className": "TextureLayer", "id": 5, "name": "texture-triangle", "sourceId": 2,
+      { "className": "TextureLayer", "id": 5, "name": "texture-triangle", "source_id": 2,
         "destination": { "className": "Triangle", "vertices": [[0,0],[1,0],[0,1]] },
         "source":      { "className": "Triangle", "vertices": [[0,0],[1,0],[0,1]] } }
     ]

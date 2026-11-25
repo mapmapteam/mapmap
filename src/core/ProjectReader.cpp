@@ -277,7 +277,10 @@ Layer::ptr ProjectReader::parseLayer(const QJsonObject& obj)
     }
 
     // Resolve the source first: reading the shapes may depend on it.
-    uid sourceId = obj[ProjectLabels::SOURCE_ID].toInt(NULL_UID);
+    // Projects of MapMap 1.0.0-beta.1 and earlier give the source under another key.
+    const char* sourceKey = obj.contains(ProjectLabels::SOURCE_ID) ? ProjectLabels::SOURCE_ID
+                                                                    : ProjectLabels::FORMER_SOURCE_ID;
+    uid sourceId = obj[sourceKey].toInt(NULL_UID);
     layer->setSource(_manager.getSourceById(sourceId));
     if (layer->getSource().isNull())
     {

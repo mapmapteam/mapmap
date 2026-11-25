@@ -77,7 +77,7 @@ SyphonGui::SyphonGui(Source::ptr source)
   // The server may also be changed by OSC, MCP or a project file.
   connect(_source.data(), &Source::settingChanged, this,
           [this](uid, const QString& path, const QVariant&) {
-            if (path == "serverUUID" || path == "serverName" || path == "appName")
+            if (path == "server_uuid" || path == "server_name" || path == "app_name")
               _rebuildServerEnum();
           });
 
