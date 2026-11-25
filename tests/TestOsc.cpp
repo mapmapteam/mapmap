@@ -199,3 +199,66 @@ void TestOsc::rejectsMalformedFlipAndRotate()
   // No direction at all.
   QCOMPARE(typeOf(parseOscAction("/mapmap/layer/rotate", { 1 })), int(OscAction::Invalid));
 }
+
+void TestOsc::parsesLayerSettingPath()
+{
+  OscAction a = parseOscAction("/mapmap/layer/3/opacity", { 0.5 });
+  QCOMPARE(typeOf(a), int(OscAction::LayerSetting));
+  QVERIFY(!a.selectByName);
+  QCOMPARE(a.id, 3);
+  QCOMPARE(a.path, QString("opacity"));
+  QCOMPARE(a.values, QVariantList({ 0.5 }));
+
+  // "mapping" is an alias of "layer" here too.
+  OscAction alias = parseOscAction("/mapmap/mapping/3/opacity", { 0.5 });
+  QCOMPARE(typeOf(alias), int(OscAction::LayerSetting));
+  QCOMPARE(alias.id, 3);
+}
+
+void TestOsc::parsesNestedSettingPath()
+{
+  OscAction a = parseOscAction("/mapmap/layer/3/output/vertices/5", { 10.0, 20.0 });
+  QCOMPARE(typeOf(a), int(OscAction::LayerSetting));
+  QCOMPARE(a.id, 3);
+  QCOMPARE(a.path, QString("output/vertices/5"));
+  QCOMPARE(a.values, QVariantList({ 10.0, 20.0 }));
+}
+
+void TestOsc::parsesSourceSettingPath()
+{
+  OscAction a = parseOscAction("/mapmap/source/2/color", { QString("#ff0000") });
+  QCOMPARE(typeOf(a), int(OscAction::SourceSetting));
+  QVERIFY(!a.selectByName);
+  QCOMPARE(a.id, 2);
+  QCOMPARE(a.path, QString("color"));
+  QCOMPARE(a.values, QVariantList({ QString("#ff0000") }));
+}
+
+void TestOsc::rejectsSettingPathWithoutValue()
+{
+  // A path with no value to write.
+  QCOMPARE(typeOf(parseOscAction("/mapmap/layer/3/opacity", {})), int(OscAction::Invalid));
+  QCOMPARE(typeOf(parseOscAction("/mapmap/source/2/color", {})), int(OscAction::Invalid));
+  // An id with no path; with two arguments, the old form would read "3" as a property.
+  QCOMPARE(typeOf(parseOscAction("/mapmap/layer/3", { 0.5 })), int(OscAction::Invalid));
+  QCOMPARE(typeOf(parseOscAction("/mapmap/layer/3", { 3, 0.5 })), int(OscAction::Invalid));
+  QCOMPARE(typeOf(parseOscAction("/mapmap/source/2", { 2, 0.5 })), int(OscAction::Invalid));
+  QCOMPARE(typeOf(parseOscAction("/mapmap/source/2", { 0.5 })), int(OscAction::Invalid));
+  // An id too large for an int.
+  QCOMPARE(typeOf(parseOscAction("/mapmap/layer/99999999999/opacity", { 0.5 })), int(OscAction::Invalid));
+}
+
+void TestOsc::legacyPropertyFormStillParses()
+{
+  OscAction a = parseOscAction("/mapmap/layer/opacity", { 3, 0.5 });
+  QCOMPARE(typeOf(a), int(OscAction::LayerProperty));
+  QVERIFY(!a.selectByName);
+  QCOMPARE(a.id, 3);
+  QCOMPARE(a.property, QString("opacity"));
+  QCOMPARE(a.value.toDouble(), 0.5);
+
+  // A segment that is not only digits is still a property name.
+  OscAction signedId = parseOscAction("/mapmap/layer/-3", { 3, 0.5 });
+  QCOMPARE(typeOf(signedId), int(OscAction::LayerProperty));
+  QCOMPARE(signedId.property, QString("-3"));
+}

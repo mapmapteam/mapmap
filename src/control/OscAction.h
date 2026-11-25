@@ -47,10 +47,12 @@ struct OscAction {
     SourcePlay,
     SourcePause,
     SourceRewind,
-    SourceProperty,
+    SourceProperty,  ///< Set a property of a source, named after the selector (old form).
+    SourceSetting,   ///< Write a setting of a source, addressed by its path.
 
     // Per-layer commands. Target resolved via the selector below.
-    LayerProperty,
+    LayerProperty,   ///< Set a property of a layer, named after the selector (old form).
+    LayerSetting,    ///< Write a setting of a layer, addressed by its path.
     LayerMove,       ///< Absolute: move the output shape so its center is (x, y).
     LayerTranslate,  ///< Relative: translate the output shape by (x, y).
     LayerVertex,     ///< Set one vertex of the input or output shape.
@@ -83,6 +85,10 @@ struct OscAction {
   QString  property;
   QVariant value;
 
+  // --- Payload for *Setting commands (target selected by id only). ---
+  QString      path;     ///< Path of the setting, e.g. "output/vertices/5".
+  QVariantList values;   ///< Arguments to write.
+
   // --- Payload for LayerMove / LayerTranslate / LayerVertex. ---
   ShapeRole shapeRole = OutputShape;
   int       vertexIndex = -1;
@@ -101,6 +107,13 @@ struct OscAction {
 
 /**
  * Parses an OSC address and its arguments into an OscAction.
+ *
+ * Two forms set a value. The old form names a property after the selector:
+ * "/mapmap/layer/opacity" <id or name> <value>. The path form names the element
+ * by id in the address and follows the path of one of its settings:
+ * "/mapmap/layer/3/output/vertices/5" <x> <y>; it is recognized when the
+ * segment after "layer" or "source" is made of digits only, and every argument
+ * is part of the value.
  *
  * @param address the full OSC path, e.g. "/mapmap/layer/vertex/source/xy".
  * @param args    the OSC arguments, NOT including the address or the type tags.

@@ -33,7 +33,6 @@
 namespace mmp {
 
 class MainWindow;
-class Element;
 
 /**
  * Open Sound Control sending and receiving for MapMap.
@@ -78,9 +77,6 @@ private:
   bool applyAction(MainWindow &main_window, const OscAction& action);
 
   void messageReceivedCb(const QString& oscAddress, const QVariantList& arguments);
-
-  // Sets property on element with given value.
-  bool setElementProperty(const QSharedPointer<Element>& elem, const QString& property, const QVariant& value);
 };
 
 }

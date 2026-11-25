@@ -25,7 +25,6 @@
 #include "OscInterface.h"
 #include "MainWindow.h"
 #include <QVariant>
-#include <QColor>
 #include <QPointF>
 
 namespace mmp {
@@ -70,6 +69,32 @@ QVector<Layer::ptr> resolveLayers(MappingManager& manager, const OscAction& acti
   if (!layer.isNull())
     layers.push_back(layer);
   return layers;
+}
+
+/// Writes OSC arguments to the setting of an element at path. Returns false, with a
+/// warning, when the path names no setting (a group, a list or nothing) or when the
+/// setting refuses the arguments.
+bool writeSetting(Element& element, const QString& path, const QVariantList& arguments)
+{
+  Setting* setting = element.settings()->find(path);
+  if (!setting)
+  {
+    qWarning() << "OSC:" << element.metaObject()->className() << element.getId()
+               << "has no setting at" << path;
+    return false;
+  }
+
+  // A video given the file it already plays reloads it when the preference
+  // "Allow message with existing media source" is on: Video::setUri() reads it.
+  // Through the setting, an unchanged value would do nothing.
+  Video* video = qobject_cast<Video*>(&element);
+  if (video && setting == video->settings()->find("uri") && arguments.size() == 1
+      && arguments.first().toString() == video->getUri())
+  {
+    return video->setUri(video->getUri());
+  }
+
+  return setting->setFromArguments(arguments);
 }
 
 } // namespace
@@ -234,9 +259,13 @@ bool OscInterface::applyAction(MainWindow &main_window, const OscAction& action)
   case OscAction::SourcePause:
   case OscAction::SourceRewind:
   case OscAction::SourceProperty:
+  case OscAction::SourceSetting:
   {
     bool handled = false;
-    for (Source::ptr source : resolveSources(manager, action))
+    const QVector<Source::ptr> sources = resolveSources(manager, action);
+    if (sources.isEmpty() && action.type == OscAction::SourceSetting)
+      qWarning() << "OSC: no source with id" << action.id;
+    for (Source::ptr source : sources)
     {
       if (source.isNull())
         continue;
@@ -245,7 +274,8 @@ bool OscInterface::applyAction(MainWindow &main_window, const OscAction& action)
       case OscAction::SourcePlay:     source->play();   handled = true; break;
       case OscAction::SourcePause:    source->pause();  handled = true; break;
       case OscAction::SourceRewind:   source->rewind(); handled = true; break;
-      case OscAction::SourceProperty: handled |= setElementProperty(source, action.property, action.value); break;
+      case OscAction::SourceProperty: handled |= writeSetting(*source, action.property, { action.value }); break;
+      case OscAction::SourceSetting:  handled |= writeSetting(*source, action.path, action.values); break;
       default: break;
       }
     }
@@ -254,6 +284,7 @@ bool OscInterface::applyAction(MainWindow &main_window, const OscAction& action)
 
   // Per-layer commands.
   case OscAction::LayerProperty:
+  case OscAction::LayerSetting:
   case OscAction::LayerMove:
   case OscAction::LayerTranslate:
   case OscAction::LayerVertex:
@@ -261,14 +292,22 @@ bool OscInterface::applyAction(MainWindow &main_window, const OscAction& action)
   case OscAction::LayerRotate:
   {
     bool handled = false;
-    for (Layer::ptr layer : resolveLayers(manager, action))
+    const QVector<Layer::ptr> layers = resolveLayers(manager, action);
+    if (layers.isEmpty() && action.type == OscAction::LayerSetting)
+      qWarning() << "OSC: no layer with id" << action.id;
+    for (Layer::ptr layer : layers)
     {
       if (layer.isNull())
         continue;
 
       if (action.type == OscAction::LayerProperty)
       {
-        handled |= setElementProperty(layer, action.property, action.value);
+        handled |= writeSetting(*layer, action.property, { action.value });
+        continue;
+      }
+      if (action.type == OscAction::LayerSetting)
+      {
+        handled |= writeSetting(*layer, action.path, action.values);
         continue;
       }
 
@@ -333,26 +372,6 @@ bool OscInterface::applyAction(MainWindow &main_window, const OscAction& action)
   }
 
   return false;
-}
-
-bool OscInterface::setElementProperty(const QSharedPointer<Element>& elem, const QString& property, const QVariant& value)
-{
-  if (elem.isNull())
-    return false;
-
-  const QByteArray name = property.toUtf8();
-
-  // Colors arrive over OSC as strings ("#ff0000", "red", ...). Convert them to
-  // a QColor when the target property is a color, since QVariant won't do it.
-  const QVariant existing = elem->property(name.constData());
-  if (existing.isValid()
-      && existing.typeId() == QMetaType::QColor
-      && value.typeId() == QMetaType::QString)
-  {
-    return elem->setProperty(name.constData(), QColor(value.toString()));
-  }
-
-  return elem->setProperty(name.constData(), value);
 }
 
 }

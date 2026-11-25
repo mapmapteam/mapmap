@@ -35,6 +35,11 @@ private slots:
   void parsesLayerFlip();
   void parsesLayerRotate();
   void rejectsMalformedFlipAndRotate();
+  void parsesLayerSettingPath();
+  void parsesNestedSettingPath();
+  void parsesSourceSettingPath();
+  void rejectsSettingPathWithoutValue();
+  void legacyPropertyFormStillParses();
 };
 
 #endif /* TEST_OSC_H_ */
