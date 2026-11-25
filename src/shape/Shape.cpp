@@ -28,19 +28,17 @@ static const int VERTICES_DISPLAY_ORDER = 0;
 
 MShape::MShape() : _isLocked(false), _verticesSettings(nullptr)
 {
-  _declareSettings();
 }
 
 MShape::MShape(const QVector<QPointF>& vertices_) : _isLocked(false), _verticesSettings(nullptr)
 {
-  _declareSettings();
   setVertices(vertices_);
   build();
 }
 
-void MShape::_declareSettings()
+void MShape::_declareSettings(SettingGroup* root)
 {
-  SettingGroup* root = settings();
+  Serializable::_declareSettings(root);
 
   root->addSetting(SettingInfo::boolean("locked", tr("Locked"))
                    .hidden()
@@ -69,7 +67,8 @@ void MShape::setLocked(bool locked)
   if (locked != _isLocked)
   {
     _isLocked = locked;
-    settings()->find("locked")->notifyChanged();
+    if (hasSettingsTree())
+      settings()->find("locked")->notifyChanged();
   }
 }
 
@@ -83,12 +82,16 @@ void MShape::setVertices(const QVector<QPointF>& vertices_)
 
 void MShape::_verticesChanged()
 {
+  if (!_verticesSettings)
+    return;
   _verticesSettings->sync();
   _verticesSettings->notifyChanged();
 }
 
 void MShape::_vertexChanged(int i)
 {
+  if (!_verticesSettings)
+    return;
   // The list must follow the number of vertices before one of them is notified.
   if (_verticesSettings->count() != nVertices())
   {
@@ -102,6 +105,8 @@ void MShape::_vertexChanged(int i)
 
 void MShape::_verticesMoved(const QVector<QPointF>& before)
 {
+  if (!_verticesSettings)
+    return;
   if (before.size() != nVertices() || _verticesSettings->count() != nVertices())
   {
     _verticesChanged();

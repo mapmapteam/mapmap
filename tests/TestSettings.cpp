@@ -730,6 +730,33 @@ void TestSettings::elementsDeclareTheirSettings()
   QCOMPARE(undescribedPaths(layer), QStringList());
 }
 
+void TestSettings::shapeBuildsItsTreeWhenAsked()
+{
+  // The quads of a mesh are built at every frame: nobody asks for their settings.
+  MShape::ptr shape = makeMesh();
+  Mesh* mesh = static_cast<Mesh*>(shape.data());
+  mesh->addColumn();
+  mesh->setVertex(0, QPointF(10, 5));
+  mesh->setLocked(true);
+  QScopedPointer<MShape> copy(mesh->clone());
+  const QVector<QVector<Quad::ptr>> quads = mesh->getQuads2d();
+  QVERIFY(!quads.isEmpty() && !quads.first().isEmpty());
+  QVERIFY(!quads.first().first()->hasSettingsTree());
+  QVERIFY(!copy->hasSettingsTree());
+  QVERIFY(!mesh->hasSettingsTree());
+
+  // Asked for, the tree is the one a shape declares, with the values it has now.
+  const QStringList paths = QStringList { "locked" }
+      + numberedPaths("vertices", (MESH_SIZE + 1) * MESH_SIZE)
+      + QStringList { "nColumns", "nRows" };
+  QCOMPARE(leafPaths(*mesh), paths);
+  QVERIFY(mesh->hasSettingsTree());
+  QCOMPARE(mesh->settings()->find("nColumns")->value().toInt(), MESH_SIZE + 1);
+  QCOMPARE(mesh->settings()->find("locked")->value().toBool(), true);
+  QCOMPARE(mesh->settings()->find("vertices/0")->value().toPointF(), QPointF(10, 5));
+  QCOMPARE(leafPaths(*copy), paths);
+}
+
 void TestSettings::treeWritesReachTheModel()
 {
   Source::ptr red(new Color(QColor(Qt::red)));

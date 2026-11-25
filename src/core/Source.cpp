@@ -184,7 +184,7 @@ Image::Image(int id)
     _prevTime(0),
     _bits(0)
   {
-    _declareSettings();
+    _declareImageSettings();
     setRate(1.0);
   }
 
@@ -196,12 +196,12 @@ Image::Image(const QString uri_, uid id)
     _prevTime(0),
     _bits(0)
   {
-    _declareSettings();
+    _declareImageSettings();
     setUri(uri_);
     setRate(1.0);
   }
 
-void Image::_declareSettings()
+void Image::_declareImageSettings()
 {
   SettingGroup* root = settings();
 

@@ -71,7 +71,7 @@ public:
 
   typedef QSharedPointer<MShape> ptr;
 
-  /// Creates a shape without vertices and declares its settings.
+  /// Creates a shape without vertices; its settings are declared when first asked for.
   MShape();
   MShape(const QVector<QPointF>& vertices_);
   virtual ~MShape() {}
@@ -201,14 +201,16 @@ protected:
   }
 
   /// Call after the vertices changed in any way: follows their number in the "vertices"
-  /// list, then notifies the whole list once.
+  /// list, then notifies the whole list once. Does nothing while the tree does not exist.
   void _verticesChanged();
 
-  /// Call after vertex i alone moved: notifies its setting only.
+  /// Call after vertex i alone moved: notifies its setting only. Does nothing while the
+  /// tree does not exist.
   void _vertexChanged(int i);
 
   /// Call after an operation that moved some vertices: notifies those that differ from
-  /// before, or the whole list when their number changed.
+  /// before, or the whole list when their number changed. Does nothing while the tree does
+  /// not exist.
   void _verticesMoved(const QVector<QPointF>& before);
 
   /// Returns a new MShape (using default constructor).
@@ -217,11 +219,12 @@ protected:
   /// The vertices are read and written by MShape::read() and MShape::write().
   QStringList _reservedKeys() const override { return Serializable::_reservedKeys() << "vertices"; }
 
-private:
   /// Declares the settings of a shape: its lock and its vertices.
-  void _declareSettings();
+  void _declareSettings(SettingGroup* root) override;
 
-  /// The settings of the vertices, which stay in the vector of vertices.
+private:
+  /// The settings of the vertices, which stay in the vector of vertices; nullptr until
+  /// the tree is built.
   SettingList* _verticesSettings;
 };
 

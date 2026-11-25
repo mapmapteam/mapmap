@@ -349,7 +349,7 @@ protected:
   virtual void _doPlay();
 
   /// Declares the settings of an image: its file and its playback rate.
-  void _declareSettings();
+  void _declareImageSettings();
 
   /// Current elapsed time in seconds.
   qreal _elapsedTime() const { return _timer.elapsed() / 1000.0; }
