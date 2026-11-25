@@ -339,7 +339,8 @@ Setting::Setting(const QString& id, const SettingInfo& info)
   : SettingNode(id),
     _info(info),
     _available(true),
-    _notified(false)
+    _notified(false),
+    _written(false)
 {
   bool ok = false;
   QVariant value = sanitized(info.defaultValue(), &ok);
@@ -377,6 +378,7 @@ bool Setting::setValue(const QVariant& value)
   }
   else {
     _value = clean;
+    _written = true;
   }
 
   // The owner's write function may have notified already.
@@ -657,6 +659,13 @@ void Setting::bind(std::function<QVariant()> read, std::function<bool(const QVar
   }
   _read = std::move(read);
   _write = std::move(write);
+
+  // A value written while it was kept here would be lost: the owner's storage takes it.
+  if (_read && _written) {
+    _written = false;
+    if (_value != _read() && !_write(_value))
+      qWarning() << "Setting" << path() << "refused the value" << _value << "written before it was bound";
+  }
 }
 
 void Setting::notifyChanged()

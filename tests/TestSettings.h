@@ -61,6 +61,8 @@ private slots:
   void readToleratesNonTextValues();
   void unknownKeysSurviveRoundTrip();
   void runtimeSettingIsSavedAndRestored();
+  void pendingValueReachesSettingBoundLater();
+  void keysOfUnreadSettingsStayPending();
   void reservedKeysAreNotKept();
   void pointSettingIsNotWritten();
   void describesBoundsAndUnits();

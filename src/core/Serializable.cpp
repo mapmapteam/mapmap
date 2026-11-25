@@ -86,9 +86,12 @@ void Serializable::read(const QJsonObject& obj)
     if (node->kind() != SettingNode::SettingKind)
       continue;
 
+    // The key of a setting that a project file does not give stays pending.
     Setting* setting = static_cast<Setting*>(node);
+    if (!isReadFromProject(setting))
+      continue;
     settingIds.append(setting->id());
-    if (obj.contains(setting->id()) && isReadFromProject(setting))
+    if (obj.contains(setting->id()))
       _readSetting(setting, obj.value(setting->id()));
   }
 
@@ -171,12 +174,11 @@ void Serializable::_readSetting(Setting* setting, const QJsonValue& value) const
 
 void Serializable::_takePendingKey(Setting* setting)
 {
-  if (!_pendingKeys.contains(setting->id()))
+  // A setting that a project file does not give leaves the key for the next save.
+  if (!_pendingKeys.contains(setting->id()) || !isReadFromProject(setting))
     return;
 
-  const QJsonValue value = _pendingKeys.take(setting->id());
-  if (isReadFromProject(setting))
-    _readSetting(setting, value);
+  _readSetting(setting, _pendingKeys.take(setting->id()));
 }
 
 }

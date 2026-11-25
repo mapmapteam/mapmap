@@ -310,8 +310,10 @@ public:
   void setAvailable(bool available);
 
   /// Keeps the value in the owner's storage: read returns it, write stores a sanitized
-  /// value and returns false to refuse it. Two null functions keep the value here again;
-  /// one null function without the other is refused, with a warning.
+  /// value and returns false to refuse it. A value written to the setting before it was
+  /// bound, as one a project file gave it as soon as it was added, is handed to write.
+  /// Two null functions keep the value here again; one null function without the other is
+  /// refused, with a warning.
   void bind(std::function<QVariant()> read, std::function<bool(const QVariant&)> write);
 
   /// Notifies the current value; for owners whose storage changed outside setValue().
@@ -344,6 +346,8 @@ private:
   /// Set when notifyChanged() runs, so that setValue() does not notify twice when the
   /// owner's write function notifies by itself.
   bool _notified;
+  /// Set when setValue() writes the value kept here, so that bind() hands it to the owner.
+  bool _written;
 };
 
 /// A variable number of settings sharing one description, kept in the owner's storage.
