@@ -47,7 +47,7 @@ Rotate the image inside the shape, without moving it: `/mapmap/layer/rotate/sour
 
 ## Settings by path
 
-Every setting of a source or a layer can also be written at an address that follows its path: `/mapmap/source/<id>/<path>` or `/mapmap/layer/<id>/<path>`. The source or the layer is given by its id, in the address; every argument is part of the value. A value outside the range of the setting is clamped to it: an opacity of 1.5 becomes 1. A value of the wrong type, such as an invalid color, or a text other than true, false, 1 or 0 for a boolean, is refused with a warning. A boolean takes any number: 0 is false, any other number true, like the 127 that controllers send for "on".
+Every setting of a source or a layer can also be written at an address that follows its path: `/mapmap/source/<id>/<path>` or `/mapmap/layer/<id>/<path>`. The source or the layer is given by its id, in the address; every argument is part of the value. A value outside the range of the setting is clamped to it: an opacity of 1.5 becomes 1. A value of the wrong type, such as an invalid color, or a text other than true, false, 1 or 0 for a boolean, is refused with a warning. A boolean takes any finite number: 0 is false, any other number true, like the 127 that controllers send for "on"; a number that is not finite is refused.
 
 Adjust the opacity of layer 3: `/mapmap/layer/3/opacity ,f 0.5`  
 Adjust the color of source 2: `/mapmap/source/2/color ,s "#ff0000"`  
