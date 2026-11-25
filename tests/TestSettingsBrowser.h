@@ -28,6 +28,7 @@ private slots:
   void rebuildFollowsShrinkingList();
   void editThatShrinksListRebuildsLater();
   void openFoldStaysOpen();
+  void rebuildFromEditedWaitsForEditToEnd();
 };
 
 #endif /* TEST_SETTINGS_BROWSER_H_ */

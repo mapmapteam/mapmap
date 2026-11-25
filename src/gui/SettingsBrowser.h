@@ -157,7 +157,7 @@ private:
 
   /// Set while a row is written by this class, so that the write is not sent to the tree.
   bool _showing;
-  /// Set while an edit is being written to the tree.
+  /// Set while an edit is being written to the tree and edited() is being sent.
   bool _editing;
   /// Set when rebuild() was called during an edit.
   bool _rebuildPending;

@@ -208,6 +208,16 @@ void SettingsBrowser::_writeRow(QtProperty* property, const QVariant& value)
       accepted = setting->setValue(value);
     break;
   }
+
+  // A refused or adjusted value: show what the tree kept.
+  if (!_rebuildPending) {
+    if (Setting* written = _findSetting(row))
+      _showSetting(written);
+  }
+
+  // Still inside the row's call: a slot changing the structure must not delete the row.
+  if (accepted)
+    emit edited();
   _editing = false;
 
   if (_rebuildPending) {
@@ -215,13 +225,6 @@ void SettingsBrowser::_writeRow(QtProperty* property, const QVariant& value)
     _rebuildPending = false;
     QMetaObject::invokeMethod(this, &SettingsBrowser::rebuild, Qt::QueuedConnection);
   }
-  else if (Setting* written = _findSetting(row)) {
-    // A refused or adjusted value: show what the tree kept.
-    _showSetting(written);
-  }
-
-  if (accepted)
-    emit edited();
 }
 
 QList<QtProperty*> SettingsBrowser::_buildGroup(SettingGroup* group)
