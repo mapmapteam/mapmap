@@ -32,14 +32,21 @@ Q_DECLARE_METATYPE(uid)
 
 namespace mmp {
 
-class Element : public Serializable
+/**
+ * An object of the project that the user names and adjusts: a source or a layer.
+ *
+ * Each element declares its settings in its constructor, in the tree returned by settings(),
+ * and relays the notifications of that tree as the Qt signals settingChanged() and
+ * settingsStructureChanged().
+ */
+class Element : public Serializable, public SettingListener
 {
   Q_OBJECT
 
   Q_PROPERTY(uid     id      READ getId)
   Q_PROPERTY(QString name    READ getName    WRITE setName)
   Q_PROPERTY(bool    locked  READ isLocked   WRITE setLocked)
-  Q_PROPERTY(float   opacity READ getOpacity WRITE setOpacity NOTIFY propertyChanged)
+  Q_PROPERTY(float   opacity READ getOpacity WRITE setOpacity)
   Q_PROPERTY(QIcon   icon    READ getIcon)
 
 public:
@@ -67,10 +74,22 @@ public:
   virtual void read(const QJsonObject& obj);
   virtual void write(QJsonObject& obj);
 
+  /// Relays a change of value of the tree as settingChanged().
+  void settingValueChanged(const QString& path, const QVariant& value) override;
+
+  /// Relays a change of the shape of the tree as settingsStructureChanged().
+  void settingStructureChanged() override;
+
 signals:
-  void propertyChanged(uid id, QString propertyName, QVariant value);
+  /// Emitted when the value of the setting at path, relative to settings(), changed.
+  void settingChanged(uid id, QString path, QVariant value);
+
+  /// Emitted when a setting was added or removed, a list resized or a setting made (un)available.
+  void settingsStructureChanged(uid id);
 
 protected:
+  /// Notifies the current value of the setting, or of the list, with this id: for setters
+  /// that changed the value outside the tree.
   void _emitPropertyChanged(const QString& propertyName);
 
 private:

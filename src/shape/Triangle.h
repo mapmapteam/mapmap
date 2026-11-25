@@ -39,6 +39,7 @@ public:
     _addVertex(p2);
     _addVertex(p3);
     build();
+    _verticesChanged();
   }
   virtual ~Triangle() {}
   virtual ShapeType getType() const { return ShapeType::Triangle; }

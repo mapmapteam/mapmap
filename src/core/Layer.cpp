@@ -24,8 +24,14 @@
 
 namespace mmp {
 
+/// Id of the group showing the settings of the output shape.
+static const QString OUTPUT_SHAPE_SETTINGS = "output";
+/// Id of the group showing the settings of the input shape.
+static const QString INPUT_SHAPE_SETTINGS = "input";
+
 UidAllocator Layer::allocator;
 Layer::SourceResolver Layer::_sourceResolver;
+Layer::SourceLister Layer::_sourceLister;
 
 Layer::Layer(uid id)
 : Layer(Source::ptr(), MShape::ptr(), MShape::ptr(), id) {}
@@ -46,6 +52,43 @@ Layer::Layer(Source::ptr source, MShape::ptr shape, MShape::ptr inputShape, uid 
 
   _assignShapeRole(_shape, true);
   _assignShapeRole(_inputShape, false);
+
+  SettingGroup* root = settings();
+
+  root->addSetting(SettingInfo::boolean("solo", tr("Solo"))
+                   .hidden()
+                   .description(tr("Whether this layer is in solo: while a layer is in solo, only the layers in solo are shown.")))
+      ->bind([this]() { return QVariant(isSolo()); },
+             [this](const QVariant& value) { setSolo(value.toBool()); return true; });
+
+  root->addSetting(SettingInfo::boolean("visible", tr("Visible"))
+                   .hidden()
+                   .description(tr("Whether this layer is shown.")))
+      ->bind([this]() { return QVariant(isVisible()); },
+             [this](const QVariant& value) { setVisible(value.toBool()); return true; });
+
+  root->addSetting(SettingInfo::integer("depth", tr("Depth"))
+                   .hidden()
+                   .description(tr("The position of this layer in the stack of layers.")))
+      ->bind([this]() { return QVariant(getDepth()); },
+             [this](const QVariant& value) { setDepth(value.toInt()); return true; });
+
+  root->addSetting(SettingInfo::boolean("hasInputShape", tr("Has input shape"))
+                   .readOnly().notStored().hidden()
+                   .description(tr("Whether this layer picks the region of its source it shows with an input shape.")))
+      ->bind([this]() { return QVariant(hasInputShape()); },
+             [](const QVariant&) { return false; });
+
+  root->addSetting(SettingInfo::reference("sourceId", tr("Source"))
+                   .valueType(QMetaType::Int)
+                   .defaultValue(NULL_UID)
+                   .notStored()
+                   .optionsProvider([this]() { return _sourceOptions(); })
+                   .description(tr("The source shown in this layer.")))
+      ->bind([this]() { return QVariant(int(_source.isNull() ? NULL_UID : _source->getId())); },
+             [this](const QVariant& value) { return _setSourceById(value.toInt()); });
+
+  _mountShapes();
 }
 
 void Layer::_assignShapeRole(const MShape::ptr& shape, bool isOutput)
@@ -57,7 +100,47 @@ void Layer::_assignShapeRole(const MShape::ptr& shape, bool isOutput)
 }
 
 Layer::~Layer() {
+  // A layer being destroyed notifies nobody; its shapes may outlive it.
+  settings()->setListener(nullptr);
+  _unmountShapes();
+
   allocator.free(getId());
+}
+
+void Layer::setShape(MShape::ptr s)
+{
+  // Unmounted while the old shape still exists.
+  _unmountShapes();
+  _shape = s;
+  _assignShapeRole(s, true);
+  _mountShapes();
+}
+
+void Layer::setInputShape(MShape::ptr s)
+{
+  _unmountShapes();
+  _inputShape = s;
+  _assignShapeRole(s, false);
+  _mountShapes();
+}
+
+void Layer::_unmountShapes()
+{
+  SettingGroup* root = settings();
+  if (root->findNode(OUTPUT_SHAPE_SETTINGS))
+    root->unmount(OUTPUT_SHAPE_SETTINGS);
+  if (root->findNode(INPUT_SHAPE_SETTINGS))
+    root->unmount(INPUT_SHAPE_SETTINGS);
+}
+
+void Layer::_mountShapes()
+{
+  // Both are mounted again, so that "output" always comes before "input".
+  SettingGroup* root = settings();
+  if (!_shape.isNull())
+    root->mount(OUTPUT_SHAPE_SETTINGS, _shape->settings());
+  if (!_inputShape.isNull())
+    root->mount(INPUT_SHAPE_SETTINGS, _inputShape->settings());
 }
 
 void Layer::setSolo(bool solo)
@@ -107,15 +190,48 @@ void Layer::setSource(Source::ptr source)
 
 void Layer::setSourceById(uid sourceId)
 {
-  if (_sourceResolver)
-    setSource(_sourceResolver(sourceId));
-  else
+  _setSourceById(sourceId);
+}
+
+bool Layer::_setSourceById(uid sourceId)
+{
+  if (!_sourceResolver)
+  {
     qWarning() << "Cannot set source by id: no source resolver installed.";
+    return false;
+  }
+
+  Source::ptr source = _sourceResolver(sourceId);
+  if (source.isNull() || !sourceIsCompatible(source))
+    return false;
+
+  setSource(source);
+  return true;
 }
 
 void Layer::setSourceResolver(SourceResolver resolver)
 {
   _sourceResolver = resolver;
+}
+
+void Layer::setSourceLister(SourceLister lister)
+{
+  _sourceLister = lister;
+}
+
+QList<SettingOption> Layer::_sourceOptions() const
+{
+  QList<SettingOption> options;
+  if (!_sourceLister)
+    return options;
+
+  const QVector<Source::ptr> sources = _sourceLister();
+  for (const Source::ptr& source : sources)
+  {
+    if (!source.isNull() && sourceIsCompatible(source))
+      options.append({ QString::number(source->getId()), source->getName() });
+  }
+  return options;
 }
 
 void Layer::read(const QJsonObject& obj)

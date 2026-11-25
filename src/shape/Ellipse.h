@@ -73,7 +73,8 @@ public:
 
   virtual ~Ellipse() {}
 
-  /// Makes sure this is a correct ellipse and updates the center control point.
+  /// Makes sure this is a correct ellipse and updates the center control point; notifies
+  /// the vertices that moved.
   void sanitize();
 
   virtual void build() {
@@ -148,6 +149,7 @@ public:
   }
 
   // Override the parent, checking to make sure the vertices are displaced correctly.
+  // Notifies each vertex that moved: vertex i, and the others the ellipse moves with it.
   virtual void setVertex(int i, const QPointF& v);
 
   // Returns true iff vertex index is considered a major (external) control point.
@@ -173,6 +175,9 @@ protected:
 
   /// Affine version of toUnitCircle() based on the axes (used in non-perspective mode).
   QTransform _axisToUnitCircle() const;
+
+  /// Does what sanitize() does, without notifying.
+  void _sanitize();
 
   /// Remaps vertices 1 and 3 so as to make an axis-aligned ellipse.
   void _sanitizeAxes();

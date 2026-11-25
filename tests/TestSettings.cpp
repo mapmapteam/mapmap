@@ -11,8 +11,11 @@
 
 #include <QColor>
 #include <QPointF>
+#include <QSignalSpy>
 #include <QVector>
 
+#include "Layer.h"
+#include "Mesh.h"
 #include "Setting.h"
 #include "Source.h"
 
@@ -604,4 +607,267 @@ void TestSettings::rejectsWrongType()
   QTest::ignoreMessage(QtWarningMsg, QRegularExpression("refused the arguments"));
   QVERIFY(!vertex->setFromArguments({ QString("x"), 2.0 }));
   QCOMPARE(vertex->value().toPointF(), QPointF(1, 2));
+}
+
+namespace {
+
+/// Number of columns and rows of the mesh used by the tests of the element settings.
+const int MESH_SIZE = 4;
+
+/// Distance between two neighbouring vertices of that mesh, in pixels.
+const qreal MESH_SPACING = 100;
+
+/// Returns a mesh of MESH_SIZE x MESH_SIZE vertices, MESH_SPACING apart, starting at origin.
+MShape::ptr makeMesh(const QPointF& origin = QPointF())
+{
+  QVector<QPointF> points;
+  for (int row = 0; row < MESH_SIZE; row++)
+    for (int column = 0; column < MESH_SIZE; column++)
+      points.append(origin + QPointF(column * MESH_SPACING, row * MESH_SPACING));
+  return MShape::ptr(new Mesh(points, MESH_SIZE, MESH_SIZE));
+}
+
+/// Appends the paths of the settings under node, in declaration order.
+void collectLeafPaths(SettingNode* node, QStringList* paths)
+{
+  switch (node->kind()) {
+  case SettingNode::SettingKind:
+    paths->append(node->path());
+    break;
+  case SettingNode::GroupKind:
+    for (SettingNode* child : static_cast<SettingGroup*>(node)->children())
+      collectLeafPaths(child, paths);
+    break;
+  case SettingNode::ListKind: {
+    SettingList* list = static_cast<SettingList*>(node);
+    for (int index = 0; index < list->count(); index++)
+      collectLeafPaths(list->at(index), paths);
+    break;
+  }
+  }
+}
+
+/// Returns the paths of the settings of an object, in declaration order.
+QStringList leafPaths(const Serializable& object)
+{
+  QStringList paths;
+  collectLeafPaths(object.settings(), &paths);
+  return paths;
+}
+
+/// Returns the paths of the settings of an object that have no description.
+QStringList undescribedPaths(const Serializable& object)
+{
+  QStringList undescribed;
+  for (const QString& path : leafPaths(object)) {
+    if (object.settings()->find(path)->info().description().isEmpty())
+      undescribed.append(path);
+  }
+  return undescribed;
+}
+
+/// Returns the paths "prefix/0" to "prefix/(count - 1)".
+QStringList numberedPaths(const QString& prefix, int count)
+{
+  QStringList paths;
+  for (int index = 0; index < count; index++)
+    paths.append(prefix + "/" + QString::number(index));
+  return paths;
+}
+
+/// Installs the functions layers use to find their sources, and removes them when destroyed.
+class SourceLookup
+{
+public:
+  explicit SourceLookup(const QList<Source::ptr>& sources)
+  {
+    Layer::setSourceResolver([sources](uid id) {
+      for (const Source::ptr& source : sources) {
+        if (source->getId() == id)
+          return source;
+      }
+      return Source::ptr();
+    });
+    Layer::setSourceLister([sources]() { return QVector<Source::ptr>(sources.begin(), sources.end()); });
+  }
+
+  ~SourceLookup()
+  {
+    Layer::setSourceResolver(Layer::SourceResolver());
+    Layer::setSourceLister(Layer::SourceLister());
+  }
+};
+
+} // namespace
+
+void TestSettings::elementsDeclareTheirSettings()
+{
+  const QStringList element = { "id", "name", "locked", "opacity" };
+  const QStringList texture = element + QStringList { "x", "y" };
+
+  Color color;
+  const QStringList colorPaths = element + QStringList { "color" };
+  QCOMPARE(leafPaths(color), colorPaths);
+  QCOMPARE(undescribedPaths(color), QStringList());
+
+  Image image;
+  const QStringList imagePaths = texture + QStringList { "uri", "rate" };
+  QCOMPARE(leafPaths(image), imagePaths);
+  QCOMPARE(undescribedPaths(image), QStringList());
+
+  Video video;
+  const QStringList videoPaths = texture + QStringList { "uri", "volume", "rate" };
+  QCOMPARE(leafPaths(video), videoPaths);
+  QCOMPARE(undescribedPaths(video), QStringList());
+
+  Source::ptr red(new Color(QColor(Qt::red)));
+  ColorLayer layer(red, makeMesh());
+  const QStringList layerPaths = element
+      + QStringList { "solo", "visible", "depth", "hasInputShape", "sourceId", "output/locked" }
+      + numberedPaths("output/vertices", MESH_SIZE * MESH_SIZE)
+      + QStringList { "output/nColumns", "output/nRows" };
+  QCOMPARE(leafPaths(layer), layerPaths);
+  QCOMPARE(undescribedPaths(layer), QStringList());
+}
+
+void TestSettings::treeWritesReachTheModel()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  ColorLayer layer(red, makeMesh());
+
+  QVERIFY(layer.settings()->find("opacity")->setValue(0.5f));
+  QCOMPARE(layer.getOpacity(), 0.5f);
+
+  // Within the quad of the corner: the mesh keeps it as it is.
+  const QPointF corner(10, 5);
+  QVERIFY(layer.settings()->find("output/vertices/0")->setValue(corner));
+  QCOMPARE(layer.getShape()->getVertex(0), corner);
+}
+
+void TestSettings::modelWritesNotifyTheTree()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  ColorLayer layer(red, makeMesh());
+
+  QSignalSpy layerSpy(&layer, &Element::settingChanged);
+  layer.setOpacity(0.25f);
+  QCOMPARE(layerSpy.count(), 1);
+  QCOMPARE(layerSpy.at(0).at(0).toInt(), layer.getId());
+  QCOMPARE(layerSpy.at(0).at(1).toString(), QString("opacity"));
+  QCOMPARE(layerSpy.at(0).at(2).toFloat(), 0.25f);
+
+  Color* color = static_cast<Color*>(red.data());
+  QSignalSpy colorSpy(color, &Element::settingChanged);
+  color->setColor(QColor(Qt::blue));
+  QCOMPARE(colorSpy.count(), 1);
+  QCOMPARE(colorSpy.at(0).at(0).toInt(), color->getId());
+  QCOMPARE(colorSpy.at(0).at(1).toString(), QString("color"));
+  QCOMPARE(colorSpy.at(0).at(2).value<QColor>(), QColor(Qt::blue));
+
+  // Writing the same colour again says nothing.
+  color->setColor(QColor(Qt::blue));
+  QCOMPARE(colorSpy.count(), 1);
+
+  // One vertex moved: one notification, for that vertex only.
+  layerSpy.clear();
+  const QPointF moved(MESH_SPACING + 10, 5);
+  layer.getShape()->setVertex(1, moved);
+  QCOMPARE(layerSpy.count(), 1);
+  QCOMPARE(layerSpy.at(0).at(1).toString(), QString("output/vertices/1"));
+  QCOMPARE(layerSpy.at(0).at(2).toPointF(), moved);
+
+  // The same through the tree.
+  layerSpy.clear();
+  QVERIFY(layer.settings()->find("output/vertices/1")->setValue(QPointF(MESH_SPACING, 10)));
+  QCOMPARE(layerSpy.count(), 1);
+  QCOMPARE(layerSpy.at(0).at(1).toString(), QString("output/vertices/1"));
+}
+
+void TestSettings::opacityOverOscRangeIsClamped()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  ColorLayer layer(red, makeMesh());
+
+  QVERIFY(layer.settings()->find("opacity")->setFromArguments({ 5.0 }));
+  QCOMPARE(layer.getOpacity(), 1.0f);
+}
+
+void TestSettings::listShrinksWithMesh()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  ColorLayer layer(red, makeMesh());
+  QVERIFY(layer.settings()->find("output/vertices/15"));
+
+  QSignalSpy structureSpy(&layer, &Element::settingsStructureChanged);
+  Mesh* mesh = static_cast<Mesh*>(layer.getShape().data());
+  mesh->setNColumns(2);
+
+  QCOMPARE(mesh->nVertices(), 2 * MESH_SIZE);
+  QVERIFY(!layer.settings()->find("output/vertices/15"));
+  QVERIFY(layer.settings()->find("output/vertices/7"));
+  QCOMPARE(structureSpy.count(), 1);
+  QCOMPARE(structureSpy.at(0).at(0).toInt(), layer.getId());
+
+  // The fewest divisions of a mesh is kept in one place: the setting.
+  mesh->setNColumns(1);
+  QCOMPARE(mesh->nColumns(), 2);
+  QVERIFY(layer.settings()->find("output/nRows")->setValue(0));
+  QCOMPARE(mesh->nRows(), 2);
+}
+
+void TestSettings::rejectsUnknownSource()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  red->setName("red");
+  Source::ptr blue(new Color(QColor(Qt::blue)));
+  blue->setName("blue");
+  Source::ptr picture(new Image());
+  picture->setName("picture");
+  SourceLookup lookup({ red, blue, picture });
+
+  ColorLayer layer(red, makeMesh());
+  Setting* sourceId = layer.settings()->find("sourceId");
+  QVERIFY(sourceId);
+  QCOMPARE(sourceId->value().toInt(), red->getId());
+
+  const int unknownId = 9999;
+  QVERIFY(!sourceId->setValue(unknownId));
+  QCOMPARE(layer.getSourceId(), red->getId());
+
+  // An image cannot fill a colour layer.
+  QVERIFY(!sourceId->setValue(picture->getId()));
+  QCOMPARE(layer.getSourceId(), red->getId());
+
+  QVERIFY(sourceId->setValue(blue->getId()));
+  QCOMPARE(layer.getSource(), blue);
+
+  // The options are the compatible sources: their id as text, their name.
+  const QList<SettingOption> options = sourceId->info().options();
+  QCOMPARE(options.size(), 2);
+  QCOMPARE(options.at(0).id, QString::number(red->getId()));
+  QCOMPARE(options.at(0).label, QString("red"));
+  QCOMPARE(options.at(1).id, QString::number(blue->getId()));
+  QCOMPARE(options.at(1).label, QString("blue"));
+}
+
+void TestSettings::replacingShapeRemountsTree()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  MShape::ptr first = makeMesh();
+  QScopedPointer<ColorLayer> layer(new ColorLayer(red, first));
+
+  const QPointF origin(1000, 2000);
+  MShape::ptr second = makeMesh(origin);
+  layer->setShape(second);
+
+  QCOMPARE(layer->settings()->find("output/vertices/0")->value().toPointF(), origin);
+  QVERIFY(!first->settings()->parent());
+
+  // The first shape can be given to another layer.
+  ColorLayer other(red, first);
+  QCOMPARE(other.settings()->find("output/vertices/0")->value().toPointF(), QPointF());
+
+  // A destroyed layer lets go of its shape.
+  layer.reset();
+  QVERIFY(!second->settings()->parent());
 }

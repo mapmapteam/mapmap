@@ -22,14 +22,18 @@
 
 namespace mmp {
 
-Mesh::Mesh() : Quad() {
+Mesh::Mesh() : Quad(), _nColumns(0), _nRows(0) {
+  _declareSettings();
+
   // Create dummy points (will be all overwritten later on by load/save).
   QVector<QPointF> points(4);
   init(points, 2, 2);
 }
 
-Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4) : Quad()
+Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4) : Quad(), _nColumns(0), _nRows(0)
 {
+  _declareSettings();
+
   // Add points in standard order.
   QVector<QPointF> points;
   points.push_back(p1);
@@ -41,9 +45,38 @@ Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4) : Quad()
   init(points, 2, 2);
 }
 
-Mesh::Mesh(const QVector<QPointF>& points, int nColumns, int nRows) : Quad()
+Mesh::Mesh(const QVector<QPointF>& points, int nColumns, int nRows) : Quad(), _nColumns(0), _nRows(0)
 {
+  _declareSettings();
   init(points, nColumns, nRows);
+}
+
+void Mesh::_declareSettings()
+{
+  SettingGroup* root = settings();
+
+  root->addSetting(SettingInfo::integer("nColumns", tr("Columns"))
+                   .bounds(MIN_MESH_DIVISIONS, QVariant())
+                   .displayRow("subdivisions")
+                   .description(tr("The number of columns of vertices of the mesh, its two edges included.")))
+      ->bind([this]() { return QVariant(nColumns()); },
+             [this](const QVariant& value) { setNColumns(value.toInt()); return true; });
+
+  root->addSetting(SettingInfo::integer("nRows", tr("Rows"))
+                   .bounds(MIN_MESH_DIVISIONS, QVariant())
+                   .displayRow("subdivisions")
+                   .description(tr("The number of rows of vertices of the mesh, its two edges included.")))
+      ->bind([this]() { return QVariant(nRows()); },
+             [this](const QVariant& value) { setNRows(value.toInt()); return true; });
+}
+
+void Mesh::_gridChanged(int previousColumns, int previousRows)
+{
+  _verticesChanged();
+  if (_nColumns != previousColumns)
+    settings()->find("nColumns")->notifyChanged();
+  if (_nRows != previousRows)
+    settings()->find("nRows")->notifyChanged();
 }
 
 void Mesh::build()
@@ -63,14 +96,20 @@ void Mesh::build()
 
 void Mesh::init(const QVector<QPointF>& points, int nColumns, int nRows)
 {
-  Q_ASSERT(nColumns >= 2 && nRows >= 2);
+  Q_ASSERT(nColumns >= MIN_MESH_DIVISIONS && nRows >= MIN_MESH_DIVISIONS);
   Q_ASSERT(points.size() == nColumns * nRows);
+
+  const int previousColumns = _nColumns;
+  const int previousRows    = _nRows;
 
   _nColumns = nColumns;
   _nRows    = nRows;
 
-  setVertices(points);
+  // Copied without notifying: the grid is notified once, below.
+  vertices = points;
   build();
+
+  _gridChanged(previousColumns, previousRows);
 }
 
 QPolygonF Mesh::toPolygon() const
@@ -130,6 +169,7 @@ void Mesh::setVertex(int i, const QPointF& v)
 
   // Do set vertex.
   _rawSetVertex(i, realV);
+  _vertexChanged(i);
 }
 
 bool Mesh::isMajorVertex(int idx) const
@@ -167,9 +207,37 @@ void Mesh::resizeVertices2d(IndexVector2d& vertices2d, int nColumns, int nRows)
 //    addRow();
 //}
 
+void Mesh::addColumn()
+{
+  const int previousColumns = _nColumns;
+  _addColumn();
+  _gridChanged(previousColumns, _nRows);
+}
+
+void Mesh::addRow()
+{
+  const int previousRows = _nRows;
+  _addRow();
+  _gridChanged(_nColumns, previousRows);
+}
+
+void Mesh::removeColumn(int columnId)
+{
+  const int previousColumns = _nColumns;
+  _removeColumn(columnId);
+  _gridChanged(previousColumns, _nRows);
+}
+
+void Mesh::removeRow(int rowId)
+{
+  const int previousRows = _nRows;
+  _removeRow(rowId);
+  _gridChanged(_nColumns, previousRows);
+}
+
 // vertices 0..3 = 4 corners
 //
-void Mesh::addColumn()
+void Mesh::_addColumn()
 {
   // Create new vertices 2d (temporary).
   IndexVector2d newVertices2d;
@@ -222,7 +290,7 @@ void Mesh::addColumn()
   _reorderVertices();
 }
 
-void Mesh::addRow()
+void Mesh::_addRow()
 {
   // Create new vertices 2d (temporary).
   IndexVector2d newVertices2d;
@@ -275,7 +343,7 @@ void Mesh::addRow()
   _reorderVertices();
 }
 
-void Mesh::removeColumn(int columnId)
+void Mesh::_removeColumn(int columnId)
 {
   // Cannot remove first and last columns
   Q_ASSERT(columnId >= 1 && columnId < nColumns()-1);
@@ -335,7 +403,7 @@ void Mesh::removeColumn(int columnId)
   _reorderVertices();
 }
 
-void Mesh::removeRow(int rowId)
+void Mesh::_removeRow(int rowId)
 {
   // Cannot remove first and last columns
   Q_ASSERT(rowId >= 1 && rowId < nRows()-1);
@@ -398,27 +466,43 @@ void Mesh::removeRow(int rowId)
 
 void Mesh::resize(int nColumns_, int nRows_)
 {
+  // The bounds are those of the settings.
+  bool columnsOk = false;
+  bool rowsOk = false;
+  const QVariant cleanColumns = settings()->find("nColumns")->sanitized(nColumns_, &columnsOk);
+  const QVariant cleanRows    = settings()->find("nRows")->sanitized(nRows_, &rowsOk);
+  if (!columnsOk || !rowsOk)
+    return;
+  nColumns_ = cleanColumns.toInt();
+  nRows_    = cleanRows.toInt();
+
+  const int previousColumns = _nColumns;
+  const int previousRows    = _nRows;
+
   // Brutal: if asked to reduce columns or rows, just delete and redo.
   if (nColumns_ < nColumns())
   {
     while (nColumns_ != nColumns())
-      removeColumn(nColumns()-2);
+      _removeColumn(nColumns()-2);
   }
   if (nRows_ < nRows())
   {
     while (nRows_ != nRows())
-      removeRow(nRows()-2);
+      _removeRow(nRows()-2);
   }
   if (nColumns_ > nColumns())
   {
     while (nColumns_ != nColumns())
-      addColumn();
+      _addColumn();
   }
   if (nRows_ > nRows())
   {
     while (nRows_ != nRows())
-      addRow();
+      _addRow();
   }
+
+  if (_nColumns != previousColumns || _nRows != previousRows)
+    _gridChanged(previousColumns, previousRows);
 }
 
 QVector<Quad::ptr> Mesh::getQuads() const
@@ -466,8 +550,11 @@ QVector< QVector<Quad::ptr> > Mesh::getQuads2d() const
 
 void Mesh::copyFrom(const MShape& shape)
 {
-  // This will copy vertices.
-  MShape::copyFrom(shape);
+  const int previousColumns = _nColumns;
+  const int previousRows    = _nRows;
+
+  // Copy vertices, without notifying: the grid is notified once, below.
+  vertices = shape.getVertices();
 
   // Cast to mesh.
   const Mesh* mesh = static_cast<const Mesh*>(&shape);
@@ -485,6 +572,8 @@ void Mesh::copyFrom(const MShape& shape)
   }
 
 	_reorderVertices();
+
+  _gridChanged(previousColumns, previousRows);
 }
 
 void Mesh::_reorderVertices()

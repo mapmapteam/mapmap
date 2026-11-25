@@ -27,8 +27,10 @@ namespace mmp {
 static const float MIN_OPACITY = 0.0f;
 /// Highest opacity of an element: fully opaque.
 static const float MAX_OPACITY = 1.0f;
+/// Factor between the opacity and the percentage shown to the user.
+static const double OPACITY_DISPLAY_SCALE = 100.0;
 
-Element::Element(uid id, UidAllocator* allocator) : _name(""), _isLocked(false), _opacity(1.0f), _allocator(allocator)
+Element::Element(uid id, UidAllocator* allocator) : _name(""), _isLocked(false), _opacity(MAX_OPACITY), _allocator(allocator)
 {
   if (id == NULL_UID)
     id = allocator->allocate();
@@ -39,6 +41,38 @@ Element::Element(uid id, UidAllocator* allocator) : _name(""), _isLocked(false),
   }
   // Assign id.
   _id = id;
+
+  SettingGroup* root = settings();
+  root->setListener(this);
+
+  root->addSetting(SettingInfo::integer("id", tr("ID"))
+                   .readOnly().notStored()
+                   .description(tr("The number that identifies this element in the project.")))
+      ->bind([this]() { return QVariant(int(getId())); },
+             [](const QVariant&) { return false; });
+
+  root->addSetting(SettingInfo::text("name", tr("Name"))
+                   .hidden()
+                   .description(tr("The name shown in the lists and used to find this element by OSC.")))
+      ->bind([this]() { return QVariant(getName()); },
+             [this](const QVariant& value) { setName(value.toString()); return true; });
+
+  root->addSetting(SettingInfo::boolean("locked", tr("Locked"))
+                   .hidden()
+                   .description(tr("Whether this element is protected from changes made with the mouse.")))
+      ->bind([this]() { return QVariant(isLocked()); },
+             [this](const QVariant& value) { setLocked(value.toBool()); return true; });
+
+  root->addSetting(SettingInfo::number("opacity", tr("Opacity"))
+                   .valueType(QMetaType::Float)
+                   .bounds(MIN_OPACITY, MAX_OPACITY)
+                   .defaultValue(MAX_OPACITY)
+                   .unit(SettingInfo::Percent)
+                   .displayScale(OPACITY_DISPLAY_SCALE)
+                   .modulable()
+                   .description(tr("How opaque this element is, from fully transparent to fully opaque.")))
+      ->bind([this]() { return QVariant(getOpacity()); },
+             [this](const QVariant& value) { setOpacity(value.toFloat()); return true; });
 }
 
 Element::~Element() {
@@ -65,7 +99,12 @@ void Element::setLocked(bool locked)
 
 void Element::setOpacity(float opacity)
 {
-  opacity = qBound(MIN_OPACITY, opacity, MAX_OPACITY);
+  // The bounds are those of the setting.
+  bool ok = false;
+  const QVariant clean = settings()->find("opacity")->sanitized(opacity, &ok);
+  if (!ok)
+    return;
+  opacity = clean.toFloat();
   if (opacity != _opacity)
   {
     _opacity = opacity;
@@ -88,9 +127,29 @@ void Element::write(QJsonObject& obj)
   obj["id"] = getId();
 }
 
+void Element::settingValueChanged(const QString& path, const QVariant& value)
+{
+  emit settingChanged(getId(), path, value);
+}
+
+void Element::settingStructureChanged()
+{
+  emit settingsStructureChanged(getId());
+}
+
 void Element::_emitPropertyChanged(const QString& propertyName)
 {
-  emit propertyChanged(getId(), propertyName, property(propertyName.toLatin1()));
+  SettingNode* node = settings()->findNode(propertyName);
+  if (!node)
+  {
+    qWarning() << "Element" << getId() << "has no setting" << propertyName << "to notify";
+    return;
+  }
+
+  if (node->kind() == SettingNode::SettingKind)
+    static_cast<Setting*>(node)->notifyChanged();
+  else if (node->kind() == SettingNode::ListKind)
+    static_cast<SettingList*>(node)->notifyChanged();
 }
 
 }

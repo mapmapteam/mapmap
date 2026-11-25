@@ -20,6 +20,8 @@
 #ifndef SERIALIZABLE_H_
 #define SERIALIZABLE_H_
 
+#include <memory>
+
 #include <QObject>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -27,6 +29,7 @@
 #include <QDebug>
 
 #include "ProjectLabels.h"
+#include "Setting.h"
 
 namespace mmp {
 
@@ -34,10 +37,14 @@ class Serializable : public QObject {
   Q_OBJECT
 
 protected:
-  Serializable() {}
+  /// Creates an object with an empty tree of settings.
+  Serializable() : _settings(new SettingGroup) {}
 
 public:
   virtual ~Serializable() {}
+
+  /// Returns the root of this object's tree of settings, owned by this object.
+  SettingGroup* settings() const { return _settings.get(); }
 
   /// Returns the "cleaned" classname ie. without the namespace prefix.
   QString cleanClassName() const;
@@ -55,6 +62,10 @@ public:
 protected:
   // Lists QProperties that should NOT be parsed automatically.
   virtual QList<QString> _propertiesSpecial() const { return QList<QString>(); }
+
+private:
+  /// Root of the tree of settings, declared by the constructors of the subclasses.
+  std::unique_ptr<SettingGroup> _settings;
 };
 
 }

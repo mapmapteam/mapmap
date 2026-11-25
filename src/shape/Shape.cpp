@@ -21,9 +21,97 @@
 
 namespace mmp {
 
-MShape::MShape(const QVector<QPointF>& vertices_) : _isLocked(false) {
+/// Id of the display group of the vertices.
+static const QString VERTICES_DISPLAY_GROUP = "vertices";
+/// Position of the display group of the vertices among those of a shape.
+static const int VERTICES_DISPLAY_ORDER = 0;
+
+MShape::MShape() : _isLocked(false), _verticesSettings(nullptr)
+{
+  _declareSettings();
+}
+
+MShape::MShape(const QVector<QPointF>& vertices_) : _isLocked(false), _verticesSettings(nullptr)
+{
+  _declareSettings();
   setVertices(vertices_);
   build();
+}
+
+void MShape::_declareSettings()
+{
+  SettingGroup* root = settings();
+
+  root->addSetting(SettingInfo::boolean("locked", tr("Locked"))
+                   .hidden()
+                   .description(tr("Whether the vertices of this shape are protected from changes made with the mouse.")))
+      ->bind([this]() { return QVariant(isLocked()); },
+             [this](const QVariant& value) { setLocked(value.toBool()); return true; });
+
+  // Points are set while mapping, not played live: their group starts folded.
+  root->describeDisplayGroup(VERTICES_DISPLAY_GROUP, tr("Points"), VERTICES_DISPLAY_ORDER, true);
+  _verticesSettings = root->addList("vertices",
+                                    SettingInfo::point("vertex", tr("Point"))
+                                    .unit(SettingInfo::Pixels)
+                                    .notStored()
+                                    .displayGroup(VERTICES_DISPLAY_GROUP)
+                                    .description(tr("The position of a control point of the shape, in pixels.")),
+                                    [this]() { return nVertices(); },
+                                    [this](int index) { return QVariant(getVertex(index)); },
+                                    [this](int index, const QVariant& value) {
+                                      setVertex(index, value.toPointF());
+                                      return true;
+                                    });
+}
+
+void MShape::setLocked(bool locked)
+{
+  if (locked != _isLocked)
+  {
+    _isLocked = locked;
+    settings()->find("locked")->notifyChanged();
+  }
+}
+
+void MShape::setVertices(const QVector<QPointF>& vertices_)
+{
+  // Deep copy.
+  vertices.resize(vertices_.size());
+  std::copy(vertices_.begin(), vertices_.end(), vertices.begin());
+  _verticesChanged();
+}
+
+void MShape::_verticesChanged()
+{
+  _verticesSettings->sync();
+  _verticesSettings->notifyChanged();
+}
+
+void MShape::_vertexChanged(int i)
+{
+  // The list must follow the number of vertices before one of them is notified.
+  if (_verticesSettings->count() != nVertices())
+  {
+    _verticesChanged();
+    return;
+  }
+  Setting* vertex = _verticesSettings->at(i);
+  if (vertex)
+    vertex->notifyChanged();
+}
+
+void MShape::_verticesMoved(const QVector<QPointF>& before)
+{
+  if (before.size() != nVertices() || _verticesSettings->count() != nVertices())
+  {
+    _verticesChanged();
+    return;
+  }
+  for (int i = 0; i < nVertices(); i++)
+  {
+    if (before.at(i) != vertices.at(i))
+      _vertexChanged(i);
+  }
 }
 
 void MShape::copyFrom(const MShape& shape)
@@ -43,6 +131,7 @@ void MShape::applyTransform(const QTransform& transform)
   for (QVector<QPointF>::iterator it = vertices.begin();
        it != vertices.end(); ++it)
     (*it) = transform.map(*it);
+  _verticesChanged();
 }
 
 void MShape::transform(const QPointF& translate, qreal scale, qreal rotate)

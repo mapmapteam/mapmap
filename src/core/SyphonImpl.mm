@@ -355,6 +355,32 @@ Syphon::Syphon(int id)
   : Texture(id),
     _impl(new SyphonImpl())
 {
+  SettingGroup* root = settings();
+
+  // The server is chosen in the panel by its name, so its three identifiers are hidden.
+  root->addSetting(SettingInfo::text("serverUUID", tr("Server UUID"))
+                   .hidden()
+                   .description(tr("The system-wide identifier of the Syphon server this source receives.")))
+      ->bind([this]() { return QVariant(getServerUUID()); },
+             [this](const QVariant& value) { setServerUUID(value.toString()); return true; });
+
+  root->addSetting(SettingInfo::text("serverName", tr("Server name"))
+                   .hidden()
+                   .description(tr("The name of the Syphon server this source receives.")))
+      ->bind([this]() { return QVariant(getServerName()); },
+             [this](const QVariant& value) { setServerName(value.toString()); return true; });
+
+  root->addSetting(SettingInfo::text("appName", tr("Application name"))
+                   .hidden()
+                   .description(tr("The name of the application publishing the Syphon server.")))
+      ->bind([this]() { return QVariant(getAppName()); },
+             [this](const QVariant& value) { setAppName(value.toString()); return true; });
+
+  root->addSetting(SettingInfo::boolean("respectAlpha", tr("Respect source alpha"))
+                   .description(tr("Whether the transparency sent by the server is kept; otherwise the frames are made opaque.")))
+      ->bind([this]() { return QVariant(getRespectAlpha()); },
+             [this](const QVariant& value) { setRespectAlpha(value.toBool()); return true; });
+
   _impl->requestConnect();
 }
 

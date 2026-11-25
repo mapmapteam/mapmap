@@ -42,6 +42,7 @@ public:
     _addVertex(p3);
     _addVertex(p4);
     build();
+    _verticesChanged();
   }
   virtual ~Quad() {}
 

@@ -35,6 +35,9 @@ class Mesh : public Quad
   typedef QVector<QVector<int> > IndexVector2d;
 
 public:
+  /// Fewest columns, or rows, of vertices of a mesh: its two edges.
+  static const int MIN_MESH_DIVISIONS = 2;
+
   Q_INVOKABLE Mesh();
 
   // This constructor creates a quad mesh (four corners) using the same order as for the quad
@@ -70,11 +73,12 @@ public:
   void setVertex2d(int i, int j, const QPointF& v)
   {
     vertices[_vertices2d[i][j]] = v; // copy
+    _vertexChanged(_vertices2d[i][j]);
   }
 
   void setVertex2d(int i, int j, double x, double y)
   {
-    vertices[_vertices2d[i][j]] = QPointF(x, y);
+    setVertex2d(i, j, QPointF(x, y));
   }
 
   void resizeVertices2d(IndexVector2d& vertices2d, int nColumns, int nRows);
@@ -86,6 +90,8 @@ public:
   void removeColumn(int columnId);
   void removeRow(int rowId);
 
+  /// Changes the number of columns and rows, kept within the bounds of the
+  /// "nColumns" and "nRows" settings; notifies the settings that changed.
   void resize(int nColumns_, int nRows_);
 
   QVector<Quad::ptr> getQuads() const;
@@ -94,9 +100,11 @@ public:
   int nColumns() const { return _nColumns; }
   int nRows() const  { return _nRows; }
 
+  /// Changes the number of columns, kept within the bounds of the "nColumns" setting.
   void setNColumns(int nColumns_) {
     resize(nColumns_, nRows());
   }
+  /// Changes the number of rows, kept within the bounds of the "nRows" setting.
   void setNRows(int nRows_) {
     resize(nColumns(), nRows_);
   }
@@ -123,8 +131,22 @@ protected:
    */
   void _reorderVertices();
 
+  /// addColumn(), addRow(), removeColumn() and removeRow() without notifying.
+  void _addColumn();
+  void _addRow();
+  void _removeColumn(int columnId);
+  void _removeRow(int rowId);
+
+  /// Call after the grid changed: notifies the vertices, and the number of columns
+  /// and of rows when they differ from the previous ones.
+  void _gridChanged(int previousColumns, int previousRows);
+
   /// Returns a new MShape (using default constructor).
   virtual MShape* _create() const { return new Mesh(); }
+
+private:
+  /// Declares the settings of a mesh: its numbers of columns and rows.
+  void _declareSettings();
 };
 
 }

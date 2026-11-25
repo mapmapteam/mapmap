@@ -28,6 +28,7 @@ void Polygon::setVertex(int i, const QPointF& v)
   _constrainVertex(toPolygon(), i, realV);
   // Really set the vertex.
   _rawSetVertex(i, realV);
+  _vertexChanged(i);
 }
 
 void Polygon::_constrainVertex(const QPolygonF& polygon, int i, QPointF& v)
@@ -133,6 +134,7 @@ void Polygon::fromPolygon(const QPolygonF& p)
 	for (int i=0; i<nVertices(); i++)
 		vertices[i] = p[i];
 	build();
+	_verticesChanged();
 }
 
 }
