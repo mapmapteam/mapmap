@@ -940,7 +940,7 @@ void TestSettings::oversizedMeshIsReducedOnRead()
   const qreal right = (OVERSIZED_COLUMNS - 1) * OVERSIZED_COLUMN_SPACING;
 
   Mesh mesh;
-  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("150 x 2.*reduced to 100 x 2"));
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("150 x 2.*reduced to 32 x 2"));
   mesh.read(obj);
   QCOMPARE(mesh.nColumns(), int(Mesh::MAX_MESH_DIVISIONS));
   QCOMPARE(mesh.nRows(), rows);
@@ -955,7 +955,7 @@ void TestSettings::oversizedMeshIsReducedOnRead()
   // What is written agrees with itself.
   QJsonObject written;
   mesh.write(written);
-  QCOMPARE(written.value("nColumns"), QJsonValue("100"));
+  QCOMPARE(written.value("nColumns"), QJsonValue(QString::number(Mesh::MAX_MESH_DIVISIONS)));
   QCOMPARE(written.value("vertices").toArray().size(), Mesh::MAX_MESH_DIVISIONS * rows);
 
   verifyConsistentMesh(mesh);
@@ -996,8 +996,8 @@ void TestSettings::oversizedMeshesOfTextureLayerKeepEqualGrids()
   obj["source"] = meshJson(OVERSIZED_COLUMNS, rows, OVERSIZED_COLUMN_SPACING);
 
   TextureLayer second;
-  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("reduced to 100 x 2"));
-  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("reduced to 100 x 2"));
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("reduced to 32 x 2"));
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("reduced to 32 x 2"));
   second.read(obj);
   Mesh* output = static_cast<Mesh*>(second.getShape().data());
   Mesh* input  = static_cast<Mesh*>(second.getInputShape().data());
