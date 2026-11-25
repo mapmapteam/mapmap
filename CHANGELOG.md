@@ -9,8 +9,13 @@ New:
 - Give each project an output resolution, chosen in View > Output Resolution among common projector resolutions, or set by hand. The output window scales it to fill the output screen. New projects take the resolution set in the preferences, which can follow the output screen; older projects take the size of the output screen.
 - Rotate and scale the selected layer with a single handle. Press R to only rotate, S to only scale, T for both, or click the handle to switch; Shift for steps of 15° or 10 %, Ctrl (Cmd on macOS) for fine motion. The handle shows which way the image is set in the layer, and replaces the thick first edge.
 
+- Control every setting of a source or a layer by OSC at an address that follows its path: `/mapmap/layer/<id>/<path>`, for example `/mapmap/layer/3/output/vertices/5`. The new MCP tool `list_settings` gives the settings of a source or a layer with their type, bounds and options, and `set_property` takes a path.
+
 Improvements:
 
+- Check the values sent by OSC or MCP against the bounds and the type of the setting: an opacity above 1 stops at 1, and an unknown property name, a boolean other than 0, 1, true or false, or an invalid color is refused with a warning.
+- Keep the unknown keys of a project file when the project is saved again.
+- In the settings panel of a layer, "Mesh Subdivisions" is now Columns and Rows.
 - At 100% zoom, the input editor shows the whole image of the selected source and the output editor the whole output frame. "Actual pixels (1:1)" shows one image pixel per screen pixel. New shapes are placed inside the output frame.
 - Projects converted with the option `--output-size` of `scripts/convert-xml-project.py` take that size as their output resolution.
 - Only show the mapping in the fullscreen output when the mouse has not moved over it for three seconds: the mouse cursor, the crosshair, and the outlines and vertices of the shapes are hidden. They come back when the mouse moves.
@@ -19,8 +24,12 @@ Changes:
 
 - Clicking again on the selected layer no longer switches to scaling or rotating, and the M key does nothing. Use the handle of the layer instead: R, S and T choose what it does.
 
+- The two meshes of a layer always keep the same grid.
+- `get_source` and `get_layer` of the MCP server no longer return `objectName`, which was always empty.
+
 Fix:
 
+- Fix a crash when drawing a layer whose two meshes have different grids.
 - Fix the text of drop-down lists, such as the zoom of the editors, which was invisible with dark system themes.
 - Fix a crash on macOS when importing a media file or adding a color.
 

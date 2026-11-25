@@ -74,7 +74,8 @@ Vertex order is **clockwise from top-left**: top-left, top-right, bottom-right, 
 ### Properties
 | Tool | Args | Description |
 |------|------|-------------|
-| `set_property` | `kind` ("source"/"layer"), `id` (int), `property` (string), `value` (any) | Set arbitrary property |
+| `set_property` | `kind` ("source"/"layer"), `id` (int), `property` (string, a name or a path such as `output/vertices/0`), `value` (any) | Set a setting; the value is checked against its type and bounds |
+| `list_settings` | `kind` ("source"/"layer"), `id` (int) | List every setting with its path, type, value, bounds, unit and options |
 
 Common properties:
 - **Source (color):** `color` ("#rrggbb"), `name`, `opacity` (0.0-1.0), `locked`
