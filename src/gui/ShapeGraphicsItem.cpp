@@ -345,6 +345,7 @@ PolygonTextureGraphicsItem::PolygonTextureGraphicsItem(Layer::ptr mapping, bool 
 MeshTextureGraphicsItem::MeshTextureGraphicsItem(Layer::ptr mapping, bool output) : PolygonTextureGraphicsItem(mapping, output) {
   _controlPainter.reset(new MeshControlPainter(this));
   _nHorizontalQuads = _nVerticalQuads = -1;
+  _gridsDiffered = false;
   _wasGrabbing = false;
 }
 
@@ -358,15 +359,28 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
     QVector<QVector<Quad::ptr> > outputQuads = outputMesh->getQuads2d();
     QVector<QVector<Quad::ptr> > inputQuads  = inputMesh->getQuads2d();
 
+    // A project written by hand may give the two meshes different grids (editing one grid
+    // resizes the other, see Layer): only the quads they share are drawn.
+    const int nHorizontalQuads = qMin(outputMesh->nHorizontalQuads(), inputMesh->nHorizontalQuads());
+    const int nVerticalQuads   = qMin(outputMesh->nVerticalQuads(),   inputMesh->nVerticalQuads());
+    const bool gridsDiffer = outputMesh->nHorizontalQuads() != inputMesh->nHorizontalQuads() ||
+                             outputMesh->nVerticalQuads()   != inputMesh->nVerticalQuads();
+    if (gridsDiffer && !_gridsDiffered)
+      qWarning() << "Layer" << getLayer()->getId() << "has an output mesh and an input mesh on different grids:"
+                 << "the quads of the larger one that the other lacks are not drawn.";
+    _gridsDiffered = gridsDiffer;
+
     // Check if we increased or decreased number of columns/rows in mesh.
     bool forceRebuild = false;
-    if (_nHorizontalQuads != outputMesh->nHorizontalQuads() ||
-        _nVerticalQuads != outputMesh->nVerticalQuads())
+    if (_nHorizontalQuads != nHorizontalQuads ||
+        _nVerticalQuads != nVerticalQuads)
     {
       forceRebuild = true;
-      _cachedQuadItems.resize(_nHorizontalQuads = outputMesh->nHorizontalQuads());
+      _nHorizontalQuads = nHorizontalQuads;
+      _nVerticalQuads = nVerticalQuads;
+      _cachedQuadItems.resize(_nHorizontalQuads);
       for (int i=0; i<_nHorizontalQuads; i++)
-        _cachedQuadItems[i].resize(_nVerticalQuads = outputMesh->nVerticalQuads());
+        _cachedQuadItems[i].resize(_nVerticalQuads);
     }
 
     // Keep track of whether we are currently grabbing the shape or a vertex so as to
@@ -384,9 +398,9 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
     _wasGrabbing = grabbing;
 
     // Go through the mesh quad by quad.
-    for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
+    for (int x = 0; x < nHorizontalQuads; x++)
     {
-      for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
+      for (int y = 0; y < nVerticalQuads; y++)
       {
         Quad::ptr inputQuad  = inputQuads[x][y];
         Quad::ptr outputQuad = outputQuads[x][y];

@@ -256,6 +256,9 @@ private:
 
   // True iff shape was being grabbed last time _buildCacheQuadItem() was called.
   bool _wasGrabbing;
+
+  // True iff the two meshes had different grids when last drawn, so that it is said once.
+  bool _gridsDiffered;
 };
 
 /// Graphics item for textured mesh.
