@@ -65,12 +65,15 @@ Layer::Layer(Source::ptr source, MShape::ptr shape, MShape::ptr inputShape, uid 
              [this](const QVariant& value) { setSolo(value.toBool()); return true; });
 
   root->addSetting(SettingInfo::boolean("visible", tr("Visible"))
+                   .defaultValue(true)
                    .hidden()
                    .description(tr("Whether this layer is shown.")))
       ->bind([this]() { return QVariant(isVisible()); },
              [this](const QVariant& value) { setVisible(value.toBool()); return true; });
 
+  // A new layer goes on top of those created before it.
   root->addSetting(SettingInfo::integer("depth", tr("Depth"))
+                   .defaultValue(int(getId()))
                    .hidden()
                    .description(tr("The position of this layer in the stack of layers.")))
       ->bind([this]() { return QVariant(getDepth()); },

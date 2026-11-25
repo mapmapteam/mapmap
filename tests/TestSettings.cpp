@@ -1239,3 +1239,77 @@ void TestSettings::describesFlagsAndForms()
   QCOMPARE(describedAt(settings, "tint").value("available"), QJsonValue(false));
   QCOMPARE(describedAt(settings, "tint").value("default").toString(), QString("#04010203"));
 }
+
+namespace {
+
+/// Appends the writable settings under node. The elements of a list are left out: they share
+/// one description, so no single default value fits them all.
+void collectResettable(SettingNode* node, QList<Setting*>* settings)
+{
+  if (node->kind() == SettingNode::SettingKind) {
+    Setting* setting = static_cast<Setting*>(node);
+    if (!setting->info().isReadOnly())
+      settings->append(setting);
+  }
+  else if (node->kind() == SettingNode::GroupKind) {
+    for (SettingNode* child : static_cast<SettingGroup*>(node)->children())
+      collectResettable(child, settings);
+  }
+}
+
+/// Returns the value of every setting of an object, by path.
+QVariantMap settingValuesByPath(const Serializable& object)
+{
+  QVariantMap values;
+  for (const QString& path : leafPaths(object))
+    values.insert(path, object.settings()->find(path)->value());
+  return values;
+}
+
+/// Returns the paths of the writable settings of an element that reset() changes or notifies.
+QStringList settingsChangedByReset(Element& element)
+{
+  QStringList changed;
+  QList<Setting*> settings;
+  collectResettable(element.settings(), &settings);
+  for (Setting* setting : settings) {
+    const QVariantMap before = settingValuesByPath(element);
+    QSignalSpy spy(&element, &Element::settingChanged);
+    setting->reset();
+    if (settingValuesByPath(element) != before || spy.count() != 0)
+      changed.append(setting->path());
+  }
+  return changed;
+}
+
+/// Returns a mesh of two columns and two rows, as a new layer gets.
+MShape::ptr makeFreshMesh()
+{
+  return MShape::ptr(new Mesh(QPointF(0, 0), QPointF(MESH_SPACING, 0),
+                              QPointF(MESH_SPACING, MESH_SPACING), QPointF(0, MESH_SPACING)));
+}
+
+} // namespace
+
+void TestSettings::resetKeepsFreshElements()
+{
+  // The default value of a setting is the value of a new element.
+  Color color;
+  QCOMPARE(settingsChangedByReset(color), QStringList());
+  Image image;
+  QCOMPARE(settingsChangedByReset(image), QStringList());
+  Video video;
+  QCOMPARE(settingsChangedByReset(video), QStringList());
+
+  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr picture(new Image);
+  SourceLookup lookup({ red, picture });
+  ColorLayer colorLayer(red, makeFreshMesh());
+  QCOMPARE(settingsChangedByReset(colorLayer), QStringList());
+  TextureLayer imageLayer(picture, makeFreshMesh(), makeFreshMesh());
+  QCOMPARE(settingsChangedByReset(imageLayer), QStringList());
+
+  // As listed through the MCP server.
+  QCOMPARE(describedAt(describeSettings(video.settings()), "rate").value("default").toDouble(), 1.0);
+  QCOMPARE(describedAt(describeSettings(video.settings()), "volume").value("default").toDouble(), 1.0);
+}

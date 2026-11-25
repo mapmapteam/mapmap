@@ -40,6 +40,12 @@ static const double PERCENT_DISPLAY_SCALE = 100.0;
 static const double MIN_VOLUME = 0.0;
 /// Highest audio volume of a video: as loud as the file.
 static const double MAX_VOLUME = 1.0;
+/// Volume of a new video: as loud as the file.
+static const double DEFAULT_VOLUME = MAX_VOLUME;
+/// Playback rate of a new image or video: normal speed.
+static const double DEFAULT_RATE = 1.0;
+/// Colour of a new colour source.
+static const QColor DEFAULT_COLOR(Qt::black);
 
 UidAllocator Source::allocator;
 
@@ -154,9 +160,10 @@ Source::~Source()
   allocator.free(getId());
 }
 
-Color::Color(int id) : Source(id)
+Color::Color(int id) : Source(id), color(DEFAULT_COLOR)
 {
   settings()->addSetting(SettingInfo::color("color", tr("Color"))
+                         .defaultValue(DEFAULT_COLOR)
                          .description(tr("The colour that fills the layers showing this source.")))
       ->bind([this]() { return QVariant(getColor()); },
              [this](const QVariant& value) { setColor(value.value<QColor>()); return true; });
@@ -185,7 +192,7 @@ Image::Image(int id)
     _bits(0)
   {
     _declareImageSettings();
-    setRate(1.0);
+    setRate(DEFAULT_RATE);
   }
 
 Image::Image(const QString uri_, uid id)
@@ -198,7 +205,7 @@ Image::Image(const QString uri_, uid id)
   {
     _declareImageSettings();
     setUri(uri_);
-    setRate(1.0);
+    setRate(DEFAULT_RATE);
   }
 
 void Image::_declareImageSettings()
@@ -216,6 +223,7 @@ void Image::_declareImageSettings()
              });
 
   root->addSetting(SettingInfo::number("rate", tr("Speed"))
+                   .defaultValue(DEFAULT_RATE)
                    .unit(SettingInfo::Percent)
                    .displayScale(PERCENT_DISPLAY_SCALE)
                    .description(tr("How fast an animated image plays; a negative speed plays it backwards.")))
@@ -357,6 +365,7 @@ Video::Video(VideoType type, int id) : Texture(id),
              [this](const QVariant& value) { return setUri(value.toString()); });
 
   root->addSetting(SettingInfo::number("rate", tr("Speed"))
+                   .defaultValue(DEFAULT_RATE)
                    .unit(SettingInfo::Percent)
                    .displayScale(PERCENT_DISPLAY_SCALE)
                    .description(tr("How fast the video plays; a negative speed plays it backwards.")))
@@ -365,14 +374,15 @@ Video::Video(VideoType type, int id) : Texture(id),
 
   root->addSetting(SettingInfo::number("volume", tr("Volume"))
                    .bounds(MIN_VOLUME, MAX_VOLUME)
+                   .defaultValue(DEFAULT_VOLUME)
                    .unit(SettingInfo::Percent)
                    .displayScale(PERCENT_DISPLAY_SCALE)
                    .description(tr("How loud the sound of the video plays.")))
       ->bind([this]() { return QVariant(getVolume()); },
              [this](const QVariant& value) { setVolume(value.toDouble()); return true; });
 
-  setRate(1);
-  setVolume(1);
+  setRate(DEFAULT_RATE);
+  setVolume(DEFAULT_VOLUME);
 }
 
 Video::Video(const QString uri_, VideoType type, double rate, uid id):

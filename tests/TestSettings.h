@@ -67,6 +67,7 @@ private slots:
   void describesNestedPaths();
   void valuesKeepLegacyKeys();
   void describesFlagsAndForms();
+  void resetKeepsFreshElements();
 };
 
 #endif /* TEST_SETTINGS_H_ */
