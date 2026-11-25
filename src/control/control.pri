@@ -2,10 +2,12 @@ include(../src.pri)
 
 HEADERS += $$PWD/ConcurrentQueue.h \
     $$PWD/OscInterface.h \
-    $$PWD/OscAction.h
+    $$PWD/OscAction.h \
+    $$PWD/RemoteSettingWrite.h
 
 SOURCES += $$PWD/OscInterface.cpp \
-    $$PWD/OscAction.cpp
+    $$PWD/OscAction.cpp \
+    $$PWD/RemoteSettingWrite.cpp
 
 contains(DEFINES, HAVE_MCP) {
   HEADERS += $$PWD/McpServer.h

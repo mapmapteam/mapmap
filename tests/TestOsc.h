@@ -40,6 +40,7 @@ private slots:
   void parsesSourceSettingPath();
   void rejectsSettingPathWithoutValue();
   void legacyPropertyFormStillParses();
+  void unchangedVideoFileIsAccepted();
 };
 
 #endif /* TEST_OSC_H_ */

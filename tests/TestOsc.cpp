@@ -10,6 +10,8 @@
 #include "TestOsc.h"
 
 #include "OscAction.h"
+#include "RemoteSettingWrite.h"
+#include "Source.h"
 
 using namespace mmp;
 
@@ -261,4 +263,24 @@ void TestOsc::legacyPropertyFormStillParses()
   OscAction signedId = parseOscAction("/mapmap/layer/-3", { 3, 0.5 });
   QCOMPARE(typeOf(signedId), int(OscAction::LayerProperty));
   QCOMPARE(signedId.property, QString("-3"));
+}
+
+void TestOsc::unchangedVideoFileIsAccepted()
+{
+  Video video;
+  Setting* uri = video.settings()->find("uri");
+  QVERIFY(uri);
+
+  // Without the preference "Allow message with existing media source", the file the video
+  // already plays is an unchanged value: accepted, as for any setting.
+  QVERIFY(writeRemoteSetting(video, uri, { video.getUri() }, false));
+  QCOMPARE(video.getUri(), QString());
+
+  // Any other setting goes through its arguments.
+  Setting* rate = video.settings()->find("rate");
+  QVERIFY(writeRemoteSetting(video, rate, { 0.5 }, false));
+  QCOMPARE(video.getRate(), 0.5);
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("refused the arguments"));
+  QVERIFY(!writeRemoteSetting(video, rate, { QString("fast") }, false));
+  QCOMPARE(video.getRate(), 0.5);
 }
