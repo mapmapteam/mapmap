@@ -314,3 +314,27 @@ void TestSettingsBrowser::openFoldStaysOpen()
   points = findRow(output->subProperties(), "Points");
   QVERIFY(panel.browser.isExpanded(panel.browser.items(points).first()));
 }
+
+void TestSettingsBrowser::rebuildFromEditedWaitsForEditToEnd()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  ColorLayer layer(red, makeMesh());
+  Panel panel(layer.settings());
+  follow(&layer, panel.settings.get());
+
+  // A slot of edited() changes the structure while the row is still sending its value.
+  Mesh* mesh = static_cast<Mesh*>(layer.getShape().data());
+  QObject::connect(panel.settings.get(), &SettingsBrowser::edited, panel.settings.get(),
+                   [mesh]() { mesh->setNColumns(FEWEST_COLUMNS); });
+
+  findRow(panel.browser.properties(), "Opacity (%)")->setValue(50.0);
+  QCOMPARE(layer.getOpacity(), 0.5f);
+  QCOMPARE(mesh->nColumns(), FEWEST_COLUMNS);
+
+  // The rows are rebuilt from the event loop, once the edit has ended.
+  QtProperty* output = findRow(panel.browser.properties(), "output");
+  QCOMPARE(findRow(output->subProperties(), "Points")->subProperties().size(), MESH_SIZE * MESH_SIZE);
+  QCoreApplication::processEvents();
+  output = findRow(panel.browser.properties(), "output");
+  QCOMPARE(findRow(output->subProperties(), "Points")->subProperties().size(), FEWEST_COLUMNS * MESH_SIZE);
+}
