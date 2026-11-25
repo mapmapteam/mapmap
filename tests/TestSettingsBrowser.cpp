@@ -138,7 +138,7 @@ QList<QtProperty*> rowsOf(const QList<QtProperty*>& rows, const QString& label)
 
 void TestSettingsBrowser::colorSourceRows()
 {
-  Color source(QColor(Qt::red));
+  Color source { QColor(Qt::red) };
   Panel panel(source.settings());
 
   // Hidden settings (name, locked) have no row.
@@ -165,7 +165,7 @@ void TestSettingsBrowser::colorSourceRows()
 
 void TestSettingsBrowser::editWritesTreeOnce()
 {
-  Color source(QColor(Qt::red));
+  Color source { QColor(Qt::red) };
   Panel panel(source.settings());
   follow(&source, panel.settings.get());
   QSignalSpy changes(&source, &Element::settingChanged);
@@ -185,7 +185,7 @@ void TestSettingsBrowser::editWritesTreeOnce()
 
 void TestSettingsBrowser::refreshDoesNotRewriteRow()
 {
-  Color source(QColor(Qt::red));
+  Color source { QColor(Qt::red) };
   Panel panel(source.settings());
   follow(&source, panel.settings.get());
   QSignalSpy rowWrites(&panel.manager, &QtVariantPropertyManager::valueChanged);
