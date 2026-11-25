@@ -57,17 +57,6 @@ class Layer : public Element
 {
   Q_OBJECT
 
-  Q_PROPERTY(bool solo    READ isSolo    WRITE setSolo)
-  Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
-  Q_PROPERTY(int  depth   READ getDepth  WRITE setDepth)
-
-//  Q_PROPERTY(MShape::ptr shape READ getShape)
-//  Q_PROPERTY(MShape::ptr inputShape READ getInputShape)
-
-  Q_PROPERTY(bool hasInputShape READ hasInputShape STORED false)
-  Q_PROPERTY(uid  sourceId  READ getSourceId WRITE setSourceById STORED false)
-//  Q_PROPERTY(Source::ptr source READ getSource WRITE setSource)
-
 protected:
   /// The input Source instance.
   Source::ptr _source;

@@ -213,11 +213,6 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
   }
 }
 
-void MapperGLCanvas::currentShapeWasChanged()
-{
-  emit shapeChanged(getCurrentShape().data());
-}
-
 void MapperGLCanvas::applyZoomToView()
 {
   _setZoom(_zoom, _zoomAnchor());

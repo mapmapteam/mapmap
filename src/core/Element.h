@@ -28,7 +28,6 @@
 #include "UidAllocator.h"
 
 #include <QEvent>
-Q_DECLARE_METATYPE(uid)
 
 namespace mmp {
 
@@ -42,12 +41,6 @@ namespace mmp {
 class Element : public Serializable, public SettingListener
 {
   Q_OBJECT
-
-  Q_PROPERTY(uid     id      READ getId)
-  Q_PROPERTY(QString name    READ getName    WRITE setName)
-  Q_PROPERTY(bool    locked  READ isLocked   WRITE setLocked)
-  Q_PROPERTY(float   opacity READ getOpacity WRITE setOpacity)
-  Q_PROPERTY(QIcon   icon    READ getIcon)
 
 public:
   typedef QSharedPointer<Element> ptr;

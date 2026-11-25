@@ -29,9 +29,6 @@ class Mesh : public Quad
 {
   Q_OBJECT
 
-  Q_PROPERTY(int nColumns READ nColumns WRITE setNColumns)
-  Q_PROPERTY(int nRows    READ nRows    WRITE setNRows)
-
   typedef QVector<QVector<int> > IndexVector2d;
 
 public:

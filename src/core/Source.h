@@ -145,8 +145,6 @@ class Color : public Source
 {
   Q_OBJECT
 
-  Q_PROPERTY(QColor color READ getColor WRITE setColor)
-
 protected:
   QColor color;
 
@@ -176,9 +174,6 @@ public:
 class Texture : public Source
 {
   Q_OBJECT
-
-  Q_PROPERTY(float x READ getX)
-  Q_PROPERTY(float y READ getY)
 
 protected:
   GLuint textureId;
@@ -298,10 +293,6 @@ class Image : public Texture
 {
   Q_OBJECT
 
-  Q_PROPERTY(QString uri READ getUri WRITE setUri)
-
-  Q_PROPERTY(double rate READ getRate WRITE setRate)
-
 protected:
   QString _uri;
   QVector<QImage> _images;
@@ -374,11 +365,6 @@ class YuvTexture; // forward declaration
 class Video : public Texture
 {
   Q_OBJECT
-
-  Q_PROPERTY(QString uri READ getUri WRITE setUri)
-
-  Q_PROPERTY(double volume READ getVolume WRITE setVolume)
-  Q_PROPERTY(double rate READ getRate WRITE setRate)
 
 public:
   // Thumbnail generation timeout (in ms): how long to wait for the *seeked*
