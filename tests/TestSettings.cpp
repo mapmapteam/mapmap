@@ -820,6 +820,63 @@ void TestSettings::listShrinksWithMesh()
   QCOMPARE(mesh->nRows(), 2);
 }
 
+void TestSettings::meshGridsOfTextureLayerFollowEachOther()
+{
+  Source::ptr image(new Image);
+  TextureLayer layer(image, makeMesh(), makeMesh());
+  Mesh* output = static_cast<Mesh*>(layer.getShape().data());
+  Mesh* input  = static_cast<Mesh*>(layer.getInputShape().data());
+  QSignalSpy structureSpy(&layer, &Element::settingsStructureChanged);
+
+  // Five columns: one structure change per mesh, for its longer list of points.
+  const int columns = MESH_SIZE + 1;
+  QVERIFY(layer.settings()->find("output/nColumns")->setValue(columns));
+  QCOMPARE(output->nColumns(), columns);
+  QCOMPARE(input->nColumns(), columns);
+  QCOMPARE(input->nVertices(), columns * MESH_SIZE);
+  QVERIFY(layer.settings()->find("input/vertices/19"));
+  QCOMPARE(structureSpy.count(), 2);
+
+  // The other way: rows written on the input mesh.
+  const int rows = MESH_SIZE - 1;
+  QVERIFY(layer.settings()->find("input/nRows")->setValue(rows));
+  QCOMPARE(input->nRows(), rows);
+  QCOMPARE(output->nRows(), rows);
+  QCOMPARE(output->nColumns(), columns);
+  QCOMPARE(structureSpy.count(), 4);
+}
+
+void TestSettings::meshGridOfColorLayerIsAlone()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  ColorLayer layer(red, makeMesh());
+  MShape::ptr loose = makeMesh();
+  QSignalSpy structureSpy(&layer, &Element::settingsStructureChanged);
+
+  const int columns = MESH_SIZE + 1;
+  QVERIFY(layer.settings()->find("output/nColumns")->setValue(columns));
+  QCOMPARE(static_cast<Mesh*>(layer.getShape().data())->nColumns(), columns);
+  QCOMPARE(static_cast<Mesh*>(loose.data())->nColumns(), MESH_SIZE);
+  QCOMPARE(structureSpy.count(), 1);
+}
+
+void TestSettings::readingKeepsDifferentMeshGrids()
+{
+  MetaObjectRegistry::instance().addBuiltinTypes();
+  Source::ptr image(new Image);
+  const QVector<QPointF> corners = { QPointF(0, 0), QPointF(1, 0), QPointF(0, 1), QPointF(1, 1) };
+  const int fewest = 2;
+  TextureLayer first(image, makeMesh(), MShape::ptr(new Mesh(corners, fewest, fewest)));
+  QJsonObject obj;
+  first.write(obj);
+
+  // A file whose meshes differ is read as it is: nothing is resized, so nothing is rewritten.
+  TextureLayer second;
+  second.read(obj);
+  QCOMPARE(static_cast<Mesh*>(second.getShape().data())->nColumns(), MESH_SIZE);
+  QCOMPARE(static_cast<Mesh*>(second.getInputShape().data())->nColumns(), fewest);
+}
+
 void TestSettings::rejectsUnknownSource()
 {
   Source::ptr red(new Color(QColor(Qt::red)));
