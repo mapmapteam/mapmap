@@ -272,7 +272,8 @@ void TestSettingsBrowser::layerRowsAndFolds()
   // Display groups come after the other rows of their group.
   QtProperty* output = findRow(rows, "Output shape");
   QCOMPARE(labels(output->subProperties()), QStringList({ "Columns", "Rows", "Points" }));
-  QVERIFY(panel.browser.isExpanded(panel.browser.items(output).first()));
+  // The group of a shape starts folded, and so does its group of points.
+  QVERIFY(!panel.browser.isExpanded(panel.browser.items(output).first()));
 
   QtProperty* points = findRow(output->subProperties(), "Points");
   // Only the corners of a mesh have a row, named after their index in the list.

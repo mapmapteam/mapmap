@@ -267,7 +267,8 @@ QList<QtProperty*> SettingsBrowser::_buildGroup(SettingGroup* group)
       if (subrows.isEmpty())
         continue;
       const QString path = subgroup->path();
-      QtProperty* fold = _buildFold(TREE_GROUP_KEY + path, _groupLabels.value(path, subgroup->id()), false);
+      // A group of the tree, such as a shape of a layer, starts folded.
+      QtProperty* fold = _buildFold(TREE_GROUP_KEY + path, _groupLabels.value(path, subgroup->id()), true);
       for (QtProperty* subrow : subrows)
         fold->addSubProperty(subrow);
       made << fold;
