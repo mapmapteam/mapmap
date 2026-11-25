@@ -50,6 +50,45 @@ void parseSelector(OscAction& a, const QVariant& selector)
   }
 }
 
+// Returns true when text is not empty and made of the digits 0 to 9 only.
+bool isDigitsOnly(const QString& text)
+{
+  if (text.isEmpty())
+    return false;
+  for (const QChar c : text)
+  {
+    if (c < QLatin1Char('0') || c > QLatin1Char('9'))
+      return false;
+  }
+  return true;
+}
+
+// Parses the path form, /mapmap/<kind>/<id>/<path>: sub is <id>/<path>, and
+// every argument is part of the value written to the setting.
+OscAction parseSettingPath(OscAction::Type type, const QString& kind,
+                           const QStringList& sub, const QVariantList& args)
+{
+  bool isId = false;
+  const int id = sub.first().toInt(&isId);
+  if (!isId)
+    return invalid(kind + " id is out of range: " + sub.first());
+
+  if (sub.size() < 2)
+    return invalid(kind + " " + sub.first() + " is missing the path of a setting");
+
+  const QString path = sub.mid(1).join('/');
+  if (args.isEmpty())
+    return invalid("setting '" + path + "' of " + kind + " " + sub.first() + " is missing its value");
+
+  OscAction a;
+  a.type = type;
+  a.selectByName = false;
+  a.id = id;
+  a.path = path;
+  a.values = args;
+  return a;
+}
+
 OscAction parseSource(const QStringList& sub, const QVariantList& args)
 {
   // Every per-source command needs at least the target selector.
@@ -230,12 +269,23 @@ OscAction parseOscAction(const QString& address, const QVariantList& args)
     if (head == QLatin1String("quit"))   { OscAction a; a.type = OscAction::Quit;      return a; }
   }
 
+  // A segment of digits after "source" or "layer" is an id: the path form.
+  const bool isPathForm = (rest.size() >= 2 && isDigitsOnly(rest.at(1)));
+
   if (head == QLatin1String("source"))
+  {
+    if (isPathForm)
+      return parseSettingPath(OscAction::SourceSetting, head, rest.mid(1), args);
     return parseSource(rest.mid(1), args);
+  }
 
   // "mapping" is accepted as an alias of "layer".
   if (head == QLatin1String("layer") || head == QLatin1String("mapping"))
+  {
+    if (isPathForm)
+      return parseSettingPath(OscAction::LayerSetting, head, rest.mid(1), args);
     return parseLayer(rest.mid(1), args);
+  }
 
   return invalid("unknown command: " + address);
 }

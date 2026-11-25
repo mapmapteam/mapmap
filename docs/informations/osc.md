@@ -45,6 +45,16 @@ Rotate the shape by a quarter or half turn: `/mapmap/layer/rotate/cw ,i <id>` (o
 Flip the image inside the shape, without moving it: `/mapmap/layer/flip/source/horizontal ,i <id>` (or `/vertical`)  
 Rotate the image inside the shape, without moving it: `/mapmap/layer/rotate/source/cw ,i <id>` (or `/ccw`, `/180`)
 
+## Settings by path
+
+Every setting of a source or a layer can also be written at an address that follows its path: `/mapmap/source/<id>/<path>` or `/mapmap/layer/<id>/<path>`. The source or the layer is given by its id, in the address; every argument is part of the value. A value outside the range of the setting is clamped to it: an opacity of 1.5 becomes 1.
+
+Adjust the opacity of layer 3: `/mapmap/layer/3/opacity ,f 0.5`  
+Adjust the color of source 2: `/mapmap/source/2/color ,s "#ff0000"`  
+Move point 5 of the output shape of layer 3 to (10, 20): `/mapmap/layer/3/output/vertices/5 ,ff 10 20`
+
+The shapes of a layer are under `output` and `input`; their points are numbered from 0.
+
 ## Name patterns
 
 Ids are hard to remember and manipulate. Alternatively, one can give a string pattern matched against the names of sources or layers. The pattern follows a simple "file globbing" / wildcard syntax (`*`, `?`, `[0-9]`). It is case-sensitive.
