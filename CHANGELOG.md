@@ -25,6 +25,7 @@ Changes:
 - Clicking again on the selected layer no longer switches to scaling or rotating, and the M key does nothing. Use the handle of the layer instead: R, S and T choose what it does.
 
 - The two meshes of a layer always keep the same grid.
+- A mesh has at most 100 columns and 100 rows, by OSC, MCP or the settings panel; a project with more is opened with 100.
 - `get_source` and `get_layer` of the MCP server no longer return `objectName`, which was always empty.
 
 Fix:

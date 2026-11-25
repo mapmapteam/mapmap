@@ -51,7 +51,7 @@ void Mesh::_declareSettings(SettingGroup* root)
   Quad::_declareSettings(root);
 
   root->addSetting(SettingInfo::integer("nColumns", tr("Columns"))
-                   .bounds(MIN_MESH_DIVISIONS, QVariant())
+                   .bounds(MIN_MESH_DIVISIONS, MAX_MESH_DIVISIONS)
                    .defaultValue(MIN_MESH_DIVISIONS)
                    .displayRow("subdivisions")
                    .description(tr("The number of columns of vertices of the mesh, its two edges included.")))
@@ -59,7 +59,7 @@ void Mesh::_declareSettings(SettingGroup* root)
              [this](const QVariant& value) { setNColumns(value.toInt()); return true; });
 
   root->addSetting(SettingInfo::integer("nRows", tr("Rows"))
-                   .bounds(MIN_MESH_DIVISIONS, QVariant())
+                   .bounds(MIN_MESH_DIVISIONS, MAX_MESH_DIVISIONS)
                    .defaultValue(MIN_MESH_DIVISIONS)
                    .displayRow("subdivisions")
                    .description(tr("The number of rows of vertices of the mesh, its two edges included.")))
