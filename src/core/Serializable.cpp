@@ -39,9 +39,20 @@ bool hasTextForm(const Setting* setting)
 } // namespace
 
 Serializable::Serializable()
-  : _settings(new SettingGroup)
 {
-  _settings->setSettingAddedHandler([this](Setting* setting) { _takePendingKey(setting); });
+}
+
+SettingGroup* Serializable::settings() const
+{
+  if (!_settings)
+  {
+    // The tree exists before the declarations run: they call settings() themselves.
+    Serializable* self = const_cast<Serializable*>(this);
+    _settings.reset(new SettingGroup);
+    _settings->setSettingAddedHandler([self](Setting* setting) { self->_takePendingKey(setting); });
+    self->_declareSettings(_settings.get());
+  }
+  return _settings.get();
 }
 
 QString Serializable::cleanClassName() const
@@ -69,7 +80,7 @@ void Serializable::read(const QJsonObject& obj)
   // Declaration order: a setting may need one declared before it (the columns and rows of a
   // mesh before its vertices).
   QStringList settingIds;
-  const QList<SettingNode*> children = _settings->children();
+  const QList<SettingNode*> children = settings()->children();
   for (SettingNode* node : children)
   {
     if (node->kind() != SettingNode::SettingKind)
@@ -99,7 +110,7 @@ void Serializable::write(QJsonObject& obj)
 
   obj[ProjectLabels::CLASS_NAME] = cleanClassName();
 
-  const QList<SettingNode*> children = _settings->children();
+  const QList<SettingNode*> children = settings()->children();
   for (SettingNode* node : children)
   {
     if (node->kind() != SettingNode::SettingKind)
@@ -123,6 +134,11 @@ void Serializable::write(QJsonObject& obj)
 QStringList Serializable::_reservedKeys() const
 {
   return QStringList();
+}
+
+void Serializable::_declareSettings(SettingGroup* root)
+{
+  Q_UNUSED(root);
 }
 
 void Serializable::_readSetting(Setting* setting, const QJsonValue& value) const

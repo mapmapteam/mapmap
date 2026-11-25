@@ -47,6 +47,7 @@ private slots:
   void argumentsByType();
   void rejectsWrongType();
   void elementsDeclareTheirSettings();
+  void shapeBuildsItsTreeWhenAsked();
   void treeWritesReachTheModel();
   void modelWritesNotifyTheTree();
   void opacityOverOscRangeIsClamped();

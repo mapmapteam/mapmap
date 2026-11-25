@@ -135,15 +135,15 @@ protected:
   void _removeRow(int rowId);
 
   /// Call after the grid changed: notifies the vertices, and the number of columns
-  /// and of rows when they differ from the previous ones.
+  /// and of rows when they differ from the previous ones. Does nothing while the tree
+  /// does not exist.
   void _gridChanged(int previousColumns, int previousRows);
 
   /// Returns a new MShape (using default constructor).
   virtual MShape* _create() const { return new Mesh(); }
 
-private:
-  /// Declares the settings of a mesh: its numbers of columns and rows.
-  void _declareSettings();
+  /// Declares the settings of a mesh, after those of a shape: its numbers of columns and rows.
+  void _declareSettings(SettingGroup* root) override;
 };
 
 }

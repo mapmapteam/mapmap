@@ -37,14 +37,25 @@ class Serializable : public QObject {
   Q_OBJECT
 
 protected:
-  /// Creates an object with an empty tree of settings.
+  /// Creates an object without a tree of settings: settings() builds it when first called.
   Serializable();
 
 public:
   virtual ~Serializable() {}
 
-  /// Returns the root of this object's tree of settings, owned by this object.
-  SettingGroup* settings() const { return _settings.get(); }
+  /**
+   * Returns the root of this object's tree of settings, owned by this object.
+   *
+   * The tree is built on the first call: _declareSettings() runs then. An object that
+   * nobody asks for its settings, as the quads a mesh builds to be drawn, never pays for
+   * them. Called from a constructor, it builds the tree with the declarations of the
+   * classes constructed so far: elements declare their settings in their constructors,
+   * after this first call.
+   */
+  SettingGroup* settings() const;
+
+  /// Returns true once settings() has built the tree of settings.
+  bool hasSettingsTree() const { return _settings != nullptr; }
 
   /// Returns the "cleaned" classname ie. without the namespace prefix.
   QString cleanClassName() const;
@@ -80,6 +91,13 @@ protected:
   /// JSON keys read or written by a subclass itself: they are never kept as pending.
   virtual QStringList _reservedKeys() const;
 
+  /**
+   * Declares the settings of this class in root; called once, by the first call of
+   * settings(). An override calls the one of its base class first, so that settings are
+   * declared base class first. Does nothing by default.
+   */
+  virtual void _declareSettings(SettingGroup* root);
+
 private:
   /// Gives a setting the JSON value of its key; skips, with a warning, a value it cannot read.
   void _readSetting(Setting* setting, const QJsonValue& value) const;
@@ -87,8 +105,8 @@ private:
   /// Gives a setting just added to the root the value of the pending key with its id, if any.
   void _takePendingKey(Setting* setting);
 
-  /// Root of the tree of settings, declared by the constructors of the subclasses.
-  std::unique_ptr<SettingGroup> _settings;
+  /// Root of the tree of settings, built by the first call of settings().
+  mutable std::unique_ptr<SettingGroup> _settings;
 
   /// Keys of the last object read that no setting and no subclass claimed, with their values.
   QJsonObject _pendingKeys;

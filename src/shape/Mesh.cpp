@@ -23,8 +23,6 @@
 namespace mmp {
 
 Mesh::Mesh() : Quad(), _nColumns(0), _nRows(0) {
-  _declareSettings();
-
   // Create dummy points (will be all overwritten later on by load/save).
   QVector<QPointF> points(4);
   init(points, 2, 2);
@@ -32,8 +30,6 @@ Mesh::Mesh() : Quad(), _nColumns(0), _nRows(0) {
 
 Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4) : Quad(), _nColumns(0), _nRows(0)
 {
-  _declareSettings();
-
   // Add points in standard order.
   QVector<QPointF> points;
   points.push_back(p1);
@@ -47,13 +43,12 @@ Mesh::Mesh(QPointF p1, QPointF p2, QPointF p3, QPointF p4) : Quad(), _nColumns(0
 
 Mesh::Mesh(const QVector<QPointF>& points, int nColumns, int nRows) : Quad(), _nColumns(0), _nRows(0)
 {
-  _declareSettings();
   init(points, nColumns, nRows);
 }
 
-void Mesh::_declareSettings()
+void Mesh::_declareSettings(SettingGroup* root)
 {
-  SettingGroup* root = settings();
+  Quad::_declareSettings(root);
 
   root->addSetting(SettingInfo::integer("nColumns", tr("Columns"))
                    .bounds(MIN_MESH_DIVISIONS, QVariant())
@@ -72,6 +67,8 @@ void Mesh::_declareSettings()
 
 void Mesh::_gridChanged(int previousColumns, int previousRows)
 {
+  if (!hasSettingsTree())
+    return;
   _verticesChanged();
   if (_nColumns != previousColumns)
     settings()->find("nColumns")->notifyChanged();
