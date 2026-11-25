@@ -38,6 +38,7 @@
 #include "Shape.h"
 #include "MappingManager.h"
 #include "MainWindow.h"
+#include "RemoteSettingWrite.h"
 
 namespace mmp {
 
@@ -413,16 +414,7 @@ QJsonObject McpServer::handleToolsCall(const QJsonObject& params)
     // A point or a range is given as an array of two numbers; anything else as one value.
     const QVariantList arguments = (value.typeId() == QMetaType::QVariantList) ? value.toList() : QVariantList { value };
 
-    // A video given the file it already plays reloads it when the preference
-    // "Allow message with existing media source" is on, as with OSC.
-    Video* video = qobject_cast<Video*>(element.data());
-    bool written = false;
-    if (video && setting == video->settings()->find("uri") && arguments.size() == 1
-        && arguments.first().toString() == video->getUri())
-      written = video->setUri(video->getUri());
-    else
-      written = setting->setFromArguments(arguments);
-    if (!written)
+    if (!writeRemoteSetting(*element, setting, arguments, sameMediaSourceAllowed()))
       return textResult(QString("Could not set '%1' on %2 %3: value refused.").arg(property, kind).arg(id), true);
     _mainWindow->updateCanvases();
     return textResult(QString("Set %1 %2 property '%3'.").arg(kind).arg(id).arg(property));

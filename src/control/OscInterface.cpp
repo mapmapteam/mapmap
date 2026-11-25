@@ -24,6 +24,7 @@
 
 #include "OscInterface.h"
 #include "MainWindow.h"
+#include "RemoteSettingWrite.h"
 #include <QVariant>
 #include <QPointF>
 
@@ -84,17 +85,7 @@ bool writeSetting(Element& element, const QString& path, const QVariantList& arg
     return false;
   }
 
-  // A video given the file it already plays reloads it when the preference
-  // "Allow message with existing media source" is on: Video::setUri() reads it.
-  // Through the setting, an unchanged value would do nothing.
-  Video* video = qobject_cast<Video*>(&element);
-  if (video && setting == video->settings()->find("uri") && arguments.size() == 1
-      && arguments.first().toString() == video->getUri())
-  {
-    return video->setUri(video->getUri());
-  }
-
-  return setting->setFromArguments(arguments);
+  return writeRemoteSetting(element, setting, arguments, sameMediaSourceAllowed());
 }
 
 } // namespace

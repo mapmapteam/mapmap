@@ -48,6 +48,7 @@ HEADERS += \
     $$SHAPE/ShapeHandles.h \
     $$GUI/HandleModeKeys.h \
     $$CONTROL/OscAction.h \
+    $$CONTROL/RemoteSettingWrite.h \
     $$CORE/VideoImpl.h \
     $$CORE/VideoPlayerImpl.h \
     $$CORE/YuvTexture.h \
@@ -90,6 +91,7 @@ SOURCES += \
     $$SHAPE/ShapeHandles.cpp \
     $$GUI/HandleModeKeys.cpp \
     $$CONTROL/OscAction.cpp \
+    $$CONTROL/RemoteSettingWrite.cpp \
     $$CORE/VideoImpl.cpp \
     $$CORE/VideoPlayerImpl.cpp \
     $$CORE/YuvTexture.cpp \
