@@ -52,6 +52,7 @@ private slots:
   void modelWritesNotifyTheTree();
   void opacityOverOscRangeIsClamped();
   void listShrinksWithMesh();
+  void meshGridHasAMaximum();
   void rejectsUnknownSource();
   void replacingShapeRemountsTree();
   void meshGridsOfTextureLayerFollowEachOther();

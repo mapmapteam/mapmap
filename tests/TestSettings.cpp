@@ -842,6 +842,25 @@ void TestSettings::listShrinksWithMesh()
   QCOMPARE(mesh->nRows(), 2);
 }
 
+void TestSettings::meshGridHasAMaximum()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  ColorLayer layer(red, makeMesh());
+  Mesh* mesh = static_cast<Mesh*>(layer.getShape().data());
+  Setting* columns = layer.settings()->find("output/nColumns");
+  Setting* rows = layer.settings()->find("output/nRows");
+  QCOMPARE(columns->info().maximum().toInt(), int(Mesh::MAX_MESH_DIVISIONS));
+  QCOMPARE(rows->info().maximum().toInt(), int(Mesh::MAX_MESH_DIVISIONS));
+
+  // As sent by OSC: the grid stops at the maximum instead of freezing the application.
+  const int tooMany = 100000;
+  QVERIFY(columns->setFromArguments({ tooMany }));
+  QCOMPARE(mesh->nColumns(), int(Mesh::MAX_MESH_DIVISIONS));
+  QCOMPARE(mesh->nVertices(), Mesh::MAX_MESH_DIVISIONS * MESH_SIZE);
+  mesh->setNRows(tooMany);
+  QCOMPARE(mesh->nRows(), int(Mesh::MAX_MESH_DIVISIONS));
+}
+
 void TestSettings::meshGridsOfTextureLayerFollowEachOther()
 {
   Source::ptr image(new Image);
