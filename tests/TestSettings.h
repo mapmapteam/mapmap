@@ -35,6 +35,17 @@ private slots:
   void listFollowsCount();
   void findRejectsBadListIndex();
   void mountedGroupIsNotOwned();
+  void destroyedMountedGroupDetachesSilently();
+  void booleanRefusesOtherText();
+  void bindRefusesHalfPair();
+  void warnsOnBadDefault();
+  void normalizedMapsBounds();
+  void normalizedBooleanAndChoice();
+  void unboundedHasNoNormalized();
+  void displayScaleConverts();
+  void textMatchesProjectFormat();
+  void argumentsByType();
+  void rejectsWrongType();
 };
 
 #endif /* TEST_SETTINGS_H_ */

@@ -314,3 +314,294 @@ void TestSettings::mountedGroupIsNotOwned()
   QVERIFY(!layer.findNode("input"));
   QVERIFY(layer.children().isEmpty());
 }
+
+void TestSettings::destroyedMountedGroupDetachesSilently()
+{
+  SettingGroup layer;
+  RecordingListener listener;
+  layer.setListener(&listener);
+  SettingGroup* input = new SettingGroup;
+  layer.mount("input", input);
+  const int structureChanges = listener.structureChanges;
+
+  // The owner should unmount first; a group destroyed while mounted leaves without a word.
+  delete input;
+  QVERIFY(!layer.findNode("input"));
+  QCOMPARE(listener.structureChanges, structureChanges);
+}
+
+void TestSettings::booleanRefusesOtherText()
+{
+  SettingGroup root;
+  Setting* setting = root.addSetting(SettingInfo::boolean("locked", "Locked"));
+  QVERIFY(!setting->setValue(QString("abc")));
+  QCOMPARE(setting->value().toBool(), false);
+  QVERIFY(!setting->setValue(QString()));
+  QVERIFY(!setting->setValue(2));
+  QCOMPARE(setting->value().toBool(), false);
+
+  QVERIFY(setting->setValue(QString("TRUE")));
+  QCOMPARE(setting->value().toBool(), true);
+  QVERIFY(setting->setValue(QString("0")));
+  QCOMPARE(setting->value().toBool(), false);
+  QVERIFY(setting->setValue(QString("1")));
+  QCOMPARE(setting->value().toBool(), true);
+  QVERIFY(setting->setValue(QString("False")));
+  QCOMPARE(setting->value().toBool(), false);
+  QVERIFY(setting->setValue(1.0));
+  QCOMPARE(setting->value().toBool(), true);
+  QVERIFY(setting->setValue(false));
+  QCOMPARE(setting->value().typeId(), int(QMetaType::Bool));
+
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("refused the arguments"));
+  QVERIFY(!setting->setFromArguments({ QString("abc") }));
+  QCOMPARE(setting->value().toBool(), false);
+}
+
+void TestSettings::bindRefusesHalfPair()
+{
+  double storage = 0.4;
+  SettingGroup root;
+  Setting* setting = root.addSetting(SettingInfo::number("volume", "Volume").bounds(0.0, 1.0));
+
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("Cannot bind setting"));
+  setting->bind([&storage]() { return QVariant(storage); }, nullptr);
+  QCOMPARE(setting->value().toDouble(), 0.0);
+
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("Cannot bind setting"));
+  setting->bind(nullptr, [&storage](const QVariant& value) {
+    storage = value.toDouble();
+    return true;
+  });
+  QVERIFY(setting->setValue(0.6));
+  QCOMPARE(storage, 0.4);
+  QCOMPARE(setting->value().toDouble(), 0.6);
+
+  QVector<QPointF> points = { QPointF(0, 0) };
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("Cannot add settings list"));
+  QVERIFY(!root.addList("vertices", SettingInfo::point("vertex", "Vertex"),
+                        [&points]() { return int(points.size()); },
+                        [&points](int index) { return QVariant(points.at(index)); },
+                        nullptr));
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("Cannot add settings list"));
+  QVERIFY(!root.addList("vertices", SettingInfo::point("vertex", "Vertex"),
+                        nullptr,
+                        [&points](int index) { return QVariant(points.at(index)); },
+                        [](int, const QVariant&) { return true; }));
+  QVERIFY(!root.findNode("vertices"));
+}
+
+void TestSettings::warnsOnBadDefault()
+{
+  SettingGroup root;
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("Default value .* cannot be sanitized"));
+  QVERIFY(root.addSetting(SettingInfo::number("rate", "Rate").defaultValue(QString("abc"))));
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("Default value .* cannot be sanitized"));
+  QVERIFY(root.addSetting(SettingInfo::boolean("locked", "Locked").defaultValue(QString("yes"))));
+}
+
+void TestSettings::normalizedMapsBounds()
+{
+  SettingGroup root;
+  Setting* angle = root.addSetting(SettingInfo::number("angle", "Angle").bounds(-180.0, 180.0));
+  QVERIFY(angle->hasNormalized());
+  QVERIFY(angle->setValue(90));
+  QCOMPARE(angle->normalized(), 0.75);
+  QVERIFY(angle->setNormalized(0.25));
+  QCOMPARE(angle->value().toDouble(), -90.0);
+  QVERIFY(angle->setNormalized(2.0));
+  QCOMPARE(angle->value().toDouble(), 180.0);
+  QVERIFY(!angle->setNormalized(qQNaN()));
+  QCOMPARE(angle->value().toDouble(), 180.0);
+
+  Setting* count = root.addSetting(SettingInfo::integer("count", "Count").bounds(0, 10));
+  QVERIFY(count->hasNormalized());
+  QVERIFY(count->setNormalized(0.26));
+  QCOMPARE(count->value().toInt(), 3);
+  QCOMPARE(count->normalized(), 0.3);
+}
+
+void TestSettings::normalizedBooleanAndChoice()
+{
+  SettingGroup root;
+  Setting* locked = root.addSetting(SettingInfo::boolean("locked", "Locked"));
+  QVERIFY(locked->hasNormalized());
+  QVERIFY(locked->setNormalized(0.49));
+  QCOMPARE(locked->value().toBool(), false);
+  QCOMPARE(locked->normalized(), 0.0);
+  QVERIFY(locked->setNormalized(0.5));
+  QCOMPARE(locked->value().toBool(), true);
+  QCOMPARE(locked->normalized(), 1.0);
+
+  QList<SettingOption> options = { { "a", "A" }, { "b", "B" }, { "c", "C" }, { "d", "D" } };
+  Setting* mode = root.addSetting(SettingInfo::choice("mode", "Mode", options));
+  QVERIFY(mode->hasNormalized());
+  QVERIFY(mode->setNormalized(0.6));
+  QCOMPARE(mode->value().toString(), QString("c"));
+  QVERIFY(mode->setNormalized(mode->normalized()));
+  QCOMPARE(mode->value().toString(), QString("c"));
+  QVERIFY(mode->setNormalized(0.0));
+  QCOMPARE(mode->value().toString(), QString("a"));
+  QCOMPARE(mode->normalized(), 0.0);
+  QVERIFY(mode->setNormalized(1.0));
+  QCOMPARE(mode->value().toString(), QString("d"));
+  QCOMPARE(mode->normalized(), 1.0);
+}
+
+void TestSettings::unboundedHasNoNormalized()
+{
+  SettingGroup root;
+  Setting* name = root.addSetting(SettingInfo::text("name", "Name").defaultValue(QString("layer")));
+  QVERIFY(!name->hasNormalized());
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("has no normalized position"));
+  QVERIFY(!name->setNormalized(0.5));
+  QCOMPARE(name->value().toString(), QString("layer"));
+
+  Setting* rate = root.addSetting(SettingInfo::number("rate", "Rate").defaultValue(1.0));
+  QVERIFY(!rate->hasNormalized());
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("has no normalized position"));
+  QVERIFY(!rate->setNormalized(0.5));
+  QCOMPARE(rate->value().toDouble(), 1.0);
+
+  Setting* gain = root.addSetting(SettingInfo::number("gain", "Gain").bounds(0.0, QVariant()));
+  QVERIFY(!gain->hasNormalized());
+  Setting* vertex = root.addSetting(SettingInfo::point("vertex", "Vertex").bounds(0.0, 1.0));
+  QVERIFY(!vertex->hasNormalized());
+  Setting* empty = root.addSetting(SettingInfo::choice("empty", "Empty", QList<SettingOption>()));
+  QVERIFY(!empty->hasNormalized());
+}
+
+void TestSettings::displayScaleConverts()
+{
+  SettingGroup root;
+  Setting* opacity = root.addSetting(SettingInfo::number("opacity", "Opacity")
+                                     .bounds(0.0, 1.0).displayScale(100.0).valueType(QMetaType::Float));
+  QVERIFY(opacity->setValue(0.75));
+  QCOMPARE(opacity->displayValue().toDouble(), 75.0);
+  QVERIFY(opacity->setDisplayValue(500));
+  QCOMPARE(opacity->value().toDouble(), 1.0);
+  QVERIFY(opacity->setDisplayValue(25));
+  QCOMPARE(opacity->value().toDouble(), 0.25);
+  QVERIFY(!opacity->setDisplayValue(QString("abc")));
+  QCOMPARE(opacity->value().toDouble(), 0.25);
+
+  Setting* name = root.addSetting(SettingInfo::text("name", "Name"));
+  QVERIFY(name->setDisplayValue(QString("front")));
+  QCOMPARE(name->displayValue(), QVariant(QString("front")));
+}
+
+void TestSettings::textMatchesProjectFormat()
+{
+  SettingGroup root;
+  Setting* opacity = root.addSetting(SettingInfo::number("opacity", "Opacity")
+                                     .bounds(0.0, 1.0).valueType(QMetaType::Float));
+  QVERIFY(opacity->setValue(0.75f));
+  QCOMPARE(opacity->toText(), QString("0.75"));
+
+  // The same text as the project writer gives for the property.
+  Color source(QColor(Qt::red));
+  source.setOpacity(0.3f);
+  QVERIFY(opacity->setValue(0.3f));
+  QCOMPARE(opacity->toText(), source.property("opacity").toString());
+
+  Setting* copy = root.addSetting(SettingInfo::number("copy", "Copy").valueType(QMetaType::Float));
+  QVERIFY(copy->setFromText(opacity->toText()));
+  QCOMPARE(copy->value(), opacity->value());
+  QVERIFY(!copy->setFromText("abc"));
+  QCOMPARE(copy->value(), opacity->value());
+
+  // A value read from the owner is written as its value type, here a float property.
+  double storage = 0.1;
+  Setting* bound = root.addSetting(SettingInfo::number("bound", "Bound").valueType(QMetaType::Float));
+  bound->bind([&storage]() { return QVariant(storage); },
+              [&storage](const QVariant& value) {
+                storage = value.toDouble();
+                return true;
+              });
+  QCOMPARE(bound->toText(), QVariant(0.1f).toString());
+  QVERIFY(bound->toText() != QVariant(0.1).toString());
+
+  Setting* locked = root.addSetting(SettingInfo::boolean("locked", "Locked"));
+  QCOMPARE(locked->toText(), QString("false"));
+  QVERIFY(locked->setValue(true));
+  QCOMPARE(locked->toText(), QString("true"));
+  QVERIFY(locked->setFromText("false"));
+  QCOMPARE(locked->value().toBool(), false);
+  QVERIFY(!locked->setFromText("yes"));
+
+  Setting* color = root.addSetting(SettingInfo::color("color", "Color"));
+  QVERIFY(color->setValue(QColor("#ffaa00")));
+  QCOMPARE(color->toText(), QString("#ffaa00"));
+  source.setColor(QColor("#ffaa00"));
+  QCOMPARE(color->toText(), source.property("color").toString());
+
+  // A colour with alpha keeps it through the text.
+  const QColor translucent(255, 170, 0, 128);
+  QVERIFY(color->setValue(translucent));
+  source.setColor(translucent);
+  QCOMPARE(color->toText(), source.property("color").toString());
+  const QString text = color->toText();
+  QVERIFY(color->setValue(QColor(Qt::black)));
+  QVERIFY(color->setFromText(text));
+  QCOMPARE(color->value().value<QColor>(), translucent);
+
+  Setting* count = root.addSetting(SettingInfo::integer("count", "Count"));
+  QVERIFY(count->setFromText("3"));
+  QCOMPARE(count->toText(), QString("3"));
+  QCOMPARE(count->value().typeId(), int(QMetaType::Int));
+}
+
+void TestSettings::argumentsByType()
+{
+  SettingGroup root;
+  Setting* rate = root.addSetting(SettingInfo::number("rate", "Rate"));
+  QVERIFY(rate->setFromArguments({ 0.5 }));
+  QCOMPARE(rate->value().toDouble(), 0.5);
+
+  Setting* color = root.addSetting(SettingInfo::color("color", "Color"));
+  QVERIFY(color->setFromArguments({ QString("#ff0000") }));
+  QCOMPARE(color->value().value<QColor>(), QColor(Qt::red));
+  QVERIFY(color->setFromArguments({ QString("blue") }));
+  QCOMPARE(color->value().value<QColor>(), QColor(Qt::blue));
+
+  Setting* vertex = root.addSetting(SettingInfo::point("vertex", "Vertex"));
+  QVERIFY(vertex->setFromArguments({ 10.0, 20.0 }));
+  QCOMPARE(vertex->value().toPointF(), QPointF(10, 20));
+
+  Setting* window = root.addSetting(SettingInfo::range("window", "Window"));
+  QVERIFY(window->setFromArguments({ 8.0, 3.0 }));
+  QCOMPARE(window->value().toPointF(), QPointF(3, 8));
+
+  Setting* locked = root.addSetting(SettingInfo::boolean("locked", "Locked"));
+  QVERIFY(locked->setFromArguments({ 1 }));
+  QCOMPARE(locked->value().toBool(), true);
+  QVERIFY(locked->setFromArguments({ 0 }));
+  QCOMPARE(locked->value().toBool(), false);
+
+  Setting* name = root.addSetting(SettingInfo::text("name", "Name"));
+  QVERIFY(name->setFromArguments({ QString("front") }));
+  QCOMPARE(name->value().toString(), QString("front"));
+}
+
+void TestSettings::rejectsWrongType()
+{
+  SettingGroup root;
+  Setting* rate = root.addSetting(SettingInfo::number("rate", "Rate").defaultValue(0.5));
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("refused the arguments"));
+  QVERIFY(!rate->setFromArguments({ QString("abc") }));
+  QCOMPARE(rate->value().toDouble(), 0.5);
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("expects 1 argument"));
+  QVERIFY(!rate->setFromArguments({}));
+  QCOMPARE(rate->value().toDouble(), 0.5);
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("expects 1 argument"));
+  QVERIFY(!rate->setFromArguments({ 0.1, 0.2 }));
+  QCOMPARE(rate->value().toDouble(), 0.5);
+
+  Setting* vertex = root.addSetting(SettingInfo::point("vertex", "Vertex").defaultValue(QPointF(1, 2)));
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("expects 2 arguments"));
+  QVERIFY(!vertex->setFromArguments({ 1.0, 2.0, 3.0 }));
+  QCOMPARE(vertex->value().toPointF(), QPointF(1, 2));
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("refused the arguments"));
+  QVERIFY(!vertex->setFromArguments({ QString("x"), 2.0 }));
+  QCOMPARE(vertex->value().toPointF(), QPointF(1, 2));
+}

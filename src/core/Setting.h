@@ -259,10 +259,48 @@ public:
 
   /// Returns the value converted to the value type and kept within the bounds; sets ok to
   /// false, and returns an invalid QVariant, when the value cannot be converted or is not finite.
+  /// A Boolean accepts true or false, the numbers 0 and 1, and the texts "true", "false", "1"
+  /// and "0" in any case; nothing else.
   QVariant sanitized(const QVariant& value, bool* ok = nullptr) const;
 
   /// Sets the value back to the default value.
   void reset();
+
+  /// Returns true when the value can be read and written as a position between 0 and 1:
+  /// for a Number or an Integer with both bounds, minimum < maximum; a Boolean; a Choice
+  /// with options.
+  bool hasNormalized() const;
+
+  /// Returns the position of the value between 0 and 1: (value - minimum) / (maximum - minimum)
+  /// for a number, 0 or 1 for a Boolean, index / (count - 1) for a Choice. Returns 0 when
+  /// hasNormalized() is false or a Choice holds an id missing from its options.
+  double normalized() const;
+
+  /// Writes the value at a position, kept between 0 and 1. A Boolean becomes true from
+  /// position 0.5; a Choice splits the positions into equal steps, one per option, in
+  /// their order. Returns false, with a warning, when hasNormalized() is false.
+  bool setNormalized(double position);
+
+  /// Returns the value as shown to the user: value() * displayScale for a Number or an
+  /// Integer, value() otherwise.
+  QVariant displayValue() const;
+
+  /// Writes a value given as shown to the user; the inverse of displayValue().
+  bool setDisplayValue(const QVariant& value);
+
+  /// Returns the text written in project files: the value converted to the value type, then
+  /// to a QString, as the project writer does for a Qt property. A Point or a Range has no
+  /// text: the result is empty.
+  QString toText() const;
+
+  /// Writes a value read from a project file; the inverse of toText().
+  bool setFromText(const QString& text);
+
+  /// Writes a value received over OSC or MCP. A Point or a Range takes two numbers; every
+  /// other type takes one argument, as accepted by sanitized(): a colour may be a text such as
+  /// "#ff0000" or "red", a Boolean 0 or 1. Returns false, with a warning, when the number of
+  /// arguments is wrong or the value is refused.
+  bool setFromArguments(const QVariantList& arguments);
 
   /// Returns false when the owner made the setting meaningless for now.
   bool isAvailable() const { return _available; }
@@ -271,7 +309,8 @@ public:
   void setAvailable(bool available);
 
   /// Keeps the value in the owner's storage: read returns it, write stores a sanitized
-  /// value and returns false to refuse it.
+  /// value and returns false to refuse it. Two null functions keep the value here again;
+  /// one null function without the other is refused, with a warning.
   void bind(std::function<QVariant()> read, std::function<bool(const QVariant&)> write);
 
   /// Notifies the current value; for owners whose storage changed outside setValue().
@@ -289,6 +328,12 @@ private:
 
   /// Sanitizes one number: finite, rounded to the step when needed, within the bounds.
   bool _sanitizeNumber(double* number) const;
+
+  /// Returns true for a Number or an Integer.
+  bool _isNumber() const;
+
+  /// Reads the bounds of a number; returns false unless both are finite and minimum < maximum.
+  bool _numberBounds(double* minimum, double* maximum) const;
 
   SettingInfo _info;
   QVariant _value;
@@ -357,6 +402,10 @@ class SettingGroup : public SettingNode {
 public:
   /// Creates an empty group, the top of a tree until it is mounted.
   SettingGroup();
+
+  /// Destroys the children this group owns and lets go of the groups mounted on it.
+  /// A group destroyed while it is mounted leaves the group it is mounted on silently,
+  /// without a structure notification: its owner should unmount it first.
   ~SettingGroup() override;
 
   Kind kind() const override { return GroupKind; }
@@ -368,14 +417,15 @@ public:
   SettingGroup* addGroup(const QString& id);
 
   /// Adds a list whose elements are read and written through the owner's storage;
-  /// nullptr, with a warning, when the id is taken or invalid.
+  /// nullptr, with a warning, when the id is taken or invalid or a function is null.
   SettingList* addList(const QString& id, const SettingInfo& elementInfo,
                        std::function<int()> count,
                        std::function<QVariant(int)> read,
                        std::function<bool(int, const QVariant&)> write);
 
   /// Shows a group under id without owning it; refused, with a warning, when the id is
-  /// taken or the group is already in a tree.
+  /// taken or the group is already in a tree. The owner of the mounted group unmounts it
+  /// before destroying it; destroyed while mounted, it leaves silently (see ~SettingGroup).
   void mount(const QString& id, SettingGroup* group);
 
   /// Takes back a mounted group, which is not destroyed.
