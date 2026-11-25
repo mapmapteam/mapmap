@@ -48,10 +48,11 @@ class QTimer;
 namespace mmp {
 
 /**
- * The view components corresponding to a Source (which is the model) in the interface.
- * Mainly manages the property browser for the Source.
+ * The view components corresponding to a Source (which is the model) in the interface:
+ * the property browser of the source, made from its settings by a SettingsBrowser, which
+ * follows the changes of the settings.
  *
- * In other words the SourceGui is to Source what MappingGui is to Mapping.
+ * In other words the SourceGui is to Source what LayerGui is to Layer.
  */
 class SourceGui : public QObject {
   Q_OBJECT
@@ -60,115 +61,48 @@ public:
   typedef QSharedPointer<SourceGui> ptr;
 
 public:
-  // TODO: should be protected
   /// Constructor. A source gui applies to a source.
   SourceGui(Source::ptr source);
   virtual ~SourceGui();
 
 public:
-  /// Returns a pointer to the properties editor for that mapper.
+  /// Returns a pointer to the properties editor for that source.
   virtual QWidget* getPropertiesEditor();
 
-  /// Returns the object making the panel from the settings of the source, or nullptr when
-  /// the panel is written by hand.
+  /// Returns the object making the panel from the settings of the source.
   SettingsBrowser* getSettingsBrowser() const { return _settingsBrowser; }
 
-public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value);
-  virtual void setValue(QString propertyName, QVariant value);
-
 signals:
+  /// The user changed a setting of the source through the panel.
   void valueChanged(Source::ptr);
 
 protected:
-  /// Constructor. When generatedPanel is true, the panel is made from the settings of the
-  /// source by a SettingsBrowser; otherwise the ID and opacity rows are written by hand.
-  SourceGui(Source::ptr source, bool generatedPanel);
-
   Source::ptr _source;
   QtTreePropertyBrowser* _propertyBrowser;
   QtVariantEditorFactory* _variantFactory;
   QtVariantPropertyManager* _variantManager;
   SettingsBrowser* _settingsBrowser;
-
-  QtVariantProperty* _idItem;
-  QtVariantProperty* _opacityItem;
-};
-
-/// The panel of a colour source, made from its settings.
-class ColorGui : public SourceGui {
-  Q_OBJECT
-
-public:
-  /// Constructor. The source is a Color.
-  ColorGui(Source::ptr source);
-  virtual ~ColorGui() {}
-};
-
-class TextureGui : public SourceGui {
-  Q_OBJECT
-
-public:
-  TextureGui(Source::ptr source);
-  virtual ~TextureGui() {}
-};
-
-class ImageGui : public TextureGui {
-  Q_OBJECT
-
-public:
-  ImageGui(Source::ptr source);
-  virtual ~ImageGui() {}
-
-public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value);
-  virtual void setValue(QString propertyName, QVariant value);
-
-protected:
-  QSharedPointer<Image> image;
-  QtVariantProperty* _imageFileItem;
-  QtVariantProperty* _imageRateItem;
-};
-
-class VideoGui : public TextureGui {
-  Q_OBJECT
-
-public:
-  VideoGui(Source::ptr source);
-  virtual ~VideoGui() {}
-
-public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value);
-  virtual void setValue(QString propertyName, QVariant value);
-
-protected:
-  QSharedPointer<Video> media;
-  QtVariantProperty* _mediaFileItem;
-  QtVariantProperty* _mediaRateItem;
-  QtVariantProperty* _mediaVolumeItem;
-//  QtVariantProperty* _mediaReverseItem;
 };
 
 #ifdef HAVE_SYPHON
 /**
- * Property editor for a Syphon source (macOS only). Exposes a live-refreshed
- * "Server" dropdown so the source can be re-pointed at any available Syphon
- * server, plus a read-only connection status.
+ * Property editor for a Syphon source (macOS only). Under the rows made from the settings,
+ * exposes a live-refreshed "Server" dropdown so the source can be re-pointed at any
+ * available Syphon server, plus a read-only connection status.
  */
-class SyphonGui : public TextureGui {
+class SyphonGui : public SourceGui {
   Q_OBJECT
 
 public:
   SyphonGui(Source::ptr source);
   virtual ~SyphonGui() {}
 
-public slots:
-  virtual void setValue(QtProperty* property, const QVariant& value);
-  virtual void setValue(QString propertyName, QVariant value);
-
 private slots:
   /// Polls the Syphon directory and refreshes the dropdown/status.
   void refreshServers();
+
+  /// Connects to the server chosen in the "Server" row.
+  void _chooseServer(QtProperty* property, const QVariant& value);
 
 protected:
   void _rebuildServerEnum();
@@ -177,7 +111,6 @@ protected:
   QSharedPointer<Syphon> syphon;
   QtVariantProperty* _serverItem;
   QtVariantProperty* _statusItem;
-  QtVariantProperty* _alphaItem;
 
   // _servers[i] corresponds to dropdown index i+1 (index 0 is "(none)").
   QList<SyphonServerDescription> _servers;

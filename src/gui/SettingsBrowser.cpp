@@ -184,13 +184,15 @@ void SettingsBrowser::_writeRow(QtProperty* property, const QVariant& value)
       accepted = setting->setDisplayValue(value);
     break;
   case SettingInfo::Range: {
+    // Each bound is shown scaled, like a number; a zero scale gives a value the tree refuses.
+    const double scale = setting->info().displayScale();
     QPointF range = setting->value().toPointF();
-    const QVariant current = (row.part == RANGE_LOW ? range.x() : range.y());
+    const QVariant current = (row.part == RANGE_LOW ? range.x() : range.y()) * scale;
     if (!_showsValue(row, value, current)) {
       if (row.part == RANGE_LOW)
-        range.setX(value.toDouble());
+        range.setX(value.toDouble() / scale);
       else
-        range.setY(value.toDouble());
+        range.setY(value.toDouble() / scale);
       accepted = setting->setValue(range);
     }
     break;
@@ -372,22 +374,23 @@ QtProperty* SettingsBrowser::_buildRow(Setting* setting, const QString& label)
 
 QtVariantProperty* SettingsBrowser::_buildRangePart(Setting* setting, const QString& label, int part)
 {
-  // A Range is shown as it is kept: its display scale applies to numbers only.
+  // Each bound of a Range is shown like a number, in the unit its group's label gives.
   const SettingInfo& info = setting->info();
+  const double scale = info.displayScale();
   QtVariantProperty* property = _addProperty(QMetaType::Double, label);
   property->setToolTip(info.description());
   property->setEnabled(!info.isReadOnly() && setting->isAvailable());
   property->setAttribute(QStringLiteral("decimals"), PANEL_DECIMALS);
   bool hasMinimum = false;
   bool hasMaximum = false;
-  const double minimum = info.minimum().toDouble(&hasMinimum);
-  const double maximum = info.maximum().toDouble(&hasMaximum);
+  const double minimum = info.minimum().toDouble(&hasMinimum) * scale;
+  const double maximum = info.maximum().toDouble(&hasMaximum) * scale;
   if (hasMinimum)
     property->setAttribute(QStringLiteral("minimum"), minimum);
   if (hasMaximum)
     property->setAttribute(QStringLiteral("maximum"), maximum);
   if (info.step() > NO_STEP)
-    property->setAttribute(QStringLiteral("singleStep"), info.step());
+    property->setAttribute(QStringLiteral("singleStep"), info.step() * scale);
 
   _addRow(property, setting, part);
   return property;
@@ -481,7 +484,7 @@ QVariant SettingsBrowser::_rowValue(QtVariantProperty* property, Row& row, Setti
     return setting->value().toPointF();
   case SettingInfo::Range: {
     const QPointF range = setting->value().toPointF();
-    return row.part == RANGE_LOW ? range.x() : range.y();
+    return (row.part == RANGE_LOW ? range.x() : range.y()) * setting->info().displayScale();
   }
   case SettingInfo::Choice:
   case SettingInfo::Reference: {

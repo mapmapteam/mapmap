@@ -93,18 +93,37 @@ QString shown(const QVariant& number)
   return QString::number(number.toDouble(), 'f', SettingsBrowser::PANEL_DECIMALS);
 }
 
-/// Lists the given sources to the layers while it exists.
+/// Lists the given sources to the layers, and finds them by id, while it exists; the list
+/// can change meanwhile.
 struct SourceListing {
-  explicit SourceListing(const QVector<Source::ptr>& sources)
+  explicit SourceListing(const QVector<Source::ptr>& initial)
+    : sources(new QVector<Source::ptr>(initial))
   {
-    Layer::setSourceLister([sources]() { return sources; });
+    std::shared_ptr<QVector<Source::ptr> > listed = sources;
+    Layer::setSourceLister([listed]() { return *listed; });
+    Layer::setSourceResolver([listed](uid id) {
+      for (const Source::ptr& source : *listed)
+        if (source->getId() == id)
+          return source;
+      return Source::ptr();
+    });
   }
 
   ~SourceListing()
   {
     Layer::setSourceLister(Layer::SourceLister());
+    Layer::setSourceResolver(Layer::SourceResolver());
   }
+
+  std::shared_ptr<QVector<Source::ptr> > sources;
 };
+
+/// Returns the rows under the group of rows with a label.
+QList<QtProperty*> rowsOf(const QList<QtProperty*>& rows, const QString& label)
+{
+  QtProperty* group = findRow(rows, label);
+  return group ? group->subProperties() : QList<QtProperty*>();
+}
 
 } // namespace
 
@@ -337,4 +356,181 @@ void TestSettingsBrowser::rebuildFromEditedWaitsForEditToEnd()
   QCoreApplication::processEvents();
   output = findRow(panel.browser.properties(), "output");
   QCOMPARE(findRow(output->subProperties(), "Points")->subProperties().size(), FEWEST_COLUMNS * MESH_SIZE);
+}
+
+void TestSettingsBrowser::mediaSourceRows()
+{
+  Image image;
+  Panel imagePanel(image.settings());
+  QCOMPARE(labels(imagePanel.browser.properties()), QStringList({ "ID", "Opacity (%)", "Image file", "Speed (%)" }));
+
+  Video video;
+  Panel videoPanel(video.settings());
+  QCOMPARE(labels(videoPanel.browser.properties()),
+           QStringList({ "ID", "Opacity (%)", "Source", "Speed (%)", "Volume (%)" }));
+  QtVariantProperty* volume = findRow(videoPanel.browser.properties(), "Volume (%)");
+  QCOMPARE(volume->attributeValue("minimum").toDouble(), 0.0);
+  QCOMPARE(volume->attributeValue("maximum").toDouble(), 100.0);
+}
+
+void TestSettingsBrowser::filePathRowHasFilter()
+{
+  Image image;
+  Panel panel(image.settings());
+  QtVariantProperty* file = findRow(panel.browser.properties(), "Image file");
+  QCOMPARE(file->propertyType(), VariantManager::filePathTypeId());
+  const QString filter = image.settings()->find("uri")->info().fileFilter();
+  QVERIFY(filter.endsWith(";;All files (*)"));
+  QCOMPARE(file->attributeValue("filter").toString(), filter);
+}
+
+void TestSettingsBrowser::integerRowHasBounds()
+{
+  SettingGroup root;
+  const int lowest = 2;
+  const int highest = 12;
+  const double step = 2;
+  Setting* steps = root.addSetting(SettingInfo::integer("steps", "Steps").bounds(lowest, highest).step(step)
+                                   .defaultValue(lowest));
+  Panel panel(&root);
+
+  QtVariantProperty* row = findRow(panel.browser.properties(), "Steps");
+  QCOMPARE(row->propertyType(), int(QMetaType::Int));
+  QCOMPARE(row->attributeValue("minimum").toInt(), lowest);
+  QCOMPARE(row->attributeValue("maximum").toInt(), highest);
+  QCOMPARE(row->attributeValue("singleStep").toInt(), int(step));
+
+  row->setValue(highest);
+  QCOMPARE(steps->value().toInt(), highest);
+}
+
+void TestSettingsBrowser::booleanRowWritesTree()
+{
+  SettingGroup root;
+  Setting* loop = root.addSetting(SettingInfo::boolean("loop", "Loop"));
+  Panel panel(&root);
+
+  QtVariantProperty* row = findRow(panel.browser.properties(), "Loop");
+  QCOMPARE(row->propertyType(), int(QMetaType::Bool));
+  QCOMPARE(row->value().toBool(), false);
+  row->setValue(true);
+  QCOMPARE(loop->value().toBool(), true);
+
+  loop->setValue(false);
+  panel.settings->refresh("loop", false);
+  QCOMPARE(row->value().toBool(), false);
+}
+
+void TestSettingsBrowser::pointRowWritesTree()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  ColorLayer layer(red, makeMesh());
+  Panel panel(layer.settings());
+  follow(&layer, panel.settings.get());
+  QSignalSpy changes(&layer, &Element::settingChanged);
+  QSignalSpy edits(panel.settings.get(), &SettingsBrowser::edited);
+
+  QtVariantProperty* first = findRow(rowsOf(rowsOf(panel.browser.properties(), "output"), "Points"), "Point 0");
+  QCOMPARE(first->propertyType(), int(QMetaType::QPointF));
+  const QPointF moved(12.5, 7.5);
+  first->setValue(moved);
+  QCOMPARE(layer.getShape()->getVertex(0), moved);
+  QCOMPARE(changes.count(), 1);
+  QCOMPARE(edits.count(), 1);
+
+  // A vertex moved elsewhere (the canvas) shows in its row.
+  const QPointF dragged(40, 30);
+  layer.getShape()->setVertex(0, dragged);
+  QCOMPARE(first->value().toPointF(), dragged);
+  QCOMPARE(edits.count(), 1);
+}
+
+void TestSettingsBrowser::referenceRowWritesSourceId()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  red->setName("red");
+  Source::ptr blue(new Color(QColor(Qt::blue)));
+  blue->setName("blue");
+  Source::ptr image(new Image);
+  image->setName("image");
+  SourceListing listing({ red, image, blue });
+  ColorLayer layer(red, makeMesh());
+  Panel panel(layer.settings());
+  follow(&layer, panel.settings.get());
+
+  // Only the compatible sources are offered; choosing one writes its id.
+  QtVariantProperty* source = findRow(panel.browser.properties(), "Source");
+  QCOMPARE(source->attributeValue("enumNames").toStringList(), QStringList({ "red", "blue" }));
+  source->setValue(1);
+  QCOMPARE(layer.getSource(), blue);
+  QCOMPARE(layer.settings()->find("sourceId")->value().toInt(), int(blue->getId()));
+  QCOMPARE(source->value().toInt(), 1);
+}
+
+void TestSettingsBrowser::sourceMenuFollowsSourceList()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  red->setName("red");
+  SourceListing listing({ red });
+  ColorLayer layer(red, makeMesh());
+  Panel panel(layer.settings());
+  QtVariantProperty* source = findRow(panel.browser.properties(), "Source");
+
+  // What LayerGui::updateSources() does when MainWindow says the list changed.
+  Source::ptr green(new Color(QColor(Qt::green)));
+  green->setName("green");
+  listing.sources->append(green);
+  panel.settings->refresh("sourceId", QVariant());
+  QCOMPARE(source->attributeValue("enumNames").toStringList(), QStringList({ "red", "green" }));
+
+  green->setName("lime");
+  panel.settings->refresh("sourceId", QVariant());
+  QCOMPARE(source->attributeValue("enumNames").toStringList(), QStringList({ "red", "lime" }));
+
+  listing.sources->removeLast();
+  panel.settings->refresh("sourceId", QVariant());
+  QCOMPARE(source->attributeValue("enumNames").toStringList(), QStringList({ "red" }));
+  QCOMPARE(source->value().toInt(), 0);
+}
+
+void TestSettingsBrowser::rangeRowScalesLikeNumber()
+{
+  SettingGroup root;
+  const double scale = 100;
+  Setting* window = root.addSetting(SettingInfo::range("window", "Window").bounds(0.0, 1.0)
+                                    .unit(SettingInfo::Percent).displayScale(scale)
+                                    .defaultValue(QPointF(0.2, 0.6)));
+  Panel panel(&root);
+
+  // The label gives the unit; both parts are shown in it.
+  QtProperty* group = findRow(panel.browser.properties(), "Window (%)");
+  QVERIFY(group);
+  QtVariantProperty* low = findRow(group->subProperties(), "Low");
+  QtVariantProperty* high = findRow(group->subProperties(), "High");
+  QCOMPARE(shown(low->value()), QString("20.0"));
+  QCOMPARE(shown(high->value()), QString("60.0"));
+  QCOMPARE(high->attributeValue("maximum").toDouble(), scale);
+
+  high->setValue(80.0);
+  QCOMPARE(shown(window->value().toPointF().y() * scale), QString("80.0"));
+  QCOMPARE(shown(window->value().toPointF().x() * scale), QString("20.0"));
+}
+
+void TestSettingsBrowser::textureMeshPanelKeepsGridsInStep()
+{
+  Source::ptr image(new Image);
+  TextureLayer layer(image, makeMesh(), makeMesh());
+  Panel panel(layer.settings());
+  follow(&layer, panel.settings.get());
+  QCOMPARE(labels(panel.browser.properties()), QStringList({ "ID", "Opacity (%)", "Source", "output", "input" }));
+
+  findRow(rowsOf(panel.browser.properties(), "output"), "Columns")->setValue(FEWEST_COLUMNS);
+  QCoreApplication::processEvents();
+
+  // Both groups show the new grid of both meshes.
+  for (const QString& group : { QString("output"), QString("input") }) {
+    const QList<QtProperty*> rows = rowsOf(panel.browser.properties(), group);
+    QCOMPARE(findRow(rows, "Columns")->value().toInt(), FEWEST_COLUMNS);
+    QCOMPARE(rowsOf(rows, "Points").size(), FEWEST_COLUMNS * MESH_SIZE);
+  }
 }

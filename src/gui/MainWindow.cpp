@@ -400,10 +400,7 @@ void MainWindow::layerPropertyChanged(uid id, QString propertyName, QVariant val
   Layer::ptr layer = mappingManager->getLayerById(id);
   Q_CHECK_PTR(layer);
 
-  // Send to mapping gui.
-  LayerGui::ptr layerGui = getLayerGuiByLayerId(id);
-  Q_CHECK_PTR(layerGui);
-  layerGui->setValue(propertyName, value);
+  // The panel of the layer follows its settings by itself (see LayerGui).
 
   // Send to actions.
   if (layer == getCurrentLayer())
@@ -422,12 +419,11 @@ void MainWindow::layerPropertyChanged(uid id, QString propertyName, QVariant val
     {
       layerLockedAction->setChecked(value.toBool());
     }
-    else if (propertyName == "sourceId")
-    {
-      layerGui->updateSources();
-      updatePlayingState();
-    }
   }
+
+  // A layer's new source may have to start or stop playing, whichever layer it is.
+  if (propertyName == "sourceId")
+    updatePlayingState();
 
   // Send to list items.
   const QModelIndex& index = layerListModel->getIndexFromId(layer->getId());
@@ -455,21 +451,28 @@ void MainWindow::sourcePropertyChanged(uid id, QString propertyName, QVariant va
   Source::ptr source = mappingManager->getSourceById(id);
   Q_CHECK_PTR(source);
 
-  // Send to source gui.
-  SourceGui::ptr sourceGui = getSourceGuiBySourceId(id);
-  Q_CHECK_PTR(sourceGui);
-
-  sourceGui->setValue(propertyName, value);
+  // The panel of the source follows its settings by itself (see SourceGui).
 
   // Send to list items.
   QListWidgetItem* sourceItem = getItemFromId(*sourceList, id);
   if (propertyName == "name")
+  {
     sourceItem->setText(source->getName());
+
+    // The source menus of the layers show the new name.
+    updateMappers();
+  }
   else if (propertyName == "color" && source->getSourceType() == SourceType::Color)
   {
     // The list shows the colour of a colour source, however it was changed.
     QSharedPointer<Color> color = qSharedPointerCast<Color>(source);
     updateSourceItem(id, getSourceIcon(source), strippedName(color->getColor().name()));
+  }
+  else if (propertyName == "uri"
+           && (source->getSourceType() == SourceType::Image || source->getSourceType() == SourceType::Video))
+  {
+    // The list shows the file name of a media source, however it was changed.
+    updateSourceItem(id, getSourceIcon(source), strippedName(value.toString()));
   }
 }
 
@@ -3343,17 +3346,11 @@ void MainWindow::addSourceItem(uid sourceId, const QIcon& icon, const QString& n
   // Create source gui.
   SourceGui::ptr sourceGui;
   SourceType sourceType = source->getSourceType();
-  if (sourceType == SourceType::Video)
-    sourceGui = SourceGui::ptr(new VideoGui(source));
-  else if (sourceType == SourceType::Image)
-    sourceGui = SourceGui::ptr(new ImageGui(source));
-  else if (sourceType == SourceType::Color)
-    sourceGui = SourceGui::ptr(new ColorGui(source));
 #ifdef Q_OS_MAC
-  else if (sourceType == SourceType::Syphon)
+  if (sourceType == SourceType::Syphon)
     sourceGui = SourceGui::ptr(new SyphonGui(source));
 #endif
-  else
+  if (sourceGui.isNull())
     sourceGui = SourceGui::ptr(new SourceGui(source));
 
   // Add to list of source guis..
@@ -3370,15 +3367,6 @@ void MainWindow::addSourceItem(uid sourceId, const QIcon& icon, const QString& n
   connect(sourceGui.data(), &SourceGui::valueChanged, this, &MainWindow::handleSourceChanged);
 
   connect(source.data(), &Source::settingChanged, this, &MainWindow::sourcePropertyChanged);
-
-  // A panel made from the settings follows them.
-  SettingsBrowser* settingsBrowser = sourceGui->getSettingsBrowser();
-  if (settingsBrowser)
-  {
-    connect(source.data(), &Source::settingChanged, settingsBrowser,
-            [settingsBrowser](uid, const QString& path, const QVariant& value) { settingsBrowser->refresh(path, value); });
-    connect(source.data(), &Source::settingsStructureChanged, settingsBrowser, &SettingsBrowser::rebuild);
-  }
 
   connect(source.data(), &Source::iconChanged, this, &MainWindow::sourceIconChanged);
 
@@ -3534,16 +3522,8 @@ void MainWindow::addLayerItem(uid layerId)
   layerPropertyPanel->setCurrentWidget(mapperEditor);
   layerPropertyPanel->setEnabled(true);
 
-  // When mapper value is changed, update canvases.
-  connect(mapper.data(), &LayerGui::valueChanged, this, &MainWindow::updateCanvases);
-
-  // Also update playing state in case source was changed.
-  connect(mapper.data(), &LayerGui::sourceChanged, this, &MainWindow::updatePlayingState);
-
-  connect(sourceCanvas, &MapperGLCanvas::shapeChanged, mapper.data(), &LayerGui::updateShape);
-
-  connect(destinationCanvas, &MapperGLCanvas::shapeChanged, mapper.data(), &LayerGui::updateShape);
-
+  // The panel follows the settings of the layer, and of its shapes, by itself; a change made
+  // through it reaches the canvases and the playing state through the signals below.
   connect(layer.data(), &Layer::settingChanged, this, &MainWindow::layerPropertyChanged);
 
   // TODO: attention: if mapping is invisible canvases will be updated for no reason

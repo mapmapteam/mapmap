@@ -29,6 +29,15 @@ private slots:
   void editThatShrinksListRebuildsLater();
   void openFoldStaysOpen();
   void rebuildFromEditedWaitsForEditToEnd();
+  void mediaSourceRows();
+  void filePathRowHasFilter();
+  void integerRowHasBounds();
+  void booleanRowWritesTree();
+  void pointRowWritesTree();
+  void referenceRowWritesSourceId();
+  void sourceMenuFollowsSourceList();
+  void rangeRowScalesLikeNumber();
+  void textureMeshPanelKeepsGridsInStep();
 };
 
 #endif /* TEST_SETTINGS_BROWSER_H_ */
