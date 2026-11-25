@@ -108,7 +108,6 @@ void TransformShapeCommand::undo() {
   strong->copyFrom(*_originalShape);
 
   // Update everything.
-  _canvas->currentShapeWasChanged();
   _canvas->update();
 }
 
@@ -117,7 +116,6 @@ void TransformShapeCommand::redo() {
   _doTransform(_shape);
 
   // Update everything.
-  _canvas->currentShapeWasChanged();
   _canvas->update();
 }
 

@@ -70,7 +70,6 @@ public:
   virtual QWidget* getPropertiesEditor();
 
   /// Returns the object making the panel from the settings of the source.
-  SettingsBrowser* getSettingsBrowser() const { return _settingsBrowser; }
 
 signals:
   /// The user changed a setting of the source through the panel.

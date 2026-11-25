@@ -117,9 +117,6 @@ public:
   /// Sets the name shown above the outline of the content rectangle.
   void setContentLabel(const QString& label);
 
-  /// This function needs to be called after a shape inside the canvas has been changed for appropriate signals to be activated.
-  void currentShapeWasChanged();
-
   // Apply zoom to view
   void applyZoomToView();
 
@@ -228,7 +225,6 @@ private:
   QUndoStack *undoStack;
 
 signals:
-  void shapeChanged(MShape*);
   void imageChanged();
   void shapeContextMenuRequested(const QPoint &pos);
   void zoomFactorChanged(qreal value);

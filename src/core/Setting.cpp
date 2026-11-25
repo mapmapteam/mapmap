@@ -587,7 +587,7 @@ bool Setting::setDisplayValue(const QVariant& value)
 
 QString Setting::toText() const
 {
-  // As the project writer does for a Qt property: QMetaProperty::read(object).toString().
+  // The text of the value as the project file stores it, in the type of the setting.
   QVariant stored = value();
   stored.convert(QMetaType(_info.valueType()));
   return stored.toString();

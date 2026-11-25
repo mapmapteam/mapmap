@@ -51,8 +51,6 @@ class MShape : public Serializable
 {
   Q_OBJECT
 
-  Q_PROPERTY(bool    locked  READ isLocked   WRITE setLocked)
-  Q_PROPERTY(QVector<QPointF> vertices READ getVertices WRITE setVertices STORED false)
 public:
 
   // Enumerations

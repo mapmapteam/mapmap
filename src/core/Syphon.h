@@ -76,11 +76,6 @@ class Syphon : public Texture
 {
   Q_OBJECT
 
-  Q_PROPERTY(QString serverUUID READ getServerUUID WRITE setServerUUID)
-  Q_PROPERTY(QString serverName READ getServerName WRITE setServerName)
-  Q_PROPERTY(QString appName    READ getAppName    WRITE setAppName)
-  Q_PROPERTY(bool respectAlpha  READ getRespectAlpha WRITE setRespectAlpha)
-
 public:
   /// Frame size assumed before the first frame arrives (drives a new mapping's
   /// initial input shape; auto-fitted once the real resolution is known).

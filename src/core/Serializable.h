@@ -25,7 +25,6 @@
 #include <QObject>
 #include <QJsonObject>
 #include <QJsonArray>
-#include <QMetaProperty>
 #include <QStringList>
 #include <QDebug>
 

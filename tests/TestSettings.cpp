@@ -506,11 +506,9 @@ void TestSettings::textMatchesProjectFormat()
   QVERIFY(opacity->setValue(0.75f));
   QCOMPARE(opacity->toText(), QString("0.75"));
 
-  // The same text as the project writer gives for the property.
-  Color source(QColor(Qt::red));
-  source.setOpacity(0.3f);
+  // A float is written as the project writer always did: converted to double, with all its digits.
   QVERIFY(opacity->setValue(0.3f));
-  QCOMPARE(opacity->toText(), source.property("opacity").toString());
+  QCOMPARE(opacity->toText(), QString("0.30000001192092896"));
 
   Setting* copy = root.addSetting(SettingInfo::number("copy", "Copy").valueType(QMetaType::Float));
   QVERIFY(copy->setFromText(opacity->toText()));
@@ -540,14 +538,11 @@ void TestSettings::textMatchesProjectFormat()
   Setting* color = root.addSetting(SettingInfo::color("color", "Color"));
   QVERIFY(color->setValue(QColor("#ffaa00")));
   QCOMPARE(color->toText(), QString("#ffaa00"));
-  source.setColor(QColor("#ffaa00"));
-  QCOMPARE(color->toText(), source.property("color").toString());
 
   // A colour with alpha keeps it through the text.
   const QColor translucent(255, 170, 0, 128);
   QVERIFY(color->setValue(translucent));
-  source.setColor(translucent);
-  QCOMPARE(color->toText(), source.property("color").toString());
+  QCOMPARE(color->toText(), QString("#80ffaa00"));
   const QString text = color->toText();
   QVERIFY(color->setValue(QColor(Qt::black)));
   QVERIFY(color->setFromText(text));
