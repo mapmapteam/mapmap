@@ -21,6 +21,20 @@ class TestSettings: public QObject
 
 private slots:
   void opacityIsClamped();
+  void settingClampsToBounds();
+  void rejectsNonFinite();
+  void stepIsNotStrictByDefault();
+  void integerIsRounded();
+  void rangeNeverCrosses();
+  void choiceKeepsMissingId();
+  void readOnlyRefusesWrites();
+  void resetRestoresDefault();
+  void boundSettingUsesOwnerStorage();
+  void pathFollowsStructure();
+  void notifiesTopmostListener();
+  void listFollowsCount();
+  void findRejectsBadListIndex();
+  void mountedGroupIsNotOwned();
 };
 
 #endif /* TEST_SETTINGS_H_ */
