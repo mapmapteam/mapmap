@@ -1359,8 +1359,9 @@ void TestSettings::describesBoundsAndUnits()
   QCOMPARE(opacity.value("default").toDouble(), 1.0);
   QCOMPARE(opacity.value("unit").toString(), QString("percent"));
   QCOMPARE(opacity.value("displayScale").toDouble(), 100.0);
-  // Bound to the element, which keeps no base value apart: it cannot be modulated yet.
-  QVERIFY(!source.settings()->find("opacity")->info().isModulable());
+  // Opacity accepts modulation; a setting does not unless it is declared so.
+  QVERIFY(source.settings()->find("opacity")->info().isModulable());
+  QVERIFY(!source.settings()->find("name")->info().isModulable());
   QCOMPARE(opacity.value("value").toDouble(), 1.0);
   QVERIFY(!opacity.value("description").toString().isEmpty());
   QVERIFY(!opacity.value("label").toString().isEmpty());

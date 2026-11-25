@@ -69,6 +69,7 @@ Element::Element(uid id, UidAllocator* allocator) : _name(""), _isLocked(false),
                    .defaultValue(MAX_OPACITY)
                    .unit(SettingInfo::Percent)
                    .displayScale(OPACITY_DISPLAY_SCALE)
+                   .modulable()
                    .description(tr("How opaque this element is, from fully transparent to fully opaque.")))
       ->bind([this]() { return QVariant(getOpacity()); },
              [this](const QVariant& value) { setOpacity(value.toFloat()); return true; });
