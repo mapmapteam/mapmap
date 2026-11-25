@@ -358,25 +358,29 @@ Syphon::Syphon(int id)
   SettingGroup* root = settings();
 
   // The server is chosen in the panel by its name, so its three identifiers are hidden.
-  root->addSetting(SettingInfo::text("serverUUID", tr("Server UUID"))
+  root->addSetting(SettingInfo::text("server_uuid", tr("Server UUID"))
+                   .formerId("serverUUID")
                    .hidden()
                    .description(tr("The system-wide identifier of the Syphon server this source receives.")))
       ->bind([this]() { return QVariant(getServerUUID()); },
              [this](const QVariant& value) { setServerUUID(value.toString()); return true; });
 
-  root->addSetting(SettingInfo::text("serverName", tr("Server name"))
+  root->addSetting(SettingInfo::text("server_name", tr("Server name"))
+                   .formerId("serverName")
                    .hidden()
                    .description(tr("The name of the Syphon server this source receives.")))
       ->bind([this]() { return QVariant(getServerName()); },
              [this](const QVariant& value) { setServerName(value.toString()); return true; });
 
-  root->addSetting(SettingInfo::text("appName", tr("Application name"))
+  root->addSetting(SettingInfo::text("app_name", tr("Application name"))
+                   .formerId("appName")
                    .hidden()
                    .description(tr("The name of the application publishing the Syphon server.")))
       ->bind([this]() { return QVariant(getAppName()); },
              [this](const QVariant& value) { setAppName(value.toString()); return true; });
 
-  root->addSetting(SettingInfo::boolean("respectAlpha", tr("Respect source alpha"))
+  root->addSetting(SettingInfo::boolean("respect_alpha", tr("Respect source alpha"))
+                   .formerId("respectAlpha")
                    .description(tr("Whether the transparency sent by the server is kept; otherwise the frames are made opaque.")))
       ->bind([this]() { return QVariant(getRespectAlpha()); },
              [this](const QVariant& value) { setRespectAlpha(value.toBool()); return true; });

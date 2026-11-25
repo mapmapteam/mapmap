@@ -160,14 +160,14 @@ public:
   /// Function used to find a source from its uid (eg. a MappingManager lookup).
   typedef std::function<Source::ptr(uid)> SourceResolver;
 
-  /// Sets the function used by setSourceById() (eg. when the "sourceId"
+  /// Sets the function used by setSourceById() (eg. when the "source_id"
   /// property is changed through OSC or MCP).
   static void setSourceResolver(SourceResolver resolver);
 
   /// Function listing the sources of the project (eg. those of a MappingManager).
   typedef std::function<QVector<Source::ptr>()> SourceLister;
 
-  /// Sets the function giving the options of the "sourceId" setting: the
+  /// Sets the function giving the options of the "source_id" setting: the
   /// compatible sources among those it lists.
   static void setSourceLister(SourceLister lister);
 
@@ -179,7 +179,7 @@ protected:
   /// written by Layer::read() and Layer::write().
   QStringList _reservedKeys() const override
   {
-    return Element::_reservedKeys() << ProjectLabels::SOURCE_ID << ProjectLabels::DESTINATION << ProjectLabels::SOURCE;
+    return Element::_reservedKeys() << ProjectLabels::SOURCE_ID << ProjectLabels::FORMER_SOURCE_ID << ProjectLabels::DESTINATION << ProjectLabels::SOURCE;
   }
 
   static SourceResolver _sourceResolver;
@@ -188,7 +188,7 @@ protected:
   /// Sets the source with this id; returns false when it is unknown or incompatible.
   bool _setSourceById(uid sourceId);
 
-  /// Returns the compatible sources listed by the source lister, as options of "sourceId".
+  /// Returns the compatible sources listed by the source lister, as options of "source_id".
   QList<SettingOption> _sourceOptions() const;
 
   /// Takes the settings of the shapes out of the tree, before the shapes change or go away.

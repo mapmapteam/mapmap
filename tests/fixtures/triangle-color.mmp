@@ -26,7 +26,7 @@
             "name": "Triangle",
             "opacity": "1",
             "solo": "false",
-            "sourceId": 3,
+            "source_id": 3,
             "visible": "true"
         }
     ],

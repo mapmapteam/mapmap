@@ -88,6 +88,10 @@ public:
    */
   virtual void write(QJsonObject& obj);
 
+  /// Returns the key under which a project file gives a setting: its id, or else the first
+  /// of its former ids that the object has; empty when it has none of them.
+  static QString projectKey(const QJsonObject& obj, const Setting* setting);
+
 protected:
   /// JSON keys read or written by a subclass itself: they are never kept as pending.
   virtual QStringList _reservedKeys() const;

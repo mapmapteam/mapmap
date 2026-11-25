@@ -91,8 +91,10 @@ void Serializable::read(const QJsonObject& obj)
     if (!isReadFromProject(setting))
       continue;
     settingIds.append(setting->id());
-    if (obj.contains(setting->id()))
-      _readSetting(setting, obj.value(setting->id()));
+    settingIds.append(setting->info().formerIds());
+    const QString key = projectKey(obj, setting);
+    if (!key.isEmpty())
+      _readSetting(setting, obj.value(key));
   }
 
   const QStringList reservedKeys = _reservedKeys();
@@ -132,6 +134,18 @@ void Serializable::write(QJsonObject& obj)
 
     obj[setting->id()] = setting->toText();
   }
+}
+
+QString Serializable::projectKey(const QJsonObject& obj, const Setting* setting)
+{
+  if (obj.contains(setting->id()))
+    return setting->id();
+  for (const QString& formerId : setting->info().formerIds())
+  {
+    if (obj.contains(formerId))
+      return formerId;
+  }
+  return QString();
 }
 
 QStringList Serializable::_reservedKeys() const
@@ -175,10 +189,16 @@ void Serializable::_readSetting(Setting* setting, const QJsonValue& value) const
 void Serializable::_takePendingKey(Setting* setting)
 {
   // A setting that a project file does not give leaves the key for the next save.
-  if (!_pendingKeys.contains(setting->id()) || !isReadFromProject(setting))
+  if (!isReadFromProject(setting))
+    return;
+  const QString key = projectKey(_pendingKeys, setting);
+  if (key.isEmpty())
     return;
 
-  _readSetting(setting, _pendingKeys.take(setting->id()));
+  _readSetting(setting, _pendingKeys.take(key));
+  // The key of an earlier version is not written again beside the id.
+  for (const QString& formerId : setting->info().formerIds())
+    _pendingKeys.remove(formerId);
 }
 
 }

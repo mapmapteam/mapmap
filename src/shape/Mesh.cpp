@@ -86,7 +86,8 @@ void Mesh::_declareSettings(SettingGroup* root)
 {
   Quad::_declareSettings(root);
 
-  root->addSetting(SettingInfo::integer("nColumns", tr("Columns"))
+  root->addSetting(SettingInfo::integer("n_columns", tr("Columns"))
+                   .formerId("nColumns")
                    .bounds(MIN_MESH_DIVISIONS, MAX_MESH_DIVISIONS)
                    .defaultValue(MIN_MESH_DIVISIONS)
                    .displayRow("subdivisions")
@@ -94,7 +95,8 @@ void Mesh::_declareSettings(SettingGroup* root)
       ->bind([this]() { return QVariant(nColumns()); },
              [this](const QVariant& value) { setNColumns(value.toInt()); return true; });
 
-  root->addSetting(SettingInfo::integer("nRows", tr("Rows"))
+  root->addSetting(SettingInfo::integer("n_rows", tr("Rows"))
+                   .formerId("nRows")
                    .bounds(MIN_MESH_DIVISIONS, MAX_MESH_DIVISIONS)
                    .defaultValue(MIN_MESH_DIVISIONS)
                    .displayRow("subdivisions")
@@ -117,9 +119,9 @@ void Mesh::_gridChanged(int previousColumns, int previousRows)
     return;
   _verticesChanged();
   if (_nColumns != previousColumns)
-    settings()->find("nColumns")->notifyChanged();
+    settings()->find("n_columns")->notifyChanged();
   if (_nRows != previousRows)
-    settings()->find("nRows")->notifyChanged();
+    settings()->find("n_rows")->notifyChanged();
 }
 
 void Mesh::build()
@@ -512,8 +514,8 @@ void Mesh::resize(int nColumns_, int nRows_)
   // The bounds are those of the settings.
   bool columnsOk = false;
   bool rowsOk = false;
-  const QVariant cleanColumns = settings()->find("nColumns")->sanitized(nColumns_, &columnsOk);
-  const QVariant cleanRows    = settings()->find("nRows")->sanitized(nRows_, &rowsOk);
+  const QVariant cleanColumns = settings()->find("n_columns")->sanitized(nColumns_, &columnsOk);
+  const QVariant cleanRows    = settings()->find("n_rows")->sanitized(nRows_, &rowsOk);
   if (!columnsOk || !rowsOk)
     return;
   nColumns_ = cleanColumns.toInt();
@@ -623,8 +625,8 @@ void Mesh::read(const QJsonObject& obj)
 {
   int fileColumns = 0;
   int fileRows = 0;
-  const bool hasGrid = readGridCount(obj.value("nColumns"), &fileColumns)
-      && readGridCount(obj.value("nRows"), &fileRows);
+  const bool hasGrid = readGridCount(obj.value(projectKey(obj, settings()->find("n_columns"))), &fileColumns)
+      && readGridCount(obj.value(projectKey(obj, settings()->find("n_rows"))), &fileRows);
 
   // The grid comes through its settings, kept within their bounds, then the vertices.
   MShape::read(obj);

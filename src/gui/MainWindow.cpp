@@ -120,12 +120,12 @@ MainWindow::MainWindow()
 
   mappingManager = new MappingManager;
 
-  // Lets layers find their source when "sourceId" is set (OSC, MCP).
+  // Lets layers find their source when "source_id" is set (OSC, MCP).
   Layer::setSourceResolver([this](uid sourceId) {
     return mappingManager->getSourceById(sourceId);
   });
 
-  // Gives the "sourceId" setting of layers the sources to choose from.
+  // Gives the "source_id" setting of layers the sources to choose from.
   Layer::setSourceLister([this]() {
     QVector<Source::ptr> sources;
     for (int i = 0; i < mappingManager->nSources(); i++)
@@ -422,7 +422,7 @@ void MainWindow::layerPropertyChanged(uid id, QString propertyName, QVariant val
   }
 
   // A layer's new source may have to start or stop playing, whichever layer it is.
-  if (propertyName == "sourceId")
+  if (propertyName == "source_id")
     updatePlayingState();
 
   // Send to list items.

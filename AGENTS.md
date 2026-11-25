@@ -92,7 +92,7 @@ The same commands run on macOS, Ubuntu and Windows for every pull request. A pul
 
 - A new OSC command adds cases to `tests/TestOsc.cpp` and a line to `docs/informations/osc.md`.
 
-- A new setting is declared once, in the constructor of its class (see `src/core/Setting.h`); it adds a case to the project round-trip test.
+- A new setting is declared once, in the constructor of its class (see `src/core/Setting.h`); it adds a case to the project round-trip test. Its id is in lowercase, with underscores between words (`n_columns`): it is its name in OSC addresses, in MCP and in project files. A setting that is renamed keeps its old name with `formerId()`, so that existing projects still open.
 
 - A project file can be written by hand or damaged: reading it must never crash. Skip what cannot be read, with a warning.
 

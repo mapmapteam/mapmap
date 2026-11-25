@@ -56,6 +56,12 @@ RENAMED_CLASSES = {
     "TextureMapping": "TextureLayer",
 }
 
+# Properties that were renamed in MapMap 1.0.
+RENAMED_PROPERTIES = {
+    "nColumns": "n_columns",
+    "nRows": "n_rows",
+}
+
 SOURCE_CLASSES = ("Color", "Image", "Video")
 TEXTURE_CLASSES = ("Image", "Video")
 LAYER_CLASSES = ("ColorLayer", "TextureLayer")
@@ -84,17 +90,19 @@ def read_properties(element, excluded):
 
     MapMap saved some properties as XML attributes and others as child
     elements that only contain text. Both become plain JSON strings, which is
-    how MapMap 1.0 saves them too.
+    how MapMap 1.0 saves them too. A property renamed in MapMap 1.0 is given
+    its new name.
 
     Args:
         element: the XML element to read.
         excluded: names of the attributes and child elements to leave out.
     """
-    properties = {name: value for name, value in element.attrib.items()
+    properties = {RENAMED_PROPERTIES.get(name, name): value
+                  for name, value in element.attrib.items()
                   if name not in excluded}
     for child in element:
         if child.tag not in excluded:
-            properties[child.tag] = (child.text or "").strip()
+            properties[RENAMED_PROPERTIES.get(child.tag, child.tag)] = (child.text or "").strip()
     return properties
 
 
@@ -136,8 +144,8 @@ def convert_shape(element):
                 len(shape["vertices"]), QUAD_VERTEX_COUNT))
         first, second, third, fourth = shape["vertices"]
         shape["className"] = "Mesh"
-        shape["nColumns"] = str(QUAD_AS_MESH_SIZE)
-        shape["nRows"] = str(QUAD_AS_MESH_SIZE)
+        shape["n_columns"] = str(QUAD_AS_MESH_SIZE)
+        shape["n_rows"] = str(QUAD_AS_MESH_SIZE)
         shape["vertices"] = [first, second, fourth, third]
     elif class_name not in SHAPE_CLASSES:
         raise ConversionError("unknown shape {!r}".format(class_name))
@@ -172,7 +180,7 @@ def convert_layer(element):
     layer = read_properties(element, excluded=("id", "paintId", "source", "destination"))
     layer["className"] = class_name
     layer["id"] = read_integer(element, "id")
-    layer["sourceId"] = read_integer(element, "paintId")
+    layer["source_id"] = read_integer(element, "paintId")
 
     shape_tags = ["destination"]
     if class_name == "TextureLayer":
@@ -298,11 +306,11 @@ def convert_project(xml_text, warn):
     source_ids = {source["id"] for source in sources}
     usable_layers = []
     for layer in layers:
-        if layer["sourceId"] in source_ids:
+        if layer["source_id"] in source_ids:
             usable_layers.append(layer)
         else:
             warn("layer {!r} is left out: its source {} does not exist".format(
-                layer.get("name", ""), layer["sourceId"]))
+                layer.get("name", ""), layer["source_id"]))
 
     return {
         "version": CONVERTED_PROJECT_VERSION,

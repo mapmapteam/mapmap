@@ -6,8 +6,8 @@
             "destination": {
                 "className": "Mesh",
                 "locked": "false",
-                "nColumns": "2",
-                "nRows": "2",
+                "n_columns": "2",
+                "n_rows": "2",
                 "vertices": [
                     [
                         0,
@@ -35,8 +35,8 @@
             "source": {
                 "className": "Mesh",
                 "locked": "false",
-                "nColumns": "2",
-                "nRows": "2",
+                "n_columns": "2",
+                "n_rows": "2",
                 "vertices": [
                     [
                         0,
@@ -56,7 +56,7 @@
                     ]
                 ]
             },
-            "sourceId": 1,
+            "source_id": 1,
             "visible": "true"
         }
     ],

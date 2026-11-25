@@ -30,7 +30,7 @@ static const QString OUTPUT_SHAPE_SETTINGS = "output";
 /// Id of the group showing the settings of the input shape.
 static const QString INPUT_SHAPE_SETTINGS = "input";
 /// Ids of the grid settings of a mesh.
-static const QStringList MESH_GRID_SETTINGS = { "nColumns", "nRows" };
+static const QStringList MESH_GRID_SETTINGS = { "n_columns", "n_rows" };
 
 UidAllocator Layer::allocator;
 Layer::SourceResolver Layer::_sourceResolver;
@@ -79,13 +79,13 @@ Layer::Layer(Source::ptr source, MShape::ptr shape, MShape::ptr inputShape, uid 
       ->bind([this]() { return QVariant(getDepth()); },
              [this](const QVariant& value) { setDepth(value.toInt()); return true; });
 
-  root->addSetting(SettingInfo::boolean("hasInputShape", tr("Has input shape"))
+  root->addSetting(SettingInfo::boolean("has_input_shape", tr("Has input shape"))
                    .readOnly().notStored().hidden()
                    .description(tr("Whether this layer picks the region of its source it shows with an input shape.")))
       ->bind([this]() { return QVariant(hasInputShape()); },
              [](const QVariant&) { return false; });
 
-  root->addSetting(SettingInfo::reference("sourceId", tr("Source"))
+  root->addSetting(SettingInfo::reference("source_id", tr("Source"))
                    .valueType(QMetaType::Int)
                    .defaultValue(NULL_UID)
                    .notStored()
@@ -230,7 +230,7 @@ void Layer::setSource(Source::ptr source)
 	if (!source.isNull() && sourceIsCompatible(source))
 	{
 		_source = source;
-	  _emitPropertyChanged("sourceId");
+	  _emitPropertyChanged("source_id");
 	}
 }
 

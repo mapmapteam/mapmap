@@ -50,7 +50,7 @@ LayerGui::LayerGui(Layer::ptr layer)
 void LayerGui::updateSources()
 {
   // The menu is computed again from the options of the setting.
-  _settingsBrowser->refresh("sourceId", QVariant());
+  _settingsBrowser->refresh("source_id", QVariant());
 }
 
 ColorLayerGui::ColorLayerGui(Layer::ptr layer)

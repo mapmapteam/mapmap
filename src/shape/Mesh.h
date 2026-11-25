@@ -91,7 +91,7 @@ public:
   void removeRow(int rowId);
 
   /// Changes the number of columns and rows, kept within the bounds of the
-  /// "nColumns" and "nRows" settings; notifies the settings that changed.
+  /// "n_columns" and "n_rows" settings; notifies the settings that changed.
   void resize(int nColumns_, int nRows_);
 
   QVector<Quad::ptr> getQuads() const;
@@ -100,11 +100,11 @@ public:
   int nColumns() const { return _nColumns; }
   int nRows() const  { return _nRows; }
 
-  /// Changes the number of columns, kept within the bounds of the "nColumns" setting.
+  /// Changes the number of columns, kept within the bounds of the "n_columns" setting.
   void setNColumns(int nColumns_) {
     resize(nColumns_, nRows());
   }
-  /// Changes the number of rows, kept within the bounds of the "nRows" setting.
+  /// Changes the number of rows, kept within the bounds of the "n_rows" setting.
   void setNRows(int nRows_) {
     resize(nColumns(), nRows_);
   }

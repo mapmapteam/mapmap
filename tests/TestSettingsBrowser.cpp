@@ -489,7 +489,7 @@ void TestSettingsBrowser::referenceRowWritesSourceId()
   QCOMPARE(source->attributeValue("enumNames").toStringList(), QStringList({ "red", "blue" }));
   source->setValue(1);
   QCOMPARE(layer.getSource(), blue);
-  QCOMPARE(layer.settings()->find("sourceId")->value().toInt(), int(blue->getId()));
+  QCOMPARE(layer.settings()->find("source_id")->value().toInt(), int(blue->getId()));
   QCOMPARE(source->value().toInt(), 1);
 }
 
@@ -506,15 +506,15 @@ void TestSettingsBrowser::sourceMenuFollowsSourceList()
   Source::ptr green(new Color(QColor(Qt::green)));
   green->setName("green");
   listing.sources->append(green);
-  panel.settings->refresh("sourceId", QVariant());
+  panel.settings->refresh("source_id", QVariant());
   QCOMPARE(source->attributeValue("enumNames").toStringList(), QStringList({ "red", "green" }));
 
   green->setName("lime");
-  panel.settings->refresh("sourceId", QVariant());
+  panel.settings->refresh("source_id", QVariant());
   QCOMPARE(source->attributeValue("enumNames").toStringList(), QStringList({ "red", "lime" }));
 
   listing.sources->removeLast();
-  panel.settings->refresh("sourceId", QVariant());
+  panel.settings->refresh("source_id", QVariant());
   QCOMPARE(source->attributeValue("enumNames").toStringList(), QStringList({ "red" }));
   QCOMPARE(source->value().toInt(), 0);
 }

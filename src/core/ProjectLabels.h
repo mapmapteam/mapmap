@@ -36,6 +36,8 @@ public:
   static const char* ID;
   static const char* NAME;
   static const char* SOURCE_ID;
+  /// The key of the source of a layer in the project files of MapMap 1.0.0-beta.1 and earlier.
+  static const char* FORMER_SOURCE_ID;
 
   static const char* DESTINATION;
   static const char* SOURCE;
