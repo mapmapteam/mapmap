@@ -34,6 +34,13 @@
 
 namespace mmp {
 
+/// Factor between a value kept between 0 and 1 and the percentage shown to the user.
+static const double PERCENT_DISPLAY_SCALE = 100.0;
+/// Lowest audio volume of a video: silent.
+static const double MIN_VOLUME = 0.0;
+/// Highest audio volume of a video: as loud as the file.
+static const double MAX_VOLUME = 1.0;
+
 UidAllocator Source::allocator;
 
 QVector<GLuint> Texture::_orphanedTextures;
@@ -93,6 +100,33 @@ void Texture::_uploadBitsLocked()
   }
 }
 
+Texture::Texture(uid id) :
+  Source(id),
+  textureId(0),
+  x(0),
+  y(0),
+  bitsChanged(false),
+  _uploadedWidth(0),
+  _uploadedHeight(0)
+{
+  SettingGroup* root = settings();
+
+  // Read-only: x and y are written by the project reader, see read().
+  root->addSetting(SettingInfo::number("x", tr("X"))
+                   .valueType(QMetaType::Float)
+                   .readOnly().notStored().hidden()
+                   .description(tr("The horizontal position of the top-left corner of the texture.")))
+      ->bind([this]() { return QVariant(float(getX())); },
+             [](const QVariant&) { return false; });
+
+  root->addSetting(SettingInfo::number("y", tr("Y"))
+                   .valueType(QMetaType::Float)
+                   .readOnly().notStored().hidden()
+                   .description(tr("The vertical position of the top-left corner of the texture.")))
+      ->bind([this]() { return QVariant(float(getY())); },
+             [](const QVariant&) { return false; });
+}
+
 void Texture::read(const QJsonObject& obj)
 {
   Source::read(obj);
@@ -120,6 +154,28 @@ Source::~Source()
   allocator.free(getId());
 }
 
+Color::Color(int id) : Source(id)
+{
+  settings()->addSetting(SettingInfo::color("color", tr("Color"))
+                         .description(tr("The colour that fills the layers showing this source.")))
+      ->bind([this]() { return QVariant(getColor()); },
+             [this](const QVariant& value) { setColor(value.value<QColor>()); return true; });
+}
+
+Color::Color(const QColor& color_, uid id) : Color(int(id))
+{
+  color = color_;
+}
+
+void Color::setColor(const QColor& color_)
+{
+  if (color_ != color)
+  {
+    color = color_;
+    _emitPropertyChanged("color");
+  }
+}
+
 Image::Image(int id)
   : Texture(id),
     _rate(0),
@@ -128,6 +184,7 @@ Image::Image(int id)
     _prevTime(0),
     _bits(0)
   {
+    _declareSettings();
     setRate(1.0);
   }
 
@@ -139,9 +196,31 @@ Image::Image(const QString uri_, uid id)
     _prevTime(0),
     _bits(0)
   {
+    _declareSettings();
     setUri(uri_);
     setRate(1.0);
   }
+
+void Image::_declareSettings()
+{
+  SettingGroup* root = settings();
+
+  root->addSetting(SettingInfo::filePath("uri", tr("Image file"), MM::IMAGE_FILES_FILTER)
+                   .description(tr("The image file shown by this source.")))
+      ->bind([this]() { return QVariant(getUri()); },
+             [this](const QVariant& value) {
+               // The path is kept even when no image can be read from it, as when a project is read.
+               setUri(value.toString());
+               return true;
+             });
+
+  root->addSetting(SettingInfo::number("rate", tr("Speed"))
+                   .unit(SettingInfo::Percent)
+                   .displayScale(PERCENT_DISPLAY_SCALE)
+                   .description(tr("How fast an animated image plays; a negative speed plays it backwards.")))
+      ->bind([this]() { return QVariant(getRate()); },
+             [this](const QVariant& value) { setRate(value.toDouble()); return true; });
+}
 
 bool Image::setUri(const QString &uri)
 {
@@ -233,7 +312,11 @@ QIcon Image::getIcon() const
 
 void Image::setRate(double rate)
 {
-  _rate = rate;
+  if (rate != _rate)
+  {
+    _rate = rate;
+    _emitPropertyChanged("rate");
+  }
 }
 
 void Image::_doPlay()
@@ -262,6 +345,30 @@ Video::Video(VideoType type, int id) : Texture(id),
       _impl = new VideoPlayerImpl();
       break;
   }
+
+  // Declared once _impl exists, before the setters below notify them.
+  SettingGroup* root = settings();
+
+  root->addSetting(SettingInfo::filePath("uri", tr("Source"), MM::VIDEO_FILES_FILTER)
+                   .description(tr("The video file, or the camera, shown by this source.")))
+      ->bind([this]() { return QVariant(getUri()); },
+             [this](const QVariant& value) { return setUri(value.toString()); });
+
+  root->addSetting(SettingInfo::number("volume", tr("Volume"))
+                   .bounds(MIN_VOLUME, MAX_VOLUME)
+                   .unit(SettingInfo::Percent)
+                   .displayScale(PERCENT_DISPLAY_SCALE)
+                   .description(tr("How loud the sound of the video plays.")))
+      ->bind([this]() { return QVariant(getVolume()); },
+             [this](const QVariant& value) { setVolume(value.toDouble()); return true; });
+
+  root->addSetting(SettingInfo::number("rate", tr("Speed"))
+                   .unit(SettingInfo::Percent)
+                   .displayScale(PERCENT_DISPLAY_SCALE)
+                   .description(tr("How fast the video plays; a negative speed plays it backwards.")))
+      ->bind([this]() { return QVariant(getRate()); },
+             [this](const QVariant& value) { setRate(value.toDouble()); return true; });
+
   setRate(1);
   setVolume(1);
 }
@@ -454,6 +561,12 @@ double Video::getRate() const
 
 void Video::setVolume(double volume)
 {
+  // The bounds are those of the setting.
+  bool ok = false;
+  const QVariant clean = settings()->find("volume")->sanitized(volume, &ok);
+  if (!ok)
+    return;
+  volume = clean.toDouble();
   if (volume != _impl->getVolume())
   {
     _impl->setVolume(volume);
@@ -504,7 +617,7 @@ bool Video::setUri(const QString &uri)
       // No thumbnail to generate for a camera: just confirm the feed comes up.
       _pollForBits([this]() {
         emit frameSizeKnown(getId(), getWidth(), getHeight());
-        _emitPropertyChanged("icon");
+        emit iconChanged(getId());
       }, firstFrameMaxAttempts);
     }
     else
@@ -521,13 +634,13 @@ bool Video::setUri(const QString &uri)
             if (!_generateThumbnail())
               qDebug() << "Could not generate thumbnail for " << _uri << ": using generic icon." << Qt::endl;
             _impl->resetMovie();
-            _emitPropertyChanged("icon");
+            emit iconChanged(getId());
           }, thumbnailMaxAttempts);
         }
         else
         {
           _impl->resetMovie();
-          _emitPropertyChanged("icon");
+          emit iconChanged(getId());
         }
       }, firstFrameMaxAttempts);
     }

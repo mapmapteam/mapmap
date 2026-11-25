@@ -125,6 +125,14 @@ MainWindow::MainWindow()
     return mappingManager->getSourceById(sourceId);
   });
 
+  // Gives the "sourceId" setting of layers the sources to choose from.
+  Layer::setSourceLister([this]() {
+    QVector<Source::ptr> sources;
+    for (int i = 0; i < mappingManager->nSources(); i++)
+      sources.append(mappingManager->getSource(i));
+    return sources;
+  });
+
 
   // Initialize internal variables.
   currentSourceId = NULL_UID;
@@ -457,7 +465,14 @@ void MainWindow::sourcePropertyChanged(uid id, QString propertyName, QVariant va
   QListWidgetItem* sourceItem = getItemFromId(*sourceList, id);
   if (propertyName == "name")
     sourceItem->setText(source->getName());
-  else if (propertyName == "icon")
+}
+
+void MainWindow::sourceIconChanged(uid id)
+{
+  // A thumbnail may arrive after its source was removed.
+  Source::ptr source = mappingManager->getSourceById(id);
+  QListWidgetItem* sourceItem = getItemFromId(*sourceList, id);
+  if (!source.isNull() && sourceItem)
     sourceItem->setIcon(source->getIcon());
 }
 
@@ -3348,10 +3363,12 @@ void MainWindow::addSourceItem(uid sourceId, const QIcon& icon, const QString& n
 
   connect(sourceGui.data(), &SourceGui::valueChanged, this, &MainWindow::handleSourceChanged);
 
-  connect(source.data(), &Source::propertyChanged, this, &MainWindow::sourcePropertyChanged);
+  connect(source.data(), &Source::settingChanged, this, &MainWindow::sourcePropertyChanged);
+
+  connect(source.data(), &Source::iconChanged, this, &MainWindow::sourceIconChanged);
 
   // TODO: attention: if mapping is invisible canvases will be updated for no reason
-  connect(source.data(), &Source::propertyChanged, this, &MainWindow::updateCanvases);
+  connect(source.data(), &Source::settingChanged, this, &MainWindow::updateCanvases);
 
 #ifdef HAVE_SYPHON
   // Fit input shapes once a Syphon source's real resolution becomes known.
@@ -3512,10 +3529,10 @@ void MainWindow::addLayerItem(uid layerId)
 
   connect(destinationCanvas, &MapperGLCanvas::shapeChanged, mapper.data(), &LayerGui::updateShape);
 
-  connect(layer.data(), &Layer::propertyChanged, this, &MainWindow::layerPropertyChanged);
+  connect(layer.data(), &Layer::settingChanged, this, &MainWindow::layerPropertyChanged);
 
   // TODO: attention: if mapping is invisible canvases will be updated for no reason
-  connect(layer.data(), &Layer::propertyChanged, this, &MainWindow::updateCanvases);
+  connect(layer.data(), &Layer::settingChanged, this, &MainWindow::updateCanvases);
 
   // Switch to mapping tab.
   contentTab->setCurrentWidget(layerSplitter);

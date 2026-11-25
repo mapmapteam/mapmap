@@ -46,6 +46,13 @@ void Ellipse::setPerspective(bool perspective)
 
 void Ellipse::sanitize()
 {
+  const QVector<QPointF> before = vertices;
+  _sanitize();
+  _verticesMoved(before);
+}
+
+void Ellipse::_sanitize()
+{
   if (nVertices() < 4)
     return;
 
@@ -156,6 +163,8 @@ bool Ellipse::includesPoint(qreal x, qreal y)
 
 void Ellipse::setVertex(int i, const QPointF& v)
 {
+  const QVector<QPointF> before = vertices;
+
   // Center control point: move the whole shape.
   if (i == 4)
   {
@@ -171,7 +180,9 @@ void Ellipse::setVertex(int i, const QPointF& v)
     _setAxisVertex(i, v);
 
   // Just to be sure.
-  sanitize();
+  _sanitize();
+
+  _verticesMoved(before);
 }
 
 void Ellipse::_setPerspectiveVertex(int i, const QPointF& v)

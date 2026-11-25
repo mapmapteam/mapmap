@@ -46,6 +46,13 @@ private slots:
   void textMatchesProjectFormat();
   void argumentsByType();
   void rejectsWrongType();
+  void elementsDeclareTheirSettings();
+  void treeWritesReachTheModel();
+  void modelWritesNotifyTheTree();
+  void opacityOverOscRangeIsClamped();
+  void listShrinksWithMesh();
+  void rejectsUnknownSource();
+  void replacingShapeRemountsTree();
 };
 
 #endif /* TEST_SETTINGS_H_ */

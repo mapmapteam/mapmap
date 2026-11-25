@@ -129,6 +129,10 @@ public:
 
   virtual SourceType getSourceType() const = 0;
 
+signals:
+  /// Emitted when getIcon() returns a new icon (eg. once the thumbnail of a video is ready).
+  void iconChanged(uid id);
+
 protected:
   virtual void _doPlay() {}
   virtual void _doPause() {}
@@ -147,11 +151,13 @@ protected:
   QColor color;
 
 public:
-  Q_INVOKABLE Color(int id=NULL_UID) : Source(id) {}
-  Color(const QColor& color_, uid id=NULL_UID) : Source(id), color(color_) {}
+  Q_INVOKABLE Color(int id=NULL_UID);
+  Color(const QColor& color_, uid id=NULL_UID);
 
   QColor getColor() const { return color; }
-  void setColor(const QColor& color_) { color = color_; }
+
+  /// Sets the colour; notifies the "color" setting when it changes.
+  void setColor(const QColor& color_);
 
   virtual SourceType getSourceType() const { return SourceType::Color; }
 
@@ -180,16 +186,8 @@ protected:
   GLfloat y;
   mutable bool bitsChanged;
 
-  Texture(uid id=NULL_UID) :
-    Source(id),
-    textureId(0),
-    x(0),
-    y(0),
-    bitsChanged(false),
-    _uploadedWidth(0),
-    _uploadedHeight(0)
-  {
-  }
+  /// Creates a texture at position (0, 0) and declares its settings.
+  Texture(uid id=NULL_UID);
 
 public:
   virtual ~Texture() {
@@ -358,6 +356,9 @@ protected:
 
   /// Starts playback.
   virtual void _doPlay();
+
+  /// Declares the settings of an image: its file and its playback rate.
+  void _declareSettings();
 
   /// Current elapsed time in seconds.
   qreal _elapsedTime() const { return _timer.elapsed() / 1000.0; }

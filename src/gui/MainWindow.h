@@ -145,8 +145,12 @@ private slots:
   // Fits a Video/Camera source's input shapes to its real resolution once known.
   void autoFitVideoInputShapes(int sourceId, int width, int height);
 
+  // Called with the path of a setting that changed (the property name for a top-level setting).
   void layerPropertyChanged(uid id, QString propertyName, QVariant value);
   void sourcePropertyChanged(uid id, QString propertyName, QVariant value);
+
+  // Shows the new icon of a source in the list of sources.
+  void sourceIconChanged(uid id);
 
 
   // Other.

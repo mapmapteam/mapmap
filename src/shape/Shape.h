@@ -73,7 +73,8 @@ public:
 
   typedef QSharedPointer<MShape> ptr;
 
-  MShape() : _isLocked(false) {}
+  /// Creates a shape without vertices and declares its settings.
+  MShape();
   MShape(const QVector<QPointF>& vertices_);
   virtual ~MShape() {}
 
@@ -90,9 +91,12 @@ public:
     return vertices[i];
   }
 
+  /// Moves vertex i; notifies the setting of that vertex. Subclasses that constrain the
+  /// vertex do the same once they have moved it.
   virtual void setVertex(int i, const QPointF& v)
   {
     _rawSetVertex(i, v);
+    _vertexChanged(i);
   }
 
   virtual void setVertex(int i, qreal x, qreal y)
@@ -165,16 +169,13 @@ public:
 	virtual MShape* clone() const;
 
   bool isLocked() const    { return _isLocked; }
-  void setLocked(bool locked)    { _isLocked = locked; }
-  void toggleLocked()  { _isLocked = !_isLocked; }
+  /// Locks or unlocks the shape; notifies the "locked" setting when it changes.
+  void setLocked(bool locked);
+  void toggleLocked()  { setLocked(!_isLocked); }
 
   const QVector<QPointF>& getVertices() const { return vertices; }
-  virtual void setVertices(const QVector<QPointF>& vertices_)
-  {
-    // Deep copy.
-    vertices.resize(vertices_.size());
-    std::copy(vertices_.begin(), vertices_.end(), vertices.begin());
-  }
+  /// Replaces all the vertices; notifies the "vertices" list.
+  virtual void setVertices(const QVector<QPointF>& vertices_);
 
   // Returns true iff vertex index is considered a major (external) control point.
   virtual bool isMajorVertex(int idx) const { Q_UNUSED(idx); return true; }
@@ -189,21 +190,41 @@ protected:
   QVector<QPointF> vertices;
   bool _isLocked;
 
+  /// Appends a vertex without notifying: call _verticesChanged() once done.
   void _addVertex(const QPointF& vertex)
   {
     vertices.push_back(vertex);
   }
 
+  /// Moves a vertex without notifying.
   void _rawSetVertex(int i, const QPointF& v)
   {
     vertices[i] = v;
   }
+
+  /// Call after the vertices changed in any way: follows their number in the "vertices"
+  /// list, then notifies the whole list once.
+  void _verticesChanged();
+
+  /// Call after vertex i alone moved: notifies its setting only.
+  void _vertexChanged(int i);
+
+  /// Call after an operation that moved some vertices: notifies those that differ from
+  /// before, or the whole list when their number changed.
+  void _verticesMoved(const QVector<QPointF>& before);
 
   /// Returns a new MShape (using default constructor).
   virtual MShape* _create() const = 0;
 
   // Lists QProperties that should NOT be parsed automatically.
   virtual QList<QString> _propertiesSpecial() const { return Serializable::_propertiesSpecial() << "vertices"; }
+
+private:
+  /// Declares the settings of a shape: its lock and its vertices.
+  void _declareSettings();
+
+  /// The settings of the vertices, which stay in the vector of vertices.
+  SettingList* _verticesSettings;
 };
 
 

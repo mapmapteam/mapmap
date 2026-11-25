@@ -150,8 +150,12 @@ public:
 
   virtual void setSource(Source::ptr source);
 	virtual void setSourceById(uid sourceId);
-  virtual void setShape(MShape::ptr s) { _shape = s; _assignShapeRole(s, true); }
-  virtual void setInputShape(MShape::ptr s) { _inputShape = s; _assignShapeRole(s, false); }
+
+  /// Replaces the output shape and shows its settings under "output".
+  virtual void setShape(MShape::ptr s);
+
+  /// Replaces the input shape and shows its settings under "input".
+  virtual void setInputShape(MShape::ptr s);
 
   /// Reads the layer from JSON. Does not set the source: see ProjectReader.
   virtual void read(const QJsonObject& obj);
@@ -164,6 +168,13 @@ public:
   /// property is changed through OSC or MCP).
   static void setSourceResolver(SourceResolver resolver);
 
+  /// Function listing the sources of the project (eg. those of a MappingManager).
+  typedef std::function<QVector<Source::ptr>()> SourceLister;
+
+  /// Sets the function giving the options of the "sourceId" setting: the
+  /// compatible sources among those it lists.
+  static void setSourceLister(SourceLister lister);
+
 protected:
   /// Configures shape according to its role (output shapes may be distorted in perspective).
   static void _assignShapeRole(const MShape::ptr& shape, bool isOutput);
@@ -172,6 +183,19 @@ protected:
   virtual QList<QString> _propertiesSpecial() const { return Element::_propertiesSpecial() << "sourceId"; }
 
   static SourceResolver _sourceResolver;
+  static SourceLister _sourceLister;
+
+  /// Sets the source with this id; returns false when it is unknown or incompatible.
+  bool _setSourceById(uid sourceId);
+
+  /// Returns the compatible sources listed by the source lister, as options of "sourceId".
+  QList<SettingOption> _sourceOptions() const;
+
+  /// Takes the settings of the shapes out of the tree, before the shapes change or go away.
+  void _unmountShapes();
+
+  /// Shows the settings of the output shape under "output", then those of the input shape under "input".
+  void _mountShapes();
 
   void _readShape(const QJsonObject& obj, bool isOutput);
   void _writeShape(QJsonObject& obj, bool isOutput);
