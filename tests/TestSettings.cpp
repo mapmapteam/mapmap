@@ -10,12 +10,15 @@
 #include "TestSettings.h"
 
 #include <QColor>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QPointF>
 #include <QSignalSpy>
 #include <QVector>
 
 #include "Layer.h"
 #include "Mesh.h"
+#include "MetaObjectRegistry.h"
 #include "Setting.h"
 #include "Source.h"
 
@@ -870,4 +873,163 @@ void TestSettings::replacingShapeRemountsTree()
   // A destroyed layer lets go of its shape.
   layer.reset();
   QVERIFY(!second->settings()->parent());
+}
+
+namespace {
+
+/// Returns the compact JSON text of an object, for readable comparisons.
+QByteArray jsonText(const QJsonObject& obj)
+{
+  return QJsonDocument(obj).toJson(QJsonDocument::Compact);
+}
+
+} // namespace
+
+void TestSettings::writeMatchesLegacyFormat()
+{
+  Color source(QColor(Qt::red));
+  source.setOpacity(0.75f);
+  source.setName("a");
+
+  QJsonObject written;
+  source.write(written);
+
+  const QJsonObject expected {
+    { "className", "Color" },
+    { "color", "#ff0000" },
+    { "id", source.getId() },
+    { "locked", "false" },
+    { "name", "a" },
+    { "opacity", "0.75" }
+  };
+  QCOMPARE(jsonText(written), jsonText(expected));
+}
+
+void TestSettings::readToleratesNonTextValues()
+{
+  Color source(QColor(Qt::red));
+  const QJsonObject base { { "className", "Color" }, { "id", source.getId() } };
+
+  // A JSON number or boolean is taken as an argument.
+  QJsonObject obj = base;
+  obj["opacity"] = 0.5;
+  obj["locked"] = true;
+  source.read(obj);
+  QCOMPARE(source.getOpacity(), 0.5f);
+  QVERIFY(source.isLocked());
+
+  // Any other JSON value is skipped, with a warning.
+  obj = base;
+  obj["opacity"] = QJsonObject();
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("opacity.*cannot be read"));
+  source.read(obj);
+  QCOMPARE(source.getOpacity(), 0.5f);
+
+  // So is a text that is not a value of the setting.
+  obj["opacity"] = "abc";
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("opacity.*cannot be read"));
+  source.read(obj);
+  QCOMPARE(source.getOpacity(), 0.5f);
+
+  // A number the setting refuses is reported by the setting.
+  obj = base;
+  obj["locked"] = 2;
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("locked.*refused the arguments"));
+  source.read(obj);
+  QVERIFY(source.isLocked());
+}
+
+void TestSettings::unknownKeysSurviveRoundTrip()
+{
+  Color source(QColor(Qt::red));
+  const QJsonObject nested { { "a", 1 } };
+  const QJsonObject obj {
+    { "className", "Color" },
+    { "id", source.getId() },
+    { "opacity", "0.5" },
+    { "futureKey", "7" },
+    { "nested", nested }
+  };
+  source.read(obj);
+
+  QJsonObject written;
+  source.write(written);
+  QCOMPARE(written.value("futureKey"), QJsonValue("7"));
+  QCOMPARE(written.value("nested"), QJsonValue(nested));
+  QCOMPARE(written.value("opacity"), QJsonValue("0.5"));
+  QCOMPARE(written.value("className"), QJsonValue("Color"));
+}
+
+void TestSettings::runtimeSettingIsSavedAndRestored()
+{
+  QJsonObject saved;
+  {
+    Color first(QColor(Qt::red));
+    Setting* gain = first.settings()->addSetting(SettingInfo::number("gain", "Gain"));
+    QVERIFY(gain->setValue(0.3));
+    first.write(saved);
+  }
+  QCOMPARE(saved.value("gain"), QJsonValue("0.3"));
+
+  Color second(QColor(Qt::red));
+  saved["id"] = second.getId();
+  second.read(saved);
+  QVERIFY(!second.settings()->find("gain"));
+
+  // The setting added later takes the value kept for it.
+  Setting* gain = second.settings()->addSetting(SettingInfo::number("gain", "Gain"));
+  QVERIFY(gain);
+  QCOMPARE(gain->value().toDouble(), 0.3);
+
+  // The kept value is gone: what is written now comes from the setting.
+  QVERIFY(gain->setValue(0.6));
+  QVERIFY(second.settings()->remove("gain"));
+  QJsonObject written;
+  second.write(written);
+  QVERIFY(!written.contains("gain"));
+}
+
+void TestSettings::reservedKeysAreNotKept()
+{
+  MetaObjectRegistry::instance().addBuiltinTypes();
+  Source::ptr red(new Color(QColor(Qt::red)));
+
+  ColorLayer first(red, makeMesh());
+  QJsonObject obj;
+  first.write(obj);
+  QVERIFY(obj.contains("destination"));
+  QVERIFY(!obj.contains("source"));
+
+  // A colour layer has no input shape: a "source" shape in its file is not kept.
+  QJsonObject shape = obj.value("destination").toObject();
+  shape["futureShapeKey"] = "1";
+  obj["destination"] = shape;
+  obj["source"] = shape;
+
+  ColorLayer second(red, makeMesh());
+  obj["id"] = second.getId();
+  second.read(obj);
+
+  QJsonObject written;
+  second.write(written);
+  QVERIFY(!written.contains("source"));
+  QCOMPARE(written.value("id"), QJsonValue(second.getId()));
+  QCOMPARE(written.value("sourceId"), QJsonValue(red->getId()));
+
+  // The shape keeps the keys it does not know.
+  const QJsonObject writtenShape = written.value("destination").toObject();
+  QCOMPARE(writtenShape.value("futureShapeKey"), QJsonValue("1"));
+  QCOMPARE(writtenShape.value("vertices"), shape.value("vertices"));
+}
+
+void TestSettings::pointSettingIsNotWritten()
+{
+  Color source(QColor(Qt::red));
+  source.settings()->addSetting(SettingInfo::point("spot", "Spot"));
+
+  QJsonObject written;
+  QTest::ignoreMessage(QtWarningMsg, QRegularExpression("spot.*no text form"));
+  source.write(written);
+  QVERIFY(!written.contains("spot"));
+  QVERIFY(written.contains("opacity"));
 }

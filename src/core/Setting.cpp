@@ -771,6 +771,8 @@ Setting* SettingGroup::addSetting(const SettingInfo& info)
     return nullptr;
   Setting* setting = new Setting(info);
   _append(setting, true);
+  if (_settingAddedHandler)
+    _settingAddedHandler(setting);
   return setting;
 }
 

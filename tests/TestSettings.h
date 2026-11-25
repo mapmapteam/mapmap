@@ -53,6 +53,12 @@ private slots:
   void listShrinksWithMesh();
   void rejectsUnknownSource();
   void replacingShapeRemountsTree();
+  void writeMatchesLegacyFormat();
+  void readToleratesNonTextValues();
+  void unknownKeysSurviveRoundTrip();
+  void runtimeSettingIsSavedAndRestored();
+  void reservedKeysAreNotKept();
+  void pointSettingIsNotWritten();
 };
 
 #endif /* TEST_SETTINGS_H_ */
