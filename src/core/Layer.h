@@ -85,6 +85,9 @@ private:
   bool _isVisible;
   int _depth; // depth of the layer
 
+  /// Set while one mesh takes the grid of the other, so that its notification is not sent back.
+  bool _keepingMeshGridsEqual;
+
 protected:
   Layer(int id=NULL_UID);
   Layer(Source::ptr source, uid id=NULL_UID);
@@ -161,6 +164,10 @@ public:
   virtual void read(const QJsonObject& obj);
   virtual void write(QJsonObject& obj);
 
+  /// Notifies the change, then, when the output and input shapes are both meshes and the grid
+  /// of one changed, gives the other the same grid: a texture is drawn quad by quad.
+  void settingValueChanged(const QString& path, const QVariant& value) override;
+
   /// Function used to find a source from its uid (eg. a MappingManager lookup).
   typedef std::function<Source::ptr(uid)> SourceResolver;
 
@@ -200,6 +207,10 @@ protected:
 
   /// Shows the settings of the output shape under "output", then those of the input shape under "input".
   void _mountShapes();
+
+  /// Gives the other mesh the grid of the mesh whose grid setting changed at path, when
+  /// both shapes are meshes.
+  void _keepMeshGridsEqual(const QString& path);
 
   void _readShape(const QJsonObject& obj, bool isOutput);
   void _writeShape(QJsonObject& obj, bool isOutput);

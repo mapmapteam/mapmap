@@ -21,6 +21,7 @@
 
 #include "Layer.h"
 #include "Ellipse.h"
+#include "Mesh.h"
 
 namespace mmp {
 
@@ -28,6 +29,8 @@ namespace mmp {
 static const QString OUTPUT_SHAPE_SETTINGS = "output";
 /// Id of the group showing the settings of the input shape.
 static const QString INPUT_SHAPE_SETTINGS = "input";
+/// Ids of the grid settings of a mesh.
+static const QStringList MESH_GRID_SETTINGS = { "nColumns", "nRows" };
 
 UidAllocator Layer::allocator;
 Layer::SourceResolver Layer::_sourceResolver;
@@ -45,7 +48,7 @@ Layer::Layer(Source::ptr source, MShape::ptr shape, uid id)
 Layer::Layer(Source::ptr source, MShape::ptr shape, MShape::ptr inputShape, uid id)
   : Element(id, &allocator),
     _source(source), _shape(shape), _inputShape(inputShape),
-    _isSolo(false), _isVisible(true)
+    _isSolo(false), _isVisible(true), _keepingMeshGridsEqual(false)
 {
   // Default.
   _depth = getId();
@@ -141,6 +144,46 @@ void Layer::_mountShapes()
     root->mount(OUTPUT_SHAPE_SETTINGS, _shape->settings());
   if (!_inputShape.isNull())
     root->mount(INPUT_SHAPE_SETTINGS, _inputShape->settings());
+}
+
+void Layer::settingValueChanged(const QString& path, const QVariant& value)
+{
+  Element::settingValueChanged(path, value);
+  _keepMeshGridsEqual(path);
+}
+
+void Layer::_keepMeshGridsEqual(const QString& path)
+{
+  if (_keepingMeshGridsEqual)
+    return;
+
+  const int separator = path.indexOf('/');
+  if (separator < 0 || !MESH_GRID_SETTINGS.contains(path.mid(separator + 1)))
+    return;
+
+  Mesh* output = qobject_cast<Mesh*>(_shape.data());
+  Mesh* input  = qobject_cast<Mesh*>(_inputShape.data());
+  if (!output || !input)
+    return;
+
+  const QString group = path.left(separator);
+  Mesh* changed = nullptr;
+  Mesh* other = nullptr;
+  if (group == OUTPUT_SHAPE_SETTINGS) {
+    changed = output;
+    other = input;
+  }
+  else if (group == INPUT_SHAPE_SETTINGS) {
+    changed = input;
+    other = output;
+  }
+  else
+    return;
+
+  // The other mesh notifies its own changes; they are not applied back to the first one.
+  _keepingMeshGridsEqual = true;
+  other->resize(changed->nColumns(), changed->nRows());
+  _keepingMeshGridsEqual = false;
 }
 
 void Layer::setSolo(bool solo)

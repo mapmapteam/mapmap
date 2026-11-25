@@ -53,6 +53,9 @@ private slots:
   void listShrinksWithMesh();
   void rejectsUnknownSource();
   void replacingShapeRemountsTree();
+  void meshGridsOfTextureLayerFollowEachOther();
+  void meshGridOfColorLayerIsAlone();
+  void readingKeepsDifferentMeshGrids();
   void writeMatchesLegacyFormat();
   void readToleratesNonTextValues();
   void unknownKeysSurviveRoundTrip();
