@@ -85,7 +85,7 @@ private:
   // --- Read-back helpers ---
   QJsonObject sourceSummary(int sourceId) const;
   QJsonObject layerSummary(int layerId) const;
-  // Full Q_PROPERTY dump for an Element (Source or Layer).
+  // Current values of the settings directly under the root of an Element (Source or Layer).
   QJsonObject elementProperties(class Element* element) const;
 
   MainWindow* _mainWindow;
