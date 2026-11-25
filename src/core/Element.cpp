@@ -23,6 +23,11 @@
 
 namespace mmp {
 
+/// Lowest opacity of an element: fully transparent.
+static const float MIN_OPACITY = 0.0f;
+/// Highest opacity of an element: fully opaque.
+static const float MAX_OPACITY = 1.0f;
+
 Element::Element(uid id, UidAllocator* allocator) : _name(""), _isLocked(false), _opacity(1.0f), _allocator(allocator)
 {
   if (id == NULL_UID)
@@ -60,7 +65,7 @@ void Element::setLocked(bool locked)
 
 void Element::setOpacity(float opacity)
 {
-  opacity = qBound(opacity, 0.0f, 1.0f);
+  opacity = qBound(MIN_OPACITY, opacity, MAX_OPACITY);
   if (opacity != _opacity)
   {
     _opacity = opacity;
