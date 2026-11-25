@@ -59,6 +59,10 @@ private slots:
   void runtimeSettingIsSavedAndRestored();
   void reservedKeysAreNotKept();
   void pointSettingIsNotWritten();
+  void describesBoundsAndUnits();
+  void describesNestedPaths();
+  void valuesKeepLegacyKeys();
+  void describesFlagsAndForms();
 };
 
 #endif /* TEST_SETTINGS_H_ */

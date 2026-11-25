@@ -10,6 +10,7 @@
 #include "TestSettings.h"
 
 #include <QColor>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QPointF>
@@ -20,6 +21,7 @@
 #include "Mesh.h"
 #include "MetaObjectRegistry.h"
 #include "Setting.h"
+#include "SettingJson.h"
 #include "Source.h"
 
 using namespace mmp;
@@ -1032,4 +1034,129 @@ void TestSettings::pointSettingIsNotWritten()
   source.write(written);
   QVERIFY(!written.contains("spot"));
   QVERIFY(written.contains("opacity"));
+}
+
+namespace {
+
+/// Returns the description of the setting at path in a list made by describeSettings(), or an empty object.
+QJsonObject describedAt(const QJsonArray& settings, const QString& path)
+{
+  for (const QJsonValue& entry : settings) {
+    if (entry.toObject().value("path").toString() == path)
+      return entry.toObject();
+  }
+  return QJsonObject();
+}
+
+} // namespace
+
+void TestSettings::describesBoundsAndUnits()
+{
+  Color source(QColor(Qt::red));
+  const QJsonArray settings = describeSettings(source.settings());
+
+  const QJsonObject opacity = describedAt(settings, "opacity");
+  QCOMPARE(opacity.value("type").toString(), QString("number"));
+  QCOMPARE(opacity.value("minimum").toDouble(), 0.0);
+  QCOMPARE(opacity.value("maximum").toDouble(), 1.0);
+  QCOMPARE(opacity.value("default").toDouble(), 1.0);
+  QCOMPARE(opacity.value("unit").toString(), QString("percent"));
+  QCOMPARE(opacity.value("value").toDouble(), 1.0);
+  QVERIFY(!opacity.value("description").toString().isEmpty());
+  QVERIFY(!opacity.value("label").toString().isEmpty());
+
+  // A setting without a bound or a unit leaves the keys out.
+  const QJsonObject name = describedAt(settings, "name");
+  QCOMPARE(name.value("type").toString(), QString("text"));
+  QVERIFY(!name.contains("minimum"));
+  QVERIFY(!name.contains("unit"));
+
+  // Declaration order: the id comes first.
+  QCOMPARE(settings.first().toObject().value("path").toString(), QString("id"));
+}
+
+void TestSettings::describesNestedPaths()
+{
+  Source::ptr red(new Color(QColor(Qt::red)));
+  SourceLookup lookup({ red });
+  ColorLayer layer(red, makeMesh());
+  const QJsonArray settings = describeSettings(layer.settings());
+
+  const QJsonObject vertex = describedAt(settings, "output/vertices/0");
+  QCOMPARE(vertex.value("type").toString(), QString("point"));
+  QCOMPARE(vertex.value("value").toArray().size(), 2);
+  QVERIFY(!describedAt(settings, "output/vertices/" + QString::number(MESH_SIZE * MESH_SIZE - 1)).isEmpty());
+  QVERIFY(describedAt(settings, "output/vertices/" + QString::number(MESH_SIZE * MESH_SIZE)).isEmpty());
+
+  const QJsonObject sourceId = describedAt(settings, "sourceId");
+  QVERIFY(!sourceId.value("options").toArray().isEmpty());
+  const QJsonObject option = sourceId.value("options").toArray().first().toObject();
+  QVERIFY(option.contains("id"));
+  QVERIFY(option.contains("label"));
+
+  // Every leaf of the tree is described, once.
+  QCOMPARE(settings.size(), leafPaths(layer).size());
+}
+
+void TestSettings::valuesKeepLegacyKeys()
+{
+  Color source(QColor(Qt::red));
+  const QJsonObject values = settingValues(source.settings());
+  QStringList keys = values.keys();
+  keys.sort();
+  QCOMPARE(keys, QStringList({ "color", "id", "locked", "name", "opacity" }));
+  QCOMPARE(values.value("color").toString(), QString("#ff0000"));
+  QCOMPARE(values.value("locked").toBool(true), false);
+  QCOMPARE(values.value("id").toInt(), static_cast<int>(source.getId()));
+
+  // A colour with an alpha keeps it.
+  source.setColor(QColor(255, 0, 0, 128));
+  QCOMPARE(settingValues(source.settings()).value("color").toString(), QString("#80ff0000"));
+
+  // Only the settings directly under the group: not those of a nested group or a list.
+  Source::ptr red(new Color(QColor(Qt::red)));
+  SourceLookup lookup({ red });
+  ColorLayer layer(red, makeMesh());
+  const QJsonObject layerValues = settingValues(layer.settings());
+  QVERIFY(layerValues.contains("sourceId"));
+  QVERIFY(layerValues.contains("visible"));
+  QVERIFY(!layerValues.contains("output"));
+  QVERIFY(!layerValues.contains("vertices"));
+}
+
+void TestSettings::describesFlagsAndForms()
+{
+  SettingGroup group;
+  group.addSetting(SettingInfo::boolean("flag", "Flag").defaultValue(true));
+  group.addSetting(SettingInfo::range("span", "Span").bounds(0, 10).defaultValue(QPointF(1, 2)));
+  group.addSetting(SettingInfo::point("spot", "Spot").bounds(-5, 20));
+  group.addSetting(SettingInfo::number("fixed", "Fixed").readOnly().unit(SettingInfo::Degrees).step(0.5));
+  group.addSetting(SettingInfo::choice("mode", "Mode", { { "a", "A" }, { "b", "B" } }));
+  Setting* hidden = group.addSetting(SettingInfo::color("tint", "Tint").hidden().defaultValue(QColor(1, 2, 3, 4)));
+  hidden->setAvailable(false);
+
+  const QJsonArray settings = describeSettings(&group);
+  QCOMPARE(describedAt(settings, "flag").value("value"), QJsonValue(true));
+  QCOMPARE(describedAt(settings, "span").value("default").toArray(), QJsonArray({ 1.0, 2.0 }));
+  // The bounds of a range or a point are plain numbers, applying to each coordinate.
+  const QJsonObject span = describedAt(settings, "span");
+  QVERIFY(span.value("minimum").isDouble());
+  QVERIFY(span.value("maximum").isDouble());
+  QCOMPARE(span.value("minimum").toDouble(), 0.0);
+  QCOMPARE(span.value("maximum").toDouble(), 10.0);
+  const QJsonObject spot = describedAt(settings, "spot");
+  QVERIFY(spot.value("minimum").isDouble());
+  QVERIFY(spot.value("maximum").isDouble());
+  QCOMPARE(spot.value("minimum").toDouble(), -5.0);
+  QCOMPARE(spot.value("maximum").toDouble(), 20.0);
+  QCOMPARE(describedAt(settings, "fixed").value("readOnly"), QJsonValue(true));
+  QCOMPARE(describedAt(settings, "fixed").value("unit").toString(), QString("degrees"));
+  QCOMPARE(describedAt(settings, "fixed").value("step").toDouble(), 0.5);
+  QCOMPARE(describedAt(settings, "mode").value("options").toArray().size(), 2);
+  QVERIFY(!describedAt(settings, "flag").contains("readOnly"));
+  QVERIFY(!describedAt(settings, "flag").contains("available"));
+
+  // Hidden only concerns the panel: the setting is listed, with its alpha.
+  QCOMPARE(describedAt(settings, "tint").value("available"), QJsonValue(false));
+  QCOMPARE(describedAt(settings, "tint").value("default").toString(), QString("#04010203"));
 }

@@ -27,7 +27,6 @@
 #include <QTcpServer>
 #include <QJsonDocument>
 #include <QMetaObject>
-#include <QMetaProperty>
 #include <QColor>
 #include <QDebug>
 
@@ -35,6 +34,7 @@
 #include "Element.h"
 #include "Source.h"
 #include "Layer.h"
+#include "SettingJson.h"
 #include "Shape.h"
 #include "MappingManager.h"
 #include "MainWindow.h"
@@ -401,8 +401,29 @@ QJsonObject McpServer::handleToolsCall(const QJsonObject& params)
     if (element.isNull()) return textResult(QString("No %1 with id %2.").arg(kind).arg(id), true);
     if (property.isEmpty()) return textResult("Missing required argument 'property'.", true);
 
-    if (!element->setProperty(property.toUtf8().constData(), value))
-      return textResult(QString("Could not set property '%1' on %2 %3.").arg(property, kind).arg(id), true);
+    SettingNode* node = element->settings()->findNode(property);
+    if (!node) return textResult(QString("No setting '%1' on %2 %3.").arg(property, kind).arg(id), true);
+    if (node->kind() != SettingNode::SettingKind)
+      return textResult(QString("'%1' is a %2, not a setting: use list_settings to find the settings below it.")
+                        .arg(property, node->kind() == SettingNode::GroupKind ? "group" : "list"), true);
+    Setting* setting = static_cast<Setting*>(node);
+    if (setting->info().isReadOnly())
+      return textResult(QString("Setting '%1' is read-only.").arg(property), true);
+
+    // A point or a range is given as an array of two numbers; anything else as one value.
+    const QVariantList arguments = (value.typeId() == QMetaType::QVariantList) ? value.toList() : QVariantList { value };
+
+    // A video given the file it already plays reloads it when the preference
+    // "Allow message with existing media source" is on, as with OSC.
+    Video* video = qobject_cast<Video*>(element.data());
+    bool written = false;
+    if (video && setting == video->settings()->find("uri") && arguments.size() == 1
+        && arguments.first().toString() == video->getUri())
+      written = video->setUri(video->getUri());
+    else
+      written = setting->setFromArguments(arguments);
+    if (!written)
+      return textResult(QString("Could not set '%1' on %2 %3: value refused.").arg(property, kind).arg(id), true);
     _mainWindow->updateCanvases();
     return textResult(QString("Set %1 %2 property '%3'.").arg(kind).arg(id).arg(property));
   }
@@ -449,6 +470,19 @@ QJsonObject McpServer::handleToolsCall(const QJsonObject& params)
     Source::ptr source = mm.getSourceById(id);
     if (source.isNull()) return textResult(QString("No source with id %1.").arg(id), true);
     return jsonResult(elementProperties(source.data()));
+  }
+  if (name == "list_settings")
+  {
+    const QString kind = args.value("kind").toString();
+    const int id = static_cast<int>(args.value("id").toInteger(0));
+    QSharedPointer<Element> element;
+    if (kind == "source")     element = mm.getSourceById(id);
+    else if (kind == "layer") element = mm.getLayerById(id);
+    else return textResult("'kind' must be \"source\" or \"layer\".", true);
+    if (element.isNull()) return textResult(QString("No %1 with id %2.").arg(kind).arg(id), true);
+    QJsonObject result;
+    result["settings"] = describeSettings(element->settings());
+    return jsonResult(result);
   }
   if (name == "get_layer")
   {
@@ -500,22 +534,7 @@ QJsonObject McpServer::layerSummary(int layerId) const
 
 QJsonObject McpServer::elementProperties(Element* element) const
 {
-  QJsonObject o;
-  if (!element) return o;
-  const QMetaObject* meta = element->metaObject();
-  for (int i = 0; i < meta->propertyCount(); ++i)
-  {
-    const QMetaProperty property = meta->property(i);
-    if (!property.isReadable()) continue;
-    const QVariant value = property.read(element);
-    if (value.typeId() == QMetaType::QColor)
-      o[QString::fromUtf8(property.name())] = qvariant_cast<QColor>(value).name();
-    else if (value.typeId() == QMetaType::QIcon)
-      continue; // not meaningfully serialisable
-    else
-      o[QString::fromUtf8(property.name())] = QJsonValue::fromVariant(value);
-  }
-  return o;
+  return element ? settingValues(element->settings()) : QJsonObject();
 }
 
 // --- Tool catalogue ----------------------------------------------------------
@@ -617,11 +636,11 @@ QJsonArray McpServer::toolDefinitions() const
                     },
                     QJsonArray{"id", "vertices"}));
   tools.append(tool("set_property",
-                    "Set an arbitrary property on a source or layer (e.g. name, opacity, color, uri).",
+                    "Set a setting of a source or layer (e.g. name, opacity, color, uri, or a path such as output/vertices/0; see list_settings). A point or a range takes an array of two numbers.",
                     QJsonObject{
                       {"kind", prop("string", "\"source\" or \"layer\".")},
                       {"id", prop("integer", "Element id.")},
-                      {"property", prop("string", "Property name.")},
+                      {"property", prop("string", "Setting name or path.")},
                       {"value", QJsonObject{{"description", "Property value (type depends on the property)."}}}
                     },
                     QJsonArray{"kind", "id", "property", "value"}));
@@ -633,6 +652,13 @@ QJsonArray McpServer::toolDefinitions() const
                     QJsonObject(), QJsonArray()));
   tools.append(tool("list_layers", "List all layers with their summary fields.",
                     QJsonObject(), QJsonArray()));
+  tools.append(tool("list_settings",
+                    "List every setting of a source or layer with its path, type, value, bounds, unit and options.",
+                    QJsonObject{
+                      {"kind", prop("string", "\"source\" or \"layer\".")},
+                      {"id", prop("integer", "Element id.")}
+                    },
+                    QJsonArray{"kind", "id"}));
   tools.append(tool("get_source", "Get all properties of a source.",
                     QJsonObject{{"id", prop("integer", "Source id.")}}, QJsonArray{"id"}));
   tools.append(tool("get_layer", "Get all properties of a layer.",
