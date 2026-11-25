@@ -181,8 +181,8 @@ public:
 	// Returns center of object.
 	virtual QPointF getCenter() const;
 
-  virtual void read(const QJsonObject& obj);
-  virtual void write(QJsonObject& obj);
+  void read(const QJsonObject& obj) override;
+  void write(QJsonObject& obj) override;
 
 protected:
   QVector<QPointF> vertices;

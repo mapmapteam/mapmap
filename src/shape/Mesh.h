@@ -52,18 +52,18 @@ public:
   // Performs the actual adding of points (used for loading).
   void init(const QVector<QPointF>& points, int nColumns, int nRows);
 
-  virtual void build();
+  void build() override;
 
-  virtual ShapeType getType() const { return ShapeType::Mesh; }
+  ShapeType getType() const override { return ShapeType::Mesh; }
 
   /// Returns a polygon that is formed by all the contour points of the mesh.
-  virtual QPolygonF toPolygon() const;
+  QPolygonF toPolygon() const override;
 
   // Override the parent, checking to make sure the vertices are displaced correctly.
-  virtual void setVertex(int i, const QPointF& v);
+  void setVertex(int i, const QPointF& v) override;
 
   // Returns true iff vertex index is considered a major (external) control point.
-  virtual bool isMajorVertex(int idx) const;
+  bool isMajorVertex(int idx) const override;
 
   QPointF getVertex2d(int i, int j) const
   {
@@ -112,7 +112,7 @@ public:
   int nHorizontalQuads() const { return _nColumns-1; }
   int nVerticalQuads() const { return _nRows-1; }
 
-  void copyFrom(const MShape& shape);
+  void copyFrom(const MShape& shape) override;
 
   /**
    * Reads a mesh as MShape::read() does, then makes it consistent. A grid larger than
@@ -121,7 +121,7 @@ public:
    * do not match the grid, in a damaged or hand-written file, are spread again over the
    * grid, within their bounding rectangle. Both cases warn.
    */
-  virtual void read(const QJsonObject& obj);
+  void read(const QJsonObject& obj) override;
 
 protected:
   int _nColumns;
@@ -152,7 +152,7 @@ protected:
   void _gridChanged(int previousColumns, int previousRows);
 
   /// Returns a new MShape (using default constructor).
-  virtual MShape* _create() const { return new Mesh(); }
+  MShape* _create() const override { return new Mesh(); }
 
   /// Keeps evenly spaced columns and rows of vertices given on a grid of fileColumns x
   /// fileRows, at most MAX_MESH_DIVISIONS of each, as the new grid.

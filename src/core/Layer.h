@@ -94,7 +94,7 @@ public:
    * Sets up this Mapping: its Source and its Shape.
    * Calls the build() method of its Source and Shape.
    */
-  virtual void build() {
+  void build() override {
     _source->build();
     _shape->build();
     if (hasInputShape())
@@ -129,7 +129,7 @@ public:
   virtual void setVisible(bool visible);
   virtual void setDepth(int depth);
 
-  virtual void setLocked(bool locked);
+  void setLocked(bool locked) override;
 
   virtual bool isSolo() const      { return _isSolo; }
   virtual bool isVisible() const   { return _isVisible; }
@@ -150,8 +150,8 @@ public:
   virtual void setInputShape(MShape::ptr s);
 
   /// Reads the layer from JSON. Does not set the source: see ProjectReader.
-  virtual void read(const QJsonObject& obj);
-  virtual void write(QJsonObject& obj);
+  void read(const QJsonObject& obj) override;
+  void write(QJsonObject& obj) override;
 
   /// Notifies the change, then, when the output and input shapes are both meshes and the grid
   /// of one changed, gives the other the same grid: a texture is drawn quad by quad.
