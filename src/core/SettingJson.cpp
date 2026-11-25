@@ -26,6 +26,9 @@ namespace mmp {
 
 namespace {
 
+/// Factor between a value and the number shown, for a value shown as it is.
+const double DEFAULT_DISPLAY_SCALE = 1.0;
+
 /// Returns the lowercase name of a type, as given in the descriptions.
 QString typeName(SettingInfo::Type type)
 {
@@ -96,6 +99,8 @@ QJsonObject describeSetting(const QString& path, const Setting* setting)
     object["default"] = toJson(type, info.defaultValue());
   if (info.unit() != SettingInfo::NoUnit)
     object["unit"] = unitName(info.unit());
+  if (info.displayScale() != DEFAULT_DISPLAY_SCALE)
+    object["displayScale"] = info.displayScale();
   if (type == SettingInfo::Choice || type == SettingInfo::Reference) {
     QJsonArray options;
     for (const SettingOption& option : info.options())

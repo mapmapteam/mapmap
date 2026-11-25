@@ -34,8 +34,9 @@ namespace mmp {
 
 /// Describes every setting below a group: one object per leaf, in declaration order,
 /// the elements of a list included. Keys: path (relative to the group), label, type, value,
-/// and when set: description, minimum, maximum, step, default, unit, options (array of
-/// {id, label}), readOnly (true), available (false). A colour is a text, a point or a range
+/// and when set: description, minimum, maximum, step, default, unit, displayScale (when not
+/// 1), options (array of {id, label}), readOnly (true), available (false). Values and bounds
+/// are in the stored range, not multiplied by displayScale. A colour is a text, a point or a range
 /// an array of two numbers; the minimum and maximum of a point or a range are plain numbers
 /// applying to each coordinate.
 QJsonArray describeSettings(const SettingGroup* group);

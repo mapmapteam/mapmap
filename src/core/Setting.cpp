@@ -20,6 +20,7 @@
 #include "Setting.h"
 
 #include <cmath>
+#include <limits>
 #include <utility>
 
 #include <QColor>
@@ -64,14 +65,11 @@ const int PAIR_ARGUMENT_COUNT = 2;
 /// Number of arguments every other type takes.
 const int SINGLE_ARGUMENT_COUNT = 1;
 
-/// The number a Boolean accepts for false.
+/// The number a Boolean takes as false; any other finite number is true.
 const double BOOLEAN_FALSE_NUMBER = 0.0;
 
-/// The number a Boolean accepts for true.
-const double BOOLEAN_TRUE_NUMBER = 1.0;
-
 /**
- * Reads a Boolean strictly: true or false, the numbers 0 and 1, or the texts "true",
+ * Reads a Boolean: true or false, any finite number (0 is false), or the texts "true",
  * "false", "1" and "0" in any case. Returns false when the value is none of these.
  */
 bool parseBoolean(const QVariant& value, bool* result)
@@ -93,13 +91,30 @@ bool parseBoolean(const QVariant& value, bool* result)
     }
     return false;
   }
+  // Controllers send 127, or any non-zero number, for "on".
   bool isNumber = false;
   const double number = value.toDouble(&isNumber);
-  if (isNumber && (number == BOOLEAN_FALSE_NUMBER || number == BOOLEAN_TRUE_NUMBER)) {
-    *result = (number == BOOLEAN_TRUE_NUMBER);
+  if (isNumber && std::isfinite(number)) {
+    *result = (number != BOOLEAN_FALSE_NUMBER);
     return true;
   }
   return false;
+}
+
+/**
+ * Returns true when a number is within the range of the type it is stored as, so that
+ * converting it to that type is defined.
+ */
+bool fitsValueType(double number, QMetaType::Type valueType)
+{
+  switch (valueType) {
+  case QMetaType::Int:
+    return number >= std::numeric_limits<int>::lowest() && number <= std::numeric_limits<int>::max();
+  case QMetaType::Float:
+    return std::fabs(number) <= std::numeric_limits<float>::max();
+  default:
+    return true;
+  }
 }
 
 } // namespace
@@ -397,7 +412,7 @@ QVariant Setting::sanitized(const QVariant& value, bool* ok) const
   case SettingInfo::Number:
   case SettingInfo::Integer: {
     double number = value.toDouble(&valid);
-    valid = valid && _sanitizeNumber(&number);
+    valid = valid && _sanitizeNumber(&number) && fitsValueType(number, _info.valueType());
     if (valid) {
       result = number;
       valid = result.convert(QMetaType(_info.valueType()));
