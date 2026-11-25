@@ -19,8 +19,44 @@
 
 #include "Mesh.h"
 #include <algorithm>
+#include <limits>
 
 namespace mmp {
+
+namespace {
+
+/// Value returned by QJsonValue::toInteger() for a value that is not a whole number.
+const qint64 NOT_A_COUNT = -1;
+
+/**
+ * Reads a number of columns or rows as a project file gives it, a text or a JSON number.
+ * Returns false when the value is not a whole number within the range of an int.
+ */
+bool readGridCount(const QJsonValue& value, int* count)
+{
+  qint64 number = NOT_A_COUNT;
+  if (value.isString()) {
+    bool ok = false;
+    number = value.toString().toLongLong(&ok);
+    if (!ok)
+      return false;
+  }
+  else
+    number = value.toInteger(NOT_A_COUNT);
+  if (number < 0 || number > std::numeric_limits<int>::max())
+    return false;
+  *count = int(number);
+  return true;
+}
+
+/// Returns the index, among fileCount, of the index-th of count evenly spaced indexes that
+/// include the first and the last one. count is at least 2.
+int evenlySpacedIndex(int index, int count, int fileCount)
+{
+  return qRound(double(index) * (fileCount - 1) / (count - 1));
+}
+
+} // namespace
 
 Mesh::Mesh() : Quad(), _nColumns(0), _nRows(0) {
   // Create dummy points (will be all overwritten later on by load/save).
@@ -573,6 +609,67 @@ void Mesh::copyFrom(const MShape& shape)
 	_reorderVertices();
 
   _gridChanged(previousColumns, previousRows);
+}
+
+void Mesh::read(const QJsonObject& obj)
+{
+  int fileColumns = 0;
+  int fileRows = 0;
+  const bool hasGrid = readGridCount(obj.value("nColumns"), &fileColumns)
+      && readGridCount(obj.value("nRows"), &fileRows);
+
+  // The grid comes through its settings, kept within their bounds, then the vertices.
+  MShape::read(obj);
+
+  const bool oversized = hasGrid
+      && (fileColumns > MAX_MESH_DIVISIONS || fileRows > MAX_MESH_DIVISIONS)
+      && fileColumns >= MIN_MESH_DIVISIONS && fileRows >= MIN_MESH_DIVISIONS
+      && nVertices() == qint64(fileColumns) * fileRows;
+  if (oversized)
+  {
+    const QVector<QPointF> fileVertices = vertices;
+    _reduceFrom(fileVertices, fileColumns, fileRows);
+    qWarning() << "Mesh of" << fileColumns << "x" << fileRows << "vertices reduced to"
+               << nColumns() << "x" << nRows() << ", the most a mesh can have";
+  }
+  else if (nVertices() != nColumns() * nRows())
+  {
+    qWarning() << "Mesh with" << nVertices() << "vertices for a grid of" << nColumns()
+               << "x" << nRows() << ": its vertices are spread again over the grid";
+    _spreadOverGrid();
+  }
+}
+
+void Mesh::_reduceFrom(const QVector<QPointF>& fileVertices, int fileColumns, int fileRows)
+{
+  const int columns = qMin(fileColumns, int(MAX_MESH_DIVISIONS));
+  const int rows    = qMin(fileRows, int(MAX_MESH_DIVISIONS));
+
+  // The vertices of a file are in the standard order: row after row.
+  QVector<QPointF> points;
+  points.reserve(columns * rows);
+  for (int row = 0; row < rows; row++)
+  {
+    const int fileRow = evenlySpacedIndex(row, rows, fileRows);
+    for (int column = 0; column < columns; column++)
+    {
+      const int fileColumn = evenlySpacedIndex(column, columns, fileColumns);
+      points.append(fileVertices.at(fileRow * fileColumns + fileColumn));
+    }
+  }
+  init(points, columns, rows);
+}
+
+void Mesh::_spreadOverGrid()
+{
+  const QRectF bounds = getBoundingRect();
+  QVector<QPointF> points;
+  points.reserve(nColumns() * nRows());
+  for (int row = 0; row < nRows(); row++)
+    for (int column = 0; column < nColumns(); column++)
+      points.append(QPointF(bounds.left() + bounds.width()  * column / (nColumns() - 1),
+                            bounds.top()  + bounds.height() * row    / (nRows() - 1)));
+  init(points, nColumns(), nRows());
 }
 
 void Mesh::_reorderVertices()

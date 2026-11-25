@@ -54,6 +54,9 @@ private slots:
   void opacityOverOscRangeIsClamped();
   void listShrinksWithMesh();
   void meshGridHasAMaximum();
+  void oversizedMeshIsReducedOnRead();
+  void mismatchedMeshIsMadeConsistentOnRead();
+  void oversizedMeshesOfTextureLayerKeepEqualGrids();
   void rejectsUnknownSource();
   void replacingShapeRemountsTree();
   void meshGridsOfTextureLayerFollowEachOther();
