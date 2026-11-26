@@ -390,9 +390,9 @@ void TestShape::imageOrientationsAreAllDistinct()
 void TestShape::degenerateShapeHasFallbackDirection()
 {
   Quad point(QPointF(5, 5), QPointF(5, 5), QPointF(5, 5), QPointF(5, 5));
-  QVERIFY(nearPoint(handleAnchor(point).outward, QPointF(0, -1)));
-  QVERIFY(nearPoint(handleAnchor(point).along, QPointF(1, 0)));
-  QVERIFY(nearPoint(handlePosition(point, 28), QPointF(5, -23)));
+  QVERIFY(nearPoint(handleAnchor(point).outward, QPointF(1, 0)));
+  QVERIFY(nearPoint(handleAnchor(point).along, QPointF(0, 1)));
+  QVERIFY(nearPoint(handlePosition(point, 28), QPointF(33, 5)));
 }
 
 namespace {
@@ -555,27 +555,30 @@ void TestShape::frozenValueKeepsShownValue()
 void TestShape::singleHandleAnchors()
 {
   Quad rect(QPointF(0, 0), QPointF(40, 0), QPointF(40, 20), QPointF(0, 20));
-  QVERIFY(nearPoint(handleAnchor(rect).point, QPointF(20, 0)));
-  QVERIFY(nearPoint(handleAnchor(rect).along, QPointF(1, 0)));
+  QVERIFY(nearPoint(handleAnchor(rect).point, QPointF(40, 10)));
+  QVERIFY(nearPoint(handleAnchor(rect).outward, QPointF(1, 0)));
+  QVERIFY(nearPoint(handleAnchor(rect).along, QPointF(0, 1)));
   QVERIFY(!handleAnchor(rect).isMirrored());
 
   Triangle tri(QPointF(0, 30), QPointF(40, 30), QPointF(20, 0));
   const qreal a = 30 / std::hypot(30.0, 20.0);
   const qreal b = 20 / std::hypot(30.0, 20.0);
-  QVERIFY(nearPoint(handleAnchor(tri).point, QPointF(10, 15)));
-  QVERIFY(nearPoint(handleAnchor(tri).along, QPointF(b, -a)));
+  QVERIFY(nearPoint(handleAnchor(tri).point, QPointF(30, 15)));
+  QVERIFY(nearPoint(handleAnchor(tri).outward, QPointF(a, -b)));
+  QVERIFY(nearPoint(handleAnchor(tri).along, QPointF(b, a)));
   QVERIFY(!handleAnchor(tri).isMirrored());
 
   Mesh mesh(QPointF(0, 0), QPointF(40, 0), QPointF(40, 20), QPointF(0, 20));
   mesh.resize(3, 2);
-  QVERIFY(nearPoint(handleAnchor(mesh).point, QPointF(20, 0)));
+  QVERIFY(nearPoint(handleAnchor(mesh).point, QPointF(40, 10)));
   QVERIFY(!handleAnchor(mesh).isMirrored());
 
   Ellipse ellipse(QPointF(0, 10), QPointF(20, 0), QPointF(40, 10), QPointF(20, 20));
-  QVERIFY(nearPoint(handleAnchor(ellipse).point, QPointF(20, 0)));
-  QVERIFY(nearPoint(handleAnchor(ellipse).along, QPointF(1, 0)));
+  QVERIFY(nearPoint(handleAnchor(ellipse).point, QPointF(40, 10)));
+  QVERIFY(nearPoint(handleAnchor(ellipse).along, QPointF(0, 1)));
+  QVERIFY(!handleAnchor(ellipse).isMirrored());
 
-  QVERIFY(nearPoint(handlePosition(rect, 28), QPointF(20, -28)));
+  QVERIFY(nearPoint(handlePosition(rect, 28), QPointF(68, 10)));
 }
 
 void TestShape::mirroredShapesAreDetected()
@@ -586,4 +589,8 @@ void TestShape::mirroredShapesAreDetected()
   QVERIFY(handleAnchor(tri).isMirrored());
   Ellipse ellipse(QPointF(40, 10), QPointF(20, 0), QPointF(0, 10), QPointF(20, 20));
   QVERIFY(handleAnchor(ellipse).isMirrored());
+
+  // Upside down is a mirror too.
+  Quad flipped(QPointF(0, 20), QPointF(40, 20), QPointF(40, 0), QPointF(0, 0));
+  QVERIFY(handleAnchor(flipped).isMirrored());
 }

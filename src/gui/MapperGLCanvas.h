@@ -282,10 +282,9 @@ protected:
   static constexpr int   CONTENT_LABEL_FONT_SIZE = 11;
   static constexpr qreal CONTENT_LABEL_SPACING  = 3;
 
-  // Space left around the content at 100% zoom, in screen pixels: room for
-  // the label above the outline, and more than the radius of a vertex
-  // control (MM::VERTEX_SELECT_RADIUS).
-  static constexpr qreal FIT_MARGIN = 28;
+  // Space left at 100% zoom between the view and the handle of a shape that
+  // covers all the content, in screen pixels.
+  static constexpr qreal FIT_MARGIN_SPACING = 4;
 
 private:
   // Scale at which the content rectangle fills the view (1 without content).

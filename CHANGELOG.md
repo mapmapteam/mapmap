@@ -7,7 +7,7 @@ New:
 - Convert the colors of camera sources on the graphics card when the camera gives YUV images, like videos.
 - Measure the time of each step of the image path with the option `--frame-stats`: one line per second in the log. `--frame-stats-sync` waits for the graphics card to give the real cost of each step, and `--force-cpu-conversion` converts the colors of videos on the processor, to compare.
 - Give each project an output resolution, chosen in View > Output Resolution among common projector resolutions, or set by hand. The output window scales it to fill the output screen. New projects take the resolution set in the preferences, which can follow the output screen; older projects take the size of the output screen.
-- Rotate and scale the selected layer with a single handle. Press R to only rotate, S to only scale, T for both, or click the handle to switch; Shift for steps of 15° or 10 %, Ctrl (Cmd on macOS) for fine motion. The handle shows which way the image is set in the layer, and replaces the thick first edge.
+- Rotate and scale the selected layer with a single handle, on the right of its image. Press R to only rotate, S to only scale, T for both, or click the handle to switch; Shift for steps of 15° or 10 %, Ctrl (Cmd on macOS) for fine motion. The handle shows which way the image is set in the layer, and replaces the thick first edge.
 - Adjust sources and layers in a new inspector, made from their settings: a Surface tab for the layer and its shapes, a Media tab for its source, folding groups, and a control made for each kind of setting (slider with field and unit, switch, buttons or menu, XY pad, two-handle slider, colour picker with recent colours). Double-click a row for the default value, drag a label to adjust it (Shift for fine steps), use the arrow keys in a field (Shift for ten steps). Numbers are written in the language of the interface. The Media tab says when the source is shared by several layers.
 - Control every setting of a source or a layer by OSC at an address that follows its path: `/mapmap/layer/<id>/<path>`, for example `/mapmap/layer/3/output/vertices/5`. The new MCP tool `list_settings` gives the settings of a source or a layer with their type, bounds and options, and `set_property` takes a path.
 
@@ -17,6 +17,7 @@ Improvements:
 - Keep the unknown keys of a project file when the project is saved again.
 - In the settings panel of a layer, "Mesh Subdivisions" is now Columns and Rows.
 - At 100% zoom, the input editor shows the whole image of the selected source and the output editor the whole output frame. "Actual pixels (1:1)" shows one image pixel per screen pixel. New shapes are placed inside the output frame.
+- The editors leave more room around the image and the output frame at 100% zoom, for the handle of a shape that covers them.
 - Only show the scroll bars of the editors when the image, the output frame or a shape does not fit in the view.
 - Projects converted with the option `--output-size` of `scripts/convert-xml-project.py` take that size as their output resolution.
 - Only show the mapping in the fullscreen output when the mouse has not moved over it for three seconds: the mouse cursor, the crosshair, and the outlines and vertices of the shapes are hidden. They come back when the mouse moves.

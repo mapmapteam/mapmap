@@ -29,7 +29,7 @@ namespace mmp {
 
 /**
  * The handle drawn outside the current shape in the editors rotates and
- * scales it. It sits on the top of the image, as given by the order of the
+ * scales it. It sits on the right of the image, as given by the order of the
  * vertices, and its pictogram is drawn the way the image is set in the shape,
  * so that it also shows whether the image is seen in mirror.
  */
@@ -37,17 +37,17 @@ namespace mmp {
 /// Where the handle is attached to a shape.
 struct HandleAnchor {
   QPointF point;   ///< Point of the shape the handle is attached to.
-  QPointF outward; ///< Unit vector pointing away from the shape: the "up" of the image.
-  QPointF along;   ///< Unit vector along the edge that carries the handle: the "right" of the image.
+  QPointF outward; ///< Unit vector pointing away from the shape: the "right" of the image.
+  QPointF along;   ///< Unit vector along the edge that carries the handle: the "down" of the image.
 
-  /// True when the image is seen in mirror: along points to the left of outward.
+  /// True when the image is seen in mirror: along is not a quarter turn clockwise from outward.
   bool isMirrored() const;
 };
 
 /**
  * Returns the anchor of the handle of a shape, in the shape's
- * coordinates: the middle of side 0-1 (quad), of the top row (mesh), of side
- * 0-2 (triangle), or vertex 1 (ellipse, along pointing to vertex 2).
+ * coordinates: the middle of side 1-2 (quad), of the last column (mesh), of
+ * side 2-1 (triangle), or vertex 2 (ellipse, along pointing to vertex 3).
  */
 HandleAnchor handleAnchor(const MShape& shape);
 
