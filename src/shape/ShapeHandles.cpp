@@ -32,6 +32,11 @@ namespace mmp {
 
 namespace {
 
+/// The handle points to the right when the shape gives no direction...
+const QPointF FALLBACK_OUTWARD(1, 0);
+/// ...and the image is then taken as upright: its side goes down.
+const QPointF FALLBACK_ALONG(0, 1);
+
 /// Returns v scaled to a length of 1, or fallback when v has no length.
 QPointF _normalized(const QPointF& v, const QPointF& fallback)
 {
@@ -45,7 +50,7 @@ QPointF _normalized(const QPointF& v, const QPointF& fallback)
  */
 HandleAnchor _polylineMiddle(const QPolygonF& polyline, const QPointF& center, const QPointF& fallback)
 {
-  HandleAnchor anchor { polyline.isEmpty() ? center : polyline.first(), fallback, QPointF(1, 0) };
+  HandleAnchor anchor { polyline.isEmpty() ? center : polyline.first(), fallback, FALLBACK_ALONG };
   if (polyline.size() < 2)
     return anchor;
 
@@ -72,7 +77,7 @@ HandleAnchor _polylineMiddle(const QPolygonF& polyline, const QPointF& center, c
   if (normal.isNull())
     normal = anchor.point - center;
   anchor.outward = _normalized(normal, fallback);
-  anchor.along = _normalized(segment.p2() - segment.p1(), QPointF(1, 0));
+  anchor.along = _normalized(segment.p2() - segment.p1(), FALLBACK_ALONG);
   return anchor;
 }
 
@@ -81,48 +86,49 @@ HandleAnchor _polylineMiddle(const QPolygonF& polyline, const QPointF& center, c
 HandleAnchor handleAnchor(const MShape& shape)
 {
   const QPointF center = shape.getCenter();
-  // The handle points up when the shape gives no direction.
-  const QPointF fallback(0, -1);
 
+  // The right side of the image, from its top to its bottom.
   QPolygonF polyline;
   switch (shape.getType())
   {
   case MShape::Quad:
     if (shape.nVertices() >= 3)
-      polyline << shape.getVertex(0) << shape.getVertex(1);
+      polyline << shape.getVertex(1) << shape.getVertex(2);
     break;
 
   case MShape::Triangle:
     if (shape.nVertices() >= 3)
-      polyline << shape.getVertex(0) << shape.getVertex(2);
+      polyline << shape.getVertex(2) << shape.getVertex(1);
     break;
 
   case MShape::Mesh:
   {
     const Mesh& mesh = static_cast<const Mesh&>(shape);
-    for (int column = 0; column < mesh.nColumns(); column++)
-      polyline << mesh.getVertex2d(column, 0);
+    for (int row = 0; row < mesh.nRows(); row++)
+      polyline << mesh.getVertex2d(mesh.nColumns() - 1, row);
     break;
   }
 
   case MShape::Ellipse:
-    if (shape.nVertices() >= 3)
+    if (shape.nVertices() >= 4)
     {
-      const QPointF point = shape.getVertex(1);
-      const QPointF right = shape.getVertex(2);
-      return HandleAnchor { point, _normalized(point - center, fallback), _normalized(right - center, QPointF(1, 0)) };
+      const QPointF point = shape.getVertex(2);
+      const QPointF bottom = shape.getVertex(3);
+      return HandleAnchor { point, _normalized(point - center, FALLBACK_OUTWARD),
+                            _normalized(bottom - center, FALLBACK_ALONG) };
     }
     break;
   }
 
-  return _polylineMiddle(polyline, center, fallback);
+  return _polylineMiddle(polyline, center, FALLBACK_OUTWARD);
 }
 
 bool HandleAnchor::isMirrored() const
 {
-  // The right of the image, when it is not seen in mirror.
-  const QPointF right(-outward.y(), outward.x());
-  return QPointF::dotProduct(right, along) < 0;
+  // The bottom of the image, when it is not seen in mirror: outward after a
+  // quarter turn clockwise.
+  const QPointF down(-outward.y(), outward.x());
+  return QPointF::dotProduct(down, along) < 0;
 }
 
 QPointF handlePosition(const MShape& shape, qreal distance)

@@ -55,13 +55,13 @@ protected:
 
   /**
    * Draws the handle of the shape, unless it is locked: a disc outside the
-   * top of the image with the pictogram of the current mode (free, rotate or
+   * right of the image with the pictogram of the current mode (free, rotate or
    * scale), drawn the way the image is set in the shape.
    */
   void _paintHandles(QPainter *painter, MapperGLCanvas* canvas);
 
   /// Pictograms of the handle, drawn around the origin in radii of the icon
-  /// (x to the right of the image, y toward the shape).
+  /// (x to the right of the image, y to its bottom).
   static void _drawScaleGlyph(QPainter* painter);  ///< Four arrows in a cross.
   static void _drawRotateGlyph(QPainter* painter); ///< A circular arrow.
   static void _drawFreeGlyph(QPainter* painter);   ///< Half a turn and an arrow leaving the center.

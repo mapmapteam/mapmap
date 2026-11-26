@@ -123,11 +123,11 @@ void ShapeControlPainter::_paintHandles(QPainter *painter, MapperGLCanvas* canva
 
   // ...with the pictogram of the mode, drawn in the frame of the image so that
   // it turns over when the image is seen in mirror: x to the right of the
-  // image, y toward the shape, in radii of the icon.
-  QPointF right(-anchor.outward.y(), anchor.outward.x());
+  // image, away from the shape, y to its bottom, in radii of the icon.
+  const QPointF right = anchor.outward;
+  QPointF down(-right.y(), right.x());
   if (anchor.isMirrored())
-    right = -right;
-  const QPointF down = -anchor.outward;
+    down = -down;
   painter->setTransform(QTransform(right.x() * radius, right.y() * radius,
                                    down.x() * radius, down.y() * radius,
                                    center.x(), center.y()), true);

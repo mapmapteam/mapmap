@@ -237,8 +237,11 @@ qreal MapperGLCanvas::_fitScale() const
 
 qreal MapperGLCanvas::_fitScale(const QSizeF& viewSize) const
 {
-  // Leave room for the controls of vertices placed on the edges.
-  const QSizeF area = viewSize - QSizeF(2 * FIT_MARGIN, 2 * FIT_MARGIN);
+  // Leave room around the content for the label above its outline, for the
+  // controls of vertices placed on its edges and, most of all, for the handle
+  // of a shape that covers it all.
+  const qreal margin = MM::HANDLE_DISTANCE + MM::HANDLE_RADIUS + FIT_MARGIN_SPACING;
+  const QSizeF area = viewSize - QSizeF(2 * margin, 2 * margin);
   return Util::fitScale(_contentRect.size(), area.isEmpty() ? viewSize : area);
 }
 
