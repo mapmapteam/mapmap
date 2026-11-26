@@ -26,6 +26,7 @@
 #include "Commands.h"
 
 #include <QApplication>
+#include <QScopeGuard>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QOpenGLWidget>
@@ -435,6 +436,9 @@ void MapperGLCanvas::dropEvent(QDropEvent *event)
 //
 void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
 {
+  // The other side shows which vertex is selected here.
+  const auto updateOtherSide = qScopeGuard([this] { _updateOtherSide(); });
+
   bool mousePressedOnSomething = false;
 
   _mousePressedPosition = event->pos();
@@ -517,6 +521,10 @@ void MapperGLCanvas::mousePressEvent(QMouseEvent* event)
             _grabbedObjectStartScenePosition = selectedShape->getVertex(i);
           }
         }
+
+        // One vertex is selected at a time: the one the arrow keys move.
+        if (mousePressedOnSomething)
+          _deselectVerticesOnOtherSide();
       }
     }
 
@@ -806,6 +814,9 @@ void MapperGLCanvas::keyReleaseEvent(QKeyEvent* event)
 
 void MapperGLCanvas::keyPressEvent(QKeyEvent* event)
 {
+  // The other side shows which vertex is selected here.
+  const auto updateOtherSide = qScopeGuard([this] { _updateOtherSide(); });
+
   // Pressing Shift during a handle drag shows the steps at once.
   if (_handleDrag && _handleMoved && event->key() == Qt::Key_Shift)
   {
@@ -983,6 +994,33 @@ void MapperGLCanvas::deselectVertices()
   _activeVertex = NO_VERTEX;
   _vertexGrabbed = false;
   _vertexMoved = false;
+}
+
+QList<MapperGLCanvas*> MapperGLCanvas::_otherSideCanvases() const
+{
+  // The output window shows the same shapes as the output editor: they are on
+  // the same side.
+  QList<MapperGLCanvas*> others;
+  const QList<MapperGLCanvas*> canvases = { _mainWindow->getSourceCanvas(), _mainWindow->getDestinationCanvas(),
+                                            _mainWindow->getOutputWindow()->getCanvas() };
+  for (MapperGLCanvas* canvas : canvases)
+  {
+    if (canvas && canvas->isOutput() != isOutput())
+      others << canvas;
+  }
+  return others;
+}
+
+void MapperGLCanvas::_deselectVerticesOnOtherSide()
+{
+  for (MapperGLCanvas* canvas : _otherSideCanvases())
+    canvas->deselectVertices();
+}
+
+void MapperGLCanvas::_updateOtherSide()
+{
+  for (MapperGLCanvas* canvas : _otherSideCanvases())
+    canvas->viewport()->update();
 }
 
 void MapperGLCanvas::deselectAll()

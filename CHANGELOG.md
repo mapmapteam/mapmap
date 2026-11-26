@@ -38,6 +38,7 @@ Fix:
 - Fix the text of drop-down lists, such as the zoom of the editors, which was invisible with dark system themes.
 - Fix a crash on macOS when importing a media file or adding a color.
 - Fix a video racing through its frames at a speed of zero or below: it now stops. A negative speed is kept in the project, for when videos can play backwards again.
+- Fix a vertex staying selected in one editor after selecting a vertex in the other.
 
 ## 1.0.0-beta.1 - 2026-11-23
 
