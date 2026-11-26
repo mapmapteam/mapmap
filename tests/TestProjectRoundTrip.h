@@ -28,6 +28,7 @@ private slots:
   void roundTrip_data();
   void roundTrip();
 
+  void writesStableBeta2Project();
   void rejectsLegacyXml();
   void rejectsNonProjectJson();
   void rejectsInvalidJson();

@@ -132,7 +132,17 @@ void Serializable::write(QJsonObject& obj)
       continue;
     }
 
-    obj[setting->id()] = setting->toText();
+    switch (setting->info().type())
+    {
+      case SettingInfo::Number:
+      case SettingInfo::Integer:
+      case SettingInfo::Boolean:
+        obj[setting->id()] = QJsonValue::fromVariant(setting->value());
+        break;
+      default:
+        obj[setting->id()] = setting->toText();
+        break;
+    }
   }
 }
 

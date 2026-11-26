@@ -4,7 +4,7 @@
 
 A MapMap project is a JSON object. The writer emits `sources` and `layers` arrays, including when they are empty. A layer refers to its source by a numeric ID. Array order matters: the first layer is at the top of the stack. Mesh vertices are in row-major order. An older project may omit `outputResolution`.
 
-The current development reader accepts earlier setting names such as `sourceId` and `nColumns`. When both spellings occur, the current spelling takes precedence. IDs and coordinates are already JSON numbers. Many settings, including opacity and visibility, are written as strings. The development reader accepts native numbers and booleans for these settings. MapMap 1.0.0-beta.1 reads them as strings.
+The current development reader accepts earlier setting names such as `sourceId` and `nColumns`. When both spellings occur, the current spelling takes precedence. IDs and coordinates are already JSON numbers. Beta.1 stores many settings as strings. Beta.2 reads those projects directly. Saving a project writes the beta.2 format, with native numbers and booleans. Use Save As to keep a copy that beta.1 can read.
 
 ## Proposed changes
 
@@ -26,7 +26,7 @@ Within valid arrays, keep readable entries and report skipped entries with their
 
 Write a numeric setting such as `opacity` as a number and a boolean setting such as `visible` as a boolean. Use the setting declaration to choose the type. A text setting whose value is `"001"` or `"false"` is still text. Read both representations of legacy numeric and boolean settings. Apply the same convention to the XML converter.
 
-Changing these types causes a one-time diff. For example, 36 lines in the existing `alpha-mixed.mmp` fixture contain numeric or boolean settings stored as strings. Keep the legacy fixture as input and check the types and values of the saved project separately. The migration policy also determines which older MapMap releases can reopen a newly saved file with all its settings intact.
+Changing these types causes a one-time diff. For example, 36 lines in the existing `alpha-mixed.mmp` fixture contain numeric or boolean settings stored as strings. Keep the legacy fixture as input and check the types and values of the saved project separately. Beta.1 expects strings for these settings and can misread a beta.2 project.
 
 ### Convert a beta.1 project with Python
 

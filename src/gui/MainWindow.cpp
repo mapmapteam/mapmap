@@ -3050,7 +3050,7 @@ bool MainWindow::saveFile(const QString &fileName)
   // Write to a temporary file first, then rename for atomic save.
   QString tmpFileName = fileName + ".tmp";
   QFile file(tmpFileName);
-  if (! file.open(QFile::WriteOnly | QFile::Text))
+  if (! file.open(QFile::WriteOnly))
   {
     QMessageBox::warning(this, tr("Error saving mapping project"),
                          tr("Cannot write file %1:\n%2.")
