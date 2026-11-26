@@ -40,6 +40,26 @@ QPolygonF _unitQuarterPoints()
   return points;
 }
 
+// Returns the homography that keeps the unit circle as it is and moves its center to point p
+// (inside the circle), without turning the circle around it. In homogeneous coordinates,
+// with u the direction of p and g = 1 / sqrt(1 - |p|^2):
+//   (x, y) -> (x, y) + (g - 1) ((x, y).u) u + g p w
+//   w      -> g (w + (x, y).p)
+// which leaves x^2 + y^2 - w^2, hence the circle, unchanged.
+QTransform _shiftCircleCenter(const QPointF& p)
+{
+  const qreal distance = std::hypot(p.x(), p.y());
+  if (qFuzzyIsNull(distance))
+    return QTransform();
+
+  const QPointF direction = p / distance;
+  const qreal gain = 1 / std::sqrt(1 - distance*distance);
+  const qreal stretch = gain - 1;
+  return QTransform(1 + stretch * direction.x() * direction.x(), stretch * direction.x() * direction.y(), gain * p.x(),
+                    stretch * direction.x() * direction.y(), 1 + stretch * direction.y() * direction.y(), gain * p.y(),
+                    gain * p.x(), gain * p.y(), gain);
+}
+
 }
 
 void Ellipse::setPerspective(bool perspective)
@@ -169,12 +189,18 @@ void Ellipse::setVertex(int i, const QPointF& v)
 {
   const QVector<QPointF> before = vertices;
 
-  // Center control point: move the whole shape.
-  if (i == 4)
+  // Center control point: in perspective, move it inside the contour, which tilts the
+  // ellipse; otherwise it stays in the middle of the axes, so move the whole shape.
+  if (i == CENTER_VERTEX)
   {
-    const QPointF offset = v - getCenter();
-    for (int j=0; j<4; j++)
-      _rawSetVertex(j, getVertex(j) + offset);
+    if (_perspective)
+      _setPerspectiveCenter(v);
+    else
+    {
+      const QPointF offset = v - getCenter();
+      for (int j=0; j<N_DEFINING_VERTICES; j++)
+        _rawSetVertex(j, getVertex(j) + offset);
+    }
   }
 
   else if (_perspective)
@@ -209,6 +235,63 @@ void Ellipse::_setPerspectiveVertex(int i, const QPointF& v)
       invalid = t;
   }
   _rawSetVertex(i, previous + valid*(v - previous));
+}
+
+bool Ellipse::_computeWithCenter(const QTransform& fromCircle, const QPointF& center, QTransform& moved) const
+{
+  bool invertible = false;
+  const QTransform toCircle = fromCircle.inverted(&invertible);
+  if (!invertible)
+    return false;
+
+  // Where the center is asked to go, on the unit circle: it must stay inside. Its
+  // homogeneous coordinate must keep the sign it has at the current center, which is
+  // checked by hand as QTransform::map() hides it.
+  auto homogeneous = [&toCircle](const QPointF& point) {
+    return toCircle.m13() * point.x() + toCircle.m23() * point.y() + toCircle.m33();
+  };
+  if (homogeneous(center) * homogeneous(fromCircle.map(QPointF(0, 0))) <= 0)
+    return false;
+  const QPointF onCircle = toCircle.map(center);
+  if (std::hypot(onCircle.x(), onCircle.y()) >= 1)
+    return false;
+
+  moved = _shiftCircleCenter(onCircle) * fromCircle;
+  return _isValidTransform(moved);
+}
+
+void Ellipse::_setPerspectiveCenter(const QPointF& v)
+{
+  QTransform fromCircle;
+  if (!_computeFromUnitCircle(fromCircle) || !_isValidTransform(fromCircle))
+    return;
+  const QPointF previous = fromCircle.map(QPointF(0, 0));
+
+  // Find the furthest valid position on the segment previous -> v.
+  QTransform moved;
+  if (!_computeWithCenter(fromCircle, v, moved))
+  {
+    moved = fromCircle;
+    qreal valid = 0;
+    qreal invalid = 1;
+    for (int k=0; k<N_CLAMP_STEPS; k++)
+    {
+      const qreal t = (valid + invalid) / 2;
+      QTransform candidate;
+      if (_computeWithCenter(fromCircle, previous + t*(v - previous), candidate))
+      {
+        valid = t;
+        moved = candidate;
+      }
+      else
+        invalid = t;
+    }
+  }
+
+  // The contour stays; the four vertices slide along it.
+  const QPolygonF quarterPoints = _unitQuarterPoints();
+  for (int j=0; j<N_DEFINING_VERTICES; j++)
+    _rawSetVertex(j, moved.map(quarterPoints.at(j)));
 }
 
 void Ellipse::_setAxisVertex(int i, const QPointF& v)

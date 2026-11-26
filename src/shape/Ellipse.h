@@ -31,7 +31,9 @@ namespace mmp {
  * Vertices 0-3 are the images of the circle's quarter points (-1,0), (0,-1), (1,0), (0,1)
  * and fully define a homography from the unit circle to the ellipse. Vertex 4 (optional)
  * is the image of the circle's center, ie. the perspective-correct center of the ellipse:
- * it is derived from the other vertices and dragging it moves the whole shape.
+ * it is derived from the other vertices. In perspective mode, dragging it moves it inside
+ * the contour, which stays as it is while vertices 0-3 slide along it; otherwise dragging
+ * it moves the whole shape.
  *
  * In perspective mode (default) vertices 0-3 can be moved freely, as long as the circle's
  * image remains an ellipse. Otherwise the shape is constrained to an axis-aligned ellipse,
@@ -203,6 +205,17 @@ protected:
 
   /// Sets vertex in perspective mode, clamping it to remain a valid ellipse.
   void _setPerspectiveVertex(int i, const QPointF& v);
+
+  /**
+   * Moves the center to v in perspective mode. The contour stays as it is and vertices
+   * 0-3 slide along it, without turning around the center: the ellipse looks tilted.
+   * The center is clamped so as to remain a valid ellipse.
+   */
+  void _setPerspectiveCenter(const QPointF& v);
+
+  /// Computes the homography unit circle -> ellipse that has the same contour as
+  /// fromCircle and the given center; returns false if this is not a valid ellipse.
+  bool _computeWithCenter(const QTransform& fromCircle, const QPointF& center, QTransform& moved) const;
 
   bool _perspective;
 };

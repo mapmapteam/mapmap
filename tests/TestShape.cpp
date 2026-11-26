@@ -234,14 +234,60 @@ void TestShape::ellipseRejectsInvalidPerspective()
 
 void TestShape::ellipseCenterDragTranslates()
 {
+  // Without perspective the center stays in the middle: dragging it moves the whole shape.
   Ellipse ellipse = makeEllipse();
-  ellipse.setVertex(1, QPointF(11, 19));
+  ellipse.setPerspective(false);
   QPointF center = ellipse.getCenter();
   QVector<QPointF> before = ellipse.getVertices();
 
   ellipse.setVertex(4, center + QPointF(3, -2));
   for (int i=0; i<5; i++)
     QVERIFY(nearPoint(ellipse.getVertex(i), before[i] + QPointF(3, -2)));
+}
+
+void TestShape::ellipseCenterDragTiltsInPerspective()
+{
+  Ellipse ellipse = makeEllipse();
+  ellipse.setVertex(1, QPointF(11, 19));
+  const QTransform toUnitBefore = ellipse.toUnitCircle();
+  const QPointF target = ellipse.getCenter() + QPointF(1.5, 0.5);
+
+  ellipse.setVertex(4, target);
+  QVERIFY(ellipse.isValid());
+
+  // The center goes where it is asked to...
+  QVERIFY(nearPoint(ellipse.getCenter(), target));
+  QVERIFY(nearPoint(ellipse.getVertex(4), target));
+
+  // ... the contour stays where it was...
+  for (const QPointF& p : ellipse.toPolygon(64))
+    QVERIFY(qAbs(QVector2D(toUnitBefore.map(p)).length() - 1) < 1e-6);
+
+  // ... and the axes still cross at the center.
+  QVERIFY(nearPoint(intersect(ellipse.getVertex(0), ellipse.getVertex(2),
+                              ellipse.getVertex(1), ellipse.getVertex(3)), target));
+
+  // Dragging the center straight back brings the vertices back.
+  Ellipse reference = makeEllipse();
+  reference.setVertex(1, QPointF(11, 19));
+  ellipse.setVertex(4, reference.getCenter());
+  for (int i=0; i<5; i++)
+    QVERIFY(nearPoint(ellipse.getVertex(i), reference.getVertex(i)));
+}
+
+void TestShape::ellipseCenterStaysInsideContour()
+{
+  Ellipse ellipse = makeEllipse();
+  const QTransform toUnitBefore = ellipse.toUnitCircle();
+
+  // Far outside the ellipse: the center stops before the contour.
+  ellipse.setVertex(4, QPointF(1000, 20));
+  QVERIFY(ellipse.isValid());
+  QVERIFY(ellipse.getCenter().x() > 10);
+  QVERIFY(ellipse.getCenter().x() < 14);
+  QVERIFY(nearPoint(ellipse.getCenter(), QPointF(ellipse.getCenter().x(), 20)));
+  for (const QPointF& p : ellipse.toPolygon(64))
+    QVERIFY(qAbs(QVector2D(toUnitBefore.map(p)).length() - 1) < 1e-6);
 }
 
 void TestShape::ellipseResetsOffCenterControl()
