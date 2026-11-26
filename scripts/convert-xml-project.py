@@ -35,13 +35,13 @@ could not be, and 2 when the command line is wrong.
 
 import argparse
 import json
+import math
 import os
 import sys
 import xml.etree.ElementTree as ElementTree
 
-# Version written in the converted project. MapMap only checks that it looks
-# like a version number.
-CONVERTED_PROJECT_VERSION = "1.0.0"
+# File format version, independent of the application release.
+CONVERTED_PROJECT_VERSION = "1.0.0-beta.2"
 
 # What is added to the name of a project to name the converted one.
 CONVERTED_SUFFIX = "-converted"
@@ -85,24 +85,28 @@ class ConversionError(Exception):
     """The file cannot be converted; the message says why."""
 
 
-def read_properties(element, excluded):
-    """Return the properties of an XML element, all of them as strings.
-
-    MapMap saved some properties as XML attributes and others as child
-    elements that only contain text. Both become plain JSON strings, which is
-    how MapMap 1.0 saves them too. A property renamed in MapMap 1.0 is given
-    its new name.
-
-    Args:
-        element: the XML element to read.
-        excluded: names of the attributes and child elements to leave out.
-    """
+def read_properties(element, excluded, integers=(), numbers=(), flags=()):
+    """Read attributes and child properties in their beta.2 JSON types."""
     properties = {RENAMED_PROPERTIES.get(name, name): value
                   for name, value in element.attrib.items()
                   if name not in excluded}
     for child in element:
         if child.tag not in excluded:
             properties[RENAMED_PROPERTIES.get(child.tag, child.tag)] = (child.text or "").strip()
+    for name in properties:
+        value = properties[name]
+        try:
+            if name in integers:
+                properties[name] = int(value)
+            elif name in numbers:
+                number = float(value)
+                if not math.isfinite(number):
+                    raise ValueError()
+                properties[name] = int(number) if number.is_integer() else number
+            elif name in flags:
+                properties[name] = {"true": True, "1": True, "false": False, "0": False}[value.lower()]
+        except (ValueError, KeyError):
+            raise ConversionError("<{}> has an invalid {} value {!r}".format(element.tag, name, value))
     return properties
 
 
@@ -132,7 +136,8 @@ def read_number(element, name):
 def convert_shape(element):
     """Convert the XML element of a shape (<source> or <destination>)."""
     class_name = element.get("className")
-    shape = read_properties(element, excluded=("vertices",))
+    shape = read_properties(element, excluded=("vertices",), integers=("n_columns", "n_rows"),
+                            flags=("locked",))
     shape["vertices"] = [[read_number(vertex, "x"), read_number(vertex, "y")]
                          for vertex in element.findall("vertices/vertex")]
 
@@ -144,8 +149,8 @@ def convert_shape(element):
                 len(shape["vertices"]), QUAD_VERTEX_COUNT))
         first, second, third, fourth = shape["vertices"]
         shape["className"] = "Mesh"
-        shape["n_columns"] = str(QUAD_AS_MESH_SIZE)
-        shape["n_rows"] = str(QUAD_AS_MESH_SIZE)
+        shape["n_columns"] = QUAD_AS_MESH_SIZE
+        shape["n_rows"] = QUAD_AS_MESH_SIZE
         shape["vertices"] = [first, second, fourth, third]
     elif class_name not in SHAPE_CLASSES:
         raise ConversionError("unknown shape {!r}".format(class_name))
@@ -158,7 +163,8 @@ def convert_source(element):
     if class_name not in SOURCE_CLASSES:
         raise ConversionError("unknown source {!r}".format(class_name))
 
-    source = read_properties(element, excluded=("id", "x", "y"))
+    source = read_properties(element, excluded=("id", "x", "y"), numbers=("opacity", "rate", "volume"),
+                             flags=("locked",))
     source["id"] = read_integer(element, "id")
     if class_name in TEXTURE_CLASSES:
         for name in ("x", "y"):
@@ -177,7 +183,8 @@ def convert_layer(element):
     if class_name not in LAYER_CLASSES:
         raise ConversionError("unknown layer {!r}".format(old_class_name))
 
-    layer = read_properties(element, excluded=("id", "paintId", "source", "destination"))
+    layer = read_properties(element, excluded=("id", "paintId", "source", "destination"),
+                            integers=("depth",), numbers=("opacity",), flags=("locked", "solo", "visible"))
     layer["className"] = class_name
     layer["id"] = read_integer(element, "id")
     layer["source_id"] = read_integer(element, "paintId")
@@ -336,7 +343,7 @@ def convert_file(input_path, output_path, output_size, overwrite):
         with open(input_path, "rb") as input_file:
             project = read_project(input_file.read(), output_size, warn)
         text = json.dumps(project, ensure_ascii=False, indent=4, sort_keys=True) + "\n"
-        with open(output_path, "w" if overwrite else "x", encoding="utf-8") as output_file:
+        with open(output_path, "w" if overwrite else "x", encoding="utf-8", newline="\n") as output_file:
             output_file.write(text)
     except FileExistsError:
         print("{}: error: {} already exists (use --overwrite to replace it)".format(

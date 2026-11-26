@@ -6,7 +6,7 @@ A MapMap project is a JSON object. The writer emits `sources` and `layers` array
 
 The current development reader accepts earlier setting names such as `sourceId` and `nColumns`. When both spellings occur, the current spelling takes precedence. IDs and coordinates are already JSON numbers. Beta.1 stores many settings as strings. Beta.2 reads those projects directly. Saving a project writes the beta.2 format, with native numbers and booleans. Use Save As to keep a copy that beta.1 can read.
 
-## Proposed changes
+## Beta.2 file format
 
 ### Media paths
 
@@ -24,7 +24,7 @@ Within valid arrays, keep readable entries and report skipped entries with their
 
 ### Native scalar types
 
-Write a numeric setting such as `opacity` as a number and a boolean setting such as `visible` as a boolean. Use the setting declaration to choose the type. A text setting whose value is `"001"` or `"false"` is still text. Read both representations of legacy numeric and boolean settings. Apply the same convention to the XML converter.
+Write a numeric setting such as `opacity` as a number and a boolean setting such as `visible` as a boolean. Use the setting declaration to choose the type. A text setting whose value is `"001"` or `"false"` is still text. Read both representations of legacy numeric and boolean settings. The XML converter writes the same scalar types when importing a MapMap 0.4 to 0.6 project.
 
 Changing these types causes a one-time diff. For example, 36 lines in the existing `alpha-mixed.mmp` fixture contain numeric or boolean settings stored as strings. Keep the legacy fixture as input and check the types and values of the saved project separately. Beta.1 expects strings for these settings and can misread a beta.2 project.
 
@@ -40,4 +40,4 @@ Run `python3 scripts/convert-beta1-project.py show.mmp` to create `show-beta.2.m
 - Give new optional fields a default that reproduces the older behavior. Avoid writing a new field into every existing object merely because a release introduces it.
 - Test the actual file bytes after opening and saving a current-format project. Changing one layer name should replace one line. Moving one vertex should change only its coordinates. Run the same reference-file test on every supported platform.
 
-The first save of a legacy project may migrate it. Use separate tests for that migration and for edits to a project already in the current format.
+Saving a beta.1 project migrates it to beta.2. Use separate tests for that migration and for edits to a project already in the current format.
