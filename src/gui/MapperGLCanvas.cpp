@@ -232,9 +232,14 @@ void MapperGLCanvas::setContentRect(const QRectF& rect)
 
 qreal MapperGLCanvas::_fitScale() const
 {
+  return _fitScale(viewport()->size());
+}
+
+qreal MapperGLCanvas::_fitScale(const QSizeF& viewSize) const
+{
   // Leave room for the controls of vertices placed on the edges.
-  const QSizeF area = QSizeF(viewport()->size()) - QSizeF(2 * FIT_MARGIN, 2 * FIT_MARGIN);
-  return Util::fitScale(_contentRect.size(), area.isEmpty() ? QSizeF(viewport()->size()) : area);
+  const QSizeF area = viewSize - QSizeF(2 * FIT_MARGIN, 2 * FIT_MARGIN);
+  return Util::fitScale(_contentRect.size(), area.isEmpty() ? viewSize : area);
 }
 
 QPointF MapperGLCanvas::_zoomAnchor() const
@@ -272,13 +277,29 @@ void MapperGLCanvas::_updateSceneRect(qreal scale)
   {
     // Nothing to show: no need to scroll.
     setSceneRect(QRectF(QPointF(0, 0), QSizeF(viewport()->size()) / scale));
+    _setScrollBarsShown(false);
     return;
   }
+
+  // The scroll bars are only shown when the content and the shapes do not all
+  // fit in the view. The view can still be moved without them. This is
+  // measured on the view without its scroll bars: showing or hiding them
+  // changes the size of the view, and must not change the answer.
+  const QSizeF fullView = maximumViewportSize();
+  const QSizeF needed = rect.size() * (_fitScale(fullView) * _zoom);
+  _setScrollBarsShown(needed.width() > fullView.width() || needed.height() > fullView.height());
 
   // Half a view of margin on each side, so that any point of the content or
   // shapes can be brought to the middle of the view.
   const QSizeF halfView = QSizeF(viewport()->size()) / (2 * scale);
   setSceneRect(rect.adjusted(-halfView.width(), -halfView.height(), halfView.width(), halfView.height()));
+}
+
+void MapperGLCanvas::_setScrollBarsShown(bool shown)
+{
+  const Qt::ScrollBarPolicy policy = shown ? Qt::ScrollBarAsNeeded : Qt::ScrollBarAlwaysOff;
+  setHorizontalScrollBarPolicy(policy);
+  setVerticalScrollBarPolicy(policy);
 }
 
 void MapperGLCanvas::resizeEvent(QResizeEvent* event)
