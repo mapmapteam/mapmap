@@ -954,14 +954,14 @@ QRectF MainWindow::getOutputFrame() const
 
 QRectF MainWindow::newShapeOutputRect(const QSizeF& contentSize) const
 {
+  // The middle of the frame: the shape and its controls are all in view, with
+  // room to move it.
   const QRectF frame = getOutputFrame();
-  if (!contentSize.isEmpty())
-    return Util::fitRect(contentSize, frame);
+  QRectF middle(QPointF(0, 0), frame.size() * NEW_SHAPE_OUTPUT_SCALE);
+  middle.moveCenter(frame.center());
 
-  // No image (color source): the middle of the frame.
-  QRectF rect(QPointF(0, 0), frame.size() * NEW_COLOR_SHAPE_SCALE);
-  rect.moveCenter(frame.center());
-  return rect;
+  // No image (color source): all of the middle.
+  return contentSize.isEmpty() ? middle : Util::fitRect(contentSize, middle);
 }
 
 void MainWindow::addMesh()
