@@ -290,6 +290,10 @@ protected:
 private:
   // Scale at which the content rectangle fills the view (1 without content).
   qreal _fitScale() const;
+  // The same for a view of the given size, in screen pixels.
+  qreal _fitScale(const QSizeF& viewSize) const;
+  // Shows the scroll bars when they have something to scroll, or hides them.
+  void _setScrollBarsShown(bool shown);
 
   // Sets the zoom, bounded, and applies it keeping the scene point under
   // viewAnchor (in viewport coordinates) in place.
