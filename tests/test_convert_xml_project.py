@@ -52,17 +52,17 @@ class ConvertProjectTest(unittest.TestCase):
         project, warnings = convert_fixture("color-0.6.3.mmp")
         self.assertEqual(warnings, [])
         self.assertEqual(project, {
-            "version": "1.0.0",
+            "version": "1.0.0-beta.2",
             "sources": [{
-                "className": "Color", "id": 1, "name": "#cc49ff", "locked": "false",
-                "opacity": "1", "color": "#cc49ff",
+                "className": "Color", "id": 1, "name": "#cc49ff", "locked": False,
+                "opacity": 1, "color": "#cc49ff",
             }],
             "layers": [{
                 "className": "ColorLayer", "id": 1, "source_id": 1, "name": "Triangle 1",
-                "visible": "true", "locked": "false", "solo": "false", "depth": "1",
-                "opacity": "1",
+                "visible": True, "locked": False, "solo": False, "depth": 1,
+                "opacity": 1,
                 "destination": {
-                    "className": "Triangle", "locked": "false",
+                    "className": "Triangle", "locked": False,
                     "vertices": [[265, 223], [795, 223], [530, 74]],
                 },
             }],
@@ -73,24 +73,24 @@ class ConvertProjectTest(unittest.TestCase):
         self.assertEqual(warnings, [])
         image, video = project["sources"]
         self.assertEqual(image, {
-            "className": "Image", "id": 1, "name": "tiny.png", "locked": "false",
-            "opacity": "0.5", "uri": "/media/été/tiny.png", "rate": "1", "x": 0, "y": 12.5,
+            "className": "Image", "id": 1, "name": "tiny.png", "locked": False,
+            "opacity": 0.5, "uri": "/media/été/tiny.png", "rate": 1, "x": 0, "y": 12.5,
         })
         self.assertEqual(video["name"], "clip & loop")
-        self.assertEqual((video["volume"], video["rate"]), ("0.25", "-2"))
+        self.assertEqual((video["volume"], video["rate"]), (0.25, -2))
 
     def test_texture_layer_keeps_both_shapes(self):
         project, _ = convert_fixture("textures-0.6.2.mmp")
         mesh = project["layers"][0]
         self.assertEqual(mesh["className"], "TextureLayer")
-        self.assertEqual((mesh["destination"]["n_columns"], mesh["destination"]["n_rows"]), ("3", "2"))
+        self.assertEqual((mesh["destination"]["n_columns"], mesh["destination"]["n_rows"]), (3, 2))
         self.assertEqual(mesh["destination"]["vertices"][4], [50, 55.5])
         self.assertEqual(mesh["source"]["vertices"][5], [2, 2])
 
     def test_quad_becomes_a_mesh_with_its_vertices_row_by_row(self):
         project, _ = convert_fixture("textures-0.6.2.mmp")
         quad = project["layers"][1]["destination"]
-        self.assertEqual((quad["className"], quad["n_columns"], quad["n_rows"]), ("Mesh", "2", "2"))
+        self.assertEqual((quad["className"], quad["n_columns"], quad["n_rows"]), ("Mesh", 2, 2))
         self.assertEqual(quad["vertices"], [[0, 0], [100, 0], [0, 80], [100, 80]])
 
     def test_layer_order_is_kept(self):
