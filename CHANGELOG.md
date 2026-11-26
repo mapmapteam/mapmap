@@ -4,6 +4,10 @@
 
 New:
 
+- Save numeric and boolean settings using native JSON types. Saving upgrades a beta.1 project to beta.2. To migrate a separate copy using Python, run `python3 scripts/convert-beta1-project.py show.mmp`.
+- Resolve relative image and video paths from the project directory so a show can move with its media. Save As keeps the same media targets.
+- Check the structure of a project before replacing the open one and report entries skipped during loading.
+
 - Convert the colors of camera sources on the graphics card when the camera gives YUV images, like videos.
 - Measure the time of each step of the image path with the option `--frame-stats`: one line per second in the log. `--frame-stats-sync` waits for the graphics card to give the real cost of each step, and `--force-cpu-conversion` converts the colors of videos on the processor, to compare.
 - Give each project an output resolution, chosen in View > Output Resolution among common projector resolutions, or set by hand. The output window scales it to fill the output screen. New projects take the resolution set in the preferences, which can follow the output screen; older projects take the size of the output screen.
