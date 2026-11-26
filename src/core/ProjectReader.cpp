@@ -40,8 +40,10 @@ bool ProjectReader::isValidVersion(const QString& versionString)
     return match.hasMatch();
 }
 
-bool ProjectReader::readFile(QIODevice *device)
+bool ProjectReader::readFile(QIODevice* device, std::function<void()> beforeReplace)
 {
+  _errorString.clear();
+  _skippedEntries.clear();
   QByteArray data = device->readAll();
   QJsonParseError parseError;
   QJsonDocument doc = QJsonDocument::fromJson(data, &parseError);
@@ -57,7 +59,7 @@ bool ProjectReader::readFile(QIODevice *device)
           .arg(oldVersion, MM::VERSION);
       return false;
     }
-    _errorString = QString("Parse error at offset %1: %2")
+    _errorString = QObject::tr("Parse error at offset %1: %2")
         .arg(parseError.offset).arg(parseError.errorString());
     return false;
   }
@@ -74,9 +76,18 @@ bool ProjectReader::readFile(QIODevice *device)
     return false;
   }
 
+  for (const char* key : { ProjectLabels::SOURCES, ProjectLabels::LAYERS })
+  {
+    if (!root.value(key).isArray())
+    {
+      _errorString = QObject::tr("The project field '%1' must be an array.").arg(key);
+      return false;
+    }
+  }
+  if (beforeReplace)
+    beforeReplace();
   parseProject(root);
-
-  return _errorString.isEmpty();
+  return true;
 }
 
 void ProjectReader::parseOutputResolution(const QJsonObject& project)
@@ -109,14 +120,14 @@ void ProjectReader::parseProject(const QJsonObject& project)
   QJsonArray sources = project[ProjectLabels::SOURCES].toArray();
   QJsonArray layers  = project[ProjectLabels::LAYERS].toArray();
 
-  // Parse sources (formerly sources).
-  for (const auto& val : sources)
+  for (qsizetype i = 0; i < sources.size(); ++i)
   {
-    Source::ptr source = parseSource(val.toObject());
+    Source::ptr source = parseSource(sources.at(i).toObject());
 
     if (source.isNull())
     {
-      qDebug() << "Problem creating source." << Qt::endl;
+      _skippedEntries << QStringLiteral("sources[%1]").arg(i);
+      qWarning() << "Skipping" << _skippedEntries.last();
     }
     else
     {
@@ -127,12 +138,13 @@ void ProjectReader::parseProject(const QJsonObject& project)
 
   // Parse layers (formerly mappings).
   QVector<Layer::ptr> allLayers;
-  for (const auto& val : layers)
+  for (qsizetype i = 0; i < layers.size(); ++i)
   {
-    Layer::ptr layer = parseLayer(val.toObject());
+    Layer::ptr layer = parseLayer(layers.at(i).toObject());
     if (layer.isNull())
     {
-      qDebug() << "Problem creating layer." << Qt::endl;
+      _skippedEntries << QStringLiteral("layers[%1]").arg(i);
+      qWarning() << "Skipping" << _skippedEntries.last();
     }
     else
     {
@@ -187,6 +199,9 @@ Source::ptr ProjectReader::parseSource(const QJsonObject& obj)
   QString className = Serializable::classNameCleanToReal(obj[ProjectLabels::CLASS_NAME].toString());
   int id            = obj[ProjectLabels::ID].toInt(NULL_UID);
 
+  if (id <= NULL_UID || Source::getUidAllocator().exists(id))
+    return Source::ptr();
+
   qDebug() << "Found source with classname: " << className << Qt::endl;
 
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
@@ -199,7 +214,7 @@ Source::ptr ProjectReader::parseSource(const QJsonObject& obj)
     metaObject = &Camera::staticMetaObject;
   }
 
-  if (metaObject)
+  if (metaObject && metaObject->inherits(&Source::staticMetaObject))
   {
     Source::ptr source(qobject_cast<Source*>(metaObject->newInstance(Q_ARG(int, id))));
 
@@ -264,15 +279,18 @@ Layer::ptr ProjectReader::parseLayer(const QJsonObject& obj)
   QString className = Serializable::classNameCleanToReal(obj[ProjectLabels::CLASS_NAME].toString());
   int id            = obj[ProjectLabels::ID].toInt(NULL_UID);
 
+  if (id <= NULL_UID || Layer::getUidAllocator().exists(id))
+    return Layer::ptr();
+
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
-  if (metaObject)
+  if (metaObject && metaObject->inherits(&Layer::staticMetaObject))
   {
     Layer::ptr layer(qobject_cast<Layer*>(metaObject->newInstance(Q_ARG(int, id))));
     if (layer.isNull())
     {
       // Registered type that could not be instantiated. Report and bail out
       // instead of dereferencing a null layer.
-      _errorString = QObject::tr("Unable to create layer of type '%1'.").arg(className);
+      qWarning() << "Unable to create layer of type" << className;
       return Layer::ptr();
     }
 
@@ -306,7 +324,7 @@ Layer::ptr ProjectReader::parseLayer(const QJsonObject& obj)
   }
   else
   {
-    _errorString = QObject::tr("Unable to create layer of type '%1'.").arg(className);
+    qWarning() << "Unable to create layer of type" << className;
     return Layer::ptr();
   }
 }

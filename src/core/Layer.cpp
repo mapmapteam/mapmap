@@ -330,7 +330,7 @@ void Layer::_readShape(const QJsonObject& obj, bool isOutput)
   QString className = Serializable::classNameCleanToReal(shapeObj[ProjectLabels::CLASS_NAME].toString());
 
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
-  if (metaObject)
+  if (metaObject && metaObject->inherits(&MShape::staticMetaObject))
   {
     MShape::ptr shape(qobject_cast<MShape*>(metaObject->newInstance()));
     if (shape.isNull())

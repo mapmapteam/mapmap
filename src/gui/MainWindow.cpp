@@ -2996,14 +2996,16 @@ bool MainWindow::loadFile(const QString &fileName)
     return false;
   }
 
-  // Clear current project.
-  clearProject();
-
-  // Read new project
+  // Keep the current project until the file structure has been checked.
   ProjectReader reader(*mappingManager, [this](const QString& uri, bool isImage) {
     return fileExists(uri) ? uri : locateMediaFile(uri, isImage);
   });
-  bool readOk = reader.readFile(&file);
+  if (!reader.readFile(&file, [this]() { clearProject(); }))
+  {
+    QMessageBox::warning(this, tr("Error reading mapping project file"),
+                         tr("Cannot read %1:\n%2").arg(fileName, reader.errorString()));
+    return false;
+  }
 
   // Projects saved before MapMap had output resolutions were drawn in pixels
   // of the output screen, as Qt counts them (scaled on high-density screens).
@@ -3023,19 +3025,13 @@ bool MainWindow::loadFile(const QString &fileName)
   for (int i = mappingManager->nLayers() - 1; i >= 0; i--)
     addLayerItem(mappingManager->getLayer(i)->getId());
 
-  if (! readOk)
-  {
-    QMessageBox::warning(this, tr("Error reading mapping project file"),
-                         tr("Parse error in file %1:\n\n%2")
-                         .arg(fileName)
-                         .arg(reader.errorString()));
-  }
-  else
-  {
-    settings.setValue("defaultProjectDir", currentDir.absoluteFilePath(fileName));
-    statusBar()->showMessage(tr("File loaded"), 2000);
-    setCurrentFile(fileName);
-  }
+  if (!reader.skippedEntries().isEmpty())
+    QMessageBox::warning(this, tr("Project opened with missing entries"),
+                         tr("MapMap skipped these project entries:\n%1")
+                         .arg(reader.skippedEntries().join(", ")));
+  settings.setValue("defaultProjectDir", currentDir.absoluteFilePath(fileName));
+  statusBar()->showMessage(tr("File loaded"), 2000);
+  setCurrentFile(fileName);
 
   return true;
 }

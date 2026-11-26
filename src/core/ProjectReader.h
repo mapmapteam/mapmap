@@ -52,7 +52,10 @@ public:
     typedef std::function<QString(const QString& uri, bool isImage)> MediaLocator;
 
     ProjectReader (MappingManager& manager, MediaLocator mediaLocator = MediaLocator());
-    bool readFile (QIODevice *device);
+    /// Reads a project, notifying the owner before replacing a validated project.
+    bool readFile(QIODevice* device, std::function<void()> beforeReplace = {});
+    /// Entries omitted from the last successfully opened project.
+    const QStringList& skippedEntries() const { return _skippedEntries; }
     QString errorString() const;
 
 private:
@@ -73,6 +76,7 @@ private:
 
     void locateMedia(Source::ptr source);
 
+    QStringList _skippedEntries;
     QString _errorString;
     MappingManager& _manager;
     MediaLocator _mediaLocator;

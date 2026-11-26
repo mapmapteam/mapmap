@@ -32,6 +32,7 @@ private slots:
   void rejectsLegacyXml();
   void rejectsNonProjectJson();
   void rejectsInvalidJson();
+  void validatesBeforeReplacingProject();
   void keepsMediaUriWhenLocateIsCancelled();
   void skipsLayerWithoutSource();
   void readsFormerKeys();
