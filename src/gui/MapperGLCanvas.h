@@ -319,6 +319,13 @@ private:
   /// Ends the handle drag; when commit is true and the shape moved, makes the
   /// drag a single undo step.
   void _endHandleDrag(bool commit);
+  // The editors of the other side: the output ones for the input editor, and
+  // the other way round.
+  QList<MapperGLCanvas*> _otherSideCanvases() const;
+  // Deselects the vertex selected on the other side, when one gets selected here.
+  void _deselectVerticesOnOtherSide();
+  // Redraws the other side, which shows the vertex selected here.
+  void _updateOtherSide();
 
 public:
   static const int NO_VERTEX = -1;
