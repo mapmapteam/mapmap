@@ -14,6 +14,7 @@
 #include <QFile>
 #include <QJsonDocument>
 
+#include "Ellipse.h"
 #include "MappingManager.h"
 #include "MetaObjectRegistry.h"
 #include "ProjectReader.h"
@@ -384,6 +385,59 @@ void TestProjectRoundTrip::skipsUnusableLayers()
     names << manager.getLayer(i)->getName();
   names.sort();
   QCOMPARE(names, QStringList() << "color-quad" << "texture-triangle");
+}
+
+void TestProjectRoundTrip::derivesEllipseCenter()
+{
+  // The center control point of an ellipse is derived from its four other
+  // vertices: a project may leave it out (as MapMap does now) or give one (as
+  // MapMap did for texture layers), even a wrong one. It is not saved.
+  const QByteArray project = R"({
+    "version": "1.0.0-beta.1",
+    "sources": [
+      { "className": "Color", "id": 1, "name": "red", "color": "#ff0000" },
+      { "className": "Image", "id": 2, "name": "picture", "uri": "/nonexistent.png" }
+    ],
+    "layers": [
+      { "className": "ColorLayer", "id": 1, "name": "without-center", "source_id": 1,
+        "destination": { "className": "Ellipse", "vertices": [[6,20],[10,18],[14,20],[10,22]] } },
+      { "className": "TextureLayer", "id": 2, "name": "with-wrong-center", "source_id": 2,
+        "destination": { "className": "Ellipse", "vertices": [[6,20],[10,18],[14,20],[10,22],[50,50]] },
+        "source":      { "className": "Ellipse", "vertices": [[6,20],[10,18],[14,20],[10,22],[10,20]] } }
+    ]
+  })";
+  const QPointF expectedCenter(10, 20);
+
+  MappingManager manager;
+  QString error;
+  QVERIFY2(readProject(manager, project, &error), qPrintable(error));
+  QCOMPARE(manager.nLayers(), 2);
+
+  for (int i = 0; i < manager.nLayers(); i++)
+  {
+    const Layer::ptr layer = manager.getLayer(i);
+    QList<MShape::ptr> shapes;
+    shapes << layer->getShape();
+    if (layer->hasInputShape())
+      shapes << layer->getInputShape();
+    for (const MShape::ptr& shape : shapes)
+    {
+      QCOMPARE(shape->nVertices(), Ellipse::N_DEFINING_VERTICES + 1);
+      QCOMPARE(shape->getVertex(Ellipse::CENTER_VERTEX), expectedCenter);
+    }
+  }
+
+  const QJsonArray layers = parse(writeProject(manager))["layers"].toArray();
+  QCOMPARE(layers.size(), 2);
+  for (const QJsonValue& value : layers)
+  {
+    const QJsonObject layer = value.toObject();
+    for (const QString& key : { QStringLiteral("destination"), QStringLiteral("source") })
+    {
+      if (layer.contains(key))
+        QCOMPARE(layer[key].toObject()["vertices"].toArray().size(), int(Ellipse::N_DEFINING_VERTICES));
+    }
+  }
 }
 
 void TestProjectRoundTrip::keepsOutputResolution()

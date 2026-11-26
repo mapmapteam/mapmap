@@ -47,6 +47,12 @@ public:
   /// Default number of segments used to approximate the contour.
   static const int N_POLYGON_SEGMENTS = 100;
 
+  /// Number of vertices that define the ellipse (vertices 0-3): the only ones saved in a project.
+  static const int N_DEFINING_VERTICES = 4;
+
+  /// Index of the center control point, which comes after the vertices that define the ellipse.
+  static const int CENTER_VERTEX = N_DEFINING_VERTICES;
+
   Q_INVOKABLE Ellipse() : _perspective(true) {}
   Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4, QPointF p5)
     : _perspective(true)
@@ -156,6 +162,16 @@ public:
   virtual bool isMajorVertex(int idx) const;
 
   virtual void copyFrom(const MShape& shape);
+
+  /**
+   * Reads the ellipse from a project. Only vertices 0-3 are taken from the project: the
+   * center control point is derived from them, whether the project gives one (as projects
+   * saved before MapMap 1.0.0-beta.2 do for the ellipses of texture layers) or not.
+   */
+  void read(const QJsonObject& obj) override;
+
+  /// Writes the ellipse to a project, without its center control point (see read()).
+  void write(QJsonObject& obj) override;
 
 protected:
   /// Returns a new MShape (using default constructor).

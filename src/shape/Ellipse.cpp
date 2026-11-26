@@ -19,6 +19,10 @@
 
 #include "Ellipse.h"
 
+#include <QDebug>
+#include <QJsonArray>
+#include <QJsonObject>
+
 #include <cmath>
 
 namespace mmp {
@@ -261,6 +265,36 @@ void Ellipse::copyFrom(const MShape& shape)
   const Ellipse* ellipse = qobject_cast<const Ellipse*>(&shape);
   if (ellipse)
     _perspective = ellipse->_perspective;
+}
+
+void Ellipse::read(const QJsonObject& obj)
+{
+  MShape::read(obj);
+
+  // Not an ellipse: left as it is.
+  if (nVertices() < N_DEFINING_VERTICES)
+    return;
+
+  if (nVertices() > N_DEFINING_VERTICES + 1)
+    qWarning() << "Ellipse with" << nVertices() << "vertices: only the first"
+               << N_DEFINING_VERTICES << "are read";
+
+  // The center control point is derived from the other vertices: the one of the
+  // project, if any, is not read.
+  vertices.resize(N_DEFINING_VERTICES);
+  _addVertex(getCenter());
+  _verticesChanged();
+}
+
+void Ellipse::write(QJsonObject& obj)
+{
+  MShape::write(obj);
+
+  // Leave out the center control point.
+  QJsonArray verticesArray = obj["vertices"].toArray();
+  while (verticesArray.size() > N_DEFINING_VERTICES)
+    verticesArray.removeLast();
+  obj["vertices"] = verticesArray;
 }
 
 // Returns true iff vertex index is considered a major (external) control point.
