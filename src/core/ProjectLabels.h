@@ -26,6 +26,10 @@ namespace mmp {
 
 class ProjectLabels {
 public:
+  /// File format identifier, independent of the application release.
+  static const char* FORMAT_VERSION;
+  /// Image or video path, or a camera device identifier.
+  static const char* URI;
   static const char* CLASS_NAME;
   static const char* SOURCES;
   static const char* LAYERS;

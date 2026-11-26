@@ -51,7 +51,8 @@ public:
      */
     typedef std::function<QString(const QString& uri, bool isImage)> MediaLocator;
 
-    ProjectReader (MappingManager& manager, MediaLocator mediaLocator = MediaLocator());
+    /// Reads media relative to projectDirectory when a file location is available.
+    ProjectReader(MappingManager& manager, MediaLocator mediaLocator = {}, const QString& projectDirectory = {});
     /// Reads a project, notifying the owner before replacing a validated project.
     bool readFile(QIODevice* device, std::function<void()> beforeReplace = {});
     /// Entries omitted from the last successfully opened project.
@@ -62,7 +63,7 @@ private:
     void parseProject(const QJsonObject& project);
     /// Reads the output resolution, if the project has a usable one.
     void parseOutputResolution(const QJsonObject& project);
-    Source::ptr   parseSource(const QJsonObject& obj);
+    Source::ptr   parseSource(QJsonObject obj, bool legacyPaths);
     Layer::ptr parseLayer(const QJsonObject& obj);
 
     /// Returns why a freshly read layer cannot be shown (missing source,
@@ -74,7 +75,7 @@ private:
      */
     bool isValidVersion(const QString& versionString);
 
-    void locateMedia(Source::ptr source);
+    const QString _projectDirectory;
 
     QStringList _skippedEntries;
     QString _errorString;

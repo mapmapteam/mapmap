@@ -2999,7 +2999,7 @@ bool MainWindow::loadFile(const QString &fileName)
   // Keep the current project until the file structure has been checked.
   ProjectReader reader(*mappingManager, [this](const QString& uri, bool isImage) {
     return fileExists(uri) ? uri : locateMediaFile(uri, isImage);
-  });
+  }, QFileInfo(fileName).absolutePath());
   if (!reader.readFile(&file, [this]() { clearProject(); }))
   {
     QMessageBox::warning(this, tr("Error reading mapping project file"),
@@ -3051,7 +3051,7 @@ bool MainWindow::saveFile(const QString &fileName)
   }
 
   ProjectWriter writer(*mappingManager);
-  if (writer.writeFile(&file))
+  if (writer.writeFile(&file, QFileInfo(fileName).absolutePath()))
   {
     file.close();
     // Remove original and rename temp file over it.

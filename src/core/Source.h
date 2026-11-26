@@ -185,6 +185,13 @@ protected:
   Texture(uid id=NULL_UID);
 
 public:
+  /// Recognizes relative file paths, including when reading projects from another platform.
+  static bool isRelativeMediaPath(const QString& path);
+  /// Whether a relative media reference should stay relative when saving outside the media directory.
+  bool prefersRelativeMediaPath() const { return _relativeMediaPath; }
+  /// Records the spelling of a file reference read from a project.
+  void setPrefersRelativeMediaPath(bool relative) { _relativeMediaPath = relative; }
+
   virtual ~Texture() {
     // A Texture is usually destroyed (e.g. when its source is removed) when no
     // GL context is current, so we cannot call glDeleteTextures here (issue
@@ -276,6 +283,8 @@ protected:
   QStringList _reservedKeys() const override { return Source::_reservedKeys() << "x" << "y"; }
 
 private:
+  bool _relativeMediaPath = false;
+
   // Texture ids whose Texture objects were destroyed without a current GL
   // context; freed later by deleteOrphanedTextures(). See issue #229.
   static QVector<GLuint> _orphanedTextures;

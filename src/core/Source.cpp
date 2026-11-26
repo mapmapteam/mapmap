@@ -19,6 +19,9 @@
  */
 
 #include "Source.h"
+#include <QDir>
+#include <QRegularExpression>
+#include "ProjectLabels.h"
 #include "VideoImpl.h"
 #include "VideoPlayerImpl.h"
 #include "CameraImpl.h"
@@ -133,6 +136,13 @@ Texture::Texture(uid id) :
              [](const QVariant&) { return false; });
 }
 
+bool Texture::isRelativeMediaPath(const QString& path)
+{
+  // A Windows drive or UNC path is absolute even when opened on Unix.
+  static const QRegularExpression windowsPath(QStringLiteral(R"(^([A-Za-z]:[/\\]|\\\\))"));
+  return QDir::isRelativePath(path) && !windowsPath.match(path).hasMatch();
+}
+
 void Texture::read(const QJsonObject& obj)
 {
   Source::read(obj);
@@ -212,7 +222,7 @@ void Image::_declareImageSettings()
 {
   SettingGroup* root = settings();
 
-  root->addSetting(SettingInfo::filePath("uri", tr("Image file"),
+  root->addSetting(SettingInfo::filePath(ProjectLabels::URI, tr("Image file"),
                                          tr("Image files (%1);;All files (*)").arg(MM::IMAGE_FILES_FILTER))
                    .description(tr("The image file shown by this source.")))
       ->bind([this]() { return QVariant(getUri()); },
@@ -358,7 +368,7 @@ Video::Video(VideoType type, int id) : Texture(id),
   // Declared once _impl exists, before the setters below notify them.
   SettingGroup* root = settings();
 
-  root->addSetting(SettingInfo::filePath("uri", tr("Source"),
+  root->addSetting(SettingInfo::filePath(ProjectLabels::URI, tr("Source"),
                                          tr("Video files (%1);;All files (*)").arg(MM::VIDEO_FILES_FILTER))
                    .description(tr("The video file, or the camera, shown by this source.")))
       ->bind([this]() { return QVariant(getUri()); },

@@ -34,6 +34,7 @@ private slots:
   void rejectsInvalidJson();
   void validatesBeforeReplacingProject();
   void keepsMediaUriWhenLocateIsCancelled();
+  void resolvesProjectMediaPaths();
   void skipsLayerWithoutSource();
   void readsFormerKeys();
   void prefersNewKeysOverFormerKeys();

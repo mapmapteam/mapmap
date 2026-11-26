@@ -18,18 +18,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ProjectReader.h"
-#include <iostream>
+#include <QDir>
+#include <QFileInfo>
 #include <QRegularExpression>
 
 namespace mmp {
 
-namespace {
-// Name of the Video property that holds the file path or capture device ID.
-const char* const VIDEO_URI_PROPERTY = "uri";
-}
-
-ProjectReader::ProjectReader(MappingManager& manager, MediaLocator mediaLocator)
-  : _manager(manager), _mediaLocator(mediaLocator)
+ProjectReader::ProjectReader(MappingManager& manager, MediaLocator mediaLocator, const QString& projectDirectory)
+  : _projectDirectory(projectDirectory), _manager(manager), _mediaLocator(mediaLocator)
 {
 }
 
@@ -120,9 +116,10 @@ void ProjectReader::parseProject(const QJsonObject& project)
   QJsonArray sources = project[ProjectLabels::SOURCES].toArray();
   QJsonArray layers  = project[ProjectLabels::LAYERS].toArray();
 
+  const bool legacyPaths = project.value("version").toString() != ProjectLabels::FORMAT_VERSION;
   for (qsizetype i = 0; i < sources.size(); ++i)
   {
-    Source::ptr source = parseSource(sources.at(i).toObject());
+    Source::ptr source = parseSource(sources.at(i).toObject(), legacyPaths);
 
     if (source.isNull())
     {
@@ -132,7 +129,6 @@ void ProjectReader::parseProject(const QJsonObject& project)
     else
     {
       manager.addSource(source);
-      locateMedia(source);
     }
   }
 
@@ -160,41 +156,7 @@ void ProjectReader::parseProject(const QJsonObject& project)
   }
 }
 
-void ProjectReader::locateMedia(Source::ptr source)
-{
-  if (!_mediaLocator)
-    return;
-
-  // An empty uri means the user cancelled: keep the original one, so that
-  // saving the project does not lose the path to the missing file.
-  //
-  // Guard the casts: a source that claims to be Video/Image but cannot be
-  // cast (corrupt entry) must not be dereferenced — Q_CHECK_PTR is a no-op
-  // in release builds. A camera has a capture device ID for URI, not a file
-  // to locate.
-  if (source->getSourceType() == Source::SourceType::Video)
-  {
-    QSharedPointer<Video> media = qSharedPointerCast<Video>(source);
-    if (!media.isNull() && !media->isCamera())
-    {
-      QString uri = _mediaLocator(media->getUri(), false);
-      if (!uri.isEmpty() && uri != media->getUri())
-        media->setUri(uri);
-    }
-  }
-  else if (source->getSourceType() == Source::SourceType::Image)
-  {
-    QSharedPointer<Image> image = qSharedPointerCast<Image>(source);
-    if (!image.isNull())
-    {
-      QString uri = _mediaLocator(image->getUri(), true);
-      if (!uri.isEmpty() && uri != image->getUri())
-        image->setUri(uri);
-    }
-  }
-}
-
-Source::ptr ProjectReader::parseSource(const QJsonObject& obj)
+Source::ptr ProjectReader::parseSource(QJsonObject obj, bool legacyPaths)
 {
   QString className = Serializable::classNameCleanToReal(obj[ProjectLabels::CLASS_NAME].toString());
   int id            = obj[ProjectLabels::ID].toInt(NULL_UID);
@@ -209,7 +171,7 @@ Source::ptr ProjectReader::parseSource(const QJsonObject& obj)
   // Projects saved before the Camera class existed recorded a camera as a
   // plain Video whose URI is a capture device ID: reopen those as cameras.
   if (metaObject == &Video::staticMetaObject
-      && Camera::isCaptureDeviceId(obj[VIDEO_URI_PROPERTY].toString()))
+      && Camera::isCaptureDeviceId(obj[ProjectLabels::URI].toString()))
   {
     metaObject = &Camera::staticMetaObject;
   }
@@ -227,6 +189,28 @@ Source::ptr ProjectReader::parseSource(const QJsonObject& obj)
     }
 
     qDebug() << "Created new instance with id: " << source->getId();
+    const bool isImage = metaObject->inherits(&Image::staticMetaObject);
+    const bool isVideoFile = metaObject->inherits(&Video::staticMetaObject)
+        && !metaObject->inherits(&Camera::staticMetaObject);
+    QString path = obj.value(ProjectLabels::URI).toString();
+    if ((isImage || isVideoFile) && !path.isEmpty())
+    {
+      const bool relative = Texture::isRelativeMediaPath(path);
+      if (relative && !_projectDirectory.isEmpty())
+      {
+        const QString fromProject = QDir::cleanPath(QDir(_projectDirectory).absoluteFilePath(path));
+        path = legacyPaths && !QFileInfo(fromProject).isFile() && QFileInfo(path).isFile()
+            ? QFileInfo(path).absoluteFilePath() : fromProject;
+      }
+      if (_mediaLocator)
+      {
+        const QString replacement = _mediaLocator(path, isImage);
+        if (!replacement.isEmpty())
+          path = replacement;
+      }
+      static_cast<Texture*>(source.data())->setPrefersRelativeMediaPath(relative);
+      obj.insert(ProjectLabels::URI, path);
+    }
     source->read(obj);
     return source;
   }

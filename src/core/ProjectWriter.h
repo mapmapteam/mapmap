@@ -42,7 +42,8 @@ class ProjectWriter
 {
 public:
     ProjectWriter (MappingManager& manager);
-    bool writeFile (QIODevice *device);
+    /// Writes a project, spelling local media paths relative to its destination directory.
+    bool writeFile(QIODevice* device, const QString& projectDirectory = {});
 
   private:
     MappingManager& _manager;
