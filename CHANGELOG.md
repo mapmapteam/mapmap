@@ -20,6 +20,7 @@ Improvements:
 - A new layer starts in the middle of the output frame, at half its size, whatever its source: all its controls are in view.
 - The editors leave more room around the image and the output frame at 100% zoom, for the handle of a shape that covers them.
 - Selecting a vertex in one editor marks the vertex that goes with it in the other editor with a dot.
+- The ellipse of a color layer has a center point, like the ellipse of an image or a video.
 - Only show the scroll bars of the editors when the image, the output frame or a shape does not fit in the view.
 - Projects converted with the option `--output-size` of `scripts/convert-xml-project.py` take that size as their output resolution.
 - Only show the mapping in the fullscreen output when the mouse has not moved over it for three seconds: the mouse cursor, the crosshair, and the outlines and vertices of the shapes are hidden. They come back when the mouse moves.

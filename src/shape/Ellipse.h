@@ -65,15 +65,15 @@ public:
     build();
   }
 
-  Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4, bool hasCenterControl=true)
+  /// Creates the ellipse that passes through these four points, with its center control point.
+  Ellipse(QPointF p1, QPointF p2, QPointF p3, QPointF p4)
     : _perspective(true)
   {
     _addVertex(p1);
     _addVertex(p2);
     _addVertex(p3);
     _addVertex(p4);
-    if (hasCenterControl)
-      _addVertex(getCenter());
+    _addVertex(getCenter());
     build();
   }
 

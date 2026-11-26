@@ -122,11 +122,14 @@ void TestUtil::createShapesForRect()
 
   // An ellipse touching the middle of each edge.
   // Qualified: Windows also has an Ellipse() function.
-  QScopedPointer<mmp::Ellipse> ellipse(Util::createEllipseForRect(rect, true));
+  QScopedPointer<mmp::Ellipse> ellipse(Util::createEllipseForRect(rect));
   QCOMPARE(ellipse->getVertex(0), QPointF(10, 45));
   QCOMPARE(ellipse->getVertex(1), QPointF(60, 20));
   QCOMPARE(ellipse->getVertex(2), QPointF(110, 45));
   QCOMPARE(ellipse->getVertex(3), QPointF(60, 70));
+  // Its center control point comes with it.
+  QCOMPARE(ellipse->nVertices(), mmp::Ellipse::N_DEFINING_VERTICES + 1);
+  QCOMPARE(ellipse->getVertex(mmp::Ellipse::CENTER_VERTEX), QPointF(60, 45));
 }
 
 void TestUtil::mapRectToRect()

@@ -98,7 +98,7 @@ Mesh* createMeshForRect(const QRectF& rect);
 /// Creates a triangle standing on the bottom edge of rect, its top in the middle of the top edge.
 Triangle* createTriangleForRect(const QRectF& rect);
 /// Creates an ellipse touching the middle of each edge of rect.
-Ellipse* createEllipseForRect(const QRectF& rect, bool hasCenterControl);
+Ellipse* createEllipseForRect(const QRectF& rect);
 
 /// What the control of a vertex shows about it.
 enum class VertexMark {
