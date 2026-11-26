@@ -158,6 +158,8 @@ The rules are in [AGENTS.md](AGENTS.md), section "Git rules". In short:
 
 ## <a id='project-file-version-number'></a>Project file version number
 
+See the [JSON project format notes](docs/project-format.md) for the current representation and proposed compatibility rules.
+
 * Update its minor number when you introduce new features.
 * Update its major number when it's not backward-compatible anymore with its previous versions.
 * Generally, we should follow the MapMap version, when new changes are introduced. (no need to increment it otherwise)
