@@ -190,11 +190,16 @@ void EllipseControlPainter::paintShape(QPainter *painter, MapperGLCanvas* canvas
   Ellipse* ellipse = static_cast<Ellipse*>(getShape().data());
   Q_ASSERT(ellipse);
 
-  // Init colors and stroke.
-  painter->setPen(getRescaledShapeStroke(canvas, selected));
   painter->setBrush(Qt::NoBrush);
 
+  // Draw the two axes, thinner: each one joins two opposite vertices and passes
+  // through the center, also in perspective.
+  painter->setPen(getRescaledShapeStroke(canvas, selected, true));
+  painter->drawLine(ellipse->getVertex(0), ellipse->getVertex(2));
+  painter->drawLine(ellipse->getVertex(1), ellipse->getVertex(3));
+
   // Draw ellipse contour.
+  painter->setPen(getRescaledShapeStroke(canvas, selected));
   painter->drawPolygon(ellipse->toPolygon());
 }
 
