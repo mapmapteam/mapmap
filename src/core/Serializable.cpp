@@ -69,7 +69,7 @@ QString Serializable::classNameRealToClean(const QString& realClassName)
 
 QString Serializable::classNameCleanToReal(const QString& cleanClassName)
 {
-  Q_ASSERT(!cleanClassName.startsWith(MM::NAMESPACE_PREFIX));
+  // A malformed class name from a project will simply fail registry lookup.
   return MM::NAMESPACE_PREFIX + cleanClassName;
 }
 

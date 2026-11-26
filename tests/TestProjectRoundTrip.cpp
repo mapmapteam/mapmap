@@ -248,6 +248,36 @@ void TestProjectRoundTrip::rejectsNonProjectJson()
   QVERIFY2(error.contains("0.6"), qPrintable(error));
 }
 
+void TestProjectRoundTrip::validatesBeforeReplacingProject()
+{
+  MappingManager manager;
+  QVERIFY(readProject(manager, readFixture(fixturesDir() + "/triangle-color.mmp")));
+  ProjectReader reader(manager);
+  int replacements = 0;
+  for (const QString& key : { QString("sources"), QString("layers") })
+  {
+    QJsonObject root { { "version", "1.0.0-beta.1" }, { "layers", QJsonArray() }, { "sources", QJsonArray() } };
+    for (const QJsonValue& bad : { QJsonValue(QJsonValue::Undefined), QJsonValue(QJsonObject()) })
+    {
+      root.insert(key, bad);
+      QBuffer buffer;
+      buffer.setData(QJsonDocument(root).toJson());
+      buffer.open(QIODevice::ReadOnly);
+      QVERIFY(!reader.readFile(&buffer, [&]() { ++replacements; }));
+      QVERIFY(reader.errorString().contains(key));
+      QCOMPARE(replacements, 0);
+      QCOMPARE(manager.nLayers(), 1);
+    }
+  }
+  QBuffer buffer;
+  buffer.setData(R"({"version":"1.0.0-beta.1","sources":[],"layers":[null]})");
+  buffer.open(QIODevice::ReadOnly);
+  QVERIFY(reader.readFile(&buffer, [&]() { ++replacements; }));
+  QCOMPARE(replacements, 1);
+  QCOMPARE(manager.nLayers(), 0);
+  QCOMPARE(reader.skippedEntries(), QStringList { "layers[0]" });
+}
+
 void TestProjectRoundTrip::rejectsInvalidJson()
 {
   MappingManager manager;
