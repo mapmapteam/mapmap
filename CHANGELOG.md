@@ -29,6 +29,7 @@ Changes:
 
 - Clicking again on the selected layer no longer switches to scaling or rotating, and the M key does nothing. Use the handle of the layer instead: R, S and T choose what it does.
 - The two meshes of a layer always keep the same grid.
+- Dragging the center point of an ellipse in perspective moves it inside the outline, which stays in place: the image tilts and the four other points slide along the outline. It no longer moves the whole ellipse; drag the inside of the ellipse for that. Without perspective, the center point still moves the ellipse.
 - The center point of an ellipse is no longer saved in the project: it follows from its four other points. Projects that have one still open.
 - The names of settings are written in lowercase with underscores, in OSC addresses, in MCP and in project files: `n_columns`, `n_rows`, `source_id`. Projects saved with the former names (`nColumns`, `nRows`, `sourceId`) still open; they are saved with the new names, which MapMap 1.0.0-beta.1 does not read.
 - The settings panel shows the four corners of a mesh only. Its other points are moved on the canvas, or by OSC and MCP at their path.
