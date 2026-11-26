@@ -158,7 +158,7 @@ The rules are in [AGENTS.md](AGENTS.md), section "Git rules". In short:
 
 ## <a id='project-file-version-number'></a>Project file version number
 
-See the [JSON project format notes](docs/project-format.md) for the current representation and proposed compatibility rules.
+See the [JSON project format notes](docs/project-format.md) for the current representation and compatibility rules.
 
 * Update its minor number when you introduce new features.
 * Update its major number when it's not backward-compatible anymore with its previous versions.
