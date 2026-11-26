@@ -1261,6 +1261,80 @@ void TestSettings::pendingValueReachesSettingBoundLater()
   QCOMPARE(written.value("gain"), QJsonValue("0.3"));
 }
 
+void TestSettings::formerKeyIsReadThenWrittenUnderTheId()
+{
+  Color source { QColor(Qt::red) };
+  Setting* gain = source.settings()->addSetting(
+      SettingInfo::number("gain", "Gain").formerId("oldGain").formerId("olderGain"));
+  source.read(QJsonObject {
+    { "className", "Color" },
+    { "id", source.getId() },
+    { "olderGain", "0.3" }
+  });
+  QCOMPARE(gain->value().toDouble(), 0.3);
+
+  // The former key is converted: only the id is written.
+  QJsonObject written;
+  source.write(written);
+  QCOMPARE(written.value("gain"), QJsonValue("0.3"));
+  QVERIFY(!written.contains("oldGain"));
+  QVERIFY(!written.contains("olderGain"));
+}
+
+void TestSettings::idWinsOverFormerKey()
+{
+  Color source { QColor(Qt::red) };
+  Setting* gain = source.settings()->addSetting(
+      SettingInfo::number("gain", "Gain").formerId("oldGain"));
+  source.read(QJsonObject {
+    { "className", "Color" },
+    { "id", source.getId() },
+    { "oldGain", "0.3" },
+    { "gain", "0.6" }
+  });
+  QCOMPARE(gain->value().toDouble(), 0.6);
+
+  QJsonObject written;
+  source.write(written);
+  QCOMPARE(written.value("gain"), QJsonValue("0.6"));
+  QVERIFY(!written.contains("oldGain"));
+}
+
+void TestSettings::formerKeyReachesSettingAddedLater()
+{
+  // A setting declared after the project was read, as the settings of an extension.
+  Color formerOnly { QColor(Qt::red) };
+  formerOnly.read(QJsonObject {
+    { "className", "Color" },
+    { "id", formerOnly.getId() },
+    { "oldGain", "0.3" }
+  });
+  Setting* gain = formerOnly.settings()->addSetting(
+      SettingInfo::number("gain", "Gain").formerId("oldGain"));
+  QCOMPARE(gain->value().toDouble(), 0.3);
+
+  QJsonObject written;
+  formerOnly.write(written);
+  QCOMPARE(written.value("gain"), QJsonValue("0.3"));
+  QVERIFY(!written.contains("oldGain"));
+
+  // With both keys, the id wins and the former key is dropped.
+  Color both { QColor(Qt::red) };
+  both.read(QJsonObject {
+    { "className", "Color" },
+    { "id", both.getId() },
+    { "oldGain", "0.3" },
+    { "gain", "0.6" }
+  });
+  gain = both.settings()->addSetting(SettingInfo::number("gain", "Gain").formerId("oldGain"));
+  QCOMPARE(gain->value().toDouble(), 0.6);
+
+  written = QJsonObject();
+  both.write(written);
+  QCOMPARE(written.value("gain"), QJsonValue("0.6"));
+  QVERIFY(!written.contains("oldGain"));
+}
+
 void TestSettings::keysOfUnreadSettingsStayPending()
 {
   Color source { QColor(Qt::red) };

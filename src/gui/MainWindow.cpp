@@ -422,7 +422,7 @@ void MainWindow::layerPropertyChanged(uid id, QString propertyName, QVariant val
   }
 
   // A layer's new source may have to start or stop playing, whichever layer it is.
-  if (propertyName == "source_id")
+  if (propertyName == ProjectLabels::SOURCE_ID)
     updatePlayingState();
 
   // Send to list items.

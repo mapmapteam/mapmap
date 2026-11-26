@@ -33,6 +33,7 @@
 #ifdef HAVE_SYPHON
 
 #include "MM.h"
+#include "ProjectLabels.h"
 
 #include <QIcon>
 #include <QImage>
@@ -358,29 +359,29 @@ Syphon::Syphon(int id)
   SettingGroup* root = settings();
 
   // The server is chosen in the panel by its name, so its three identifiers are hidden.
-  root->addSetting(SettingInfo::text("server_uuid", tr("Server UUID"))
-                   .formerId("serverUUID")
+  root->addSetting(SettingInfo::text(ProjectLabels::SERVER_UUID, tr("Server UUID"))
+                   .formerId(ProjectLabels::FORMER_SERVER_UUID)
                    .hidden()
                    .description(tr("The system-wide identifier of the Syphon server this source receives.")))
       ->bind([this]() { return QVariant(getServerUUID()); },
              [this](const QVariant& value) { setServerUUID(value.toString()); return true; });
 
-  root->addSetting(SettingInfo::text("server_name", tr("Server name"))
-                   .formerId("serverName")
+  root->addSetting(SettingInfo::text(ProjectLabels::SERVER_NAME, tr("Server name"))
+                   .formerId(ProjectLabels::FORMER_SERVER_NAME)
                    .hidden()
                    .description(tr("The name of the Syphon server this source receives.")))
       ->bind([this]() { return QVariant(getServerName()); },
              [this](const QVariant& value) { setServerName(value.toString()); return true; });
 
-  root->addSetting(SettingInfo::text("app_name", tr("Application name"))
-                   .formerId("appName")
+  root->addSetting(SettingInfo::text(ProjectLabels::APP_NAME, tr("Application name"))
+                   .formerId(ProjectLabels::FORMER_APP_NAME)
                    .hidden()
                    .description(tr("The name of the application publishing the Syphon server.")))
       ->bind([this]() { return QVariant(getAppName()); },
              [this](const QVariant& value) { setAppName(value.toString()); return true; });
 
-  root->addSetting(SettingInfo::boolean("respect_alpha", tr("Respect source alpha"))
-                   .formerId("respectAlpha")
+  root->addSetting(SettingInfo::boolean(ProjectLabels::RESPECT_ALPHA, tr("Respect source alpha"))
+                   .formerId(ProjectLabels::FORMER_RESPECT_ALPHA)
                    .description(tr("Whether the transparency sent by the server is kept; otherwise the frames are made opaque.")))
       ->bind([this]() { return QVariant(getRespectAlpha()); },
              [this](const QVariant& value) { setRespectAlpha(value.toBool()); return true; });
