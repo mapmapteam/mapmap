@@ -28,6 +28,10 @@ Write a numeric setting such as `opacity` as a number and a boolean setting such
 
 Changing these types causes a one-time diff. For example, 36 lines in the existing `alpha-mixed.mmp` fixture contain numeric or boolean settings stored as strings. Keep the legacy fixture as input and check the types and values of the saved project separately. The migration policy also determines which older MapMap releases can reopen a newly saved file with all its settings intact.
 
+### Convert a beta.1 project with Python
+
+Run `python3 scripts/convert-beta1-project.py show.mmp` to create `show-beta.2.mmp` in the same directory. The script accepts several project files in one invocation. It preserves the original, the order of sources, layers and vertices, and unknown properties. It leaves media references in place and needs no access to the media, cameras or Qt. Commit the converted file separately from creative edits so the type changes are easy to review.
+
 ## Stability in Git
 
 - Keep serialized names stable across internal renames. Retain read aliases for keys already in released projects.
