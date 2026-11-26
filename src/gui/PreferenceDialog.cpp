@@ -51,7 +51,7 @@ PreferenceDialog::PreferenceDialog(QWidget* parent) :
   mainLayout->setColumnStretch(0, 1);
   mainLayout->setColumnStretch(1, 3);
   mainLayout->addWidget(_listWidget, 0, 0);
-  mainLayout->addLayout(_stackedLayout, 0, 1);
+  mainLayout->addWidget(_stackedLayout->parentWidget(), 0, 1);
   mainLayout->addWidget(_buttonBox, 1, 0, 1, 2);
   setLayout(mainLayout);
 
@@ -589,8 +589,10 @@ void PreferenceDialog::createPreferencesList()
     item->setSizeHint(QSize(item->sizeHint().width(), PreferenceDialog::LIST_ITEM_HEIGHT));
   }
 
-  // Add pages in the stacked layout
-  _stackedLayout = new QStackedLayout;
+  // Add pages in the stacked layout. The layout belongs to a widget of the
+  // dialog: it shows its first page as soon as it gets it, and a page that has
+  // no parent yet would open for an instant as a window of its own.
+  _stackedLayout = new QStackedLayout(new QWidget(this));
   _stackedLayout->addWidget(_interfacePage);
   _stackedLayout->addWidget(_mappingPage);
   _stackedLayout->addWidget(_outputPage);
