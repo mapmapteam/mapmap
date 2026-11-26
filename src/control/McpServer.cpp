@@ -520,7 +520,7 @@ QJsonObject McpServer::layerSummary(int layerId) const
   o["locked"] = layer->isLocked();
   o["depth"] = layer->getDepth();
   o["opacity"] = layer->getOpacity();
-  o["source_id"] = layer->getSource().isNull() ? -1 : static_cast<qint64>(layer->getSourceId());
+  o[ProjectLabels::SOURCE_ID] = layer->getSource().isNull() ? -1 : static_cast<qint64>(layer->getSourceId());
   return o;
 }
 

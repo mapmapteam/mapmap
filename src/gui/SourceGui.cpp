@@ -18,6 +18,7 @@
  */
 
 #include <SourceGui.h>
+#include "ProjectLabels.h"
 
 #ifdef HAVE_SYPHON
 #include <QTimer>
@@ -77,7 +78,8 @@ SyphonGui::SyphonGui(Source::ptr source)
   // The server may also be changed by OSC, MCP or a project file.
   connect(_source.data(), &Source::settingChanged, this,
           [this](uid, const QString& path, const QVariant&) {
-            if (path == "server_uuid" || path == "server_name" || path == "app_name")
+            if (path == ProjectLabels::SERVER_UUID || path == ProjectLabels::SERVER_NAME ||
+                path == ProjectLabels::APP_NAME)
               _rebuildServerEnum();
           });
 

@@ -177,10 +177,7 @@ protected:
 
   /// The source id is resolved by the caller (see ProjectReader); the shapes are read and
   /// written by Layer::read() and Layer::write().
-  QStringList _reservedKeys() const override
-  {
-    return Element::_reservedKeys() << ProjectLabels::SOURCE_ID << ProjectLabels::FORMER_SOURCE_ID << ProjectLabels::DESTINATION << ProjectLabels::SOURCE;
-  }
+  QStringList _reservedKeys() const override;
 
   static SourceResolver _sourceResolver;
   static SourceLister _sourceLister;

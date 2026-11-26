@@ -34,6 +34,7 @@ private slots:
   void keepsMediaUriWhenLocateIsCancelled();
   void skipsLayerWithoutSource();
   void readsFormerKeys();
+  void prefersNewKeysOverFormerKeys();
   void skipsUnusableLayers();
   void keepsOutputResolution();
   void skipsInvalidOutputResolution();

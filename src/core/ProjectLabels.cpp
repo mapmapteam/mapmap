@@ -28,10 +28,23 @@ const char* ProjectLabels::OUTPUT_RESOLUTION = "outputResolution";
 const char* ProjectLabels::WIDTH       = "width";
 const char* ProjectLabels::HEIGHT      = "height";
 const char* ProjectLabels::ID          = "id";
-const char* ProjectLabels::SOURCE_ID   = "source_id";
-const char* ProjectLabels::FORMER_SOURCE_ID = "sourceId";
 const char* ProjectLabels::NAME        = "name";
 const char* ProjectLabels::SOURCE      = "source";
 const char* ProjectLabels::DESTINATION = "destination";
+
+const char* ProjectLabels::SOURCE_ID            = "source_id";
+const char* ProjectLabels::FORMER_SOURCE_ID     = "sourceId";
+const char* ProjectLabels::N_COLUMNS            = "n_columns";
+const char* ProjectLabels::FORMER_N_COLUMNS     = "nColumns";
+const char* ProjectLabels::N_ROWS               = "n_rows";
+const char* ProjectLabels::FORMER_N_ROWS        = "nRows";
+const char* ProjectLabels::SERVER_UUID          = "server_uuid";
+const char* ProjectLabels::FORMER_SERVER_UUID   = "serverUUID";
+const char* ProjectLabels::SERVER_NAME          = "server_name";
+const char* ProjectLabels::FORMER_SERVER_NAME   = "serverName";
+const char* ProjectLabels::APP_NAME             = "app_name";
+const char* ProjectLabels::FORMER_APP_NAME      = "appName";
+const char* ProjectLabels::RESPECT_ALPHA        = "respect_alpha";
+const char* ProjectLabels::FORMER_RESPECT_ALPHA = "respectAlpha";
 
 }

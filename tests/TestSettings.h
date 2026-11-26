@@ -67,6 +67,9 @@ private slots:
   void unknownKeysSurviveRoundTrip();
   void runtimeSettingIsSavedAndRestored();
   void pendingValueReachesSettingBoundLater();
+  void formerKeyIsReadThenWrittenUnderTheId();
+  void idWinsOverFormerKey();
+  void formerKeyReachesSettingAddedLater();
   void keysOfUnreadSettingsStayPending();
   void reservedKeysAreNotKept();
   void pointSettingIsNotWritten();

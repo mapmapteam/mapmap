@@ -304,6 +304,46 @@ void TestProjectRoundTrip::readsFormerKeys()
   QVERIFY(!writtenMesh.contains("nRows"));
 }
 
+void TestProjectRoundTrip::prefersNewKeysOverFormerKeys()
+{
+  // A project that gives a setting under both names: the new one is the one read.
+  const QByteArray project = R"({
+    "version": "1.0.0-beta.1",
+    "sources": [
+      { "className": "Color", "id": 1, "name": "red", "color": "#ff0000" },
+      { "className": "Color", "id": 2, "name": "blue", "color": "#0000ff" }
+    ],
+    "layers": [
+      { "className": "ColorLayer", "id": 1, "name": "mesh", "sourceId": 1, "source_id": 2,
+        "destination": { "className": "Mesh", "nColumns": "2", "nRows": "3",
+                         "n_columns": "3", "n_rows": "2",
+                         "vertices": [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1]] } }
+    ]
+  })";
+
+  MappingManager manager;
+  QString error;
+  QVERIFY2(readProject(manager, project, &error), qPrintable(error));
+  QCOMPARE(manager.nLayers(), 1);
+  Layer::ptr layer = manager.getLayer(0);
+  QCOMPARE(int(layer->getSourceId()), 2);
+  const QSharedPointer<Mesh> mesh = qSharedPointerCast<Mesh>(layer->getShape());
+  QCOMPARE(mesh->nColumns(), 3);
+  QCOMPARE(mesh->nRows(), 2);
+  QCOMPARE(mesh->getVertex2d(2, 1), QPointF(2, 1));
+
+  // The former keys are not written back.
+  const QJsonObject written = QJsonDocument::fromJson(writeProject(manager)).object();
+  const QJsonObject writtenLayer = written.value("layers").toArray().first().toObject();
+  QCOMPARE(writtenLayer.value("source_id").toInt(), 2);
+  QVERIFY(!writtenLayer.contains("sourceId"));
+  const QJsonObject writtenMesh = writtenLayer.value("destination").toObject();
+  QCOMPARE(writtenMesh.value("n_columns"), QJsonValue("3"));
+  QCOMPARE(writtenMesh.value("n_rows"), QJsonValue("2"));
+  QVERIFY(!writtenMesh.contains("nColumns"));
+  QVERIFY(!writtenMesh.contains("nRows"));
+}
+
 void TestProjectRoundTrip::skipsUnusableLayers()
 {
   // Layers MapMap cannot show are dropped instead of crashing the interface:

@@ -30,7 +30,7 @@ static const QString OUTPUT_SHAPE_SETTINGS = "output";
 /// Id of the group showing the settings of the input shape.
 static const QString INPUT_SHAPE_SETTINGS = "input";
 /// Ids of the grid settings of a mesh.
-static const QStringList MESH_GRID_SETTINGS = { "n_columns", "n_rows" };
+static const QStringList MESH_GRID_SETTINGS = { ProjectLabels::N_COLUMNS, ProjectLabels::N_ROWS };
 
 UidAllocator Layer::allocator;
 Layer::SourceResolver Layer::_sourceResolver;
@@ -85,7 +85,8 @@ Layer::Layer(Source::ptr source, MShape::ptr shape, MShape::ptr inputShape, uid 
       ->bind([this]() { return QVariant(hasInputShape()); },
              [](const QVariant&) { return false; });
 
-  root->addSetting(SettingInfo::reference("source_id", tr("Source"))
+  root->addSetting(SettingInfo::reference(ProjectLabels::SOURCE_ID, tr("Source"))
+                   .formerId(ProjectLabels::FORMER_SOURCE_ID)
                    .valueType(QMetaType::Int)
                    .defaultValue(NULL_UID)
                    .notStored()
@@ -230,7 +231,7 @@ void Layer::setSource(Source::ptr source)
 	if (!source.isNull() && sourceIsCompatible(source))
 	{
 		_source = source;
-	  _emitPropertyChanged("source_id");
+	  _emitPropertyChanged(ProjectLabels::SOURCE_ID);
 	}
 }
 
@@ -294,6 +295,14 @@ void Layer::read(const QJsonObject& obj)
   {
     _readShape(obj, false);
   }
+}
+
+QStringList Layer::_reservedKeys() const
+{
+  // The former keys of the source are reserved too, so that they are not written back.
+  const Setting* sourceSetting = settings()->find(ProjectLabels::SOURCE_ID);
+  return Element::_reservedKeys() << sourceSetting->id() << sourceSetting->info().formerIds()
+                                  << ProjectLabels::DESTINATION << ProjectLabels::SOURCE;
 }
 
 void Layer::write(QJsonObject& obj)

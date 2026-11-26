@@ -35,12 +35,38 @@ public:
 
   static const char* ID;
   static const char* NAME;
-  static const char* SOURCE_ID;
-  /// The key of the source of a layer in the project files of MapMap 1.0.0-beta.1 and earlier.
-  static const char* FORMER_SOURCE_ID;
 
   static const char* DESTINATION;
   static const char* SOURCE;
+
+  // Ids of the settings that several files name. The id of a setting is its key in project
+  // files and its name in OSC addresses and in MCP. A FORMER_ constant is the key of the
+  // same setting in the project files of MapMap 1.0.0-beta.1 and earlier: it is declared
+  // with SettingInfo::formerId(), read when the id is absent, and never written.
+
+  /// The source shown by a layer.
+  static const char* SOURCE_ID;
+  static const char* FORMER_SOURCE_ID;
+
+  /// The number of columns of vertices of a mesh.
+  static const char* N_COLUMNS;
+  static const char* FORMER_N_COLUMNS;
+  /// The number of rows of vertices of a mesh.
+  static const char* N_ROWS;
+  static const char* FORMER_N_ROWS;
+
+  /// The system-wide identifier of the server of a Syphon source.
+  static const char* SERVER_UUID;
+  static const char* FORMER_SERVER_UUID;
+  /// The name of the server of a Syphon source.
+  static const char* SERVER_NAME;
+  static const char* FORMER_SERVER_NAME;
+  /// The name of the application publishing the server of a Syphon source.
+  static const char* APP_NAME;
+  static const char* FORMER_APP_NAME;
+  /// Whether a Syphon source keeps the transparency sent by its server.
+  static const char* RESPECT_ALPHA;
+  static const char* FORMER_RESPECT_ALPHA;
 };
 
 }
