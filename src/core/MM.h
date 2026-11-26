@@ -140,6 +140,9 @@ public:
   // Control.
   static const qreal VERTEX_STICK_RADIUS;
   static const qreal VERTEX_SELECT_RADIUS;
+  /// Radius of the dot in the vertex that goes with the one selected in the
+  /// other editor, as a part of the radius of the vertex.
+  static const qreal VERTEX_LINKED_DOT_SCALE;
   static const qreal VERTEX_LOCKED_RADIUS;
   static const qreal VERTEX_SELECT_STROKE_WIDTH;
 

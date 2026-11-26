@@ -48,10 +48,17 @@ public:
 
   // Just paints the shape (selected=false is for painting shapes in the "background" when the option to display all controls is chosen).
   virtual void paintShape(QPainter *painter, MapperGLCanvas* canvas, bool selected=true) = 0;
-  virtual void paint(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices = QList<int>());
+  /**
+   * Paints the shape and its controls. linkedVertex is the vertex that goes
+   * with the one selected in the editor of the other side (input or output),
+   * or a negative number.
+   */
+  virtual void paint(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices = QList<int>(),
+                     int linkedVertex = -1);
 
 protected:
-  virtual void _paintVertices(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices = QList<int>());
+  virtual void _paintVertices(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices = QList<int>(),
+                              int linkedVertex = -1);
 
   /**
    * Draws the handle of the shape, unless it is locked: a disc outside the

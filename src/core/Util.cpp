@@ -165,18 +165,32 @@ Ellipse* createEllipseForRect(const QRectF& rect, bool hasCenterControl)
                      hasCenterControl);
 }
 
-void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected, bool locked, qreal radius, qreal strokeWidth)
+void drawControlsVertex(QPainter* painter, const QPointF& vertex, VertexMark mark, bool locked, qreal radius, qreal strokeWidth)
 {
   // Init colors and stroke.
   if (locked)
     painter->setBrush(MM::VERTEX_LOCKED_BACKGROUND);
+  else if (mark == VertexMark::Selected)
+    painter->setBrush(MM::VERTEX_SELECTED_BACKGROUND);
   else
-    painter->setBrush(selected ? MM::VERTEX_SELECTED_BACKGROUND : MM::VERTEX_BACKGROUND);
+    painter->setBrush(MM::VERTEX_BACKGROUND);
 
   painter->setPen(locked ? QPen(MM::CONTROL_LOCKED_COLOR) : QPen(MM::CONTROL_COLOR, strokeWidth));
 
   // Draw ellipse.
   painter->drawEllipse(vertex, radius, radius);
+
+  // Draw the dot of the linked vertex: the background of a selected vertex,
+  // in the center only.
+  if (!locked && mark == VertexMark::Linked)
+  {
+    const qreal dotRadius = radius * MM::VERTEX_LINKED_DOT_SCALE;
+    painter->save();
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(MM::VERTEX_SELECTED_BACKGROUND);
+    painter->drawEllipse(vertex, dotRadius, dotRadius);
+    painter->restore();
+  }
 
   // Draw cross.
   if (!locked)

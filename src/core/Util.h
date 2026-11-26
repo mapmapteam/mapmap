@@ -100,8 +100,18 @@ Triangle* createTriangleForRect(const QRectF& rect);
 /// Creates an ellipse touching the middle of each edge of rect.
 Ellipse* createEllipseForRect(const QRectF& rect, bool hasCenterControl);
 
-/// Draws the handle of a vertex: a circle, crossed unless the shape is locked.
-void drawControlsVertex(QPainter* painter, const QPointF& vertex, bool selected, bool locked, qreal radius = MM::VERTEX_SELECT_RADIUS, qreal strokeWidth = MM::VERTEX_SELECT_STROKE_WIDTH);
+/// What the control of a vertex shows about it.
+enum class VertexMark {
+  None,     ///< Nearly no background.
+  Selected, ///< The selected vertex: a white background that lets the image show through.
+  Linked    ///< The vertex that goes with the one selected in the other editor: that background in the center only, as a dot.
+};
+
+/**
+ * Draws the control of a vertex: a crossed circle, on the background of its
+ * mark. The vertices of a locked shape are plain discs.
+ */
+void drawControlsVertex(QPainter* painter, const QPointF& vertex, VertexMark mark, bool locked, qreal radius = MM::VERTEX_SELECT_RADIUS, qreal strokeWidth = MM::VERTEX_SELECT_STROKE_WIDTH);
 
 /**
  * Checks if a file exists or not.

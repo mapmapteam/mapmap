@@ -90,12 +90,13 @@ ShapeControlPainter::ShapeControlPainter(ShapeGraphicsItem* shapeItem)
 
 MShape::ptr ShapeControlPainter::getShape() const { return _shapeItem->getShape(); }
 
-void ShapeControlPainter::paint(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices)
+void ShapeControlPainter::paint(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices,
+                                int linkedVertex)
 {
   paintShape(painter, canvas);
   // Handles first, so that their lines pass under the vertices.
   _paintHandles(painter, canvas);
-  _paintVertices(painter, canvas, selectedVertices);
+  _paintVertices(painter, canvas, selectedVertices, linkedVertex);
 }
 
 void ShapeControlPainter::_paintHandles(QPainter *painter, MapperGLCanvas* canvas)
@@ -144,14 +145,20 @@ void ShapeControlPainter::_paintHandles(QPainter *painter, MapperGLCanvas* canva
   painter->restore();
 }
 
-void ShapeControlPainter::_paintVertices(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices)
+void ShapeControlPainter::_paintVertices(QPainter *painter, MapperGLCanvas* canvas, const QList<int>& selectedVertices,
+                                         int linkedVertex)
 {
   qreal zoomFactor = canvas->getZoomFactor();
   qreal selectRadius = (getShape()->isLocked() ? MM::VERTEX_LOCKED_RADIUS : MM::VERTEX_SELECT_RADIUS) / zoomFactor;
   qreal strokeWidth  = MM::VERTEX_SELECT_STROKE_WIDTH / zoomFactor;
 
   for (int i=0; i<getShape()->nVertices(); i++)
-    Util::drawControlsVertex(painter, getShape()->getVertex(i), selectedVertices.contains(i), getShape()->isLocked(), selectRadius, strokeWidth);
+  {
+    const Util::VertexMark mark = selectedVertices.contains(i) ? Util::VertexMark::Selected
+                                : (i == linkedVertex)          ? Util::VertexMark::Linked
+                                                               : Util::VertexMark::None;
+    Util::drawControlsVertex(painter, getShape()->getVertex(i), mark, getShape()->isLocked(), selectRadius, strokeWidth);
+  }
 }
 
 QPen ShapeControlPainter::getRescaledShapeStroke(MapperGLCanvas* canvas, bool selected, bool innerStroke)
