@@ -36,6 +36,7 @@ private slots:
   void readsFormerKeys();
   void prefersNewKeysOverFormerKeys();
   void skipsUnusableLayers();
+  void derivesEllipseCenter();
   void keepsOutputResolution();
   void skipsInvalidOutputResolution();
 
