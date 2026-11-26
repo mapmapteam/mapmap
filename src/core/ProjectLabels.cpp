@@ -21,6 +21,8 @@
 
 namespace mmp {
 
+const char* ProjectLabels::FORMAT_VERSION = "1.0.0-beta.2";
+const char* ProjectLabels::URI = "uri";
 const char* ProjectLabels::CLASS_NAME  = "className";
 const char* ProjectLabels::SOURCES     = "sources";
 const char* ProjectLabels::LAYERS      = "layers";

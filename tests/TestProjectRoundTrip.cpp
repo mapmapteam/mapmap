@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QFile>
 #include <QJsonDocument>
+#include <QTemporaryDir>
 
 #include "Ellipse.h"
 #include "MappingManager.h"
@@ -285,6 +286,39 @@ void TestProjectRoundTrip::rejectsInvalidJson()
   QVERIFY(!readProject(manager, "{\"version\": \"1.0.0\", ", &error));
   QVERIFY(!error.isEmpty());
   QVERIFY(!error.contains("XML"));
+}
+
+void TestProjectRoundTrip::resolvesProjectMediaPaths()
+{
+  QTemporaryDir temporary;
+  QVERIFY(temporary.isValid());
+  QDir parent(temporary.path());
+  QVERIFY(parent.mkpath("original/media"));
+  QVERIFY(parent.mkdir("copy"));
+  const QString relative = "media/tiny.png"; // Also exists in the test working directory.
+  QVERIFY(QFile::copy(fixturesDir() + "/" + relative, parent.filePath("original/" + relative)));
+  QVERIFY(parent.rename("original", "moved"));
+  QDir moved(parent.filePath("moved"));
+  QDir copy(parent.filePath("copy"));
+
+  MappingManager manager;
+  QBuffer input;
+  input.setData(readFixture(fixturesDir() + "/quad-image.mmp"));
+  input.open(QIODevice::ReadOnly);
+  ProjectReader reader(manager, {}, moved.path());
+  QVERIFY(reader.readFile(&input));
+  auto image = qSharedPointerCast<Image>(manager.getSource(0));
+  QCOMPARE(image->getUri(), moved.filePath(relative));
+  QVERIFY(image->getWidth() > 0);
+  ProjectWriter writer(manager);
+  for (const QDir& destination : { moved, copy })
+  {
+    QBuffer output;
+    output.open(QIODevice::WriteOnly);
+    QVERIFY(writer.writeFile(&output, destination.path()));
+    const QString stored = parse(output.data())["sources"].toArray().first().toObject()["uri"].toString();
+    QCOMPARE(stored, destination.relativeFilePath(moved.filePath(relative)));
+  }
 }
 
 void TestProjectRoundTrip::keepsMediaUriWhenLocateIsCancelled()

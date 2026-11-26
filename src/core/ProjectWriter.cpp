@@ -18,6 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ProjectWriter.h"
+#include <QDir>
+#include <QFileInfo>
 
 namespace mmp {
 
@@ -26,13 +28,11 @@ ProjectWriter::ProjectWriter(MappingManager& manager) :
 {
 }
 
-bool ProjectWriter::writeFile(QIODevice *device)
+bool ProjectWriter::writeFile(QIODevice* device, const QString& projectDirectory)
 {
   MappingManager& manager = _manager;
   QJsonObject project;
-  // The file version changes only when the representation changes.
-  static const QString projectFormatVersion = QStringLiteral("1.0.0-beta.2");
-  project["version"] = projectFormatVersion;
+  project["version"] = ProjectLabels::FORMAT_VERSION;
 
   if (manager.hasOutputResolution())
   {
@@ -47,7 +47,25 @@ bool ProjectWriter::writeFile(QIODevice *device)
   for (int i=0; i<manager.nSources(); i++)
   {
     QJsonObject source;
-    manager.getSource(i)->write(source);
+    const Source::ptr entry = manager.getSource(i);
+    entry->write(source);
+    const Video* video = qobject_cast<const Video*>(entry.data());
+    const Texture* media = qobject_cast<const Image*>(entry.data());
+    if (video && !video->isCamera())
+      media = video;
+    QString path = source.value(ProjectLabels::URI).toString();
+    if (media && !projectDirectory.isEmpty() && !path.isEmpty())
+    {
+      if (Texture::isRelativeMediaPath(path))
+        path = QFileInfo(path).absoluteFilePath();
+      // Preserve absolute paths belonging to a different operating system.
+      if (QDir::isAbsolutePath(path))
+      {
+        const QString relative = QDir(projectDirectory).relativeFilePath(path);
+        source[ProjectLabels::URI] = media->prefersRelativeMediaPath() || !relative.startsWith("../")
+            ? relative : path;
+      }
+    }
     sources.append(source);
   }
   project[ProjectLabels::SOURCES] = sources;
