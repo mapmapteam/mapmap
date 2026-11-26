@@ -39,7 +39,7 @@ bool nearPoint(const QPointF& a, const QPointF& b, qreal eps=1e-6)
 // Axis-aligned ellipse centered at (10,20) with radii 4 and 2, with center control.
 Ellipse makeEllipse()
 {
-  return Ellipse(QPointF(6, 20), QPointF(10, 18), QPointF(14, 20), QPointF(10, 22), true);
+  return Ellipse(QPointF(6, 20), QPointF(10, 18), QPointF(14, 20), QPointF(10, 22));
 }
 
 // Intersection of lines (a,b) and (c,d).

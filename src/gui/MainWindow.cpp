@@ -1045,13 +1045,13 @@ void MainWindow::addEllipse()
   QSharedPointer<Texture> texture = qSharedPointerDynamicCast<Texture>(source);
   if (texture.isNull())
   {
-    MShape::ptr outputEllipse(Util::createEllipseForRect(newShapeOutputRect(QSizeF()), false));
+    MShape::ptr outputEllipse(Util::createEllipseForRect(newShapeOutputRect(QSizeF())));
     layerPtr = new ColorLayer(source, outputEllipse);
   }
   else
   {
-    MShape::ptr outputEllipse(Util::createEllipseForRect(newShapeOutputRect(texture->getRect().size()), true));
-    MShape::ptr inputEllipse(Util::createEllipseForRect(texture->getRect(), true));
+    MShape::ptr outputEllipse(Util::createEllipseForRect(newShapeOutputRect(texture->getRect().size())));
+    MShape::ptr inputEllipse(Util::createEllipseForRect(texture->getRect()));
     layerPtr = new TextureLayer(source, outputEllipse, inputEllipse);
   }
 

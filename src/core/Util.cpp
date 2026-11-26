@@ -155,14 +155,13 @@ Triangle* createTriangleForRect(const QRectF& rect)
                       QPointF(rect.center().x(), rect.top()));
 }
 
-Ellipse* createEllipseForRect(const QRectF& rect, bool hasCenterControl)
+Ellipse* createEllipseForRect(const QRectF& rect)
 {
   const QPointF center = rect.center();
   return new Ellipse(QPointF(rect.left(), center.y()),
                      QPointF(center.x(), rect.top()),
                      QPointF(rect.right(), center.y()),
-                     QPointF(center.x(), rect.bottom()),
-                     hasCenterControl);
+                     QPointF(center.x(), rect.bottom()));
 }
 
 void drawControlsVertex(QPainter* painter, const QPointF& vertex, VertexMark mark, bool locked, qreal radius, qreal strokeWidth)
