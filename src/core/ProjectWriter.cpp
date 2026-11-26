@@ -30,7 +30,9 @@ bool ProjectWriter::writeFile(QIODevice *device)
 {
   MappingManager& manager = _manager;
   QJsonObject project;
-  project["version"] = MM::VERSION;
+  // The file version changes only when the representation changes.
+  static const QString projectFormatVersion = QStringLiteral("1.0.0-beta.2");
+  project["version"] = projectFormatVersion;
 
   if (manager.hasOutputResolution())
   {

@@ -955,7 +955,7 @@ void TestSettings::oversizedMeshIsReducedOnRead()
   // What is written agrees with itself.
   QJsonObject written;
   mesh.write(written);
-  QCOMPARE(written.value("n_columns"), QJsonValue(QString::number(Mesh::MAX_MESH_DIVISIONS)));
+  QCOMPARE(written.value("n_columns"), QJsonValue(int(Mesh::MAX_MESH_DIVISIONS)));
   QCOMPARE(written.value("vertices").toArray().size(), Mesh::MAX_MESH_DIVISIONS * rows);
 
   verifyConsistentMesh(mesh);
@@ -1133,7 +1133,7 @@ QByteArray jsonText(const QJsonObject& obj)
 
 } // namespace
 
-void TestSettings::writeMatchesLegacyFormat()
+void TestSettings::writesNativeScalarSettings()
 {
   Color source { QColor(Qt::red) };
   source.setOpacity(0.75f);
@@ -1146,9 +1146,9 @@ void TestSettings::writeMatchesLegacyFormat()
     { "className", "Color" },
     { "color", "#ff0000" },
     { "id", source.getId() },
-    { "locked", "false" },
+    { "locked", false },
     { "name", "a" },
-    { "opacity", "0.75" }
+    { "opacity", 0.75 }
   };
   QCOMPARE(jsonText(written), jsonText(expected));
 }
@@ -1204,7 +1204,7 @@ void TestSettings::unknownKeysSurviveRoundTrip()
   source.write(written);
   QCOMPARE(written.value("futureKey"), QJsonValue("7"));
   QCOMPARE(written.value("nested"), QJsonValue(nested));
-  QCOMPARE(written.value("opacity"), QJsonValue("0.5"));
+  QCOMPARE(written.value("opacity"), QJsonValue(0.5));
   QCOMPARE(written.value("className"), QJsonValue("Color"));
 }
 
@@ -1217,7 +1217,7 @@ void TestSettings::runtimeSettingIsSavedAndRestored()
     QVERIFY(gain->setValue(0.3));
     first.write(saved);
   }
-  QCOMPARE(saved.value("gain"), QJsonValue("0.3"));
+  QCOMPARE(saved.value("gain"), QJsonValue(0.3));
 
   Color second { QColor(Qt::red) };
   saved["id"] = second.getId();
@@ -1258,7 +1258,7 @@ void TestSettings::pendingValueReachesSettingBoundLater()
 
   QJsonObject written;
   source.write(written);
-  QCOMPARE(written.value("gain"), QJsonValue("0.3"));
+  QCOMPARE(written.value("gain"), QJsonValue(0.3));
 }
 
 void TestSettings::formerKeyIsReadThenWrittenUnderTheId()
@@ -1276,7 +1276,7 @@ void TestSettings::formerKeyIsReadThenWrittenUnderTheId()
   // The former key is converted: only the id is written.
   QJsonObject written;
   source.write(written);
-  QCOMPARE(written.value("gain"), QJsonValue("0.3"));
+  QCOMPARE(written.value("gain"), QJsonValue(0.3));
   QVERIFY(!written.contains("oldGain"));
   QVERIFY(!written.contains("olderGain"));
 }
@@ -1296,7 +1296,7 @@ void TestSettings::idWinsOverFormerKey()
 
   QJsonObject written;
   source.write(written);
-  QCOMPARE(written.value("gain"), QJsonValue("0.6"));
+  QCOMPARE(written.value("gain"), QJsonValue(0.6));
   QVERIFY(!written.contains("oldGain"));
 }
 
@@ -1315,7 +1315,7 @@ void TestSettings::formerKeyReachesSettingAddedLater()
 
   QJsonObject written;
   formerOnly.write(written);
-  QCOMPARE(written.value("gain"), QJsonValue("0.3"));
+  QCOMPARE(written.value("gain"), QJsonValue(0.3));
   QVERIFY(!written.contains("oldGain"));
 
   // With both keys, the id wins and the former key is dropped.
@@ -1331,7 +1331,7 @@ void TestSettings::formerKeyReachesSettingAddedLater()
 
   written = QJsonObject();
   both.write(written);
-  QCOMPARE(written.value("gain"), QJsonValue("0.6"));
+  QCOMPARE(written.value("gain"), QJsonValue(0.6));
   QVERIFY(!written.contains("oldGain"));
 }
 

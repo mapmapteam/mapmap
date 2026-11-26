@@ -62,7 +62,7 @@ private slots:
   void meshGridsOfTextureLayerFollowEachOther();
   void meshGridOfColorLayerIsAlone();
   void readingKeepsDifferentMeshGrids();
-  void writeMatchesLegacyFormat();
+  void writesNativeScalarSettings();
   void readToleratesNonTextValues();
   void unknownKeysSurviveRoundTrip();
   void runtimeSettingIsSavedAndRestored();

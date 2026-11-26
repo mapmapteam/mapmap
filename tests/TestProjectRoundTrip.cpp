@@ -110,6 +110,34 @@ void collectLostValues(const QJsonValue& expected, const QJsonValue& actual,
   }
 }
 
+/// Converts just the fields stored as strings in the original JSON fixtures.
+QJsonObject expectedNativeSettings(QJsonObject object)
+{
+  for (auto it = object.begin(); it != object.end(); ++it)
+  {
+    const QJsonValue value = it.value();
+    if (value.isObject())
+      it.value() = expectedNativeSettings(value.toObject());
+    else if (value.isArray() && (it.key() == "layers" || it.key() == "sources"))
+    {
+      QJsonArray converted;
+      for (const QJsonValue& entry : value.toArray())
+        converted.append(expectedNativeSettings(entry.toObject()));
+      it.value() = converted;
+    }
+    else if (value.isString())
+    {
+      static const QStringList numbers = { "opacity", "volume", "rate", "n_rows", "n_columns", "depth" };
+      static const QStringList flags = { "locked", "solo", "visible" };
+      if (numbers.contains(it.key()))
+        it.value() = value.toString().toDouble();
+      else if (flags.contains(it.key()))
+        it.value() = value.toString() == "true";
+    }
+  }
+  return object;
+}
+
 QJsonObject parse(const QByteArray& data)
 {
   return QJsonDocument::fromJson(data).object();
@@ -160,7 +188,7 @@ void TestProjectRoundTrip::roundTrip()
   // First write: everything in the fixture must still be there (except the
   // version number, which becomes the current one).
   const QByteArray firstWrite = writeProject(manager);
-  QJsonObject expected = originalObj;
+  QJsonObject expected = expectedNativeSettings(originalObj);
   expected.remove("version");
   QStringList diffs;
   collectLostValues(expected, parse(firstWrite), QString(), diffs);
@@ -176,6 +204,23 @@ void TestProjectRoundTrip::roundTrip()
     collectLostValues(parse(firstWrite), parse(secondWrite), QString(), diffs);
     collectLostValues(parse(secondWrite), parse(firstWrite), QString(), diffs);
     QFAIL(qPrintable("Second save differs from the first:\n  " + diffs.join("\n  ")));
+  }
+}
+
+void TestProjectRoundTrip::writesStableBeta2Project()
+{
+  const QByteArray original = readFixture(fixturesDir() + "/beta.2/triangle-color.mmp");
+  QVERIFY(!original.isEmpty());
+  for (const QString& version : { QString("beta.1"), QString("beta.2") })
+  {
+    MappingManager manager;
+    QVERIFY(readProject(manager, readFixture(fixturesDir() + "/" + version + "/triangle-color.mmp")));
+    QCOMPARE(writeProject(manager), original);
+    manager.getLayer(0)->setName("Renamed");
+    QByteArray expected = original;
+    expected.replace("\"name\": \"Triangle\"", "\"name\": \"Renamed\"");
+    QVERIFY(expected != original);
+    QCOMPARE(writeProject(manager), expected);
   }
 }
 
@@ -298,8 +343,8 @@ void TestProjectRoundTrip::readsFormerKeys()
   QCOMPARE(writtenLayer.value("source_id").toInt(), 1);
   QVERIFY(!writtenLayer.contains("sourceId"));
   const QJsonObject writtenMesh = writtenLayer.value("destination").toObject();
-  QCOMPARE(writtenMesh.value("n_columns"), QJsonValue("3"));
-  QCOMPARE(writtenMesh.value("n_rows"), QJsonValue("2"));
+  QCOMPARE(writtenMesh.value("n_columns"), QJsonValue(3));
+  QCOMPARE(writtenMesh.value("n_rows"), QJsonValue(2));
   QVERIFY(!writtenMesh.contains("nColumns"));
   QVERIFY(!writtenMesh.contains("nRows"));
 }
@@ -338,8 +383,8 @@ void TestProjectRoundTrip::prefersNewKeysOverFormerKeys()
   QCOMPARE(writtenLayer.value("source_id").toInt(), 2);
   QVERIFY(!writtenLayer.contains("sourceId"));
   const QJsonObject writtenMesh = writtenLayer.value("destination").toObject();
-  QCOMPARE(writtenMesh.value("n_columns"), QJsonValue("3"));
-  QCOMPARE(writtenMesh.value("n_rows"), QJsonValue("2"));
+  QCOMPARE(writtenMesh.value("n_columns"), QJsonValue(3));
+  QCOMPARE(writtenMesh.value("n_rows"), QJsonValue(2));
   QVERIFY(!writtenMesh.contains("nColumns"));
   QVERIFY(!writtenMesh.contains("nRows"));
 }
