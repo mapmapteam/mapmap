@@ -207,7 +207,8 @@ void MapperGLCanvas::drawForeground(QPainter *painter , const QRectF &rect)
         {
           selected.push_back(getActiveVertexIndex());
         }
-        item->getControlPainter()->paint(painter, this, selected);
+        // With the vertex that goes with the one selected on the other side.
+        item->getControlPainter()->paint(painter, this, selected, _linkedVertex());
       }
 
     }
@@ -1021,6 +1022,16 @@ void MapperGLCanvas::_updateOtherSide()
 {
   for (MapperGLCanvas* canvas : _otherSideCanvases())
     canvas->viewport()->update();
+}
+
+int MapperGLCanvas::_linkedVertex() const
+{
+  for (MapperGLCanvas* canvas : _otherSideCanvases())
+  {
+    if (canvas->hasActiveVertex())
+      return canvas->getActiveVertexIndex();
+  }
+  return NO_VERTEX;
 }
 
 void MapperGLCanvas::deselectAll()

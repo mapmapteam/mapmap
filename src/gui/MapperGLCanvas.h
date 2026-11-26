@@ -326,6 +326,9 @@ private:
   void _deselectVerticesOnOtherSide();
   // Redraws the other side, which shows the vertex selected here.
   void _updateOtherSide();
+  // Returns the vertex selected on the other side, or NO_VERTEX: the one of
+  // this side that goes with it is marked.
+  int _linkedVertex() const;
 
 public:
   static const int NO_VERTEX = -1;
