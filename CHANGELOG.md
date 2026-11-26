@@ -17,6 +17,7 @@ Improvements:
 - Keep the unknown keys of a project file when the project is saved again.
 - In the settings panel of a layer, "Mesh Subdivisions" is now Columns and Rows.
 - At 100% zoom, the input editor shows the whole image of the selected source and the output editor the whole output frame. "Actual pixels (1:1)" shows one image pixel per screen pixel. New shapes are placed inside the output frame.
+- A new layer starts in the middle of the output frame, at half its size, whatever its source: all its controls are in view.
 - The editors leave more room around the image and the output frame at 100% zoom, for the handle of a shape that covers them.
 - Only show the scroll bars of the editors when the image, the output frame or a shape does not fit in the view.
 - Projects converted with the option `--output-size` of `scripts/convert-xml-project.py` take that size as their output resolution.

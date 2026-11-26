@@ -228,9 +228,9 @@ public slots:
   QRectF getOutputFrame() const;
 
   /**
-   * Returns where a new shape goes in the output frame: as large as possible
-   * with the proportions of an image of the given size, or in the middle for
-   * an empty size (color sources).
+   * Returns where a new shape goes in the output frame: in its middle, at a
+   * fraction of its size, with the proportions of an image of the given size
+   * (any proportions for an empty size: color sources).
    */
   QRectF newShapeOutputRect(const QSizeF& contentSize) const;
 
@@ -799,8 +799,8 @@ public:
   static const int MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT = 290;
   static const int CANVAS_MINIMUM_WIDTH  = 480;
   static const int CANVAS_MINIMUM_HEIGHT = 270;
-  // Size of a new color shape, relative to the output frame.
-  static constexpr qreal NEW_COLOR_SHAPE_SCALE = 0.5;
+  // Size of the area a new shape is placed in, relative to the output frame.
+  static constexpr qreal NEW_SHAPE_OUTPUT_SCALE = 0.5;
 
   // How far (in pixels) a shape may be from where it was placed and still
   // count as untouched (see fitDefaultShapesToFrameSize()).
