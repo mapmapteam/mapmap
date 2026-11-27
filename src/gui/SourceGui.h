@@ -31,26 +31,19 @@
 
 #ifdef HAVE_SYPHON
 #include "Syphon.h"
+class QLabel;
 class QTimer;
 #endif
 
-#include "qtpropertymanager.h"
-#include "qtvariantproperty.h"
-#include "qttreepropertybrowser.h"
-#include "qtbuttonpropertybrowser.h"
-#include "qtgroupboxpropertybrowser.h"
-
-#include "variantmanager.h"
-#include "variantfactory.h"
-
-#include "SettingsBrowser.h"
+#include "Inspector.h"
 
 namespace mmp {
 
+class RefreshingComboBox;
+
 /**
  * The view components corresponding to a Source (which is the model) in the interface:
- * the property browser of the source, made from its settings by a SettingsBrowser, which
- * follows the changes of the settings.
+ * an inspector made from the settings of the source, which follows their changes.
  *
  * In other words the SourceGui is to Source what LayerGui is to Layer.
  */
@@ -61,58 +54,63 @@ public:
   typedef QSharedPointer<SourceGui> ptr;
 
 public:
-  /// Constructor. A source gui applies to a source.
+  /// Makes the inspector of a source.
   SourceGui(Source::ptr source);
   virtual ~SourceGui();
 
 public:
-  /// Returns a pointer to the properties editor for that source.
+  /// Returns the inspector, shown in the Library tab.
   virtual QWidget* getPropertiesEditor();
 
+  /// Returns the translated kind of a source, such as "Video", shown in the inspector.
+  static QString kindOf(const Source::ptr& source);
+
 signals:
-  /// The user changed a setting of the source through the panel.
   void valueChanged(Source::ptr);
 
 protected:
   Source::ptr _source;
-  QtTreePropertyBrowser* _propertyBrowser;
-  QtVariantEditorFactory* _variantFactory;
-  QtVariantPropertyManager* _variantManager;
-  SettingsBrowser* _settingsBrowser;
+  Inspector* _inspector;
+  /// The tab of the source.
+  InspectorPage* _page;
 };
 
 #ifdef HAVE_SYPHON
 /**
- * Property editor for a Syphon source (macOS only). Under the rows made from the settings,
- * exposes a live-refreshed "Server" dropdown so the source can be re-pointed at any
- * available Syphon server, plus a read-only connection status.
+ * The inspector of a Syphon source, with two rows made by hand under the rows of its
+ * settings: the menu of the servers, searched again each time it opens, and the state of
+ * the connection.
  */
 class SyphonGui : public SourceGui {
   Q_OBJECT
 
 public:
+  /// Makes the inspector of a Syphon source.
   SyphonGui(Source::ptr source);
   virtual ~SyphonGui() {}
 
 private slots:
-  /// Polls the Syphon directory and refreshes the dropdown/status.
+  /// Polls the Syphon directory and refreshes the menu and the state.
   void refreshServers();
 
-  /// Connects to the server chosen in the "Server" row.
-  void _chooseServer(QtProperty* property, const QVariant& value);
-
 protected:
-  void _rebuildServerEnum();
+  /// Fills the menu with the servers, the bound one first when it is offline.
+  void _rebuildServerMenu();
+
+  /// Shows the state of the connection.
   void _updateStatus();
 
-  QSharedPointer<Syphon> syphon;
-  QtVariantProperty* _serverItem;
-  QtVariantProperty* _statusItem;
+  /// Connects to the server chosen in the menu.
+  void _chooseServer(int index);
 
-  // _servers[i] corresponds to dropdown index i+1 (index 0 is "(none)").
+  QSharedPointer<Syphon> syphon;
+  RefreshingComboBox* _serverMenu;
+  QLabel* _statusLabel;
+
+  // _servers[i] corresponds to menu index i+1 (index 0 is "(none)").
   QList<SyphonServerDescription> _servers;
   QStringList _lastSignature;
-  bool _updatingEnum;
+  bool _updatingMenu;
   QTimer* _refreshTimer;
 };
 #endif // HAVE_SYPHON

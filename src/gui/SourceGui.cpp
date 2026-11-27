@@ -21,80 +21,108 @@
 #include "ProjectLabels.h"
 
 #ifdef HAVE_SYPHON
+#include <QAbstractItemView>
+#include <QLabel>
 #include <QTimer>
 #endif
 
 namespace mmp {
 
+namespace {
+
+/// Key of the tab of a source in the preferences, where its folded groups are kept.
+const QString SOURCE_PAGE_KEY = QStringLiteral("source");
+
+#ifdef HAVE_SYPHON
+/// Delay between two searches of the Syphon servers, in milliseconds.
+const int SYPHON_REFRESH_INTERVAL_MS = 1000;
+#endif
+
+} // namespace
+
 SourceGui::SourceGui(Source::ptr source)
-  : _source(source)
+  : _source(source),
+    _inspector(new Inspector),
+    _page(nullptr)
 {
-  // Create editor.
-  _propertyBrowser = new QtTreePropertyBrowser;
-  VariantManager* variantManager = new VariantManager;
-  _variantManager = variantManager;
-  _variantFactory = new VariantFactory;
-
-  _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
-
-  // The panel is made from the settings and follows them.
-  _settingsBrowser = new SettingsBrowser(_source->settings(), _propertyBrowser, variantManager, this);
-  connect(_settingsBrowser, &SettingsBrowser::edited, this, [this]() { emit valueChanged(_source); });
-  connect(_source.data(), &Source::settingChanged, _settingsBrowser,
-          [this](uid, const QString& path, const QVariant& value) { _settingsBrowser->refresh(path, value); });
-  connect(_source.data(), &Source::settingsStructureChanged, _settingsBrowser, &SettingsBrowser::rebuild);
+  _inspector->setHeader(_source->getName(), kindOf(_source));
+  // The inspector is made from the settings and follows them.
+  _page = _inspector->addPage(tr("Media"), _source->settings(), SOURCE_PAGE_KEY);
+  connect(_inspector, &Inspector::edited, this, [this]() { emit valueChanged(_source); });
+  connect(_source.data(), &Source::settingChanged, _page,
+          [this](uid, const QString& path, const QVariant&) {
+            _page->refresh(path);
+            if (path == QLatin1String("name"))
+              _inspector->setHeader(_source->getName(), kindOf(_source));
+          });
+  connect(_source.data(), &Source::settingsStructureChanged, _page, &InspectorPage::rebuild);
 }
 
 SourceGui::~SourceGui()
 {
-  delete _propertyBrowser;
+  delete _inspector;
 }
 
 QWidget* SourceGui::getPropertiesEditor()
 {
-  return _propertyBrowser;
+  return _inspector;
+}
+
+QString SourceGui::kindOf(const Source::ptr& source)
+{
+  if (!source)
+    return QString();
+  if (qobject_cast<Camera*>(source.data()))
+    return tr("Camera");
+  switch (source->getSourceType()) {
+  case Source::Video:  return tr("Video");
+  case Source::Image:  return tr("Image");
+  case Source::Color:  return tr("Color");
+  case Source::Syphon: return tr("Syphon");
+  }
+  return QString();
 }
 
 #ifdef HAVE_SYPHON
 SyphonGui::SyphonGui(Source::ptr source)
   : SourceGui(source),
-    _updatingEnum(false),
+    _serverMenu(new RefreshingComboBox),
+    _statusLabel(new QLabel),
+    _updatingMenu(false),
     _refreshTimer(nullptr)
 {
   syphon = qSharedPointerCast<Syphon>(source);
   Q_CHECK_PTR(syphon);
 
-  // Below the rows made from the settings ("Respect source alpha" among them).
-  _serverItem = _variantManager->addProperty(QtVariantPropertyManager::enumTypeId(),
-                                              tr("Server"));
-  _statusItem = _variantManager->addProperty(QMetaType::QString, tr("Status"));
-  _statusItem->setEnabled(false);
+  // Below the rows made from the settings ("Respect source alpha" among them). The menu
+  // searches the servers again each time it opens.
+  _serverMenu->setAboutToShow([this]() { _rebuildServerMenu(); });
+  _page->addExtraRow(tr("Server"), _serverMenu);
+  _statusLabel->setEnabled(false);
+  _page->addExtraRow(tr("Status"), _statusLabel);
 
-  _propertyBrowser->addProperty(_serverItem);
-  _propertyBrowser->addProperty(_statusItem);
-
-  connect(_variantManager, &QtVariantPropertyManager::valueChanged, this, &SyphonGui::_chooseServer);
+  connect(_serverMenu, QOverload<int>::of(&QComboBox::activated), this, &SyphonGui::_chooseServer);
 
   // The server may also be changed by OSC, MCP or a project file.
   connect(_source.data(), &Source::settingChanged, this,
           [this](uid, const QString& path, const QVariant&) {
             if (path == ProjectLabels::SERVER_UUID || path == ProjectLabels::SERVER_NAME ||
                 path == ProjectLabels::APP_NAME)
-              _rebuildServerEnum();
+              _rebuildServerMenu();
           });
 
-  // Populate the dropdown and status now, then keep them current. Syphon has
-  // no Qt-native change signal, so we poll the shared directory on a timer.
+  // Fill the menu and the state now, then keep them current. Syphon has no Qt-native
+  // change signal, so the shared directory is polled on a timer.
   refreshServers();
 
   _refreshTimer = new QTimer(this);
   connect(_refreshTimer, &QTimer::timeout, this, &SyphonGui::refreshServers);
-  _refreshTimer->start(1000);
+  _refreshTimer->start(SYPHON_REFRESH_INTERVAL_MS);
 }
 
-void SyphonGui::_rebuildServerEnum()
+void SyphonGui::_rebuildServerMenu()
 {
-  _updatingEnum = true;
+  _updatingMenu = true;
 
   _servers = Syphon::availableServers();
 
@@ -122,23 +150,21 @@ void SyphonGui::_rebuildServerEnum()
     _servers.prepend(bound);
   }
 
-  QStringList names;
-  names << tr("(none)");
+  _serverMenu->clear();
+  _serverMenu->addItem(tr("(none)"));
   int currentIndex = 0;
   for (int i = 0; i < _servers.size(); ++i)
   {
     QString label = _servers[i].displayName();
     if (label.isEmpty())
       label = tr("Unknown server");
-    names << label;
+    _serverMenu->addItem(label);
     if (hasBound && matchesBound(_servers[i]))
       currentIndex = i + 1;
   }
+  _serverMenu->setCurrentIndex(currentIndex);
 
-  _serverItem->setAttribute("enumNames", names);
-  _serverItem->setValue(currentIndex);
-
-  _updatingEnum = false;
+  _updatingMenu = false;
 }
 
 void SyphonGui::_updateStatus()
@@ -152,34 +178,33 @@ void SyphonGui::_updateStatus()
     status = tr("No server selected");
   else
     status = tr("Waiting for server…");
-  _statusItem->setValue(status);
+  _statusLabel->setText(status);
 }
 
 void SyphonGui::refreshServers()
 {
-  // Only rebuild the dropdown when the set of available servers changes, so we
-  // do not disrupt the user (e.g. close an open combo box) every tick.
+  // Only rebuild the menu when the set of available servers changes, so as not to
+  // disrupt the user (e.g. close an open menu) every tick.
   QStringList signature;
   const QList<SyphonServerDescription> servers = Syphon::availableServers();
   for (const SyphonServerDescription& s : servers)
     signature << (s.uuid + "|" + s.appName + "|" + s.name);
   signature.sort();
 
-  if (signature != _lastSignature)
+  if (signature != _lastSignature && !_serverMenu->view()->isVisible())
   {
     _lastSignature = signature;
-    _rebuildServerEnum();
+    _rebuildServerMenu();
   }
 
   _updateStatus();
 }
 
-void SyphonGui::_chooseServer(QtProperty* property, const QVariant& value)
+void SyphonGui::_chooseServer(int index)
 {
-  if (property != _serverItem || _updatingEnum)
-    return; // Another row, or a programmatic rebuild, not a user choice.
+  if (_updatingMenu)
+    return; // A rebuild of the menu, not a choice of the user.
 
-  const int index = value.toInt();
   if (index <= 0)
     syphon->connectToServer(QString(), QString(), QString()); // "(none)"
   else if (index - 1 < _servers.size())

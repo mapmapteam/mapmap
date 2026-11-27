@@ -1,6 +1,7 @@
 // NOTE: To run, it is recommended not to be in Compiz or Beryl, they have shown some instability.
 
 #include <iostream>
+#include <QLocale>
 #include <QTranslator>
 #include <QDebug>
 #include <QCommandLineParser>
@@ -176,6 +177,9 @@ int main(int argc, char *argv[])
 
     (void)appTranslator.load(QString(":/translations_mapmap_%1").arg(lang));
     app.installTranslator(&appTranslator);
+
+    // Numbers are written in the language of the interface, as in "2,4 Hz" in French.
+    QLocale::setDefault(QLocale(lang));
   }
   else {
     qWarning() << "Unrecognized/unsupported language: " << lang;

@@ -41,16 +41,9 @@
 
 #include "Util.h"
 
-#include "qtpropertymanager.h"
-#include "qtvariantproperty.h"
-#include "qttreepropertybrowser.h"
-#include "qtbuttonpropertybrowser.h"
-#include "qtgroupboxpropertybrowser.h"
+#include <functional>
 
-#include "variantmanager.h"
-#include "variantfactory.h"
-
-#include "SettingsBrowser.h"
+#include "Inspector.h"
 
 namespace mmp {
 
@@ -58,8 +51,9 @@ class MainWindow;
 
 /**
  * This is the "view" side of the Layer class (model). It contains the graphic items for
- * both input and output as well as the properties editor, made from the settings of the
- * layer and of its shapes by a SettingsBrowser, which follows their changes.
+ * both input and output as well as the inspector: a Surface tab made from the settings of the
+ * layer and of its shapes, and a Media tab made from the settings of its source, which both
+ * follow their changes.
  */
 class LayerGui : public QObject
 {
@@ -77,7 +71,16 @@ public:
 
 public:
   /// Returns a pointer to the properties editor for that layer.
-  virtual QWidget* getPropertiesEditor() { return _propertyBrowser.data(); }
+  virtual QWidget* getPropertiesEditor() { return _inspector.data(); }
+
+  /// Counts the layers that use a source, for the sentence of the Media tab.
+  typedef std::function<int(const Source::ptr&)> SourceUseCounter;
+
+  /// Sets the function counting the layers that use a source; set by the main window.
+  static void setSourceUseCounter(SourceUseCounter counter);
+
+  /// Returns the translated kind of the shape of a layer, such as "Mesh".
+  static QString kindOf(const Layer::ptr& layer);
 
   /// Returns the output/destination ShapeGraphicsItem.
   virtual QSharedPointer<ShapeGraphicsItem> getGraphicsItem() const { return _graphicsItem; }
@@ -93,10 +96,20 @@ public slots:
 protected:
   Layer::ptr _layer;
 
-  QSharedPointer<QtTreePropertyBrowser> _propertyBrowser;
-  QtVariantEditorFactory* _variantFactory;
-  QtVariantPropertyManager* _variantManager;
-  SettingsBrowser* _settingsBrowser;
+  /// Points the Media tab to the source of the layer, and says when it is shared.
+  void _showSource();
+
+  QSharedPointer<Inspector> _inspector;
+  /// The tab of the layer and its shapes.
+  InspectorPage* _surfacePage;
+  /// The tab of the source of the layer.
+  InspectorPage* _mediaPage;
+  /// The source shown in the Media tab, and the connections that follow it.
+  Source::ptr _shownSource;
+  QMetaObject::Connection _sourceValueConnection;
+  QMetaObject::Connection _sourceStructureConnection;
+
+  static SourceUseCounter _sourceUseCounter;
 
   QSharedPointer<ShapeGraphicsItem> _graphicsItem;
   QSharedPointer<ShapeGraphicsItem> _inputGraphicsItem;

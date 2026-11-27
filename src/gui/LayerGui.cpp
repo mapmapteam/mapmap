@@ -20,7 +20,19 @@
 
 #include "LayerGui.h"
 
+#include "ProjectLabels.h"
+
 namespace mmp {
+
+namespace {
+
+/// Key of the Surface tab in the preferences, where its folded groups are kept.
+const QString LAYER_PAGE_KEY = QStringLiteral("layer");
+
+/// Key of the Media tab in the preferences; the same as the inspector of a source.
+const QString SOURCE_PAGE_KEY = QStringLiteral("source");
+
+} // namespace
 
 LayerGui::LayerGui(Layer::ptr layer)
   : _layer(layer),
@@ -30,27 +42,73 @@ LayerGui::LayerGui(Layer::ptr layer)
   outputShape = layer->getShape();
   Q_CHECK_PTR(outputShape);
 
-  // Create editor.
-  _propertyBrowser.reset(new QtTreePropertyBrowser);
-  VariantManager* variantManager = new VariantManager;
-  _variantManager = variantManager;
-  _variantFactory = new VariantFactory;
+  // The inspector is made from the settings of the layer and of its shapes, and of its
+  // source, and follows them.
+  _inspector.reset(new Inspector);
+  _surfacePage = _inspector->addPage(tr("Surface"), _layer->settings(), LAYER_PAGE_KEY);
+  _surfacePage->setGroupLabel("output", tr("Output shape"));
+  _surfacePage->setGroupLabel("input", tr("Input shape"));
+  _mediaPage = _inspector->addPage(tr("Media"), nullptr, SOURCE_PAGE_KEY);
+  connect(_layer.data(), &Layer::settingChanged, _surfacePage,
+          [this](uid, const QString& path, const QVariant&) {
+            _surfacePage->refresh(path);
+            if (path == QLatin1String("name") || path == ProjectLabels::SOURCE_ID)
+              _showSource();
+          });
+  connect(_layer.data(), &Layer::settingsStructureChanged, _surfacePage, &InspectorPage::rebuild);
+  _showSource();
+}
 
-  _propertyBrowser->setFactoryForManager(_variantManager, _variantFactory);
+LayerGui::SourceUseCounter LayerGui::_sourceUseCounter;
 
-  // The panel is made from the settings of the layer and of its shapes, and follows them.
-  _settingsBrowser = new SettingsBrowser(_layer->settings(), _propertyBrowser.data(), variantManager, this);
-  _settingsBrowser->setGroupLabel("output", tr("Output shape"));
-  _settingsBrowser->setGroupLabel("input", tr("Input shape"));
-  connect(_layer.data(), &Layer::settingChanged, _settingsBrowser,
-          [this](uid, const QString& path, const QVariant& value) { _settingsBrowser->refresh(path, value); });
-  connect(_layer.data(), &Layer::settingsStructureChanged, _settingsBrowser, &SettingsBrowser::rebuild);
+void LayerGui::setSourceUseCounter(SourceUseCounter counter)
+{
+  _sourceUseCounter = counter;
+}
+
+QString LayerGui::kindOf(const Layer::ptr& layer)
+{
+  if (!layer || !layer->getShape())
+    return QString();
+  switch (layer->getType()) {
+  case MShape::Mesh:     return tr("Mesh");
+  case MShape::Triangle: return tr("Triangle");
+  case MShape::Ellipse:  return tr("Ellipse");
+  case MShape::Quad:     return tr("Quad");
+  }
+  return QString();
+}
+
+void LayerGui::_showSource()
+{
+  _inspector->setHeader(_layer->getName(), kindOf(_layer));
+
+  const Source::ptr source = _layer->getSource();
+  if (source != _shownSource) {
+    disconnect(_sourceValueConnection);
+    disconnect(_sourceStructureConnection);
+    _shownSource = source;
+    _mediaPage->setRoot(source ? source->settings() : nullptr);
+    if (source) {
+      _sourceValueConnection = connect(source.data(), &Source::settingChanged, _mediaPage,
+                                       [this](uid, const QString& path, const QVariant&) { _mediaPage->refresh(path); });
+      _sourceStructureConnection = connect(source.data(), &Source::settingsStructureChanged,
+                                           _mediaPage, &InspectorPage::rebuild);
+    }
+  }
+
+  // The Media tab changes a source that other layers may use too.
+  const int users = (source && _sourceUseCounter) ? _sourceUseCounter(source) : 0;
+  _mediaPage->setNotice(users > 1
+                        ? tr("Used by %1 layers: changing it changes them all.").arg(users)
+                        : QString());
 }
 
 void LayerGui::updateSources()
 {
   // The menu is computed again from the options of the setting.
-  _settingsBrowser->refresh(ProjectLabels::SOURCE_ID, QVariant());
+  _surfacePage->refresh(ProjectLabels::SOURCE_ID);
+  _showSource();
 }
 
 ColorLayerGui::ColorLayerGui(Layer::ptr layer)
