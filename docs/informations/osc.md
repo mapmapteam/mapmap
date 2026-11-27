@@ -26,7 +26,7 @@ Change file (eg. "/path/to/clip.mov"): `/mapmap/source/uri ,is <id> <uri>`
 Change rate (speed) (*): `/mapmap/source/rate ,if <id> <rate>`  
 Adjust audio volume: `/mapmap/source/volume ,if <id> <volume>`
 
-(*) 1 = same speed, 0.5 = half speed, 2 = double speed
+(*) 1 = same speed, 0.5 = half speed, 2 = double speed, 0 = stopped. A negative speed plays an animated image backwards; a video cannot play backwards yet and stops.
 
 ## Layers
 

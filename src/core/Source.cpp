@@ -368,7 +368,7 @@ Video::Video(VideoType type, int id) : Texture(id),
                    .defaultValue(DEFAULT_RATE)
                    .unit(SettingInfo::Percent)
                    .displayScale(PERCENT_DISPLAY_SCALE)
-                   .description(tr("How fast the video plays; a negative speed plays it backwards.")))
+                   .description(tr("How fast the video plays; at zero the image stops. A negative speed stops it too for now: the video cannot play backwards yet.")))
       ->bind([this]() { return QVariant(getRate()); },
              [this](const QVariant& value) { setRate(value.toDouble()); return true; });
 
