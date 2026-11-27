@@ -56,6 +56,9 @@ private slots:
   void onMediaStatusChanged(QMediaPlayer::MediaStatus status);
 
 private:
+  // Gives the player the speed, and plays or pauses it: a speed of zero or less pauses it.
+  void _applyRateAndPlayState();
+
   QMediaPlayer *_player;
   QAudioOutput *_audioOutput;
   QVideoSink   *_videoSink;

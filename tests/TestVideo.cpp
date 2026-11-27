@@ -41,6 +41,12 @@ const int TOLERANCE = 24;
 // Time allowed for media to deliver frames.
 const int FRAME_TIMEOUT_MS = 5000;
 
+// Time for the player to take a new speed into account.
+const int RATE_SETTLE_MS = 200;
+
+// Time without a new frame that shows a stopped video: several frames of the 15 fps clip.
+const int STOPPED_WAIT_MS = 500;
+
 struct Quadrant {
   const char* name;
   int x, y; // centre pixel
@@ -273,6 +279,35 @@ void TestVideo::videoBitsChangedFlag()
   QTRY_VERIFY_WITH_TIMEOUT(player.bitsHaveChanged(), FRAME_TIMEOUT_MS); // next frame (15 fps)
   QVERIFY(!player.getFrameImage().isNull());
   QVERIFY(player.bitsHaveChanged());
+}
+
+void TestVideo::zeroOrNegativeRateStopsFrames()
+{
+  if (!_clips.contains("yuv420p"))
+    QSKIP("ffmpeg (with libx264) not available to generate test clips");
+
+  VideoPlayerImpl player;
+  QVERIFY(player.loadMovie(_clips["yuv420p"]));
+  QTRY_VERIFY_WITH_TIMEOUT(player.hasBits(), FRAME_TIMEOUT_MS);
+
+  // At a speed of zero the image stops: no new frame comes.
+  player.setRate(0.0);
+  QTest::qWait(RATE_SETTLE_MS);
+  player.getBits();
+  QTest::qWait(STOPPED_WAIT_MS);
+  QVERIFY(!player.bitsHaveChanged());
+
+  // A positive speed plays again.
+  player.setRate(1.0);
+  QTRY_VERIFY_WITH_TIMEOUT(player.bitsHaveChanged(), FRAME_TIMEOUT_MS);
+
+  // A negative speed stops the image too, until videos can play backwards, and is kept.
+  player.setRate(-1.0);
+  QTest::qWait(RATE_SETTLE_MS);
+  player.getBits();
+  QTest::qWait(STOPPED_WAIT_MS);
+  QVERIFY(!player.bitsHaveChanged());
+  QCOMPARE(player.getRate(), -1.0);
 }
 
 void TestVideo::glUpload_data()

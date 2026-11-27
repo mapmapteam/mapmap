@@ -75,10 +75,9 @@ bool VideoPlayerImpl::loadMovie(const QString& path)
   _videoIsConnected = true;
   _audioIsConnected = true;
 
-  _player->setPlaybackRate(_rate);
   _audioOutput->setVolume(_volume);
-  _player->play();
   _playState = true;
+  _applyRateAndPlayState();
 
   return true;
 }
@@ -115,11 +114,8 @@ bool VideoPlayerImpl::setPlayState(bool play)
 {
   if (!_player)
     return false;
-  if (play)
-    _player->play();
-  else
-    _player->pause();
   _playState = play;
+  _applyRateAndPlayState();
   return true;
 }
 
@@ -134,8 +130,26 @@ bool VideoPlayerImpl::seekTo(qint64 positionMs)
 void VideoPlayerImpl::setRate(double rate)
 {
   _rate = rate;
-  if (_player)
-    _player->setPlaybackRate(rate);
+  _applyRateAndPlayState();
+}
+
+void VideoPlayerImpl::_applyRateAndPlayState()
+{
+  if (!_player)
+    return;
+  // QMediaPlayer races through the video at a speed of zero and cannot play backwards: at a
+  // speed of zero or less, the video is paused instead, and plays again at a positive
+  // speed if it was playing. A negative speed is kept, for when the video can play backwards
+  // (#667).
+  if (_rate <= 0.0) {
+    _player->pause();
+    return;
+  }
+  _player->setPlaybackRate(_rate);
+  if (_playState)
+    _player->play();
+  else
+    _player->pause();
 }
 
 void VideoPlayerImpl::setVolume(double volume)

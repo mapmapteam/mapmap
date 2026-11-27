@@ -30,6 +30,7 @@ private slots:
   void decodeFrame();
 
   void videoBitsChangedFlag();
+  void zeroOrNegativeRateStopsFrames();
 
   void glUpload_data();
   void glUpload();
