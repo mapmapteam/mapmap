@@ -56,3 +56,11 @@
 | <kbd>Ctrl</kbd> + <kbd>E</kbd> | Add ellipse layer |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> | Play/Pause |
 | <kbd>Ctrl</kbd> + <kbd>R</kbd> | Rewind/Reset |
+
+| Inspector | |
+| --- | --- |
+| Double-click a row | Back to the default value |
+| Drag the label of a number | Adjust the value; <kbd>Shift</kbd> for a fine adjustment |
+| <kbd>Up</kbd> / <kbd>Down</kbd> in a field | One step up or down; <kbd>Shift</kbd> for ten steps |
+| Type a number | A comma or a point separates the decimals; the unit may be left out |
+| Click a colour swatch | Unfold the colour picker; "Pick" takes a colour in a window of MapMap |
