@@ -44,6 +44,11 @@ static const double MAX_VOLUME = 1.0;
 static const double DEFAULT_VOLUME = MAX_VOLUME;
 /// Playback rate of a new image or video: normal speed.
 static const double DEFAULT_RATE = 1.0;
+/// Speed at the start of the slider of an image or a video: stopped.
+static const double MIN_SLIDER_RATE = 0.0;
+/// Speed at the end of the slider: twice the normal speed, so that the normal speed is in the
+/// middle. A higher or a negative speed can still be typed.
+static const double MAX_SLIDER_RATE = 2.0;
 /// Colour of a new colour source.
 static const QColor DEFAULT_COLOR(Qt::black);
 
@@ -224,6 +229,7 @@ void Image::_declareImageSettings()
 
   root->addSetting(SettingInfo::number("rate", tr("Speed"))
                    .defaultValue(DEFAULT_RATE)
+                   .sliderRange(MIN_SLIDER_RATE, MAX_SLIDER_RATE)
                    .unit(SettingInfo::Percent)
                    .displayScale(PERCENT_DISPLAY_SCALE)
                    .description(tr("How fast an animated image plays; a negative speed plays it backwards.")))
@@ -366,6 +372,7 @@ Video::Video(VideoType type, int id) : Texture(id),
 
   root->addSetting(SettingInfo::number("rate", tr("Speed"))
                    .defaultValue(DEFAULT_RATE)
+                   .sliderRange(MIN_SLIDER_RATE, MAX_SLIDER_RATE)
                    .unit(SettingInfo::Percent)
                    .displayScale(PERCENT_DISPLAY_SCALE)
                    .description(tr("How fast the video plays; at zero the image stops. A negative speed stops it too for now: the video cannot play backwards yet.")))

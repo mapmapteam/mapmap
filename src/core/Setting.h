@@ -85,6 +85,9 @@ public:
 
   /// Sets the lowest and highest values; an invalid QVariant leaves that side open.
   SettingInfo& bounds(const QVariant& minimum, const QVariant& maximum);
+  /// Sets the values at both ends of the slider of a number with an open bound, such as a
+  /// speed; typed values may go beyond them, within the bounds.
+  SettingInfo& sliderRange(double minimum, double maximum);
   /// Sets the increment of the interface; a strict step also rounds every written value.
   SettingInfo& step(double step, bool strict = false);
   /// Sets the value of a new setting, and the one reset() restores.
@@ -129,6 +132,10 @@ public:
   QVariant minimum() const { return _minimum; }
   /// Returns the highest value, or an invalid QVariant when there is none.
   QVariant maximum() const { return _maximum; }
+  /// Returns the value at the start of the slider, or an invalid QVariant when there is none.
+  QVariant sliderMinimum() const { return _sliderMinimum; }
+  /// Returns the value at the end of the slider, or an invalid QVariant when there is none.
+  QVariant sliderMaximum() const { return _sliderMaximum; }
   /// Returns the increment of the interface, 0 when there is none.
   double step() const { return _step; }
   /// Returns true when every written value is rounded to the step.
@@ -171,6 +178,8 @@ private:
   Type _type;
   QVariant _minimum;
   QVariant _maximum;
+  QVariant _sliderMinimum;
+  QVariant _sliderMaximum;
   double _step;
   bool _strictStep;
   QVariant _defaultValue;

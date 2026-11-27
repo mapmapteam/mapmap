@@ -206,6 +206,13 @@ SettingInfo& SettingInfo::bounds(const QVariant& minimum, const QVariant& maximu
   return *this;
 }
 
+SettingInfo& SettingInfo::sliderRange(double minimum, double maximum)
+{
+  _sliderMinimum = minimum;
+  _sliderMaximum = maximum;
+  return *this;
+}
+
 SettingInfo& SettingInfo::step(double step, bool strict)
 {
   _step = step;
