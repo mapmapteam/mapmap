@@ -110,10 +110,19 @@ protected:
   MShape::ptr _originalShape;
 };
 
+/**
+ * Moves a vertex of a shape. During a drag with the mouse, the vertex is moved
+ * from the shape as it was when the drag started (initialShape), so that the
+ * result only depends on where the drag ends: moving the center of an ellipse
+ * in perspective, for one, does not give the same shape along two different
+ * paths. Without an initial shape (arrow keys), the vertex is moved from the
+ * shape as it is. Redoing the command gives back the shape it made.
+ */
 class MoveVertexCommand : public TransformShapeCommand
 {
 public:
-  MoveVertexCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, QUndoCommand *parent = 0);
+  MoveVertexCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point,
+                    const MShape::ptr& initialShape = MShape::ptr(), QUndoCommand *parent = 0);
 
   int id() const;
   bool mergeWith(const QUndoCommand* other);
@@ -125,6 +134,10 @@ protected:
   // Information pertaining to the moving of vertex.
   int _movedVertex;
   QPointF _vertexPosition;
+
+  // The shape before the drag, if any, and the shape this command made.
+  MShape::ptr _initialShape;
+  MShape::ptr _resultShape;
 };
 
 /// Rotates and scales a shape by a transform computed from the shape as it was

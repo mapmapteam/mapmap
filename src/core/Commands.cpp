@@ -139,10 +139,12 @@ bool TransformShapeCommand::mergeWith(const QUndoCommand* other) {
   return true;
 }
 
-MoveVertexCommand::MoveVertexCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point, QUndoCommand *parent)
+MoveVertexCommand::MoveVertexCommand(MapperGLCanvas* canvas, TransformShapeOption option, int activeVertex, const QPointF &point,
+                                     const MShape::ptr& initialShape, QUndoCommand *parent)
   : TransformShapeCommand(canvas, option, parent),
     _movedVertex(activeVertex),
-    _vertexPosition(point)
+    _vertexPosition(point),
+    _initialShape(initialShape)
 {
   setText(QObject::tr("Move vertex"));
 }
@@ -151,7 +153,21 @@ int MoveVertexCommand::id() const { return (_option == STEP ? CMD_KEY_MOVE_VERTE
 
 void MoveVertexCommand::_doTransform(MShape::ptr shape)
 {
+  if (!shape)
+    return;
+
+  // Redo: give back the shape made the first time, which several merged moves
+  // may have made one after the other.
+  if (_resultShape)
+  {
+    shape->copyFrom(*_resultShape);
+    return;
+  }
+
+  if (_initialShape)
+    shape->copyFrom(*_initialShape);
   shape->setVertex(_movedVertex, _vertexPosition);
+  _resultShape.reset(shape->clone());
 }
 
 bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
@@ -166,6 +182,7 @@ bool MoveVertexCommand::mergeWith(const QUndoCommand* other)
     return false;
 
   _vertexPosition = cmd->_vertexPosition;
+  _resultShape = cmd->_resultShape;
   _option = cmd->_option;
   return true;
 }

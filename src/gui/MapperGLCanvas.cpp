@@ -643,7 +643,8 @@ void MapperGLCanvas::mouseReleaseEvent(QMouseEvent* event)
 
     if (_vertexMoved)
       undoStack->push(new MoveVertexCommand(this,
-                                            TransformShapeCommand::RELEASE, _activeVertex, p));
+                                            TransformShapeCommand::RELEASE, _activeVertex, p,
+                                            _grabbedShapeCopy));
 
 
   }
@@ -706,7 +707,8 @@ void MapperGLCanvas::mouseMoveEvent(QMouseEvent* event)
       }
 
       undoStack->push(new MoveVertexCommand(this,
-                                            TransformShapeCommand::FREE, _activeVertex, p));
+                                            TransformShapeCommand::FREE, _activeVertex, p,
+                                            _grabbedShapeCopy));
     }
   }
 
