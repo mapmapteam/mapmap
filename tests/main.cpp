@@ -32,6 +32,7 @@
 #include "TestProjectRoundTrip.h"
 #include "TestSettings.h"
 #include "TestSettingsBrowser.h"
+#include "TestSettingFormat.h"
 
 #ifdef Q_OS_MACOS
 namespace {
@@ -131,6 +132,10 @@ int main(int argc, char** argv)
   }
   {
     TestSettingsBrowser test;
+    status |= QTest::qExec(&test, argc, argv);
+  }
+  {
+    TestSettingFormat test;
     status |= QTest::qExec(&test, argc, argv);
   }
 

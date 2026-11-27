@@ -18,6 +18,7 @@ qtHaveModule(httpserver) {
 INCLUDEPATH += $$PWD/core \
     $$PWD/shape \
     $$PWD/gui \
+    $$PWD/gui/inspector \
     $$PWD/control \
     $$PWD/app
 

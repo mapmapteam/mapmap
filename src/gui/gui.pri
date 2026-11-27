@@ -23,7 +23,8 @@ HEADERS += $$PWD/AboutDialog.h \
     $$PWD/ShapeControlPainter.h \
     $$PWD/ShapeGraphicsItem.h \
     $$PWD/ShortcutWindow.h \
-    $$PWD/WelcomeDialog.h
+    $$PWD/WelcomeDialog.h \
+    $$PWD/inspector/SettingFormat.h
 
 SOURCES += $$PWD/AboutDialog.cpp \
     $$PWD/ConsoleWindow.cpp \
@@ -43,7 +44,8 @@ SOURCES += $$PWD/AboutDialog.cpp \
     $$PWD/ShapeControlPainter.cpp \
     $$PWD/ShapeGraphicsItem.cpp \
     $$PWD/ShortcutWindow.cpp \
-    $$PWD/WelcomeDialog.cpp
+    $$PWD/WelcomeDialog.cpp \
+    $$PWD/inspector/SettingFormat.cpp
 
 # Syphon source picker, and hiding the mouse cursor (macOS-only).
 macx {
