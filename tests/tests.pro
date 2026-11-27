@@ -71,7 +71,8 @@ HEADERS += \
     TestProjectRoundTrip.h \
     TestSettings.h \
     TestSettingsBrowser.h \
-    TestSettingFormat.h
+    TestSettingFormat.h \
+    TestInspector.h
 
 SOURCES += \
     $$CORE/MM.cpp \
@@ -117,7 +118,8 @@ SOURCES += \
     TestProjectRoundTrip.cpp \
     TestSettings.cpp \
     TestSettingsBrowser.cpp \
-    TestSettingFormat.cpp
+    TestSettingFormat.cpp \
+    TestInspector.cpp
 
 # The settings panel, with the property browser it fills.
 include($$GUI/contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
@@ -128,8 +130,10 @@ HEADERS += $$GUI/SettingsBrowser.h
 SOURCES += $$GUI/SettingsBrowser.cpp
 
 # The inspector.
-HEADERS += $$GUI/inspector/SettingFormat.h
-SOURCES += $$GUI/inspector/SettingFormat.cpp
+HEADERS += $$GUI/inspector/SettingFormat.h $$GUI/inspector/SettingControl.h \
+    $$GUI/inspector/ColorPicker.h $$GUI/inspector/Inspector.h
+SOURCES += $$GUI/inspector/SettingFormat.cpp $$GUI/inspector/SettingControl.cpp \
+    $$GUI/inspector/ColorPicker.cpp $$GUI/inspector/Inspector.cpp
 
 # Projects read by TestProjectRoundTrip.
 DEFINES += MAPMAP_TEST_FIXTURES_DIR=\\\"$$PWD/fixtures\\\"
