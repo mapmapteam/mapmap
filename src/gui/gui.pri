@@ -24,6 +24,9 @@ HEADERS += $$PWD/AboutDialog.h \
     $$PWD/ShapeGraphicsItem.h \
     $$PWD/ShortcutWindow.h \
     $$PWD/WelcomeDialog.h \
+    $$PWD/inspector/ColorPicker.h \
+    $$PWD/inspector/Inspector.h \
+    $$PWD/inspector/SettingControl.h \
     $$PWD/inspector/SettingFormat.h
 
 SOURCES += $$PWD/AboutDialog.cpp \
@@ -45,6 +48,9 @@ SOURCES += $$PWD/AboutDialog.cpp \
     $$PWD/ShapeGraphicsItem.cpp \
     $$PWD/ShortcutWindow.cpp \
     $$PWD/WelcomeDialog.cpp \
+    $$PWD/inspector/ColorPicker.cpp \
+    $$PWD/inspector/Inspector.cpp \
+    $$PWD/inspector/SettingControl.cpp \
     $$PWD/inspector/SettingFormat.cpp
 
 # Syphon source picker, and hiding the mouse cursor (macOS-only).
