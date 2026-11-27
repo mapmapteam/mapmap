@@ -18,7 +18,7 @@ SHAPE   = $$PWD/../src/shape
 CONTROL = $$PWD/../src/control
 GUI     = $$PWD/../src/gui
 
-INCLUDEPATH += $$CORE $$SHAPE $$CONTROL $$GUI
+INCLUDEPATH += $$CORE $$SHAPE $$CONTROL $$GUI $$GUI/inspector
 
 # Production sources under test plus the minimal set of dependencies they
 # need to link. We deliberately avoid pulling in the whole core/shape .pri
@@ -70,7 +70,8 @@ HEADERS += \
     TestMappingManager.h \
     TestProjectRoundTrip.h \
     TestSettings.h \
-    TestSettingsBrowser.h
+    TestSettingsBrowser.h \
+    TestSettingFormat.h
 
 SOURCES += \
     $$CORE/MM.cpp \
@@ -115,7 +116,8 @@ SOURCES += \
     TestMappingManager.cpp \
     TestProjectRoundTrip.cpp \
     TestSettings.cpp \
-    TestSettingsBrowser.cpp
+    TestSettingsBrowser.cpp \
+    TestSettingFormat.cpp
 
 # The settings panel, with the property browser it fills.
 include($$GUI/contrib/qtpropertybrowser/src/qtpropertybrowser.pri)
@@ -124,6 +126,10 @@ include($$GUI/contrib/qtpropertybrowser-extension/qtpropertybrowser-extension.pr
 RESOURCES -= $$clean_path($$GUI/contrib/qtpropertybrowser/src/qtpropertybrowser.qrc)
 HEADERS += $$GUI/SettingsBrowser.h
 SOURCES += $$GUI/SettingsBrowser.cpp
+
+# The inspector.
+HEADERS += $$GUI/inspector/SettingFormat.h
+SOURCES += $$GUI/inspector/SettingFormat.cpp
 
 # Projects read by TestProjectRoundTrip.
 DEFINES += MAPMAP_TEST_FIXTURES_DIR=\\\"$$PWD/fixtures\\\"
