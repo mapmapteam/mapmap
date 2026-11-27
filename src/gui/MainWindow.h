@@ -48,11 +48,6 @@
 #include "LayerItemDelegate.h"
 #include "LayerListModel.h"
 
-#include "qtpropertymanager.h"
-#include "qtvariantproperty.h"
-#include "qttreepropertybrowser.h"
-#include "qtgroupboxpropertybrowser.h"
-
 #include "SourceGui.h"
 #include "HandleModeKeys.h"
 

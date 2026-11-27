@@ -31,7 +31,6 @@
 #include "TestMappingManager.h"
 #include "TestProjectRoundTrip.h"
 #include "TestSettings.h"
-#include "TestSettingsBrowser.h"
 #include "TestSettingFormat.h"
 #include "TestInspector.h"
 
@@ -129,10 +128,6 @@ int main(int argc, char** argv)
   }
   {
     TestSettings test;
-    status |= QTest::qExec(&test, argc, argv);
-  }
-  {
-    TestSettingsBrowser test;
     status |= QTest::qExec(&test, argc, argv);
   }
   {

@@ -1,1 +1,0 @@
-SOLUTIONS_LIBRARY = no
