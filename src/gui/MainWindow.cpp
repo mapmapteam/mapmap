@@ -125,6 +125,11 @@ MainWindow::MainWindow()
     return mappingManager->getSourceById(sourceId);
   });
 
+  // The Media tab of a layer says when its source is shared by other layers.
+  LayerGui::setSourceUseCounter([this](const Source::ptr& source) {
+    return int(mappingManager->getSourceLayers(source).size());
+  });
+
   // Gives the "source_id" setting of layers the sources to choose from.
   Layer::setSourceLister([this]() {
     QVector<Source::ptr> sources;
