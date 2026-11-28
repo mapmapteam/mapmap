@@ -214,6 +214,12 @@ void TestGenerators::sizeStaysWithinBounds()
   QCOMPARE(checker.getWidth(), int(Generator::DEFAULT_SIZE));
   QCOMPARE(checker.getHeight(), int(Generator::DEFAULT_SIZE));
 
+  // A plain colour has a smaller image, by default and in its settings.
+  ColorGenerator color;
+  QCOMPARE(color.getWidth(), int(ColorGenerator::DEFAULT_COLOR_SIZE));
+  QCOMPARE(color.settings()->find("height")->value().toInt(), int(ColorGenerator::DEFAULT_COLOR_SIZE));
+  QCOMPARE(color.settings()->find("width")->info().defaultValue().toInt(), int(ColorGenerator::DEFAULT_COLOR_SIZE));
+
   checker.setSize(0, Generator::MAX_SIZE + 1);
   QCOMPARE(checker.getWidth(), 1);
   QCOMPARE(checker.getHeight(), int(Generator::MAX_SIZE));

@@ -686,7 +686,7 @@ QIcon ColorWheelGenerator::getIcon() const
 }
 
 ColorGenerator::ColorGenerator(int id)
-  : ShaderGenerator(id)
+  : ShaderGenerator(id, DEFAULT_COLOR_SIZE)
 {
   settings()->addSetting(SettingInfo::color("color", tr("Color"))
                          .defaultValue(DEFAULT_GENERATOR_COLOR)

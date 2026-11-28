@@ -100,8 +100,8 @@ signals:
   void sizeChanged(int sourceId, int oldWidth, int oldHeight, int newWidth, int newHeight);
 
 protected:
-  /// Declares the settings width and height.
-  Generator(uid id);
+  /// Declares the settings width and height, of defaultSize by default.
+  Generator(uid id, int defaultSize = DEFAULT_SIZE);
 
   /// Draws the image, with the intermediate image as the target (see IntermediateImage::render()).
   virtual void _render() = 0;
@@ -141,7 +141,8 @@ class ShaderGenerator : public Generator
   Q_OBJECT
 
 protected:
-  ShaderGenerator(uid id);
+  /// Creates a generator whose image is of defaultSize by default.
+  ShaderGenerator(uid id, int defaultSize = DEFAULT_SIZE);
 
   /// Returns the body of the fragment shader, in GLSL 1.20, without the uniforms of its inputs.
   virtual QString _fragmentShader() const = 0;

@@ -170,6 +170,10 @@ class ColorGenerator : public ShaderGenerator
   Q_OBJECT
 
 public:
+  /// Size of a colour's image, in pixels: a plain colour looks the same at any size, and a
+  /// small image saves memory while staying large enough to see the input shape.
+  static const int DEFAULT_COLOR_SIZE = 256;
+
   Q_INVOKABLE ColorGenerator(int id = NULL_UID);
 
   /// Creates a colour generator of the given colour.

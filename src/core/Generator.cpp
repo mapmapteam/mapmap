@@ -117,10 +117,10 @@ QString glslType(SettingInfo::Type type)
 
 } // namespace
 
-Generator::Generator(uid id)
+Generator::Generator(uid id, int defaultSize)
   : Texture(id),
-    _width(DEFAULT_SIZE),
-    _height(DEFAULT_SIZE),
+    _width(defaultSize),
+    _height(defaultSize),
     _changed(true),
     _renderedFrame(0),
     _renderCount(0),
@@ -129,7 +129,7 @@ Generator::Generator(uid id)
   SettingGroup* root = settings();
   root->addSetting(SettingInfo::integer("width", tr("Width"))
                    .bounds(1, MAX_SIZE)
-                   .defaultValue(DEFAULT_SIZE)
+                   .defaultValue(defaultSize)
                    .unit(SettingInfo::Pixels)
                    .displayRow("resolution")
                    .description(tr("The width of the generated image.")))
@@ -137,7 +137,7 @@ Generator::Generator(uid id)
              [this](const QVariant& value) { setSize(value.toInt(), _height); return true; });
   root->addSetting(SettingInfo::integer("height", tr("Height"))
                    .bounds(1, MAX_SIZE)
-                   .defaultValue(DEFAULT_SIZE)
+                   .defaultValue(defaultSize)
                    .unit(SettingInfo::Pixels)
                    .displayRow("resolution")
                    .description(tr("The height of the generated image.")))
@@ -245,8 +245,8 @@ void Generator::_doPause()
   }
 }
 
-ShaderGenerator::ShaderGenerator(uid id)
-  : Generator(id)
+ShaderGenerator::ShaderGenerator(uid id, int defaultSize)
+  : Generator(id, defaultSize)
 {
 }
 
