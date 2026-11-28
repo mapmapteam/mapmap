@@ -32,6 +32,7 @@ private slots:
   void switchOnAndOff();
   void onlyNormalizedSettingsCanBeLinked();
   void findsTargetsInProject();
+  void windowListsLinks();
 };
 
 #endif /* TEST_LINKS_H_ */

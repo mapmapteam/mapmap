@@ -7,6 +7,7 @@ HEADERS += $$PWD/AboutDialog.h \
     $$PWD/HandleModeKeys.h \
     $$PWD/LearnMode.h \
     $$PWD/LinkKeys.h \
+    $$PWD/LinksWindow.h \
     $$PWD/MainWindow.h \
     $$PWD/MapperGLCanvas.h \
     $$PWD/MapperGLCanvasToolbar.h \
@@ -32,6 +33,7 @@ SOURCES += $$PWD/AboutDialog.cpp \
     $$PWD/HandleModeKeys.cpp \
     $$PWD/LearnMode.cpp \
     $$PWD/LinkKeys.cpp \
+    $$PWD/LinksWindow.cpp \
     $$PWD/MainWindow.cpp \
     $$PWD/MapperGLCanvas.cpp \
     $$PWD/MapperGLCanvasToolbar.cpp \

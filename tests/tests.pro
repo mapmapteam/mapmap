@@ -49,6 +49,7 @@ HEADERS += \
     $$GUI/HandleModeKeys.h \
     $$GUI/LearnMode.h \
     $$GUI/LinkKeys.h \
+    $$GUI/LinksWindow.h \
     $$CONTROL/OscAction.h \
     $$CONTROL/RemoteSettingWrite.h \
     $$CORE/VideoImpl.h \
@@ -98,6 +99,7 @@ SOURCES += \
     $$GUI/HandleModeKeys.cpp \
     $$GUI/LearnMode.cpp \
     $$GUI/LinkKeys.cpp \
+    $$GUI/LinksWindow.cpp \
     $$CONTROL/OscAction.cpp \
     $$CONTROL/RemoteSettingWrite.cpp \
     $$CORE/VideoImpl.cpp \

@@ -11,7 +11,11 @@
 
 #include <QSignalSpy>
 
+#include <QAbstractButton>
+#include <QTableWidget>
+
 #include "Link.h"
+#include "LinksWindow.h"
 #include "MappingManager.h"
 #include "Setting.h"
 #include "Shapes.h"
@@ -231,4 +235,36 @@ void TestLinks::findsTargetsInProject()
 
   manager.clearAll();
   QVERIFY(manager.links().isEmpty());
+}
+
+void TestLinks::windowListsLinks()
+{
+  MappingManager manager;
+  Source::ptr color(new Color());
+  manager.addSource(color);
+  Layer::ptr layer = makeColorLayer(color);
+  layer->setName("Facade");
+  manager.addLayer(layer);
+
+  LinksWindow window(&manager);
+  QVERIFY(!window.table()->isVisibleTo(&window));
+
+  manager.links().add(keyLink("M", layer->getId(), "visible"));
+  QTRY_COMPARE(window.table()->rowCount(), 1);
+  QCOMPARE(window.table()->item(0, LinksWindow::TriggerColumn)->text(), QString("M"));
+  QCOMPARE(window.table()->item(0, LinksWindow::KindColumn)->text(), QString("Keyboard"));
+  QCOMPARE(window.table()->item(0, LinksWindow::ElementColumn)->text(), QString("Facade"));
+  QCOMPARE(window.table()->item(0, LinksWindow::SettingColumn)->text(), QString("Visible"));
+
+  // A link to a deleted layer is listed as such.
+  manager.removeLayer(layer->getId());
+  window.refresh();
+  QCOMPARE(window.table()->item(0, LinksWindow::ElementColumn)->text(), QString("(deleted)"));
+
+  // The button of the row removes the link.
+  QAbstractButton* remove = qobject_cast<QAbstractButton*>(window.table()->cellWidget(0, LinksWindow::RemoveColumn));
+  QVERIFY(remove);
+  remove->click();
+  QVERIFY(manager.links().isEmpty());
+  QTRY_COMPARE(window.table()->rowCount(), 0);
 }

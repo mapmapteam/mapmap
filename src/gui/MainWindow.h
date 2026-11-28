@@ -52,6 +52,7 @@
 #include "HandleModeKeys.h"
 #include "LearnMode.h"
 #include "LinkKeys.h"
+#include "LinksWindow.h"
 
 namespace mmp {
 
@@ -453,6 +454,15 @@ private:
 
   // Starts and stops learning keys.
   QAction* keyboardLearnAction = nullptr;
+
+  // Lists the links of the project.
+  LinksWindow* _linksWindow = nullptr;
+
+  // Opens the list of the links.
+  QAction* openLinksAction = nullptr;
+
+  /// Shows the links again when the window listing them is open.
+  void refreshLinksWindow();
 
   /// Starts or stops learning keys, from the command of the menu.
   void setKeyboardLearning(bool learning);

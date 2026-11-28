@@ -161,6 +161,9 @@ MainWindow::MainWindow()
   connect(_keyLinkFilter, &KeyLinkFilter::removeRequested, this, &MainWindow::removeLearnedKey);
   connect(_keyLinkFilter, &KeyLinkFilter::learningCancelled, _learnMode, &LearnMode::stop);
 
+  // The list of the links, opened from the Window menu.
+  _linksWindow = new LinksWindow(mappingManager, this);
+
   // Gives the "source_id" setting of layers the sources to choose from.
   Layer::setSourceLister([this]() {
     QVector<Source::ptr> sources;
@@ -466,6 +469,7 @@ void MainWindow::layerPropertyChanged(uid id, QString propertyName, QVariant val
   if (propertyName == "name")
   {
     layerListModel->setData(index, layer->getName(), Qt::EditRole);
+    refreshLinksWindow();
   }
   else if (propertyName == "visible")
   {
@@ -494,6 +498,7 @@ void MainWindow::sourcePropertyChanged(uid id, QString propertyName, QVariant va
   if (propertyName == "name")
   {
     sourceItem->setText(source->getName());
+    refreshLinksWindow();
 
     // The source menus of the layers show the new name.
     updateMappers();
@@ -1188,6 +1193,12 @@ void MainWindow::applyLink(int index)
   // A link to a deleted element does nothing, until the deletion is undone.
   applyLinkAction(mappingManager->linkTargetSetting(links.links().at(index).target),
                   links.links().at(index).action);
+}
+
+void MainWindow::refreshLinksWindow()
+{
+  if (_linksWindow && _linksWindow->isVisible())
+    _linksWindow->refresh();
 }
 
 QString MainWindow::linkTargetLabel(const LinkTarget& target) const
@@ -2618,6 +2629,16 @@ void MainWindow::createActions()
   // uncheck action when window is closed
   connect(consoleWindow, &ConsoleWindow::windowClosed, openConsoleAction, &QAction::toggle);
 
+  // The list of the links of the project.
+  openLinksAction = new QAction(tr("&Links"), this);
+  openLinksAction->setToolTip(tr("List the keys linked to settings"));
+  addAction(openLinksAction);
+  connect(openLinksAction, &QAction::triggered, this, [this]() {
+    _linksWindow->show();
+    _linksWindow->raise();
+    _linksWindow->activateWindow();
+  });
+
   // Toggle display of zoom tool buttons
   displayZoomToolAction = new QAction(tr("Display &Zoom Toolbar"), this);
   displayZoomToolAction->setShortcut(Qt::ALT | Qt::Key_Z);
@@ -2857,6 +2878,7 @@ void MainWindow::createMenus()
   // Tools.
   windowMenu->addAction(displayUndoHistoryAction);
   windowMenu->addAction(openConsoleAction);
+  windowMenu->addAction(openLinksAction);
   windowMenu->addSeparator();
 
   // Menus/toolbars.
@@ -3688,6 +3710,9 @@ void MainWindow::addLayerItem(uid layerId)
 
   // Update playing state.
   updatePlayingState();
+
+  // A link to an element added or removed comes back to life or stops acting.
+  refreshLinksWindow();
 }
 
 void MainWindow::removeLayerItem(uid layerId)
@@ -3728,6 +3753,9 @@ void MainWindow::removeLayerItem(uid layerId)
 
   // Update playing state.
   updatePlayingState();
+
+  // A link to an element added or removed comes back to life or stops acting.
+  refreshLinksWindow();
 }
 
 void MainWindow::moveLayerItem(uid layerId, int idx)
@@ -3808,6 +3836,9 @@ void MainWindow::removeSourceItem(uid sourceId)
 
   // Update playing state.
   updatePlayingState();
+
+  // A link to an element added or removed comes back to life or stops acting.
+  refreshLinksWindow();
 }
 
 void MainWindow::setOutputResolution(const QSize& resolution)
