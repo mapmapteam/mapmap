@@ -250,6 +250,12 @@ private:
   int _nHorizontalQuads;
   int _nVerticalQuads;
 
+  // The triangles that draw the mesh, rebuilt when a quad or the texture changes.
+  QVector<TexturedVertex> _vertices;
+
+  // The place of the texture when _vertices was built.
+  QRectF _verticesTextureRect;
+
   // True iff shape was being grabbed when the mesh was last drawn.
   bool _wasGrabbing;
 

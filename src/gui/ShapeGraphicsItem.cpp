@@ -400,7 +400,7 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
     _wasGrabbing = grabbing;
 
     const QRectF textureRect = _getTexture()->getRect();
-    QVector<TexturedVertex> vertices;
+    bool verticesChanged = forceRebuild || textureRect != _verticesTextureRect;
 
     // Go through the mesh quad by quad.
     for (int x = 0; x < nHorizontalQuads; x++)
@@ -424,6 +424,7 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 
           // Recompute sub quads.
           item.subQuads.clear();
+          verticesChanged = true;
           if (inputPolygon.size() == QuadCorners::N_CORNERS && outputPolygon.size() == QuadCorners::N_CORNERS)
           {
             const QPolygonF drawnPolygon = mapFromScene(outputPolygon);
@@ -439,12 +440,20 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
           }
         }
 
-        for (const QuadCorners& subQuad : item.subQuads)
-          ShapeGeometry::appendQuad(textureRect, subQuad, vertices);
       }
     }
 
-    Util::drawTexturedTriangles(vertices);
+    // The triangles of all the quads, sent in a single call.
+    if (verticesChanged)
+    {
+      _vertices.clear();
+      for (const QVector<CacheQuadItem>& column : std::as_const(_cachedQuadItems))
+        for (const CacheQuadItem& item : column)
+          for (const QuadCorners& subQuad : item.subQuads)
+            ShapeGeometry::appendQuad(textureRect, subQuad, _vertices);
+      _verticesTextureRect = textureRect;
+    }
+    _drawTriangles(_vertices);
   }
 }
 
