@@ -107,9 +107,16 @@ private:
   /// Handles a key while learning; returns true when it is taken.
   bool _learn(QKeyEvent* event);
 
+  /// Returns true when a key press is the one just handled, reaching the filter a second time
+  /// (as on macOS, where the same press may be delivered by two ways); remembers it otherwise.
+  bool _isHandledAlready(const QKeyEvent* event);
+
   LinkTable* _table;
   bool _learning;
   bool _linksActive;
+  /// The time and the key of the last press handled.
+  quint64 _lastTimestamp;
+  int _lastKey;
 };
 
 } // namespace mmp

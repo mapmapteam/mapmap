@@ -191,3 +191,29 @@ void TestLinkKeys::learningEscapeAndDelete()
   QCOMPARE(cancelled.count(), 1);
   QVERIFY(_offered.isEmpty());
 }
+
+void TestLinkKeys::samePressReceivedTwiceActsOnce()
+{
+  // On macOS, one press may reach the filter twice, as the window and as the widget. A link
+  // that toggled twice would seem to do nothing; a key learned twice would be refused the
+  // second time, hiding the confirmation.
+  const quint64 time = 1000;
+  for (bool learning : { false, true }) {
+    _filter->setLearning(learning);
+    _triggered.clear();
+    _offered.clear();
+    QKeyEvent first(QEvent::KeyPress, Qt::Key_M, Qt::NoModifier, "m");
+    first.setTimestamp(time + (learning ? 1 : 0));
+    QKeyEvent second(QEvent::KeyPress, Qt::Key_M, Qt::NoModifier, "m");
+    second.setTimestamp(first.timestamp());
+    QApplication::sendEvent(_window->windowHandle(), &first);
+    QApplication::sendEvent(_canvas, &second);
+    QCOMPARE(_triggered.size() + _offered.size(), 1);
+
+    // The next press, a moment later, acts again.
+    QKeyEvent next(QEvent::KeyPress, Qt::Key_M, Qt::NoModifier, "m");
+    next.setTimestamp(first.timestamp() + 100);
+    QApplication::sendEvent(_canvas, &next);
+    QCOMPARE(_triggered.size() + _offered.size(), 2);
+  }
+}

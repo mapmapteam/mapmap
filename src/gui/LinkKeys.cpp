@@ -159,8 +159,22 @@ KeyLinkFilter::KeyLinkFilter(LinkTable* table, QObject* parent)
   : QObject(parent),
     _table(table),
     _learning(false),
-    _linksActive(true)
+    _linksActive(true),
+    _lastTimestamp(0),
+    _lastKey(0)
 {
+}
+
+bool KeyLinkFilter::_isHandledAlready(const QKeyEvent* event)
+{
+  // A press without a time cannot be told from another one: it is never taken for a repeat.
+  if (event->timestamp() == 0)
+    return false;
+  if (event->timestamp() == _lastTimestamp && event->key() == _lastKey)
+    return true;
+  _lastTimestamp = event->timestamp();
+  _lastKey = event->key();
+  return false;
 }
 
 bool KeyLinkFilter::_learn(QKeyEvent* event)
@@ -174,7 +188,9 @@ bool KeyLinkFilter::_learn(QKeyEvent* event)
     event->accept();
     return true;
   }
-  if (event->isAutoRepeat())
+  // Taken and handled, so that the system does not send it again another way.
+  event->accept();
+  if (event->isAutoRepeat() || _isHandledAlready(event))
     return true;
 
   switch (event->key()) {
@@ -219,7 +235,8 @@ bool KeyLinkFilter::eventFilter(QObject* watched, QEvent* event)
     event->accept();
     return true;
   }
-  if (!keyEvent->isAutoRepeat())
+  event->accept();
+  if (!keyEvent->isAutoRepeat() && !_isHandledAlready(keyEvent))
     emit linkTriggered(index);
   return true;
 }

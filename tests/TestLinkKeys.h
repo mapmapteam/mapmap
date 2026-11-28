@@ -42,6 +42,7 @@ private slots:
   void dialogKeepsItsKeysUnlessAllowed();
   void learningTakesEveryKey();
   void learningEscapeAndDelete();
+  void samePressReceivedTwiceActsOnce();
 
 private:
   mmp::LinkTable* _table = nullptr;
