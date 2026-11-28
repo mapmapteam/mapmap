@@ -68,6 +68,12 @@ void TestSettingFormat::unitsInFrenchAndEnglish()
   QCOMPARE(SettingFormat::formatNumber(2.4, frequency, FRENCH), QString("2,4") + NBSP + "Hz");
   QCOMPARE(SettingFormat::formatNumber(2.4, frequency, ENGLISH), QString("2.4") + NBSP + "Hz");
 
+  const SettingInfo rotation = SettingInfo::number("r", "R").step(0.1).unit(SettingInfo::RevolutionsPerMinute);
+  QCOMPARE(SettingFormat::formatNumber(5, rotation, ENGLISH), QString("5.0") + NBSP + "rpm");
+  double parsed = 0;
+  QVERIFY(SettingFormat::parseNumber("12 rpm", rotation, &parsed, ENGLISH));
+  QCOMPARE(parsed, 12.0);
+
   // Pixels are shown without their unit.
   const SettingInfo pixels = SettingInfo::point("p", "P").unit(SettingInfo::Pixels);
   QCOMPARE(SettingFormat::formatNumber(120, pixels, ENGLISH), QString("120"));

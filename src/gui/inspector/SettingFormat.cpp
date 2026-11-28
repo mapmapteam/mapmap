@@ -72,6 +72,7 @@ QString unitSymbol(SettingInfo::Unit unit)
   case SettingInfo::Hertz:   return QStringLiteral("Hz");
   case SettingInfo::Seconds: return QStringLiteral("s");
   case SettingInfo::Pixels:  return QStringLiteral("px");
+  case SettingInfo::RevolutionsPerMinute: return QStringLiteral("rpm");
   case SettingInfo::NoUnit:  break;
   }
   return QString();

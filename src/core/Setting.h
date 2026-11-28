@@ -60,7 +60,7 @@ public:
   enum Type { Number, Integer, Boolean, Color, Text, Choice, Point, Range, Reference };
 
   /// The unit of a value, which lets interfaces format it.
-  enum Unit { NoUnit, Percent, Degrees, Hertz, Seconds, Pixels };
+  enum Unit { NoUnit, Percent, Degrees, Hertz, Seconds, Pixels, RevolutionsPerMinute };
 
   /// A real number, kept as a double.
   static SettingInfo number(const QString& id, const QString& label);
