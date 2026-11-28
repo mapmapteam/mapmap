@@ -29,6 +29,7 @@
 #include "SettingControl.h"
 
 class QLabel;
+class QMenu;
 class QStackedWidget;
 class QTabBar;
 class QTimer;
@@ -87,16 +88,29 @@ public:
   /// Greys the row out when no setting of it can be changed.
   void updateEnabled();
 
+  /// Returns the button showing that a setting of the row is linked, for tests.
+  QToolButton* linkButton() const { return _linkButton; }
+
+  /// Returns the menu to learn and remove the keys of the settings of the row; nullptr when
+  /// no setting of the row can be linked. The caller owns it.
+  QMenu* createLinkMenu(QWidget* parent);
+
 signals:
   /// The user changed a value of the row.
   void edited();
 
 protected:
   void mouseDoubleClickEvent(QMouseEvent* event) override;
+  void contextMenuEvent(QContextMenuEvent* event) override;
 
 private:
+  /// Shows the triggers linked to the settings of the row: the button and the tooltip.
+  void _showLinks();
+
   InspectorRowLabel* _label;
   QList<SettingControl*> _controls;
+  QToolButton* _linkButton;
+  QString _description;
 };
 
 /// A group of rows with a title that folds and unfolds it.

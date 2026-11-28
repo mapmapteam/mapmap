@@ -23,7 +23,9 @@
 #include <limits>
 
 #include <QHBoxLayout>
+#include <QContextMenuEvent>
 #include <QLabel>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QSettings>
@@ -59,6 +61,9 @@ const double FINE_STEPS_PER_PIXEL = 0.1;
 
 /// Room kept at the end of a row for the button of a link, in pixels.
 const int LINK_BUTTON_ROOM = 20;
+
+/// The text of the button of a link: a keyboard.
+const QString LINK_BUTTON_TEXT = QStringLiteral("\u2328");
 
 /// Spacing between rows and inside a row, in pixels.
 const int ROW_SPACING = 6;
@@ -293,7 +298,8 @@ private:
 InspectorRow::InspectorRow(const QString& label, const QList<SettingControl*>& controls, QWidget* parent)
   : QWidget(parent),
     _label(new InspectorRowLabel(label, this)),
-    _controls(controls)
+    _controls(controls),
+    _linkButton(new QToolButton(this))
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
@@ -308,8 +314,22 @@ InspectorRow::InspectorRow(const QString& label, const QList<SettingControl*>& c
     connect(control, &SettingControl::edited, this, &InspectorRow::edited);
   }
   layout->addLayout(controlLayout, 1);
-  // Room for the button of a link, which comes with the MIDI controller and the oscillators.
-  layout->addSpacing(LINK_BUTTON_ROOM);
+  // The button of a link, shown when a setting of the row is linked; its room is kept.
+  _linkButton->setFixedWidth(LINK_BUTTON_ROOM);
+  _linkButton->setAutoRaise(true);
+  _linkButton->setText(LINK_BUTTON_TEXT);
+  QSizePolicy keptRoom = _linkButton->sizePolicy();
+  keptRoom.setRetainSizeWhenHidden(true);
+  _linkButton->setSizePolicy(keptRoom);
+  _linkButton->setVisible(false);
+  connect(_linkButton, &QToolButton::clicked, this, [this]() {
+    QMenu* menu = createLinkMenu(this);
+    if (!menu)
+      return;
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+    menu->popup(_linkButton->mapToGlobal(QPoint(0, _linkButton->height())));
+  });
+  layout->addWidget(_linkButton, 0, Qt::AlignTop);
 
   // Dragging the label adjusts the first setting of the row that moves by steps.
   for (SettingControl* control : _controls) {
@@ -327,17 +347,86 @@ InspectorRow::InspectorRow(const QString& label, const QList<SettingControl*>& c
         descriptions << setting->info().description();
     }
   }
-  if (!descriptions.isEmpty())
-    setToolTip(descriptions.join(QChar('\n')));
+  _description = descriptions.join(QChar('\n'));
+  if (!_description.isEmpty())
+    setToolTip(_description);
   updateEnabled();
 
-  // While learning, the controls one can link are outlined, and a click chooses one.
-  if (LearnMode::current()) {
+  // While learning, the controls one can link are outlined, and a click chooses one. The
+  // keys linked to the settings are named by the tooltip and the button of the link.
+  if (LearnMode* learn = LearnMode::current()) {
     for (SettingControl* control : _controls) {
       if (canBeLinked(control->setting()))
         new LearnOverlay(control, this);
     }
+    connect(learn, &LearnMode::linksChanged, this, &InspectorRow::_showLinks);
+    _showLinks();
   }
+}
+
+void InspectorRow::_showLinks()
+{
+  LearnMode* learn = LearnMode::current();
+  QStringList lines;
+  for (SettingControl* control : _controls) {
+    LinkTarget target;
+    if (!learn || !learn->targetOf(control->root(), control->path(), &target))
+      continue;
+    const QStringList triggers = learn->triggerLines(target);
+    // A row shared by several settings says which one each key drives.
+    for (const QString& trigger : triggers) {
+      lines << (_controls.size() > 1 && control->setting()
+                ? tr("%1, %2").arg(control->setting()->info().label(), trigger) : trigger);
+    }
+  }
+  QStringList tip;
+  if (!_description.isEmpty())
+    tip << _description;
+  tip << lines;
+  setToolTip(tip.join(QChar('\n')));
+  _linkButton->setToolTip(lines.join(QChar('\n')));
+  _linkButton->setVisible(!lines.isEmpty());
+}
+
+QMenu* InspectorRow::createLinkMenu(QWidget* parent)
+{
+  LearnMode* learn = LearnMode::current();
+  if (!learn)
+    return nullptr;
+
+  QMenu* menu = new QMenu(parent);
+  for (SettingControl* control : _controls) {
+    LinkTarget target;
+    if (!canBeLinked(control->setting()) || !learn->targetOf(control->root(), control->path(), &target))
+      continue;
+    // A row shared by several settings has a part of the menu for each.
+    QMenu* part = menu;
+    if (_controls.size() > 1)
+      part = menu->addMenu(control->setting()->info().label());
+    part->addAction(tr("Learn a Key"), learn, [learn, target]() { learn->startWith(target); });
+    QAction* remove = part->addAction(tr("Remove the Key"), learn, [learn, target]() {
+      if (learn->links())
+        learn->links()->remove(target, LinkTrigger::Key);
+    });
+    remove->setEnabled(!learn->triggerText(target).isEmpty());
+  }
+  if (menu->isEmpty()) {
+    delete menu;
+    return nullptr;
+  }
+  return menu;
+}
+
+void InspectorRow::contextMenuEvent(QContextMenuEvent* event)
+{
+  QMenu* menu = createLinkMenu(this);
+  if (!menu) {
+    QWidget::contextMenuEvent(event);
+    return;
+  }
+  menu->setAttribute(Qt::WA_DeleteOnClose);
+  menu->popup(event->globalPos());
+  event->accept();
 }
 
 void InspectorRow::updateEnabled()

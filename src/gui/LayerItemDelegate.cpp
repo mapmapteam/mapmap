@@ -212,8 +212,6 @@ void LayerItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
       mappingSoloButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
       mappingSoloButton.text = tr("Solo layer");
-      //TODO: show tooltip
-      //mappingSoloButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
       // lock button
       QStyleOptionToolButton mappingLockButton;
@@ -223,8 +221,6 @@ void LayerItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
       mappingLockButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
       mappingLockButton.text = tr("Lock layer");
-      //TODO: show tooltip
-      //mappingLockButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
       // duplicate button
       QStyleOptionToolButton mappingDuplicateButton;
@@ -234,8 +230,6 @@ void LayerItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
       mappingDuplicateButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
       mappingDuplicateButton.text = tr("Duplicate layer");
-      //TODO: show tooltip
-      //mappingDuplicateButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
       // delete button
       QStyleOptionToolButton mappingDeleteButton;
@@ -245,8 +239,6 @@ void LayerItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
       mappingDeleteButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
       mappingDeleteButton.text = tr("Delete layer");
-      //TODO: show tooltip
-      //mappingDeleteButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
       if (isSolo)
       {
@@ -332,14 +324,34 @@ void LayerItemDelegate::updateEditorGeometry(QWidget *editor,
   editor->setGeometry(option.rect);
 }
 
+bool LayerItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
+        const QStyleOptionViewItem &option, const QModelIndex &index)
+{
+  LayerRowButton button;
+  if (event->type() != QEvent::ToolTip || !index.isValid()
+      || !layerRowButtonAt(index.column(), option.rect, event->pos(), &button))
+    return QStyledItemDelegate::helpEvent(event, view, option, index);
+
+  QStringList lines;
+  switch (button)
+  {
+  case LayerRowButton::Hide:      lines << tr("Show or hide the layer"); break;
+  case LayerRowButton::Solo:      lines << tr("Solo layer"); break;
+  case LayerRowButton::Lock:      lines << tr("Lock layer"); break;
+  case LayerRowButton::Duplicate: lines << tr("Duplicate layer"); break;
+  case LayerRowButton::Delete:    lines << tr("Delete layer"); break;
+  }
+  const QString setting = layerRowButtonSetting(button);
+  if (LearnMode* learn = LearnMode::current(); learn && !setting.isEmpty())
+    lines << learn->triggerLines(LinkTarget::of(LinkTarget::LayerElement, index.data(Qt::UserRole).toInt(), setting));
+  QToolTip::showText(event->globalPos(), lines.join(QChar('\n')), view);
+  return true;
+}
+
 bool LayerItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
         const QStyleOptionViewItem &option, const QModelIndex &index)
 {
-  if (event->type() == QEvent::MouseMove)
-  {
-    // TODO: handle tooltip
-  }
-  else if (event->type() == QEvent::MouseButtonPress)
+  if (event->type() == QEvent::MouseButtonPress)
   {
     QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
     LayerRowButton button;

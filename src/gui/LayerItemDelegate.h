@@ -27,6 +27,8 @@
 #include <QApplication>
 #include <QMouseEvent>
 #include <QToolTip>
+#include <QAbstractItemView>
+#include <QHelpEvent>
 
 #include "MM.h"
 
@@ -76,6 +78,11 @@ signals:
 private:
   /// While learning, outlines the button of a layer one can link, with the key linked to it.
   void _paintLearnOutline(QPainter* painter, LayerRowButton button, const QRect& cell, uid layerId) const;
+
+public:
+  /// Shows the name of the button under the mouse, and the key linked to it.
+  bool helpEvent(QHelpEvent *event, QAbstractItemView *view,
+                 const QStyleOptionViewItem &option, const QModelIndex &index) override;
 
 protected:
   bool editorEvent(QEvent *event, QAbstractItemModel *model,
