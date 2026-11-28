@@ -455,6 +455,19 @@ private:
   // Starts and stops learning keys.
   QAction* keyboardLearnAction = nullptr;
 
+  // Turns the learned keys on and off, so that typing for something else does not change
+  // the show.
+  QAction* learnedKeysActiveAction = nullptr;
+
+  // Says in the status bar whether the learned keys act, when the project has some.
+  QLabel* learnedKeysLabel = nullptr;
+
+  /// Turns the learned keys on or off.
+  void setLearnedKeysActive(bool active);
+
+  /// Shows whether the learned keys act.
+  void showLearnedKeysState();
+
   // Lists the links of the project.
   LinksWindow* _linksWindow = nullptr;
 
@@ -842,6 +855,8 @@ public:
   static const int MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT = 290;
   static const int CANVAS_MINIMUM_WIDTH  = 480;
   static const int CANVAS_MINIMUM_HEIGHT = 270;
+  // How long the status bar says that the learned keys were turned on or off, in milliseconds.
+  static const int LEARNED_KEYS_MESSAGE_MS = 3000;
   // Size of the area a new shape is placed in, relative to the output frame.
   static constexpr qreal NEW_SHAPE_OUTPUT_SCALE = 0.5;
 

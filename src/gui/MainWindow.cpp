@@ -2577,6 +2577,15 @@ void MainWindow::createActions()
   addAction(keyboardLearnAction);
   connect(keyboardLearnAction, &QAction::toggled, this, &MainWindow::setKeyboardLearning);
 
+  learnedKeysActiveAction = new QAction(tr("Learned K&eys Active"), this);
+  learnedKeysActiveAction->setShortcut(Qt::CTRL | Qt::ALT | Qt::Key_K);
+  learnedKeysActiveAction->setToolTip(tr("Turn the learned keys off while typing for something else, and on again"));
+  learnedKeysActiveAction->setCheckable(true);
+  learnedKeysActiveAction->setChecked(true);
+  learnedKeysActiveAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(learnedKeysActiveAction);
+  connect(learnedKeysActiveAction, &QAction::toggled, this, &MainWindow::setLearnedKeysActive);
+
   displayTestSignalAction = new QAction(tr("Show &Test Signal"), this);
   displayTestSignalAction->setShortcut(Qt::ALT | Qt::Key_T);
   displayTestSignalAction->setIcon(QIcon(":/toggle-test-signal"));
@@ -2838,6 +2847,7 @@ void MainWindow::createMenus()
   editMenu->addAction(stickyVerticesAction);
   editMenu->addSeparator();
   editMenu->addAction(keyboardLearnAction);
+  editMenu->addAction(learnedKeysActiveAction);
   editMenu->addSeparator();
   // Preferences
   editMenu->addAction(preferencesAction);
@@ -3045,7 +3055,14 @@ void MainWindow::createStatusBar()
   trueFramesPerSecondsLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   trueFramesPerSecondsLabel->setContentsMargins(2, 0, 0, 0);
 
+  // Whether the learned keys act, shown when the project has some.
+  learnedKeysLabel = new QLabel(statusBar());
+  learnedKeysLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  learnedKeysLabel->setContentsMargins(2, 0, 2, 0);
+  connect(&mappingManager->links(), &LinkTable::changed, this, &MainWindow::showLearnedKeysState);
+
   // Add permanently into the statut bar
+  statusBar()->addPermanentWidget(learnedKeysLabel);
   statusBar()->addPermanentWidget(currentMessageLabel, 5);
   statusBar()->addPermanentWidget(lastActionLabel, 4);
   statusBar()->addPermanentWidget(mousePosLabel, 3);
@@ -3055,6 +3072,27 @@ void MainWindow::createStatusBar()
 
   // Update the status bar
   updateStatusBar();
+  showLearnedKeysState();
+}
+
+void MainWindow::setLearnedKeysActive(bool active)
+{
+  _keyLinkFilter->setLinksActive(active);
+  showLearnedKeysState();
+  statusBar()->showMessage(active ? tr("The learned keys act again.")
+                                  : tr("The learned keys are off: they do nothing until turned on again."),
+                           LEARNED_KEYS_MESSAGE_MS);
+}
+
+void MainWindow::showLearnedKeysState()
+{
+  const bool active = _keyLinkFilter->linksActive();
+  learnedKeysLabel->setVisible(!mappingManager->links().isEmpty());
+  learnedKeysLabel->setText(active ? tr("Learned keys: on") : tr("Learned keys: off"));
+  learnedKeysLabel->setToolTip(tr("Edit > Learned Keys Active (%1) turns them on and off.")
+                               .arg(learnedKeysActiveAction->shortcut().toString(QKeySequence::NativeText)));
+  // Off, the indicator stands out: a key pressed during the show would do nothing.
+  learnedKeysLabel->setStyleSheet(active ? QString() : QStringLiteral("color: %1;").arg(MM::LEARNED_KEYS_OFF_COLOR.name()));
 }
 
 void MainWindow::readSettings()

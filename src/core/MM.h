@@ -120,6 +120,8 @@ public:
   static const QColor DARK_BLUE;
   static const QColor LIGHT_RED;
   static const QColor DARK_RED;
+  /// Text of the status bar when the learned keys are turned off.
+  static const QColor LEARNED_KEYS_OFF_COLOR;
 
   static const QColor CROSSHAIR_STROKE;
   static const QColor CONTROL_COLOR;

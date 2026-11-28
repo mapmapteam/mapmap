@@ -57,6 +57,7 @@ const QColor MM::BLUE_GRAY("#323541");
 const QColor MM::DARK_GRAY("#272a36");
 const QColor MM::MID_GRAY("#4c4f5b");
 const QColor MM::DARK_BLUE("#0C0927");
+const QColor MM::LEARNED_KEYS_OFF_COLOR("#F0A030");
 const QColor MM::LIGHT_RED("#69020B");
 const QColor MM::DARK_RED("#380b19");
 

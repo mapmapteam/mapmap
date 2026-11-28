@@ -27,6 +27,10 @@ A key acts once each time it is pressed, not while it is held. It does nothing w
 
 A key keeps working on the same letter whatever the layout of the keyboard (French, AZERTY, QWERTY).
 
+## Turn the learned keys off
+
+To type for something else during a show without changing it, choose Edit > Learned Keys Active (<kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>K</kbd>): the learned keys do nothing until it is chosen again. When the project has links, the status bar says "Learned keys: on" or "Learned keys: off".
+
 ## See and remove the keys
 
 - The tooltip of a row of the inspector, or of the eye, the solo or the lock of a layer, names its key: "Keyboard: M".

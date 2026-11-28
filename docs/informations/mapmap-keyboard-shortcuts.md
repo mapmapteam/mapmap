@@ -60,6 +60,7 @@
 | Learning | |
 | --- | --- |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd> | Keyboard learn: click a control outlined in blue, then press a key |
+| <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>K</kbd> | Turn the learned keys off, and on again |
 | <kbd>Escape</kbd> | Stop learning |
 | <kbd>Delete</kbd> | Remove the key of the control chosen while learning |
 | Right-click a row of the inspector | Learn or remove its key |
