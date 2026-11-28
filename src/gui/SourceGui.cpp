@@ -78,7 +78,6 @@ QString SourceGui::kindOf(const Source::ptr& source)
   switch (source->getSourceType()) {
   case Source::Video:  return tr("Video");
   case Source::Image:  return tr("Image");
-  case Source::Color:  return tr("Color");
   case Source::Syphon: return tr("Syphon");
   case Source::Generator: {
     const Generator* generator = qobject_cast<const Generator*>(source.data());

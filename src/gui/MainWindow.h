@@ -248,9 +248,6 @@ public slots:
   /// Create or replace a media source (or image).
   uid createMediaSource(uid sourceId, QString uri, float x, float y, bool isImage, VideoType type, double rate=1.0);
 
-  /// Create or replace a color source.
-  uid createColorSource(uid sourceId, QColor color);
-
   /// Create a Syphon source pointing at the given server (macOS only).
   uid createSyphonSource(uid sourceId, const QString& serverUUID,
                          const QString& serverName, const QString& appName);
@@ -275,20 +272,6 @@ public slots:
                                   uid sourceId,
                                   const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
-  /// Creates a color quad.
-  uid createQuadColorLayer(uid mappingId,
-                             uid sourceId,
-                             const QVector<QPointF> &dst);
-
-  /// Creates a color triangle.
-  uid createTriangleColorLayer(uid mappingId,
-                                 uid sourceId,
-                                 const QVector<QPointF> &dst);
-
-  /// Creates a color ellipse.
-  uid createEllipseColorLayer(uid mappingId,
-                                uid sourceId,
-                                const QVector<QPointF> &dst);
   /*======= End of Unsed fonctions =======*/
 
   /// Sets visibility of mapping.
@@ -418,6 +401,7 @@ public:
   void setCurrentFile(const QString &fileName);
   void setCurrentVideo(const QString &filename);
   bool importMediaFile(const QString &fileName, bool isImage = false, bool isCamera = false);
+  /// Adds a colour generator of the given colour, as a command that can be undone; false if the colour is invalid.
   bool addColorSource(const QColor& color);
 
   /// Adds a generator to the project, as a command that can be undone; takes ownership.

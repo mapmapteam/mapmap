@@ -1,0 +1,48 @@
+{
+    "layers": [
+        {
+            "className": "ColorLayer",
+            "depth": "2",
+            "destination": {
+                "className": "Ellipse",
+                "locked": "false",
+                "vertices": [
+                    [
+                        100,
+                        50
+                    ],
+                    [
+                        150,
+                        100
+                    ],
+                    [
+                        100,
+                        150
+                    ],
+                    [
+                        50,
+                        100
+                    ]
+                ]
+            },
+            "id": 2,
+            "locked": "false",
+            "name": "Ellipse",
+            "opacity": "1",
+            "solo": "false",
+            "source_id": 1,
+            "visible": "true"
+        }
+    ],
+    "sources": [
+        {
+            "className": "Color",
+            "color": "#0055ff",
+            "id": 1,
+            "locked": "false",
+            "name": "blue",
+            "opacity": "1"
+        }
+    ],
+    "version": "1.0.0-alpha.1"
+}

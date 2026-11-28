@@ -66,6 +66,10 @@ private:
     Source::ptr   parseSource(QJsonObject obj, bool legacyPaths);
     Layer::ptr parseLayer(const QJsonObject& obj);
 
+    /// Gives a colour layer of an earlier version, read as a texture layer, the input shape
+    /// that covers the image of its colour generator. A quad becomes a mesh of four corners.
+    static void giveInputShapeToColorLayer(const Layer::ptr& layer);
+
     /// Returns why a freshly read layer cannot be shown (missing source,
     /// missing or unsupported shape), or an empty string if it is usable.
     static QString unusableLayerReason(const Layer::ptr& layer);

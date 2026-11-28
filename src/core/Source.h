@@ -76,7 +76,7 @@ protected:
 public:
 
   enum SourceType {
-    Video, Image, Color, Syphon, Generator
+    Video, Image, Syphon, Generator
   };
 
   typedef QSharedPointer<Source> ptr;
@@ -139,31 +139,6 @@ protected:
 
 private:
   bool _isPlaying;
-};
-
-class Color : public Source
-{
-  Q_OBJECT
-
-protected:
-  QColor color;
-
-public:
-  Q_INVOKABLE Color(int id=NULL_UID);
-  Color(const QColor& color_, uid id=NULL_UID);
-
-  QColor getColor() const { return color; }
-
-  /// Sets the colour; notifies the "color" setting when it changes.
-  void setColor(const QColor& color_);
-
-  virtual SourceType getSourceType() const { return SourceType::Color; }
-
-  virtual QIcon getIcon() const {
-    QPixmap pixmap(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
-    pixmap.fill(color);
-    return QIcon(pixmap);
-  }
 };
 
 /**

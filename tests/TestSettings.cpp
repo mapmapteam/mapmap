@@ -19,6 +19,7 @@
 #include <QSignalSpy>
 #include <QVector>
 
+#include "Generators.h"
 #include "Layer.h"
 #include "Mesh.h"
 #include "MetaObjectRegistry.h"
@@ -30,7 +31,7 @@ using namespace mmp;
 
 void TestSettings::opacityIsClamped()
 {
-  Color source { QColor(Qt::red) };
+  ColorGenerator source { QColor(Qt::red) };
   source.setOpacity(5.0f);
   QCOMPARE(source.getOpacity(), 1.0f);
   source.setOpacity(-2.0f);
@@ -734,8 +735,8 @@ void TestSettings::elementsDeclareTheirSettings()
   const QStringList element = { "id", "name", "locked", "opacity" };
   const QStringList texture = element + QStringList { "x", "y" };
 
-  Color color;
-  const QStringList colorPaths = element + QStringList { "color" };
+  ColorGenerator color;
+  const QStringList colorPaths = texture + QStringList { "width", "height", "color" };
   QCOMPARE(leafPaths(color), colorPaths);
   QCOMPARE(undescribedPaths(color), QStringList());
 
@@ -749,12 +750,15 @@ void TestSettings::elementsDeclareTheirSettings()
   QCOMPARE(leafPaths(video), videoPaths);
   QCOMPARE(undescribedPaths(video), QStringList());
 
-  Source::ptr red(new Color(QColor(Qt::red)));
-  ColorLayer layer(red, makeMesh());
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
+  TextureLayer layer(red, makeMesh(), makeMesh());
+  // The output shape comes before the input shape.
   const QStringList layerPaths = element
       + QStringList { "solo", "visible", "depth", "has_input_shape", "source_id", "output/locked" }
       + numberedPaths("output/vertices", MESH_SIZE * MESH_SIZE)
-      + QStringList { "output/n_columns", "output/n_rows" };
+      + QStringList { "output/n_columns", "output/n_rows", "input/locked" }
+      + numberedPaths("input/vertices", MESH_SIZE * MESH_SIZE)
+      + QStringList { "input/n_columns", "input/n_rows" };
   QCOMPARE(leafPaths(layer), layerPaths);
   QCOMPARE(undescribedPaths(layer), QStringList());
 }
@@ -788,8 +792,8 @@ void TestSettings::shapeBuildsItsTreeWhenAsked()
 
 void TestSettings::treeWritesReachTheModel()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
-  ColorLayer layer(red, makeMesh());
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
+  TextureLayer layer(red, makeMesh(), makeMesh());
 
   QVERIFY(layer.settings()->find("opacity")->setValue(0.5f));
   QCOMPARE(layer.getOpacity(), 0.5f);
@@ -802,8 +806,8 @@ void TestSettings::treeWritesReachTheModel()
 
 void TestSettings::modelWritesNotifyTheTree()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
-  ColorLayer layer(red, makeMesh());
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
+  TextureLayer layer(red, makeMesh(), makeMesh());
 
   QSignalSpy layerSpy(&layer, &Element::settingChanged);
   layer.setOpacity(0.25f);
@@ -812,16 +816,18 @@ void TestSettings::modelWritesNotifyTheTree()
   QCOMPARE(layerSpy.at(0).at(1).toString(), QString("opacity"));
   QCOMPARE(layerSpy.at(0).at(2).toFloat(), 0.25f);
 
-  Color* color = static_cast<Color*>(red.data());
-  QSignalSpy colorSpy(color, &Element::settingChanged);
-  color->setColor(QColor(Qt::blue));
+  // A colour is kept by its setting only: the setting is its model.
+  Setting* color = red->settings()->find("color");
+  QSignalSpy colorSpy(red.data(), &Element::settingChanged);
+  QVERIFY(color->setValue(QColor(Qt::blue)));
   QCOMPARE(colorSpy.count(), 1);
-  QCOMPARE(colorSpy.at(0).at(0).toInt(), color->getId());
+  QCOMPARE(colorSpy.at(0).at(0).toInt(), red->getId());
   QCOMPARE(colorSpy.at(0).at(1).toString(), QString("color"));
   QCOMPARE(colorSpy.at(0).at(2).value<QColor>(), QColor(Qt::blue));
+  QCOMPARE(static_cast<ColorGenerator*>(red.data())->color(), QColor(Qt::blue));
 
   // Writing the same colour again says nothing.
-  color->setColor(QColor(Qt::blue));
+  QVERIFY(color->setValue(QColor(Qt::blue)));
   QCOMPARE(colorSpy.count(), 1);
 
   // One vertex moved: one notification, for that vertex only.
@@ -841,8 +847,8 @@ void TestSettings::modelWritesNotifyTheTree()
 
 void TestSettings::opacityOverOscRangeIsClamped()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
-  ColorLayer layer(red, makeMesh());
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
+  TextureLayer layer(red, makeMesh(), makeMesh());
 
   QVERIFY(layer.settings()->find("opacity")->setFromArguments({ 5.0 }));
   QCOMPARE(layer.getOpacity(), 1.0f);
@@ -850,8 +856,8 @@ void TestSettings::opacityOverOscRangeIsClamped()
 
 void TestSettings::listShrinksWithMesh()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
-  ColorLayer layer(red, makeMesh());
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
+  TextureLayer layer(red, makeMesh(), makeMesh());
   QVERIFY(layer.settings()->find("output/vertices/15"));
 
   QSignalSpy structureSpy(&layer, &Element::settingsStructureChanged);
@@ -861,8 +867,12 @@ void TestSettings::listShrinksWithMesh()
   QCOMPARE(mesh->nVertices(), 2 * MESH_SIZE);
   QVERIFY(!layer.settings()->find("output/vertices/15"));
   QVERIFY(layer.settings()->find("output/vertices/7"));
-  QCOMPARE(structureSpy.count(), 1);
+  // The input mesh follows: one structure change per mesh, for its shorter list of points.
+  QVERIFY(!layer.settings()->find("input/vertices/15"));
+  QVERIFY(layer.settings()->find("input/vertices/7"));
+  QCOMPARE(structureSpy.count(), 2);
   QCOMPARE(structureSpy.at(0).at(0).toInt(), layer.getId());
+  QCOMPARE(structureSpy.at(1).at(0).toInt(), layer.getId());
 
   // The fewest divisions of a mesh is kept in one place: the setting.
   mesh->setNColumns(1);
@@ -873,8 +883,8 @@ void TestSettings::listShrinksWithMesh()
 
 void TestSettings::meshGridHasAMaximum()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
-  ColorLayer layer(red, makeMesh());
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
+  TextureLayer layer(red, makeMesh(), makeMesh());
   Mesh* mesh = static_cast<Mesh*>(layer.getShape().data());
   Setting* columns = layer.settings()->find("output/n_columns");
   Setting* rows = layer.settings()->find("output/n_rows");
@@ -1035,20 +1045,6 @@ void TestSettings::meshGridsOfTextureLayerFollowEachOther()
   QCOMPARE(structureSpy.count(), 4);
 }
 
-void TestSettings::meshGridOfColorLayerIsAlone()
-{
-  Source::ptr red(new Color(QColor(Qt::red)));
-  ColorLayer layer(red, makeMesh());
-  MShape::ptr loose = makeMesh();
-  QSignalSpy structureSpy(&layer, &Element::settingsStructureChanged);
-
-  const int columns = MESH_SIZE + 1;
-  QVERIFY(layer.settings()->find("output/n_columns")->setValue(columns));
-  QCOMPARE(static_cast<Mesh*>(layer.getShape().data())->nColumns(), columns);
-  QCOMPARE(static_cast<Mesh*>(loose.data())->nColumns(), MESH_SIZE);
-  QCOMPARE(structureSpy.count(), 1);
-}
-
 void TestSettings::readingKeepsDifferentMeshGrids()
 {
   MetaObjectRegistry::instance().addBuiltinTypes();
@@ -1068,15 +1064,15 @@ void TestSettings::readingKeepsDifferentMeshGrids()
 
 void TestSettings::rejectsUnknownSource()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
   red->setName("red");
-  Source::ptr blue(new Color(QColor(Qt::blue)));
+  Source::ptr blue(new ColorGenerator(QColor(Qt::blue)));
   blue->setName("blue");
   Source::ptr picture(new Image());
   picture->setName("picture");
   SourceLookup lookup({ red, blue, picture });
 
-  ColorLayer layer(red, makeMesh());
+  TextureLayer layer(red, makeMesh(), makeMesh());
   Setting* sourceId = layer.settings()->find("source_id");
   QVERIFY(sourceId);
   QCOMPARE(sourceId->value().toInt(), red->getId());
@@ -1085,27 +1081,29 @@ void TestSettings::rejectsUnknownSource()
   QVERIFY(!sourceId->setValue(unknownId));
   QCOMPARE(layer.getSourceId(), red->getId());
 
-  // An image cannot fill a colour layer.
-  QVERIFY(!sourceId->setValue(picture->getId()));
-  QCOMPARE(layer.getSourceId(), red->getId());
-
   QVERIFY(sourceId->setValue(blue->getId()));
   QCOMPARE(layer.getSource(), blue);
 
+  // Colours and images are all textures: an image can fill the same layer.
+  QVERIFY(sourceId->setValue(picture->getId()));
+  QCOMPARE(layer.getSource(), picture);
+
   // The options are the compatible sources: their id as text, their name.
   const QList<SettingOption> options = sourceId->info().options();
-  QCOMPARE(options.size(), 2);
+  QCOMPARE(options.size(), 3);
   QCOMPARE(options.at(0).id, QString::number(red->getId()));
   QCOMPARE(options.at(0).label, QString("red"));
   QCOMPARE(options.at(1).id, QString::number(blue->getId()));
   QCOMPARE(options.at(1).label, QString("blue"));
+  QCOMPARE(options.at(2).id, QString::number(picture->getId()));
+  QCOMPARE(options.at(2).label, QString("picture"));
 }
 
 void TestSettings::replacingShapeRemountsTree()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
   MShape::ptr first = makeMesh();
-  QScopedPointer<ColorLayer> layer(new ColorLayer(red, first));
+  QScopedPointer<TextureLayer> layer(new TextureLayer(red, first, makeMesh()));
 
   const QPointF origin(1000, 2000);
   MShape::ptr second = makeMesh(origin);
@@ -1115,7 +1113,7 @@ void TestSettings::replacingShapeRemountsTree()
   QVERIFY(!first->settings()->parent());
 
   // The first shape can be given to another layer.
-  ColorLayer other(red, first);
+  TextureLayer other(red, first, makeMesh());
   QCOMPARE(other.settings()->find("output/vertices/0")->value().toPointF(), QPointF());
 
   // A destroyed layer lets go of its shape.
@@ -1135,7 +1133,7 @@ QByteArray jsonText(const QJsonObject& obj)
 
 void TestSettings::writesNativeScalarSettings()
 {
-  Color source { QColor(Qt::red) };
+  ColorGenerator source { QColor(Qt::red) };
   source.setOpacity(0.75f);
   source.setName("a");
 
@@ -1143,20 +1141,24 @@ void TestSettings::writesNativeScalarSettings()
   source.write(written);
 
   const QJsonObject expected {
-    { "className", "Color" },
+    { "className", "ColorGenerator" },
     { "color", "#ff0000" },
+    { "height", ColorGenerator::DEFAULT_COLOR_SIZE },
     { "id", source.getId() },
     { "locked", false },
     { "name", "a" },
-    { "opacity", 0.75 }
+    { "opacity", 0.75 },
+    { "width", ColorGenerator::DEFAULT_COLOR_SIZE },
+    { "x", 0 },
+    { "y", 0 }
   };
   QCOMPARE(jsonText(written), jsonText(expected));
 }
 
 void TestSettings::readToleratesNonTextValues()
 {
-  Color source { QColor(Qt::red) };
-  const QJsonObject base { { "className", "Color" }, { "id", source.getId() } };
+  ColorGenerator source { QColor(Qt::red) };
+  const QJsonObject base { { "className", "ColorGenerator" }, { "id", source.getId() } };
 
   // A JSON number or boolean is taken as an argument.
   QJsonObject obj = base;
@@ -1184,15 +1186,15 @@ void TestSettings::readToleratesNonTextValues()
   obj["color"] = 2;
   QTest::ignoreMessage(QtWarningMsg, QRegularExpression("color.*refused the arguments"));
   source.read(obj);
-  QCOMPARE(source.getColor(), QColor(Qt::red));
+  QCOMPARE(source.color(), QColor(Qt::red));
 }
 
 void TestSettings::unknownKeysSurviveRoundTrip()
 {
-  Color source { QColor(Qt::red) };
+  ColorGenerator source { QColor(Qt::red) };
   const QJsonObject nested { { "a", 1 } };
   const QJsonObject obj {
-    { "className", "Color" },
+    { "className", "ColorGenerator" },
     { "id", source.getId() },
     { "opacity", "0.5" },
     { "futureKey", "7" },
@@ -1205,21 +1207,21 @@ void TestSettings::unknownKeysSurviveRoundTrip()
   QCOMPARE(written.value("futureKey"), QJsonValue("7"));
   QCOMPARE(written.value("nested"), QJsonValue(nested));
   QCOMPARE(written.value("opacity"), QJsonValue(0.5));
-  QCOMPARE(written.value("className"), QJsonValue("Color"));
+  QCOMPARE(written.value("className"), QJsonValue("ColorGenerator"));
 }
 
 void TestSettings::runtimeSettingIsSavedAndRestored()
 {
   QJsonObject saved;
   {
-    Color first { QColor(Qt::red) };
+    ColorGenerator first { QColor(Qt::red) };
     Setting* gain = first.settings()->addSetting(SettingInfo::number("gain", "Gain"));
     QVERIFY(gain->setValue(0.3));
     first.write(saved);
   }
   QCOMPARE(saved.value("gain"), QJsonValue(0.3));
 
-  Color second { QColor(Qt::red) };
+  ColorGenerator second { QColor(Qt::red) };
   saved["id"] = second.getId();
   second.read(saved);
   QVERIFY(!second.settings()->find("gain"));
@@ -1239,9 +1241,9 @@ void TestSettings::runtimeSettingIsSavedAndRestored()
 
 void TestSettings::pendingValueReachesSettingBoundLater()
 {
-  Color source { QColor(Qt::red) };
+  ColorGenerator source { QColor(Qt::red) };
   const QJsonObject obj {
-    { "className", "Color" },
+    { "className", "ColorGenerator" },
     { "id", source.getId() },
     { "gain", "0.3" }
   };
@@ -1263,11 +1265,11 @@ void TestSettings::pendingValueReachesSettingBoundLater()
 
 void TestSettings::formerKeyIsReadThenWrittenUnderTheId()
 {
-  Color source { QColor(Qt::red) };
+  ColorGenerator source { QColor(Qt::red) };
   Setting* gain = source.settings()->addSetting(
       SettingInfo::number("gain", "Gain").formerId("oldGain").formerId("olderGain"));
   source.read(QJsonObject {
-    { "className", "Color" },
+    { "className", "ColorGenerator" },
     { "id", source.getId() },
     { "olderGain", "0.3" }
   });
@@ -1283,11 +1285,11 @@ void TestSettings::formerKeyIsReadThenWrittenUnderTheId()
 
 void TestSettings::idWinsOverFormerKey()
 {
-  Color source { QColor(Qt::red) };
+  ColorGenerator source { QColor(Qt::red) };
   Setting* gain = source.settings()->addSetting(
       SettingInfo::number("gain", "Gain").formerId("oldGain"));
   source.read(QJsonObject {
-    { "className", "Color" },
+    { "className", "ColorGenerator" },
     { "id", source.getId() },
     { "oldGain", "0.3" },
     { "gain", "0.6" }
@@ -1303,9 +1305,9 @@ void TestSettings::idWinsOverFormerKey()
 void TestSettings::formerKeyReachesSettingAddedLater()
 {
   // A setting declared after the project was read, as the settings of an extension.
-  Color formerOnly { QColor(Qt::red) };
+  ColorGenerator formerOnly { QColor(Qt::red) };
   formerOnly.read(QJsonObject {
-    { "className", "Color" },
+    { "className", "ColorGenerator" },
     { "id", formerOnly.getId() },
     { "oldGain", "0.3" }
   });
@@ -1319,9 +1321,9 @@ void TestSettings::formerKeyReachesSettingAddedLater()
   QVERIFY(!written.contains("oldGain"));
 
   // With both keys, the id wins and the former key is dropped.
-  Color both { QColor(Qt::red) };
+  ColorGenerator both { QColor(Qt::red) };
   both.read(QJsonObject {
-    { "className", "Color" },
+    { "className", "ColorGenerator" },
     { "id", both.getId() },
     { "oldGain", "0.3" },
     { "gain", "0.6" }
@@ -1337,10 +1339,10 @@ void TestSettings::formerKeyReachesSettingAddedLater()
 
 void TestSettings::keysOfUnreadSettingsStayPending()
 {
-  Color source { QColor(Qt::red) };
+  ColorGenerator source { QColor(Qt::red) };
   Setting* monitor = source.settings()->addSetting(SettingInfo::number("monitor", "Monitor").notStored());
   const QJsonObject obj {
-    { "className", "Color" },
+    { "className", "ColorGenerator" },
     { "id", source.getId() },
     { "monitor", "0.2" },
     { "liveGain", "0.4" },
@@ -1365,39 +1367,44 @@ void TestSettings::keysOfUnreadSettingsStayPending()
 void TestSettings::reservedKeysAreNotKept()
 {
   MetaObjectRegistry::instance().addBuiltinTypes();
-  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
 
-  ColorLayer first(red, makeMesh());
+  TextureLayer first(red, makeMesh(), makeMesh());
   QJsonObject obj;
   first.write(obj);
   QVERIFY(obj.contains("destination"));
-  QVERIFY(!obj.contains("source"));
+  QVERIFY(obj.contains("source"));
 
-  // A colour layer has no input shape: a "source" shape in its file is not kept.
+  // The shapes are read by the layer itself: their keys are not kept as they are in the file.
   QJsonObject shape = obj.value("destination").toObject();
   shape["futureShapeKey"] = "1";
   obj["destination"] = shape;
   obj["source"] = shape;
 
-  ColorLayer second(red, makeMesh());
+  TextureLayer second(red, makeMesh(), makeMesh());
   obj["id"] = second.getId();
   second.read(obj);
 
+  // Moved after reading: what is written comes from the input shape, not from the file.
+  const QPointF moved(10, 5);
+  second.getInputShape()->setVertex(0, moved);
+
   QJsonObject written;
   second.write(written);
-  QVERIFY(!written.contains("source"));
   QCOMPARE(written.value("id"), QJsonValue(second.getId()));
   QCOMPARE(written.value("source_id"), QJsonValue(red->getId()));
+  QVERIFY(written.value("source").toObject().value("vertices") != shape.value("vertices"));
 
-  // The shape keeps the keys it does not know.
+  // The shapes keep the keys they do not know.
   const QJsonObject writtenShape = written.value("destination").toObject();
   QCOMPARE(writtenShape.value("futureShapeKey"), QJsonValue("1"));
   QCOMPARE(writtenShape.value("vertices"), shape.value("vertices"));
+  QCOMPARE(written.value("source").toObject().value("futureShapeKey"), QJsonValue("1"));
 }
 
 void TestSettings::pointSettingIsNotWritten()
 {
-  Color source { QColor(Qt::red) };
+  ColorGenerator source { QColor(Qt::red) };
   source.settings()->addSetting(SettingInfo::point("spot", "Spot"));
 
   QJsonObject written;
@@ -1423,7 +1430,7 @@ QJsonObject describedAt(const QJsonArray& settings, const QString& path)
 
 void TestSettings::describesBoundsAndUnits()
 {
-  Color source { QColor(Qt::red) };
+  ColorGenerator source { QColor(Qt::red) };
   const QJsonArray settings = describeSettings(source.settings());
 
   const QJsonObject opacity = describedAt(settings, "opacity");
@@ -1453,9 +1460,9 @@ void TestSettings::describesBoundsAndUnits()
 
 void TestSettings::describesNestedPaths()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
   SourceLookup lookup({ red });
-  ColorLayer layer(red, makeMesh());
+  TextureLayer layer(red, makeMesh(), makeMesh());
   const QJsonArray settings = describeSettings(layer.settings());
 
   const QJsonObject vertex = describedAt(settings, "output/vertices/0");
@@ -1476,23 +1483,23 @@ void TestSettings::describesNestedPaths()
 
 void TestSettings::valuesKeepLegacyKeys()
 {
-  Color source { QColor(Qt::red) };
+  ColorGenerator source { QColor(Qt::red) };
   const QJsonObject values = settingValues(source.settings());
   QStringList keys = values.keys();
   keys.sort();
-  QCOMPARE(keys, QStringList({ "color", "id", "locked", "name", "opacity" }));
+  QCOMPARE(keys, QStringList({ "color", "height", "id", "locked", "name", "opacity", "width", "x", "y" }));
   QCOMPARE(values.value("color").toString(), QString("#ff0000"));
   QCOMPARE(values.value("locked").toBool(true), false);
   QCOMPARE(values.value("id").toInt(), static_cast<int>(source.getId()));
 
   // A colour with an alpha keeps it.
-  source.setColor(QColor(255, 0, 0, 128));
+  QVERIFY(source.settings()->find("color")->setValue(QColor(255, 0, 0, 128)));
   QCOMPARE(settingValues(source.settings()).value("color").toString(), QString("#80ff0000"));
 
   // Only the settings directly under the group: not those of a nested group or a list.
-  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
   SourceLookup lookup({ red });
-  ColorLayer layer(red, makeMesh());
+  TextureLayer layer(red, makeMesh(), makeMesh());
   const QJsonObject layerValues = settingValues(layer.settings());
   QVERIFY(layerValues.contains("source_id"));
   QVERIFY(layerValues.contains("visible"));
@@ -1591,17 +1598,17 @@ MShape::ptr makeFreshMesh()
 void TestSettings::resetKeepsFreshElements()
 {
   // The default value of a setting is the value of a new element.
-  Color color;
+  ColorGenerator color;
   QCOMPARE(settingsChangedByReset(color), QStringList());
   Image image;
   QCOMPARE(settingsChangedByReset(image), QStringList());
   Video video;
   QCOMPARE(settingsChangedByReset(video), QStringList());
 
-  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
   Source::ptr picture(new Image);
   SourceLookup lookup({ red, picture });
-  ColorLayer colorLayer(red, makeFreshMesh());
+  TextureLayer colorLayer(red, makeFreshMesh(), makeFreshMesh());
   QCOMPARE(settingsChangedByReset(colorLayer), QStringList());
   TextureLayer imageLayer(picture, makeFreshMesh(), makeFreshMesh());
   QCOMPARE(settingsChangedByReset(imageLayer), QStringList());

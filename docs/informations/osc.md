@@ -16,7 +16,7 @@ Play: `/mapmap/source/play ,i <id>`
 Pause: `/mapmap/source/pause ,i <id>`  
 Rewind: `/mapmap/source/rewind ,i <id>`
 
-### Color source
+### Color generator
 
 Adjust color (eg. "#ff0000"): `/mapmap/source/color ,is <id> <color>`
 

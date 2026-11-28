@@ -29,6 +29,8 @@ private slots:
   void roundTrip();
 
   void writesStableBeta2Project();
+  void convertsColorSources_data();
+  void convertsColorSources();
   void rejectsLegacyXml();
   void rejectsNonProjectJson();
   void rejectsInvalidJson();

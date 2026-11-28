@@ -52,8 +52,6 @@ static const double MIN_SLIDER_RATE = 0.0;
 /// Speed at the end of the slider: twice the normal speed, so that the normal speed is in the
 /// middle. A higher or a negative speed can still be typed.
 static const double MAX_SLIDER_RATE = 2.0;
-/// Colour of a new colour source.
-static const QColor DEFAULT_COLOR(Qt::black);
 
 UidAllocator Source::allocator;
 
@@ -173,29 +171,6 @@ Source::Source(uid id)
 Source::~Source()
 {
   allocator.free(getId());
-}
-
-Color::Color(int id) : Source(id), color(DEFAULT_COLOR)
-{
-  settings()->addSetting(SettingInfo::color("color", tr("Color"))
-                         .defaultValue(DEFAULT_COLOR)
-                         .description(tr("The colour that fills the layers showing this source.")))
-      ->bind([this]() { return QVariant(getColor()); },
-             [this](const QVariant& value) { setColor(value.value<QColor>()); return true; });
-}
-
-Color::Color(const QColor& color_, uid id) : Color(int(id))
-{
-  color = color_;
-}
-
-void Color::setColor(const QColor& color_)
-{
-  if (color_ != color)
-  {
-    color = color_;
-    _emitPropertyChanged("color");
-  }
 }
 
 Image::Image(int id)

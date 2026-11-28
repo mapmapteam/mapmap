@@ -121,46 +121,6 @@ protected:
   MShape::ptr outputShape;
 };
 
-/// Parent class for color -> color mappings.
-class ColorLayerGui : public LayerGui
-{
-  Q_OBJECT
-
-protected:
-  ColorLayerGui(Layer::ptr mapping);
-  virtual ~ColorLayerGui() {}
-
-protected:
-  QSharedPointer<Color> color;
-};
-
-class PolygonColorLayerGui : public ColorLayerGui
-{
-  Q_OBJECT
-
-public:
-  PolygonColorLayerGui(Layer::ptr mapping);
-  virtual ~PolygonColorLayerGui() {}
-};
-
-class MeshColorLayerGui : public PolygonColorLayerGui
-{
-  Q_OBJECT
-
-public:
-  MeshColorLayerGui(Layer::ptr mapping);
-  virtual ~MeshColorLayerGui() {}
-};
-
-class EllipseColorLayerGui : public ColorLayerGui
-{
-  Q_OBJECT
-
-public:
-  EllipseColorLayerGui(Layer::ptr mapping);
-  virtual ~EllipseColorLayerGui() {}
-};
-
 /// Parent class for texture -> texture mapping.
 class TextureLayerGui : public LayerGui
 {

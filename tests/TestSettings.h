@@ -60,7 +60,6 @@ private slots:
   void rejectsUnknownSource();
   void replacingShapeRemountsTree();
   void meshGridsOfTextureLayerFollowEachOther();
-  void meshGridOfColorLayerIsAlone();
   void readingKeepsDifferentMeshGrids();
   void writesNativeScalarSettings();
   void readToleratesNonTextValues();

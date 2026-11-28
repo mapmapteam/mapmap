@@ -34,6 +34,7 @@
 #include <QtTest>
 
 #include "ColorPicker.h"
+#include "Generators.h"
 #include "Inspector.h"
 #include "Layer.h"
 #include "Mesh.h"
@@ -188,7 +189,7 @@ void TestInspector::controlForEachType()
 
 void TestInspector::colorSourceRows()
 {
-  Color red{QColor(Qt::red)};
+  ColorGenerator red { QColor(Qt::red) };
   InspectorPage page(red.settings(), "source");
   // Hidden settings have no row; the id is read-only.
   QVERIFY(!page.control("name"));
@@ -439,17 +440,17 @@ void TestInspector::choiceKeepsMissingId()
 
 void TestInspector::referenceMenuFollowsSources()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
   red->setName("red");
   SourceListing listing({ red });
-  ColorLayer layer(red, makeMesh());
+  TextureLayer layer(red, makeMesh(), makeMesh());
   InspectorPage page(layer.settings(), "layer");
   ChoiceControl* source = qobject_cast<ChoiceControl*>(page.control("source_id"));
   QVERIFY(source);
   QCOMPARE(source->menu()->count(), 1);
   QCOMPARE(source->menu()->currentText(), QString("red"));
 
-  Source::ptr blue(new Color(QColor(Qt::blue)));
+  Source::ptr blue(new ColorGenerator(QColor(Qt::blue)));
   blue->setName("blue");
   listing.sources->append(blue);
   source->refresh();
@@ -545,9 +546,9 @@ void TestInspector::foldedGroupStaysFolded()
 
 void TestInspector::layerGroupsAndSharedRow()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
   SourceListing listing({ red });
-  ColorLayer layer(red, makeMesh());
+  TextureLayer layer(red, makeMesh(), makeMesh());
   InspectorPage page(layer.settings(), "layer");
   page.setGroupLabel("output", "Output shape");
   QTRY_VERIFY(!page.groups().isEmpty());
@@ -618,9 +619,9 @@ void TestInspector::pickerKeepsHueOfGrey()
 
 void TestInspector::noHorizontalScrollAtReferenceWidth()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
   SourceListing listing({ red });
-  ColorLayer layer(red, makeMesh());
+  TextureLayer layer(red, makeMesh(), makeMesh());
   Inspector inspector;
   inspector.setHeader("Layer 1", "Mesh");
   InspectorPage* surface = inspector.addPage("Surface", layer.settings(), "layer");

@@ -34,7 +34,6 @@ void MetaObjectRegistry::addBuiltinTypes()
   add<Video>();
   add<Camera>();
   add<Image>();
-  add<Color>();
   add<CheckerGenerator>();
   add<GridGenerator>();
   add<ColorWheelGenerator>();
@@ -42,11 +41,11 @@ void MetaObjectRegistry::addBuiltinTypes()
 
   // Layers (formerly Mappings).
   add<TextureLayer>();
-  add<ColorLayer>();
 
   // Backward compatibility for old project files.
   addAlias("mmp::TextureMapping", &TextureLayer::staticMetaObject);
-  addAlias("mmp::ColorMapping", &ColorLayer::staticMetaObject);
+  // Colour sources and colour layers (formerly ColorMapping) are read as colour generators
+  // and texture layers: see ProjectReader.
 
   // Shapes.
   add<Quad>();

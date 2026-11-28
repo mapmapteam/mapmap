@@ -502,7 +502,6 @@ QJsonObject McpServer::sourceSummary(int sourceId) const
   {
     case Source::Video: o["type"] = "video"; break;
     case Source::Image: o["type"] = "image"; break;
-    case Source::Color: o["type"] = "color"; break;
     case Source::Generator: o["type"] = "generator"; break;
     default:           o["type"] = "unknown"; break;
   }
@@ -572,7 +571,7 @@ QJsonArray McpServer::toolDefinitions() const
                     QJsonObject{{"fps", prop("number", "Frames per second (> 0).")}},
                     QJsonArray{"fps"}));
 
-  tools.append(tool("create_color_source", "Create a solid-colour source. Returns the new source.",
+  tools.append(tool("create_color_source", "Create a colour generator, a source of one plain colour. Returns the new source.",
                     QJsonObject{{"color", prop("string", "Colour as \"#rrggbb\" or a named colour.")}},
                     QJsonArray{"color"}));
   tools.append(tool("create_media_source",

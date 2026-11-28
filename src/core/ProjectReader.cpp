@@ -18,11 +18,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ProjectReader.h"
+#include "Generators.h"
+#include "Shapes.h"
+#include "Util.h"
 #include <QDir>
 #include <QFileInfo>
 #include <QRegularExpression>
 
 namespace mmp {
+
+namespace {
+
+/// Class names, as written in project files, of the colour sources and colour layers of
+/// earlier versions: they are read as colour generators and texture layers.
+const char* const LEGACY_COLOR_CLASS = "Color";
+const char* const LEGACY_COLOR_LAYER_CLASSES[] = { "ColorLayer", "ColorMapping" };
+
+/// Key of the colour of a colour source, and the alpha of an opaque colour.
+const char* const LEGACY_COLOR_KEY = "color";
+const int OPAQUE_ALPHA = 255;
+
+/// Number of corners of a quad.
+const int QUAD_CORNERS = 4;
+
+} // namespace
 
 ProjectReader::ProjectReader(MappingManager& manager, MediaLocator mediaLocator, const QString& projectDirectory)
   : _projectDirectory(projectDirectory), _manager(manager), _mediaLocator(mediaLocator)
@@ -168,6 +187,21 @@ Source::ptr ProjectReader::parseSource(QJsonObject obj, bool legacyPaths)
 
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
 
+  // A colour source of an earlier version is a colour generator: same id, name, colour and
+  // opacity, and an image that its layers read through an input shape.
+  if (className == Serializable::classNameCleanToReal(QLatin1String(LEGACY_COLOR_CLASS)))
+  {
+    metaObject = &ColorGenerator::staticMetaObject;
+    // Those sources drew their colour opaque, at the opacity of the source and the layer:
+    // the alpha of the colour was not used. It is dropped, so that the project looks the same.
+    QColor color(obj.value(LEGACY_COLOR_KEY).toString());
+    if (color.isValid())
+    {
+      color.setAlpha(OPAQUE_ALPHA);
+      obj.insert(LEGACY_COLOR_KEY, color.name(QColor::HexRgb));
+    }
+  }
+
   // Projects saved before the Camera class existed recorded a camera as a
   // plain Video whose URI is a capture device ID: reopen those as cameras.
   if (metaObject == &Video::staticMetaObject
@@ -226,14 +260,11 @@ Source::ptr ProjectReader::parseSource(QJsonObject obj, bool legacyPaths)
 QString ProjectReader::unusableLayerReason(const Layer::ptr& layer)
 {
   // The interface has an editor for these shapes only (see
-  // MainWindow::addLayerItem): color layers draw any polygon, including a
-  // plain Quad; texture layers need a triangle, mesh or ellipse.
-  const bool isColorLayer = !layer->hasInputShape();
-  auto isSupported = [isColorLayer](const MShape::ptr& shape) {
+  // MainWindow::addLayerItem): a triangle, a mesh or an ellipse.
+  auto isSupported = [](const MShape::ptr& shape) {
     return shape->getType() == MShape::Triangle
         || shape->getType() == MShape::Mesh
-        || shape->getType() == MShape::Ellipse
-        || (isColorLayer && shape->getType() == MShape::Quad);
+        || shape->getType() == MShape::Ellipse;
   };
 
   if (layer->getSource().isNull())
@@ -258,6 +289,50 @@ QString ProjectReader::unusableLayerReason(const Layer::ptr& layer)
   return QString();
 }
 
+void ProjectReader::giveInputShapeToColorLayer(const Layer::ptr& layer)
+{
+  MShape::ptr output = layer->getShape();
+  QSharedPointer<Texture> texture = qSharedPointerDynamicCast<Texture>(layer->getSource());
+  if (output.isNull() || texture.isNull())
+    return; // unusableLayerReason() says why.
+
+  // Texture layers have no plain quad: a quad is a mesh of four corners.
+  if (output->getType() == MShape::Quad)
+  {
+    const QVector<QPointF> corners = output->getVertices();
+    if (corners.size() != QUAD_CORNERS)
+      return;
+    MShape::ptr mesh(new Mesh(corners.at(0), corners.at(1), corners.at(2), corners.at(3)));
+    mesh->setLocked(output->isLocked());
+    layer->setShape(mesh);
+    output = mesh;
+  }
+
+  // The input shape covers the whole image, as for a new layer, so that it looks the same.
+  const QRectF frame = texture->getRect();
+  MShape::ptr input;
+  switch (output->getType())
+  {
+  case MShape::Mesh:
+  {
+    QSharedPointer<Mesh> outputMesh = qSharedPointerCast<Mesh>(output);
+    Mesh* inputMesh = Util::createMeshForRect(frame);
+    inputMesh->resize(outputMesh->nColumns(), outputMesh->nRows());
+    input.reset(inputMesh);
+    break;
+  }
+  case MShape::Triangle:
+    input.reset(Util::createTriangleForRect(frame));
+    break;
+  case MShape::Ellipse:
+    input.reset(Util::createEllipseForRect(frame));
+    break;
+  default:
+    return; // unusableLayerReason() says why.
+  }
+  layer->setInputShape(input);
+}
+
 Layer::ptr ProjectReader::parseLayer(const QJsonObject& obj)
 {
   QString className = Serializable::classNameCleanToReal(obj[ProjectLabels::CLASS_NAME].toString());
@@ -267,6 +342,16 @@ Layer::ptr ProjectReader::parseLayer(const QJsonObject& obj)
     return Layer::ptr();
 
   const QMetaObject* metaObject = MetaObjectRegistry::instance().getMetaObject(className);
+
+  // A colour layer of an earlier version is a texture layer: its source is now a colour
+  // generator. It is given an input shape below.
+  bool legacyColorLayer = false;
+  for (const char* legacyClass : LEGACY_COLOR_LAYER_CLASSES)
+    legacyColorLayer = legacyColorLayer
+        || className == Serializable::classNameCleanToReal(QLatin1String(legacyClass));
+  if (legacyColorLayer)
+    metaObject = &TextureLayer::staticMetaObject;
+
   if (metaObject && metaObject->inherits(&Layer::staticMetaObject))
   {
     Layer::ptr layer(qobject_cast<Layer*>(metaObject->newInstance(Q_ARG(int, id))));
@@ -294,6 +379,8 @@ Layer::ptr ProjectReader::parseLayer(const QJsonObject& obj)
     }
 
     layer->read(obj);
+    if (legacyColorLayer)
+      giveInputShapeToColorLayer(layer);
 
     // A hand-written or damaged file can describe a layer MapMap cannot show.
     // Skip it with a warning, like an unsupported source, rather than crash

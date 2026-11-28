@@ -1,0 +1,20 @@
+{
+  "version": "1.0.0-beta.1",
+  "output_resolution": { "width": 1920, "height": 1080 },
+  "sources": [
+    { "className": "Color", "id": 1, "name": "orange", "color": "#ffaa00", "opacity": "0.8" },
+    { "className": "Color", "id": 2, "name": "blue", "color": "#802060ff", "opacity": "1" },
+    { "className": "Color", "id": 3, "name": "green", "color": "#33cc66", "opacity": "1" }
+  ],
+  "layers": [
+    { "className": "ColorLayer", "id": 1, "name": "ellipse", "source_id": 2, "opacity": "1",
+      "destination": { "className": "Ellipse", "vertices": [[700,500],[1000,250],[1300,500],[1000,750]] } },
+    { "className": "ColorLayer", "id": 2, "name": "triangle", "source_id": 3, "opacity": "0.6",
+      "destination": { "className": "Triangle", "vertices": [[900,900],[1700,950],[1400,200]] } },
+    { "className": "ColorLayer", "id": 3, "name": "mesh", "source_id": 1, "opacity": "1",
+      "destination": { "className": "Mesh", "n_columns": "3", "n_rows": "2",
+        "vertices": [[100,100],[500,150],[900,80],[150,700],[550,650],[950,720]] } },
+    { "className": "ColorLayer", "id": 4, "name": "quad", "source_id": 3, "opacity": "1",
+      "destination": { "className": "Quad", "vertices": [[100,800],[400,780],[420,1000],[90,1020]] } }
+  ]
+}

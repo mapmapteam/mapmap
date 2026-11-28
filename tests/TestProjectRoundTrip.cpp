@@ -10,12 +10,14 @@
 #include "TestProjectRoundTrip.h"
 
 #include <QBuffer>
+#include <algorithm>
 #include <QDir>
 #include <QFile>
 #include <QJsonDocument>
 #include <QTemporaryDir>
 
 #include "Ellipse.h"
+#include "Generators.h"
 #include "MappingManager.h"
 #include "MetaObjectRegistry.h"
 #include "ProjectReader.h"
@@ -24,6 +26,9 @@
 using namespace mmp;
 
 namespace {
+
+/// Alpha of an opaque colour.
+const int OPAQUE_ALPHA = 255;
 
 QString fixturesDir()
 {
@@ -211,12 +216,16 @@ void TestProjectRoundTrip::roundTrip()
 
 void TestProjectRoundTrip::writesStableBeta2Project()
 {
+  // A beta.1 project, a beta.2 project with the colour source of earlier versions, and the
+  // beta.2 project they become.
   const QByteArray original = readFixture(fixturesDir() + "/beta.2/triangle-color.mmp");
   QVERIFY(!original.isEmpty());
-  for (const QString& version : { QString("beta.1"), QString("beta.2") })
+  for (const QString& path : { QString("beta.1/triangle-color.mmp"),
+                               QString("legacy-color/triangle-color-beta.2.mmp"),
+                               QString("beta.2/triangle-color.mmp") })
   {
     MappingManager manager;
-    QVERIFY(readProject(manager, readFixture(fixturesDir() + "/" + version + "/triangle-color.mmp")));
+    QVERIFY(readProject(manager, readFixture(fixturesDir() + "/" + path)));
     QCOMPARE(writeProject(manager), original);
     manager.getLayer(0)->setName("Renamed");
     QByteArray expected = original;
@@ -224,6 +233,78 @@ void TestProjectRoundTrip::writesStableBeta2Project()
     QVERIFY(expected != original);
     QCOMPARE(writeProject(manager), expected);
   }
+}
+
+void TestProjectRoundTrip::convertsColorSources_data()
+{
+  // Each project of legacy-color/, with the colour sources and colour layers of earlier
+  // versions, and the project of the same name it becomes.
+  QTest::addColumn<QString>("legacyPath");
+  QTest::addColumn<QString>("convertedPath");
+  QDir dir(fixturesDir() + "/legacy-color");
+  for (const QString& file : dir.entryList(QStringList() << "*.mmp", QDir::Files, QDir::Name))
+  {
+    const QString converted = file == "triangle-color-beta.2.mmp" ? "beta.2/triangle-color.mmp" : file;
+    QTest::newRow(qPrintable(file)) << dir.filePath(file) << fixturesDir() + "/" + converted;
+  }
+}
+
+void TestProjectRoundTrip::convertsColorSources()
+{
+  QFETCH(QString, legacyPath);
+  QFETCH(QString, convertedPath);
+  const QByteArray legacy = readFixture(legacyPath);
+  const QJsonObject legacyObj = expectedNativeSettings(parse(legacy));
+
+  MappingManager manager;
+  QString error;
+  QVERIFY2(readProject(manager, legacy, &error), qPrintable(error));
+
+  // A colour source becomes a colour generator of the same id, name, colour and opacity.
+  for (const QJsonValue& value : legacyObj["sources"].toArray())
+  {
+    const QJsonObject source = value.toObject();
+    if (source["className"].toString() != "Color")
+      continue;
+    Source::ptr read = manager.getSourceById(source["id"].toInt());
+    ColorGenerator* generator = qobject_cast<ColorGenerator*>(read.data());
+    QVERIFY(generator);
+    QCOMPARE(generator->getName(), source["name"].toString());
+    // The colour is opaque: those sources did not use its alpha.
+    QColor color(source["color"].toString());
+    color.setAlpha(OPAQUE_ALPHA);
+    QCOMPARE(generator->color(), color);
+    QVERIFY(qFuzzyCompare(generator->getOpacity(), float(source["opacity"].toDouble(1))));
+  }
+
+  // A colour layer becomes a texture layer with the same output shape, and an input shape
+  // that covers the whole image of its generator.
+  for (const QJsonValue& value : legacyObj["layers"].toArray())
+  {
+    const QJsonObject layer = value.toObject();
+    if (layer["className"].toString() != "ColorLayer")
+      continue;
+    Layer::ptr read = manager.getLayerById(layer["id"].toInt());
+    QVERIFY(read);
+    QVERIFY(qobject_cast<TextureLayer*>(read.data()));
+    QCOMPARE(read->getName(), layer["name"].toString());
+    QVERIFY(qFuzzyCompare(read->getOpacity(), float(layer["opacity"].toDouble(1))));
+    QVector<QPointF> legacyVertices;
+    for (const QJsonValue& vertex : layer["destination"].toObject()["vertices"].toArray())
+      legacyVertices << QPointF(vertex.toArray()[0].toDouble(), vertex.toArray()[1].toDouble());
+    // The same points; a quad, now a mesh, lists them in the order of its grid.
+    QVector<QPointF> vertices = read->getShape()->getVertices().mid(0, legacyVertices.size());
+    auto byPosition = [](const QPointF& a, const QPointF& b) {
+      return a.x() < b.x() || (a.x() == b.x() && a.y() < b.y());
+    };
+    std::sort(vertices.begin(), vertices.end(), byPosition);
+    std::sort(legacyVertices.begin(), legacyVertices.end(), byPosition);
+    QCOMPARE(vertices, legacyVertices);
+    QSharedPointer<Texture> texture = qSharedPointerCast<Texture>(read->getSource());
+    QCOMPARE(QPolygonF(read->getInputShape()->getVertices()).boundingRect(), texture->getRect());
+  }
+
+  QCOMPARE(writeProject(manager), readFixture(convertedPath));
 }
 
 void TestProjectRoundTrip::rejectsLegacyXml()
@@ -459,7 +540,7 @@ void TestProjectRoundTrip::skipsUnusableLayers()
   // Layers MapMap cannot show are dropped instead of crashing the interface:
   // a texture layer drawn with a plain Quad (MapMap writes Mesh), a shape
   // field naming a class that is not a shape, and mismatched source and
-  // destination shapes. A color layer drawn with a Quad is fine.
+  // destination shapes. A colour layer of an earlier version drawn with a Quad becomes a mesh.
   const QByteArray project = R"({
     "version": "1.0.0-alpha.1",
     "sources": [
@@ -504,12 +585,12 @@ void TestProjectRoundTrip::derivesEllipseCenter()
   const QByteArray project = R"({
     "version": "1.0.0-beta.1",
     "sources": [
-      { "className": "Color", "id": 1, "name": "red", "color": "#ff0000" },
       { "className": "Image", "id": 2, "name": "picture", "uri": "/nonexistent.png" }
     ],
     "layers": [
-      { "className": "ColorLayer", "id": 1, "name": "without-center", "source_id": 1,
-        "destination": { "className": "Ellipse", "vertices": [[6,20],[10,18],[14,20],[10,22]] } },
+      { "className": "TextureLayer", "id": 1, "name": "without-center", "source_id": 2,
+        "destination": { "className": "Ellipse", "vertices": [[6,20],[10,18],[14,20],[10,22]] },
+        "source":      { "className": "Ellipse", "vertices": [[6,20],[10,18],[14,20],[10,22]] } },
       { "className": "TextureLayer", "id": 2, "name": "with-wrong-center", "source_id": 2,
         "destination": { "className": "Ellipse", "vertices": [[6,20],[10,18],[14,20],[10,22],[50,50]] },
         "source":      { "className": "Ellipse", "vertices": [[6,20],[10,18],[14,20],[10,22],[10,20]] } }

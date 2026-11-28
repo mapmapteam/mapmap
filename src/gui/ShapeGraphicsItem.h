@@ -112,62 +112,6 @@ protected:
   bool _output;
 };
 
-class ColorGraphicsItem : public ShapeGraphicsItem
-{
-protected:
-  ColorGraphicsItem(Layer::ptr mapping, bool output=true)
-    : ShapeGraphicsItem(mapping, output) {}
-public:
-  virtual ~ColorGraphicsItem() {}
-
-protected:
-  virtual void _prePaint(QPainter *painter,
-                        const QStyleOptionGraphicsItem *option);
-};
-
-/// Graphics item for colored polygons (eg. quad, triangle).
-class PolygonColorGraphicsItem : public ColorGraphicsItem
-{
-public:
-  PolygonColorGraphicsItem(Layer::ptr mapping, bool output=true);
-  virtual ~PolygonColorGraphicsItem() {}
-
-  virtual QPainterPath shape() const;
-
-protected:
-  virtual void _doPaint(QPainter *painter,
-                        const QStyleOptionGraphicsItem *option);
-};
-
-/**
- * Graphics item for textured color.
- */
-class MeshColorGraphicsItem : public PolygonColorGraphicsItem
-{
-public:
-  MeshColorGraphicsItem(Layer::ptr mapping, bool output=true);
-  virtual ~MeshColorGraphicsItem(){}
-
-protected:
-  virtual void _doPaint(QPainter *painter,
-                        const QStyleOptionGraphicsItem *option);
-
-};
-
-/// Graphics item for colored polygons (eg. quad, triangle).
-class EllipseColorGraphicsItem : public ColorGraphicsItem
-{
-public:
-  EllipseColorGraphicsItem(Layer::ptr mapping, bool output=true);
-  virtual ~EllipseColorGraphicsItem() {}
-
-  virtual QPainterPath shape() const;
-
-protected:
-  virtual void _doPaint(QPainter *painter,
-                        const QStyleOptionGraphicsItem *option);
-};
-
 /// Abstract class for texture graphics items.
 class TextureGraphicsItem : public ShapeGraphicsItem
 {

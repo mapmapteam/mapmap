@@ -1,7 +1,7 @@
 {
     "layers": [
         {
-            "className": "ColorLayer",
+            "className": "TextureLayer",
             "depth": 7,
             "destination": {
                 "className": "Triangle",
@@ -26,18 +26,40 @@
             "name": "Triangle",
             "opacity": 1,
             "solo": false,
+            "source": {
+                "className": "Triangle",
+                "locked": false,
+                "vertices": [
+                    [
+                        0,
+                        256
+                    ],
+                    [
+                        256,
+                        256
+                    ],
+                    [
+                        128,
+                        0
+                    ]
+                ]
+            },
             "source_id": 3,
             "visible": true
         }
     ],
     "sources": [
         {
-            "className": "Color",
+            "className": "ColorGenerator",
             "color": "#55aa7f",
+            "height": 256,
             "id": 3,
             "locked": false,
             "name": "green",
-            "opacity": 1
+            "opacity": 1,
+            "width": 256,
+            "x": 0,
+            "y": 0
         }
     ],
     "version": "1.0.0-beta.2"
