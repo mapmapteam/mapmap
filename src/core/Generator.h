@@ -24,6 +24,7 @@
 #include <QElapsedTimer>
 #include <QStringList>
 
+#include "FrameStats.h"
 #include "IntermediateImage.h"
 #include "Source.h"
 
@@ -91,6 +92,9 @@ public:
   /// Returns how many times the image was drawn.
   int renderCount() const { return _renderCount; }
 
+  /// Returns the timing of the drawings of the image (see FrameStats).
+  FrameStats* frameStats() { return &_frameStats; }
+
 signals:
   /// Emitted when the size of the image changed, so that shapes fitting the old size can follow.
   void sizeChanged(int sourceId, int oldWidth, int oldHeight, int newWidth, int newHeight);
@@ -117,6 +121,7 @@ private:
   int _renderCount;
 
   IntermediateImage _image;
+  FrameStats _frameStats;
 
   /// The time played before the last pause, and the time since the last play.
   double _playedSeconds;

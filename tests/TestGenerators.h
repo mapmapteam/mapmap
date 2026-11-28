@@ -32,6 +32,7 @@ private slots:
   void colorWheelTurnsWithTime();
   void intermediateImageGivesBackTheFramebuffer();
   void intermediateImagesTakeTurns();
+  void drawingIsTimedWhenEnabled();
 };
 
 #endif /* TEST_GENERATORS_H_ */

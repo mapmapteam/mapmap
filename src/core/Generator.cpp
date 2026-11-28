@@ -145,7 +145,11 @@ Generator::Generator(uid id)
              [this](const QVariant& value) { setSize(_width, value.toInt()); return true; });
 
   // Any change of setting may change the image.
-  connect(this, &Element::settingChanged, this, [this]() { _changed = true; });
+  connect(this, &Element::settingChanged, this, [this](uid, const QString& path) {
+    _changed = true;
+    if (path == QLatin1String("name"))
+      _frameStats.setName(getName());
+  });
 }
 
 Generator::~Generator()
@@ -188,10 +192,29 @@ void Generator::update()
   if (!due)
     return;
 
+  if (_renderCount == 0)
+  {
+    _frameStats.setName(getName());
+    _frameStats.setPath(tr("%1 generator, drawn on the GPU").arg(generatorName()));
+  }
+
+  const bool measuring = FrameStats::isEnabled();
+  const qint64 startNs = measuring ? FrameStats::now() : 0;
+
   _changed = false;
   _renderedFrame = frame;
   if (_image.render(QSize(_width, _height), [this]() { _render(); }))
     _renderCount++;
+
+  if (measuring)
+  {
+    // OpenGL works asynchronously: without glFinish() this only times the
+    // sending of the commands, not the drawing itself.
+    if (FrameStats::isSynchronous())
+      QOpenGLContext::currentContext()->functions()->glFinish();
+    const qint64 endNs = FrameStats::now();
+    _frameStats.record(FrameStats::RENDER, endNs - startNs, endNs);
+  }
 }
 
 void Generator::rewind()

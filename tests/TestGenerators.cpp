@@ -445,3 +445,23 @@ void TestGenerators::intermediateImagesTakeTurns()
     glDeleteTextures(1, &id);
   QCOMPARE(glGetError(), GLenum(GL_NO_ERROR));
 }
+
+void TestGenerators::drawingIsTimedWhenEnabled()
+{
+  OffscreenContext gl;
+  if (!gl.ok)
+    QSKIP("No desktop OpenGL context available");
+
+  FrameStats::setEnabled(true);
+  CheckerGenerator checker;
+  checker.setName("timed checker");
+  checker.setSize(SIZE, SIZE);
+  checker.update();
+  const FrameStats::Summary summary = checker.frameStats()->summary();
+  FrameStats::setEnabled(false);
+
+  QCOMPARE(summary.stages[FrameStats::RENDER].count, 1);
+  QCOMPARE(summary.name, QString("timed checker"));
+  QVERIFY(summary.path.contains("Checker"));
+  QVERIFY(FrameStats::summaryLine(summary).contains("render"));
+}

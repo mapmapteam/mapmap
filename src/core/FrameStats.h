@@ -55,6 +55,8 @@ public:
     PREPARE,
     /// Copy of a new frame to the graphics card.
     UPLOAD,
+    /// Drawing of the image of a generator on the graphics card.
+    RENDER,
     /// Painting of a view, from start to end.
     DRAW,
     /// Time between two paintings of a view.
