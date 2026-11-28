@@ -52,6 +52,7 @@ private slots:
   void ellipseCenterDragTranslates();
   void ellipseCenterDragTiltsInPerspective();
   void ellipseCenterStaysInsideContour();
+  void ellipseCenterDragFromGrabbedShapeIsPathIndependent();
   void ellipseResetsOffCenterControl();
   void flipTwiceRestoresShape();
   void rotateShapeTurnsOutline();
