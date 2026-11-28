@@ -443,7 +443,7 @@ void TestInspector::pointFieldsWriteCoordinates()
   InspectorPage page(&root, "test");
   PointControl* control = qobject_cast<PointControl*>(page.control("vertex"));
 
-  QCOMPARE(control->field(0)->text(), QString("10") + NBSP + "px");
+  QCOMPARE(control->field(0)->text(), QString("10"));
   typeIn(control->field(0), "120");
   QCOMPARE(vertex->value().toPointF(), QPointF(120, 20));
   QTest::keyClick(control->field(1), Qt::Key_Up);
