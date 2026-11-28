@@ -47,6 +47,10 @@ QRect layerRowButtonRect(LayerRowButton button, const QRect& cell);
 /// Returns the button of a column under a position, if any, in button.
 bool layerRowButtonAt(int column, const QRect& cell, const QPoint& position, LayerRowButton* button);
 
+/// Returns the path of the setting of the layer that a button switches, such as "visible",
+/// or an empty text for a button that switches none (Duplicate, Delete).
+QString layerRowButtonSetting(LayerRowButton button);
+
 class LayerItemDelegate : public QStyledItemDelegate
 {
   Q_OBJECT
@@ -68,6 +72,10 @@ signals:
   void itemContextMenuRequested(const QPoint &pos);
   void itemDuplicated(uid itemId);
   void itemRemoved(uid itemId);
+
+private:
+  /// While learning, outlines the button of a layer one can link, with the key linked to it.
+  void _paintLearnOutline(QPainter* painter, LayerRowButton button, const QRect& cell, uid layerId) const;
 
 protected:
   bool editorEvent(QEvent *event, QAbstractItemModel *model,

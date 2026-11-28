@@ -130,6 +130,37 @@ MainWindow::MainWindow()
     return int(mappingManager->getSourceLayers(source).size());
   });
 
+  // Learning: the inspectors and the list of layers ask it what to outline.
+  _learnMode = new LearnMode(this);
+  _learnMode->makeCurrent();
+  _learnMode->setLinks(&mappingManager->links());
+  _learnMode->setElementFinder([this](const SettingGroup* root, LinkTarget::ElementKind* element, uid* id) {
+    for (int i = 0; i < mappingManager->nLayers(); i++) {
+      if (mappingManager->getLayer(i)->settings() == root) {
+        *element = LinkTarget::LayerElement;
+        *id = mappingManager->getLayer(i)->getId();
+        return true;
+      }
+    }
+    for (int i = 0; i < mappingManager->nSources(); i++) {
+      if (mappingManager->getSource(i)->settings() == root) {
+        *element = LinkTarget::SourceElement;
+        *id = mappingManager->getSource(i)->getId();
+        return true;
+      }
+    }
+    return false;
+  });
+  connect(_learnMode, &LearnMode::changed, this, &MainWindow::showLearnMode);
+
+  // The learned keys, listened to in the whole application.
+  _keyLinkFilter = new KeyLinkFilter(&mappingManager->links(), this);
+  qApp->installEventFilter(_keyLinkFilter);
+  connect(_keyLinkFilter, &KeyLinkFilter::linkTriggered, this, &MainWindow::applyLink);
+  connect(_keyLinkFilter, &KeyLinkFilter::keyOffered, this, &MainWindow::learnKey);
+  connect(_keyLinkFilter, &KeyLinkFilter::removeRequested, this, &MainWindow::removeLearnedKey);
+  connect(_keyLinkFilter, &KeyLinkFilter::learningCancelled, _learnMode, &LearnMode::stop);
+
   // Gives the "source_id" setting of layers the sources to choose from.
   Layer::setSourceLister([this]() {
     QVector<Source::ptr> sources;
@@ -1075,6 +1106,99 @@ void MainWindow::about()
   play(false);
 }
 
+void MainWindow::setKeyboardLearning(bool learning)
+{
+  if (learning)
+    _learnMode->start();
+  else
+    _learnMode->stop();
+}
+
+void MainWindow::showLearnMode()
+{
+  const bool learning = _learnMode->isActive();
+  {
+    QSignalBlocker blocker(keyboardLearnAction);
+    keyboardLearnAction->setChecked(learning);
+  }
+  _keyLinkFilter->setLearning(learning);
+  layerList->viewport()->update();
+
+  if (!learning)
+    statusBar()->clearMessage();
+  else if (_learnMode->hasTarget())
+    statusBar()->showMessage(tr("Press a key for %1. Delete removes its key, Escape stops learning.")
+                             .arg(linkTargetLabel(_learnMode->target())));
+  else
+    statusBar()->showMessage(tr("Keyboard learn: click a control outlined in blue, then press a key. "
+                                "Escape stops learning."));
+}
+
+void MainWindow::learnKey(const QString& key)
+{
+  // The shortcut of the command stops learning, as the command does.
+  const QKeySequence sequence = QKeySequence::fromString(key, QKeySequence::PortableText);
+  if (keyboardLearnAction->shortcut().matches(sequence) == QKeySequence::ExactMatch)
+  {
+    _learnMode->stop();
+    return;
+  }
+
+  const LinkTrigger trigger = LinkTrigger::forKey(key);
+  if (!_learnMode->hasTarget())
+  {
+    statusBar()->showMessage(tr("Click a control outlined in blue first, then press %1.").arg(trigger.text()));
+    return;
+  }
+
+  // A key MapMap uses keeps doing what it does.
+  const QString command = commandOfKey(key, findChildren<QAction*>());
+  if (!command.isEmpty())
+  {
+    statusBar()->showMessage(tr("%1 is already the shortcut of %2: choose another key.")
+                             .arg(trigger.text(), command));
+    return;
+  }
+
+  Link link;
+  link.trigger = trigger;
+  link.target = _learnMode->target();
+  mappingManager->links().add(link);
+  const QString label = linkTargetLabel(link.target);
+  _learnMode->clearTarget();
+  statusBar()->showMessage(tr("%1 → %2").arg(trigger.text(), label));
+}
+
+void MainWindow::removeLearnedKey()
+{
+  if (!_learnMode->hasTarget())
+    return;
+  const LinkTarget target = _learnMode->target();
+  const bool removed = mappingManager->links().remove(target, LinkTrigger::Key);
+  _learnMode->clearTarget();
+  if (removed)
+    statusBar()->showMessage(tr("Key removed from %1").arg(linkTargetLabel(target)));
+}
+
+void MainWindow::applyLink(int index)
+{
+  const LinkTable& links = mappingManager->links();
+  if (index < 0 || index >= links.count())
+    return;
+  // A link to a deleted element does nothing, until the deletion is undone.
+  applyLinkAction(mappingManager->linkTargetSetting(links.links().at(index).target),
+                  links.links().at(index).action);
+}
+
+QString MainWindow::linkTargetLabel(const LinkTarget& target) const
+{
+  const Element::ptr element = mappingManager->linkTargetElement(target);
+  const Setting* setting = mappingManager->linkTargetSetting(target);
+  if (!element || !setting)
+    return target.describe();
+  return tr("%1: %2").arg(element->getName(), setting->info().label());
+}
+
 void MainWindow::updateStatusBar()
 {
   updateMouseCoordinates();
@@ -1395,6 +1519,9 @@ void MainWindow::openRecentVideo()
 
 bool MainWindow::clearProject()
 {
+  // The settings chosen for learning belong to the project.
+  _learnMode->stop();
+
   // Disconnect signals to avoid problems when clearning layerList and sourceList.
   disconnectProjectWidgets();
 
@@ -1905,6 +2032,8 @@ void MainWindow::createLayout()
   _preferenceDialog = new PreferenceDialog(this);
 
   outputWindow = new OutputGLWindow(this, destinationCanvas);
+  // The learned keys act in the output window too, full screen on the projector.
+  outputWindow->setProperty(ACCEPTS_LEARNED_KEYS_PROPERTY, true);
   outputWindow->installEventFilter(destinationCanvas);
 
   // Source scene changed -> change destination.
@@ -2429,6 +2558,14 @@ void MainWindow::createActions()
   // Manage sticky vertices
   connect(stickyVerticesAction, &QAction::toggled, this, &MainWindow::enableStickyVertices);
 
+  keyboardLearnAction = new QAction(tr("&Keyboard Learn"), this);
+  keyboardLearnAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_K);
+  keyboardLearnAction->setToolTip(tr("Link keys of the keyboard to settings: click a control, then press a key"));
+  keyboardLearnAction->setCheckable(true);
+  keyboardLearnAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(keyboardLearnAction);
+  connect(keyboardLearnAction, &QAction::toggled, this, &MainWindow::setKeyboardLearning);
+
   displayTestSignalAction = new QAction(tr("Show &Test Signal"), this);
   displayTestSignalAction->setShortcut(Qt::ALT | Qt::Key_T);
   displayTestSignalAction->setIcon(QIcon(":/toggle-test-signal"));
@@ -2678,6 +2815,8 @@ void MainWindow::createMenus()
 
   // Sticky vertices
   editMenu->addAction(stickyVerticesAction);
+  editMenu->addSeparator();
+  editMenu->addAction(keyboardLearnAction);
   editMenu->addSeparator();
   // Preferences
   editMenu->addAction(preferencesAction);

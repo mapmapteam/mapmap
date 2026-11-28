@@ -56,6 +56,9 @@ public:
   /// Returns the path of the setting, relative to the topmost group.
   QString path() const { return _path; }
 
+  /// Returns the topmost group of the tree of the setting.
+  SettingGroup* root() const { return _root; }
+
   /// Returns the setting, or nullptr when the tree no longer has it.
   Setting* setting() const;
 

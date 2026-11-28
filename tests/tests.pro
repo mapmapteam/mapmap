@@ -47,6 +47,8 @@ HEADERS += \
     $$SHAPE/Shapes.h \
     $$SHAPE/ShapeHandles.h \
     $$GUI/HandleModeKeys.h \
+    $$GUI/LearnMode.h \
+    $$GUI/LinkKeys.h \
     $$CONTROL/OscAction.h \
     $$CONTROL/RemoteSettingWrite.h \
     $$CORE/VideoImpl.h \
@@ -73,7 +75,8 @@ HEADERS += \
     TestSettings.h \
     TestSettingFormat.h \
     TestInspector.h \
-    TestLinks.h
+    TestLinks.h \
+    TestLinkKeys.h
 
 SOURCES += \
     $$CORE/MM.cpp \
@@ -93,6 +96,8 @@ SOURCES += \
     $$SHAPE/Ellipse.cpp \
     $$SHAPE/ShapeHandles.cpp \
     $$GUI/HandleModeKeys.cpp \
+    $$GUI/LearnMode.cpp \
+    $$GUI/LinkKeys.cpp \
     $$CONTROL/OscAction.cpp \
     $$CONTROL/RemoteSettingWrite.cpp \
     $$CORE/VideoImpl.cpp \
@@ -121,7 +126,8 @@ SOURCES += \
     TestSettings.cpp \
     TestSettingFormat.cpp \
     TestInspector.cpp \
-    TestLinks.cpp
+    TestLinks.cpp \
+    TestLinkKeys.cpp
 
 # The inspector.
 HEADERS += $$GUI/inspector/SettingFormat.h $$GUI/inspector/SettingControl.h \

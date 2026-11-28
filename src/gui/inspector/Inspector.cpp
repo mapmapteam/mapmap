@@ -33,6 +33,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+#include "LearnMode.h"
+
 namespace mmp {
 
 namespace {
@@ -84,6 +86,24 @@ const int DISABLED_WHITE_ALPHA = 110;
 
 /// Opacity of the white of secondary text, such as the kind of the element.
 const int SECONDARY_WHITE_ALPHA = 150;
+
+/// Colour of the outline of a control one can link, while learning.
+const QColor LEARN_OUTLINE_COLOR(0x3d, 0xae, 0xe9);
+
+/// Opacity of the filling of the control chosen while learning, between 0 and 255.
+const int LEARN_CHOSEN_ALPHA = 70;
+
+/// Width of the outline of a control one can link, in pixels.
+const int LEARN_OUTLINE_WIDTH = 2;
+
+/// Radius of the corners of the outline, in pixels.
+const int LEARN_OUTLINE_RADIUS = 3;
+
+/// Room around a control for its outline, in pixels.
+const int LEARN_OUTLINE_MARGIN = 2;
+
+/// Horizontal padding of the trigger written on the outline, in pixels.
+const int LEARN_BADGE_PADDING = 4;
 
 /// Joins the labels of settings sharing a row.
 const QString SHARED_LABEL_SEPARATOR = QStringLiteral(" × ");
@@ -175,6 +195,99 @@ void InspectorRowLabel::mouseReleaseEvent(QMouseEvent* event)
 }
 
 // ---------------------------------------------------------------------------------------------
+// LearnOverlay
+
+namespace {
+
+/**
+ * The outline of a control one can link, shown on top of it while learning: it names the key
+ * linked to the setting, and a click on it chooses the setting for the next key.
+ */
+class LearnOverlay : public QWidget {
+public:
+  LearnOverlay(SettingControl* control, QWidget* parent)
+    : QWidget(parent),
+      _control(control)
+  {
+    control->installEventFilter(this);
+    LearnMode* learn = LearnMode::current();
+    connect(learn, &LearnMode::changed, this, [this]() { _show(); });
+    connect(learn, &LearnMode::linksChanged, this, [this]() { update(); });
+    _show();
+  }
+
+protected:
+  bool eventFilter(QObject* watched, QEvent* event) override
+  {
+    if (watched == _control && (event->type() == QEvent::Move || event->type() == QEvent::Resize))
+      _place();
+    return QWidget::eventFilter(watched, event);
+  }
+
+  void paintEvent(QPaintEvent*) override
+  {
+    LearnMode* learn = LearnMode::current();
+    LinkTarget target;
+    if (!learn || !learn->targetOf(_control->root(), _control->path(), &target))
+      return;
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    const QRectF frame = QRectF(rect()).adjusted(1, 1, -1, -1);
+    if (learn->isChosen(target)) {
+      QColor fill = LEARN_OUTLINE_COLOR;
+      fill.setAlpha(LEARN_CHOSEN_ALPHA);
+      painter.setBrush(fill);
+    }
+    painter.setPen(QPen(LEARN_OUTLINE_COLOR, LEARN_OUTLINE_WIDTH));
+    painter.drawRoundedRect(frame, LEARN_OUTLINE_RADIUS, LEARN_OUTLINE_RADIUS);
+
+    const QString trigger = learn->triggerText(target);
+    if (!trigger.isEmpty()) {
+      const int width = fontMetrics().horizontalAdvance(trigger) + 2 * LEARN_BADGE_PADDING;
+      const QRect badge(rect().right() - width, rect().top(), width, rect().height());
+      painter.fillRect(badge, LEARN_OUTLINE_COLOR);
+      painter.setPen(MAPMAP_DARK_GRAY);
+      painter.drawText(badge, Qt::AlignCenter, trigger);
+    }
+  }
+
+  void mousePressEvent(QMouseEvent* event) override
+  {
+    LearnMode* learn = LearnMode::current();
+    LinkTarget target;
+    if (event->button() == Qt::LeftButton && learn
+        && learn->targetOf(_control->root(), _control->path(), &target))
+      learn->choose(target);
+    event->accept();
+  }
+
+private:
+  /// Follows the control, with room for the outline.
+  void _place()
+  {
+    setGeometry(_control->geometry().adjusted(-LEARN_OUTLINE_MARGIN, -LEARN_OUTLINE_MARGIN,
+                                              LEARN_OUTLINE_MARGIN, LEARN_OUTLINE_MARGIN));
+  }
+
+  /// Shown while learning, over the control.
+  void _show()
+  {
+    LearnMode* learn = LearnMode::current();
+    const bool shown = learn && learn->isActive() && canBeLinked(_control->setting());
+    if (shown) {
+      _place();
+      raise();
+    }
+    setVisible(shown);
+    update();
+  }
+
+  SettingControl* _control;
+};
+
+} // namespace
+
+// ---------------------------------------------------------------------------------------------
 // InspectorRow
 
 InspectorRow::InspectorRow(const QString& label, const QList<SettingControl*>& controls, QWidget* parent)
@@ -217,6 +330,14 @@ InspectorRow::InspectorRow(const QString& label, const QList<SettingControl*>& c
   if (!descriptions.isEmpty())
     setToolTip(descriptions.join(QChar('\n')));
   updateEnabled();
+
+  // While learning, the controls one can link are outlined, and a click chooses one.
+  if (LearnMode::current()) {
+    for (SettingControl* control : _controls) {
+      if (canBeLinked(control->setting()))
+        new LearnOverlay(control, this);
+    }
+  }
 }
 
 void InspectorRow::updateEnabled()

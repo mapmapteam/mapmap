@@ -50,6 +50,8 @@
 
 #include "SourceGui.h"
 #include "HandleModeKeys.h"
+#include "LearnMode.h"
+#include "LinkKeys.h"
 
 namespace mmp {
 
@@ -436,9 +438,40 @@ public:
   /// The keys that restrict the handle of the current shape to rotating or scaling.
   HandleModeKeys* handleModeKeys() const { return _handleModeKeys; }
 
+  /// What learning shows and which setting is chosen (owned by the window).
+  LearnMode* learnMode() const { return _learnMode; }
+
 private:
   // Follows R and S for the handles of the shapes (owned by the window).
   HandleModeKeys* _handleModeKeys = nullptr;
+
+  // The state of learning, which the inspectors and the list of layers show.
+  LearnMode* _learnMode = nullptr;
+
+  // Listens to the learned keys, and to the keys offered while learning.
+  KeyLinkFilter* _keyLinkFilter = nullptr;
+
+  // Starts and stops learning keys.
+  QAction* keyboardLearnAction = nullptr;
+
+  /// Starts or stops learning keys, from the command of the menu.
+  void setKeyboardLearning(bool learning);
+
+  /// Shows the state of learning: the command, the outlines and the status bar.
+  void showLearnMode();
+
+  /// Links a key offered while learning to the setting chosen, unless MapMap uses it.
+  void learnKey(const QString& key);
+
+  /// Removes the key of the setting chosen while learning.
+  void removeLearnedKey();
+
+  /// Applies the link at index of the links of the project.
+  void applyLink(int index);
+
+  /// Returns the element and the setting of a target as shown to the user, such as
+  /// "Facade: Visible".
+  QString linkTargetLabel(const LinkTarget& target) const;
 
   // The singleton, published as soon as construction starts so that anything
   // triggered from inside the constructor (e.g. restoring the output window in
