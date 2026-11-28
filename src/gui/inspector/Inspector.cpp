@@ -29,8 +29,8 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QSettings>
-#include <QStackedWidget>
 #include <QTabBar>
+#include <QTabWidget>
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -893,8 +893,7 @@ Inspector::Inspector(QWidget* parent)
   : QWidget(parent),
     _name(new QLabel(this)),
     _kind(new QLabel(this)),
-    _tabs(new QTabBar(this)),
-    _pages(new QStackedWidget(this))
+    _tabs(new QTabWidget(this))
 {
   useMapMapColors(this);
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -912,11 +911,13 @@ Inspector::Inspector(QWidget* parent)
   header->addWidget(_kind);
   layout->addLayout(header);
 
-  _tabs->setExpanding(false);
-  _tabs->setDrawBase(false);
-  layout->addWidget(_tabs);
-  layout->addWidget(_pages, 1);
-  connect(_tabs, &QTabBar::currentChanged, _pages, &QStackedWidget::setCurrentIndex);
+  _tabs->tabBar()->setExpanding(false);
+  layout->addWidget(_tabs, 1);
+}
+
+QTabBar* Inspector::tabBar() const
+{
+  return _tabs->tabBar();
 }
 
 void Inspector::setHeader(const QString& name, const QString& kind)
@@ -932,32 +933,29 @@ QString Inspector::headerName() const
 
 InspectorPage* Inspector::addPage(const QString& title, SettingGroup* root, const QString& key)
 {
-  InspectorPage* page = new InspectorPage(root, key, _pages);
-  _pages->addWidget(page);
-  _tabs->addTab(title);
+  InspectorPage* page = new InspectorPage(root, key, _tabs);
+  _tabs->addTab(page, title);
   connect(page, &InspectorPage::edited, this, &Inspector::edited);
   return page;
 }
 
 void Inspector::clearPages()
 {
-  while (_tabs->count() > 0)
+  while (_tabs->count() > 0) {
+    QWidget* page = _tabs->widget(0);
     _tabs->removeTab(0);
-  while (_pages->count() > 0) {
-    QWidget* page = _pages->widget(0);
-    _pages->removeWidget(page);
     page->deleteLater();
   }
 }
 
 int Inspector::pageCount() const
 {
-  return _pages->count();
+  return _tabs->count();
 }
 
 InspectorPage* Inspector::page(int index) const
 {
-  return qobject_cast<InspectorPage*>(_pages->widget(index));
+  return qobject_cast<InspectorPage*>(_tabs->widget(index));
 }
 
 } // namespace mmp

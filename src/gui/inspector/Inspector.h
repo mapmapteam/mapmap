@@ -30,8 +30,8 @@
 
 class QLabel;
 class QMenu;
-class QStackedWidget;
 class QTabBar;
+class QTabWidget;
 class QTimer;
 class QToolButton;
 class QVBoxLayout;
@@ -279,7 +279,7 @@ public:
   InspectorPage* page(int index) const;
 
   /// Returns the tab bar, for tests.
-  QTabBar* tabBar() const { return _tabs; }
+  QTabBar* tabBar() const;
 
 signals:
   /// The user changed a value in one of the tabs.
@@ -288,8 +288,9 @@ signals:
 private:
   QLabel* _name;
   QLabel* _kind;
-  QTabBar* _tabs;
-  QStackedWidget* _pages;
+  /// The tabs and their pages: the same widget as the other tabs of MapMap, so that they look
+  /// the same.
+  QTabWidget* _tabs;
 };
 
 } // namespace mmp
