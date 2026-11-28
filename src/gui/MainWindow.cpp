@@ -20,6 +20,9 @@
  */
 
 #include "MainWindow.h"
+
+#include <algorithm>
+
 #include "PreferenceDialog.h"
 #include "OutputResolutionEditor.h"
 #include "AboutDialog.h"
@@ -3237,7 +3240,19 @@ bool MainWindow::loadFile(const QString &fileName)
                          tr("MapMap skipped these project entries:\n%1")
                          .arg(reader.skippedEntries().join(", ")));
   settings.setValue("defaultProjectDir", currentDir.absoluteFilePath(fileName));
-  statusBar()->showMessage(tr("File loaded"), 2000);
+
+  // Before the show, say how many links act and how many were left out (their element or
+  // setting is missing), rather than finding out during it.
+  const int skippedLinks = int(std::count_if(reader.skippedEntries().cbegin(), reader.skippedEntries().cend(),
+                                             [](const QString& entry) { return entry.startsWith(QStringLiteral("link")); }));
+  const int links = mappingManager->links().count();
+  if (links == 0 && skippedLinks == 0)
+    statusBar()->showMessage(tr("File loaded"), 2000);
+  else if (skippedLinks == 0)
+    statusBar()->showMessage(tr("File loaded: %n link(s) active", "", links), LOADED_LINKS_MESSAGE_MS);
+  else
+    statusBar()->showMessage(tr("File loaded: %n link(s) active", "", links) + tr(", %n left out", "", skippedLinks),
+                             LOADED_LINKS_MESSAGE_MS);
   setCurrentFile(fileName);
 
   return true;

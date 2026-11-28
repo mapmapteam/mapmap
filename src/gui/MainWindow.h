@@ -857,6 +857,8 @@ public:
   static const int CANVAS_MINIMUM_HEIGHT = 270;
   // How long the status bar says that the learned keys were turned on or off, in milliseconds.
   static const int LEARNED_KEYS_MESSAGE_MS = 3000;
+  // How long the status bar gives the links of a project just opened, in milliseconds.
+  static const int LOADED_LINKS_MESSAGE_MS = 8000;
   // Size of the area a new shape is placed in, relative to the output frame.
   static constexpr qreal NEW_SHAPE_OUTPUT_SCALE = 0.5;
 
