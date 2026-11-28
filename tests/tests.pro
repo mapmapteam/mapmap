@@ -50,6 +50,8 @@ HEADERS += \
     $$GUI/LearnMode.h \
     $$GUI/LinkKeys.h \
     $$GUI/LinksWindow.h \
+    $$GUI/LayerItemDelegate.h \
+    $$GUI/LayerListModel.h \
     $$CONTROL/OscAction.h \
     $$CONTROL/RemoteSettingWrite.h \
     $$CORE/VideoImpl.h \
@@ -100,6 +102,8 @@ SOURCES += \
     $$GUI/LearnMode.cpp \
     $$GUI/LinkKeys.cpp \
     $$GUI/LinksWindow.cpp \
+    $$GUI/LayerItemDelegate.cpp \
+    $$GUI/LayerListModel.cpp \
     $$CONTROL/OscAction.cpp \
     $$CONTROL/RemoteSettingWrite.cpp \
     $$CORE/VideoImpl.cpp \

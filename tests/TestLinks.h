@@ -34,6 +34,7 @@ private slots:
   void onlyNormalizedSettingsCanBeLinked();
   void findsTargetsInProject();
   void windowListsLinks();
+  void clickOnEyeChoosesItWhileLearning();
 };
 
 #endif /* TEST_LINKS_H_ */

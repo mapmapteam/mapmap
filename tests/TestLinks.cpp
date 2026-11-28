@@ -17,6 +17,12 @@
 
 #include "Link.h"
 #include "LinksWindow.h"
+#include "LayerItemDelegate.h"
+#include "LayerListModel.h"
+#include "LearnMode.h"
+
+#include <QHeaderView>
+#include <QTableView>
 #include "MappingManager.h"
 #include "Setting.h"
 #include "Shapes.h"
@@ -310,4 +316,38 @@ void TestLinks::windowListsLinks()
   remove->click();
   QVERIFY(manager.links().isEmpty());
   QTRY_COMPARE(window.table()->rowCount(), 0);
+}
+
+void TestLinks::clickOnEyeChoosesItWhileLearning()
+{
+  Source::ptr color(new Color());
+  Layer::ptr layer = makeColorLayer(color);
+  layer->setName("Facade");
+
+  // The list of layers, as the main window makes it.
+  LayerListModel model;
+  model.addItem(layer, QIcon(), layer->getName());
+  LayerItemDelegate delegate;
+  QTableView view;
+  view.setModel(&model);
+  view.setItemDelegate(&delegate);
+  view.setMouseTracking(true);
+  view.setColumnWidth(MM::HideColumn, MM::MAPPING_LIST_HIDE_COLUMN);
+  view.setColumnWidth(MM::IconAndNameColum, MM::MAPPING_LIST_NAME_COLUMN);
+  view.setColumnWidth(MM::GroupButtonColum, MM::MAPPING_LIST_BUTTONS_COLUMN);
+  view.verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  view.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&view));
+
+  LearnMode learn;
+  learn.makeCurrent();
+  learn.start();
+
+  const QModelIndex eye = model.index(0, MM::HideColumn);
+  const QPoint center = layerRowButtonRect(LayerRowButton::Hide, view.visualRect(eye)).center();
+  QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, center);
+  QVERIFY2(learn.hasTarget(), "the click on the eye chose nothing");
+  QCOMPARE(learn.target(), LinkTarget::of(LinkTarget::LayerElement, layer->getId(), "visible"));
+  // While learning, the click does not hide the layer.
+  QCOMPARE(model.data(eye, Qt::CheckStateRole).toInt(), int(Qt::Checked));
 }
