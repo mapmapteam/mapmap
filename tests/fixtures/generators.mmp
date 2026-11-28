@@ -161,6 +161,65 @@
                     ]
                 ]
             }
+        },
+        {
+            "className": "TextureLayer",
+            "id": 4,
+            "depth": 4,
+            "name": "Color on a quad",
+            "locked": false,
+            "opacity": 0.5,
+            "solo": false,
+            "visible": true,
+            "source_id": 4,
+            "destination": {
+                "className": "Mesh",
+                "locked": false,
+                "n_columns": 2,
+                "n_rows": 2,
+                "vertices": [
+                    [
+                        600,
+                        500
+                    ],
+                    [
+                        900,
+                        500
+                    ],
+                    [
+                        600,
+                        800
+                    ],
+                    [
+                        900,
+                        800
+                    ]
+                ]
+            },
+            "source": {
+                "className": "Mesh",
+                "locked": false,
+                "n_columns": 2,
+                "n_rows": 2,
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1024,
+                        0
+                    ],
+                    [
+                        0,
+                        1024
+                    ],
+                    [
+                        1024,
+                        1024
+                    ]
+                ]
+            }
         }
     ],
     "sources": [
@@ -206,6 +265,18 @@
             "height": 1024,
             "speed": 0.5,
             "reverse": true
+        },
+        {
+            "className": "ColorGenerator",
+            "id": 4,
+            "name": "#3366cc",
+            "locked": false,
+            "opacity": 1,
+            "x": 0,
+            "y": 0,
+            "width": 1024,
+            "height": 1024,
+            "color": "#3366cc"
         }
     ]
 }

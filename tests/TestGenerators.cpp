@@ -138,9 +138,14 @@ void TestGenerators::generatorsDeclareTheirSettings()
   QCOMPARE(leafPaths(wheel), wheelPaths);
   QCOMPARE(undescribedPaths(wheel), QStringList());
 
+  ColorGenerator color;
+  const QStringList colorPaths = generator + QStringList { "color" };
+  QCOMPARE(leafPaths(color), colorPaths);
+  QCOMPARE(undescribedPaths(color), QStringList());
+
   // Only the colour wheel changes with time.
   QVERIFY(wheel.isAnimated());
-  QVERIFY(!checker.isAnimated() && !grid.isAnimated());
+  QVERIFY(!checker.isAnimated() && !grid.isAnimated() && !color.isAnimated());
 }
 
 void TestGenerators::frameCounterGrows()
@@ -181,6 +186,22 @@ void TestGenerators::sizeChangeIsSignalled()
   // The same size again changes nothing.
   grid.setSize(800, 600);
   QCOMPARE(spy.count(), 0);
+}
+
+void TestGenerators::colorFillsTheImage()
+{
+  OffscreenContext gl;
+  if (!gl.ok)
+    QSKIP("No desktop OpenGL context available");
+
+  const QColor color(10, 200, 30, 128);
+  ColorGenerator generator(color);
+  generator.setSize(SIZE, SIZE);
+  const QImage image = drawnImage(generator);
+  QCOMPARE(generator.renderCount(), 1);
+  CHECK_PIXEL(image, 0, 0, color);
+  CHECK_PIXEL(image, SIZE - 1, SIZE - 1, color);
+  QCOMPARE(glGetError(), GLenum(GL_NO_ERROR));
 }
 
 void TestGenerators::checkerStartsWithFrontColorAtTopLeft()

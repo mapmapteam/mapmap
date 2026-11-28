@@ -85,6 +85,27 @@ private:
   double _turnsTime;
 };
 
+/// A plain colour, alpha included, that shapes read as an image.
+class ColorGenerator : public ShaderGenerator
+{
+  Q_OBJECT
+
+public:
+  Q_INVOKABLE ColorGenerator(int id = NULL_UID);
+
+  /// Creates a colour generator of the given colour.
+  ColorGenerator(const QColor& color, uid id = NULL_UID);
+
+  virtual QString generatorName() const { return tr("Color"); }
+  virtual QIcon getIcon() const;
+
+  /// Returns the colour.
+  QColor color() const;
+
+protected:
+  virtual QString _fragmentShader() const;
+};
+
 } // namespace mmp
 
 #endif /* GENERATORS_H_ */

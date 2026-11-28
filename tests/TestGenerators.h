@@ -24,6 +24,7 @@ private slots:
   void frameCounterGrows();
   void sizeStaysWithinBounds();
   void sizeChangeIsSignalled();
+  void colorFillsTheImage();
   void checkerStartsWithFrontColorAtTopLeft();
   void gridLinesArePixelExact();
   void stillGeneratorDrawsOnlyWhenChanged();

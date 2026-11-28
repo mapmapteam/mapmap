@@ -41,6 +41,9 @@ const double THICKNESS_SLIDER_MAX = 20.0;
 const double DEFAULT_TURNS_PER_SECOND = 0.1;
 const double TURNS_SLIDER_MAX = 2.0;
 
+/// Default colour of a colour generator: a mid grey.
+const QColor DEFAULT_GENERATOR_COLOR(128, 128, 128);
+
 /// Squares, cells or lines on each side of an icon.
 const int ICON_DIVISIONS = 4;
 
@@ -255,6 +258,39 @@ QIcon ColorWheelGenerator::getIcon() const
   painter.setBrush(gradient);
   painter.drawEllipse(pixmap.rect());
   return QIcon(pixmap);
+}
+
+ColorGenerator::ColorGenerator(int id)
+  : ShaderGenerator(id)
+{
+  settings()->addSetting(SettingInfo::color("color", tr("Color"))
+                         .defaultValue(DEFAULT_GENERATOR_COLOR)
+                         .description(tr("The colour of the whole image, transparency included.")));
+  _addShaderInput("color");
+}
+
+ColorGenerator::ColorGenerator(const QColor& color, uid id)
+  : ColorGenerator(int(id))
+{
+  settings()->find("color")->setValue(color);
+}
+
+QColor ColorGenerator::color() const
+{
+  return colorSetting(this, "color");
+}
+
+QString ColorGenerator::_fragmentShader() const
+{
+  return QStringLiteral(
+    "void main() {\n"
+    "  gl_FragColor = color;\n"
+    "}\n");
+}
+
+QIcon ColorGenerator::getIcon() const
+{
+  return QIcon(iconPixmap(color()));
 }
 
 } // namespace mmp

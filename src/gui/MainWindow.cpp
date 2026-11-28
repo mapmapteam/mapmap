@@ -850,7 +850,10 @@ void MainWindow::addColor()
 #endif
   if (color.isValid())
   {
-    addColorSource(color);
+    // A colour is a generator: its layers have an input shape, like those of an image.
+    ColorGenerator* generator = new ColorGenerator(color);
+    generator->setName(strippedName(color.name()));
+    addGenerator(generator);
   }
 
   // Restart video playback if it was previously playing. XXX Hack

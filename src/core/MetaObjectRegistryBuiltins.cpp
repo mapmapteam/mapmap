@@ -38,6 +38,7 @@ void MetaObjectRegistry::addBuiltinTypes()
   add<CheckerGenerator>();
   add<GridGenerator>();
   add<ColorWheelGenerator>();
+  add<ColorGenerator>();
 
   // Layers (formerly Mappings).
   add<TextureLayer>();
