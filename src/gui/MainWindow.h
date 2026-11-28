@@ -185,8 +185,6 @@ private slots:
 
   void updateSettings();
 
-  void updateLayerListColumnWidth();
-
 public slots:
 
   // Layer creation.
@@ -858,6 +856,8 @@ public:
   static const int SHAPE_LIST_ITEM_HEIGHT = 40;
   static const int PAINT_LIST_MINIMUM_HEIGHT = 290;
   static const int MAPPING_LIST_MINIMUM_HEIGHT = 290;
+  // Narrowest the column of the names of the list of layers may get, in pixels.
+  static const int MAPPING_LIST_NAME_MINIMUM_WIDTH = 80;
   static const int PAINT_PROPERTY_PANEL_MINIMUM_HEIGHT = 290;
   static const int MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT = 290;
   static const int CANVAS_MINIMUM_WIDTH  = 480;

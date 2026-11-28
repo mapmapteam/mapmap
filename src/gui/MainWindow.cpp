@@ -337,7 +337,6 @@ void MainWindow::handleLayerItemSelectionChanged(const QModelIndex &index)
 
   // Update canvases.
   updateCanvases();
-  updateLayerListColumnWidth();
 }
 
 void MainWindow::handleLayerItemChanged(const QModelIndex &index)
@@ -2017,9 +2016,16 @@ void MainWindow::createLayout()
   layerList->horizontalHeader()->hide();
   layerList->verticalHeader()->hide();
   layerList->setMouseTracking(true);// Important
-  layerList->setColumnWidth(0, MM::MAPPING_LIST_HIDE_COLUMN);
-  layerList->setColumnWidth(1, MM::MAPPING_LIST_NAME_COLUMN);
-  layerList->setColumnWidth(2, MM::MAPPING_LIST_BUTTONS_COLUMN);
+  // The eye and the buttons keep their width; the name takes the rest, so that the eye and
+  // the buttons stay in view whatever the width of the panel.
+  layerList->setColumnWidth(MM::HideColumn, MM::MAPPING_LIST_HIDE_COLUMN);
+  layerList->setColumnWidth(MM::GroupButtonColum, MM::MAPPING_LIST_BUTTONS_COLUMN);
+  layerList->horizontalHeader()->setSectionResizeMode(MM::HideColumn, QHeaderView::Fixed);
+  layerList->horizontalHeader()->setSectionResizeMode(MM::IconAndNameColum, QHeaderView::Stretch);
+  layerList->horizontalHeader()->setSectionResizeMode(MM::GroupButtonColum, QHeaderView::Fixed);
+  layerList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  layerList->setMinimumWidth(MM::MAPPING_LIST_HIDE_COLUMN + MAPPING_LIST_NAME_MINIMUM_WIDTH
+                             + MM::MAPPING_LIST_BUTTONS_COLUMN);
 
   // Create property panel.
   layerPropertyPanel = new QStackedWidget;
@@ -2108,7 +2114,6 @@ void MainWindow::createLayout()
   mainSplitter = new QSplitter(Qt::Horizontal);
   mainSplitter->addWidget(canvasSplitter);
   mainSplitter->addWidget(contentTab);
-  connect(mainSplitter, &QSplitter::splitterMoved, this, &MainWindow::updateLayerListColumnWidth);
 
   // Initialize size to 9:1 proportions.
   QSize sz = mainSplitter->size();
@@ -4666,11 +4671,6 @@ void MainWindow::openShortcutWindow()
 void MainWindow::updateSettings()
 {
   stickyVerticesAction->setChecked(settings.value("stickyVertices").toBool());
-}
-
-void MainWindow::updateLayerListColumnWidth()
-{
-  layerList->setColumnWidth(1, layerList->horizontalHeader()->width() - (MM::MAPPING_LIST_HIDE_COLUMN + MM::MAPPING_LIST_BUTTONS_COLUMN));
 }
 
 // void MainWindow::applyOscCommand(const QVariantList& command)
