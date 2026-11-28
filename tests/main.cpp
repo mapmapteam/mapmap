@@ -23,6 +23,7 @@
 #include "TestFrameStats.h"
 #include "TestUidAllocator.h"
 #include "TestShape.h"
+#include "TestShapeGeometry.h"
 #include "TestHandleModeKeys.h"
 #include "TestOsc.h"
 #include "TestFileVersion.h"
@@ -96,6 +97,10 @@ int main(int argc, char** argv)
   }
   {
     TestShape test;
+    status |= QTest::qExec(&test, argc, argv);
+  }
+  {
+    TestShapeGeometry test;
     status |= QTest::qExec(&test, argc, argv);
   }
   {

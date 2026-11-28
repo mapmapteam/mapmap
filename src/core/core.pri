@@ -17,6 +17,7 @@ HEADERS += $$PWD/Commands.h \
     $$PWD/Serializable.h \
     $$PWD/Setting.h \
     $$PWD/SettingJson.h \
+    $$PWD/ShapeGeometry.h \
     $$PWD/UidAllocator.h \
     $$PWD/VideoImpl.h \
     $$PWD/VideoPlayerImpl.h \
@@ -39,6 +40,7 @@ SOURCES += $$PWD/Commands.cpp \
     $$PWD/Serializable.cpp \
     $$PWD/Setting.cpp \
     $$PWD/SettingJson.cpp \
+    $$PWD/ShapeGeometry.cpp \
     $$PWD/UidAllocator.cpp \
     $$PWD/VideoImpl.cpp \
     $$PWD/VideoPlayerImpl.cpp \

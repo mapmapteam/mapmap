@@ -28,6 +28,9 @@
 #include "Source.h"
 #include <QString>
 #include <QImage>
+#include <QVector>
+
+#include "ShapeGeometry.h"
 
 namespace mmp {
 
@@ -36,15 +39,11 @@ namespace mmp {
  */
 namespace Util {
 
-/// Calls glTexCoord2f() with the corrected texture coordinates.
-void correctGlTexCoord(GLfloat x, GLfloat y);
-
 /**
- * Takes a point (intputPoint) on texture and outputs it as a GL vertex on output (outputPoint).
- * Useful in texture mappings, where one often needs to call this function to project points from texture
- * between glBegin(<GL_SHAPE>) and glEnd() calls.
+ * Draws triangles (three vertices each) with the texture that is bound, using the
+ * legacy OpenGL calls. Temporary: the shape renderer replaces it.
  */
-void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint);
+void drawTexturedTriangles(const QVector<TexturedVertex>& vertices);
 
 /**
  * Gives the glTexImage2D format/type that reads a 32-bit QImage's bits

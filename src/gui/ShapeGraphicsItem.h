@@ -35,6 +35,7 @@
 #include "Source.h"
 #include "Layer.h"
 #include "MapperGLCanvas.h"
+#include "ShapeGeometry.h"
 
 namespace mmp {
 
@@ -220,16 +221,12 @@ public:
  */
 class MeshTextureGraphicsItem : public PolygonTextureGraphicsItem
 {
-  // Internal use (cache). A structure consisting of the input and output quads of mapping.
-  struct CacheQuadMapping {
-    Quad::ptr input;
-    Quad::ptr output;
-  };
-
-  // Internal use (cache). Contains a parent mapping and all its sub-mappings.
+  // Internal use (cache). The source and destination polygons of a quad of the mesh,
+  // in scene coordinates, and the smaller quads that draw it.
   struct CacheQuadItem {
-    CacheQuadMapping parent;
-    QList<CacheQuadMapping> subQuads;
+    QPolygonF input;
+    QPolygonF output;
+    QVector<QuadCorners> subQuads;
   };
 public:
   MeshTextureGraphicsItem(Layer::ptr mapping, bool output=true);
@@ -238,23 +235,12 @@ public:
   virtual void _doDrawOutput(QPainter* painter);
 
 private:
-  /**
-   * Builds cache item recursively using the technique described in
-   * Oliveira, M. "Correcting Texture Mapping Errors Introduced by Graphics Hardware"
-   */
-  void _buildCacheQuadItem(CacheQuadItem& item, const Quad::ptr& inputQuad, const Quad::ptr& outputQuad,
-                           float outputArea, float inputThreshold = 0.0001f, float outputThreshold = 0.001f,
-                           int minArea=MM::MESH_SUBDIVISION_MIN_AREA, int maxDepth=-1);
-
-  // Help function that returns four equal-size sub-quads from a quad.
-  QList<Quad::ptr> _split(const Quad& quad);
-
   // Contains the current cache.
   QVector<QVector<CacheQuadItem> > _cachedQuadItems;
   int _nHorizontalQuads;
   int _nVerticalQuads;
 
-  // True iff shape was being grabbed last time _buildCacheQuadItem() was called.
+  // True iff shape was being grabbed when the mesh was last drawn.
   bool _wasGrabbing;
 
   // True iff the two meshes had different grids when last drawn, so that it is said once.
@@ -273,9 +259,6 @@ public:
 
   virtual void _doDrawOutput(QPainter* painter);
 
-protected:
-  /// Sets texture point using homogeneous coordinates for an exact projective mapping.
-  void _setGlProjectiveTexPoint(const Texture& texture, const QTransform& outputToInput, const QPointF& outputPoint);
 };
 
 }
