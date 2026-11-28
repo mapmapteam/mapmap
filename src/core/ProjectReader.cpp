@@ -156,6 +156,15 @@ void ProjectReader::parseProject(const QJsonObject& project)
   }
 
   parseLinks(project);
+
+  // What a later version added at the top of the file is written back as it is.
+  QJsonObject unknown;
+  for (auto it = project.constBegin(); it != project.constEnd(); ++it)
+  {
+    if (!ProjectLabels::isProjectKey(it.key()))
+      unknown.insert(it.key(), it.value());
+  }
+  manager.setUnknownProjectKeys(unknown);
 }
 
 void ProjectReader::parseLinks(const QJsonObject& project)

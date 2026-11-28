@@ -24,6 +24,7 @@
 #include <QVector>
 #include <QMap>
 #include <QRegularExpression>
+#include <QJsonObject>
 #include <QSize>
 
 #include "Source.h"
@@ -63,6 +64,10 @@ private:
   /// Shared by the copies of the manager, which the canvases make to draw.
   QSharedPointer<LinkTable> _links;
 
+  /// The keys at the top of the project file that this version does not know, written back
+  /// as they are, so that a project saved by a later version keeps what it added.
+  QJsonObject _unknownProjectKeys;
+
 public:
   /**
    * Returns the size of the output frame: the rectangle from (0, 0) to this
@@ -94,6 +99,12 @@ public:
   /// Returns the links of the project.
   LinkTable& links() { return *_links; }
   const LinkTable& links() const { return *_links; }
+
+  /// Returns the keys at the top of the project file that this version does not know.
+  const QJsonObject& unknownProjectKeys() const { return _unknownProjectKeys; }
+
+  /// Keeps the keys at the top of the project file that this version does not know.
+  void setUnknownProjectKeys(const QJsonObject& keys) { _unknownProjectKeys = keys; }
 
   /// Returns the element a link target names, or a null pointer when the project has none.
   Element::ptr linkTargetElement(const LinkTarget& target) const;

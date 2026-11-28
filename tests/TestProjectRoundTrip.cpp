@@ -656,3 +656,22 @@ void TestProjectRoundTrip::leavesOutLinksOfDeletedLayers()
   manager.links().clear();
   QVERIFY(!parse(writeProject(manager)).contains("links"));
 }
+
+void TestProjectRoundTrip::keepsUnknownTopKeys()
+{
+  // A project saved by a later version, with keys this version does not know at the top.
+  QJsonObject project = parse(readFixture(fixturesDir() + "/beta.2/triangle-color.mmp"));
+  project["scenes"] = QJsonArray{ QJsonObject{ { "name", "Intro" } } };
+  project["future"] = QJsonObject{ { "enabled", true } };
+  const QByteArray original = QJsonDocument(project).toJson(QJsonDocument::Indented);
+
+  MappingManager manager;
+  QVERIFY(readProject(manager, original));
+  QCOMPARE(writeProject(manager), original);
+
+  // A new project, or another one read after it, does not inherit them.
+  manager.clearAll();
+  QVERIFY(manager.unknownProjectKeys().isEmpty());
+  QVERIFY(readProject(manager, readFixture(fixturesDir() + "/beta.2/triangle-color.mmp")));
+  QVERIFY(!parse(writeProject(manager)).contains("scenes"));
+}

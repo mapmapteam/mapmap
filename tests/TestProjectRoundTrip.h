@@ -45,6 +45,7 @@ private slots:
   void keepsLinks();
   void skipsLinksToMissingSettings();
   void leavesOutLinksOfDeletedLayers();
+  void keepsUnknownTopKeys();
 
 private:
   QString _previousDir;

@@ -31,8 +31,10 @@ ProjectWriter::ProjectWriter(MappingManager& manager) :
 bool ProjectWriter::writeFile(QIODevice* device, const QString& projectDirectory)
 {
   MappingManager& manager = _manager;
-  QJsonObject project;
-  project["version"] = ProjectLabels::FORMAT_VERSION;
+  // What a later version added at the top of the file comes first: the keys of this version
+  // replace any of the same name.
+  QJsonObject project = manager.unknownProjectKeys();
+  project[ProjectLabels::VERSION] = ProjectLabels::FORMAT_VERSION;
 
   if (manager.hasOutputResolution())
   {

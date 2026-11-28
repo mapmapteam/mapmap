@@ -19,7 +19,7 @@ New:
 Improvements:
 
 - Check the values sent by OSC or MCP against the bounds and the type of the setting: an opacity above 1 stops at 1, and an unknown property name, an invalid color, or a text other than true, false, 1 or 0 for a boolean is refused with a warning. A boolean takes any finite number other than 0 as true; a number that is not finite is refused.
-- Keep the unknown keys of a project file when the project is saved again.
+- Keep the unknown keys of a project file when the project is saved again, at the top of the file as inside a source or a layer.
 - In the settings panel of a layer, "Mesh Subdivisions" is now Columns and Rows.
 - At 100% zoom, the input editor shows the whole image of the selected source and the output editor the whole output frame. "Actual pixels (1:1)" shows one image pixel per screen pixel. New shapes are placed inside the output frame.
 - A new layer starts in the middle of the output frame, at half its size, whatever its source: all its controls are in view.

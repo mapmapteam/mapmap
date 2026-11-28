@@ -22,6 +22,8 @@ Require an object containing `sources` and `layers` arrays. Treat an empty array
 
 Within valid arrays, keep readable entries and report skipped entries with their array index or ID. Keep accepting projects without an output resolution and projects using earlier setting names.
 
+Keep the keys a later version added, at the top of the file as inside a source or a layer: write them back as they are, so that opening and saving a newer project with this version does not lose them. A project saved by MapMap 1.0.0-beta.2 or earlier still loses the keys it does not know at the top of the file, such as `links`.
+
 ### Native scalar types
 
 Write a numeric setting such as `opacity` as a number and a boolean setting such as `visible` as a boolean. Use the setting declaration to choose the type. A text setting whose value is `"001"` or `"false"` is still text. Read both representations of legacy numeric and boolean settings. The XML converter writes the same scalar types when importing a MapMap 0.4 to 0.6 project.

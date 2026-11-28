@@ -340,6 +340,7 @@ void MappingManager::clearAll()
   layerMap.clear();
   _outputResolution = QSize();
   _links->clear();
+  _unknownProjectKeys = QJsonObject();
 }
 
 Element::ptr MappingManager::linkTargetElement(const LinkTarget& target) const
