@@ -57,6 +57,14 @@
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> | Play/Pause |
 | <kbd>Ctrl</kbd> + <kbd>R</kbd> | Rewind/Reset |
 
+| Learning | |
+| --- | --- |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd> | Keyboard learn: click a control outlined in blue, then press a key |
+| <kbd>Escape</kbd> | Stop learning |
+| <kbd>Delete</kbd> | Remove the key of the control chosen while learning |
+| Right-click a row of the inspector | Learn or remove its key |
+| Window > Links | List the keys you linked to settings |
+
 | Inspector | |
 | --- | --- |
 | Double-click a row | Back to the default value |
