@@ -47,18 +47,32 @@ public:
   /// Creates the window for the links of a project.
   explicit LinksWindow(MappingManager* manager, QWidget* parent = nullptr);
 
+  /// How long the row of a link stays lit when its trigger arrives, in milliseconds.
+  static const int FLASH_MS = 400;
+
   /// Returns the list, for tests.
   QTableWidget* table() const { return _table; }
+
+  /// Returns true while the row of the link at index is lit, for tests.
+  bool isLit(int index) const;
 
 public slots:
   /// Shows the links again, as when an element was renamed or deleted.
   void refresh();
 
+  /// Lights the row of the link at index for a moment: its trigger just arrived.
+  void flash(int index);
+
 protected:
   void showEvent(QShowEvent* event) override;
 
 private:
+  /// Paints the row of the link at index lit or not.
+  void _paintRow(int index, bool lit);
+
   MappingManager* _manager;
+  /// The triggers whose rows are lit, as written in project files.
+  QStringList _lit;
   QLabel* _empty;
   QTableWidget* _table;
 };

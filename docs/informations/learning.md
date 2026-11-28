@@ -37,7 +37,7 @@ To type for something else during a show without changing it, choose Edit > Lear
 
 - The tooltip of a row of the inspector, or of the eye, the solo or the lock of a layer, names its key: "Keyboard: M".
 - A row of the inspector that has a key shows a keyboard button at its end; a click on it opens the same menu as a right-click.
-- Window > Links lists every link of the project, with a button to remove each one.
+- Window > Links lists every link of the project, with a button to remove each one. The row of a link lights up for a moment when its key is pressed: one sees which key does what without looking at the output.
 - While learning, choose a control and press <kbd>Delete</kbd> to remove its key, or choose "Remove the Key" in the menu of an inspector row.
 
 Deleting a layer makes its keys do nothing; undoing the deletion brings them back. Duplicating a layer does not copy its keys.

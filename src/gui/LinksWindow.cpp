@@ -23,6 +23,7 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QTableWidget>
+#include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -38,6 +39,9 @@ const int WINDOW_HEIGHT = 320;
 
 /// Margins of the content of the window, in pixels.
 const int WINDOW_MARGIN = 8;
+
+/// Colour of the row of a link whose trigger just arrived.
+const QColor LIT_ROW_COLOR(0x3d, 0xae, 0xe9);
 
 /// The actions offered for a link, in the order of the menu.
 const LinkAction ACTIONS[] = { LinkAction::Toggle, LinkAction::SwitchOn, LinkAction::SwitchOff };
@@ -125,10 +129,42 @@ void LinksWindow::refresh()
     });
     _table->setCellWidget(row, RemoveColumn, remove);
   }
+  for (int row = 0; row < links.size(); ++row)
+    _paintRow(row, isLit(row));
   _table->resizeColumnToContents(TriggerColumn);
   _table->resizeColumnToContents(KindColumn);
   _table->resizeColumnToContents(ActionColumn);
   _table->resizeColumnToContents(RemoveColumn);
+}
+
+bool LinksWindow::isLit(int index) const
+{
+  const QList<Link>& links = _manager->links().links();
+  return index >= 0 && index < links.size() && _lit.contains(links.at(index).trigger.key);
+}
+
+void LinksWindow::flash(int index)
+{
+  const QList<Link>& links = _manager->links().links();
+  if (index < 0 || index >= links.size())
+    return;
+  const QString key = links.at(index).trigger.key;
+  _lit << key;
+  _paintRow(index, true);
+  QTimer::singleShot(FLASH_MS, this, [this, key]() {
+    _lit.removeOne(key);
+    const int row = _manager->links().indexOf(LinkTrigger::forKey(key));
+    if (row >= 0)
+      _paintRow(row, isLit(row));
+  });
+}
+
+void LinksWindow::_paintRow(int index, bool lit)
+{
+  for (int column = 0; column < _table->columnCount(); ++column) {
+    if (QTableWidgetItem* item = _table->item(index, column))
+      item->setBackground(lit ? QBrush(LIT_ROW_COLOR) : QBrush());
+  }
 }
 
 } // namespace mmp

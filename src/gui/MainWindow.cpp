@@ -1193,6 +1193,9 @@ void MainWindow::applyLink(int index)
   // A link to a deleted element does nothing, until the deletion is undone.
   applyLinkAction(mappingManager->linkTargetSetting(links.links().at(index).target),
                   links.links().at(index).action);
+  // The list of the links shows which one acted.
+  if (_linksWindow->isVisible())
+    _linksWindow->flash(index);
 }
 
 void MainWindow::refreshLinksWindow()

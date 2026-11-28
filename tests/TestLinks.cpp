@@ -292,6 +292,13 @@ void TestLinks::windowListsLinks()
   QTRY_COMPARE(qobject_cast<QComboBox*>(window.table()->cellWidget(0, LinksWindow::ActionColumn))->currentText(),
                QString("Turn off"));
 
+  // The row of a link lights up for a moment when its key arrives.
+  window.flash(0);
+  QVERIFY(window.isLit(0));
+  QCOMPARE(window.table()->item(0, LinksWindow::TriggerColumn)->background().style(), Qt::SolidPattern);
+  QTRY_VERIFY_WITH_TIMEOUT(!window.isLit(0), 2 * LinksWindow::FLASH_MS + 1000);
+  QCOMPARE(window.table()->item(0, LinksWindow::TriggerColumn)->background().style(), Qt::NoBrush);
+
   // A link to a deleted layer is listed as such.
   manager.removeLayer(layer->getId());
   window.refresh();
