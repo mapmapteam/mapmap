@@ -1155,7 +1155,13 @@ void MainWindow::learnKey(const QString& key)
   const LinkTrigger trigger = LinkTrigger::forKey(key);
   if (!_learnMode->hasTarget())
   {
-    statusBar()->showMessage(tr("Click a control outlined in blue first, then press %1.").arg(trigger.text()));
+    // While learning, a learned key does not act: say so, rather than seem broken.
+    const int index = mappingManager->links().indexOf(trigger);
+    if (index >= 0)
+      statusBar()->showMessage(tr("%1 drives %2. Press Escape to stop learning: %1 then acts.")
+                               .arg(trigger.text(), linkTargetLabel(mappingManager->links().links().at(index).target)));
+    else
+      statusBar()->showMessage(tr("Click a control outlined in blue first, then press %1.").arg(trigger.text()));
     return;
   }
 
