@@ -380,6 +380,9 @@ private:
   // Returns the screen chosen for the output window, or null.
   QScreen* _outputScreen() const;
 
+  /// Shows the Media tab of a layer the user just made.
+  void showNewLayerMedia(uid layerId);
+
   // Creation of view elements.
   void createLayout();
   void createActions();

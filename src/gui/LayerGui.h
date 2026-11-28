@@ -73,6 +73,9 @@ public:
   /// Returns a pointer to the properties editor for that layer.
   virtual QWidget* getPropertiesEditor() { return _inspector.data(); }
 
+  /// Shows the Media tab of the properties editor, as for a layer just made.
+  void showMediaPage() { _inspector->setCurrentPage(_mediaPage); }
+
   /// Counts the layers that use a source, for the sentence of the Media tab.
   typedef std::function<int(const Source::ptr&)> SourceUseCounter;
 

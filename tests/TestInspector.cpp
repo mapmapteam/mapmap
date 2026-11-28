@@ -406,6 +406,19 @@ void TestInspector::menuIgnoresWheel()
   QCOMPARE(shape->value().toString(), QString("a"));
 }
 
+void TestInspector::currentPageCanBeChosen()
+{
+  SettingGroup root;
+  root.addSetting(opacityInfo());
+  Inspector inspector;
+  InspectorPage* first = inspector.addPage("Surface", &root, "test");
+  InspectorPage* second = inspector.addPage("Media", &root, "test");
+  QCOMPARE(inspector.currentPage(), first);
+  inspector.setCurrentPage(second);
+  QCOMPARE(inspector.currentPage(), second);
+  QCOMPARE(inspector.tabBar()->currentIndex(), 1);
+}
+
 void TestInspector::choiceKeepsMissingId()
 {
   SettingGroup root;

@@ -983,6 +983,14 @@ QRectF MainWindow::newShapeOutputRect(const QSizeF& contentSize) const
   return contentSize.isEmpty() ? middle : Util::fitRect(contentSize, middle);
 }
 
+void MainWindow::showNewLayerMedia(uid layerId)
+{
+  // A shape is made to show its source: its settings come first.
+  LayerGui::ptr layerGui = layerGuis.value(layerId);
+  if (layerGui)
+    layerGui->showMediaPage();
+}
+
 void MainWindow::addMesh()
 {
   // A source must be selected to add a mapping.
@@ -1014,6 +1022,7 @@ void MainWindow::addMesh()
 
   // Lets the undo-stack handle Undo/Redo the adding of mapping item.
   undoStack->push(new AddLayerCommand(this, layerId));
+  showNewLayerMedia(layerId);
 }
 
 void MainWindow::addTriangle()
@@ -1047,6 +1056,7 @@ void MainWindow::addTriangle()
 
   // Lets undo-stack handle Undo/Redo the adding of mapping item.
   undoStack->push(new AddLayerCommand(this, layerId));
+  showNewLayerMedia(layerId);
 }
 
 void MainWindow::addEllipse()
@@ -1080,6 +1090,7 @@ void MainWindow::addEllipse()
 
   // Lets undo-stack handle Undo/Redo the adding of mapping item.
   undoStack->push(new AddLayerCommand(this, layerId));
+  showNewLayerMedia(layerId);
 }
 
 void MainWindow::about()
