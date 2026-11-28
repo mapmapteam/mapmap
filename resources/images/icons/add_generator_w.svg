@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <mask id="holes">
+      <rect width="128" height="128" fill="white"/>
+      <!-- Two transparent cells of a 2 x 2 checker, inside a white frame. -->
+      <rect x="25" y="25" width="34" height="34" rx="4" fill="black"/>
+      <rect x="69" y="69" width="34" height="34" rx="4" fill="black"/>
+    </mask>
+  </defs>
+  <rect x="16" y="16" width="96" height="96" rx="7" fill="white" mask="url(#holes)"/>
+  <!-- A white disk in the middle, with the dark plus of the other "add" icons. -->
+  <circle cx="64" cy="64" r="27" fill="white"/>
+  <rect x="59" y="46" width="10" height="36" rx="3" fill="#0b0a22"/>
+  <rect x="46" y="59" width="36" height="10" rx="3" fill="#0b0a22"/>
+</svg>

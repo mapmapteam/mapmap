@@ -97,6 +97,7 @@ private slots:
   bool saveAs();
   void importMedia();
   void openCameraDevice();
+  /// Adds a colour generator, of its default colour.
   void addColor();
   void addSyphon();
   void about();
@@ -498,6 +499,7 @@ private:
   QAction *openAction;
   QAction *importMediaAction;
   QAction *AddCameraAction;
+  QAction *addGeneratorAction;
   QAction *addColorAction;
   QAction *addCheckerAction;
   QAction *addGridAction;

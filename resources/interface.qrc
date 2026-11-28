@@ -9,7 +9,7 @@
         <file alias="control-points">images/icons/ctrl2_w.png</file>
         <file alias="add-video">images/icons/add_movie_w.png</file>
         <file alias="add-camera">images/icons/add_camera_w.png</file>
-        <file alias="add-color">images/icons/add_paint_w.png</file>
+        <file alias="add-generator">images/icons/add_generator_w.png</file>
         <file alias="add-syphon">images/icons/syphon-white.png</file>
         <file alias="add-mesh">images/shapes/add_quad.png</file>
         <file alias="add-triangle">images/shapes/add_triangle.png</file>

@@ -818,28 +818,8 @@ void MainWindow::openCameraDevice()
 
 void MainWindow::addColor()
 {
-  // Stop video playback, if it is playing, to avoid lags. XXX Hack
-  if (pauseAction->isVisible())
-    pause(false);
-
-  // Pop-up color-choosing dialog to choose color source.
-  // FIXME: we use a static variable to store the last chosen color
-  // it should rather be a member of this class, or so.
-  static QColor color = QColor(0, 255, 0, 255);
-#ifdef Q_OS_LINUX
-  color = QColorDialog::getColor(color, this, tr("Select Color"),
-                                  QColorDialog::DontUseNativeDialog |
-                                 QColorDialog::ShowAlphaChannel);
-#else
-  color = QColorDialog::getColor(color, this, tr("Select Color"),
-                                 // QColorDialog::DontUseNativeDialog |
-                                 QColorDialog::ShowAlphaChannel);
-#endif
-  addColorSource(color);
-
-  // Restart video playback if it was previously playing. XXX Hack
-  if (pauseAction->isVisible())
-    play(false);
+  // A colour is a generator like the others: its colour is set in its settings.
+  addGenerator(new ColorGenerator);
 }
 
 void MainWindow::addSyphon()
@@ -1946,16 +1926,19 @@ void MainWindow::createActions()
   connect(AddCameraAction, &QAction::triggered, this, &MainWindow::openCameraDevice);
 
   // Add color.
-  addColorAction = new QAction(tr("Add &Color Source…"), this);
+  // Generators, chosen in a menu: in the toolbar, on the File menu.
+  addGeneratorAction = new QAction(tr("Add &Generator"), this);
+  addGeneratorAction->setIcon(QIcon(":/add-generator"));
+  addGeneratorAction->setToolTip(tr("Add a generator: checker, grid, color wheel or color"));
+  addGeneratorAction->setIconVisibleInMenu(false);
+
+  addColorAction = new QAction(tr("C&olor"), this);
   addColorAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_A);
-  addColorAction->setIcon(QIcon(":/add-color"));
-  addColorAction->setToolTip(tr("Add a color source…"));
-  addColorAction->setIconVisibleInMenu(false);
+  addColorAction->setToolTip(tr("Add a plain color generator"));
   addColorAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(addColorAction);
   connect(addColorAction, &QAction::triggered, this, &MainWindow::addColor);
 
-  // Add generators.
   addCheckerAction = new QAction(tr("&Checker"), this);
   addCheckerAction->setToolTip(tr("Add a checkerboard generator"));
   connect(addCheckerAction, &QAction::triggered, this, [this]() { addGenerator(new CheckerGenerator); });
@@ -2510,11 +2493,14 @@ void MainWindow::createMenus()
   fileMenu->addSeparator();
   fileMenu->addAction(importMediaAction);
   fileMenu->addAction(AddCameraAction);
-  fileMenu->addAction(addColorAction);
-  addGeneratorMenu = fileMenu->addMenu(tr("Add &Generator"));
+  // The same menu opens from the generator button of the toolbar.
+  addGeneratorMenu = new QMenu(tr("Add &Generator"), this);
   addGeneratorMenu->addAction(addCheckerAction);
   addGeneratorMenu->addAction(addGridAction);
   addGeneratorMenu->addAction(addColorWheelAction);
+  addGeneratorMenu->addAction(addColorAction);
+  addGeneratorAction->setMenu(addGeneratorMenu);
+  fileMenu->addAction(addGeneratorAction);
 #ifdef Q_OS_MAC
   fileMenu->addAction(addSyphonAction);
 #endif
@@ -2715,7 +2701,10 @@ void MainWindow::createToolBars()
   mainToolBar->setMovable(false);
   mainToolBar->addAction(importMediaAction);
   mainToolBar->addAction(AddCameraAction);
-  mainToolBar->addAction(addColorAction);
+  mainToolBar->addAction(addGeneratorAction);
+  // A click opens the menu of generators at once.
+  if (QToolButton* generatorButton = qobject_cast<QToolButton*>(mainToolBar->widgetForAction(addGeneratorAction)))
+    generatorButton->setPopupMode(QToolButton::InstantPopup);
 #ifdef Q_OS_MAC
   mainToolBar->addAction(addSyphonAction);
 #endif
