@@ -4,7 +4,11 @@ include(../src.pri)
 HEADERS += $$PWD/Commands.h \
     $$PWD/CameraImpl.h \
     $$PWD/Element.h \
+    $$PWD/FrameCounter.h \
     $$PWD/FrameStats.h \
+    $$PWD/Generator.h \
+    $$PWD/Generators.h \
+    $$PWD/IntermediateImage.h \
     $$PWD/Layer.h \
     $$PWD/MappingManager.h \
     $$PWD/Maths.h \
@@ -28,7 +32,11 @@ HEADERS += $$PWD/Commands.h \
 SOURCES += $$PWD/Commands.cpp \
     $$PWD/CameraImpl.cpp \
     $$PWD/Element.cpp \
+    $$PWD/FrameCounter.cpp \
     $$PWD/FrameStats.cpp \
+    $$PWD/Generator.cpp \
+    $$PWD/Generators.cpp \
+    $$PWD/IntermediateImage.cpp \
     $$PWD/Layer.cpp \
     $$PWD/MappingManager.cpp \
     $$PWD/MetaObjectRegistry.cpp \

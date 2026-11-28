@@ -76,7 +76,7 @@ protected:
 public:
 
   enum SourceType {
-    Video, Image, Color, Syphon
+    Video, Image, Color, Syphon, Generator
   };
 
   typedef QSharedPointer<Source> ptr;
@@ -247,6 +247,10 @@ public:
   /// The video planes that bind() bound on units 0 to 2, or null if it bound an
   /// RGBA texture on unit 0 (see ShapeRenderer::drawTriangles()).
   virtual const YuvTexture* boundYuv() const { return nullptr; }
+
+  /// True when the first row of the texture is the bottom of the image, as for an
+  /// image drawn by OpenGL; false when it is the top, as for files and videos.
+  virtual bool isBottomUp() const { return false; }
 
 protected:
   /// uploadBits() with the mutex already locked.

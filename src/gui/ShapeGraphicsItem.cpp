@@ -277,7 +277,7 @@ void TextureGraphicsItem::_drawTriangles(const QVector<TexturedVertex>& vertices
 {
   QSharedPointer<Texture> texture = _getTexture();
   if (texture)
-    ShapeRenderer::drawTriangles(vertices, _viewMatrix, _opacity, texture->boundYuv());
+    ShapeRenderer::drawTriangles(vertices, _viewMatrix, _opacity, texture->boundYuv(), texture->isBottomUp());
 }
 
 void TextureGraphicsItem::_postPaint(QPainter* painter,

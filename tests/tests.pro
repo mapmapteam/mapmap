@@ -32,6 +32,10 @@ HEADERS += \
     $$CORE/ShapeGeometry.h \
     $$CORE/ShapeRenderer.h \
     $$CORE/FrameStats.h \
+    $$CORE/FrameCounter.h \
+    $$CORE/IntermediateImage.h \
+    $$CORE/Generator.h \
+    $$CORE/Generators.h \
     $$CORE/Serializable.h \
     $$CORE/Setting.h \
     $$CORE/SettingJson.h \
@@ -66,6 +70,7 @@ HEADERS += \
     TestShape.h \
     TestShapeGeometry.h \
     TestShapeRenderer.h \
+    TestGenerators.h \
     TestHandleModeKeys.h \
     TestOsc.h \
     TestFileVersion.h \
@@ -83,6 +88,10 @@ SOURCES += \
     $$CORE/ShapeGeometry.cpp \
     $$CORE/ShapeRenderer.cpp \
     $$CORE/FrameStats.cpp \
+    $$CORE/FrameCounter.cpp \
+    $$CORE/IntermediateImage.cpp \
+    $$CORE/Generator.cpp \
+    $$CORE/Generators.cpp \
     $$CORE/Serializable.cpp \
     $$CORE/Setting.cpp \
     $$CORE/SettingJson.cpp \
@@ -116,6 +125,7 @@ SOURCES += \
     TestShape.cpp \
     TestShapeGeometry.cpp \
     TestShapeRenderer.cpp \
+    TestGenerators.cpp \
     TestHandleModeKeys.cpp \
     TestOsc.cpp \
     TestFileVersion.cpp \

@@ -54,10 +54,11 @@ public:
    * @param matrix from those coordinates to OpenGL's clip coordinates (see viewMatrix())
    * @param opacity multiplies the alpha of the texture
    * @param yuv the planes of a video bound on units 0 to 2, or null for an RGBA texture on unit 0
+   * @param bottomUp true when the first row of the texture is the bottom of the image
    * @return false if the shaders could not be built (the reason is in the log)
    */
   static bool drawTriangles(const QVector<TexturedVertex>& vertices, const QMatrix4x4& matrix,
-                            float opacity, const YuvTexture* yuv);
+                            float opacity, const YuvTexture* yuv, bool bottomUp = false);
 
   /**
    * Returns the matrix from the logical coordinates of a painter to OpenGL's clip

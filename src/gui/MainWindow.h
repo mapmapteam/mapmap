@@ -45,6 +45,7 @@
 #include "ConsoleWindow.h"
 
 #include "MappingManager.h"
+#include "Generators.h"
 #include "LayerItemDelegate.h"
 #include "LayerListModel.h"
 
@@ -139,6 +140,9 @@ private slots:
 
   // Fits a Video/Camera source's input shapes to its real resolution once known.
   void autoFitVideoInputShapes(int sourceId, int width, int height);
+
+  // Fits the input shapes of a generator to the new size of its image.
+  void autoFitGeneratorInputShapes(int sourceId, int oldWidth, int oldHeight, int newWidth, int newHeight);
 
   // Called with the path of a setting that changed (the property name for a top-level setting).
   void layerPropertyChanged(uid id, QString propertyName, QVariant value);
@@ -412,6 +416,9 @@ public:
   void setCurrentVideo(const QString &filename);
   bool importMediaFile(const QString &fileName, bool isImage = false, bool isCamera = false);
   bool addColorSource(const QColor& color);
+
+  /// Adds a generator to the project, as a command that can be undone; takes ownership.
+  uid addGenerator(Generator* generator);
   void addLayerItem(uid mappingId);
   void removeLayerItem(uid mappingId);
   void moveLayerItem(uid mappingId, int steps);
@@ -483,6 +490,7 @@ private:
   // Sub-menus.
   QMenu *outputScreenMenu;
   QMenu *recentFileMenu;
+  QMenu *addGeneratorMenu;
   QMenu *recentVideoMenu;
   QMenu *layerContextMenu;
   QMenu *sourceContextMenu;
@@ -504,6 +512,9 @@ private:
   QAction *importMediaAction;
   QAction *AddCameraAction;
   QAction *addColorAction;
+  QAction *addCheckerAction;
+  QAction *addGridAction;
+  QAction *addColorWheelAction;
   QAction *addSyphonAction;
   QAction *saveAction;
   QAction *saveAsAction;
@@ -805,6 +816,9 @@ public:
   // How far (in pixels) a shape may be from where it was placed and still
   // count as untouched (see fitDefaultShapesToFrameSize()).
   static constexpr qreal UNTOUCHED_SHAPE_TOLERANCE = 1.0;
+
+  /// How long a message of the status bar stays, in milliseconds.
+  static constexpr int STATUS_MESSAGE_MS = 2000;
 
   static const int OUTPUT_WINDOW_MINIMUM_WIDTH = 480;
   static const int OUTPUT_WINDOW_MINIMUM_HEIGHT = 270;

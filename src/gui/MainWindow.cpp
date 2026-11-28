@@ -28,6 +28,7 @@
 #include "Commands.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
+#include "FrameCounter.h"
 #ifdef Q_OS_MAC
 #include "Syphon.h"
 #include "SyphonServerDialog.h"
@@ -390,6 +391,8 @@ void MainWindow::handleSourceChanged(Source::ptr source)
     updateSourceItem(sourceId, getSourceIcon(source), source->getName());
   }
 #endif
+  else if (source->getSourceType() == SourceType::Generator)
+    updateSourceItem(sourceId, getSourceIcon(source), source->getName());
 
   if (curLayerId != NULL_UID)
   {
@@ -478,6 +481,11 @@ void MainWindow::sourcePropertyChanged(uid id, QString propertyName, QVariant va
   {
     // The list shows the file name of a media source, however it was changed.
     updateSourceItem(id, getSourceIcon(source), strippedName(value.toString()));
+  }
+  else if (source->getSourceType() == SourceType::Generator)
+  {
+    // The icon of a generator shows its colours and divisions.
+    updateSourceItem(id, getSourceIcon(source), source->getName());
   }
 }
 
@@ -897,6 +905,14 @@ void MainWindow::autoFitVideoInputShapes(int sourceId, int width, int height)
   if (source.isNull() || source->getSourceType() != SourceType::Video)
     return;
   fitDefaultShapesToFrameSize(source, QSizeF(Video::DEFAULT_WIDTH, Video::DEFAULT_HEIGHT), QSizeF(width, height));
+}
+
+void MainWindow::autoFitGeneratorInputShapes(int sourceId, int oldWidth, int oldHeight, int newWidth, int newHeight)
+{
+  Source::ptr source = mappingManager->getSourceById(sourceId);
+  if (source.isNull() || source->getSourceType() != SourceType::Generator)
+    return;
+  fitDefaultShapesToFrameSize(source, QSizeF(oldWidth, oldHeight), QSizeF(newWidth, newHeight));
 }
 
 void MainWindow::fitDefaultShapesToFrameSize(Source::ptr source, const QSizeF& defaultSize, const QSizeF& frameSize)
@@ -2077,6 +2093,19 @@ void MainWindow::createActions()
   addAction(addColorAction);
   connect(addColorAction, &QAction::triggered, this, &MainWindow::addColor);
 
+  // Add generators.
+  addCheckerAction = new QAction(tr("&Checker"), this);
+  addCheckerAction->setToolTip(tr("Add a checkerboard generator"));
+  connect(addCheckerAction, &QAction::triggered, this, [this]() { addGenerator(new CheckerGenerator); });
+
+  addGridAction = new QAction(tr("&Grid"), this);
+  addGridAction->setToolTip(tr("Add a grid generator"));
+  connect(addGridAction, &QAction::triggered, this, [this]() { addGenerator(new GridGenerator); });
+
+  addColorWheelAction = new QAction(tr("Color &Wheel"), this);
+  addColorWheelAction->setToolTip(tr("Add a turning colour wheel generator"));
+  connect(addColorWheelAction, &QAction::triggered, this, [this]() { addGenerator(new ColorWheelGenerator); });
+
 #ifdef Q_OS_MAC
   // Add Syphon source (macOS only).
   addSyphonAction = new QAction(tr("Add &Syphon Source…"), this);
@@ -2620,6 +2649,10 @@ void MainWindow::createMenus()
   fileMenu->addAction(importMediaAction);
   fileMenu->addAction(AddCameraAction);
   fileMenu->addAction(addColorAction);
+  addGeneratorMenu = fileMenu->addMenu(tr("Add &Generator"));
+  addGeneratorMenu->addAction(addCheckerAction);
+  addGeneratorMenu->addAction(addGridAction);
+  addGeneratorMenu->addAction(addColorWheelAction);
 #ifdef Q_OS_MAC
   fileMenu->addAction(addSyphonAction);
 #endif
@@ -3339,6 +3372,17 @@ bool MainWindow::addColorSource(const QColor& color)
   return true;
 }
 
+uid MainWindow::addGenerator(Generator* generator)
+{
+  Source::ptr source(generator);
+  if (source->getName().isEmpty())
+    source->setName(generator->generatorName());
+  const uid id = mappingManager->addSource(source);
+  undoStack->push(new AddSourceCommand(this, id, source->getIcon(), source->getName()));
+  statusBar()->showMessage(tr("%1 generator added").arg(generator->generatorName()), STATUS_MESSAGE_MS);
+  return id;
+}
+
 void MainWindow::addSourceItem(uid sourceId, const QIcon& icon, const QString& name)
 {
   Source::ptr source = mappingManager->getSourceById(sourceId);
@@ -3390,6 +3434,11 @@ void MainWindow::addSourceItem(uid sourceId, const QIcon& icon, const QString& n
             SIGNAL(frameSizeKnown(int, int, int)),
             this, SLOT(autoFitVideoInputShapes(int, int, int)),
             Qt::QueuedConnection);
+
+  // Fit input shapes to the new size of a generator's image. Queued, like the above.
+  if (sourceType == SourceType::Generator)
+    connect(qSharedPointerCast<Generator>(source).data(), &Generator::sizeChanged,
+            this, &MainWindow::autoFitGeneratorInputShapes, Qt::QueuedConnection);
 
   // Add source item to sourceList widget.
   QListWidgetItem* item = new QListWidgetItem(icon, name);
@@ -3447,18 +3496,9 @@ void MainWindow::addLayerItem(uid layerId)
   ShapeType shapeType = layer->getShape()->getType();
   SourceType sourceType = layer->getSource()->getSourceType();
 
-  // Add mapper.
-  // XXX hardcoded for textures
-  QSharedPointer<TextureLayer> textureLayer;
-  if (sourceType == SourceType::Video || sourceType == SourceType::Image
-#ifdef Q_OS_MAC
-      || sourceType == SourceType::Syphon
-#endif
-     )
-  {
-    textureLayer = qSharedPointerCast<TextureLayer>(layer);
-    Q_CHECK_PTR(textureLayer);
-  }
+  // Add mapper. Every source but a colour source is drawn by a texture layer.
+  QSharedPointer<TextureLayer> textureLayer = qSharedPointerDynamicCast<TextureLayer>(layer);
+  Q_ASSERT(sourceType == SourceType::Color || textureLayer);
 
   LayerGui::ptr mapper;
 
@@ -3885,6 +3925,9 @@ void MainWindow::processFrame()
 {
   // Number of frames processed (restarted every second).
   static unsigned int nFrames = 0;
+
+  // A new frame: what is drawn once per frame is drawn again by the first view.
+  FrameCounter::advance();
 
   // Update canvases, unless nothing can have changed since the last tick.
   if (canvasesNeedRedraw())

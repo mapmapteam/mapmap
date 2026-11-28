@@ -19,6 +19,7 @@
 
 #include <SourceGui.h>
 #include "ProjectLabels.h"
+#include "Generator.h"
 
 #ifdef HAVE_SYPHON
 #include <QAbstractItemView>
@@ -79,6 +80,10 @@ QString SourceGui::kindOf(const Source::ptr& source)
   case Source::Image:  return tr("Image");
   case Source::Color:  return tr("Color");
   case Source::Syphon: return tr("Syphon");
+  case Source::Generator: {
+    const Generator* generator = qobject_cast<const Generator*>(source.data());
+    return generator ? generator->generatorName() : tr("Generator");
+  }
   }
   return QString();
 }

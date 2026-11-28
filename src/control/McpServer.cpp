@@ -503,6 +503,7 @@ QJsonObject McpServer::sourceSummary(int sourceId) const
     case Source::Video: o["type"] = "video"; break;
     case Source::Image: o["type"] = "image"; break;
     case Source::Color: o["type"] = "color"; break;
+    case Source::Generator: o["type"] = "generator"; break;
     default:           o["type"] = "unknown"; break;
   }
   return o;

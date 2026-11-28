@@ -69,9 +69,12 @@ const char* RGBA_FRAGMENT_SHADER =
   "#version 120\n"
   "uniform sampler2D tex;\n"
   "uniform float opacity;\n"
+  "uniform bool bottomUp;\n"
   "varying vec3 vTexCoord;\n"
   "void main() {\n"
-  "  vec4 color = texture2D(tex, vTexCoord.xy / vTexCoord.z);\n"
+  "  vec2 tc = vTexCoord.xy / vTexCoord.z;\n"
+  "  if (bottomUp) tc.y = 1.0 - tc.y;\n"
+  "  vec4 color = texture2D(tex, tc);\n"
   "  gl_FragColor = vec4(color.rgb, color.a * opacity);\n"
   "}\n";
 
@@ -169,7 +172,7 @@ GroupResources* currentResources()
 } // namespace
 
 bool ShapeRenderer::drawTriangles(const QVector<TexturedVertex>& vertices, const QMatrix4x4& matrix,
-                                  float opacity, const YuvTexture* yuv)
+                                  float opacity, const YuvTexture* yuv, bool bottomUp)
 {
   GroupResources* resources = currentResources();
   if (!resources)
@@ -185,6 +188,8 @@ bool ShapeRenderer::drawTriangles(const QVector<TexturedVertex>& vertices, const
   program->bind();
   program->setUniformValue("matrix", matrix);
   program->setUniformValue("opacity", opacity);
+  if (!yuv)
+    program->setUniformValue("bottomUp", GLint(bottomUp));
   if (yuv)
   {
     program->setUniformValue("chromaLayout", yuv->chromaLayout());

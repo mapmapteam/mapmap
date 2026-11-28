@@ -1,0 +1,211 @@
+{
+    "version": "1.0.0-beta.2",
+    "layers": [
+        {
+            "className": "TextureLayer",
+            "id": 1,
+            "depth": 1,
+            "name": "Checker on a quad",
+            "locked": false,
+            "opacity": 1,
+            "solo": false,
+            "visible": true,
+            "source_id": 1,
+            "destination": {
+                "className": "Mesh",
+                "locked": false,
+                "n_columns": 2,
+                "n_rows": 2,
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        400,
+                        20
+                    ],
+                    [
+                        10,
+                        300
+                    ],
+                    [
+                        380,
+                        320
+                    ]
+                ]
+            },
+            "source": {
+                "className": "Mesh",
+                "locked": false,
+                "n_columns": 2,
+                "n_rows": 2,
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1024,
+                        0
+                    ],
+                    [
+                        0,
+                        512
+                    ],
+                    [
+                        1024,
+                        512
+                    ]
+                ]
+            }
+        },
+        {
+            "className": "TextureLayer",
+            "id": 2,
+            "depth": 2,
+            "name": "Grid on a triangle",
+            "locked": false,
+            "opacity": 1,
+            "solo": false,
+            "visible": true,
+            "source_id": 2,
+            "destination": {
+                "className": "Triangle",
+                "locked": false,
+                "vertices": [
+                    [
+                        500,
+                        0
+                    ],
+                    [
+                        900,
+                        50
+                    ],
+                    [
+                        700,
+                        400
+                    ]
+                ]
+            },
+            "source": {
+                "className": "Triangle",
+                "locked": false,
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1920,
+                        0
+                    ],
+                    [
+                        960,
+                        1080
+                    ]
+                ]
+            }
+        },
+        {
+            "className": "TextureLayer",
+            "id": 3,
+            "depth": 3,
+            "name": "Wheel on an ellipse",
+            "locked": false,
+            "opacity": 1,
+            "solo": false,
+            "visible": true,
+            "source_id": 3,
+            "destination": {
+                "className": "Ellipse",
+                "locked": false,
+                "vertices": [
+                    [
+                        100,
+                        600
+                    ],
+                    [
+                        300,
+                        450
+                    ],
+                    [
+                        500,
+                        600
+                    ],
+                    [
+                        300,
+                        750
+                    ]
+                ]
+            },
+            "source": {
+                "className": "Ellipse",
+                "locked": false,
+                "vertices": [
+                    [
+                        0,
+                        512
+                    ],
+                    [
+                        512,
+                        0
+                    ],
+                    [
+                        1024,
+                        512
+                    ],
+                    [
+                        512,
+                        1024
+                    ]
+                ]
+            }
+        }
+    ],
+    "sources": [
+        {
+            "className": "CheckerGenerator",
+            "id": 1,
+            "name": "Checker",
+            "locked": false,
+            "opacity": 1,
+            "x": 0,
+            "y": 0,
+            "width": 1024,
+            "height": 512,
+            "count": 6,
+            "back_color": "#202020",
+            "front_color": "#ffffff"
+        },
+        {
+            "className": "GridGenerator",
+            "id": 2,
+            "name": "Grid",
+            "locked": false,
+            "opacity": 1,
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080,
+            "columns": 16,
+            "rows": 9,
+            "thickness": 2.5,
+            "back_color": "#000000",
+            "line_color": "#00ff00"
+        },
+        {
+            "className": "ColorWheelGenerator",
+            "id": 3,
+            "name": "Color Wheel",
+            "locked": false,
+            "opacity": 0.75,
+            "x": 0,
+            "y": 0,
+            "width": 1024,
+            "height": 1024,
+            "speed": 0.5,
+            "reverse": true
+        }
+    ]
+}

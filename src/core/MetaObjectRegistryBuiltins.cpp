@@ -22,6 +22,7 @@
 
 #include "MetaObjectRegistry.h"
 #include "Source.h"
+#include "Generators.h"
 #include "Layer.h"
 #include "Shapes.h"
 
@@ -34,6 +35,9 @@ void MetaObjectRegistry::addBuiltinTypes()
   add<Camera>();
   add<Image>();
   add<Color>();
+  add<CheckerGenerator>();
+  add<GridGenerator>();
+  add<ColorWheelGenerator>();
 
   // Layers (formerly Mappings).
   add<TextureLayer>();
