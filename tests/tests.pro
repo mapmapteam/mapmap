@@ -30,6 +30,7 @@ HEADERS += \
     $$CORE/Maths.h \
     $$CORE/Util.h \
     $$CORE/ShapeGeometry.h \
+    $$CORE/ShapeRenderer.h \
     $$CORE/FrameStats.h \
     $$CORE/Serializable.h \
     $$CORE/Setting.h \
@@ -64,6 +65,7 @@ HEADERS += \
     TestUidAllocator.h \
     TestShape.h \
     TestShapeGeometry.h \
+    TestShapeRenderer.h \
     TestHandleModeKeys.h \
     TestOsc.h \
     TestFileVersion.h \
@@ -79,6 +81,7 @@ SOURCES += \
     $$CORE/MM.cpp \
     $$CORE/Util.cpp \
     $$CORE/ShapeGeometry.cpp \
+    $$CORE/ShapeRenderer.cpp \
     $$CORE/FrameStats.cpp \
     $$CORE/Serializable.cpp \
     $$CORE/Setting.cpp \
@@ -112,6 +115,7 @@ SOURCES += \
     TestUidAllocator.cpp \
     TestShape.cpp \
     TestShapeGeometry.cpp \
+    TestShapeRenderer.cpp \
     TestHandleModeKeys.cpp \
     TestOsc.cpp \
     TestFileVersion.cpp \

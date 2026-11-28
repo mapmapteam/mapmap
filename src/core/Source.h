@@ -171,6 +171,8 @@ public:
  *
  * This video texture is actually an OpenGL texture.
  */
+class YuvTexture;
+
 class Texture : public Source
 {
   Q_OBJECT
@@ -242,6 +244,10 @@ public:
 
   /// Undoes bind() (leaves texture unit 0 active, no program in use).
   virtual void release() {}
+
+  /// The video planes that bind() bound on units 0 to 2, or null if it bound an
+  /// RGBA texture on unit 0 (see ShapeRenderer::drawTriangles()).
+  virtual const YuvTexture* boundYuv() const { return nullptr; }
 
 protected:
   /// uploadBits() with the mutex already locked.
@@ -366,7 +372,6 @@ protected:
 
 class VideoImpl;  // forward declaration
 class FrameStats; // forward declaration
-class YuvTexture; // forward declaration
 
 /**
  * Source that is a Texture retrieved via a video file.
@@ -441,6 +446,7 @@ public:
   /// a shader, see YuvTexture), other frames as a regular RGBA texture.
   virtual void bind();
   virtual void release();
+  virtual const YuvTexture* boundYuv() const { return _yuvActive ? _yuv : nullptr; }
 
   /// Returns the timing of the frames of this video (see FrameStats).
   FrameStats* frameStats() const;

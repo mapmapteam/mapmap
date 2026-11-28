@@ -36,6 +36,7 @@
 #include "Layer.h"
 #include "MapperGLCanvas.h"
 #include "ShapeGeometry.h"
+#include "ShapeRenderer.h"
 
 namespace mmp {
 
@@ -183,9 +184,18 @@ protected:
   virtual void _doDrawOutput(QPainter* painter) = 0;
   virtual void _doDrawInput(QPainter* painter);
 
+  /// Draws triangles, in the item's coordinates, with the texture bound by _prePaint().
+  void _drawTriangles(const QVector<TexturedVertex>& vertices);
+
 protected:
   QWeakPointer<TextureLayer> _textureMapping;
   QWeakPointer<MShape> _inputShape;
+
+  /// From the item's coordinates to OpenGL's clip coordinates, set by _prePaint().
+  QMatrix4x4 _viewMatrix;
+
+  /// Opacity of the texture, set by _prePaint().
+  float _opacity = 1.0f;
 
 	QSharedPointer<Texture> _getTexture();
 };

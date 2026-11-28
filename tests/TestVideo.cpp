@@ -23,6 +23,8 @@
 #include "CameraImpl.h"
 #include "Util.h"
 #include "YuvTexture.h"
+#include "ShapeGeometry.h"
+#include "ShapeRenderer.h"
 
 using namespace mmp;
 
@@ -168,6 +170,27 @@ QImage _drawYuv(YuvTexture& yuv)
   glDisable(GL_TEXTURE_2D);
 
   QImage img = fbo.toImage();
+  fbo.release();
+  return img;
+}
+
+// Draws a YuvTexture on a full-size rectangle into an FBO with the shape
+// renderer's shaders, and returns the result.
+QImage _drawYuvWithShapeRenderer(YuvTexture& yuv)
+{
+  QOpenGLFramebufferObject fbo(CLIP_SIZE, CLIP_SIZE);
+  fbo.bind();
+  glViewport(0, 0, CLIP_SIZE, CLIP_SIZE);
+  glClearColor(0, 0, 0, 1);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  yuv.bind();
+  const QMatrix4x4 matrix = ShapeRenderer::viewMatrix(QTransform(), QSize(CLIP_SIZE, CLIP_SIZE));
+  const bool drawn = ShapeRenderer::drawTriangles(ShapeGeometry::rectangle(QRectF(0, 0, CLIP_SIZE, CLIP_SIZE)),
+                                                  matrix, 1.0f, &yuv);
+  yuv.release();
+
+  QImage img = drawn ? fbo.toImage() : QImage();
   fbo.release();
   return img;
 }
@@ -449,6 +472,40 @@ void TestVideo::yuvShaderDraw()
   // Re-upload in place.
   QVERIFY(yuv.upload(frame));
   QCOMPARE(glGetError(), GLenum(GL_NO_ERROR));
+
+  for (GLuint id : yuv.textureIds())
+    glDeleteTextures(1, &id);
+  context.doneCurrent();
+}
+
+void TestVideo::yuvShapeRendererDraw_data()
+{
+  yuvShaderDraw_data();
+}
+
+void TestVideo::yuvShapeRendererDraw()
+{
+  QFETCH(int, pixelFormat);
+  QFETCH(int, range);
+
+  QOffscreenSurface surface;
+  surface.create();
+  QOpenGLContext context;
+  if (!context.create() || !context.makeCurrent(&surface))
+    QSKIP("No OpenGL context available");
+  if (context.isOpenGLES())
+    QSKIP("The shaders are in GLSL 1.20, for desktop OpenGL");
+
+  QVideoFrame frame = _makeYuvFrame(QVideoFrameFormat::PixelFormat(pixelFormat),
+                                    QVideoFrameFormat::ColorRange(range));
+  QVERIFY(frame.isValid());
+
+  YuvTexture yuv;
+  QVERIFY(yuv.upload(frame));
+  QImage img = _drawYuvWithShapeRenderer(yuv);
+  QVERIFY2(!img.isNull(), "The shape renderer's shaders do not build");
+  QCOMPARE(glGetError(), GLenum(GL_NO_ERROR));
+  _checkQuadrants([&](int x, int y) { return QColor(img.pixel(x, y)); }, "shape renderer output");
 
   for (GLuint id : yuv.textureIds())
     glDeleteTextures(1, &id);

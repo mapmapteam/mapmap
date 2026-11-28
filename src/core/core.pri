@@ -18,6 +18,7 @@ HEADERS += $$PWD/Commands.h \
     $$PWD/Setting.h \
     $$PWD/SettingJson.h \
     $$PWD/ShapeGeometry.h \
+    $$PWD/ShapeRenderer.h \
     $$PWD/UidAllocator.h \
     $$PWD/VideoImpl.h \
     $$PWD/VideoPlayerImpl.h \
@@ -41,6 +42,7 @@ SOURCES += $$PWD/Commands.cpp \
     $$PWD/Setting.cpp \
     $$PWD/SettingJson.cpp \
     $$PWD/ShapeGeometry.cpp \
+    $$PWD/ShapeRenderer.cpp \
     $$PWD/UidAllocator.cpp \
     $$PWD/VideoImpl.cpp \
     $$PWD/VideoPlayerImpl.cpp \

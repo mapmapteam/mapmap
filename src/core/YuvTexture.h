@@ -64,6 +64,13 @@ public:
   /// Releases the program and unbinds units 1-2. Leaves texture unit 0 active.
   void release();
 
+  /// How the chroma is stored: 0 for separate U and V planes, 1 for interleaved
+  /// UV (NV12), 2 for interleaved VU (NV21).
+  int chromaLayout() const { return _chromaLayout; }
+
+  /// Matrix mapping (Y, U, V, 1) of the last uploaded frame to RGB (see colorMatrix()).
+  const QMatrix4x4& conversionMatrix() const { return _colorMatrix; }
+
   /// Texture ids owned by this object (0 if not allocated yet), so the owner
   /// can schedule their deletion when no context is current.
   QVector<GLuint> textureIds() const;

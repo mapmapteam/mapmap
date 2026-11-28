@@ -240,7 +240,7 @@ void TextureGraphicsItem::_doDrawInput(QPainter* painter)
   if (isLayerCurrent())
   {
     const QRectF rect = mapFromScene(_getTexture()->getRect()).boundingRect();
-    Util::drawTexturedTriangles(ShapeGeometry::rectangle(rect));
+    _drawTriangles(ShapeGeometry::rectangle(rect));
   }
 }
 
@@ -274,9 +274,17 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   texture->bind();
 
   // Set texture color (apply opacity).
-  glColor4f(1.0f, 1.0f, 1.0f,
-            isOutput() ? getLayer()->getComputedOpacity() : getLayer()->getSource()->getOpacity());
+  _opacity = isOutput() ? getLayer()->getComputedOpacity() : getLayer()->getSource()->getOpacity();
+  glColor4f(1.0f, 1.0f, 1.0f, _opacity);
 
+  _viewMatrix = ShapeRenderer::viewMatrix(painter->deviceTransform(), ShapeRenderer::currentViewportSize());
+}
+
+void TextureGraphicsItem::_drawTriangles(const QVector<TexturedVertex>& vertices)
+{
+  QSharedPointer<Texture> texture = _getTexture();
+  if (texture)
+    ShapeRenderer::drawTriangles(vertices, _viewMatrix, _opacity, texture->boundYuv());
 }
 
 void TextureGraphicsItem::_postPaint(QPainter* painter,
@@ -328,7 +336,7 @@ void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter)
       input[i]  = inputShape->getVertex(i);
       output[i] = mapFromScene(outputShape->getVertex(i));
     }
-    Util::drawTexturedTriangles(ShapeGeometry::triangle(_getTexture()->getRect(), input, output));
+    _drawTriangles(ShapeGeometry::triangle(_getTexture()->getRect(), input, output));
   }
 }
 
