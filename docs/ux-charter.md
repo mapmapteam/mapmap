@@ -84,7 +84,7 @@ Every rule below comes from these users and these situations. When a rule does n
 
    A mode is accepted only when all three are true: it is shown on the object it changes; it is switched with one key or one click; it never changes what a click somewhere else does.
 
-   *Example:* the handle of a layer rotates, scales or does both; its picture says which, and R, S, T or a click on it switch. *Counter-example:* a "Move" tool and an "Edit vertices" tool in a toolbar, one of which must be chosen before touching a layer.
+   *Example:* the handle of a layer rotates, scales or does both; its picture says which, and a click on it, or three buttons side by side, switch. *Counter-example:* a "Move" tool and an "Edit vertices" tool in a toolbar, one of which must be chosen before touching a layer.
 
 3. **Nothing is lost.** Every change can be undone, and one gesture is one step of the undo history. Because of that, MapMap does not ask "Are you sure?". The only questions are about what undo cannot bring back: closing a project that is not saved, overwriting a file.
 
@@ -393,13 +393,25 @@ The exact gestures belong to the interaction guide. The principles they follow:
 
 - **Standard shortcuts keep their standard meaning** on each operating system: new, open, save, undo, redo, copy, paste, quit, zoom in and out, preferences, full screen.
 
-- **Families of shortcuts.** With Ctrl (Cmd on macOS): commands of the software. A single key, without modifier: something done to what is selected or to the view while working in an editor. Each new shortcut joins a family; it does not start one.
+- **Families of keys.** Each new shortcut joins a family; it does not start one.
 
-- **A single key does nothing while typing** in a field or a dialog, and never does something that undo cannot bring back.
+  | Keys | Belong to |
+  |---|---|
+  | With Ctrl (Cmd on macOS) | Commands of the software |
+  | Keys without a letter: arrows, Tab, Delete, Backspace, Escape, Space, function keys | The software: the meanings they have everywhere (below), and what is done to the selection or to the view in an editor |
+  | Letters and digits, alone or with Shift | The user: they are the keys people assign themselves to a setting, to use during a show. The software never takes them |
+
+  This keeps every learned key working in every version: a later release cannot take a key that a project already uses.
+
+  *Counter-example:* H that flips the selected layer, so that a performer cannot assign H to a setting.
+
+- **A key without Ctrl does nothing while typing** in a field or a dialog, whether it belongs to the software or to the user, and the software's own never does something that undo cannot bring back.
 
 - **The keys that have a meaning everywhere keep it**: arrows move what is selected, by a small step and by a bigger one with Shift; Tab goes to the next; Delete and Backspace delete; Escape cancels or leaves. The steps and the exact keys are in the interaction guide.
 
-- **The letter is the first letter of the English verb** when it is free (R rotate, S scale, H flip horizontally), and it does not change with the language of the interface.
+- **With Ctrl, the letter is the first letter of the English verb** when it is free (Ctrl+D duplicate), and it does not change with the language of the interface.
+
+- **A command used rarely needs no shortcut**: flipping or rotating a layer by 90° happens once per setup, and its place in the menus is enough.
 
 - **Every shortcut is shown** in its menu item, in the tooltip of its button and in Help > Keyboard Shortcuts. A shortcut that is not in a menu is in that window.
 
