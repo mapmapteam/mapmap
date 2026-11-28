@@ -34,6 +34,19 @@ namespace mmp {
 
 typedef int uid;
 
+/// The buttons painted on a row of the list of layers.
+enum class LayerRowButton { Hide, Solo, Lock, Duplicate, Delete };
+
+/// Returns the column of the list of layers that holds a button.
+int layerRowButtonColumn(LayerRowButton button);
+
+/// Returns the rectangle of a button in the cell of its column, for painting it, for
+/// knowing where it is clicked and for outlining it.
+QRect layerRowButtonRect(LayerRowButton button, const QRect& cell);
+
+/// Returns the button of a column under a position, if any, in button.
+bool layerRowButtonAt(int column, const QRect& cell, const QPoint& position, LayerRowButton* button);
+
 class LayerItemDelegate : public QStyledItemDelegate
 {
   Q_OBJECT
