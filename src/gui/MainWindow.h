@@ -455,6 +455,13 @@ private:
   // Starts and stops learning keys.
   QAction* keyboardLearnAction = nullptr;
 
+  // The banner across the top of the window while learning, so that one sees that keys are
+  // being learned rather than acting.
+  QWidget* learnBanner = nullptr;
+
+  // The text of the banner: what to do next.
+  QLabel* learnBannerText = nullptr;
+
   // Turns the learned keys on and off, so that typing for something else does not change
   // the show.
   QAction* learnedKeysActiveAction = nullptr;
@@ -857,6 +864,8 @@ public:
   static const int CANVAS_MINIMUM_HEIGHT = 270;
   // How long the status bar says that the learned keys were turned on or off, in milliseconds.
   static const int LEARNED_KEYS_MESSAGE_MS = 3000;
+  // Margin around the text of the banner shown while learning, in pixels.
+  static const int LEARN_BANNER_MARGIN = 8;
   // How long the status bar gives the links of a project just opened, in milliseconds.
   static const int LOADED_LINKS_MESSAGE_MS = 8000;
   // Size of the area a new shape is placed in, relative to the output frame.

@@ -1132,6 +1132,14 @@ void MainWindow::showLearnMode()
   _keyLinkFilter->setLearning(learning);
   layerList->viewport()->update();
 
+  learnBanner->setVisible(learning);
+  if (_learnMode->hasTarget())
+    learnBannerText->setText(tr("Learning keys: press a key for %1. Delete removes its key.")
+                             .arg(linkTargetLabel(_learnMode->target())));
+  else
+    learnBannerText->setText(tr("Learning keys: click a control outlined in blue, then press a key. "
+                                "Learned keys do not act until learning stops (Escape)."));
+
   if (!learning)
     statusBar()->clearMessage();
   else if (_learnMode->hasTarget())
@@ -2112,10 +2120,37 @@ void MainWindow::createLayout()
   // Upon resizing window, give some extra stretch expansion to canvasSplitter.
   mainSplitter->setStretchFactor(0, 1);
 
+  // While learning, a banner across the top says so, with a button to stop.
+  learnBanner = new QWidget;
+  learnBanner->setObjectName(QStringLiteral("learnBanner"));
+  learnBanner->setAttribute(Qt::WA_StyledBackground);
+  learnBanner->setStyleSheet(QStringLiteral("#learnBanner { background-color: %1; } "
+                                            "#learnBanner QLabel, #learnBanner QToolButton { color: %2; font-weight: bold; }")
+                             .arg(MM::LEARN_COLOR.name(), MM::DARK_GRAY.name()));
+  QHBoxLayout* bannerLayout = new QHBoxLayout(learnBanner);
+  bannerLayout->setContentsMargins(LEARN_BANNER_MARGIN, LEARN_BANNER_MARGIN / 2,
+                                   LEARN_BANNER_MARGIN, LEARN_BANNER_MARGIN / 2);
+  learnBannerText = new QLabel(learnBanner);
+  learnBannerText->setWordWrap(true);
+  bannerLayout->addWidget(learnBannerText, 1);
+  QToolButton* stopLearning = new QToolButton(learnBanner);
+  stopLearning->setText(tr("Stop Learning"));
+  stopLearning->setToolTip(tr("Stop learning keys (Escape)"));
+  connect(stopLearning, &QToolButton::clicked, _learnMode, &LearnMode::stop);
+  bannerLayout->addWidget(stopLearning);
+  learnBanner->setVisible(false);
+
+  QWidget* central = new QWidget;
+  QVBoxLayout* centralLayout = new QVBoxLayout(central);
+  centralLayout->setContentsMargins(0, 0, 0, 0);
+  centralLayout->setSpacing(0);
+  centralLayout->addWidget(learnBanner);
+  centralLayout->addWidget(mainSplitter, 1);
+
   // Final setups.
   setWindowTitle(tr("MapMap"));
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-  setCentralWidget(mainSplitter);
+  setCentralWidget(central);
 
   // Connect mapping and source lists signals and slots.
   connectProjectWidgets();

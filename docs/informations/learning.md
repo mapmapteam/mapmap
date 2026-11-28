@@ -4,10 +4,10 @@ MapMap can link a key of the computer keyboard to a setting of a layer or a sour
 
 ## Learn a key
 
-1. Choose Edit > Keyboard Learn (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd>). The controls one can link are outlined in blue: the eye, the solo and the lock of each layer in the list, and the rows of the inspector that have a position between two ends (a slider, a switch, a menu).
+1. Choose Edit > Keyboard Learn (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd>). A blue banner across the top of the window says that keys are being learned, with a button to stop. The controls one can link are outlined in blue: the eye, the solo and the lock of each layer in the list, and the rows of the inspector that have a position between two ends (a slider, a switch, a menu).
 2. Click a control. The status bar asks for a key.
 3. Press a key, alone or with modifiers. The status bar confirms: "M → Facade: Visible". The key is written on the outline.
-4. Click another control to link another key, or press <kbd>Escape</kbd> to stop learning.
+4. Click another control to link another key, or press <kbd>Escape</kbd> to stop learning. While learning, the learned keys do not act: stop learning to try them.
 
 A right-click on a row of the inspector, then "Learn a Key", starts learning with that row already chosen.
 

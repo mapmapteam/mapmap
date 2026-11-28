@@ -39,7 +39,7 @@ const int DUPLICATE_BUTTON_FROM_RIGHT = 58;
 const int DELETE_BUTTON_FROM_RIGHT = 28;
 
 /// Colour of the outline of a button one can link, while learning.
-const QColor LEARN_OUTLINE_COLOR(0x3d, 0xae, 0xe9);
+const QColor LEARN_OUTLINE_COLOR = MM::LEARN_COLOR;
 
 /// Opacity of the filling of the button chosen while learning, between 0 and 255.
 const int LEARN_CHOSEN_ALPHA = 70;
