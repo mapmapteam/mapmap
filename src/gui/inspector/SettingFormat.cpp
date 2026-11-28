@@ -49,6 +49,14 @@ const int TIME_FIELD_WIDTH = 2;
 /// No-break space, written between a number and most units.
 const QChar NO_BREAK_SPACE(0x00A0);
 
+/// Returns the locale without its thousands separators: "1024", not "1,024".
+QLocale withoutGroupSeparator(const QLocale& locale)
+{
+  QLocale plain(locale);
+  plain.setNumberOptions(locale.numberOptions() | QLocale::OmitGroupSeparator);
+  return plain;
+}
+
 /// Returns true for a Number or an Integer.
 bool isNumber(const SettingInfo& info)
 {
@@ -64,6 +72,7 @@ QString unitSymbol(SettingInfo::Unit unit)
   case SettingInfo::Hertz:   return QStringLiteral("Hz");
   case SettingInfo::Seconds: return QStringLiteral("s");
   case SettingInfo::Pixels:  return QStringLiteral("px");
+  case SettingInfo::RevolutionsPerMinute: return QStringLiteral("rpm");
   case SettingInfo::NoUnit:  break;
   }
   return QString();
@@ -117,6 +126,9 @@ int SettingFormat::decimals(const SettingInfo& info)
 
 QString SettingFormat::unitSuffix(SettingInfo::Unit unit, const QLocale& locale)
 {
+  // Positions and sizes are in pixels all over MapMap: no need to say it.
+  if (unit == SettingInfo::Pixels)
+    return QString();
   const QString symbol = unitSymbol(unit);
   if (symbol.isEmpty())
     return symbol;
@@ -129,8 +141,9 @@ QString SettingFormat::unitSuffix(SettingInfo::Unit unit, const QLocale& locale)
 }
 
 QString SettingFormat::formatNumber(double displayValue, const SettingInfo& info,
-                                    const QLocale& locale)
+                                    const QLocale& anyLocale)
 {
+  const QLocale locale = withoutGroupSeparator(anyLocale);
   const int places = decimals(info);
   if (info.unit() == SettingInfo::Seconds)
     return formatTime(displayValue, places, locale);
@@ -145,8 +158,9 @@ QString SettingFormat::formatNumber(double displayValue, const SettingInfo& info
   return text + unitSuffix(info.unit(), locale);
 }
 
-QString SettingFormat::formatTime(double seconds, int decimals, const QLocale& locale)
+QString SettingFormat::formatTime(double seconds, int decimals, const QLocale& anyLocale)
 {
+  const QLocale locale = withoutGroupSeparator(anyLocale);
   const bool negative = seconds < 0;
   const double magnitude = std::fabs(seconds);
   const int minutes = int(magnitude) / SECONDS_PER_MINUTE;

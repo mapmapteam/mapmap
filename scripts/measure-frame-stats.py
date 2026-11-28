@@ -34,7 +34,7 @@ MODES = [
 WARMUP_SECONDS = 4
 
 LINE_RE = re.compile(r"Info: (?P<name>[^:(]+?)(?: \((?P<path>[^)]*)\))?: (?P<stages>.*?) - ")
-STAGE_RE = re.compile(r"(prepare|upload|draw|interval) ([\d.]+) ms, max ([\d.]+) ms, (\d+)/s")
+STAGE_RE = re.compile(r"(prepare|upload|render|draw|interval) ([\d.]+) ms, max ([\d.]+) ms, (\d+)/s")
 DROPPED_RE = re.compile(r"dropped (\d+)/s")
 
 
@@ -159,11 +159,11 @@ def main():
                 rows.append((f"{height}p", mode, name, entry))
 
     print("\nMedian of the means per second, in ms (dropped: frames per second).\n")
-    print("| resolution | mode | source or view | path | prepare | upload | draw | interval | dropped |")
-    print("|---|---|---|---|---|---|---|---|---|")
+    print("| resolution | mode | source or view | path | prepare | upload | render | draw | interval | dropped |")
+    print("|---|---|---|---|---|---|---|---|---|---|")
     for resolution, mode, name, entry in rows:
         print(f"| {resolution} | {mode} | {name} | {entry['path']} | {median(entry.get('prepare', []))} | "
-              f"{median(entry.get('upload', []))} | {median(entry.get('draw', []))} | "
+              f"{median(entry.get('upload', []))} | {median(entry.get('render', []))} | {median(entry.get('draw', []))} | "
               f"{median(entry.get('interval', []))} | {median(entry.get('dropped', []))} |")
 
 

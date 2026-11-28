@@ -19,88 +19,13 @@
 
 #include "YuvTexture.h"
 
+#include "ShapeRenderer.h"
+
 #include <QOpenGLContext>
-#include <QOpenGLShaderProgram>
-#include <QHash>
-#include <QDebug>
 
 namespace mmp {
 
 bool YuvTexture::_unavailable = false;
-
-namespace {
-
-const char* VERTEX_SHADER =
-  "#version 120\n"
-  "void main() {\n"
-  "  gl_Position    = ftransform();\n"
-  "  gl_TexCoord[0] = gl_MultiTexCoord0;\n"
-  "  gl_FrontColor  = gl_Color;\n"
-  "}\n";
-
-// Single-channel planes are GL_LUMINANCE (value in .r); interleaved chroma is
-// GL_LUMINANCE_ALPHA (first byte in .r, second in .a).
-const char* FRAGMENT_SHADER =
-  "#version 120\n"
-  "uniform sampler2D texY;\n"
-  "uniform sampler2D texU;\n"
-  "uniform sampler2D texV;\n"
-  "uniform int chromaLayout;\n"
-  "uniform mat4 colorMatrix;\n"
-  "void main() {\n"
-  "  vec2 tc = gl_TexCoord[0].st;\n"
-  "  float y = texture2D(texY, tc).r;\n"
-  "  vec2 uv;\n"
-  "  if (chromaLayout == 0) {\n"
-  "    uv = vec2(texture2D(texU, tc).r, texture2D(texV, tc).r);\n"
-  "  } else {\n"
-  "    vec4 c = texture2D(texU, tc);\n"
-  "    uv = (chromaLayout == 1) ? c.ra : c.ar;\n"
-  "  }\n"
-  "  vec3 rgb = (colorMatrix * vec4(y, uv, 1.0)).rgb;\n"
-  "  gl_FragColor = vec4(clamp(rgb, 0.0, 1.0), 1.0) * gl_Color;\n"
-  "}\n";
-
-// One program per share group (all MapMap contexts share one group, see
-// Qt::AA_ShareOpenGLContexts in main.cpp).
-QOpenGLShaderProgram* _program()
-{
-  static QHash<QOpenGLContextGroup*, QOpenGLShaderProgram*> programs;
-
-  QOpenGLContext* context = QOpenGLContext::currentContext();
-  if (!context)
-    return nullptr;
-  QOpenGLContextGroup* group = context->shareGroup();
-
-  QOpenGLShaderProgram* program = programs.value(group);
-  if (program)
-    return program;
-
-  program = new QOpenGLShaderProgram;
-  if (!program->addShaderFromSourceCode(QOpenGLShader::Vertex, VERTEX_SHADER) ||
-      !program->addShaderFromSourceCode(QOpenGLShader::Fragment, FRAGMENT_SHADER) ||
-      !program->link())
-  {
-    qWarning() << "YUV shader unavailable, falling back to CPU conversion:" << program->log();
-    delete program;
-    return nullptr;
-  }
-
-  program->bind();
-  program->setUniformValue("texY", 0);
-  program->setUniformValue("texU", 1);
-  program->setUniformValue("texV", 2);
-  program->release();
-
-  programs.insert(group, program);
-  QObject::connect(group, &QObject::destroyed, [group]() {
-    // The GL objects die with the group; just forget the wrapper.
-    programs.remove(group);
-  });
-  return program;
-}
-
-} // namespace
 
 YuvTexture::YuvTexture()
   : _nPlanes(0),
@@ -220,7 +145,7 @@ bool YuvTexture::upload(const QVideoFrame& constFrame)
   QOpenGLContext* context = QOpenGLContext::currentContext();
   if (!context || !supportsFormat(constFrame.pixelFormat()))
     return false;
-  if (!_program()) {
+  if (!ShapeRenderer::isAvailable()) {
     _unavailable = true;
     return false;
   }
@@ -274,8 +199,7 @@ bool YuvTexture::upload(const QVideoFrame& constFrame)
 void YuvTexture::bind()
 {
   QOpenGLContext* context = QOpenGLContext::currentContext();
-  QOpenGLShaderProgram* program = _program();
-  if (!context || !program)
+  if (!context)
     return;
 
   QOpenGLFunctions* gl = context->functions();
@@ -283,20 +207,13 @@ void YuvTexture::bind()
     gl->glActiveTexture(GL_TEXTURE0 + i);
     glBindTexture(GL_TEXTURE_2D, _planes[i].id);
   }
-
-  program->bind();
-  program->setUniformValue("chromaLayout", _chromaLayout);
-  program->setUniformValue("colorMatrix", _colorMatrix);
 }
 
 void YuvTexture::release()
 {
   QOpenGLContext* context = QOpenGLContext::currentContext();
-  QOpenGLShaderProgram* program = _program();
-  if (!context || !program)
+  if (!context)
     return;
-
-  program->release();
 
   QOpenGLFunctions* gl = context->functions();
   for (int i = _nPlanes - 1; i >= 1; i--) {

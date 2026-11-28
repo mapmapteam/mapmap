@@ -264,6 +264,12 @@ public:
   /// Returns the page of a tab.
   InspectorPage* page(int index) const;
 
+  /// Shows the tab of a page of this inspector.
+  void setCurrentPage(InspectorPage* page);
+
+  /// Returns the page of the tab shown.
+  InspectorPage* currentPage() const;
+
   /// Returns the tab bar, for tests.
   QTabBar* tabBar() const { return _tabs; }
 

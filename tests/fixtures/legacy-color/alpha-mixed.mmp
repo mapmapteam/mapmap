@@ -1,0 +1,192 @@
+{
+    "layers": [
+        {
+            "className": "TextureLayer",
+            "depth": "-3",
+            "destination": {
+                "className": "Triangle",
+                "locked": "true",
+                "vertices": [
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        200,
+                        1
+                    ],
+                    [
+                        100,
+                        150
+                    ]
+                ]
+            },
+            "id": 4,
+            "locked": "false",
+            "name": "top image",
+            "opacity": "0.75",
+            "solo": "true",
+            "source": {
+                "className": "Triangle",
+                "locked": "false",
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        2,
+                        0
+                    ],
+                    [
+                        1,
+                        2
+                    ]
+                ]
+            },
+            "source_id": 2,
+            "visible": "true"
+        },
+        {
+            "className": "ColorLayer",
+            "depth": "2",
+            "destination": {
+                "className": "Mesh",
+                "locked": "false",
+                "n_columns": "2",
+                "n_rows": "3",
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        10,
+                        0
+                    ],
+                    [
+                        0,
+                        10
+                    ],
+                    [
+                        10,
+                        10
+                    ],
+                    [
+                        0,
+                        20
+                    ],
+                    [
+                        10,
+                        20
+                    ]
+                ]
+            },
+            "id": 2,
+            "locked": "true",
+            "name": "hidden red",
+            "opacity": "1",
+            "solo": "false",
+            "source_id": 1,
+            "visible": "false"
+        },
+        {
+            "className": "ColorLayer",
+            "depth": "3",
+            "destination": {
+                "className": "Ellipse",
+                "locked": "false",
+                "vertices": [
+                    [
+                        -10.25,
+                        0
+                    ],
+                    [
+                        0,
+                        -5.5
+                    ],
+                    [
+                        10.25,
+                        0
+                    ],
+                    [
+                        0,
+                        5.5
+                    ]
+                ]
+            },
+            "id": 3,
+            "locked": "false",
+            "name": "same red again",
+            "opacity": "1",
+            "solo": "false",
+            "source_id": 1,
+            "visible": "true"
+        },
+        {
+            "className": "ColorLayer",
+            "depth": "9",
+            "destination": {
+                "className": "Mesh",
+                "locked": "false",
+                "n_columns": "2",
+                "n_rows": "2",
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1920,
+                        0
+                    ],
+                    [
+                        0,
+                        1080
+                    ],
+                    [
+                        1920,
+                        1080
+                    ]
+                ]
+            },
+            "id": 9,
+            "locked": "false",
+            "name": "bottom white",
+            "opacity": "1",
+            "solo": "false",
+            "source_id": 5,
+            "visible": "true"
+        }
+    ],
+    "sources": [
+        {
+            "className": "Color",
+            "color": "#ff0000",
+            "id": 1,
+            "locked": "true",
+            "name": "red",
+            "opacity": "1"
+        },
+        {
+            "className": "Image",
+            "id": 2,
+            "locked": "false",
+            "name": "tiny",
+            "opacity": "0.25",
+            "rate": "0.5",
+            "uri": "media/tiny.png",
+            "x": 3,
+            "y": 4
+        },
+        {
+            "className": "Color",
+            "color": "#ffffff",
+            "id": 5,
+            "locked": "false",
+            "name": "white",
+            "opacity": "1"
+        }
+    ],
+    "version": "1.0.0-alpha.1"
+}

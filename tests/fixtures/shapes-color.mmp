@@ -1,0 +1,279 @@
+{
+    "layers": [
+        {
+            "className": "TextureLayer",
+            "depth": 1,
+            "destination": {
+                "className": "Ellipse",
+                "locked": false,
+                "vertices": [
+                    [
+                        700,
+                        500
+                    ],
+                    [
+                        1000,
+                        250
+                    ],
+                    [
+                        1300,
+                        500
+                    ],
+                    [
+                        1000,
+                        750
+                    ]
+                ]
+            },
+            "id": 1,
+            "locked": false,
+            "name": "ellipse",
+            "opacity": 1,
+            "solo": false,
+            "source": {
+                "className": "Ellipse",
+                "locked": false,
+                "vertices": [
+                    [
+                        0,
+                        128
+                    ],
+                    [
+                        128,
+                        0
+                    ],
+                    [
+                        256,
+                        128
+                    ],
+                    [
+                        128,
+                        256
+                    ]
+                ]
+            },
+            "source_id": 2,
+            "visible": true
+        },
+        {
+            "className": "TextureLayer",
+            "depth": 2,
+            "destination": {
+                "className": "Triangle",
+                "locked": false,
+                "vertices": [
+                    [
+                        900,
+                        900
+                    ],
+                    [
+                        1700,
+                        950
+                    ],
+                    [
+                        1400,
+                        200
+                    ]
+                ]
+            },
+            "id": 2,
+            "locked": false,
+            "name": "triangle",
+            "opacity": 0.6000000238418579,
+            "solo": false,
+            "source": {
+                "className": "Triangle",
+                "locked": false,
+                "vertices": [
+                    [
+                        0,
+                        256
+                    ],
+                    [
+                        256,
+                        256
+                    ],
+                    [
+                        128,
+                        0
+                    ]
+                ]
+            },
+            "source_id": 3,
+            "visible": true
+        },
+        {
+            "className": "TextureLayer",
+            "depth": 3,
+            "destination": {
+                "className": "Mesh",
+                "locked": false,
+                "n_columns": 3,
+                "n_rows": 2,
+                "vertices": [
+                    [
+                        100,
+                        100
+                    ],
+                    [
+                        500,
+                        150
+                    ],
+                    [
+                        900,
+                        80
+                    ],
+                    [
+                        150,
+                        700
+                    ],
+                    [
+                        550,
+                        650
+                    ],
+                    [
+                        950,
+                        720
+                    ]
+                ]
+            },
+            "id": 3,
+            "locked": false,
+            "name": "mesh",
+            "opacity": 1,
+            "solo": false,
+            "source": {
+                "className": "Mesh",
+                "locked": false,
+                "n_columns": 3,
+                "n_rows": 2,
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        128,
+                        0
+                    ],
+                    [
+                        256,
+                        0
+                    ],
+                    [
+                        0,
+                        256
+                    ],
+                    [
+                        128,
+                        256
+                    ],
+                    [
+                        256,
+                        256
+                    ]
+                ]
+            },
+            "source_id": 1,
+            "visible": true
+        },
+        {
+            "className": "TextureLayer",
+            "depth": 4,
+            "destination": {
+                "className": "Mesh",
+                "locked": false,
+                "n_columns": 2,
+                "n_rows": 2,
+                "vertices": [
+                    [
+                        100,
+                        800
+                    ],
+                    [
+                        400,
+                        780
+                    ],
+                    [
+                        90,
+                        1020
+                    ],
+                    [
+                        420,
+                        1000
+                    ]
+                ]
+            },
+            "id": 4,
+            "locked": false,
+            "name": "quad",
+            "opacity": 1,
+            "solo": false,
+            "source": {
+                "className": "Mesh",
+                "locked": false,
+                "n_columns": 2,
+                "n_rows": 2,
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        256,
+                        0
+                    ],
+                    [
+                        0,
+                        256
+                    ],
+                    [
+                        256,
+                        256
+                    ]
+                ]
+            },
+            "source_id": 3,
+            "visible": true
+        }
+    ],
+    "sources": [
+        {
+            "className": "ColorGenerator",
+            "color": "#ffaa00",
+            "height": 256,
+            "id": 1,
+            "locked": false,
+            "name": "orange",
+            "opacity": 0.800000011920929,
+            "width": 256,
+            "x": 0,
+            "y": 0
+        },
+        {
+            "className": "ColorGenerator",
+            "color": "#2060ff",
+            "height": 256,
+            "id": 2,
+            "locked": false,
+            "name": "blue",
+            "opacity": 1,
+            "width": 256,
+            "x": 0,
+            "y": 0
+        },
+        {
+            "className": "ColorGenerator",
+            "color": "#33cc66",
+            "height": 256,
+            "id": 3,
+            "locked": false,
+            "name": "green",
+            "opacity": 1,
+            "width": 256,
+            "x": 0,
+            "y": 0
+        }
+    ],
+    "version": "1.0.0-beta.2"
+}

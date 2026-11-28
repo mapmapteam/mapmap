@@ -36,9 +36,8 @@ namespace mmp {
  * on a Raspberry Pi 4, which is more than a frame period; uploading the raw
  * planes moves 1.5 bytes/pixel instead of 4 and costs no conversion at all.
  *
- * The shader uses the fixed-function inputs (ftransform(), gl_MultiTexCoord0,
- * gl_Color), so existing immediate-mode drawing code works unchanged between
- * bind() and release(). All calls need a current GL context.
+ * The conversion is done by the YUV shader of ShapeRenderer, which reads the
+ * planes that bind() binds. All calls need a current GL context.
  */
 class YuvTexture
 {
@@ -49,20 +48,27 @@ public:
   /// True if frames in this pixel format can be drawn by YuvTexture.
   static bool supportsFormat(QVideoFrameFormat::PixelFormat format);
 
-  /// False once the shader failed to build on this system (callers should then
-  /// fall back to RGB conversion).
+  /// False once the shaders of ShapeRenderer failed to build on this system
+  /// (callers should then fall back to RGB conversion).
   static bool isAvailable() { return !_unavailable; }
 
   /// Uploads the planes of a frame (textures are reallocated only when the
   /// frame geometry changes). Returns false on failure.
   bool upload(const QVideoFrame& frame);
 
-  /// Binds plane textures (units 0-2) and the conversion program. Leaves
-  /// texture unit 0 active.
+  /// Binds plane textures (units 0-2), for ShapeRenderer::drawTriangles().
+  /// Leaves texture unit 0 active.
   void bind();
 
-  /// Releases the program and unbinds units 1-2. Leaves texture unit 0 active.
+  /// Unbinds units 1-2. Leaves texture unit 0 active.
   void release();
+
+  /// How the chroma is stored: 0 for separate U and V planes, 1 for interleaved
+  /// UV (NV12), 2 for interleaved VU (NV21).
+  int chromaLayout() const { return _chromaLayout; }
+
+  /// Matrix mapping (Y, U, V, 1) of the last uploaded frame to RGB (see colorMatrix()).
+  const QMatrix4x4& conversionMatrix() const { return _colorMatrix; }
 
   /// Texture ids owned by this object (0 if not allocated yet), so the owner
   /// can schedule their deletion when no context is current.

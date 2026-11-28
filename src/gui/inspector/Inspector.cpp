@@ -749,4 +749,16 @@ InspectorPage* Inspector::page(int index) const
   return qobject_cast<InspectorPage*>(_pages->widget(index));
 }
 
+void Inspector::setCurrentPage(InspectorPage* page)
+{
+  const int index = _pages->indexOf(page);
+  if (index >= 0)
+    _tabs->setCurrentIndex(index);
+}
+
+InspectorPage* Inspector::currentPage() const
+{
+  return qobject_cast<InspectorPage*>(_pages->currentWidget());
+}
+
 } // namespace mmp

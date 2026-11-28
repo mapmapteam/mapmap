@@ -203,38 +203,6 @@ protected:
 };
 
 /**
- * Mapping of a Color source into a shape.
- */
-class ColorLayer : public Layer
-{
-  Q_OBJECT
-public:
-  Q_INVOKABLE ColorLayer(int id=NULL_UID)
-    : Layer(id) {}
-
-  ColorLayer(Source::ptr source, MShape::ptr shape,
-               uid id=NULL_UID)
-    : Layer(source, shape, id) {}
-
-  // Return copy of this mapping.
-  virtual Layer* clone() const {
-    MShape::ptr shape(_shape->clone());
-    return new ColorLayer(_source, shape);
-  }
-
-  /// Returns true iff the mapping possesses an input (source) shape.
-  virtual bool hasInputShape() const { return false; }
-
-	/// Returns true iff source is compatible with mapping.
-	virtual bool sourceIsCompatible(Source::ptr source) const;
-
-  virtual MShape::ShapeType getType() const {
-    return getShape()->getType();
-  }
-
-};
-
-/**
  * Object whose source is an image texture. In the case of a texture mapping we require
  * an additional input shape to specify the area on the image where we pick the pixels.
  */

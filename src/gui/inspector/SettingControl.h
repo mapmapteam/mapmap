@@ -221,7 +221,8 @@ private:
   bool _on;
 };
 
-/// A menu that asks for its entries each time it opens.
+/// A menu that asks for its entries each time it opens. The mouse wheel does not change
+/// its value: it scrolls the panel under it, so that a value never changes on its way.
 class RefreshingComboBox : public QComboBox {
   Q_OBJECT
 
@@ -233,6 +234,9 @@ public:
   void setAboutToShow(std::function<void()> function) { _aboutToShow = function; }
 
   void showPopup() override;
+
+protected:
+  void wheelEvent(QWheelEvent* event) override;
 
 private:
   std::function<void()> _aboutToShow;

@@ -45,6 +45,8 @@ private slots:
   void readOnlyRowIsDisabled();
   void switchToggles();
   void shortChoiceShowsButtons();
+  void menuIgnoresWheel();
+  void currentPageCanBeChosen();
   void choiceKeepsMissingId();
   void referenceMenuFollowsSources();
   void rangeBoundsDoNotCross();

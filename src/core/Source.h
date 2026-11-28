@@ -76,7 +76,7 @@ protected:
 public:
 
   enum SourceType {
-    Video, Image, Color, Syphon
+    Video, Image, Syphon, Generator
   };
 
   typedef QSharedPointer<Source> ptr;
@@ -141,36 +141,13 @@ private:
   bool _isPlaying;
 };
 
-class Color : public Source
-{
-  Q_OBJECT
-
-protected:
-  QColor color;
-
-public:
-  Q_INVOKABLE Color(int id=NULL_UID);
-  Color(const QColor& color_, uid id=NULL_UID);
-
-  QColor getColor() const { return color; }
-
-  /// Sets the colour; notifies the "color" setting when it changes.
-  void setColor(const QColor& color_);
-
-  virtual SourceType getSourceType() const { return SourceType::Color; }
-
-  virtual QIcon getIcon() const {
-    QPixmap pixmap(MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
-    pixmap.fill(color);
-    return QIcon(pixmap);
-  }
-};
-
 /**
  * Source that uses an OpenGL texture to render on potentially any MappingGui.
  *
  * This video texture is actually an OpenGL texture.
  */
+class YuvTexture;
+
 class Texture : public Source
 {
   Q_OBJECT
@@ -235,13 +212,20 @@ public:
   void uploadBits();
 
   /// Makes the texture ready to draw with: uploads new content if needed,
-  /// binds it to texture unit 0 (and possibly other units / a shader program,
-  /// see Video). Texture coordinates are in [0, 1]. MUST be called with a
+  /// binds it to texture unit 0 (and possibly other units, see Video). Texture coordinates are in [0, 1]. MUST be called with a
   /// current GL context, and paired with release().
   virtual void bind();
 
-  /// Undoes bind() (leaves texture unit 0 active, no program in use).
+  /// Undoes bind() (leaves texture unit 0 active).
   virtual void release() {}
+
+  /// The video planes that bind() bound on units 0 to 2, or null if it bound an
+  /// RGBA texture on unit 0 (see ShapeRenderer::drawTriangles()).
+  virtual const YuvTexture* boundYuv() const { return nullptr; }
+
+  /// True when the first row of the texture is the bottom of the image, as for an
+  /// image drawn by OpenGL; false when it is the top, as for files and videos.
+  virtual bool isBottomUp() const { return false; }
 
 protected:
   /// uploadBits() with the mutex already locked.
@@ -366,7 +350,6 @@ protected:
 
 class VideoImpl;  // forward declaration
 class FrameStats; // forward declaration
-class YuvTexture; // forward declaration
 
 /**
  * Source that is a Texture retrieved via a video file.
@@ -441,6 +424,7 @@ public:
   /// a shader, see YuvTexture), other frames as a regular RGBA texture.
   virtual void bind();
   virtual void release();
+  virtual const YuvTexture* boundYuv() const { return _yuvActive ? _yuv : nullptr; }
 
   /// Returns the timing of the frames of this video (see FrameStats).
   FrameStats* frameStats() const;

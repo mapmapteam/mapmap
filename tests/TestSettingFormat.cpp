@@ -68,8 +68,30 @@ void TestSettingFormat::unitsInFrenchAndEnglish()
   QCOMPARE(SettingFormat::formatNumber(2.4, frequency, FRENCH), QString("2,4") + NBSP + "Hz");
   QCOMPARE(SettingFormat::formatNumber(2.4, frequency, ENGLISH), QString("2.4") + NBSP + "Hz");
 
+  const SettingInfo rotation = SettingInfo::number("r", "R").step(0.1).unit(SettingInfo::RevolutionsPerMinute);
+  QCOMPARE(SettingFormat::formatNumber(5, rotation, ENGLISH), QString("5.0") + NBSP + "rpm");
+  double parsed = 0;
+  QVERIFY(SettingFormat::parseNumber("12 rpm", rotation, &parsed, ENGLISH));
+  QCOMPARE(parsed, 12.0);
+
+  // Pixels are shown without their unit.
   const SettingInfo pixels = SettingInfo::point("p", "P").unit(SettingInfo::Pixels);
-  QCOMPARE(SettingFormat::formatNumber(120, pixels, ENGLISH), QString("120") + NBSP + "px");
+  QCOMPARE(SettingFormat::formatNumber(120, pixels, ENGLISH), QString("120"));
+}
+
+void TestSettingFormat::noThousandsSeparator()
+{
+  const SettingInfo size = SettingInfo::integer("w", "W").unit(SettingInfo::Pixels);
+  QCOMPARE(SettingFormat::formatNumber(1024, size, ENGLISH), QString("1024"));
+  QCOMPARE(SettingFormat::formatNumber(1024, size, FRENCH), QString("1024"));
+  const SettingInfo plain = SettingInfo::number("n", "N").step(0.1);
+  QCOMPARE(SettingFormat::formatNumber(1000000.5, plain, ENGLISH), QString("1000000.5"));
+  QCOMPARE(SettingFormat::formatNumber(1000000.5, plain, FRENCH), QString("1000000,5"));
+
+  // What is shown is read back.
+  double value = 0;
+  QVERIFY(SettingFormat::parseNumber(SettingFormat::formatNumber(1024, size, ENGLISH), size, &value, ENGLISH));
+  QCOMPARE(value, 1024.0);
 }
 
 void TestSettingFormat::durationsInMinutesAndSeconds()

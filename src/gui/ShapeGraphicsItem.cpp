@@ -25,6 +25,13 @@
 
 namespace mmp {
 
+namespace {
+
+/// Number of vertices of a triangle.
+const int N_TRIANGLE_VERTICES = 3;
+
+} // namespace
+
 ShapeGraphicsItem::ShapeGraphicsItem(Layer::ptr mapping, bool output)
   : _mapping(mapping), _output(output)
 {
@@ -112,100 +119,6 @@ void ShapeGraphicsItem::paint(QPainter *painter,
 ////  }
 //}
 
-void ColorGraphicsItem::_prePaint(QPainter *painter,
-                                  const QStyleOptionGraphicsItem *option)
-{
-  Q_UNUSED(option);
-
-  Color* color = static_cast<Color*>(getLayer()->getSource().data());
-  Q_ASSERT(color);
-
-  painter->setPen(Qt::NoPen);
-
-  // Set brush.
-  QColor col = color->getColor();
-  col.setAlphaF(getLayer()->getComputedOpacity());
-  painter->setBrush(col);
-}
-
-PolygonColorGraphicsItem::PolygonColorGraphicsItem(Layer::ptr mapping, bool output)
-  : ColorGraphicsItem(mapping, output) {
-  _controlPainter.reset(new PolygonControlPainter(this));
-}
-
-QPainterPath PolygonColorGraphicsItem::shape() const
-{
-  QPainterPath path;
-  auto strong = _shape.toStrongRef();
-  if (!strong) return path;
-  Polygon* poly = static_cast<Polygon*>(strong.data());
-  path.addPolygon(poly->toPolygon());
-  return mapFromScene(path);
-}
-
-void PolygonColorGraphicsItem::_doPaint(QPainter *painter,
-                                        const QStyleOptionGraphicsItem *option)
-{
-  Q_UNUSED(option);
-  auto strong = _shape.toStrongRef();
-  if (!strong) return;
-  Polygon* poly = static_cast<Polygon*>(strong.data());
-  painter->drawPolygon(mapFromScene(poly->toPolygon()));
-}
-
-MeshColorGraphicsItem::MeshColorGraphicsItem(Layer::ptr mapping, bool output)
-: PolygonColorGraphicsItem(mapping, output)
-{
-  _controlPainter.reset(new MeshControlPainter(this));
-}
-
-void MeshColorGraphicsItem::_doPaint(QPainter *painter,
-                                     const QStyleOptionGraphicsItem *option)
-{
-  Q_UNUSED(option);
-
-  auto strong = _shape.toStrongRef();
-  if (!strong) return;
-  Mesh* mesh = static_cast<Mesh*>(strong.data());
-  QVector<QVector<Quad::ptr> > quads = mesh->getQuads2d();
-
-  // Go through the mesh quad by quad.
-  for (int x = 0; x < mesh->nHorizontalQuads(); x++)
-  {
-    for (int y = 0; y < mesh->nVerticalQuads(); y++)
-    {
-      Quad::ptr quad = quads[x][y];
-
-      painter->drawPolygon(mapFromScene(quad->toPolygon()));
-    }
-  }
-}
-
-EllipseColorGraphicsItem::EllipseColorGraphicsItem(Layer::ptr mapping, bool output)
-  : ColorGraphicsItem(mapping, output) {
-    _controlPainter.reset(new EllipseControlPainter(this));
-  }
-
-QPainterPath EllipseColorGraphicsItem::shape() const
-{
-  // Create path for ellipse.
-  QPainterPath path;
-  auto strong = _shape.toStrongRef();
-  if (!strong) return path;
-  Ellipse* ellipse = static_cast<Ellipse*>(strong.data());
-  path.addPolygon(ellipse->toPolygon());
-  path.closeSubpath();
-  return mapFromScene(path);
-}
-
-void EllipseColorGraphicsItem::_doPaint(QPainter* painter,
-                                        const QStyleOptionGraphicsItem* option)
-{
-  Q_UNUSED(option);
-  // Just draw the path.
-  painter->drawPath(shape());
-}
-
 TextureGraphicsItem::TextureGraphicsItem(Layer::ptr mapping, bool output)
   : ShapeGraphicsItem(mapping, output)
 {
@@ -232,24 +145,8 @@ void TextureGraphicsItem::_doDrawInput(QPainter* painter)
   Q_UNUSED(painter);
   if (isLayerCurrent())
   {
-    // FIXME: Does this draw the quad counterclockwise?
-    glBegin (GL_QUADS);
-    {
-      QRectF rect = mapFromScene(_getTexture()->getRect()).boundingRect();
-
-      Util::correctGlTexCoord(0, 0);
-      glVertex3f (rect.x(), rect.y(), 0);
-
-      Util::correctGlTexCoord(1, 0);
-      glVertex3f (rect.x() + rect.width(), rect.y(), 0);
-
-      Util::correctGlTexCoord(1, 1);
-      glVertex3f (rect.x()+rect.width(), rect.y()+rect.height(), 0);
-
-      Util::correctGlTexCoord(0, 1);
-      glVertex3f (rect.x(), rect.y()+rect.height(), 0);
-    }
-    glEnd ();
+    const QRectF rect = mapFromScene(_getTexture()->getRect()).boundingRect();
+    _drawTriangles(ShapeGeometry::rectangle(rect));
   }
 }
 
@@ -273,19 +170,20 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   // TODO:remettre
   //Q_ASSERT( _inputShape->nVertices() == outputShape->nVertices());
 
-  // Allow alpha blending.
-  glEnable (GL_BLEND);
-  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  // Get texture.
-  glEnable (GL_TEXTURE_2D);
   // Uploads new content if needed (YUV video is converted by a shader).
   texture->bind();
 
-  // Set texture color (apply opacity).
-  glColor4f(1.0f, 1.0f, 1.0f,
-            isOutput() ? getLayer()->getComputedOpacity() : getLayer()->getSource()->getOpacity());
+  // Opacity, applied by the shader.
+  _opacity = isOutput() ? getLayer()->getComputedOpacity() : getLayer()->getSource()->getOpacity();
 
+  _viewMatrix = ShapeRenderer::viewMatrix(painter->deviceTransform(), ShapeRenderer::currentViewportSize());
+}
+
+void TextureGraphicsItem::_drawTriangles(const QVector<TexturedVertex>& vertices)
+{
+  QSharedPointer<Texture> texture = _getTexture();
+  if (texture)
+    ShapeRenderer::drawTriangles(vertices, _viewMatrix, _opacity, texture->boundYuv(), texture->isBottomUp());
 }
 
 void TextureGraphicsItem::_postPaint(QPainter* painter,
@@ -294,7 +192,6 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
   Q_UNUSED(option);
 
   _getTexture()->release();
-  glDisable(GL_TEXTURE_2D);
 
   painter->endNativePainting();
 }
@@ -326,15 +223,18 @@ void TriangleTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   if (isOutput())
   {
     MShape::ptr inputShape = _inputShape.toStrongRef();
-    if (!inputShape) return;
-    glBegin(GL_TRIANGLES);
+    MShape::ptr outputShape = getShape();
+    if (!inputShape || !outputShape ||
+        inputShape->nVertices() < N_TRIANGLE_VERTICES || outputShape->nVertices() < N_TRIANGLE_VERTICES)
+      return;
+    QPointF input[N_TRIANGLE_VERTICES];
+    QPointF output[N_TRIANGLE_VERTICES];
+    for (int i = 0; i < N_TRIANGLE_VERTICES; i++)
     {
-      for (int i=0; i<inputShape->nVertices(); i++)
-      {
-        Util::setGlTexPoint(*_getTexture(), inputShape->getVertex(i), mapFromScene(getShape()->getVertex(i)));
-      }
+      input[i]  = inputShape->getVertex(i);
+      output[i] = mapFromScene(outputShape->getVertex(i));
     }
-    glEnd();
+    _drawTriangles(ShapeGeometry::triangle(_getTexture()->getRect(), input, output));
   }
 }
 
@@ -397,6 +297,9 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
     }
     _wasGrabbing = grabbing;
 
+    const QRectF textureRect = _getTexture()->getRect();
+    bool verticesChanged = forceRebuild || textureRect != _verticesTextureRect;
+
     // Go through the mesh quad by quad.
     for (int x = 0; x < nHorizontalQuads; x++)
     {
@@ -404,125 +307,52 @@ void MeshTextureGraphicsItem::_doDrawOutput(QPainter* painter)
       {
         Quad::ptr inputQuad  = inputQuads[x][y];
         Quad::ptr outputQuad = outputQuads[x][y];
+        const QPolygonF inputPolygon  = inputQuad->toPolygon();
+        const QPolygonF outputPolygon = outputQuad->toPolygon();
 
         // Verify if item needs recomputing.
         CacheQuadItem& item = _cachedQuadItems[x][y];
         if (forceRebuild ||
-            item.parent.input->toPolygon()  != inputQuad->toPolygon() ||
-            item.parent.output->toPolygon() != outputQuad->toPolygon()) {
+            item.input  != inputPolygon ||
+            item.output != outputPolygon) {
 
           // Copy input and output quads for verification purposes.
-          item.parent.input  = inputQuad;
-          item.parent.output = outputQuad;
+          item.input  = inputPolygon;
+          item.output = outputPolygon;
 
           // Recompute sub quads.
           item.subQuads.clear();
-
-          QSizeF size = mapFromScene(outputQuad->toPolygon()).boundingRect().size();
-          float area = size.width() * size.height();
-
-          // Rebuild cache quad item.
-          _buildCacheQuadItem(item, inputQuad, outputQuad, area, 0.0001f, 0.001f, MM::MESH_SUBDIVISION_MIN_AREA, maxDepth);
-        }
-
-        // Draw all the cached items.
-        for (CacheQuadMapping m: item.subQuads)
-        {
-          glBegin(GL_QUADS);
-          for (int i = 0; i < outputQuad->nVertices(); i++)
+          verticesChanged = true;
+          if (inputPolygon.size() == QuadCorners::N_CORNERS && outputPolygon.size() == QuadCorners::N_CORNERS)
           {
-            Util::setGlTexPoint(*_getTexture(), m.input->getVertex(i), mapFromScene(m.output->getVertex(i)));
+            const QPolygonF drawnPolygon = mapFromScene(outputPolygon);
+            QuadCorners corners;
+            for (int i = 0; i < QuadCorners::N_CORNERS; i++)
+            {
+              corners.input[i]  = inputPolygon[i];
+              corners.output[i] = drawnPolygon[i];
+            }
+            const QSizeF size = drawnPolygon.boundingRect().size();
+            ShapeGeometry::subdivideQuad(corners, size.width() * size.height(),
+                                         MM::MESH_SUBDIVISION_MIN_AREA, maxDepth, item.subQuads);
           }
-          glEnd();
         }
+
       }
     }
-  }
-}
 
-void MeshTextureGraphicsItem::_buildCacheQuadItem(CacheQuadItem& item, const Quad::ptr& inputQuad, const Quad::ptr& outputQuad, float outputArea, float inputThreshod, float outputThreshold, int minArea, int maxDepth)
-{
-  bool stop = false;
-  if (maxDepth == 0 || outputArea < minArea)
-    stop = true;
-  else {
-    QPointF oa = mapFromScene(outputQuad->getVertex(0));
-    QPointF ob = mapFromScene(outputQuad->getVertex(1));
-    QPointF oc = mapFromScene(outputQuad->getVertex(2));
-    QPointF od = mapFromScene(outputQuad->getVertex(3));
-
-    QPointF ia = inputQuad->getVertex(0);
-    QPointF ib = inputQuad->getVertex(1);
-    QPointF ic = inputQuad->getVertex(2);
-    QPointF id = inputQuad->getVertex(3);
-
-    QPointF outputV1 = oa-ob;
-    QPointF outputV2 = oc-ob;
-    QPointF outputV3 = oc-od;
-    QPointF outputV4 = oa-od;
-
-    QPointF inputV1 = ia-ib;
-    QPointF inputV2 = ic-ib;
-    QPointF inputV3 = ic-id;
-    QPointF inputV4 = ia-id;
-
-    // compute the dot products for the polygon
-    float outputV1dotV2 = QPointF::dotProduct(outputV1, outputV2);
-    float outputV3dotV4 = QPointF::dotProduct(outputV3, outputV4);
-    float outputV1dotV4 = QPointF::dotProduct(outputV1, outputV4);
-    float outputV2dotV3 = QPointF::dotProduct(outputV2, outputV3);
-
-    // compute the dot products for the texture
-    float inputV1dotV2  = QPointF::dotProduct(inputV1, inputV2);
-    float inputV3dotV4  = QPointF::dotProduct(inputV3, inputV4);
-    float inputV1dotV4  = QPointF::dotProduct(inputV1, inputV4);
-    float inputV2dotV3  = QPointF::dotProduct(inputV2, inputV3);
-
-    // Stopping criterion.
-    stop = (fabs(outputV1dotV2 - outputV3dotV4) < outputThreshold &&
-            fabs(outputV1dotV4 - outputV2dotV3) < outputThreshold &&
-            fabs(inputV1dotV2  - inputV3dotV4)  < inputThreshod &&
-            fabs(inputV1dotV4  - inputV2dotV3)  < inputThreshod);
-  }
-
-  //
-  if (stop)
-  {
-    item.subQuads.append( (CacheQuadMapping){ inputQuad, outputQuad } );
-  }
-  else // subdivide
-  {
-    QList<Quad::ptr> inputSubQuads  = _split(*inputQuad);
-    QList<Quad::ptr> outputSubQuads = _split(*outputQuad);
-    for (int i = 0; i < inputSubQuads.size(); i++)
+    // The triangles of all the quads, sent in a single call.
+    if (verticesChanged)
     {
-      _buildCacheQuadItem(item, inputSubQuads[i], outputSubQuads[i], outputArea*0.25, inputThreshod, outputThreshold, minArea, (maxDepth == -1 ? -1 : maxDepth - 1));
+      _vertices.clear();
+      for (const QVector<CacheQuadItem>& column : std::as_const(_cachedQuadItems))
+        for (const CacheQuadItem& item : column)
+          for (const QuadCorners& subQuad : item.subQuads)
+            ShapeGeometry::appendQuad(textureRect, subQuad, _vertices);
+      _verticesTextureRect = textureRect;
     }
+    _drawTriangles(_vertices);
   }
-}
-
-QList<Quad::ptr> MeshTextureGraphicsItem::_split(const Quad& quad)
-{
-  QList<Quad::ptr> quads;
-
-  QPointF a = quad.getVertex(0);
-  QPointF b = quad.getVertex(1);
-  QPointF c = quad.getVertex(2);
-  QPointF d = quad.getVertex(3);
-
-  QPointF ab = (a + b) * 0.5f;
-  QPointF bc = (b + c) * 0.5f;
-  QPointF cd = (c + d) * 0.5f;
-  QPointF ad = (a + d) * 0.5f;
-
-  QPointF abcd = (ab + cd) * 0.5f;
-
-  quads.append(Quad::ptr(new Quad(a, ab, abcd, ad)));
-  quads.append(Quad::ptr(new Quad(ab, b, bc, abcd)));
-  quads.append(Quad::ptr(new Quad(abcd, bc, c, cd)));
-  quads.append(Quad::ptr(new Quad(ad, abcd, cd, d)));
-
-  return quads;
 }
 
 EllipseTextureGraphicsItem::EllipseTextureGraphicsItem(Layer::ptr mapping, bool output) : TextureGraphicsItem(mapping, output) {
@@ -546,26 +376,6 @@ QRectF EllipseTextureGraphicsItem::boundingRect() const
   return shape().boundingRect();
 }
 
-void EllipseTextureGraphicsItem::_setGlProjectiveTexPoint(const Texture& texture,
-                                                          const QTransform& outputToInput,
-                                                          const QPointF& outputPoint)
-{
-  // Homogeneous input coordinates (a, b, q) of output point: the input point is (a/q, b/q).
-  // Since (a, b, q) varies linearly across each output triangle, letting OpenGL divide by q
-  // per fragment yields an exact perspective mapping.
-  const qreal x = outputPoint.x();
-  const qreal y = outputPoint.y();
-  const qreal a = outputToInput.m11()*x + outputToInput.m21()*y + outputToInput.m31();
-  const qreal b = outputToInput.m12()*x + outputToInput.m22()*y + outputToInput.m32();
-  const qreal q = outputToInput.m13()*x + outputToInput.m23()*y + outputToInput.m33();
-  glTexCoord4f((a - texture.getX()*q) / texture.getWidth(),
-               (b - texture.getY()*q) / texture.getHeight(),
-               0, q);
-
-  const QPointF& drawnPoint = mapFromScene(outputPoint);
-  glVertex2f(drawnPoint.x(), drawnPoint.y());
-}
-
 void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
 {
   Q_UNUSED(painter);
@@ -581,14 +391,9 @@ void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   const QTransform fromUnitCircle = outputEllipse->fromUnitCircle();
 
   // Draw a fan of triangles around the perspective center.
-  glBegin(GL_TRIANGLE_FAN);
-  _setGlProjectiveTexPoint(*texture, outputToInput, outputEllipse->getCenter());
-  for (int i=0; i<=MM::ELLIPSE_N_TRIANGLES; i++)
-  {
-    qreal angle = 2 * M_PI * i / MM::ELLIPSE_N_TRIANGLES;
-    _setGlProjectiveTexPoint(*texture, outputToInput, fromUnitCircle.map(QPointF(cos(angle), sin(angle))));
-  }
-  glEnd();
+  _drawTriangles(ShapeGeometry::ellipse(texture->getRect(), outputToInput, fromUnitCircle,
+                                       outputEllipse->getCenter(), sceneTransform().inverted(),
+                                       MM::ELLIPSE_N_TRIANGLES));
 }
 
 }

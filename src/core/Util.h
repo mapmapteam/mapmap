@@ -36,16 +36,6 @@ namespace mmp {
  */
 namespace Util {
 
-/// Calls glTexCoord2f() with the corrected texture coordinates.
-void correctGlTexCoord(GLfloat x, GLfloat y);
-
-/**
- * Takes a point (intputPoint) on texture and outputs it as a GL vertex on output (outputPoint).
- * Useful in texture mappings, where one often needs to call this function to project points from texture
- * between glBegin(<GL_SHAPE>) and glEnd() calls.
- */
-void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint);
-
 /**
  * Gives the glTexImage2D format/type that reads a 32-bit QImage's bits
  * directly: Format_RGB32/ARGB32 -> GL_BGRA + GL_UNSIGNED_INT_8_8_8_8_REV

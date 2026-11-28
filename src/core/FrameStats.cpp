@@ -40,7 +40,7 @@ const int MILLISECOND_DECIMALS = 2;
 
 // Names of the steps in the summary lines, in the order of FrameStats::Stage.
 const char* const STAGE_NAMES[FrameStats::STAGE_COUNT] = {
-  "prepare", "upload", "draw", "interval"
+  "prepare", "upload", "render", "draw", "interval"
 };
 
 // Every live instance, in order of creation.

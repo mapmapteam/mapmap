@@ -325,6 +325,10 @@ void Layer::_readShape(const QJsonObject& obj, bool isOutput)
 {
   QString tag = isOutput ? ProjectLabels::DESTINATION : ProjectLabels::SOURCE;
 
+  // Absent, as the input shape of a colour layer of an earlier version: the caller decides.
+  if (!obj.contains(tag))
+    return;
+
   QJsonObject shapeObj = obj[tag].toObject();
 
   QString className = Serializable::classNameCleanToReal(shapeObj[ProjectLabels::CLASS_NAME].toString());
@@ -361,11 +365,6 @@ void Layer::_writeShape(QJsonObject& obj, bool isOutput)
   QJsonObject shapeObj;
   shape->write(shapeObj);
   obj[tag] = shapeObj;
-}
-
-bool ColorLayer::sourceIsCompatible(Source::ptr source) const
-{
-	return source->inherits("mmp::Color");
 }
 
 bool TextureLayer::sourceIsCompatible(Source::ptr source) const

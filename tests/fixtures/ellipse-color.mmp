@@ -1,11 +1,11 @@
 {
     "layers": [
         {
-            "className": "ColorLayer",
-            "depth": "2",
+            "className": "TextureLayer",
+            "depth": 2,
             "destination": {
                 "className": "Ellipse",
-                "locked": "false",
+                "locked": false,
                 "vertices": [
                     [
                         100,
@@ -26,23 +26,49 @@
                 ]
             },
             "id": 2,
-            "locked": "false",
+            "locked": false,
             "name": "Ellipse",
-            "opacity": "1",
-            "solo": "false",
+            "opacity": 1,
+            "solo": false,
+            "source": {
+                "className": "Ellipse",
+                "locked": false,
+                "vertices": [
+                    [
+                        0,
+                        128
+                    ],
+                    [
+                        128,
+                        0
+                    ],
+                    [
+                        256,
+                        128
+                    ],
+                    [
+                        128,
+                        256
+                    ]
+                ]
+            },
             "source_id": 1,
-            "visible": "true"
+            "visible": true
         }
     ],
     "sources": [
         {
-            "className": "Color",
+            "className": "ColorGenerator",
             "color": "#0055ff",
+            "height": 256,
             "id": 1,
-            "locked": "false",
+            "locked": false,
             "name": "blue",
-            "opacity": "1"
+            "opacity": 1,
+            "width": 256,
+            "x": 0,
+            "y": 0
         }
     ],
-    "version": "1.0.0-alpha.1"
+    "version": "1.0.0-beta.2"
 }

@@ -9,6 +9,7 @@
 
 #include "TestMappingManager.h"
 
+#include "Generators.h"
 #include "MappingManager.h"
 #include "Shapes.h"
 
@@ -18,7 +19,7 @@ namespace {
 
 Source::ptr makeColor(const QString& name)
 {
-  Source::ptr color(new Color());
+  Source::ptr color(new ColorGenerator());
   color->setName(name);
   return color;
 }
@@ -26,7 +27,8 @@ Source::ptr makeColor(const QString& name)
 Layer::ptr makeColorLayer(Source::ptr source, const QString& name)
 {
   MShape::ptr quad(new Quad(QPointF(0, 0), QPointF(1, 0), QPointF(1, 1), QPointF(0, 1)));
-  Layer::ptr layer(new ColorLayer(source, quad));
+  MShape::ptr inputQuad(quad->clone());
+  Layer::ptr layer(new TextureLayer(source, quad, inputQuad));
   layer->setName(name);
   return layer;
 }

@@ -73,6 +73,9 @@ public:
   /// Returns a pointer to the properties editor for that layer.
   virtual QWidget* getPropertiesEditor() { return _inspector.data(); }
 
+  /// Shows the Media tab of the properties editor, as for a layer just made.
+  void showMediaPage() { _inspector->setCurrentPage(_mediaPage); }
+
   /// Counts the layers that use a source, for the sentence of the Media tab.
   typedef std::function<int(const Source::ptr&)> SourceUseCounter;
 
@@ -116,46 +119,6 @@ protected:
 
   // FIXME: use typedefs, member of the class for type names that are too long to type:
   MShape::ptr outputShape;
-};
-
-/// Parent class for color -> color mappings.
-class ColorLayerGui : public LayerGui
-{
-  Q_OBJECT
-
-protected:
-  ColorLayerGui(Layer::ptr mapping);
-  virtual ~ColorLayerGui() {}
-
-protected:
-  QSharedPointer<Color> color;
-};
-
-class PolygonColorLayerGui : public ColorLayerGui
-{
-  Q_OBJECT
-
-public:
-  PolygonColorLayerGui(Layer::ptr mapping);
-  virtual ~PolygonColorLayerGui() {}
-};
-
-class MeshColorLayerGui : public PolygonColorLayerGui
-{
-  Q_OBJECT
-
-public:
-  MeshColorLayerGui(Layer::ptr mapping);
-  virtual ~MeshColorLayerGui() {}
-};
-
-class EllipseColorLayerGui : public ColorLayerGui
-{
-  Q_OBJECT
-
-public:
-  EllipseColorLayerGui(Layer::ptr mapping);
-  virtual ~EllipseColorLayerGui() {}
 };
 
 /// Parent class for texture -> texture mapping.

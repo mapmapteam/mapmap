@@ -45,6 +45,7 @@
 #include "ConsoleWindow.h"
 
 #include "MappingManager.h"
+#include "Generators.h"
 #include "LayerItemDelegate.h"
 #include "LayerListModel.h"
 
@@ -96,6 +97,7 @@ private slots:
   bool saveAs();
   void importMedia();
   void openCameraDevice();
+  /// Adds a colour generator, of its default colour.
   void addColor();
   void addSyphon();
   void about();
@@ -139,6 +141,9 @@ private slots:
 
   // Fits a Video/Camera source's input shapes to its real resolution once known.
   void autoFitVideoInputShapes(int sourceId, int width, int height);
+
+  // Fits the input shapes of a generator to the new size of its image.
+  void autoFitGeneratorInputShapes(int sourceId, int oldWidth, int oldHeight, int newWidth, int newHeight);
 
   // Called with the path of a setting that changed (the property name for a top-level setting).
   void layerPropertyChanged(uid id, QString propertyName, QVariant value);
@@ -244,9 +249,6 @@ public slots:
   /// Create or replace a media source (or image).
   uid createMediaSource(uid sourceId, QString uri, float x, float y, bool isImage, VideoType type, double rate=1.0);
 
-  /// Create or replace a color source.
-  uid createColorSource(uid sourceId, QColor color);
-
   /// Create a Syphon source pointing at the given server (macOS only).
   uid createSyphonSource(uid sourceId, const QString& serverUUID,
                          const QString& serverName, const QString& appName);
@@ -271,20 +273,6 @@ public slots:
                                   uid sourceId,
                                   const QVector<QPointF> &src, const QVector<QPointF> &dst);
 
-  /// Creates a color quad.
-  uid createQuadColorLayer(uid mappingId,
-                             uid sourceId,
-                             const QVector<QPointF> &dst);
-
-  /// Creates a color triangle.
-  uid createTriangleColorLayer(uid mappingId,
-                                 uid sourceId,
-                                 const QVector<QPointF> &dst);
-
-  /// Creates a color ellipse.
-  uid createEllipseColorLayer(uid mappingId,
-                                uid sourceId,
-                                const QVector<QPointF> &dst);
   /*======= End of Unsed fonctions =======*/
 
   /// Sets visibility of mapping.
@@ -376,6 +364,9 @@ private:
   // Returns the screen chosen for the output window, or null.
   QScreen* _outputScreen() const;
 
+  /// Shows the Media tab of a layer the user just made.
+  void showNewLayerMedia(uid layerId);
+
   // Creation of view elements.
   void createLayout();
   void createActions();
@@ -411,7 +402,11 @@ public:
   void setCurrentFile(const QString &fileName);
   void setCurrentVideo(const QString &filename);
   bool importMediaFile(const QString &fileName, bool isImage = false, bool isCamera = false);
+  /// Adds a colour generator of the given colour, as a command that can be undone; false if the colour is invalid.
   bool addColorSource(const QColor& color);
+
+  /// Adds a generator to the project, as a command that can be undone; takes ownership.
+  uid addGenerator(Generator* generator);
   void addLayerItem(uid mappingId);
   void removeLayerItem(uid mappingId);
   void moveLayerItem(uid mappingId, int steps);
@@ -483,6 +478,7 @@ private:
   // Sub-menus.
   QMenu *outputScreenMenu;
   QMenu *recentFileMenu;
+  QMenu *addGeneratorMenu;
   QMenu *recentVideoMenu;
   QMenu *layerContextMenu;
   QMenu *sourceContextMenu;
@@ -503,7 +499,11 @@ private:
   QAction *openAction;
   QAction *importMediaAction;
   QAction *AddCameraAction;
+  QAction *addGeneratorAction;
   QAction *addColorAction;
+  QAction *addCheckerAction;
+  QAction *addGridAction;
+  QAction *addColorWheelAction;
   QAction *addSyphonAction;
   QAction *saveAction;
   QAction *saveAsAction;
@@ -805,6 +805,9 @@ public:
   // How far (in pixels) a shape may be from where it was placed and still
   // count as untouched (see fitDefaultShapesToFrameSize()).
   static constexpr qreal UNTOUCHED_SHAPE_TOLERANCE = 1.0;
+
+  /// How long a message of the status bar stays, in milliseconds.
+  static constexpr int STATUS_MESSAGE_MS = 2000;
 
   static const int OUTPUT_WINDOW_MINIMUM_WIDTH = 480;
   static const int OUTPUT_WINDOW_MINIMUM_HEIGHT = 270;

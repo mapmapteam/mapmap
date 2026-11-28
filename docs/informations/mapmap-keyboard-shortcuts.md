@@ -6,7 +6,7 @@
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> | Save project as |
 | <kbd>Ctrl</kbd> + <kbd>I</kbd> | Import media file |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> | Open camera device |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd> | Add color source |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd> | Add a color generator |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd> | Add Syphon source (macOS) |
 | <kbd>Ctrl</kbd> + <kbd>,</kbd> | Open preferences |
 | <kbd>Ctrl</kbd> + <kbd>K</kbd> | Keyboard shortcuts |

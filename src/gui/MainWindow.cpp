@@ -28,6 +28,7 @@
 #include "Commands.h"
 #include "ProjectWriter.h"
 #include "ProjectReader.h"
+#include "FrameCounter.h"
 #ifdef Q_OS_MAC
 #include "Syphon.h"
 #include "SyphonServerDialog.h"
@@ -376,13 +377,6 @@ void MainWindow::handleSourceChanged(Source::ptr source)
     //    if (!fileName.isEmpty())
     //      importMediaFile(fileName, source, true);
   }
-  else if (source->getSourceType() == SourceType::Color)
-  {
-    // Pop-up color-choosing dialog to choose color source.
-    QSharedPointer<Color> color = qSharedPointerCast<Color>(source);
-    Q_CHECK_PTR(color);
-    updateSourceItem(sourceId, getSourceIcon(source), strippedName(color->getColor().name()));
-  }
 #ifdef Q_OS_MAC
   else if (source->getSourceType() == SourceType::Syphon)
   {
@@ -390,6 +384,8 @@ void MainWindow::handleSourceChanged(Source::ptr source)
     updateSourceItem(sourceId, getSourceIcon(source), source->getName());
   }
 #endif
+  else if (source->getSourceType() == SourceType::Generator)
+    updateSourceItem(sourceId, getSourceIcon(source), source->getName());
 
   if (curLayerId != NULL_UID)
   {
@@ -467,17 +463,16 @@ void MainWindow::sourcePropertyChanged(uid id, QString propertyName, QVariant va
     // The source menus of the layers show the new name.
     updateMappers();
   }
-  else if (propertyName == "color" && source->getSourceType() == SourceType::Color)
-  {
-    // The list shows the colour of a colour source, however it was changed.
-    QSharedPointer<Color> color = qSharedPointerCast<Color>(source);
-    updateSourceItem(id, getSourceIcon(source), strippedName(color->getColor().name()));
-  }
   else if (propertyName == "uri"
            && (source->getSourceType() == SourceType::Image || source->getSourceType() == SourceType::Video))
   {
     // The list shows the file name of a media source, however it was changed.
     updateSourceItem(id, getSourceIcon(source), strippedName(value.toString()));
+  }
+  else if (source->getSourceType() == SourceType::Generator)
+  {
+    // The icon of a generator shows its colours and divisions.
+    updateSourceItem(id, getSourceIcon(source), source->getName());
   }
 }
 
@@ -823,31 +818,8 @@ void MainWindow::openCameraDevice()
 
 void MainWindow::addColor()
 {
-  // Stop video playback, if it is playing, to avoid lags. XXX Hack
-  if (pauseAction->isVisible())
-    pause(false);
-
-  // Pop-up color-choosing dialog to choose color source.
-  // FIXME: we use a static variable to store the last chosen color
-  // it should rather be a member of this class, or so.
-  static QColor color = QColor(0, 255, 0, 255);
-#ifdef Q_OS_LINUX
-  color = QColorDialog::getColor(color, this, tr("Select Color"),
-                                  QColorDialog::DontUseNativeDialog |
-                                 QColorDialog::ShowAlphaChannel);
-#else
-  color = QColorDialog::getColor(color, this, tr("Select Color"),
-                                 // QColorDialog::DontUseNativeDialog |
-                                 QColorDialog::ShowAlphaChannel);
-#endif
-  if (color.isValid())
-  {
-    addColorSource(color);
-  }
-
-  // Restart video playback if it was previously playing. XXX Hack
-  if (pauseAction->isVisible())
-    play(false);
+  // A colour is a generator like the others: its colour is set in its settings.
+  addGenerator(new ColorGenerator);
 }
 
 void MainWindow::addSyphon()
@@ -897,6 +869,14 @@ void MainWindow::autoFitVideoInputShapes(int sourceId, int width, int height)
   if (source.isNull() || source->getSourceType() != SourceType::Video)
     return;
   fitDefaultShapesToFrameSize(source, QSizeF(Video::DEFAULT_WIDTH, Video::DEFAULT_HEIGHT), QSizeF(width, height));
+}
+
+void MainWindow::autoFitGeneratorInputShapes(int sourceId, int oldWidth, int oldHeight, int newWidth, int newHeight)
+{
+  Source::ptr source = mappingManager->getSourceById(sourceId);
+  if (source.isNull() || source->getSourceType() != SourceType::Generator)
+    return;
+  fitDefaultShapesToFrameSize(source, QSizeF(oldWidth, oldHeight), QSizeF(newWidth, newHeight));
 }
 
 void MainWindow::fitDefaultShapesToFrameSize(Source::ptr source, const QSizeF& defaultSize, const QSizeF& frameSize)
@@ -964,6 +944,14 @@ QRectF MainWindow::newShapeOutputRect(const QSizeF& contentSize) const
   return contentSize.isEmpty() ? middle : Util::fitRect(contentSize, middle);
 }
 
+void MainWindow::showNewLayerMedia(uid layerId)
+{
+  // A shape is made to show its source: its settings come first.
+  LayerGui::ptr layerGui = layerGuis.value(layerId);
+  if (layerGui)
+    layerGui->showMediaPage();
+}
+
 void MainWindow::addMesh()
 {
   // A source must be selected to add a mapping.
@@ -975,26 +963,20 @@ void MainWindow::addMesh()
   Q_CHECK_PTR(source);
 
   // Create input and output quads.
-  Layer* layerPtr;
+  // Every source is an image, read through the input shape.
   QSharedPointer<Texture> texture = qSharedPointerDynamicCast<Texture>(source);
   if (texture.isNull())
-  {
-    MShape::ptr outputQuad(Util::createMeshForRect(newShapeOutputRect(QSizeF())));
-    layerPtr = new ColorLayer(source, outputQuad);
-  }
-  else
-  {
-    MShape::ptr outputQuad(Util::createMeshForRect(newShapeOutputRect(texture->getRect().size())));
-    MShape::ptr inputQuad(Util::createMeshForRect(texture->getRect()));
-    layerPtr = new TextureLayer(source, outputQuad, inputQuad);
-  }
+    return;
+  MShape::ptr outputQuad(Util::createMeshForRect(newShapeOutputRect(texture->getRect().size())));
+  MShape::ptr inputQuad(Util::createMeshForRect(texture->getRect()));
 
   // Create texture mapping.
-  Layer::ptr layer(layerPtr);
+  Layer::ptr layer(new TextureLayer(source, outputQuad, inputQuad));
   uint layerId = mappingManager->addLayer(layer);
 
   // Lets the undo-stack handle Undo/Redo the adding of mapping item.
   undoStack->push(new AddLayerCommand(this, layerId));
+  showNewLayerMedia(layerId);
 }
 
 void MainWindow::addTriangle()
@@ -1008,26 +990,20 @@ void MainWindow::addTriangle()
   Q_CHECK_PTR(source);
 
   // Create input and output triangles.
-  Layer* layerPtr;
+  // Every source is an image, read through the input shape.
   QSharedPointer<Texture> texture = qSharedPointerDynamicCast<Texture>(source);
   if (texture.isNull())
-  {
-    MShape::ptr outputTriangle(Util::createTriangleForRect(newShapeOutputRect(QSizeF())));
-    layerPtr = new ColorLayer(source, outputTriangle);
-  }
-  else
-  {
-    MShape::ptr outputTriangle(Util::createTriangleForRect(newShapeOutputRect(texture->getRect().size())));
-    MShape::ptr inputTriangle(Util::createTriangleForRect(texture->getRect()));
-    layerPtr = new TextureLayer(source, outputTriangle, inputTriangle);
-  }
+    return;
+  MShape::ptr outputTriangle(Util::createTriangleForRect(newShapeOutputRect(texture->getRect().size())));
+  MShape::ptr inputTriangle(Util::createTriangleForRect(texture->getRect()));
 
   // Create mapping.
-  Layer::ptr layer(layerPtr);
+  Layer::ptr layer(new TextureLayer(source, outputTriangle, inputTriangle));
   uint layerId = mappingManager->addLayer(layer);
 
   // Lets undo-stack handle Undo/Redo the adding of mapping item.
   undoStack->push(new AddLayerCommand(this, layerId));
+  showNewLayerMedia(layerId);
 }
 
 void MainWindow::addEllipse()
@@ -1041,26 +1017,20 @@ void MainWindow::addEllipse()
   Q_CHECK_PTR(source);
 
   // Create input and output ellipses.
-  Layer* layerPtr;
+  // Every source is an image, read through the input shape.
   QSharedPointer<Texture> texture = qSharedPointerDynamicCast<Texture>(source);
   if (texture.isNull())
-  {
-    MShape::ptr outputEllipse(Util::createEllipseForRect(newShapeOutputRect(QSizeF())));
-    layerPtr = new ColorLayer(source, outputEllipse);
-  }
-  else
-  {
-    MShape::ptr outputEllipse(Util::createEllipseForRect(newShapeOutputRect(texture->getRect().size())));
-    MShape::ptr inputEllipse(Util::createEllipseForRect(texture->getRect()));
-    layerPtr = new TextureLayer(source, outputEllipse, inputEllipse);
-  }
+    return;
+  MShape::ptr outputEllipse(Util::createEllipseForRect(newShapeOutputRect(texture->getRect().size())));
+  MShape::ptr inputEllipse(Util::createEllipseForRect(texture->getRect()));
 
   // Create mapping.
-  Layer::ptr layer(layerPtr);
+  Layer::ptr layer(new TextureLayer(source, outputEllipse, inputEllipse));
   uint layerId = mappingManager->addLayer(layer);
 
   // Lets undo-stack handle Undo/Redo the adding of mapping item.
   undoStack->push(new AddLayerCommand(this, layerId));
+  showNewLayerMedia(layerId);
 }
 
 void MainWindow::about()
@@ -1474,30 +1444,6 @@ uid MainWindow::createMediaSource(uid sourceId, QString uri, float x, float y,
   }
 }
 
-uid MainWindow::createColorSource(uid sourceId, QColor color)
-{
-  // Cannot create image with already existing id.
-  if (Source::getUidAllocator().exists(sourceId))
-    return NULL_UID;
-
-  else
-  {
-    Color* img = new Color(color, sourceId);
-
-    // Add it to the manager.
-    Source::ptr source(img);
-    source->setName(strippedName(color.name()));
-
-    // Add source to model and return its uid.
-    uid id = mappingManager->addSource(source);
-
-    // Add source widget item.
-    undoStack->push(new AddSourceCommand(this, id, source->getIcon(), source->getName()));
-
-    return id;
-  }
-}
-
 uid MainWindow::createSyphonSource(uid sourceId, const QString& serverUUID,
                                    const QString& serverName, const QString& appName)
 {
@@ -1625,94 +1571,6 @@ uid MainWindow::createEllipseTextureLayer(uid layerId,
     return id;
   }
 }
-
-uid MainWindow::createQuadColorLayer(uid layerId,
-                                       uid sourceId,
-                                       const QVector<QPointF> &dst)
-{
-  // Cannot create element with already existing id or element for which no source exists.
-  if (Layer::getUidAllocator().exists(layerId) ||
-      !Source::getUidAllocator().exists(sourceId) ||
-      sourceId == NULL_UID)
-    return NULL_UID;
-
-  else
-  {
-    Source::ptr source = mappingManager->getSourceById(sourceId);
-    Q_ASSERT(dst.size() == 4);
-
-    MShape::ptr outputQuad(new Quad(dst[0], dst[1], dst[2], dst[3]));
-
-    // Add it to the manager.
-    Layer::ptr layer(new ColorLayer(source, outputQuad, layerId));
-    uid id = mappingManager->addLayer(layer);
-
-    // Add it to the GUI.
-    addLayerItem(layerId);
-
-    // Return the id.
-    return id;
-  }
-}
-
-uid MainWindow::createTriangleColorLayer(uid layerId,
-                                           uid sourceId,
-                                           const QVector<QPointF> &dst)
-{
-  // Cannot create element with already existing id or element for which no source exists.
-  if (Layer::getUidAllocator().exists(layerId) ||
-      !Source::getUidAllocator().exists(sourceId) ||
-      sourceId == NULL_UID)
-    return NULL_UID;
-
-  else
-  {
-    Source::ptr source = mappingManager->getSourceById(sourceId);
-    Q_ASSERT(dst.size() == 3);
-
-    MShape::ptr outputTriangle(new Triangle(dst[0], dst[1], dst[2]));
-
-    // Add it to the manager.
-    Layer::ptr layer(new ColorLayer(source, outputTriangle, layerId));
-    uid id = mappingManager->addLayer(layer);
-
-    // Add it to the GUI.
-    addLayerItem(layerId);
-
-    // Return the id.
-    return id;
-  }
-}
-
-uid MainWindow::createEllipseColorLayer(uid layerId,
-                                          uid sourceId,
-                                          const QVector<QPointF> &dst)
-{
-  // Cannot create element with already existing id or element for which no source exists.
-  if (Layer::getUidAllocator().exists(layerId) ||
-      !Source::getUidAllocator().exists(sourceId) ||
-      sourceId == NULL_UID)
-    return NULL_UID;
-
-  else
-  {
-    Source::ptr source = mappingManager->getSourceById(sourceId);
-    Q_ASSERT(dst.size() == 4);
-
-    MShape::ptr outputEllipse(new Ellipse(dst[0], dst[1], dst[2], dst[3]));
-
-    // Add it to the manager.
-    Layer::ptr layer(new ColorLayer(source, outputEllipse, layerId));
-    uid id = mappingManager->addLayer(layer);
-
-    // Add it to the GUI.
-    addLayerItem(layerId);
-
-    // Return the id.
-    return id;
-  }
-}
-
 
 void MainWindow::setLayerVisible(uid layerId, bool visible)
 {
@@ -2068,14 +1926,30 @@ void MainWindow::createActions()
   connect(AddCameraAction, &QAction::triggered, this, &MainWindow::openCameraDevice);
 
   // Add color.
-  addColorAction = new QAction(tr("Add &Color Source…"), this);
+  // Generators, chosen in a menu: in the toolbar, on the File menu.
+  addGeneratorAction = new QAction(tr("Add &Generator"), this);
+  addGeneratorAction->setIcon(QIcon(":/add-generator"));
+  addGeneratorAction->setToolTip(tr("Add a generator: checker, grid, color wheel or color"));
+  addGeneratorAction->setIconVisibleInMenu(false);
+
+  addColorAction = new QAction(tr("C&olor"), this);
   addColorAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_A);
-  addColorAction->setIcon(QIcon(":/add-color"));
-  addColorAction->setToolTip(tr("Add a color source…"));
-  addColorAction->setIconVisibleInMenu(false);
+  addColorAction->setToolTip(tr("Add a plain color generator"));
   addColorAction->setShortcutContext(Qt::ApplicationShortcut);
   addAction(addColorAction);
   connect(addColorAction, &QAction::triggered, this, &MainWindow::addColor);
+
+  addCheckerAction = new QAction(tr("&Checker"), this);
+  addCheckerAction->setToolTip(tr("Add a checkerboard generator"));
+  connect(addCheckerAction, &QAction::triggered, this, [this]() { addGenerator(new CheckerGenerator); });
+
+  addGridAction = new QAction(tr("&Grid"), this);
+  addGridAction->setToolTip(tr("Add a grid generator"));
+  connect(addGridAction, &QAction::triggered, this, [this]() { addGenerator(new GridGenerator); });
+
+  addColorWheelAction = new QAction(tr("Color &Wheel"), this);
+  addColorWheelAction->setToolTip(tr("Add a generator of colour wheels, spirals, rings and polar checkerboards"));
+  connect(addColorWheelAction, &QAction::triggered, this, [this]() { addGenerator(new ColorWheelGenerator); });
 
 #ifdef Q_OS_MAC
   // Add Syphon source (macOS only).
@@ -2619,7 +2493,14 @@ void MainWindow::createMenus()
   fileMenu->addSeparator();
   fileMenu->addAction(importMediaAction);
   fileMenu->addAction(AddCameraAction);
-  fileMenu->addAction(addColorAction);
+  // The same menu opens from the generator button of the toolbar.
+  addGeneratorMenu = new QMenu(tr("Add &Generator"), this);
+  addGeneratorMenu->addAction(addCheckerAction);
+  addGeneratorMenu->addAction(addGridAction);
+  addGeneratorMenu->addAction(addColorWheelAction);
+  addGeneratorMenu->addAction(addColorAction);
+  addGeneratorAction->setMenu(addGeneratorMenu);
+  fileMenu->addAction(addGeneratorAction);
 #ifdef Q_OS_MAC
   fileMenu->addAction(addSyphonAction);
 #endif
@@ -2820,7 +2701,10 @@ void MainWindow::createToolBars()
   mainToolBar->setMovable(false);
   mainToolBar->addAction(importMediaAction);
   mainToolBar->addAction(AddCameraAction);
-  mainToolBar->addAction(addColorAction);
+  mainToolBar->addAction(addGeneratorAction);
+  // A click opens the menu of generators at once.
+  if (QToolButton* generatorButton = qobject_cast<QToolButton*>(mainToolBar->widgetForAction(addGeneratorAction)))
+    generatorButton->setPopupMode(QToolButton::InstantPopup);
 #ifdef Q_OS_MAC
   mainToolBar->addAction(addSyphonAction);
 #endif
@@ -3323,20 +3207,23 @@ bool MainWindow::importMediaFile(const QString &fileName, bool isImage, bool isC
 
 bool MainWindow::addColorSource(const QColor& color)
 {
-  QApplication::setOverrideCursor(BUSY_CURSOR);
+  if (!color.isValid())
+    return false;
+  // A colour is a generator: its layers have an input shape, like those of an image.
+  ColorGenerator* generator = new ColorGenerator(color);
+  generator->setName(strippedName(color.name()));
+  return addGenerator(generator) != NULL_UID;
+}
 
-  // Add color to model.
-  uint colorId = createColorSource(NULL_UID, color);
-
-  // Initialize position (center).
-  QSharedPointer<Color> colorSource = qSharedPointerCast<Color>(mappingManager->getSourceById(colorId));
-  Q_CHECK_PTR(colorSource);
-
-  QApplication::restoreOverrideCursor();
-
-  statusBar()->showMessage(tr("Color source added"), 2000);
-
-  return true;
+uid MainWindow::addGenerator(Generator* generator)
+{
+  Source::ptr source(generator);
+  if (source->getName().isEmpty())
+    source->setName(generator->generatorName());
+  const uid id = mappingManager->addSource(source);
+  undoStack->push(new AddSourceCommand(this, id, source->getIcon(), source->getName()));
+  statusBar()->showMessage(tr("%1 generator added").arg(generator->generatorName()), STATUS_MESSAGE_MS);
+  return id;
 }
 
 void MainWindow::addSourceItem(uid sourceId, const QIcon& icon, const QString& name)
@@ -3390,6 +3277,11 @@ void MainWindow::addSourceItem(uid sourceId, const QIcon& icon, const QString& n
             SIGNAL(frameSizeKnown(int, int, int)),
             this, SLOT(autoFitVideoInputShapes(int, int, int)),
             Qt::QueuedConnection);
+
+  // Fit input shapes to the new size of a generator's image. Queued, like the above.
+  if (sourceType == SourceType::Generator)
+    connect(qSharedPointerCast<Generator>(source).data(), &Generator::sizeChanged,
+            this, &MainWindow::autoFitGeneratorInputShapes, Qt::QueuedConnection);
 
   // Add source item to sourceList widget.
   QListWidgetItem* item = new QListWidgetItem(icon, name);
@@ -3445,65 +3337,33 @@ void MainWindow::addLayerItem(uid layerId)
   QIcon icon;
 
   ShapeType shapeType = layer->getShape()->getType();
-  SourceType sourceType = layer->getSource()->getSourceType();
 
-  // Add mapper.
-  // XXX hardcoded for textures
-  QSharedPointer<TextureLayer> textureLayer;
-  if (sourceType == SourceType::Video || sourceType == SourceType::Image
-#ifdef Q_OS_MAC
-      || sourceType == SourceType::Syphon
-#endif
-     )
-  {
-    textureLayer = qSharedPointerCast<TextureLayer>(layer);
-    Q_CHECK_PTR(textureLayer);
-  }
+  // Add mapper. Every source is an image, drawn by a texture layer.
+  QSharedPointer<TextureLayer> textureLayer = qSharedPointerDynamicCast<TextureLayer>(layer);
 
   LayerGui::ptr mapper;
 
-  // XXX Branching on nVertices() is crap
-
-  // Triangle
-  if (shapeType == ShapeType::Triangle)
+  if (textureLayer.isNull())
+    qWarning() << "Layer" << layerId << "is not a texture layer";
+  else if (shapeType == ShapeType::Triangle)
   {
     defaultName = QString("Triangle %1").arg(layerId);
     icon = QIcon(":/shape-triangle");
-
-    if (sourceType == SourceType::Color)
-      mapper = LayerGui::ptr(new PolygonColorLayerGui(layer));
-    else
-      mapper = LayerGui::ptr(new TriangleTextureLayerGui(textureLayer));
+    mapper = LayerGui::ptr(new TriangleTextureLayerGui(textureLayer));
   }
-  // Mesh
   else if (shapeType == ShapeType::Mesh)
   {
     defaultName = QString("Mesh %1").arg(layerId);
     icon = QIcon(":/shape-mesh");
-    if (sourceType == SourceType::Color)
-      mapper = LayerGui::ptr(new MeshColorLayerGui(layer));
-    else
-      mapper = LayerGui::ptr(new MeshTextureLayerGui(textureLayer));
+    mapper = LayerGui::ptr(new MeshTextureLayerGui(textureLayer));
   }
   else if (shapeType == ShapeType::Ellipse)
   {
     defaultName = QString("Ellipse %1").arg(layerId);
     icon = QIcon(":/shape-ellipse");
-    if (sourceType == SourceType::Color)
-      mapper = LayerGui::ptr(new EllipseColorLayerGui(layer));
-    else
-      mapper = LayerGui::ptr(new EllipseTextureLayerGui(textureLayer));
+    mapper = LayerGui::ptr(new EllipseTextureLayerGui(textureLayer));
   }
-  else
-  {
-    defaultName = QString("Polygon %1").arg(layerId);
-    icon = QIcon(":/shape-polygon");
-    // Color layers draw any polygon (e.g. a Quad from createQuadColorLayer).
-    // There is no texture editor for other polygons: ProjectReader refuses
-    // such layers.
-    if (sourceType == SourceType::Color)
-      mapper = LayerGui::ptr(new PolygonColorLayerGui(layer));
-  }
+  // There is no editor for other shapes: ProjectReader refuses such layers.
 
   if (mapper.isNull())
   {
@@ -3885,6 +3745,9 @@ void MainWindow::processFrame()
 {
   // Number of frames processed (restarted every second).
   static unsigned int nFrames = 0;
+
+  // A new frame: what is drawn once per frame is drawn again by the first view.
+  FrameCounter::advance();
 
   // Update canvases, unless nothing can have changed since the last tick.
   if (canvasesNeedRedraw())

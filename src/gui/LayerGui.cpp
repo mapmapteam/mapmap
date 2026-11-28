@@ -111,76 +111,6 @@ void LayerGui::updateSources()
   _showSource();
 }
 
-ColorLayerGui::ColorLayerGui(Layer::ptr layer)
-  : LayerGui(layer)
-{
-  color = qSharedPointerCast<Color>(_layer->getSource());
-  Q_CHECK_PTR(color);
-}
-
-PolygonColorLayerGui::PolygonColorLayerGui(Layer::ptr layer) : ColorLayerGui(layer) {
-  _graphicsItem.reset(new PolygonColorGraphicsItem(_layer, true));
-}
-
-MeshColorLayerGui::MeshColorLayerGui(Layer::ptr layer)
-  : PolygonColorLayerGui(layer)
-{
-  _graphicsItem.reset(new MeshColorGraphicsItem(_layer, true));
-}
-
-EllipseColorLayerGui::EllipseColorLayerGui(Layer::ptr layer) : ColorLayerGui(layer) {
-    _graphicsItem.reset(new EllipseColorGraphicsItem(_layer, true));
-}
-
-//MeshColorLayerGui::MeshColorLayerGui(Layer::ptr layer)
-//  : ColorLayerGui(layer) {
-//  // Add mesh sub property.
-//  Mesh* mesh = (Mesh*)layer->getShape().get();
-//  _meshItem = _variantManager->addProperty(QMetaType::QSize, QObject::tr("Mesh Subdivisions"));
-//  _meshItem->setValue(QSize(mesh->nColumns(), mesh->nRows()));
-//  _topItem->insertSubProperty(_meshItem, 0); // insert at the beginning
-//}
-//
-//void MeshColorLayerGui::draw(QPainter* painter)
-//{
-//  painter->setPen(Qt::NoPen);
-//  painter->setBrush(color->getColor());
-//
-//  QSharedPointer<Mesh> outputMesh = qSharedPointerCast<Mesh>(outputShape);
-//  QVector<QVector<Quad> > outputQuads = outputMesh->getQuads2d();
-//  for (int x = 0; x < outputMesh->nHorizontalQuads(); x++)
-//  {
-//    for (int y = 0; y < outputMesh->nVerticalQuads(); y++)
-//    {
-//      Quad& outputQuad = outputQuads[x][y];
-//      painter->drawPolygon(outputQuad.toPolygon());
-//    }
-//  }
-//}
-//
-//void MeshColorLayerGui::drawControls(QPainter* painter, const QList<int>* selectedVertices)
-//{
-//  QSharedPointer<Mesh> outputMesh = qSharedPointerCast<Mesh>(outputShape);
-//  Util::drawControlsMesh(painter, selectedVertices, *outputMesh);
-//}
-//
-//void MeshColorLayerGui::setValue(QtProperty* property, const QVariant& value)
-//{
-//  if (property == _meshItem)
-//  {
-//    Mesh* outputMesh = static_cast<Mesh*>(_layer->getShape().get());
-//    QSize size = (static_cast<QtVariantProperty*>(property))->value().toSize();
-//    if (outputMesh->nColumns() != size.width() || outputMesh->nRows() != size.height())
-//    {
-//      outputMesh->resize(size.width(), size.height());
-//
-//      emit valueChanged();
-//    }
-//  }
-//  else
-//    ColorLayerGui::setValue(property, value);
-//}
-
 TextureLayerGui::TextureLayerGui(QSharedPointer<TextureLayer> mapping)
   : LayerGui(mapping)
 {
@@ -191,83 +121,6 @@ TextureLayerGui::TextureLayerGui(QSharedPointer<TextureLayer> mapping)
   inputShape = textureLayer.toStrongRef()->getInputShape();
   Q_CHECK_PTR(inputShape);
 }
-//
-//void TextureLayerGui::drawInput(QPainter* painter)
-//{
-//  // Prepare drawing.
-//  _preDraw(painter);
-//
-//  // FIXME: Does this draw the quad counterclockwise?
-//  glBegin (GL_QUADS);
-//  {
-//    Util::correctGlTexCoord(0, 0);
-//    glVertex3f (texture->getX(), texture->getY(), 0);
-//
-//    Util::correctGlTexCoord(1, 0);
-//    glVertex3f (texture->getX()+texture->getWidth(), texture->getY(), 0);
-//
-//    Util::correctGlTexCoord(1, 1);
-//    glVertex3f (texture->getX()+texture->getWidth(), texture->getY() + texture->getHeight(), 0);
-//
-//    Util::correctGlTexCoord(0, 1);
-//    glVertex3f (texture->getX(), texture->getY() + texture->getHeight(), 0);
-//  }
-//  glEnd ();
-//
-//  // End drawing.
-//  _postDraw(painter);
-//}
-
-//
-//void TextureLayerGui::_preDraw(QPainter* painter)
-//{
-//  painter->beginNativePainting();
-//
-//  // Only works for similar shapes.
-//  Q_ASSERT( inputShape->nVertices() == outputShape->nVertices());
-//
-//  // Project source texture and sent it to destination.
-//  texture->update();
-//
-//  glEnable (GL_TEXTURE_2D);
-//  glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
-//
-//  // Copy bits to texture iff necessary.
-//  texture->lockMutex();
-//  if (texture->bitsHaveChanged())
-//  {
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-//      texture->getWidth(), texture->getHeight(), 0, GL_RGBA,
-//      GL_UNSIGNED_BYTE, texture->getBits());
-//  }
-//  texture->unlockMutex();
-//
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//
-//  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-//}
-//
-//void TextureLayerGui::_postDraw(QPainter* painter)
-//{
-//  glDisable(GL_TEXTURE_2D);
-//
-//  painter->endNativePainting();
-//}
-//
-//void PolygonTextureLayerGui::drawControls(QPainter* painter, const QList<int>* selectedVertices)
-//{
-//  QSharedPointer<Polygon> outputPoly = qSharedPointerCast<Polygon>(outputShape);
-//  Util::drawControlsPolygon(painter, selectedVertices, *outputPoly);
-//}
-//
-//void PolygonTextureLayerGui::drawInputControls(QPainter* painter, const QList<int>* selectedVertices)
-//{
-//  QSharedPointer<Polygon> inputPoly = qSharedPointerCast<Polygon>(inputShape);
-//  Util::drawControlsPolygon(painter, selectedVertices, *inputPoly);
-//}
 
 TriangleTextureLayerGui::TriangleTextureLayerGui(QSharedPointer<TextureLayer> mapping)
   : PolygonTextureLayerGui(mapping)
@@ -275,20 +128,6 @@ TriangleTextureLayerGui::TriangleTextureLayerGui(QSharedPointer<TextureLayer> ma
   _graphicsItem.reset(new TriangleTextureGraphicsItem(_layer, true));
   _inputGraphicsItem.reset(new TriangleTextureGraphicsItem(_layer, false));
 }
-//
-//void TriangleTextureLayerGui::_doDraw(QPainter* painter)
-//{
-//  qDebug() << "Is this really used!" << endl;
-////  Q_UNUSED(painter);
-////  glBegin(GL_TRIANGLES);
-////  {
-////    for (int i = 0; i < inputShape->nVertices(); i++)
-////    {
-////      Util::setGlTexPoint(*texture, inputShape->getVertex(i), outputShape->getVertex(i));
-////    }
-////  }
-////  glEnd();
-//}
 
 MeshTextureLayerGui::MeshTextureLayerGui(QSharedPointer<TextureLayer> mapping)
   : PolygonTextureLayerGui(mapping)

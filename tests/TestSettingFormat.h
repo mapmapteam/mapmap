@@ -30,6 +30,7 @@ class TestSettingFormat : public QObject
 private slots:
   void decimalsFollowStep();
   void unitsInFrenchAndEnglish();
+  void noThousandsSeparator();
   void durationsInMinutesAndSeconds();
   void noNegativeZero();
   void parsesCommaAndPoint();

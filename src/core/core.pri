@@ -4,12 +4,17 @@ include(../src.pri)
 HEADERS += $$PWD/Commands.h \
     $$PWD/CameraImpl.h \
     $$PWD/Element.h \
+    $$PWD/FrameCounter.h \
     $$PWD/FrameStats.h \
+    $$PWD/Generator.h \
+    $$PWD/Generators.h \
+    $$PWD/IntermediateImage.h \
     $$PWD/Layer.h \
     $$PWD/MappingManager.h \
     $$PWD/Maths.h \
     $$PWD/MetaObjectRegistry.h \
     $$PWD/MM.h \
+    $$PWD/Palette.h \
     $$PWD/Source.h \
     $$PWD/ProjectLabels.h \
     $$PWD/ProjectReader.h \
@@ -17,6 +22,8 @@ HEADERS += $$PWD/Commands.h \
     $$PWD/Serializable.h \
     $$PWD/Setting.h \
     $$PWD/SettingJson.h \
+    $$PWD/ShapeGeometry.h \
+    $$PWD/ShapeRenderer.h \
     $$PWD/UidAllocator.h \
     $$PWD/VideoImpl.h \
     $$PWD/VideoPlayerImpl.h \
@@ -26,12 +33,17 @@ HEADERS += $$PWD/Commands.h \
 SOURCES += $$PWD/Commands.cpp \
     $$PWD/CameraImpl.cpp \
     $$PWD/Element.cpp \
+    $$PWD/FrameCounter.cpp \
     $$PWD/FrameStats.cpp \
+    $$PWD/Generator.cpp \
+    $$PWD/Generators.cpp \
+    $$PWD/IntermediateImage.cpp \
     $$PWD/Layer.cpp \
     $$PWD/MappingManager.cpp \
     $$PWD/MetaObjectRegistry.cpp \
     $$PWD/MetaObjectRegistryBuiltins.cpp \
     $$PWD/MM.cpp \
+    $$PWD/Palette.cpp \
     $$PWD/Source.cpp \
     $$PWD/ProjectLabels.cpp \
     $$PWD/ProjectReader.cpp \
@@ -39,6 +51,8 @@ SOURCES += $$PWD/Commands.cpp \
     $$PWD/Serializable.cpp \
     $$PWD/Setting.cpp \
     $$PWD/SettingJson.cpp \
+    $$PWD/ShapeGeometry.cpp \
+    $$PWD/ShapeRenderer.cpp \
     $$PWD/UidAllocator.cpp \
     $$PWD/VideoImpl.cpp \
     $$PWD/VideoPlayerImpl.cpp \

@@ -4,6 +4,10 @@
 
 New:
 
+- Add generators, sources drawn by the graphics card: Checker, Grid, Color Wheel and Color, in File > Add Generator or with the generator button of the toolbar, which replaces the color button. Each has its own settings, and the size of its image is set by its width and height. The image is drawn once per frame, whatever the number of views that show it.
+- Color Wheel draws colour wheels, spirals, concentric rings and polar checkerboards from one set of settings, without modes: divisions around the circle and along the radius, a blend from bands to cells, a smoothness, a palette chosen among presets, a hue shift, radial saturation and lightness, and a rotation in revolutions per minute that never jumps when its speed changes. Presets set the geometry.
+- A color is now a generator: its layers have an input shape, like those of an image, and its image is 256 × 256 by default. Projects with the color sources of earlier versions open with color generators and look the same: the alpha of their color, which was not drawn, is dropped. The MCP tool `create_color_source` creates a color generator.
+- The log of `--frame-stats` gives the time spent drawing the image of each generator, as the step `render`.
 - Save numeric and boolean settings using native JSON types. Saving upgrades a beta.1 project to beta.2. To migrate a separate copy using Python, run `python3 scripts/convert-beta1-project.py show.mmp`.
 - Resolve relative image and video paths from the project directory so a show can move with its media. Save As keeps the same media targets.
 - Check the structure of a project before replacing the open one and report entries skipped during loading.
@@ -17,6 +21,10 @@ New:
 
 Improvements:
 
+- The settings panel shows values in pixels without their unit, and numbers without thousands separators: 1024, not 1,024 px.
+- Turning the mouse wheel over a menu of the settings panel scrolls the panel instead of changing the value.
+- A new shape opens the settings panel on the Media tab, the settings of its source.
+- Draw the shapes with shaders instead of the legacy OpenGL calls. A mesh is drawn in a single call: a heavily distorted mesh in fullscreen takes about half the time to draw.
 - Check the values sent by OSC or MCP against the bounds and the type of the setting: an opacity above 1 stops at 1, and an unknown property name, an invalid color, or a text other than true, false, 1 or 0 for a boolean is refused with a warning. A boolean takes any finite number other than 0 as true; a number that is not finite is refused.
 - Keep the unknown keys of a project file when the project is saved again.
 - In the settings panel of a layer, "Mesh Subdivisions" is now Columns and Rows.

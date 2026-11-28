@@ -1,13 +1,13 @@
 {
     "layers": [
         {
-            "className": "ColorLayer",
-            "depth": "1",
+            "className": "TextureLayer",
+            "depth": 1,
             "destination": {
                 "className": "Mesh",
-                "locked": "false",
-                "n_columns": "2",
-                "n_rows": "2",
+                "locked": false,
+                "n_columns": 2,
+                "n_rows": 2,
                 "vertices": [
                     [
                         10.5,
@@ -28,23 +28,51 @@
                 ]
             },
             "id": 1,
-            "locked": "false",
+            "locked": false,
             "name": "Quad 1",
-            "opacity": "0.5",
-            "solo": "false",
+            "opacity": 0.5,
+            "solo": false,
+            "source": {
+                "className": "Mesh",
+                "locked": false,
+                "n_columns": 2,
+                "n_rows": 2,
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        256,
+                        0
+                    ],
+                    [
+                        0,
+                        256
+                    ],
+                    [
+                        256,
+                        256
+                    ]
+                ]
+            },
             "source_id": 1,
-            "visible": "true"
+            "visible": true
         }
     ],
     "sources": [
         {
-            "className": "Color",
+            "className": "ColorGenerator",
             "color": "#ffaa00",
+            "height": 256,
             "id": 1,
-            "locked": "false",
+            "locked": false,
             "name": "orange",
-            "opacity": "0.800000011920929"
+            "opacity": 0.800000011920929,
+            "width": 256,
+            "x": 0,
+            "y": 0
         }
     ],
-    "version": "1.0.0-alpha.1"
+    "version": "1.0.0-beta.2"
 }

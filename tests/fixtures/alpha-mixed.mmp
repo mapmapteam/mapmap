@@ -2,10 +2,10 @@
     "layers": [
         {
             "className": "TextureLayer",
-            "depth": "-3",
+            "depth": -3,
             "destination": {
                 "className": "Triangle",
-                "locked": "true",
+                "locked": true,
                 "vertices": [
                     [
                         1,
@@ -22,13 +22,13 @@
                 ]
             },
             "id": 4,
-            "locked": "false",
+            "locked": false,
             "name": "top image",
-            "opacity": "0.75",
-            "solo": "true",
+            "opacity": 0.75,
+            "solo": true,
             "source": {
                 "className": "Triangle",
-                "locked": "false",
+                "locked": false,
                 "vertices": [
                     [
                         0,
@@ -45,16 +45,16 @@
                 ]
             },
             "source_id": 2,
-            "visible": "true"
+            "visible": true
         },
         {
-            "className": "ColorLayer",
-            "depth": "2",
+            "className": "TextureLayer",
+            "depth": 2,
             "destination": {
                 "className": "Mesh",
-                "locked": "false",
-                "n_columns": "2",
-                "n_rows": "3",
+                "locked": false,
+                "n_columns": 2,
+                "n_rows": 3,
                 "vertices": [
                     [
                         0,
@@ -83,19 +83,51 @@
                 ]
             },
             "id": 2,
-            "locked": "true",
+            "locked": true,
             "name": "hidden red",
-            "opacity": "1",
-            "solo": "false",
+            "opacity": 1,
+            "solo": false,
+            "source": {
+                "className": "Mesh",
+                "locked": false,
+                "n_columns": 2,
+                "n_rows": 3,
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        256,
+                        0
+                    ],
+                    [
+                        0,
+                        128
+                    ],
+                    [
+                        256,
+                        128
+                    ],
+                    [
+                        0,
+                        256
+                    ],
+                    [
+                        256,
+                        256
+                    ]
+                ]
+            },
             "source_id": 1,
-            "visible": "false"
+            "visible": false
         },
         {
-            "className": "ColorLayer",
-            "depth": "3",
+            "className": "TextureLayer",
+            "depth": 3,
             "destination": {
                 "className": "Ellipse",
-                "locked": "false",
+                "locked": false,
                 "vertices": [
                     [
                         -10.25,
@@ -116,21 +148,43 @@
                 ]
             },
             "id": 3,
-            "locked": "false",
+            "locked": false,
             "name": "same red again",
-            "opacity": "1",
-            "solo": "false",
+            "opacity": 1,
+            "solo": false,
+            "source": {
+                "className": "Ellipse",
+                "locked": false,
+                "vertices": [
+                    [
+                        0,
+                        128
+                    ],
+                    [
+                        128,
+                        0
+                    ],
+                    [
+                        256,
+                        128
+                    ],
+                    [
+                        128,
+                        256
+                    ]
+                ]
+            },
             "source_id": 1,
-            "visible": "true"
+            "visible": true
         },
         {
-            "className": "ColorLayer",
-            "depth": "9",
+            "className": "TextureLayer",
+            "depth": 9,
             "destination": {
                 "className": "Mesh",
-                "locked": "false",
-                "n_columns": "2",
-                "n_rows": "2",
+                "locked": false,
+                "n_columns": 2,
+                "n_rows": 2,
                 "vertices": [
                     [
                         0,
@@ -151,42 +205,74 @@
                 ]
             },
             "id": 9,
-            "locked": "false",
+            "locked": false,
             "name": "bottom white",
-            "opacity": "1",
-            "solo": "false",
+            "opacity": 1,
+            "solo": false,
+            "source": {
+                "className": "Mesh",
+                "locked": false,
+                "n_columns": 2,
+                "n_rows": 2,
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        256,
+                        0
+                    ],
+                    [
+                        0,
+                        256
+                    ],
+                    [
+                        256,
+                        256
+                    ]
+                ]
+            },
             "source_id": 5,
-            "visible": "true"
+            "visible": true
         }
     ],
     "sources": [
         {
-            "className": "Color",
+            "className": "ColorGenerator",
             "color": "#ff0000",
+            "height": 256,
             "id": 1,
-            "locked": "true",
+            "locked": true,
             "name": "red",
-            "opacity": "1"
+            "opacity": 1,
+            "width": 256,
+            "x": 0,
+            "y": 0
         },
         {
             "className": "Image",
             "id": 2,
-            "locked": "false",
+            "locked": false,
             "name": "tiny",
-            "opacity": "0.25",
-            "rate": "0.5",
+            "opacity": 0.25,
+            "rate": 0.5,
             "uri": "media/tiny.png",
             "x": 3,
             "y": 4
         },
         {
-            "className": "Color",
+            "className": "ColorGenerator",
             "color": "#ffffff",
+            "height": 256,
             "id": 5,
-            "locked": "false",
+            "locked": false,
             "name": "white",
-            "opacity": "1"
+            "opacity": 1,
+            "width": 256,
+            "x": 0,
+            "y": 0
         }
     ],
-    "version": "1.0.0-alpha.1"
+    "version": "1.0.0-beta.2"
 }

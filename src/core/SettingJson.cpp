@@ -56,6 +56,7 @@ QString unitName(SettingInfo::Unit unit)
     case SettingInfo::Hertz:   return QStringLiteral("hertz");
     case SettingInfo::Seconds: return QStringLiteral("seconds");
     case SettingInfo::Pixels:  return QStringLiteral("pixels");
+    case SettingInfo::RevolutionsPerMinute: return QStringLiteral("rpm");
   }
   return QString();
 }

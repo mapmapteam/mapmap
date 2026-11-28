@@ -23,6 +23,8 @@
 #include "CameraImpl.h"
 #include "Util.h"
 #include "YuvTexture.h"
+#include "ShapeGeometry.h"
+#include "ShapeRenderer.h"
 
 using namespace mmp;
 
@@ -140,34 +142,23 @@ QVideoFrame _makeYuvFrame(QVideoFrameFormat::PixelFormat pixelFormat, QVideoFram
   return frame;
 }
 
-// Draws a YuvTexture on a full-size quad into an FBO (with the fixed-function
-// pipeline, like MapMap's renderer) and returns the result.
+// Draws a YuvTexture on a full-size rectangle into an FBO with the shape
+// renderer's shaders, and returns the result.
 QImage _drawYuv(YuvTexture& yuv)
 {
   QOpenGLFramebufferObject fbo(CLIP_SIZE, CLIP_SIZE);
   fbo.bind();
   glViewport(0, 0, CLIP_SIZE, CLIP_SIZE);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(0, CLIP_SIZE, CLIP_SIZE, 0, -1, 1); // y down, like the canvases
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
   glClearColor(0, 0, 0, 1);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glEnable(GL_TEXTURE_2D);
-  glColor4f(1, 1, 1, 1);
   yuv.bind();
-  glBegin(GL_QUADS);
-  glTexCoord2f(0, 0); glVertex2f(0, 0);
-  glTexCoord2f(1, 0); glVertex2f(CLIP_SIZE, 0);
-  glTexCoord2f(1, 1); glVertex2f(CLIP_SIZE, CLIP_SIZE);
-  glTexCoord2f(0, 1); glVertex2f(0, CLIP_SIZE);
-  glEnd();
+  const QMatrix4x4 matrix = ShapeRenderer::viewMatrix(QTransform(), QSize(CLIP_SIZE, CLIP_SIZE));
+  const bool drawn = ShapeRenderer::drawTriangles(ShapeGeometry::rectangle(QRectF(0, 0, CLIP_SIZE, CLIP_SIZE)),
+                                                  matrix, 1.0f, &yuv);
   yuv.release();
-  glDisable(GL_TEXTURE_2D);
 
-  QImage img = fbo.toImage();
+  QImage img = drawn ? fbo.toImage() : QImage();
   fbo.release();
   return img;
 }
@@ -431,7 +422,7 @@ void TestVideo::yuvShaderDraw()
   if (!context.create() || !context.makeCurrent(&surface))
     QSKIP("No OpenGL context available");
   if (context.isOpenGLES())
-    QSKIP("Test needs desktop OpenGL (fixed-function pipeline)");
+    QSKIP("The shaders are in GLSL 1.20, for desktop OpenGL");
 
   QVideoFrame frame = _makeYuvFrame(QVideoFrameFormat::PixelFormat(pixelFormat),
                                     QVideoFrameFormat::ColorRange(range));
@@ -466,7 +457,7 @@ void TestVideo::decodedYuvShaderDraw()
   if (!context.create() || !context.makeCurrent(&surface))
     QSKIP("No OpenGL context available");
   if (context.isOpenGLES())
-    QSKIP("Test needs desktop OpenGL (fixed-function pipeline)");
+    QSKIP("The shaders are in GLSL 1.20, for desktop OpenGL");
 
   // Decoded YUV frames are kept unconverted for the GPU path.
   VideoPlayerImpl player;
@@ -592,7 +583,7 @@ void TestVideo::uploadIsTimedWhenEnabled()
   if (!context.create() || !context.makeCurrent(&surface))
     QSKIP("No OpenGL context available");
   if (context.isOpenGLES())
-    QSKIP("Test needs desktop OpenGL (fixed-function pipeline)");
+    QSKIP("The shaders are in GLSL 1.20, for desktop OpenGL");
 
   FrameStatsOn on;
   Video video(_clips["yuv420p"], VIDEO_URI, 1.0);

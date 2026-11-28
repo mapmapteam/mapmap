@@ -22,15 +22,19 @@
 #include <memory>
 
 #include <QAbstractButton>
+#include <QApplication>
 #include <QButtonGroup>
+#include <QComboBox>
 #include <QCoreApplication>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QWheelEvent>
 #include <QtTest>
 
 #include "ColorPicker.h"
+#include "Generators.h"
 #include "Inspector.h"
 #include "Layer.h"
 #include "Mesh.h"
@@ -53,6 +57,9 @@ const int TEST_HEIGHT = 700;
 
 /// Number of vertices on each side of the test mesh.
 const int MESH_SIZE = 4;
+
+/// The angle of one notch of a mouse wheel, in eighths of a degree.
+const int WHEEL_NOTCH = 120;
 
 /// Distance between two neighbouring vertices of that mesh, in pixels.
 const qreal MESH_SPACING = 100;
@@ -182,7 +189,7 @@ void TestInspector::controlForEachType()
 
 void TestInspector::colorSourceRows()
 {
-  Color red{QColor(Qt::red)};
+  ColorGenerator red { QColor(Qt::red) };
   InspectorPage page(red.settings(), "source");
   // Hidden settings have no row; the id is read-only.
   QVERIFY(!page.control("name"));
@@ -380,6 +387,39 @@ void TestInspector::shortChoiceShowsButtons()
   QVERIFY(buttons.at(1)->isChecked());
 }
 
+void TestInspector::menuIgnoresWheel()
+{
+  SettingGroup root;
+  Setting* shape = root.addSetting(SettingInfo::choice("shape", "Shape",
+                                                       { { "a", "Circle" }, { "b", "Square" }, { "c", "Diamond" },
+                                                         { "d", "Triangle" }, { "e", "Star" } }).defaultValue("a"));
+  InspectorPage page(&root, "test");
+  QComboBox* menu = qobject_cast<ChoiceControl*>(page.control("shape"))->menu();
+
+  // A wheel turned over the menu, as when scrolling the panel, leaves the value as it is
+  // and lets the panel scroll.
+  const QPointF centre(menu->width() / 2.0, menu->height() / 2.0);
+  QWheelEvent wheel(centre, menu->mapToGlobal(centre), QPoint(), QPoint(0, -WHEEL_NOTCH),
+                    Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+  QApplication::sendEvent(menu, &wheel);
+  QVERIFY(!wheel.isAccepted());
+  QCOMPARE(menu->currentIndex(), 0);
+  QCOMPARE(shape->value().toString(), QString("a"));
+}
+
+void TestInspector::currentPageCanBeChosen()
+{
+  SettingGroup root;
+  root.addSetting(opacityInfo());
+  Inspector inspector;
+  InspectorPage* first = inspector.addPage("Surface", &root, "test");
+  InspectorPage* second = inspector.addPage("Media", &root, "test");
+  QCOMPARE(inspector.currentPage(), first);
+  inspector.setCurrentPage(second);
+  QCOMPARE(inspector.currentPage(), second);
+  QCOMPARE(inspector.tabBar()->currentIndex(), 1);
+}
+
 void TestInspector::choiceKeepsMissingId()
 {
   SettingGroup root;
@@ -400,17 +440,17 @@ void TestInspector::choiceKeepsMissingId()
 
 void TestInspector::referenceMenuFollowsSources()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
   red->setName("red");
   SourceListing listing({ red });
-  ColorLayer layer(red, makeMesh());
+  TextureLayer layer(red, makeMesh(), makeMesh());
   InspectorPage page(layer.settings(), "layer");
   ChoiceControl* source = qobject_cast<ChoiceControl*>(page.control("source_id"));
   QVERIFY(source);
   QCOMPARE(source->menu()->count(), 1);
   QCOMPARE(source->menu()->currentText(), QString("red"));
 
-  Source::ptr blue(new Color(QColor(Qt::blue)));
+  Source::ptr blue(new ColorGenerator(QColor(Qt::blue)));
   blue->setName("blue");
   listing.sources->append(blue);
   source->refresh();
@@ -443,7 +483,7 @@ void TestInspector::pointFieldsWriteCoordinates()
   InspectorPage page(&root, "test");
   PointControl* control = qobject_cast<PointControl*>(page.control("vertex"));
 
-  QCOMPARE(control->field(0)->text(), QString("10") + NBSP + "px");
+  QCOMPARE(control->field(0)->text(), QString("10"));
   typeIn(control->field(0), "120");
   QCOMPARE(vertex->value().toPointF(), QPointF(120, 20));
   QTest::keyClick(control->field(1), Qt::Key_Up);
@@ -506,9 +546,9 @@ void TestInspector::foldedGroupStaysFolded()
 
 void TestInspector::layerGroupsAndSharedRow()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
   SourceListing listing({ red });
-  ColorLayer layer(red, makeMesh());
+  TextureLayer layer(red, makeMesh(), makeMesh());
   InspectorPage page(layer.settings(), "layer");
   page.setGroupLabel("output", "Output shape");
   QTRY_VERIFY(!page.groups().isEmpty());
@@ -579,9 +619,9 @@ void TestInspector::pickerKeepsHueOfGrey()
 
 void TestInspector::noHorizontalScrollAtReferenceWidth()
 {
-  Source::ptr red(new Color(QColor(Qt::red)));
+  Source::ptr red(new ColorGenerator(QColor(Qt::red)));
   SourceListing listing({ red });
-  ColorLayer layer(red, makeMesh());
+  TextureLayer layer(red, makeMesh(), makeMesh());
   Inspector inspector;
   inspector.setHeader("Layer 1", "Mesh");
   InspectorPage* surface = inspector.addPage("Surface", layer.settings(), "layer");

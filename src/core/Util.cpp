@@ -30,24 +30,6 @@ namespace mmp {
 
 namespace Util {
 
-void correctGlTexCoord(GLfloat x, GLfloat y)
-{
-  glTexCoord2f (x, y);
-}
-
-void setGlTexPoint(const Texture& texture, const QPointF& inputPoint, const QPointF& outputPoint)
-{
-  // Set point in texture.
-  correctGlTexCoord(
-    (inputPoint.x() - texture.getX()) / (GLfloat) texture.getWidth(),
-    (inputPoint.y() - texture.getY()) / (GLfloat) texture.getHeight());
-  // Add point in output.
-  glVertex2f(
-    outputPoint.x(),
-    outputPoint.y()
-  );
-}
-
 void glUploadFormat(QImage::Format imageFormat, GLenum& format, GLenum& type)
 {
   switch (imageFormat) {
