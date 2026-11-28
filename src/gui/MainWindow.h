@@ -50,6 +50,9 @@
 
 #include "SourceGui.h"
 #include "HandleModeKeys.h"
+#include "LearnMode.h"
+#include "LinkKeys.h"
+#include "LinksWindow.h"
 
 namespace mmp {
 
@@ -181,8 +184,6 @@ private slots:
   void showWelcomeDialog();
 
   void updateSettings();
-
-  void updateLayerListColumnWidth();
 
 public slots:
 
@@ -436,9 +437,69 @@ public:
   /// The keys that restrict the handle of the current shape to rotating or scaling.
   HandleModeKeys* handleModeKeys() const { return _handleModeKeys; }
 
+  /// What learning shows and which setting is chosen (owned by the window).
+  LearnMode* learnMode() const { return _learnMode; }
+
 private:
   // Follows R and S for the handles of the shapes (owned by the window).
   HandleModeKeys* _handleModeKeys = nullptr;
+
+  // The state of learning, which the inspectors and the list of layers show.
+  LearnMode* _learnMode = nullptr;
+
+  // Listens to the learned keys, and to the keys offered while learning.
+  KeyLinkFilter* _keyLinkFilter = nullptr;
+
+  // Starts and stops learning keys.
+  QAction* keyboardLearnAction = nullptr;
+
+  // The banner across the top of the window while learning, so that one sees that keys are
+  // being learned rather than acting.
+  QWidget* learnBanner = nullptr;
+
+  // The text of the banner: what to do next.
+  QLabel* learnBannerText = nullptr;
+
+  // Turns the learned keys on and off, so that typing for something else does not change
+  // the show.
+  QAction* learnedKeysActiveAction = nullptr;
+
+  // Says in the status bar whether the learned keys act, when the project has some.
+  QLabel* learnedKeysLabel = nullptr;
+
+  /// Turns the learned keys on or off.
+  void setLearnedKeysActive(bool active);
+
+  /// Shows whether the learned keys act.
+  void showLearnedKeysState();
+
+  // Lists the links of the project.
+  LinksWindow* _linksWindow = nullptr;
+
+  // Opens the list of the links.
+  QAction* openLinksAction = nullptr;
+
+  /// Shows the links again when the window listing them is open.
+  void refreshLinksWindow();
+
+  /// Starts or stops learning keys, from the command of the menu.
+  void setKeyboardLearning(bool learning);
+
+  /// Shows the state of learning: the command, the outlines and the status bar.
+  void showLearnMode();
+
+  /// Links a key offered while learning to the setting chosen, unless MapMap uses it.
+  void learnKey(const QString& key);
+
+  /// Removes the key of the setting chosen while learning.
+  void removeLearnedKey();
+
+  /// Applies the link at index of the links of the project.
+  void applyLink(int index);
+
+  /// Returns the element and the setting of a target as shown to the user, such as
+  /// "Facade: Visible".
+  QString linkTargetLabel(const LinkTarget& target) const;
 
   // The singleton, published as soon as construction starts so that anything
   // triggered from inside the constructor (e.g. restoring the output window in
@@ -795,10 +856,18 @@ public:
   static const int SHAPE_LIST_ITEM_HEIGHT = 40;
   static const int PAINT_LIST_MINIMUM_HEIGHT = 290;
   static const int MAPPING_LIST_MINIMUM_HEIGHT = 290;
+  // Narrowest the column of the names of the list of layers may get, in pixels.
+  static const int MAPPING_LIST_NAME_MINIMUM_WIDTH = 80;
   static const int PAINT_PROPERTY_PANEL_MINIMUM_HEIGHT = 290;
   static const int MAPPING_PROPERTY_PANEL_MINIMUM_HEIGHT = 290;
   static const int CANVAS_MINIMUM_WIDTH  = 480;
   static const int CANVAS_MINIMUM_HEIGHT = 270;
+  // How long the status bar says that the learned keys were turned on or off, in milliseconds.
+  static const int LEARNED_KEYS_MESSAGE_MS = 3000;
+  // Margin around the text of the banner shown while learning, in pixels.
+  static const int LEARN_BANNER_MARGIN = 8;
+  // How long the status bar gives the links of a project just opened, in milliseconds.
+  static const int LOADED_LINKS_MESSAGE_MS = 8000;
   // Size of the area a new shape is placed in, relative to the output frame.
   static constexpr qreal NEW_SHAPE_OUTPUT_SCALE = 0.5;
 

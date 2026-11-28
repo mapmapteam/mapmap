@@ -27,12 +27,31 @@
 #include <QApplication>
 #include <QMouseEvent>
 #include <QToolTip>
+#include <QAbstractItemView>
+#include <QHelpEvent>
 
 #include "MM.h"
 
 namespace mmp {
 
 typedef int uid;
+
+/// The buttons painted on a row of the list of layers.
+enum class LayerRowButton { Hide, Solo, Lock, Duplicate, Delete };
+
+/// Returns the column of the list of layers that holds a button.
+int layerRowButtonColumn(LayerRowButton button);
+
+/// Returns the rectangle of a button in the cell of its column, for painting it, for
+/// knowing where it is clicked and for outlining it.
+QRect layerRowButtonRect(LayerRowButton button, const QRect& cell);
+
+/// Returns the button of a column under a position, if any, in button.
+bool layerRowButtonAt(int column, const QRect& cell, const QPoint& position, LayerRowButton* button);
+
+/// Returns the path of the setting of the layer that a button switches, such as "visible",
+/// or an empty text for a button that switches none (Duplicate, Delete).
+QString layerRowButtonSetting(LayerRowButton button);
 
 class LayerItemDelegate : public QStyledItemDelegate
 {
@@ -55,6 +74,15 @@ signals:
   void itemContextMenuRequested(const QPoint &pos);
   void itemDuplicated(uid itemId);
   void itemRemoved(uid itemId);
+
+private:
+  /// While learning, outlines the button of a layer one can link, with the key linked to it.
+  void _paintLearnOutline(QPainter* painter, LayerRowButton button, const QRect& cell, uid layerId) const;
+
+public:
+  /// Shows the name of the button under the mouse, and the key linked to it.
+  bool helpEvent(QHelpEvent *event, QAbstractItemView *view,
+                 const QStyleOptionViewItem &option, const QModelIndex &index) override;
 
 protected:
   bool editorEvent(QEvent *event, QAbstractItemModel *model,

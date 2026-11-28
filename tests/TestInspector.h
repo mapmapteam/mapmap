@@ -57,6 +57,7 @@ private slots:
   void colorCodeIsWrittenAndRemembered();
   void pickerKeepsHueOfGrey();
   void noHorizontalScrollAtReferenceWidth();
+  void rowShowsItsKey();
 
 private:
   QLocale _previousLocale;

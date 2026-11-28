@@ -1,0 +1,70 @@
+{
+    "layers": [
+        {
+            "className": "ColorLayer",
+            "depth": 7,
+            "destination": {
+                "className": "Triangle",
+                "locked": false,
+                "vertices": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        100,
+                        0
+                    ],
+                    [
+                        50,
+                        80
+                    ]
+                ]
+            },
+            "id": 7,
+            "locked": false,
+            "name": "Triangle",
+            "opacity": 1,
+            "solo": false,
+            "source_id": 3,
+            "visible": true
+        }
+    ],
+    "links": [
+        {
+            "action": "toggle",
+            "target": {
+                "element": "layer",
+                "id": 7,
+                "setting": "visible"
+            },
+            "trigger": {
+                "key": "M",
+                "kind": "key"
+            }
+        },
+        {
+            "action": "off",
+            "target": {
+                "element": "source",
+                "id": 3,
+                "setting": "opacity"
+            },
+            "trigger": {
+                "key": "Shift+1",
+                "kind": "key"
+            }
+        }
+    ],
+    "sources": [
+        {
+            "className": "Color",
+            "color": "#55aa7f",
+            "id": 3,
+            "locked": false,
+            "name": "green",
+            "opacity": 1
+        }
+    ],
+    "version": "1.0.0-beta.2"
+}

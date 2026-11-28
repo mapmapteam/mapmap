@@ -29,8 +29,9 @@
 #include "SettingControl.h"
 
 class QLabel;
-class QStackedWidget;
+class QMenu;
 class QTabBar;
+class QTabWidget;
 class QTimer;
 class QToolButton;
 class QVBoxLayout;
@@ -87,16 +88,29 @@ public:
   /// Greys the row out when no setting of it can be changed.
   void updateEnabled();
 
+  /// Returns the button showing that a setting of the row is linked, for tests.
+  QToolButton* linkButton() const { return _linkButton; }
+
+  /// Returns the menu to learn and remove the keys of the settings of the row; nullptr when
+  /// no setting of the row can be linked. The caller owns it.
+  QMenu* createLinkMenu(QWidget* parent);
+
 signals:
   /// The user changed a value of the row.
   void edited();
 
 protected:
   void mouseDoubleClickEvent(QMouseEvent* event) override;
+  void contextMenuEvent(QContextMenuEvent* event) override;
 
 private:
+  /// Shows the triggers linked to the settings of the row: the button and the tooltip.
+  void _showLinks();
+
   InspectorRowLabel* _label;
   QList<SettingControl*> _controls;
+  QToolButton* _linkButton;
+  QString _description;
 };
 
 /// A group of rows with a title that folds and unfolds it.
@@ -265,7 +279,7 @@ public:
   InspectorPage* page(int index) const;
 
   /// Returns the tab bar, for tests.
-  QTabBar* tabBar() const { return _tabs; }
+  QTabBar* tabBar() const;
 
 signals:
   /// The user changed a value in one of the tabs.
@@ -274,8 +288,9 @@ signals:
 private:
   QLabel* _name;
   QLabel* _kind;
-  QTabBar* _tabs;
-  QStackedWidget* _pages;
+  /// The tabs and their pages: the same widget as the other tabs of MapMap, so that they look
+  /// the same.
+  QTabWidget* _tabs;
 };
 
 } // namespace mmp

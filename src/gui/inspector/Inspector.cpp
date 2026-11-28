@@ -23,15 +23,20 @@
 #include <limits>
 
 #include <QHBoxLayout>
+#include <QContextMenuEvent>
 #include <QLabel>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QSettings>
-#include <QStackedWidget>
 #include <QTabBar>
+#include <QTabWidget>
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
+
+#include "LearnMode.h"
+#include "MM.h"
 
 namespace mmp {
 
@@ -57,6 +62,9 @@ const double FINE_STEPS_PER_PIXEL = 0.1;
 
 /// Room kept at the end of a row for the button of a link, in pixels.
 const int LINK_BUTTON_ROOM = 20;
+
+/// The text of the button of a link: a keyboard.
+const QString LINK_BUTTON_TEXT = QStringLiteral("\u2328");
 
 /// Spacing between rows and inside a row, in pixels.
 const int ROW_SPACING = 6;
@@ -84,6 +92,24 @@ const int DISABLED_WHITE_ALPHA = 110;
 
 /// Opacity of the white of secondary text, such as the kind of the element.
 const int SECONDARY_WHITE_ALPHA = 150;
+
+/// Colour of the outline of a control one can link, while learning.
+const QColor LEARN_OUTLINE_COLOR = MM::LEARN_COLOR;
+
+/// Opacity of the filling of the control chosen while learning, between 0 and 255.
+const int LEARN_CHOSEN_ALPHA = 70;
+
+/// Width of the outline of a control one can link, in pixels.
+const int LEARN_OUTLINE_WIDTH = 2;
+
+/// Radius of the corners of the outline, in pixels.
+const int LEARN_OUTLINE_RADIUS = 3;
+
+/// Room around a control for its outline, in pixels.
+const int LEARN_OUTLINE_MARGIN = 2;
+
+/// Horizontal padding of the trigger written on the outline, in pixels.
+const int LEARN_BADGE_PADDING = 4;
 
 /// Joins the labels of settings sharing a row.
 const QString SHARED_LABEL_SEPARATOR = QStringLiteral(" × ");
@@ -175,12 +201,106 @@ void InspectorRowLabel::mouseReleaseEvent(QMouseEvent* event)
 }
 
 // ---------------------------------------------------------------------------------------------
+// LearnOverlay
+
+namespace {
+
+/**
+ * The outline of a control one can link, shown on top of it while learning: it names the key
+ * linked to the setting, and a click on it chooses the setting for the next key.
+ */
+class LearnOverlay : public QWidget {
+public:
+  LearnOverlay(SettingControl* control, QWidget* parent)
+    : QWidget(parent),
+      _control(control)
+  {
+    control->installEventFilter(this);
+    LearnMode* learn = LearnMode::current();
+    connect(learn, &LearnMode::changed, this, [this]() { _show(); });
+    connect(learn, &LearnMode::linksChanged, this, [this]() { update(); });
+    _show();
+  }
+
+protected:
+  bool eventFilter(QObject* watched, QEvent* event) override
+  {
+    if (watched == _control && (event->type() == QEvent::Move || event->type() == QEvent::Resize))
+      _place();
+    return QWidget::eventFilter(watched, event);
+  }
+
+  void paintEvent(QPaintEvent*) override
+  {
+    LearnMode* learn = LearnMode::current();
+    LinkTarget target;
+    if (!learn || !learn->targetOf(_control->root(), _control->path(), &target))
+      return;
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    const QRectF frame = QRectF(rect()).adjusted(1, 1, -1, -1);
+    if (learn->isChosen(target)) {
+      QColor fill = LEARN_OUTLINE_COLOR;
+      fill.setAlpha(LEARN_CHOSEN_ALPHA);
+      painter.setBrush(fill);
+    }
+    painter.setPen(QPen(LEARN_OUTLINE_COLOR, LEARN_OUTLINE_WIDTH));
+    painter.drawRoundedRect(frame, LEARN_OUTLINE_RADIUS, LEARN_OUTLINE_RADIUS);
+
+    const QString trigger = learn->triggerText(target);
+    if (!trigger.isEmpty()) {
+      const int width = fontMetrics().horizontalAdvance(trigger) + 2 * LEARN_BADGE_PADDING;
+      const QRect badge(rect().right() - width, rect().top(), width, rect().height());
+      painter.fillRect(badge, LEARN_OUTLINE_COLOR);
+      painter.setPen(MAPMAP_DARK_GRAY);
+      painter.drawText(badge, Qt::AlignCenter, trigger);
+    }
+  }
+
+  void mousePressEvent(QMouseEvent* event) override
+  {
+    LearnMode* learn = LearnMode::current();
+    LinkTarget target;
+    if (event->button() == Qt::LeftButton && learn
+        && learn->targetOf(_control->root(), _control->path(), &target))
+      learn->choose(target);
+    event->accept();
+  }
+
+private:
+  /// Follows the control, with room for the outline.
+  void _place()
+  {
+    setGeometry(_control->geometry().adjusted(-LEARN_OUTLINE_MARGIN, -LEARN_OUTLINE_MARGIN,
+                                              LEARN_OUTLINE_MARGIN, LEARN_OUTLINE_MARGIN));
+  }
+
+  /// Shown while learning, over the control.
+  void _show()
+  {
+    LearnMode* learn = LearnMode::current();
+    const bool shown = learn && learn->isActive() && canBeLinked(_control->setting());
+    if (shown) {
+      _place();
+      raise();
+    }
+    setVisible(shown);
+    update();
+  }
+
+  SettingControl* _control;
+};
+
+} // namespace
+
+// ---------------------------------------------------------------------------------------------
 // InspectorRow
 
 InspectorRow::InspectorRow(const QString& label, const QList<SettingControl*>& controls, QWidget* parent)
   : QWidget(parent),
     _label(new InspectorRowLabel(label, this)),
-    _controls(controls)
+    _controls(controls),
+    _linkButton(new QToolButton(this))
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
@@ -195,8 +315,22 @@ InspectorRow::InspectorRow(const QString& label, const QList<SettingControl*>& c
     connect(control, &SettingControl::edited, this, &InspectorRow::edited);
   }
   layout->addLayout(controlLayout, 1);
-  // Room for the button of a link, which comes with the MIDI controller and the oscillators.
-  layout->addSpacing(LINK_BUTTON_ROOM);
+  // The button of a link, shown when a setting of the row is linked; its room is kept.
+  _linkButton->setFixedWidth(LINK_BUTTON_ROOM);
+  _linkButton->setAutoRaise(true);
+  _linkButton->setText(LINK_BUTTON_TEXT);
+  QSizePolicy keptRoom = _linkButton->sizePolicy();
+  keptRoom.setRetainSizeWhenHidden(true);
+  _linkButton->setSizePolicy(keptRoom);
+  _linkButton->setVisible(false);
+  connect(_linkButton, &QToolButton::clicked, this, [this]() {
+    QMenu* menu = createLinkMenu(this);
+    if (!menu)
+      return;
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+    menu->popup(_linkButton->mapToGlobal(QPoint(0, _linkButton->height())));
+  });
+  layout->addWidget(_linkButton, 0, Qt::AlignTop);
 
   // Dragging the label adjusts the first setting of the row that moves by steps.
   for (SettingControl* control : _controls) {
@@ -214,9 +348,86 @@ InspectorRow::InspectorRow(const QString& label, const QList<SettingControl*>& c
         descriptions << setting->info().description();
     }
   }
-  if (!descriptions.isEmpty())
-    setToolTip(descriptions.join(QChar('\n')));
+  _description = descriptions.join(QChar('\n'));
+  if (!_description.isEmpty())
+    setToolTip(_description);
   updateEnabled();
+
+  // While learning, the controls one can link are outlined, and a click chooses one. The
+  // keys linked to the settings are named by the tooltip and the button of the link.
+  if (LearnMode* learn = LearnMode::current()) {
+    for (SettingControl* control : _controls) {
+      if (canBeLinked(control->setting()))
+        new LearnOverlay(control, this);
+    }
+    connect(learn, &LearnMode::linksChanged, this, &InspectorRow::_showLinks);
+    _showLinks();
+  }
+}
+
+void InspectorRow::_showLinks()
+{
+  LearnMode* learn = LearnMode::current();
+  QStringList lines;
+  for (SettingControl* control : _controls) {
+    LinkTarget target;
+    if (!learn || !learn->targetOf(control->root(), control->path(), &target))
+      continue;
+    const QStringList triggers = learn->triggerLines(target);
+    // A row shared by several settings says which one each key drives.
+    for (const QString& trigger : triggers) {
+      lines << (_controls.size() > 1 && control->setting()
+                ? tr("%1, %2").arg(control->setting()->info().label(), trigger) : trigger);
+    }
+  }
+  QStringList tip;
+  if (!_description.isEmpty())
+    tip << _description;
+  tip << lines;
+  setToolTip(tip.join(QChar('\n')));
+  _linkButton->setToolTip(lines.join(QChar('\n')));
+  _linkButton->setVisible(!lines.isEmpty());
+}
+
+QMenu* InspectorRow::createLinkMenu(QWidget* parent)
+{
+  LearnMode* learn = LearnMode::current();
+  if (!learn)
+    return nullptr;
+
+  QMenu* menu = new QMenu(parent);
+  for (SettingControl* control : _controls) {
+    LinkTarget target;
+    if (!canBeLinked(control->setting()) || !learn->targetOf(control->root(), control->path(), &target))
+      continue;
+    // A row shared by several settings has a part of the menu for each.
+    QMenu* part = menu;
+    if (_controls.size() > 1)
+      part = menu->addMenu(control->setting()->info().label());
+    part->addAction(tr("Learn a Key"), learn, [learn, target]() { learn->startWith(target); });
+    QAction* remove = part->addAction(tr("Remove the Key"), learn, [learn, target]() {
+      if (learn->links())
+        learn->links()->remove(target, LinkTrigger::Key);
+    });
+    remove->setEnabled(!learn->triggerText(target).isEmpty());
+  }
+  if (menu->isEmpty()) {
+    delete menu;
+    return nullptr;
+  }
+  return menu;
+}
+
+void InspectorRow::contextMenuEvent(QContextMenuEvent* event)
+{
+  QMenu* menu = createLinkMenu(this);
+  if (!menu) {
+    QWidget::contextMenuEvent(event);
+    return;
+  }
+  menu->setAttribute(Qt::WA_DeleteOnClose);
+  menu->popup(event->globalPos());
+  event->accept();
 }
 
 void InspectorRow::updateEnabled()
@@ -682,8 +893,7 @@ Inspector::Inspector(QWidget* parent)
   : QWidget(parent),
     _name(new QLabel(this)),
     _kind(new QLabel(this)),
-    _tabs(new QTabBar(this)),
-    _pages(new QStackedWidget(this))
+    _tabs(new QTabWidget(this))
 {
   useMapMapColors(this);
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -701,11 +911,13 @@ Inspector::Inspector(QWidget* parent)
   header->addWidget(_kind);
   layout->addLayout(header);
 
-  _tabs->setExpanding(false);
-  _tabs->setDrawBase(false);
-  layout->addWidget(_tabs);
-  layout->addWidget(_pages, 1);
-  connect(_tabs, &QTabBar::currentChanged, _pages, &QStackedWidget::setCurrentIndex);
+  _tabs->tabBar()->setExpanding(false);
+  layout->addWidget(_tabs, 1);
+}
+
+QTabBar* Inspector::tabBar() const
+{
+  return _tabs->tabBar();
 }
 
 void Inspector::setHeader(const QString& name, const QString& kind)
@@ -721,32 +933,29 @@ QString Inspector::headerName() const
 
 InspectorPage* Inspector::addPage(const QString& title, SettingGroup* root, const QString& key)
 {
-  InspectorPage* page = new InspectorPage(root, key, _pages);
-  _pages->addWidget(page);
-  _tabs->addTab(title);
+  InspectorPage* page = new InspectorPage(root, key, _tabs);
+  _tabs->addTab(page, title);
   connect(page, &InspectorPage::edited, this, &Inspector::edited);
   return page;
 }
 
 void Inspector::clearPages()
 {
-  while (_tabs->count() > 0)
+  while (_tabs->count() > 0) {
+    QWidget* page = _tabs->widget(0);
     _tabs->removeTab(0);
-  while (_pages->count() > 0) {
-    QWidget* page = _pages->widget(0);
-    _pages->removeWidget(page);
     page->deleteLater();
   }
 }
 
 int Inspector::pageCount() const
 {
-  return _pages->count();
+  return _tabs->count();
 }
 
 InspectorPage* Inspector::page(int index) const
 {
-  return qobject_cast<InspectorPage*>(_pages->widget(index));
+  return qobject_cast<InspectorPage*>(_tabs->widget(index));
 }
 
 } // namespace mmp

@@ -20,6 +20,9 @@
  */
 
 #include "MainWindow.h"
+
+#include <algorithm>
+
 #include "PreferenceDialog.h"
 #include "OutputResolutionEditor.h"
 #include "AboutDialog.h"
@@ -129,6 +132,40 @@ MainWindow::MainWindow()
   LayerGui::setSourceUseCounter([this](const Source::ptr& source) {
     return int(mappingManager->getSourceLayers(source).size());
   });
+
+  // Learning: the inspectors and the list of layers ask it what to outline.
+  _learnMode = new LearnMode(this);
+  _learnMode->makeCurrent();
+  _learnMode->setLinks(&mappingManager->links());
+  _learnMode->setElementFinder([this](const SettingGroup* root, LinkTarget::ElementKind* element, uid* id) {
+    for (int i = 0; i < mappingManager->nLayers(); i++) {
+      if (mappingManager->getLayer(i)->settings() == root) {
+        *element = LinkTarget::LayerElement;
+        *id = mappingManager->getLayer(i)->getId();
+        return true;
+      }
+    }
+    for (int i = 0; i < mappingManager->nSources(); i++) {
+      if (mappingManager->getSource(i)->settings() == root) {
+        *element = LinkTarget::SourceElement;
+        *id = mappingManager->getSource(i)->getId();
+        return true;
+      }
+    }
+    return false;
+  });
+  connect(_learnMode, &LearnMode::changed, this, &MainWindow::showLearnMode);
+
+  // The learned keys, listened to in the whole application.
+  _keyLinkFilter = new KeyLinkFilter(&mappingManager->links(), this);
+  qApp->installEventFilter(_keyLinkFilter);
+  connect(_keyLinkFilter, &KeyLinkFilter::linkTriggered, this, &MainWindow::applyLink);
+  connect(_keyLinkFilter, &KeyLinkFilter::keyOffered, this, &MainWindow::learnKey);
+  connect(_keyLinkFilter, &KeyLinkFilter::removeRequested, this, &MainWindow::removeLearnedKey);
+  connect(_keyLinkFilter, &KeyLinkFilter::learningCancelled, _learnMode, &LearnMode::stop);
+
+  // The list of the links, opened from the Window menu.
+  _linksWindow = new LinksWindow(mappingManager, this);
 
   // Gives the "source_id" setting of layers the sources to choose from.
   Layer::setSourceLister([this]() {
@@ -300,7 +337,6 @@ void MainWindow::handleLayerItemSelectionChanged(const QModelIndex &index)
 
   // Update canvases.
   updateCanvases();
-  updateLayerListColumnWidth();
 }
 
 void MainWindow::handleLayerItemChanged(const QModelIndex &index)
@@ -435,6 +471,7 @@ void MainWindow::layerPropertyChanged(uid id, QString propertyName, QVariant val
   if (propertyName == "name")
   {
     layerListModel->setData(index, layer->getName(), Qt::EditRole);
+    refreshLinksWindow();
   }
   else if (propertyName == "visible")
   {
@@ -463,6 +500,7 @@ void MainWindow::sourcePropertyChanged(uid id, QString propertyName, QVariant va
   if (propertyName == "name")
   {
     sourceItem->setText(source->getName());
+    refreshLinksWindow();
 
     // The source menus of the layers show the new name.
     updateMappers();
@@ -1075,6 +1113,122 @@ void MainWindow::about()
   play(false);
 }
 
+void MainWindow::setKeyboardLearning(bool learning)
+{
+  if (learning)
+    _learnMode->start();
+  else
+    _learnMode->stop();
+}
+
+void MainWindow::showLearnMode()
+{
+  const bool learning = _learnMode->isActive();
+  {
+    QSignalBlocker blocker(keyboardLearnAction);
+    keyboardLearnAction->setChecked(learning);
+  }
+  _keyLinkFilter->setLearning(learning);
+  layerList->viewport()->update();
+
+  learnBanner->setVisible(learning);
+  if (_learnMode->hasTarget())
+    learnBannerText->setText(tr("Learning keys: press a key for %1. Delete removes its key.")
+                             .arg(linkTargetLabel(_learnMode->target())));
+  else
+    learnBannerText->setText(tr("Learning keys: click a control outlined in blue, then press a key. "
+                                "Learned keys do not act until learning stops (Escape)."));
+
+  if (!learning)
+    statusBar()->clearMessage();
+  else if (_learnMode->hasTarget())
+    statusBar()->showMessage(tr("Press a key for %1. Delete removes its key, Escape stops learning.")
+                             .arg(linkTargetLabel(_learnMode->target())));
+  else
+    statusBar()->showMessage(tr("Keyboard learn: click a control outlined in blue, then press a key. "
+                                "Escape stops learning."));
+}
+
+void MainWindow::learnKey(const QString& key)
+{
+  // The shortcut of the command stops learning, as the command does.
+  const QKeySequence sequence = QKeySequence::fromString(key, QKeySequence::PortableText);
+  if (keyboardLearnAction->shortcut().matches(sequence) == QKeySequence::ExactMatch)
+  {
+    _learnMode->stop();
+    return;
+  }
+
+  const LinkTrigger trigger = LinkTrigger::forKey(key);
+  if (!_learnMode->hasTarget())
+  {
+    // While learning, a learned key does not act: say so, rather than seem broken.
+    const int index = mappingManager->links().indexOf(trigger);
+    if (index >= 0)
+      statusBar()->showMessage(tr("%1 drives %2. Press Escape to stop learning: %1 then acts.")
+                               .arg(trigger.text(), linkTargetLabel(mappingManager->links().links().at(index).target)));
+    else
+      statusBar()->showMessage(tr("Click a control outlined in blue first, then press %1.").arg(trigger.text()));
+    return;
+  }
+
+  // A key MapMap uses keeps doing what it does.
+  const QString command = commandOfKey(key, findChildren<QAction*>());
+  if (!command.isEmpty())
+  {
+    statusBar()->showMessage(tr("%1 is already the shortcut of %2: choose another key.")
+                             .arg(trigger.text(), command));
+    return;
+  }
+
+  Link link;
+  link.trigger = trigger;
+  link.target = _learnMode->target();
+  mappingManager->links().add(link);
+  const QString label = linkTargetLabel(link.target);
+  _learnMode->clearTarget();
+  statusBar()->showMessage(tr("%1 → %2").arg(trigger.text(), label));
+}
+
+void MainWindow::removeLearnedKey()
+{
+  if (!_learnMode->hasTarget())
+    return;
+  const LinkTarget target = _learnMode->target();
+  const bool removed = mappingManager->links().remove(target, LinkTrigger::Key);
+  _learnMode->clearTarget();
+  if (removed)
+    statusBar()->showMessage(tr("Key removed from %1").arg(linkTargetLabel(target)));
+}
+
+void MainWindow::applyLink(int index)
+{
+  const LinkTable& links = mappingManager->links();
+  if (index < 0 || index >= links.count())
+    return;
+  // A link to a deleted element does nothing, until the deletion is undone.
+  applyLinkAction(mappingManager->linkTargetSetting(links.links().at(index).target),
+                  links.links().at(index).action);
+  // The list of the links shows which one acted.
+  if (_linksWindow->isVisible())
+    _linksWindow->flash(index);
+}
+
+void MainWindow::refreshLinksWindow()
+{
+  if (_linksWindow && _linksWindow->isVisible())
+    _linksWindow->refresh();
+}
+
+QString MainWindow::linkTargetLabel(const LinkTarget& target) const
+{
+  const Element::ptr element = mappingManager->linkTargetElement(target);
+  const Setting* setting = mappingManager->linkTargetSetting(target);
+  if (!element || !setting)
+    return target.describe();
+  return tr("%1: %2").arg(element->getName(), setting->info().label());
+}
+
 void MainWindow::updateStatusBar()
 {
   updateMouseCoordinates();
@@ -1395,6 +1549,9 @@ void MainWindow::openRecentVideo()
 
 bool MainWindow::clearProject()
 {
+  // The settings chosen for learning belong to the project.
+  _learnMode->stop();
+
   // Disconnect signals to avoid problems when clearning layerList and sourceList.
   disconnectProjectWidgets();
 
@@ -1859,9 +2016,16 @@ void MainWindow::createLayout()
   layerList->horizontalHeader()->hide();
   layerList->verticalHeader()->hide();
   layerList->setMouseTracking(true);// Important
-  layerList->setColumnWidth(0, MM::MAPPING_LIST_HIDE_COLUMN);
-  layerList->setColumnWidth(1, MM::MAPPING_LIST_NAME_COLUMN);
-  layerList->setColumnWidth(2, MM::MAPPING_LIST_BUTTONS_COLUMN);
+  // The eye and the buttons keep their width; the name takes the rest, so that the eye and
+  // the buttons stay in view whatever the width of the panel.
+  layerList->setColumnWidth(MM::HideColumn, MM::MAPPING_LIST_HIDE_COLUMN);
+  layerList->setColumnWidth(MM::GroupButtonColum, MM::MAPPING_LIST_BUTTONS_COLUMN);
+  layerList->horizontalHeader()->setSectionResizeMode(MM::HideColumn, QHeaderView::Fixed);
+  layerList->horizontalHeader()->setSectionResizeMode(MM::IconAndNameColum, QHeaderView::Stretch);
+  layerList->horizontalHeader()->setSectionResizeMode(MM::GroupButtonColum, QHeaderView::Fixed);
+  layerList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  layerList->setMinimumWidth(MM::MAPPING_LIST_HIDE_COLUMN + MAPPING_LIST_NAME_MINIMUM_WIDTH
+                             + MM::MAPPING_LIST_BUTTONS_COLUMN);
 
   // Create property panel.
   layerPropertyPanel = new QStackedWidget;
@@ -1905,6 +2069,8 @@ void MainWindow::createLayout()
   _preferenceDialog = new PreferenceDialog(this);
 
   outputWindow = new OutputGLWindow(this, destinationCanvas);
+  // The learned keys act in the output window too, full screen on the projector.
+  outputWindow->setProperty(ACCEPTS_LEARNED_KEYS_PROPERTY, true);
   outputWindow->installEventFilter(destinationCanvas);
 
   // Source scene changed -> change destination.
@@ -1948,7 +2114,6 @@ void MainWindow::createLayout()
   mainSplitter = new QSplitter(Qt::Horizontal);
   mainSplitter->addWidget(canvasSplitter);
   mainSplitter->addWidget(contentTab);
-  connect(mainSplitter, &QSplitter::splitterMoved, this, &MainWindow::updateLayerListColumnWidth);
 
   // Initialize size to 9:1 proportions.
   QSize sz = mainSplitter->size();
@@ -1960,10 +2125,37 @@ void MainWindow::createLayout()
   // Upon resizing window, give some extra stretch expansion to canvasSplitter.
   mainSplitter->setStretchFactor(0, 1);
 
+  // While learning, a banner across the top says so, with a button to stop.
+  learnBanner = new QWidget;
+  learnBanner->setObjectName(QStringLiteral("learnBanner"));
+  learnBanner->setAttribute(Qt::WA_StyledBackground);
+  learnBanner->setStyleSheet(QStringLiteral("#learnBanner { background-color: %1; } "
+                                            "#learnBanner QLabel, #learnBanner QToolButton { color: %2; font-weight: bold; }")
+                             .arg(MM::LEARN_COLOR.name(), MM::DARK_GRAY.name()));
+  QHBoxLayout* bannerLayout = new QHBoxLayout(learnBanner);
+  bannerLayout->setContentsMargins(LEARN_BANNER_MARGIN, LEARN_BANNER_MARGIN / 2,
+                                   LEARN_BANNER_MARGIN, LEARN_BANNER_MARGIN / 2);
+  learnBannerText = new QLabel(learnBanner);
+  learnBannerText->setWordWrap(true);
+  bannerLayout->addWidget(learnBannerText, 1);
+  QToolButton* stopLearning = new QToolButton(learnBanner);
+  stopLearning->setText(tr("Stop Learning"));
+  stopLearning->setToolTip(tr("Stop learning keys (Escape)"));
+  connect(stopLearning, &QToolButton::clicked, _learnMode, &LearnMode::stop);
+  bannerLayout->addWidget(stopLearning);
+  learnBanner->setVisible(false);
+
+  QWidget* central = new QWidget;
+  QVBoxLayout* centralLayout = new QVBoxLayout(central);
+  centralLayout->setContentsMargins(0, 0, 0, 0);
+  centralLayout->setSpacing(0);
+  centralLayout->addWidget(learnBanner);
+  centralLayout->addWidget(mainSplitter, 1);
+
   // Final setups.
   setWindowTitle(tr("MapMap"));
   resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-  setCentralWidget(mainSplitter);
+  setCentralWidget(central);
 
   // Connect mapping and source lists signals and slots.
   connectProjectWidgets();
@@ -2429,6 +2621,23 @@ void MainWindow::createActions()
   // Manage sticky vertices
   connect(stickyVerticesAction, &QAction::toggled, this, &MainWindow::enableStickyVertices);
 
+  keyboardLearnAction = new QAction(tr("&Keyboard Learn"), this);
+  keyboardLearnAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_K);
+  keyboardLearnAction->setToolTip(tr("Link keys of the keyboard to settings: click a control, then press a key"));
+  keyboardLearnAction->setCheckable(true);
+  keyboardLearnAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(keyboardLearnAction);
+  connect(keyboardLearnAction, &QAction::toggled, this, &MainWindow::setKeyboardLearning);
+
+  learnedKeysActiveAction = new QAction(tr("Learned K&eys Active"), this);
+  learnedKeysActiveAction->setShortcut(Qt::CTRL | Qt::ALT | Qt::Key_K);
+  learnedKeysActiveAction->setToolTip(tr("Turn the learned keys off while typing for something else, and on again"));
+  learnedKeysActiveAction->setCheckable(true);
+  learnedKeysActiveAction->setChecked(true);
+  learnedKeysActiveAction->setShortcutContext(Qt::ApplicationShortcut);
+  addAction(learnedKeysActiveAction);
+  connect(learnedKeysActiveAction, &QAction::toggled, this, &MainWindow::setLearnedKeysActive);
+
   displayTestSignalAction = new QAction(tr("Show &Test Signal"), this);
   displayTestSignalAction->setShortcut(Qt::ALT | Qt::Key_T);
   displayTestSignalAction->setIcon(QIcon(":/toggle-test-signal"));
@@ -2480,6 +2689,16 @@ void MainWindow::createActions()
   connect(openConsoleAction, &QAction::toggled, consoleWindow, &ConsoleWindow::setVisible);
   // uncheck action when window is closed
   connect(consoleWindow, &ConsoleWindow::windowClosed, openConsoleAction, &QAction::toggle);
+
+  // The list of the links of the project.
+  openLinksAction = new QAction(tr("&Links"), this);
+  openLinksAction->setToolTip(tr("List the keys linked to settings"));
+  addAction(openLinksAction);
+  connect(openLinksAction, &QAction::triggered, this, [this]() {
+    _linksWindow->show();
+    _linksWindow->raise();
+    _linksWindow->activateWindow();
+  });
 
   // Toggle display of zoom tool buttons
   displayZoomToolAction = new QAction(tr("Display &Zoom Toolbar"), this);
@@ -2679,6 +2898,9 @@ void MainWindow::createMenus()
   // Sticky vertices
   editMenu->addAction(stickyVerticesAction);
   editMenu->addSeparator();
+  editMenu->addAction(keyboardLearnAction);
+  editMenu->addAction(learnedKeysActiveAction);
+  editMenu->addSeparator();
   // Preferences
   editMenu->addAction(preferencesAction);
 
@@ -2718,6 +2940,7 @@ void MainWindow::createMenus()
   // Tools.
   windowMenu->addAction(displayUndoHistoryAction);
   windowMenu->addAction(openConsoleAction);
+  windowMenu->addAction(openLinksAction);
   windowMenu->addSeparator();
 
   // Menus/toolbars.
@@ -2884,7 +3107,14 @@ void MainWindow::createStatusBar()
   trueFramesPerSecondsLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   trueFramesPerSecondsLabel->setContentsMargins(2, 0, 0, 0);
 
+  // Whether the learned keys act, shown when the project has some.
+  learnedKeysLabel = new QLabel(statusBar());
+  learnedKeysLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  learnedKeysLabel->setContentsMargins(2, 0, 2, 0);
+  connect(&mappingManager->links(), &LinkTable::changed, this, &MainWindow::showLearnedKeysState);
+
   // Add permanently into the statut bar
+  statusBar()->addPermanentWidget(learnedKeysLabel);
   statusBar()->addPermanentWidget(currentMessageLabel, 5);
   statusBar()->addPermanentWidget(lastActionLabel, 4);
   statusBar()->addPermanentWidget(mousePosLabel, 3);
@@ -2894,6 +3124,27 @@ void MainWindow::createStatusBar()
 
   // Update the status bar
   updateStatusBar();
+  showLearnedKeysState();
+}
+
+void MainWindow::setLearnedKeysActive(bool active)
+{
+  _keyLinkFilter->setLinksActive(active);
+  showLearnedKeysState();
+  statusBar()->showMessage(active ? tr("The learned keys act again.")
+                                  : tr("The learned keys are off: they do nothing until turned on again."),
+                           LEARNED_KEYS_MESSAGE_MS);
+}
+
+void MainWindow::showLearnedKeysState()
+{
+  const bool active = _keyLinkFilter->linksActive();
+  learnedKeysLabel->setVisible(!mappingManager->links().isEmpty());
+  learnedKeysLabel->setText(active ? tr("Learned keys: on") : tr("Learned keys: off"));
+  learnedKeysLabel->setToolTip(tr("Edit > Learned Keys Active (%1) turns them on and off.")
+                               .arg(learnedKeysActiveAction->shortcut().toString(QKeySequence::NativeText)));
+  // Off, the indicator stands out: a key pressed during the show would do nothing.
+  learnedKeysLabel->setStyleSheet(active ? QString() : QStringLiteral("color: %1;").arg(MM::LEARNED_KEYS_OFF_COLOR.name()));
 }
 
 void MainWindow::readSettings()
@@ -3035,7 +3286,19 @@ bool MainWindow::loadFile(const QString &fileName)
                          tr("MapMap skipped these project entries:\n%1")
                          .arg(reader.skippedEntries().join(", ")));
   settings.setValue("defaultProjectDir", currentDir.absoluteFilePath(fileName));
-  statusBar()->showMessage(tr("File loaded"), 2000);
+
+  // Before the show, say how many links act and how many were left out (their element or
+  // setting is missing), rather than finding out during it.
+  const int skippedLinks = int(std::count_if(reader.skippedEntries().cbegin(), reader.skippedEntries().cend(),
+                                             [](const QString& entry) { return entry.startsWith(QStringLiteral("link")); }));
+  const int links = mappingManager->links().count();
+  if (links == 0 && skippedLinks == 0)
+    statusBar()->showMessage(tr("File loaded"), 2000);
+  else if (skippedLinks == 0)
+    statusBar()->showMessage(tr("File loaded: %n link(s) active", "", links), LOADED_LINKS_MESSAGE_MS);
+  else
+    statusBar()->showMessage(tr("File loaded: %n link(s) active", "", links) + tr(", %n left out", "", skippedLinks),
+                             LOADED_LINKS_MESSAGE_MS);
   setCurrentFile(fileName);
 
   return true;
@@ -3549,6 +3812,9 @@ void MainWindow::addLayerItem(uid layerId)
 
   // Update playing state.
   updatePlayingState();
+
+  // A link to an element added or removed comes back to life or stops acting.
+  refreshLinksWindow();
 }
 
 void MainWindow::removeLayerItem(uid layerId)
@@ -3589,6 +3855,9 @@ void MainWindow::removeLayerItem(uid layerId)
 
   // Update playing state.
   updatePlayingState();
+
+  // A link to an element added or removed comes back to life or stops acting.
+  refreshLinksWindow();
 }
 
 void MainWindow::moveLayerItem(uid layerId, int idx)
@@ -3669,6 +3938,9 @@ void MainWindow::removeSourceItem(uid sourceId)
 
   // Update playing state.
   updatePlayingState();
+
+  // A link to an element added or removed comes back to life or stops acting.
+  refreshLinksWindow();
 }
 
 void MainWindow::setOutputResolution(const QSize& resolution)
@@ -4399,11 +4671,6 @@ void MainWindow::openShortcutWindow()
 void MainWindow::updateSettings()
 {
   stickyVerticesAction->setChecked(settings.value("stickyVertices").toBool());
-}
-
-void MainWindow::updateLayerListColumnWidth()
-{
-  layerList->setColumnWidth(1, layerList->horizontalHeader()->width() - (MM::MAPPING_LIST_HIDE_COLUMN + MM::MAPPING_LIST_BUTTONS_COLUMN));
 }
 
 // void MainWindow::applyOscCommand(const QVariantList& command)

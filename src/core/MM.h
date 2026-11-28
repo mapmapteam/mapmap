@@ -120,6 +120,10 @@ public:
   static const QColor DARK_BLUE;
   static const QColor LIGHT_RED;
   static const QColor DARK_RED;
+  /// Colour of learning: the outlines of the controls one can link, and the banner.
+  static const QColor LEARN_COLOR;
+  /// Text of the status bar when the learned keys are turned off.
+  static const QColor LEARNED_KEYS_OFF_COLOR;
 
   static const QColor CROSSHAIR_STROKE;
   static const QColor CONTROL_COLOR;

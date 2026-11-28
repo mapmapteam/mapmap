@@ -22,11 +22,13 @@
 namespace mmp {
 
 const char* ProjectLabels::FORMAT_VERSION = "1.0.0-beta.2";
+const char* ProjectLabels::VERSION     = "version";
 const char* ProjectLabels::URI = "uri";
 const char* ProjectLabels::CLASS_NAME  = "className";
 const char* ProjectLabels::SOURCES     = "sources";
 const char* ProjectLabels::LAYERS      = "layers";
 const char* ProjectLabels::OUTPUT_RESOLUTION = "outputResolution";
+const char* ProjectLabels::LINKS       = "links";
 const char* ProjectLabels::WIDTH       = "width";
 const char* ProjectLabels::HEIGHT      = "height";
 const char* ProjectLabels::ID          = "id";
@@ -48,5 +50,15 @@ const char* ProjectLabels::APP_NAME             = "app_name";
 const char* ProjectLabels::FORMER_APP_NAME      = "appName";
 const char* ProjectLabels::RESPECT_ALPHA        = "respect_alpha";
 const char* ProjectLabels::FORMER_RESPECT_ALPHA = "respectAlpha";
+
+bool ProjectLabels::isProjectKey(const QString& key)
+{
+  for (const char* known : { VERSION, OUTPUT_RESOLUTION, SOURCES, LAYERS, LINKS })
+  {
+    if (key == QLatin1String(known))
+      return true;
+  }
+  return false;
+}
 
 }

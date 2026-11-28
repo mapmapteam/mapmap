@@ -47,6 +47,11 @@ HEADERS += \
     $$SHAPE/Shapes.h \
     $$SHAPE/ShapeHandles.h \
     $$GUI/HandleModeKeys.h \
+    $$GUI/LearnMode.h \
+    $$GUI/LinkKeys.h \
+    $$GUI/LinksWindow.h \
+    $$GUI/LayerItemDelegate.h \
+    $$GUI/LayerListModel.h \
     $$CONTROL/OscAction.h \
     $$CONTROL/RemoteSettingWrite.h \
     $$CORE/VideoImpl.h \
@@ -54,6 +59,7 @@ HEADERS += \
     $$CORE/YuvTexture.h \
     $$CORE/CameraImpl.h \
     $$CORE/Layer.h \
+    $$CORE/Link.h \
     $$CORE/MappingManager.h \
     $$CORE/ProjectReader.h \
     $$CORE/ProjectWriter.h \
@@ -71,7 +77,9 @@ HEADERS += \
     TestProjectRoundTrip.h \
     TestSettings.h \
     TestSettingFormat.h \
-    TestInspector.h
+    TestInspector.h \
+    TestLinks.h \
+    TestLinkKeys.h
 
 SOURCES += \
     $$CORE/MM.cpp \
@@ -91,6 +99,11 @@ SOURCES += \
     $$SHAPE/Ellipse.cpp \
     $$SHAPE/ShapeHandles.cpp \
     $$GUI/HandleModeKeys.cpp \
+    $$GUI/LearnMode.cpp \
+    $$GUI/LinkKeys.cpp \
+    $$GUI/LinksWindow.cpp \
+    $$GUI/LayerItemDelegate.cpp \
+    $$GUI/LayerListModel.cpp \
     $$CONTROL/OscAction.cpp \
     $$CONTROL/RemoteSettingWrite.cpp \
     $$CORE/VideoImpl.cpp \
@@ -98,6 +111,7 @@ SOURCES += \
     $$CORE/YuvTexture.cpp \
     $$CORE/CameraImpl.cpp \
     $$CORE/Layer.cpp \
+    $$CORE/Link.cpp \
     $$CORE/MappingManager.cpp \
     $$CORE/ProjectReader.cpp \
     $$CORE/ProjectWriter.cpp \
@@ -117,7 +131,9 @@ SOURCES += \
     TestProjectRoundTrip.cpp \
     TestSettings.cpp \
     TestSettingFormat.cpp \
-    TestInspector.cpp
+    TestInspector.cpp \
+    TestLinks.cpp \
+    TestLinkKeys.cpp
 
 # The inspector.
 HEADERS += $$GUI/inspector/SettingFormat.h $$GUI/inspector/SettingControl.h \

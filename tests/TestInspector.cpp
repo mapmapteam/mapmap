@@ -18,6 +18,7 @@
  */
 
 #include "TestInspector.h"
+#include "LearnMode.h"
 
 #include <memory>
 
@@ -25,6 +26,8 @@
 #include <QButtonGroup>
 #include <QCoreApplication>
 #include <QLineEdit>
+#include <QMenu>
+#include <QToolButton>
 #include <QPushButton>
 #include <QSettings>
 #include <QStandardPaths>
@@ -598,4 +601,49 @@ void TestInspector::noHorizontalScrollAtReferenceWidth()
     QVERIFY2(page->widget()->minimumSizeHint().width() <= REFERENCE_WIDTH,
              qPrintable(QString::number(page->widget()->minimumSizeHint().width())));
   }
+}
+
+void TestInspector::rowShowsItsKey()
+{
+  LinkTable links;
+  LearnMode learn;
+  learn.makeCurrent();
+  learn.setLinks(&links);
+  SettingGroup root;
+  root.addSetting(SettingInfo::number("opacity", "Opacity").bounds(0.0, 1.0).description("How opaque."));
+  root.addSetting(SettingInfo::text("label", "Label"));
+  learn.setElementFinder([&root](const SettingGroup* tree, LinkTarget::ElementKind* element, uid* id) {
+    if (tree != &root)
+      return false;
+    *element = LinkTarget::LayerElement;
+    *id = 1;
+    return true;
+  });
+  InspectorPage page(&root, "test");
+  InspectorRow* row = page.row("opacity");
+  QVERIFY(row);
+  QVERIFY(!row->linkButton()->isVisibleTo(row));
+  QCOMPARE(row->toolTip(), QString("How opaque."));
+
+  Link link;
+  link.trigger = LinkTrigger::forKey("M");
+  link.target = LinkTarget::of(LinkTarget::LayerElement, 1, "opacity");
+  links.add(link);
+  QVERIFY(row->linkButton()->isVisibleTo(row));
+  QCOMPARE(row->toolTip(), QString("How opaque.\nKeyboard: M"));
+
+  // The menu of the row learns and removes its key.
+  std::unique_ptr<QMenu> menu(row->createLinkMenu(nullptr));
+  QVERIFY(menu);
+  QCOMPARE(menu->actions().size(), 2);
+  menu->actions().at(0)->trigger();
+  QVERIFY(learn.isActive());
+  QVERIFY(learn.isChosen(link.target));
+  menu->actions().at(1)->trigger();
+  QVERIFY(links.isEmpty());
+  QVERIFY(!row->linkButton()->isVisibleTo(row));
+
+  // A text cannot be linked: its row has no menu.
+  std::unique_ptr<QMenu> none(page.row("label")->createLinkMenu(nullptr));
+  QVERIFY(!none);
 }

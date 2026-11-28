@@ -28,12 +28,19 @@ class ProjectLabels {
 public:
   /// File format identifier, independent of the application release.
   static const char* FORMAT_VERSION;
+  /// The key of the format identifier in project files.
+  static const char* VERSION;
+
+  /// Returns true for a key this version writes at the top of a project file.
+  static bool isProjectKey(const QString& key);
   /// Image or video path, or a camera device identifier.
   static const char* URI;
   static const char* CLASS_NAME;
   static const char* SOURCES;
   static const char* LAYERS;
   static const char* OUTPUT_RESOLUTION;
+  /// The links of the project: what its triggers, such as keys, do to its settings.
+  static const char* LINKS;
   static const char* WIDTH;
   static const char* HEIGHT;
 

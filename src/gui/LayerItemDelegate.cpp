@@ -20,7 +20,126 @@
 #include "LayerItemDelegate.h"
 #include <QPainterPath>
 
+#include "LearnMode.h"
+
 namespace mmp {
+
+namespace {
+
+/// Distance from the left of its cell to the eye, in pixels.
+const int HIDE_BUTTON_LEFT = 4;
+
+/// Distance from the top of a row to its buttons, in pixels.
+const int BUTTON_TOP = 12;
+
+/// Distances from the right of its cell to the left of each button, in pixels.
+const int SOLO_BUTTON_FROM_RIGHT = 118;
+const int LOCK_BUTTON_FROM_RIGHT = 88;
+const int DUPLICATE_BUTTON_FROM_RIGHT = 58;
+const int DELETE_BUTTON_FROM_RIGHT = 28;
+
+/// Colour of the outline of a button one can link, while learning.
+const QColor LEARN_OUTLINE_COLOR = MM::LEARN_COLOR;
+
+/// Opacity of the filling of the button chosen while learning, between 0 and 255.
+const int LEARN_CHOSEN_ALPHA = 70;
+
+/// Width of the outline, in pixels.
+const int LEARN_OUTLINE_WIDTH = 2;
+
+/// Room around a button for its outline, and radius of its corners, in pixels.
+const int LEARN_OUTLINE_MARGIN = 3;
+
+/// Size of the text of the key written under a button while learning, in points.
+const int LEARN_BADGE_POINT_SIZE = 8;
+
+/// Height of the text of the key under a button, in pixels.
+const int LEARN_BADGE_HEIGHT = 12;
+
+/// The buttons one can link, in the order they are painted.
+const LayerRowButton LINKABLE_BUTTONS[] = { LayerRowButton::Hide, LayerRowButton::Solo, LayerRowButton::Lock };
+
+/// The buttons, in the order they are looked for under the mouse.
+const LayerRowButton ALL_BUTTONS[] = { LayerRowButton::Hide, LayerRowButton::Solo, LayerRowButton::Lock,
+                                       LayerRowButton::Duplicate, LayerRowButton::Delete };
+
+} // namespace
+
+int layerRowButtonColumn(LayerRowButton button)
+{
+  return button == LayerRowButton::Hide ? MM::HideColumn : MM::GroupButtonColum;
+}
+
+QRect layerRowButtonRect(LayerRowButton button, const QRect& cell)
+{
+  const int right = cell.x() + cell.width();
+  int left = 0;
+  switch (button) {
+  case LayerRowButton::Hide:      left = cell.x() + HIDE_BUTTON_LEFT; break;
+  case LayerRowButton::Solo:      left = right - SOLO_BUTTON_FROM_RIGHT; break;
+  case LayerRowButton::Lock:      left = right - LOCK_BUTTON_FROM_RIGHT; break;
+  case LayerRowButton::Duplicate: left = right - DUPLICATE_BUTTON_FROM_RIGHT; break;
+  case LayerRowButton::Delete:    left = right - DELETE_BUTTON_FROM_RIGHT; break;
+  }
+  return QRect(left, cell.y() + BUTTON_TOP, MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+}
+
+bool layerRowButtonAt(int column, const QRect& cell, const QPoint& position, LayerRowButton* button)
+{
+  for (LayerRowButton candidate : ALL_BUTTONS) {
+    if (layerRowButtonColumn(candidate) == column && layerRowButtonRect(candidate, cell).contains(position)) {
+      *button = candidate;
+      return true;
+    }
+  }
+  return false;
+}
+
+QString layerRowButtonSetting(LayerRowButton button)
+{
+  switch (button) {
+  case LayerRowButton::Hide: return QStringLiteral("visible");
+  case LayerRowButton::Solo: return QStringLiteral("solo");
+  case LayerRowButton::Lock: return QStringLiteral("locked");
+  default:                   return QString();
+  }
+}
+
+void LayerItemDelegate::_paintLearnOutline(QPainter* painter, LayerRowButton button,
+                                           const QRect& cell, uid layerId) const
+{
+  LearnMode* learn = LearnMode::current();
+  if (!learn || !learn->isActive())
+    return;
+  const LinkTarget target = LinkTarget::of(LinkTarget::LayerElement, layerId, layerRowButtonSetting(button));
+  const QRect frame = layerRowButtonRect(button, cell).adjusted(
+        -LEARN_OUTLINE_MARGIN, -LEARN_OUTLINE_MARGIN, LEARN_OUTLINE_MARGIN, LEARN_OUTLINE_MARGIN);
+
+  painter->save();
+  if (learn->isChosen(target)) {
+    QColor fill = LEARN_OUTLINE_COLOR;
+    fill.setAlpha(LEARN_CHOSEN_ALPHA);
+    painter->setBrush(fill);
+  }
+  else {
+    painter->setBrush(Qt::NoBrush);
+  }
+  painter->setPen(QPen(LEARN_OUTLINE_COLOR, LEARN_OUTLINE_WIDTH));
+  painter->drawRoundedRect(frame, LEARN_OUTLINE_MARGIN, LEARN_OUTLINE_MARGIN);
+
+  const QString trigger = learn->triggerText(target);
+  if (!trigger.isEmpty()) {
+    QFont font = painter->font();
+    font.setPointSize(LEARN_BADGE_POINT_SIZE);
+    font.setBold(true);
+    painter->setFont(font);
+    painter->setPen(LEARN_OUTLINE_COLOR);
+    const QRect text(frame.left() - LEARN_OUTLINE_MARGIN, frame.bottom(),
+                     frame.width() + 2 * LEARN_OUTLINE_MARGIN, LEARN_BADGE_HEIGHT);
+    painter->drawText(text, Qt::AlignHCenter | Qt::AlignTop, trigger);
+  }
+  painter->restore();
+}
 
 LayerItemDelegate::LayerItemDelegate(QObject *parent) :
   QStyledItemDelegate(parent)
@@ -50,8 +169,7 @@ void LayerItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
       {
         QStyleOptionToolButton mappingMuteButton;
         mappingMuteButton.state |= QStyle::State_Enabled;
-        mappingMuteButton.rect = QRect(x + 4, y + 12,
-                MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+        mappingMuteButton.rect = layerRowButtonRect(LayerRowButton::Hide, rect);
         mappingMuteButton.icon = QIcon(":/visible-mapping");
         mappingMuteButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
                 MM::MAPPING_LIST_ICON_SIZE);
@@ -85,57 +203,42 @@ void LayerItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     {
       bool isSolo = index.model()->data(index, Qt::CheckStateRole + 1).toBool();
       bool isLocked = index.model()->data(index, Qt::CheckStateRole + 2).toBool();
-      // Here is need to always align button on right side
-      int buttonX = rect.width() + x;
-
       // Create all mappings buttons:
       // solo button
       QStyleOptionToolButton mappingSoloButton;
       mappingSoloButton.state |= QStyle::State_Enabled;
-      mappingSoloButton.rect = QRect(buttonX - 118, y + 12,
-              MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+      mappingSoloButton.rect = layerRowButtonRect(LayerRowButton::Solo, rect);
       mappingSoloButton.icon = QIcon(":/solo-mapping");
       mappingSoloButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
       mappingSoloButton.text = tr("Solo layer");
-      //TODO: show tooltip
-      //mappingSoloButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
       // lock button
       QStyleOptionToolButton mappingLockButton;
       mappingLockButton.state |= QStyle::State_Enabled;
-      mappingLockButton.rect = QRect(buttonX - 88, y + 12, MM::MAPPING_LIST_ICON_SIZE,
-              MM::MAPPING_LIST_ICON_SIZE);
+      mappingLockButton.rect = layerRowButtonRect(LayerRowButton::Lock, rect);
       mappingLockButton.icon = QIcon(":/lock-mapping");
       mappingLockButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
       mappingLockButton.text = tr("Lock layer");
-      //TODO: show tooltip
-      //mappingLockButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
       // duplicate button
       QStyleOptionToolButton mappingDuplicateButton;
       mappingDuplicateButton.state |= QStyle::State_Enabled;
-      mappingDuplicateButton.rect = QRect(buttonX - 58, y + 12,
-              MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+      mappingDuplicateButton.rect = layerRowButtonRect(LayerRowButton::Duplicate, rect);
       mappingDuplicateButton.icon = QIcon(":/duplicate-mapping");
       mappingDuplicateButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
       mappingDuplicateButton.text = tr("Duplicate layer");
-      //TODO: show tooltip
-      //mappingDuplicateButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
       // delete button
       QStyleOptionToolButton mappingDeleteButton;
       mappingDeleteButton.state |= QStyle::State_Enabled;
-      mappingDeleteButton.rect = QRect(buttonX - 28, y + 12,
-              MM::MAPPING_LIST_ICON_SIZE, MM::MAPPING_LIST_ICON_SIZE);
+      mappingDeleteButton.rect = layerRowButtonRect(LayerRowButton::Delete, rect);
       mappingDeleteButton.icon = QIcon(":/delete-mapping");
       mappingDeleteButton.iconSize = QSize(MM::MAPPING_LIST_ICON_SIZE,
               MM::MAPPING_LIST_ICON_SIZE);
       mappingDeleteButton.text = tr("Delete layer");
-      //TODO: show tooltip
-      //mappingDeleteButton.toolButtonStyle = Qt::ToolButtonTextUnderIcon;
 
       if (isSolo)
       {
@@ -170,6 +273,17 @@ void LayerItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
   else
   {
     QStyledItemDelegate::paint(painter, option, index);
+  }
+
+  // While learning, outline the buttons one can link.
+  if (index.isValid())
+  {
+    const uid layerId = index.model()->data(index, Qt::UserRole).toInt();
+    for (LayerRowButton button : LINKABLE_BUTTONS)
+    {
+      if (layerRowButtonColumn(button) == index.column())
+        _paintLearnOutline(painter, button, option.rect, layerId);
+    }
   }
 }
 
@@ -210,62 +324,68 @@ void LayerItemDelegate::updateEditorGeometry(QWidget *editor,
   editor->setGeometry(option.rect);
 }
 
+bool LayerItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
+        const QStyleOptionViewItem &option, const QModelIndex &index)
+{
+  LayerRowButton button;
+  if (event->type() != QEvent::ToolTip || !index.isValid()
+      || !layerRowButtonAt(index.column(), option.rect, event->pos(), &button))
+    return QStyledItemDelegate::helpEvent(event, view, option, index);
+
+  QStringList lines;
+  switch (button)
+  {
+  case LayerRowButton::Hide:      lines << tr("Show or hide the layer"); break;
+  case LayerRowButton::Solo:      lines << tr("Solo layer"); break;
+  case LayerRowButton::Lock:      lines << tr("Lock layer"); break;
+  case LayerRowButton::Duplicate: lines << tr("Duplicate layer"); break;
+  case LayerRowButton::Delete:    lines << tr("Delete layer"); break;
+  }
+  const QString setting = layerRowButtonSetting(button);
+  if (LearnMode* learn = LearnMode::current(); learn && !setting.isEmpty())
+    lines << learn->triggerLines(LinkTarget::of(LinkTarget::LayerElement, index.data(Qt::UserRole).toInt(), setting));
+  QToolTip::showText(event->globalPos(), lines.join(QChar('\n')), view);
+  return true;
+}
+
 bool LayerItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
         const QStyleOptionViewItem &option, const QModelIndex &index)
 {
-  QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-  QRect rect = option.rect;
-  int x = rect.x();
-  int y = rect.y();
-  int buttonX = rect.width() + x;
-
-  QRect hideButtonRect = QRect(x + 4, y + 12, MM::MAPPING_LIST_ICON_SIZE,
-          MM::MAPPING_LIST_ICON_SIZE);
-  QRect soloButtonRect = QRect(buttonX - 118, y + 12, MM::MAPPING_LIST_ICON_SIZE,
-          MM::MAPPING_LIST_ICON_SIZE);
-  QRect lockButtonRect = QRect(buttonX - 88, y + 12, MM::MAPPING_LIST_ICON_SIZE,
-          MM::MAPPING_LIST_ICON_SIZE);
-  QRect duplicateButtonRect = QRect(buttonX - 58, y + 12, MM::MAPPING_LIST_ICON_SIZE,
-          MM::MAPPING_LIST_ICON_SIZE);
-  QRect deleteButtonRect = QRect(buttonX - 28, y + 12, MM::MAPPING_LIST_ICON_SIZE,
-          MM::MAPPING_LIST_ICON_SIZE);
-
-  if (event->type() == QEvent::MouseMove)
+  if (event->type() == QEvent::MouseButtonPress)
   {
-    // TODO: handle tooltip
-  }
-  else if (event->type() == QEvent::MouseButtonPress)
-  {
-    if (mouseEvent->buttons() & Qt::LeftButton && index.isValid())
+    QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+    LayerRowButton button;
+    LearnMode* learn = LearnMode::current();
+    if (mouseEvent->buttons() & Qt::LeftButton && index.isValid()
+        && layerRowButtonAt(index.column(), option.rect, mouseEvent->pos(), &button)
+        && learn && learn->isActive())
     {
-      if (index.column() == MM::HideColumn)
+      // While learning, a click chooses the setting of the button instead of switching it.
+      const QString setting = layerRowButtonSetting(button);
+      if (!setting.isEmpty())
+        learn->choose(LinkTarget::of(LinkTarget::LayerElement, index.data(Qt::UserRole).toInt(), setting));
+      return true;
+    }
+    else if (mouseEvent->buttons() & Qt::LeftButton && index.isValid()
+        && layerRowButtonAt(index.column(), option.rect, mouseEvent->pos(), &button))
+    {
+      switch (button)
       {
-        if (hideButtonRect.contains(mouseEvent->pos()))
-        {
-          model->setData(index, !(index.data(Qt::CheckStateRole).toBool()),
-                  Qt::CheckStateRole);
-        }
-      }
-      if (index.column() == MM::GroupButtonColum)
-      {
-        if (soloButtonRect.contains(mouseEvent->pos()))
-        {
-          model->setData(index, !(index.data(Qt::CheckStateRole + 1).toBool()),
-                  Qt::CheckStateRole + 1);
-        }
-        else if (lockButtonRect.contains(mouseEvent->pos()))
-        {
-          model->setData(index, !(index.data(Qt::CheckStateRole + 2).toBool()),
-                  Qt::CheckStateRole + 2);
-        }
-        else if (duplicateButtonRect.contains(mouseEvent->pos()))
-        {
-          emit itemDuplicated(index.data(Qt::UserRole).toInt());
-        }
-        else if (deleteButtonRect.contains(mouseEvent->pos()))
-        {
-          emit itemRemoved(index.data(Qt::UserRole).toInt());
-        }
+      case LayerRowButton::Hide:
+        model->setData(index, !(index.data(Qt::CheckStateRole).toBool()), Qt::CheckStateRole);
+        break;
+      case LayerRowButton::Solo:
+        model->setData(index, !(index.data(Qt::CheckStateRole + 1).toBool()), Qt::CheckStateRole + 1);
+        break;
+      case LayerRowButton::Lock:
+        model->setData(index, !(index.data(Qt::CheckStateRole + 2).toBool()), Qt::CheckStateRole + 2);
+        break;
+      case LayerRowButton::Duplicate:
+        emit itemDuplicated(index.data(Qt::UserRole).toInt());
+        break;
+      case LayerRowButton::Delete:
+        emit itemRemoved(index.data(Qt::UserRole).toInt());
+        break;
       }
     }
     else if (mouseEvent->buttons() & Qt::RightButton && index.isValid())
