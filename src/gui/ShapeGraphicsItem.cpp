@@ -493,9 +493,9 @@ void EllipseTextureGraphicsItem::_doDrawOutput(QPainter* painter)
   const QTransform fromUnitCircle = outputEllipse->fromUnitCircle();
 
   // Draw a fan of triangles around the perspective center.
-  Util::drawTexturedTriangles(ShapeGeometry::ellipse(texture->getRect(), outputToInput, fromUnitCircle,
-                                                     outputEllipse->getCenter(), sceneTransform().inverted(),
-                                                     MM::ELLIPSE_N_TRIANGLES));
+  _drawTriangles(ShapeGeometry::ellipse(texture->getRect(), outputToInput, fromUnitCircle,
+                                       outputEllipse->getCenter(), sceneTransform().inverted(),
+                                       MM::ELLIPSE_N_TRIANGLES));
 }
 
 }
