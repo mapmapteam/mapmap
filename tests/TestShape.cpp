@@ -290,6 +290,66 @@ void TestShape::ellipseCenterStaysInsideContour()
     QVERIFY(qAbs(QVector2D(toUnitBefore.map(p)).length() - 1) < 1e-6);
 }
 
+namespace {
+// A drag of the center of an ellipse with the mouse, as the canvas does it: every
+// position of the pointer is applied to the shape as it was when the drag started.
+void dragCenterFrom(const Ellipse& grabbed, Ellipse& ellipse, const QVector<QPointF>& path)
+{
+  for (const QPointF& p : path)
+  {
+    ellipse.copyFrom(grabbed);
+    ellipse.setVertex(4, p);
+  }
+}
+
+// Points on a circle around a center, starting and ending at center + (radius, 0).
+QVector<QPointF> circlePath(const QPointF& center, qreal radius, int nSteps)
+{
+  QVector<QPointF> path;
+  for (int k=1; k<=nSteps; k++)
+  {
+    const qreal angle = 2 * M_PI * k / nSteps;
+    path.append(center + radius * QPointF(std::cos(angle), std::sin(angle)));
+  }
+  return path;
+}
+}
+
+void TestShape::ellipseCenterDragFromGrabbedShapeIsPathIndependent()
+{
+  const qreal radius = 1.5;
+  const int nSteps = 64;
+
+  Ellipse grabbed = makeEllipse();
+  grabbed.setVertex(1, QPointF(11, 19));
+  const QPointF start = grabbed.getCenter() + QPointF(radius, 0);
+  grabbed.setVertex(4, start);
+  QVERIFY(grabbed.isValid());
+
+  // Going round in a circle and back to where the drag started gives back the
+  // same points: they do not turn around the contour.
+  Ellipse ellipse;
+  ellipse.copyFrom(grabbed);
+  dragCenterFrom(grabbed, ellipse, circlePath(grabbed.getCenter() - QPointF(radius, 0), radius, nSteps));
+  QVERIFY(nearPoint(ellipse.getCenter(), start));
+  for (int i=0; i<5; i++)
+    QVERIFY(nearPoint(ellipse.getVertex(i), grabbed.getVertex(i)));
+
+  // Two different paths to the same point give the same shape.
+  const QPointF target = start + QPointF(-2, 0.5);
+  Ellipse direct;
+  direct.copyFrom(grabbed);
+  dragCenterFrom(grabbed, direct, { target });
+  Ellipse roundabout;
+  roundabout.copyFrom(grabbed);
+  QVector<QPointF> path = circlePath(start - QPointF(radius, 0), radius, nSteps);
+  path.append(target);
+  dragCenterFrom(grabbed, roundabout, path);
+  for (int i=0; i<5; i++)
+    QVERIFY(nearPoint(roundabout.getVertex(i), direct.getVertex(i)));
+
+}
+
 void TestShape::ellipseResetsOffCenterControl()
 {
   // Old projects stored a free center control point: it now gets recomputed.
