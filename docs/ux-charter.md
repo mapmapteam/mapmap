@@ -397,7 +397,7 @@ The exact gestures belong to the interaction guide. The principles they follow:
 
   | Keys | Belong to |
   |---|---|
-  | With Ctrl (Cmd on macOS) | Commands of the software |
+  | With Ctrl (Cmd on macOS), with or without Shift | Commands of the software |
   | Keys without a letter: arrows, Tab, Delete, Backspace, Escape, Space, function keys | The software: the meanings they have everywhere (below), and what is done to the selection or to the view in an editor |
   | Letters and digits, alone or with Shift | The user: they are the keys people assign themselves to a setting, to use during a show. The software never takes them |
 
@@ -405,13 +405,29 @@ The exact gestures belong to the interaction guide. The principles they follow:
 
   *Counter-example:* H that flips the selected layer, so that a performer cannot assign H to a setting.
 
+- **Ctrl or Ctrl+Shift.**
+
+  | Keys | For | Examples |
+  |---|---|---|
+  | Ctrl + letter | Commands used every day, and the standard shortcuts of the operating system | New, open, save, undo, duplicate, add a layer |
+  | Ctrl+Shift + the same letter | The variant or the reverse of that command | Save, then Save As; Undo, then Redo where the operating system does so |
+  | Ctrl+Shift + another letter | Commands of setup: rare in a session, but back at every installation | Flip, rotate by 90°, mode of the handle |
+
+  A command that has a natural variant gives it its letter with Shift before anything else takes it: that is what lets the user guess where a command is.
+
+  *Example:* Ctrl+Shift+H flips the selected layer horizontally. *Counter-example:* Ctrl+Shift+S for something other than Save As.
+
+- **No Ctrl+Alt and no Alt + letter.** On many European keyboards Ctrl+Alt is AltGr, which types characters, and operating systems keep several Ctrl+Alt shortcuts for themselves. Alt + letter opens menus on Windows and Linux and types characters on macOS.
+
+- **What is done during a show is not under Ctrl+Shift.** It takes one key (Space for playback, if the team settles it so) or a key the user assigned.
+
 - **A key without Ctrl does nothing while typing** in a field or a dialog, whether it belongs to the software or to the user, and the software's own never does something that undo cannot bring back.
 
 - **The keys that have a meaning everywhere keep it**: arrows move what is selected, by a small step and by a bigger one with Shift; Tab goes to the next; Delete and Backspace delete; Escape cancels or leaves. The steps and the exact keys are in the interaction guide.
 
-- **With Ctrl, the letter is the first letter of the English verb** when it is free (Ctrl+D duplicate), and it does not change with the language of the interface.
+- **With Ctrl or Ctrl+Shift, the letter is the first letter of the English verb** when it is free (Ctrl+D duplicate, Ctrl+Shift+R rotate right), and it does not change with the language of the interface.
 
-- **A command used rarely needs no shortcut**: flipping or rotating a layer by 90° happens once per setup, and its place in the menus is enough.
+- **A command used rarely, even at setup, needs no shortcut**: changing the output resolution is done once per project, and its place in the menus is enough.
 
 - **Every shortcut is shown** in its menu item, in the tooltip of its button and in Help > Keyboard Shortcuts. A shortcut that is not in a menu is in that window.
 
