@@ -237,12 +237,11 @@ public:
   void uploadBits();
 
   /// Makes the texture ready to draw with: uploads new content if needed,
-  /// binds it to texture unit 0 (and possibly other units / a shader program,
-  /// see Video). Texture coordinates are in [0, 1]. MUST be called with a
+  /// binds it to texture unit 0 (and possibly other units, see Video). Texture coordinates are in [0, 1]. MUST be called with a
   /// current GL context, and paired with release().
   virtual void bind();
 
-  /// Undoes bind() (leaves texture unit 0 active, no program in use).
+  /// Undoes bind() (leaves texture unit 0 active).
   virtual void release() {}
 
   /// The video planes that bind() bound on units 0 to 2, or null if it bound an

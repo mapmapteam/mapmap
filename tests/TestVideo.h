@@ -37,8 +37,6 @@ private slots:
 
   void yuvShaderDraw_data();
   void yuvShaderDraw();
-  void yuvShapeRendererDraw_data();
-  void yuvShapeRendererDraw();
 
   void decodedYuvShaderDraw();
 

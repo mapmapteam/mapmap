@@ -264,18 +264,11 @@ void TextureGraphicsItem::_prePaint(QPainter* painter,
   // TODO:remettre
   //Q_ASSERT( _inputShape->nVertices() == outputShape->nVertices());
 
-  // Allow alpha blending.
-  glEnable (GL_BLEND);
-  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  // Get texture.
-  glEnable (GL_TEXTURE_2D);
   // Uploads new content if needed (YUV video is converted by a shader).
   texture->bind();
 
-  // Set texture color (apply opacity).
+  // Opacity, applied by the shader.
   _opacity = isOutput() ? getLayer()->getComputedOpacity() : getLayer()->getSource()->getOpacity();
-  glColor4f(1.0f, 1.0f, 1.0f, _opacity);
 
   _viewMatrix = ShapeRenderer::viewMatrix(painter->deviceTransform(), ShapeRenderer::currentViewportSize());
 }
@@ -293,7 +286,6 @@ void TextureGraphicsItem::_postPaint(QPainter* painter,
   Q_UNUSED(option);
 
   _getTexture()->release();
-  glDisable(GL_TEXTURE_2D);
 
   painter->endNativePainting();
 }

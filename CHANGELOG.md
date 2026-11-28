@@ -17,6 +17,7 @@ New:
 
 Improvements:
 
+- Draw the shapes with shaders instead of the legacy OpenGL calls. A mesh is drawn in a single call: a heavily distorted mesh in fullscreen takes about half the time to draw.
 - Check the values sent by OSC or MCP against the bounds and the type of the setting: an opacity above 1 stops at 1, and an unknown property name, an invalid color, or a text other than true, false, 1 or 0 for a boolean is refused with a warning. A boolean takes any finite number other than 0 as true; a number that is not finite is refused.
 - Keep the unknown keys of a project file when the project is saved again.
 - In the settings panel of a layer, "Mesh Subdivisions" is now Columns and Rows.

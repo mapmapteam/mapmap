@@ -28,9 +28,6 @@
 #include "Source.h"
 #include <QString>
 #include <QImage>
-#include <QVector>
-
-#include "ShapeGeometry.h"
 
 namespace mmp {
 
@@ -38,12 +35,6 @@ namespace mmp {
  * @namespace Util Useful functions.
  */
 namespace Util {
-
-/**
- * Draws triangles (three vertices each) with the texture that is bound, using the
- * legacy OpenGL calls. Temporary: the shape renderer replaces it.
- */
-void drawTexturedTriangles(const QVector<TexturedVertex>& vertices);
 
 /**
  * Gives the glTexImage2D format/type that reads a 32-bit QImage's bits

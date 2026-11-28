@@ -30,18 +30,6 @@ namespace mmp {
 
 namespace Util {
 
-void drawTexturedTriangles(const QVector<TexturedVertex>& vertices)
-{
-  glBegin(GL_TRIANGLES);
-  for (const TexturedVertex& v : vertices)
-  {
-    // Homogeneous texture coordinate: OpenGL reads the texture at (s/q, t/q).
-    glTexCoord4f(v.s, v.t, 0, v.q);
-    glVertex2f(v.x, v.y);
-  }
-  glEnd();
-}
-
 void glUploadFormat(QImage::Format imageFormat, GLenum& format, GLenum& type)
 {
   switch (imageFormat) {

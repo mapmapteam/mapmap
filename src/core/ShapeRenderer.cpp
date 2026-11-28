@@ -177,6 +177,10 @@ bool ShapeRenderer::drawTriangles(const QVector<TexturedVertex>& vertices, const
   if (vertices.isEmpty())
     return true;
 
+  QOpenGLFunctions* gl = QOpenGLContext::currentContext()->functions();
+  gl->glEnable(GL_BLEND);
+  gl->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   QOpenGLShaderProgram* program = yuv ? resources->yuv : resources->rgba;
   program->bind();
   program->setUniformValue("matrix", matrix);
@@ -198,13 +202,18 @@ bool ShapeRenderer::drawTriangles(const QVector<TexturedVertex>& vertices, const
   program->setAttributeBuffer(TEX_COORD_LOCATION, GL_FLOAT, offsetof(TexturedVertex, s),
                               TEX_COORD_SIZE, sizeof(TexturedVertex));
 
-  QOpenGLContext::currentContext()->functions()->glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
+  gl->glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
 
   program->disableAttributeArray(TEX_COORD_LOCATION);
   program->disableAttributeArray(POSITION_LOCATION);
   buffer->release();
   program->release();
   return true;
+}
+
+bool ShapeRenderer::isAvailable()
+{
+  return currentResources() != nullptr;
 }
 
 QMatrix4x4 ShapeRenderer::viewMatrix(const QTransform& deviceTransform, const QSize& viewportSize)

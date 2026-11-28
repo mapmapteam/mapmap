@@ -47,7 +47,8 @@ class ShapeRenderer
 public:
   /**
    * Draws triangles (three vertices each) with the texture that Texture::bind()
-   * bound, with alpha blending as set by the caller.
+   * bound, blended over what is drawn by the alpha of the texture times the opacity.
+   * Blending stays on afterwards.
    *
    * @param vertices the triangles, in the coordinates that @a matrix transforms
    * @param matrix from those coordinates to OpenGL's clip coordinates (see viewMatrix())
@@ -60,12 +61,15 @@ public:
 
   /**
    * Returns the matrix from the logical coordinates of a painter to OpenGL's clip
-   * coordinates, as the legacy calls get them from QPainter::beginNativePainting().
+   * coordinates, the same as the one QPainter's OpenGL engine uses.
    *
    * @param deviceTransform the painter's device transform (QPainter::deviceTransform())
    * @param viewportSize the size of the OpenGL viewport, in pixels of the device
    */
   static QMatrix4x4 viewMatrix(const QTransform& deviceTransform, const QSize& viewportSize);
+
+  /// Whether the shaders, YUV included, build in the current OpenGL context.
+  static bool isAvailable();
 
   /// Returns the size of the current OpenGL viewport, in pixels of the device.
   static QSize currentViewportSize();
