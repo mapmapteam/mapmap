@@ -592,3 +592,67 @@ void TestProjectRoundTrip::skipsInvalidOutputResolution()
     QVERIFY2(!parse(writeProject(manager)).contains("outputResolution"), value.constData());
   }
 }
+
+void TestProjectRoundTrip::keepsLinks()
+{
+  const QByteArray original = readFixture(fixturesDir() + "/links-color.mmp");
+  QVERIFY(!original.isEmpty());
+  MappingManager manager;
+  QVERIFY(readProject(manager, original));
+  QCOMPARE(manager.links().count(), 2);
+  const Link eye = manager.links().links().at(0);
+  QCOMPARE(eye.trigger, LinkTrigger::forKey("M"));
+  QCOMPARE(eye.target, LinkTarget::of(LinkTarget::LayerElement, 7, "visible"));
+  QVERIFY(eye.action == LinkAction::Toggle);
+  QVERIFY(manager.links().links().at(1).action == LinkAction::SwitchOff);
+  QCOMPARE(writeProject(manager), original);
+}
+
+void TestProjectRoundTrip::skipsLinksToMissingSettings()
+{
+  const QByteArray project = R"({
+    "version": "1.0.0-beta.2",
+    "sources": [ { "className": "Color", "id": 1, "name": "red", "color": "#ff0000" } ],
+    "layers": [
+      { "className": "ColorLayer", "id": 1, "name": "wall", "source_id": 1,
+        "destination": { "className": "Quad", "vertices": [[0,0],[1,0],[1,1],[0,1]] } }
+    ],
+    "links": [
+      { "trigger": { "kind": "key", "key": "M" }, "target": { "element": "layer", "id": 1, "setting": "visible" } },
+      { "trigger": { "kind": "key", "key": "N" }, "target": { "element": "layer", "id": 9, "setting": "visible" } },
+      { "trigger": { "kind": "key", "key": "O" }, "target": { "element": "layer", "id": 1, "setting": "name" } },
+      { "trigger": { "kind": "key", "key": "P" }, "target": { "element": "layer", "id": 1, "setting": "nothing" } }
+    ]
+  })";
+
+  MappingManager manager;
+  QBuffer buffer;
+  buffer.setData(project);
+  buffer.open(QIODevice::ReadOnly);
+  ProjectReader reader(manager);
+  QVERIFY2(reader.readFile(&buffer), qPrintable(reader.errorString()));
+  QCOMPARE(manager.links().count(), 1);
+  QCOMPARE(manager.links().links().first().trigger.key, QString("M"));
+  // The warnings name the target of each link left out.
+  const QString skipped = reader.skippedEntries().join("\n");
+  QCOMPARE(reader.skippedEntries().size(), 3);
+  QVERIFY2(skipped.contains("layer 9, visible"), qPrintable(skipped));
+  QVERIFY2(skipped.contains("layer 1, name"), qPrintable(skipped));
+  QVERIFY2(skipped.contains("layer 1, nothing"), qPrintable(skipped));
+}
+
+void TestProjectRoundTrip::leavesOutLinksOfDeletedLayers()
+{
+  MappingManager manager;
+  QVERIFY(readProject(manager, readFixture(fixturesDir() + "/links-color.mmp")));
+  manager.removeLayer(7);
+  // The link stays in the table, in case the deletion is undone, but is not written.
+  QCOMPARE(manager.links().count(), 2);
+  const QJsonArray links = parse(writeProject(manager))["links"].toArray();
+  QCOMPARE(links.size(), 1);
+  QCOMPARE(links.first().toObject()["target"].toObject()["element"].toString(), QString("source"));
+
+  // Without any link left, the project has no "links" key.
+  manager.links().clear();
+  QVERIFY(!parse(writeProject(manager)).contains("links"));
+}

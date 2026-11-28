@@ -28,6 +28,7 @@
 
 #include "Source.h"
 #include "Layer.h"
+#include "Link.h"
 
 namespace mmp {
 
@@ -58,6 +59,10 @@ private:
   /// Size of the output frame, in output coordinates (invalid if not set).
   QSize _outputResolution;
 
+  /// What the triggers of the project (keys of the computer keyboard) do to its settings.
+  /// Shared by the copies of the manager, which the canvases make to draw.
+  QSharedPointer<LinkTable> _links;
+
 public:
   /**
    * Returns the size of the output frame: the rectangle from (0, 0) to this
@@ -85,6 +90,17 @@ public:
 
   /// Returns usual resolutions of projectors and screens, most common first.
   static const QVector<OutputResolutionPreset>& outputResolutionPresets();
+
+  /// Returns the links of the project.
+  LinkTable& links() { return *_links; }
+  const LinkTable& links() const { return *_links; }
+
+  /// Returns the element a link target names, or a null pointer when the project has none.
+  Element::ptr linkTargetElement(const LinkTarget& target) const;
+
+  /// Returns the setting a link target names, or nullptr when the project has no such
+  /// element or the element no such setting.
+  Setting* linkTargetSetting(const LinkTarget& target) const;
 
   /// Returns the list of mappings associated with given source.
   QMap<uid, Layer::ptr> getSourceLayers(const Source::ptr source) const;

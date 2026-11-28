@@ -33,6 +33,7 @@
 #include "TestSettings.h"
 #include "TestSettingFormat.h"
 #include "TestInspector.h"
+#include "TestLinks.h"
 
 #ifdef Q_OS_MACOS
 namespace {
@@ -120,6 +121,10 @@ int main(int argc, char** argv)
   }
   {
     TestMappingManager test;
+    status |= QTest::qExec(&test, argc, argv);
+  }
+  {
+    TestLinks test;
     status |= QTest::qExec(&test, argc, argv);
   }
   {

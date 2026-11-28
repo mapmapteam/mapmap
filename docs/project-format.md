@@ -28,6 +28,26 @@ Write a numeric setting such as `opacity` as a number and a boolean setting such
 
 Changing these types causes a one-time diff. For example, 36 lines in the existing `alpha-mixed.mmp` fixture contain numeric or boolean settings stored as strings. Keep the legacy fixture as input and check the types and values of the saved project separately. Beta.1 expects strings for these settings and can misread a beta.2 project.
 
+### Links
+
+A project may have a `links` array: what its triggers, such as the keys of the computer keyboard, do to its settings. It is written only when the project has at least one link, so a project without links keeps the same bytes. Each link has a `trigger`, a `target` and an `action`:
+
+```json
+"links": [
+    {
+        "action": "toggle",
+        "target": { "element": "layer", "id": 7, "setting": "visible" },
+        "trigger": { "key": "M", "kind": "key" }
+    }
+]
+```
+
+- `trigger.kind` is `key` for a key of the computer keyboard. `trigger.key` is the key and its modifiers in the portable text of `QKeySequence`, such as `M` or `Shift+M`: the same in every language of the system.
+- `target.element` is `source` or `layer`, `target.id` the id of the element, `target.setting` the path of the setting, as in OSC.
+- `action` is `toggle`, `on` or `off`. A link without an action toggles.
+
+The reader skips, with a warning naming its target, a link to an element or a setting the project does not have, and a link to a setting that cannot be linked (one without a position between 0 and 1, such as a point or a text). The writer leaves out a link whose element was deleted.
+
 ### Convert a beta.1 project with Python
 
 Run `python3 scripts/convert-beta1-project.py show.mmp` to create `show-beta.2.mmp` in the same directory. The script accepts several project files in one invocation. It preserves the original, the order of sources, layers and vertices, and unknown properties. It leaves media references in place and needs no access to the media, cameras or Qt. Commit the converted file separately from creative edits so the type changes are easy to review.

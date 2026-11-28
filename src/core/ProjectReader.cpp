@@ -154,6 +154,38 @@ void ProjectReader::parseProject(const QJsonObject& project)
   {
     manager.addLayer(*it);
   }
+
+  parseLinks(project);
+}
+
+void ProjectReader::parseLinks(const QJsonObject& project)
+{
+  if (!project.contains(ProjectLabels::LINKS))
+    return;
+
+  QStringList skipped;
+  LinkTable read;
+  read.fromJson(project.value(ProjectLabels::LINKS).toArray(), &skipped);
+  QList<Link> kept;
+  for (const Link& link : read.links())
+  {
+    const Setting* setting = _manager.linkTargetSetting(link.target);
+    if (!setting)
+      skipped << QStringLiteral("link %1 to %2: the project has no such setting")
+                 .arg(link.trigger.key, link.target.describe());
+    else if (!canBeLinked(setting))
+      skipped << QStringLiteral("link %1 to %2: this setting cannot be linked")
+                 .arg(link.trigger.key, link.target.describe());
+    else
+      kept << link;
+  }
+  for (const QString& entry : skipped)
+  {
+    _skippedEntries << entry;
+    qWarning() << "Skipping" << entry;
+  }
+  for (const Link& link : kept)
+    _manager.links().add(link);
 }
 
 Source::ptr ProjectReader::parseSource(QJsonObject obj, bool legacyPaths)

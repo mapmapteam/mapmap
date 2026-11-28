@@ -27,6 +27,7 @@ const char* ProjectLabels::CLASS_NAME  = "className";
 const char* ProjectLabels::SOURCES     = "sources";
 const char* ProjectLabels::LAYERS      = "layers";
 const char* ProjectLabels::OUTPUT_RESOLUTION = "outputResolution";
+const char* ProjectLabels::LINKS       = "links";
 const char* ProjectLabels::WIDTH       = "width";
 const char* ProjectLabels::HEIGHT      = "height";
 const char* ProjectLabels::ID          = "id";

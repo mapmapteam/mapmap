@@ -6,6 +6,7 @@ HEADERS += $$PWD/Commands.h \
     $$PWD/Element.h \
     $$PWD/FrameStats.h \
     $$PWD/Layer.h \
+    $$PWD/Link.h \
     $$PWD/MappingManager.h \
     $$PWD/Maths.h \
     $$PWD/MetaObjectRegistry.h \
@@ -28,6 +29,7 @@ SOURCES += $$PWD/Commands.cpp \
     $$PWD/Element.cpp \
     $$PWD/FrameStats.cpp \
     $$PWD/Layer.cpp \
+    $$PWD/Link.cpp \
     $$PWD/MappingManager.cpp \
     $$PWD/MetaObjectRegistry.cpp \
     $$PWD/MetaObjectRegistryBuiltins.cpp \

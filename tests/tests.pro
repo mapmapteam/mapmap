@@ -54,6 +54,7 @@ HEADERS += \
     $$CORE/YuvTexture.h \
     $$CORE/CameraImpl.h \
     $$CORE/Layer.h \
+    $$CORE/Link.h \
     $$CORE/MappingManager.h \
     $$CORE/ProjectReader.h \
     $$CORE/ProjectWriter.h \
@@ -71,7 +72,8 @@ HEADERS += \
     TestProjectRoundTrip.h \
     TestSettings.h \
     TestSettingFormat.h \
-    TestInspector.h
+    TestInspector.h \
+    TestLinks.h
 
 SOURCES += \
     $$CORE/MM.cpp \
@@ -98,6 +100,7 @@ SOURCES += \
     $$CORE/YuvTexture.cpp \
     $$CORE/CameraImpl.cpp \
     $$CORE/Layer.cpp \
+    $$CORE/Link.cpp \
     $$CORE/MappingManager.cpp \
     $$CORE/ProjectReader.cpp \
     $$CORE/ProjectWriter.cpp \
@@ -117,7 +120,8 @@ SOURCES += \
     TestProjectRoundTrip.cpp \
     TestSettings.cpp \
     TestSettingFormat.cpp \
-    TestInspector.cpp
+    TestInspector.cpp \
+    TestLinks.cpp
 
 # The inspector.
 HEADERS += $$GUI/inspector/SettingFormat.h $$GUI/inspector/SettingControl.h \

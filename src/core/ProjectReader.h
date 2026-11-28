@@ -65,6 +65,9 @@ private:
     void parseOutputResolution(const QJsonObject& project);
     Source::ptr   parseSource(QJsonObject obj, bool legacyPaths);
     Layer::ptr parseLayer(const QJsonObject& obj);
+    /// Reads the links, once the sources and the layers are read: a link to a setting the
+    /// project does not have is skipped, with a warning naming its target.
+    void parseLinks(const QJsonObject& project);
 
     /// Returns why a freshly read layer cannot be shown (missing source,
     /// missing or unsupported shape), or an empty string if it is usable.

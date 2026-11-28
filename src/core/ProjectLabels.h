@@ -34,6 +34,8 @@ public:
   static const char* SOURCES;
   static const char* LAYERS;
   static const char* OUTPUT_RESOLUTION;
+  /// The links of the project: what its triggers, such as keys, do to its settings.
+  static const char* LINKS;
   static const char* WIDTH;
   static const char* HEIGHT;
 

@@ -24,6 +24,7 @@
 namespace mmp {
 
 MappingManager::MappingManager()
+  : _links(new LinkTable)
 {
   // TODO Auto-generated constructor stub
 
@@ -338,6 +339,20 @@ void MappingManager::clearAll()
   sourceMap.clear();
   layerMap.clear();
   _outputResolution = QSize();
+  _links->clear();
+}
+
+Element::ptr MappingManager::linkTargetElement(const LinkTarget& target) const
+{
+  if (target.element == LinkTarget::SourceElement)
+    return sourceMap.value(target.id);
+  return layerMap.value(target.id);
+}
+
+Setting* MappingManager::linkTargetSetting(const LinkTarget& target) const
+{
+  const Element::ptr element = linkTargetElement(target);
+  return element ? element->settings()->find(target.path) : nullptr;
 }
 
 void MappingManager::setOutputResolution(const QSize& resolution)

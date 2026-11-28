@@ -42,6 +42,9 @@ private slots:
   void derivesEllipseCenter();
   void keepsOutputResolution();
   void skipsInvalidOutputResolution();
+  void keepsLinks();
+  void skipsLinksToMissingSettings();
+  void leavesOutLinksOfDeletedLayers();
 
 private:
   QString _previousDir;

@@ -80,6 +80,17 @@ bool ProjectWriter::writeFile(QIODevice* device, const QString& projectDirectory
   }
   project[ProjectLabels::LAYERS] = layers;
 
+  // Links, only when there are some, so that a project without links is written as before.
+  // A link to an element deleted since it was made is left out of the file.
+  QJsonArray links;
+  for (const Link& link : manager.links().links())
+  {
+    if (manager.linkTargetSetting(link.target))
+      links.append(link.toJson());
+  }
+  if (!links.isEmpty())
+    project[ProjectLabels::LINKS] = links;
+
   QJsonDocument doc(project);
   device->write(doc.toJson(QJsonDocument::Indented));
 
