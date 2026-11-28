@@ -75,8 +75,12 @@ QString LearnMode::triggerText(const LinkTarget& target, LinkTrigger::Kind kind)
 {
   if (!_links)
     return QString();
-  const int index = _links->indexOf(target, kind);
-  return index < 0 ? QString() : _links->links().at(index).trigger.text();
+  QStringList texts;
+  for (int index : _links->indexesOf(target)) {
+    if (_links->links().at(index).trigger.kind == kind)
+      texts << _links->links().at(index).trigger.text();
+  }
+  return texts.join(QStringLiteral(", "));
 }
 
 QStringList LearnMode::triggerLines(const LinkTarget& target) const

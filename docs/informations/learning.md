@@ -13,7 +13,7 @@ A right-click on a row of the inspector, then "Learn a Key", starts learning wit
 
 MapMap refuses a key it already uses, and names the command: "H is already the shortcut of Flip Horizontal". The keys of the editors are refused too: R, S and T, the arrows, Space, Escape, Delete, Backspace, Tab and Return.
 
-A key drives one setting: learning it for another setting moves it there. A setting has one key: learning another key for it replaces the first one.
+A key drives one setting: learning it for another setting moves it there. A setting has one key for each action (see below): learning another key for it replaces the key that toggles it.
 
 ## What a key does
 
@@ -22,6 +22,8 @@ A key drives one setting: learning it for another setting moves it there. A sett
 | A switch, such as the eye, the solo or the lock of a layer | Turns it on or off |
 | A menu | Chooses the next option, then the first one after the last |
 | A slider | Sends the value to one end, then to the other |
+
+A key toggles. In Window > Links, the Action menu of a link makes its key always turn the setting on ("Turn on", "Set to maximum", "Last option") or always turn it off ("Turn off", "Set to minimum", "First option"): during a show, a key that only hides cannot show the layer again by mistake. A setting has one key for each action, so that one key can show a layer and another hide it: learn a second key for the same control, then change the action of each in Window > Links.
 
 A key acts once each time it is pressed, not while it is held. It does nothing while one types text (renaming a layer, typing a value in the inspector) or in a dialog. It acts in the output window, full screen on the projector.
 

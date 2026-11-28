@@ -23,8 +23,9 @@
  * A link joins a trigger to a target, the setting of a source or of a layer, and says what
  * the trigger does to it (its action). The links of a project are kept in a LinkTable, saved
  * with the project. A trigger drives one setting only, and a setting has at most one trigger
- * of each kind. The kind of a trigger lets other devices (MIDI, game controllers) be added
- * without changing the table.
+ * of each kind for each action: one key that toggles it, one that turns it on, one that turns
+ * it off. The kind of a trigger lets other devices (MIDI, game controllers) be added without
+ * changing the table.
  */
 
 #ifndef LINK_H_
@@ -158,8 +159,8 @@ struct Link {
 /**
  * The links of a project.
  *
- * A trigger drives one setting only, and a setting has at most one trigger of each kind:
- * adding a link removes the links it would contradict. Links are not checked against the
+ * A trigger drives one setting only, and a setting has at most one trigger of each kind for
+ * each action: adding a link removes the links it would contradict. Links are not checked against the
  * project: a link whose element does not exist, or no longer exists, is kept and does
  * nothing until the element comes back (an undone deletion).
  */
@@ -181,17 +182,18 @@ public:
   bool isEmpty() const { return _links.isEmpty(); }
 
   /// Adds a link, first removing the link of the same trigger and the link of the same kind
-  /// of trigger to the same target. Refused, returning false, when the trigger or the target
-  /// is invalid.
+  /// of trigger to the same target with the same action. Refused, returning false, when the
+  /// trigger or the target is invalid.
   bool add(const Link& link);
 
   /// Removes the link at index; returns false when out of range.
   bool removeAt(int index);
 
-  /// Removes the link of a kind of trigger to a target; returns false when there is none.
+  /// Removes the links of a kind of trigger to a target; returns false when there is none.
   bool remove(const LinkTarget& target, LinkTrigger::Kind kind);
 
-  /// Changes the action of the link at index; returns false when out of range.
+  /// Changes the action of the link at index, removing the link of the same kind of trigger
+  /// to the same target that already had this action; returns false when out of range.
   bool setAction(int index, LinkAction action);
 
   /// Removes every link.
@@ -200,7 +202,7 @@ public:
   /// Returns the index of the link of a trigger, or -1.
   int indexOf(const LinkTrigger& trigger) const;
 
-  /// Returns the index of the link of a kind of trigger to a target, or -1.
+  /// Returns the index of the first link of a kind of trigger to a target, or -1.
   int indexOf(const LinkTarget& target, LinkTrigger::Kind kind) const;
 
   /// Returns the indexes of the links to a target, of any kind.
@@ -218,6 +220,12 @@ signals:
   void changed();
 
 private:
+  /// Returns true when two links cannot be in the table together.
+  static bool _contradicts(const Link& one, const Link& other);
+
+  /// Removes the links that link contradicts, except the one at index kept.
+  void _removeContradicted(const Link& link, int kept = -1);
+
   QList<Link> _links;
 };
 

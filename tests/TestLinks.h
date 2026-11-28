@@ -22,6 +22,7 @@ private slots:
   void keyTriggerIsPortable();
   void triggerDrivesOneSetting();
   void settingHasOneTriggerPerKind();
+  void settingHasOneTriggerPerAction();
   void refusesInvalidLinks();
   void removesLinks();
   void writesAndReadsLinks();

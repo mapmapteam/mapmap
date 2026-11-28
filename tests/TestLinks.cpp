@@ -12,6 +12,7 @@
 #include <QSignalSpy>
 
 #include <QAbstractButton>
+#include <QComboBox>
 #include <QTableWidget>
 
 #include "Link.h"
@@ -70,6 +71,30 @@ void TestLinks::settingHasOneTriggerPerKind()
   QCOMPARE(table.links().first().trigger.key, QString("N"));
   QVERIFY(table.add(keyLink("M", 1, "solo")));
   QCOMPARE(table.count(), 2);
+}
+
+void TestLinks::settingHasOneTriggerPerAction()
+{
+  // N shows the layer, M hides it.
+  LinkTable table;
+  table.add(keyLink("M", 1, "visible"));
+  Link show = keyLink("N", 1, "visible");
+  show.action = LinkAction::SwitchOn;
+  QVERIFY(table.add(show));
+  QCOMPARE(table.count(), 2);
+  QVERIFY(table.setAction(table.indexOf(LinkTrigger::forKey("M")), LinkAction::SwitchOff));
+  QCOMPARE(table.count(), 2);
+
+  // Giving M the action of N replaces N.
+  QVERIFY(table.setAction(table.indexOf(LinkTrigger::forKey("M")), LinkAction::SwitchOn));
+  QCOMPARE(table.count(), 1);
+  QCOMPARE(table.links().first().trigger.key, QString("M"));
+
+  // Removing the keys of a setting removes all of them.
+  table.add(keyLink("O", 1, "visible"));
+  QCOMPARE(table.count(), 2);
+  QVERIFY(table.remove(LinkTarget::of(LinkTarget::LayerElement, 1, "visible"), LinkTrigger::Key));
+  QVERIFY(table.isEmpty());
 }
 
 void TestLinks::refusesInvalidLinks()
@@ -255,6 +280,17 @@ void TestLinks::windowListsLinks()
   QCOMPARE(window.table()->item(0, LinksWindow::KindColumn)->text(), QString("Keyboard"));
   QCOMPARE(window.table()->item(0, LinksWindow::ElementColumn)->text(), QString("Facade"));
   QCOMPARE(window.table()->item(0, LinksWindow::SettingColumn)->text(), QString("Visible"));
+
+  // The menu of the row changes what the key does: always hide the layer.
+  QComboBox* action = qobject_cast<QComboBox*>(window.table()->cellWidget(0, LinksWindow::ActionColumn));
+  QVERIFY(action);
+  QCOMPARE(action->count(), 3);
+  QCOMPARE(action->currentText(), QString("Toggle"));
+  action->setCurrentIndex(2);
+  emit action->activated(2);
+  QVERIFY(manager.links().links().first().action == LinkAction::SwitchOff);
+  QTRY_COMPARE(qobject_cast<QComboBox*>(window.table()->cellWidget(0, LinksWindow::ActionColumn))->currentText(),
+               QString("Turn off"));
 
   // A link to a deleted layer is listed as such.
   manager.removeLayer(layer->getId());

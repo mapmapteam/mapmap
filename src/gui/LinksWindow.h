@@ -31,7 +31,8 @@ class MappingManager;
 
 /**
  * The window listing the links of the project: one row per link, with its trigger, the kind
- * of its trigger, the element and the setting it drives, and a button to remove it.
+ * of its trigger, the element and the setting it drives, what it does to the setting (toggle
+ * it, or always turn it on, or off), and a button to remove it.
  *
  * It is a window, not a dialog: the learned keys keep acting while it has the focus.
  */
@@ -41,7 +42,7 @@ class LinksWindow : public QWidget
 
 public:
   /// The columns of the list.
-  enum Column { TriggerColumn, KindColumn, ElementColumn, SettingColumn, RemoveColumn, ColumnCount };
+  enum Column { TriggerColumn, KindColumn, ElementColumn, SettingColumn, ActionColumn, RemoveColumn, ColumnCount };
 
   /// Creates the window for the links of a project.
   explicit LinksWindow(MappingManager* manager, QWidget* parent = nullptr);

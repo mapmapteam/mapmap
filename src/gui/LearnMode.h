@@ -84,7 +84,8 @@ public:
   /// Returns true when target is the setting chosen.
   bool isChosen(const LinkTarget& target) const { return hasTarget() && _target == target; }
 
-  /// Returns the trigger of a kind linked to a target, as shown to the user, or an empty text.
+  /// Returns the triggers of a kind linked to a target, as shown to the user and joined by
+  /// commas, or an empty text.
   QString triggerText(const LinkTarget& target, LinkTrigger::Kind kind = LinkTrigger::Key) const;
 
   /// Returns the lines naming the triggers linked to a target, such as "Keyboard: M", for

@@ -19,6 +19,7 @@
 
 #include "LinksWindow.h"
 
+#include <QComboBox>
 #include <QHeaderView>
 #include <QLabel>
 #include <QTableWidget>
@@ -37,6 +38,9 @@ const int WINDOW_HEIGHT = 320;
 
 /// Margins of the content of the window, in pixels.
 const int WINDOW_MARGIN = 8;
+
+/// The actions offered for a link, in the order of the menu.
+const LinkAction ACTIONS[] = { LinkAction::Toggle, LinkAction::SwitchOn, LinkAction::SwitchOff };
 
 } // namespace
 
@@ -57,7 +61,7 @@ LinksWindow::LinksWindow(MappingManager* manager, QWidget* parent)
   layout->addWidget(_empty);
 
   _table->setColumnCount(ColumnCount);
-  _table->setHorizontalHeaderLabels({ tr("Trigger"), tr("Device"), tr("Element"), tr("Setting"), QString() });
+  _table->setHorizontalHeaderLabels({ tr("Trigger"), tr("Device"), tr("Element"), tr("Setting"), tr("Action"), QString() });
   _table->verticalHeader()->hide();
   _table->setEditTriggers(QAbstractItemView::NoEditTriggers);
   _table->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -65,7 +69,7 @@ LinksWindow::LinksWindow(MappingManager* manager, QWidget* parent)
   _table->horizontalHeader()->setSectionResizeMode(SettingColumn, QHeaderView::Stretch);
   layout->addWidget(_table, 1);
 
-  // Later: the list is made again, which deletes the button that changed it.
+  // Later: the list is made again, which deletes the menu or the button that changed it.
   connect(&_manager->links(), &LinkTable::changed, this, &LinksWindow::refresh, Qt::QueuedConnection);
   refresh();
 }
@@ -99,6 +103,18 @@ void LinksWindow::refresh()
       _table->setItem(row, column, item);
     }
 
+    // A link toggles its setting, or always turns it on, or off.
+    QComboBox* action = new QComboBox(_table);
+    for (LinkAction choice : ACTIONS)
+      action->addItem(linkActionText(choice, setting), int(choice));
+    action->setCurrentIndex(action->findData(int(link.action)));
+    action->setEnabled(bool(element));
+    connect(action, &QComboBox::activated, this, [this, link, action]() {
+      const int index = _manager->links().indexOf(link.trigger);
+      _manager->links().setAction(index, LinkAction(action->currentData().toInt()));
+    });
+    _table->setCellWidget(row, ActionColumn, action);
+
     QToolButton* remove = new QToolButton(_table);
     remove->setText(tr("Remove"));
     remove->setToolTip(tr("Remove this link"));
@@ -111,6 +127,7 @@ void LinksWindow::refresh()
   }
   _table->resizeColumnToContents(TriggerColumn);
   _table->resizeColumnToContents(KindColumn);
+  _table->resizeColumnToContents(ActionColumn);
   _table->resizeColumnToContents(RemoveColumn);
 }
 

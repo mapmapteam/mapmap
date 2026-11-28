@@ -318,18 +318,26 @@ LinkTable::LinkTable(QObject* parent)
 {
 }
 
+bool LinkTable::_contradicts(const Link& one, const Link& other)
+{
+  // A trigger drives one setting, and a setting has one trigger of each kind for each action.
+  return one.trigger == other.trigger
+      || (one.target == other.target && one.trigger.kind == other.trigger.kind && one.action == other.action);
+}
+
+void LinkTable::_removeContradicted(const Link& link, int kept)
+{
+  for (int i = _links.size() - 1; i >= 0; --i) {
+    if (i != kept && _contradicts(_links.at(i), link))
+      _links.removeAt(i);
+  }
+}
+
 bool LinkTable::add(const Link& link)
 {
   if (!link.trigger.isValid() || !link.target.isValid())
     return false;
-
-  // A trigger drives one setting, and a setting has one trigger of each kind.
-  for (int i = _links.size() - 1; i >= 0; --i) {
-    const Link& other = _links.at(i);
-    if (other.trigger == link.trigger
-        || (other.target == link.target && other.trigger.kind == link.trigger.kind))
-      _links.removeAt(i);
-  }
+  _removeContradicted(link);
   _links.append(link);
   emit changed();
   return true;
@@ -346,7 +354,16 @@ bool LinkTable::removeAt(int index)
 
 bool LinkTable::remove(const LinkTarget& target, LinkTrigger::Kind kind)
 {
-  return removeAt(indexOf(target, kind));
+  bool removed = false;
+  for (int i = _links.size() - 1; i >= 0; --i) {
+    if (_links.at(i).target == target && _links.at(i).trigger.kind == kind) {
+      _links.removeAt(i);
+      removed = true;
+    }
+  }
+  if (removed)
+    emit changed();
+  return removed;
 }
 
 bool LinkTable::setAction(int index, LinkAction action)
@@ -354,7 +371,10 @@ bool LinkTable::setAction(int index, LinkAction action)
   if (index < 0 || index >= _links.size())
     return false;
   if (_links.at(index).action != action) {
-    _links[index].action = action;
+    Link changedLink = _links.at(index);
+    changedLink.action = action;
+    _links[index] = changedLink;
+    _removeContradicted(changedLink, index);
     emit changed();
   }
   return true;
@@ -415,12 +435,7 @@ void LinkTable::fromJson(const QJsonArray& array, QStringList* skipped)
       continue;
     }
     // A later link contradicting an earlier one replaces it, as when learning.
-    for (int j = _links.size() - 1; j >= 0; --j) {
-      const Link& other = _links.at(j);
-      if (other.trigger == link.trigger
-          || (other.target == link.target && other.trigger.kind == link.trigger.kind))
-        _links.removeAt(j);
-    }
+    _removeContradicted(link);
     _links.append(link);
   }
   emit changed();
