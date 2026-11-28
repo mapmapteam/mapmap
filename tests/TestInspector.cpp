@@ -22,12 +22,15 @@
 #include <memory>
 
 #include <QAbstractButton>
+#include <QApplication>
 #include <QButtonGroup>
+#include <QComboBox>
 #include <QCoreApplication>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QWheelEvent>
 #include <QtTest>
 
 #include "ColorPicker.h"
@@ -53,6 +56,9 @@ const int TEST_HEIGHT = 700;
 
 /// Number of vertices on each side of the test mesh.
 const int MESH_SIZE = 4;
+
+/// The angle of one notch of a mouse wheel, in eighths of a degree.
+const int WHEEL_NOTCH = 120;
 
 /// Distance between two neighbouring vertices of that mesh, in pixels.
 const qreal MESH_SPACING = 100;
@@ -378,6 +384,26 @@ void TestInspector::shortChoiceShowsButtons()
   buttons.at(1)->click();
   QCOMPARE(blend->value().toString(), QString("add"));
   QVERIFY(buttons.at(1)->isChecked());
+}
+
+void TestInspector::menuIgnoresWheel()
+{
+  SettingGroup root;
+  Setting* shape = root.addSetting(SettingInfo::choice("shape", "Shape",
+                                                       { { "a", "Circle" }, { "b", "Square" }, { "c", "Diamond" },
+                                                         { "d", "Triangle" }, { "e", "Star" } }).defaultValue("a"));
+  InspectorPage page(&root, "test");
+  QComboBox* menu = qobject_cast<ChoiceControl*>(page.control("shape"))->menu();
+
+  // A wheel turned over the menu, as when scrolling the panel, leaves the value as it is
+  // and lets the panel scroll.
+  const QPointF centre(menu->width() / 2.0, menu->height() / 2.0);
+  QWheelEvent wheel(centre, menu->mapToGlobal(centre), QPoint(), QPoint(0, -WHEEL_NOTCH),
+                    Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+  QApplication::sendEvent(menu, &wheel);
+  QVERIFY(!wheel.isAccepted());
+  QCOMPARE(menu->currentIndex(), 0);
+  QCOMPARE(shape->value().toString(), QString("a"));
 }
 
 void TestInspector::choiceKeepsMissingId()

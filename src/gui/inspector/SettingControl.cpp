@@ -35,6 +35,7 @@
 #include <QPushButton>
 #include <QToolButton>
 #include <QVBoxLayout>
+#include <QWheelEvent>
 
 #include "ColorPicker.h"
 #include "SettingFormat.h"
@@ -611,6 +612,12 @@ void RefreshingComboBox::showPopup()
   if (_aboutToShow)
     _aboutToShow();
   QComboBox::showPopup();
+}
+
+void RefreshingComboBox::wheelEvent(QWheelEvent* event)
+{
+  // Ignored, the event goes on to the panel, which scrolls.
+  event->ignore();
 }
 
 // ---------------------------------------------------------------------------------------------
