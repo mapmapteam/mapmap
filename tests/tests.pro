@@ -36,6 +36,7 @@ HEADERS += \
     $$CORE/IntermediateImage.h \
     $$CORE/Generator.h \
     $$CORE/Generators.h \
+    $$CORE/Palette.h \
     $$CORE/Serializable.h \
     $$CORE/Setting.h \
     $$CORE/SettingJson.h \
@@ -92,6 +93,7 @@ SOURCES += \
     $$CORE/IntermediateImage.cpp \
     $$CORE/Generator.cpp \
     $$CORE/Generators.cpp \
+    $$CORE/Palette.cpp \
     $$CORE/Serializable.cpp \
     $$CORE/Setting.cpp \
     $$CORE/SettingJson.cpp \

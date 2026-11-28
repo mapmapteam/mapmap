@@ -263,7 +263,17 @@
             "y": 0,
             "width": 1024,
             "height": 1024,
-            "speed": 0.5,
+            "angular_divisions": 6,
+            "radial_divisions": -2.5,
+            "grid_blend": 0.25,
+            "smoothness": 0.5,
+            "palette": "analogous",
+            "hue_shift": -45,
+            "radial_saturation": 0.5,
+            "radial_lightness": -0.25,
+            "radial_falloff": 2,
+            "radial_reverse": true,
+            "speed": 12.5,
             "reverse": true
         },
         {

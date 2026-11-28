@@ -2106,7 +2106,7 @@ void MainWindow::createActions()
   connect(addGridAction, &QAction::triggered, this, [this]() { addGenerator(new GridGenerator); });
 
   addColorWheelAction = new QAction(tr("Color &Wheel"), this);
-  addColorWheelAction->setToolTip(tr("Add a turning colour wheel generator"));
+  addColorWheelAction->setToolTip(tr("Add a generator of colour wheels, spirals, rings and polar checkerboards"));
   connect(addColorWheelAction, &QAction::triggered, this, [this]() { addGenerator(new ColorWheelGenerator); });
 
 #ifdef Q_OS_MAC

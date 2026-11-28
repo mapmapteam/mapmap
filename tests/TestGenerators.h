@@ -30,6 +30,13 @@ private slots:
   void stillGeneratorDrawsOnlyWhenChanged();
   void animatedGeneratorDrawsOncePerFrameAcrossContexts();
   void colorWheelTurnsWithTime();
+  void colorWheelSpeedChangesDoNotJump();
+  void colorWheelGeometryPresets();
+  void colorWheelPalettes();
+  void colorWheelPaletteClosesTheCircle();
+  void colorWheelSavesItsPalette();
+  void colorWheelGeometries();
+  void colorWheelColors();
   void intermediateImageGivesBackTheFramebuffer();
   void intermediateImagesTakeTurns();
   void drawingIsTimedWhenEnabled();

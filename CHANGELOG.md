@@ -5,6 +5,7 @@
 New:
 
 - Add generators, sources drawn by the graphics card: Checker, Grid and Color Wheel, in File > Add Generator. Each has its own settings, and the size of its image is set by its width and height. The image is drawn once per frame, whatever the number of views that show it.
+- Color Wheel draws colour wheels, spirals, concentric rings and polar checkerboards from one set of settings, without modes: divisions around the circle and along the radius, a blend from bands to cells, a smoothness, a palette chosen among presets, a hue shift, radial saturation and lightness, and a rotation in revolutions per minute that never jumps when its speed changes. Presets set the geometry.
 - A colour added with File > Add Color Source is now a generator: its layers have an input shape, like those of an image. Projects with older colour sources open as before.
 - The log of `--frame-stats` gives the time spent drawing the image of each generator, as the step `render`.
 - Save numeric and boolean settings using native JSON types. Saving upgrades a beta.1 project to beta.2. To migrate a separate copy using Python, run `python3 scripts/convert-beta1-project.py show.mmp`.

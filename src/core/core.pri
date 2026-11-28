@@ -14,6 +14,7 @@ HEADERS += $$PWD/Commands.h \
     $$PWD/Maths.h \
     $$PWD/MetaObjectRegistry.h \
     $$PWD/MM.h \
+    $$PWD/Palette.h \
     $$PWD/Source.h \
     $$PWD/ProjectLabels.h \
     $$PWD/ProjectReader.h \
@@ -42,6 +43,7 @@ SOURCES += $$PWD/Commands.cpp \
     $$PWD/MetaObjectRegistry.cpp \
     $$PWD/MetaObjectRegistryBuiltins.cpp \
     $$PWD/MM.cpp \
+    $$PWD/Palette.cpp \
     $$PWD/Source.cpp \
     $$PWD/ProjectLabels.cpp \
     $$PWD/ProjectReader.cpp \

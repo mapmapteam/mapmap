@@ -15,11 +15,15 @@
 #include "FrameCounter.h"
 #include "Generators.h"
 #include "IntermediateImage.h"
+#include "Palette.h"
+
+#include <QJsonObject>
 
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QSignalSpy>
+#include <cmath>
 #include <memory>
 
 using namespace mmp;
@@ -35,8 +39,28 @@ const int TOLERANCE = 2;
 /// Time the colour wheel plays between two drawings, in milliseconds.
 const int PLAY_MS = 200;
 
-/// Largest saturation, out of 255, of the white centre of a colour wheel.
-const int WHITE_SATURATION_MAX = 16;
+/// Speed of a polar pattern in the tests: one turn per second.
+const double ONE_TURN_PER_SECOND_RPM = 60.0;
+
+/// Largest difference allowed on the angle turned, in turns, for the timers of the tests.
+const double PHASE_TOLERANCE = 0.05;
+
+/// Largest difference allowed on a colour channel at the centre pixel, which is half a
+/// pixel from the centre of the disk.
+const int CENTRE_TOLERANCE = 10;
+
+/// Largest saturation, out of 255, of a colour that counts as nearly grey.
+const int NEARLY_GREY_SATURATION = 32;
+
+/// Positions in a SIZE × SIZE image: the centre, a point in the upper right, one in the
+/// lower right, one in the middle of the top half, and a point at three tenths of the radius.
+const int CENTRE = SIZE / 2;
+const int QUARTER = SIZE / 4;
+const int THREE_QUARTERS = 3 * SIZE / 4;
+const int THREE_TENTHS_RADIUS = CENTRE + 3 * CENTRE / 10;
+
+/// Added to palette positions by the colour wheel shader, against rounding.
+const double PALETTE_INDEX_EPSILON = 0.0001;
 
 /// Appends the paths of the settings under node, in declaration order.
 void collectLeafPaths(SettingNode* node, QStringList* paths)
@@ -46,6 +70,25 @@ void collectLeafPaths(SettingNode* node, QStringList* paths)
   else if (node->kind() == SettingNode::GroupKind)
     for (SettingNode* child : static_cast<SettingGroup*>(node)->children())
       collectLeafPaths(child, paths);
+  else if (node->kind() == SettingNode::ListKind)
+  {
+    SettingList* list = static_cast<SettingList*>(node);
+    for (int index = 0; index < list->count(); index++)
+      collectLeafPaths(list->at(index), paths);
+  }
+}
+
+/// A colour wheel of size SIZE with the black and white palette.
+void makeBlackAndWhite(ColorWheelGenerator& pattern)
+{
+  pattern.setSize(SIZE, SIZE);
+  QVERIFY(pattern.settings()->find("palette")->setValue("black_and_white"));
+}
+
+/// Sets a setting of a generator.
+void set(Generator& generator, const char* id, const QVariant& value)
+{
+  QVERIFY2(generator.settings()->find(id)->setValue(value), id);
 }
 
 /// Returns the paths of the settings of an object, in declaration order.
@@ -100,10 +143,17 @@ QImage drawnImage(Generator& generator)
   return image;
 }
 
-bool closeColors(const QColor& a, const QColor& b)
+bool closeColors(const QColor& a, const QColor& b, int tolerance = TOLERANCE)
 {
-  return qAbs(a.red() - b.red()) <= TOLERANCE && qAbs(a.green() - b.green()) <= TOLERANCE &&
-         qAbs(a.blue() - b.blue()) <= TOLERANCE && qAbs(a.alpha() - b.alpha()) <= TOLERANCE;
+  return qAbs(a.red() - b.red()) <= tolerance && qAbs(a.green() - b.green()) <= tolerance &&
+         qAbs(a.blue() - b.blue()) <= tolerance && qAbs(a.alpha() - b.alpha()) <= tolerance;
+}
+
+/// Returns the distance between two angles, in turns, the short way round.
+double turnDistance(double a, double b)
+{
+  const double difference = std::fabs(a - b);
+  return std::fmin(difference - std::floor(difference), 1.0 - (difference - std::floor(difference)));
 }
 
 QString colorText(const QColor& c)
@@ -134,7 +184,10 @@ void TestGenerators::generatorsDeclareTheirSettings()
   QCOMPARE(undescribedPaths(grid), QStringList());
 
   ColorWheelGenerator wheel;
-  const QStringList wheelPaths = generator + QStringList { "speed", "reverse" };
+  const QStringList wheelPaths = generator
+      + QStringList { "geometry", "angular_divisions", "radial_divisions", "grid_blend", "smoothness",
+                      "palette", "hue_shift", "radial_saturation", "radial_lightness",
+                      "radial_falloff", "radial_reverse", "speed", "reverse" };
   QCOMPARE(leafPaths(wheel), wheelPaths);
   QCOMPARE(undescribedPaths(wheel), QStringList());
 
@@ -143,7 +196,7 @@ void TestGenerators::generatorsDeclareTheirSettings()
   QCOMPARE(leafPaths(color), colorPaths);
   QCOMPARE(undescribedPaths(color), QStringList());
 
-  // Only the colour wheel changes with time.
+  // Only the polar pattern changes with time.
   QVERIFY(wheel.isAnimated());
   QVERIFY(!checker.isAnimated() && !grid.isAnimated() && !color.isAnimated());
 }
@@ -346,7 +399,7 @@ void TestGenerators::colorWheelTurnsWithTime()
 
   ColorWheelGenerator wheel;
   wheel.setSize(SIZE, SIZE);
-  QVERIFY(wheel.settings()->find("speed")->setValue(1.0));
+  set(wheel, "speed", ONE_TURN_PER_SECOND_RPM);
   const QImage before = drawnImage(wheel);
 
   wheel.play();
@@ -354,18 +407,250 @@ void TestGenerators::colorWheelTurnsWithTime()
   FrameCounter::advance();
   const QImage after = drawnImage(wheel);
 
-  // The top of the wheel shows another hue; the centre stays white.
-  const int topHueBefore = before.pixelColor(SIZE / 2, 0).hue();
-  const int topHueAfter = after.pixelColor(SIZE / 2, 0).hue();
-  QVERIFY2(topHueBefore != topHueAfter,
-           qPrintable(QString("hue %1 did not change").arg(topHueBefore)));
-  QVERIFY(after.pixelColor(SIZE / 2, SIZE / 2).saturation() < WHITE_SATURATION_MAX);
+  // The segment at the top shows another colour.
+  const int topHueBefore = before.pixelColor(CENTRE, QUARTER).hue();
+  const int topHueAfter = after.pixelColor(CENTRE, QUARTER).hue();
+  QVERIFY2(topHueBefore != topHueAfter, qPrintable(QString("hue %1 did not change").arg(topHueBefore)));
 
   // Rewinding goes back to the first image.
   wheel.pause();
   wheel.rewind();
   const QImage rewound = drawnImage(wheel);
-  CHECK_PIXEL(rewound, SIZE / 2, 0, before.pixelColor(SIZE / 2, 0));
+  CHECK_PIXEL(rewound, CENTRE, QUARTER, before.pixelColor(CENTRE, QUARTER));
+}
+
+void TestGenerators::colorWheelSpeedChangesDoNotJump()
+{
+  ColorWheelGenerator wheel;
+  set(wheel, "speed", ONE_TURN_PER_SECOND_RPM);
+  wheel.play();
+  QTest::qWait(PLAY_MS);
+
+  // Stopping keeps the angle turned so far, and the pattern is then still.
+  set(wheel, "speed", 0.0);
+  const double stopped = wheel.phase();
+  QVERIFY2(qAbs(stopped - PLAY_MS / 1000.0) < PHASE_TOLERANCE, qPrintable(QString::number(stopped)));
+  QVERIFY(!wheel.isAnimated());
+  QTest::qWait(PLAY_MS);
+
+  // Starting again, in reverse, goes on from there.
+  set(wheel, "reverse", true);
+  set(wheel, "speed", ONE_TURN_PER_SECOND_RPM);
+  QVERIFY(turnDistance(wheel.phase(), stopped) < PHASE_TOLERANCE);
+  QVERIFY(wheel.isAnimated());
+  QTest::qWait(PLAY_MS);
+  set(wheel, "speed", 0.0);
+  QVERIFY2(turnDistance(wheel.phase(), stopped - PLAY_MS / 1000.0) < PHASE_TOLERANCE,
+           qPrintable(QString::number(wheel.phase())));
+}
+
+void TestGenerators::colorWheelGeometryPresets()
+{
+  ColorWheelGenerator pattern;
+  QCOMPARE(pattern.geometryPreset(), QString("segments"));
+  QCOMPARE(pattern.settings()->find("geometry")->value().toString(), QString("segments"));
+
+  // A preset sets the four geometry settings, and nothing else.
+  set(pattern, "hue_shift", 30.0);
+  set(pattern, "geometry", "spiral");
+  QCOMPARE(pattern.settings()->find("angular_divisions")->value().toInt(), 6);
+  QCOMPARE(pattern.settings()->find("radial_divisions")->value().toDouble(), 4.0);
+  QCOMPARE(pattern.settings()->find("hue_shift")->value().toDouble(), 30.0);
+
+  // The preset shown follows the settings.
+  QSignalSpy spy(&pattern, &Element::settingChanged);
+  set(pattern, "radial_divisions", 3.5);
+  QCOMPARE(pattern.geometryPreset(), ColorWheelGenerator::CUSTOM_GEOMETRY);
+  bool geometryNotified = false;
+  for (const QList<QVariant>& arguments : spy)
+    geometryNotified = geometryNotified || arguments.at(1).toString() == "geometry";
+  QVERIFY(geometryNotified);
+  set(pattern, "radial_divisions", -4.0);
+  QCOMPARE(pattern.geometryPreset(), QString("reverse_spiral"));
+
+  set(pattern, "geometry", "checkerboard");
+  QCOMPARE(pattern.settings()->find("grid_blend")->value().toDouble(), 1.0);
+  QCOMPARE(pattern.settings()->find("angular_divisions")->value().toInt(), 12);
+  QCOMPARE(pattern.settings()->find("radial_divisions")->value().toDouble(), 6.0);
+
+  // Custom brings back the last geometry of the user's own.
+  set(pattern, "geometry", ColorWheelGenerator::CUSTOM_GEOMETRY);
+  QCOMPARE(pattern.settings()->find("geometry")->value().toString(), ColorWheelGenerator::CUSTOM_GEOMETRY);
+  QCOMPARE(pattern.settings()->find("angular_divisions")->value().toInt(), 6);
+  QCOMPARE(pattern.settings()->find("radial_divisions")->value().toDouble(), 3.5);
+  QCOMPARE(pattern.settings()->find("grid_blend")->value().toDouble(), 0.0);
+
+  // Without one, Custom keeps the geometry, to change.
+  ColorWheelGenerator fresh;
+  set(fresh, "geometry", ColorWheelGenerator::CUSTOM_GEOMETRY);
+  QCOMPARE(fresh.settings()->find("geometry")->value().toString(), ColorWheelGenerator::CUSTOM_GEOMETRY);
+  QCOMPARE(fresh.settings()->find("angular_divisions")->value().toInt(), ColorWheelGenerator::DEFAULT_ANGULAR_DIVISIONS);
+
+  // A custom geometry read from a project is the one Custom brings back.
+  QJsonObject obj;
+  pattern.write(obj);
+  ColorWheelGenerator reread;
+  reread.read(obj);
+  set(reread, "geometry", "segments");
+  set(reread, "geometry", ColorWheelGenerator::CUSTOM_GEOMETRY);
+  QCOMPARE(reread.settings()->find("radial_divisions")->value().toDouble(), 3.5);
+}
+
+void TestGenerators::colorWheelPalettes()
+{
+  ColorWheelGenerator pattern;
+  QCOMPARE(pattern.paletteColors().size(), 12);
+  QCOMPARE(pattern.paletteColors().first(), QColor(Qt::red));
+
+  // A preset replaces the colours.
+  set(pattern, "palette", "triadic");
+  QCOMPARE(pattern.paletteColors().size(), 3);
+  QCOMPARE(pattern.paletteColors(), Palette::presetColors("triadic"));
+
+  // Every preset has colours, within the size a shader receives.
+  for (const SettingOption& option : Palette::presetOptions())
+  {
+    const QVector<QColor> colors = Palette::presetColors(option.id);
+    QVERIFY2(!colors.isEmpty(), qPrintable(option.id));
+    QVERIFY(colors.size() <= Palette::MAX_SIZE);
+  }
+}
+
+void TestGenerators::colorWheelPaletteClosesTheCircle()
+{
+  // One colour per segment, two alternating colours, every other colour, none at all.
+  QCOMPARE(ColorWheelGenerator::paletteScale(12, 12), 1.0);
+  QCOMPARE(ColorWheelGenerator::paletteScale(12, 2), 1.0);
+  QCOMPARE(ColorWheelGenerator::paletteScale(6, 12), 2.0);
+  QCOMPARE(ColorWheelGenerator::paletteScale(0, 5), 1.0);
+
+  // Three colours on 25 divisions: a whole number of cycles, skipping two entries.
+  QCOMPARE(ColorWheelGenerator::paletteScale(25, 3), 27.0 / 25.0);
+
+  for (int divisions = 1; divisions <= 64; divisions++)
+    for (int size = 1; size <= Palette::MAX_SIZE; size++)
+    {
+      // Around the circle, the palette always goes round a whole number of times.
+      const double scale = ColorWheelGenerator::paletteScale(divisions, size);
+      const double turns = scale * divisions / size;
+      QVERIFY(qAbs(turns - qRound(turns)) < 1e-9 && qRound(turns) >= 1);
+
+      // Neighbours never have the same colour, but with two colours on an odd number of
+      // divisions, or with one colour.
+      if (size == 1 || (size == 2 && divisions % 2 == 1) || divisions == 1)
+        continue;
+      for (int k = 0; k < divisions; k++)
+      {
+        const int entry = int(std::floor(k * scale + PALETTE_INDEX_EPSILON)) % size;
+        const int next = int(std::floor((k + 1) * scale + PALETTE_INDEX_EPSILON)) % size;
+        QVERIFY2(entry != next, qPrintable(QString("%1 divisions, %2 colours, division %3")
+                                           .arg(divisions).arg(size).arg(k)));
+      }
+    }
+}
+
+void TestGenerators::colorWheelSavesItsPalette()
+{
+  ColorWheelGenerator pattern;
+  set(pattern, "palette", "complementary");
+  QJsonObject obj;
+  pattern.write(obj);
+  QCOMPARE(obj.value("palette").toString(), QString("complementary"));
+  QVERIFY(!obj.contains("colors"));
+  QVERIFY(!obj.contains("geometry"));
+
+  // The colours come from the preset.
+  ColorWheelGenerator reread;
+  reread.read(obj);
+  QCOMPARE(reread.paletteColors(), Palette::presetColors("complementary"));
+}
+
+void TestGenerators::colorWheelGeometries()
+{
+  OffscreenContext gl;
+  if (!gl.ok)
+    QSKIP("No desktop OpenGL context available");
+  const QColor white(Qt::white), black(Qt::black), grey(128, 128, 128);
+
+  // Two segments: white above, black below. Transparent outside the disk.
+  ColorWheelGenerator pattern;
+  makeBlackAndWhite(pattern);
+  set(pattern, "angular_divisions", 2);
+  QImage image = drawnImage(pattern);
+  CHECK_PIXEL(image, THREE_QUARTERS, QUARTER, white);
+  CHECK_PIXEL(image, THREE_QUARTERS, THREE_QUARTERS, black);
+  QCOMPARE(image.pixelColor(0, 0).alpha(), 0);
+
+  // Full smoothness: the middle of a segment is half way to the next colour.
+  set(pattern, "smoothness", 1.0);
+  image = drawnImage(pattern);
+  CHECK_PIXEL(image, CENTRE, QUARTER, grey);
+  set(pattern, "smoothness", 0.0);
+
+  // Concentric rings: white at the centre, black from the second ring.
+  set(pattern, "angular_divisions", 0);
+  set(pattern, "radial_divisions", 4.0);
+  image = drawnImage(pattern);
+  CHECK_PIXEL(image, CENTRE, CENTRE, white);
+  CHECK_PIXEL(image, THREE_TENTHS_RADIUS, CENTRE, black);
+
+  // A polar checkerboard: the colours alternate along both the angle and the radius.
+  set(pattern, "angular_divisions", 2);
+  set(pattern, "grid_blend", 1.0);
+  image = drawnImage(pattern);
+  const int upper = CENTRE - 2;
+  const int lower = CENTRE + 2;
+  CHECK_PIXEL(image, CENTRE + 1, upper, white);
+  CHECK_PIXEL(image, CENTRE + 1, lower, black);
+  CHECK_PIXEL(image, THREE_TENTHS_RADIUS, upper, black);
+  CHECK_PIXEL(image, THREE_TENTHS_RADIUS, lower, white);
+
+  // The disk stays round in a wide image.
+  pattern.setSize(2 * SIZE, SIZE);
+  image = drawnImage(pattern);
+  QCOMPARE(image.pixelColor(SIZE / 4, CENTRE).alpha(), 0);
+  QVERIFY(image.pixelColor(SIZE, CENTRE).alpha() > 0);
+}
+
+void TestGenerators::colorWheelColors()
+{
+  OffscreenContext gl;
+  if (!gl.ok)
+    QSKIP("No desktop OpenGL context available");
+
+  // A monochromatic pattern turned to green; greys keep their colour.
+  ColorWheelGenerator pattern;
+  pattern.setSize(SIZE, SIZE);
+  set(pattern, "angular_divisions", 0);
+  set(pattern, "palette", "monochromatic");
+  set(pattern, "hue_shift", 120.0);
+  QImage image = drawnImage(pattern);
+  const QColor centre = image.pixelColor(CENTRE, CENTRE);
+  QVERIFY2(centre.green() > centre.red() && centre.green() > centre.blue(), qPrintable(colorText(centre)));
+  set(pattern, "palette", "grayscale");
+  image = drawnImage(pattern);
+  const QColor grey = image.pixelColor(CENTRE, CENTRE);
+  QVERIFY(qAbs(grey.red() - grey.green()) <= TOLERANCE && qAbs(grey.green() - grey.blue()) <= TOLERANCE);
+
+  // Radial lightness: a white or a black centre.
+  set(pattern, "palette", "spectrum");
+  set(pattern, "hue_shift", 0.0);
+  set(pattern, "radial_lightness", 1.0);
+  QVERIFY(closeColors(drawnImage(pattern).pixelColor(CENTRE, CENTRE), QColor(Qt::white), CENTRE_TOLERANCE));
+  set(pattern, "radial_lightness", -1.0);
+  QVERIFY(closeColors(drawnImage(pattern).pixelColor(CENTRE, CENTRE), QColor(Qt::black), CENTRE_TOLERANCE));
+  set(pattern, "radial_lightness", 0.0);
+
+  // Radial saturation: a grey centre, of the lightness of the colour (red, half light).
+  set(pattern, "radial_saturation", 1.0);
+  QVERIFY(closeColors(drawnImage(pattern).pixelColor(CENTRE, CENTRE), QColor(128, 128, 128), CENTRE_TOLERANCE));
+
+  // Reversed, the circumference is grey and the centre keeps its colour.
+  set(pattern, "radial_reverse", true);
+  image = drawnImage(pattern);
+  QVERIFY(closeColors(image.pixelColor(CENTRE, CENTRE), QColor(Qt::red), CENTRE_TOLERANCE));
+  const QColor edge = image.pixelColor(CENTRE, 1);
+  QVERIFY2(edge.saturation() < NEARLY_GREY_SATURATION, qPrintable(colorText(edge)));
 }
 
 void TestGenerators::intermediateImageGivesBackTheFramebuffer()
